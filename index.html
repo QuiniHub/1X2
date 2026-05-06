@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import json
+
+ROOT = Path(__file__).resolve().parents[1]
+DATA = ROOT / "data"
+
+model = {
+    "status": "baseline_ready",
+    "nota": "Al cargar histórico completo y APIs, entrenar modelo ML real con scikit-learn/XGBoost.",
+    "targets": ["resultado_1X2", "valor_quinielistico", "jornada_caotica", "probabilidad_sorpresa"],
+    "features": [
+        "forma_5", "forma_10", "localia", "xg_diff", "odds_implied_prob",
+        "public_bet_share", "injury_impact", "suspension_impact", "rest_days",
+        "weather_risk", "ref_cards_avg", "motivation_score", "surprise_history",
+        "eduardo_losilla_consensus"
+    ]
+}
+
+(DATA / "modelo_entrenado.json").write_text(json.dumps(model, indent=2, ensure_ascii=False), encoding="utf-8")
+print("Modelo base generado.")

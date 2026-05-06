@@ -1,0 +1,33 @@
+name: Actualizar Quiniela IA Pro Completo
+
+on:
+  schedule:
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Actualizar todos los módulos
+        env:
+          THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+          SPORTMONKS_KEY: ${{ secrets.SPORTMONKS_KEY }}
+        run: python scripts/actualizar_todo.py
+
+      - name: Guardar cambios
+        run: |
+          git config user.name "quiniela-bot"
+          git config user.email "bot@example.com"
+          git add data/
+          git commit -m "Actualizar datos quiniela ia pro" || echo "Sin cambios"
+          git push
