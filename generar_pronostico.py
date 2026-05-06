@@ -1,23 +1,21 @@
-#!/usr/bin/env python3
+import json
 from pathlib import Path
-import csv, json
 
-ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "data"
+print("Generando pronóstico...")
 
-boletos = list(csv.DictReader((DATA / "boletos_generados.csv").open(encoding="utf-8")))
-historico = list(csv.DictReader((DATA / "historico_quinielas.csv").open(encoding="utf-8")))
+data = Path("data")
+data.mkdir(exist_ok=True)
 
-results = []
-for b in boletos:
-    match = next((h for h in historico if h["temporada"] == b["temporada"] and h["jornada"] == b["jornada"]), None)
-    results.append({
-        "id_boleto": b["id_boleto"],
-        "temporada": b["temporada"],
-        "jornada": b["jornada"],
-        "estado": "pendiente_resultado" if not match or not match.get("signo_1") else "comparado",
-        "aciertos": None
-    })
+pronostico = {
+    "jornada": 61,
+    "estado": "ok",
+    "quiniela": "1X2,X,1,1X2,1X,1,X,1X2,2,X2,1,X,2,1",
+    "pleno_15": "M-1"
+}
 
-(DATA / "comparacion_boletos.json").write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
-print("Comparación de boletos generada.")
+(data / "pronostico_actual.json").write_text(
+    json.dumps(pronostico, indent=2, ensure_ascii=False),
+    encoding="utf-8"
+)
+
+print("Pronóstico generado correctamente")
