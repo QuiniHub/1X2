@@ -1,32 +1,291 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quiniela IA Pro</title>
   <style>
-    body { font-family: Arial; background:#f4f6fb; padding:40px; color:#111; }
-    .card { background:white; padding:30px; border-radius:18px; max-width:900px; margin:auto; box-shadow:0 10px 25px #ccc; }
-    h1 { color:#123c69; }
-    .signo { font-size:22px; font-weight:bold; color:#1f7a4c; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #132033;
+    }
+    header {
+      background: linear-gradient(135deg, #123c69, #1f7a4c);
+      color: white;
+      padding: 40px 24px;
+    }
+    .wrap {
+      max-width: 1150px;
+      margin: auto;
+    }
+    h1 {
+      font-size: 40px;
+      margin: 0 0 10px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #123c69;
+    }
+    .subtitle {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+      margin: 24px 0;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 13px;
+      background: #eef4ff;
+      color: #123c69;
+    }
+    .green { background: #ecfdf3; color: #1f7a4c; }
+    .orange { background: #fff7ed; color: #b54708; }
+    .red { background: #fef3f2; color: #b42318; }
+    .signo {
+      font-size: 24px;
+      font-weight: 900;
+      color: #1f7a4c;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #e6e9f0;
+      text-align: left;
+    }
+    th {
+      color: #667085;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+    nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+    button {
+      border: 0;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: #123c69;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: white;
+      color: #123c69;
+      border: 1px solid #d0d5dd;
+    }
+    section {
+      display: none;
+    }
+    section.active {
+      display: block;
+    }
+    .footer {
+      text-align: center;
+      padding: 30px;
+      color: #667085;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
+
+<header>
+  <div class="wrap">
+    <span class="badge green">Web activa</span>
     <h1>Quiniela IA Pro</h1>
-    <p>Plataforma activa y actualizada automáticamente.</p>
-
-    <h2>Quiniela propuesta</h2>
-    <p>1. Elche - Alavés: <span class="signo">1X2</span></p>
-    <p>2. Sevilla - Espanyol: <span class="signo">X</span></p>
-    <p>3. Atlético - Celta: <span class="signo">1</span></p>
-    <p>4. Real Sociedad - Betis: <span class="signo">1X2</span></p>
-    <p>5. Mallorca - Villarreal: <span class="signo">1X</span></p>
-    <p>10. Burgos - Almería: <span class="signo">X2</span></p>
-
-    <h2>Estado</h2>
-    <p>✅ GitHub Actions funcionando</p>
-    <p>✅ Web publicada</p>
-    <p>✅ Actualización automática preparada</p>
+    <p class="subtitle">
+      Plataforma de análisis quinielístico con IA, dinámicas, sorpresas, Elige 8,
+      histórico de boletos y actualización automática.
+    </p>
   </div>
+</header>
+
+<main class="wrap">
+
+  <div class="grid">
+    <div class="card">
+      <span class="badge green">Estado</span>
+      <h2>Automatización</h2>
+      <p>✅ GitHub Actions funcionando</p>
+      <p>✅ Web publicada</p>
+      <p>✅ Actualización semanal preparada</p>
+    </div>
+
+    <div class="card">
+      <span class="badge orange">Sistema</span>
+      <h2>3 triples + 2 dobles</h2>
+      <p>Enfoque para premio grande, no para quiniela lógica.</p>
+      <p><strong>Coste aprox:</strong> 729 €</p>
+    </div>
+
+    <div class="card">
+      <span class="badge red">IA</span>
+      <h2>Motor de sorpresas</h2>
+      <p>Analiza necesidad, presión, dinámica, localía, cuotas, histórico y contexto emocional.</p>
+    </div>
+  </div>
+
+  <nav>
+    <button onclick="showTab('quiniela')">Quiniela</button>
+    <button class="secondary" onclick="showTab('elige8')">Elige 8</button>
+    <button class="secondary" onclick="showTab('analisis')">Análisis</button>
+    <button class="secondary" onclick="showTab('fuentes')">Fuentes</button>
+    <button class="secondary" onclick="showTab('mejoras')">Próximas mejoras</button>
+  </nav>
+
+  <section id="quiniela" class="active">
+    <div class="card">
+      <h2>Quiniela ganadora propuesta</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nº</th>
+            <th>Partido</th>
+            <th>Signo</th>
+            <th>Tipo</th>
+            <th>Lectura</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Elche - Alavés</td><td class="signo">1X2</td><td>Triple</td><td>Descenso puro, caos emocional.</td></tr>
+          <tr><td>2</td><td>Sevilla - Espanyol</td><td class="signo">X</td><td>Fijo bomba</td><td>Favorito vulnerable, ansiedad local.</td></tr>
+          <tr><td>3</td><td>Atlético - Celta</td><td class="signo">1</td><td>Fijo</td><td>Metropolitano y objetivo fuerte.</td></tr>
+          <tr><td>4</td><td>Real Sociedad - Betis</td><td class="signo">1X2</td><td>Triple</td><td>Partido europeo, técnico e imprevisible.</td></tr>
+          <tr><td>5</td><td>Mallorca - Villarreal</td><td class="signo">1X</td><td>Doble</td><td>Mallorca más necesitado, posible bomba.</td></tr>
+          <tr><td>6</td><td>Athletic - Valencia</td><td class="signo">1</td><td>Fijo</td><td>San Mamés pesa mucho.</td></tr>
+          <tr><td>7</td><td>Oviedo - Getafe</td><td class="signo">X</td><td>Fijo</td><td>Partido físico, feo y de bloqueo.</td></tr>
+          <tr><td>8</td><td>Rayo - Girona</td><td class="signo">1X2</td><td>Triple</td><td>Caos, ritmo y partido abierto.</td></tr>
+          <tr><td>9</td><td>Ceuta - Castellón</td><td class="signo">2</td><td>Fijo</td><td>Visitante con objetivo fuerte.</td></tr>
+          <tr><td>10</td><td>Burgos - Almería</td><td class="signo">X2</td><td>Doble</td><td>Almería obligado, Burgos trampa.</td></tr>
+          <tr><td>11</td><td>Málaga - Sporting</td><td class="signo">1</td><td>Fijo</td><td>Málaga mejor dinámica local.</td></tr>
+          <tr><td>12</td><td>Andorra - Las Palmas</td><td class="signo">X</td><td>Fijo bomba</td><td>Partido de control y miedo a perder.</td></tr>
+          <tr><td>13</td><td>Leganés - Racing</td><td class="signo">2</td><td>Fijo diferencial</td><td>Racing con mentalidad de ascenso.</td></tr>
+          <tr><td>14</td><td>Córdoba - Granada</td><td class="signo">1</td><td>Fijo</td><td>Córdoba con hambre y mejor ánimo.</td></tr>
+          <tr><td>15</td><td>Barcelona - Real Madrid</td><td class="signo">M-1</td><td>Pleno al 15</td><td>Marcador orientativo: 2-1.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="elige8">
+    <div class="card">
+      <h2>Elige 8</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Partido</th>
+            <th>Tipo</th>
+            <th>Signo</th>
+            <th>Motivo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Elche - Alavés</td><td>Triple</td><td class="signo">1X2</td><td>Caos descenso.</td></tr>
+          <tr><td>Real Sociedad - Betis</td><td>Triple</td><td class="signo">1X2</td><td>Europa e imprevisibilidad.</td></tr>
+          <tr><td>Rayo - Girona</td><td>Triple</td><td class="signo">1X2</td><td>Partido abierto y caótico.</td></tr>
+          <tr><td>Mallorca - Villarreal</td><td>Doble</td><td class="signo">1X</td><td>Bomba anti-favorito.</td></tr>
+          <tr><td>Burgos - Almería</td><td>Doble</td><td class="signo">X2</td><td>Ascenso + presión.</td></tr>
+          <tr><td>Atlético - Celta</td><td>Fijo</td><td class="signo">1</td><td>Pilar fuerte.</td></tr>
+          <tr><td>Málaga - Sporting</td><td>Fijo</td><td class="signo">1</td><td>Dinámica local.</td></tr>
+          <tr><td>Córdoba - Granada</td><td>Fijo</td><td class="signo">1</td><td>Hambre competitiva.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="analisis">
+    <div class="grid">
+      <div class="card">
+        <h2>Partidos bomba</h2>
+        <p><strong>Sevilla - Espanyol:</strong> posible empate por ansiedad.</p>
+        <p><strong>Mallorca - Villarreal:</strong> necesidad local contra favorito técnico.</p>
+        <p><strong>Andorra - Las Palmas:</strong> empate de control.</p>
+        <p><strong>Leganés - Racing:</strong> 2 diferencial.</p>
+      </div>
+
+      <div class="card">
+        <h2>Qué analiza el motor</h2>
+        <p>✅ Dinámicas</p>
+        <p>✅ Necesidad competitiva</p>
+        <p>✅ Sorpresas históricas</p>
+        <p>✅ Lesiones y sanciones preparadas</p>
+        <p>✅ Cuotas preparadas</p>
+        <p>✅ xG preparado</p>
+        <p>✅ Histórico de boletos preparado</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="fuentes">
+    <div class="card">
+      <h2>Fuentes de datos</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Fuente</th>
+            <th>Uso</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Football-Data</td><td>Resultados y cuotas históricas</td><td>Conectado</td></tr>
+          <tr><td>SELAE / Quiniela</td><td>Histórico, premios, bote, signos</td><td>Preparado</td></tr>
+          <tr><td>Eduardo Losilla</td><td>Contrastar análisis experto</td><td>Preparado</td></tr>
+          <tr><td>Open-Meteo</td><td>Clima</td><td>Preparado</td></tr>
+          <tr><td>APIs de cuotas</td><td>Cuotas en tiempo real</td><td>Requiere clave</td></tr>
+          <tr><td>APIs fútbol</td><td>Lesiones, sanciones, alineaciones</td><td>Requiere clave</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="mejoras">
+    <div class="card">
+      <h2>Próximas mejoras</h2>
+      <p>1. Mejorar diseño visual profesional.</p>
+      <p>2. Añadir panel de probabilidad por partido.</p>
+      <p>3. Añadir histórico real de todas las quinielas.</p>
+      <p>4. Añadir cuotas en tiempo real.</p>
+      <p>5. Añadir lesiones, sanciones y alineaciones.</p>
+      <p>6. Entrenar machine learning real.</p>
+      <p>7. Crear ranking de boletos recomendados.</p>
+    </div>
+  </section>
+
+</main>
+
+<div class="footer">
+  Quiniela IA Pro · Proyecto de Noelia + IA
+</div>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+  }
+</script>
+
 </body>
 </html>
