@@ -16,7 +16,7 @@ scripts = [
     "analizar_historico_quinielas.py",
     "comparar_boletos.py",
     "entrenar_modelo.py",
-    "generar_pronostico.py",
+    "generar_pronostico.py"
 ]
 
 for script in scripts:
