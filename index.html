@@ -1,21 +1,32 @@
-#!/usr/bin/env python3
-from pathlib import Path
-import json
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiniela IA Pro</title>
+  <style>
+    body { font-family: Arial; background:#f4f6fb; padding:40px; color:#111; }
+    .card { background:white; padding:30px; border-radius:18px; max-width:900px; margin:auto; box-shadow:0 10px 25px #ccc; }
+    h1 { color:#123c69; }
+    .signo { font-size:22px; font-weight:bold; color:#1f7a4c; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Quiniela IA Pro</h1>
+    <p>Plataforma activa y actualizada automáticamente.</p>
 
-ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "data"
+    <h2>Quiniela propuesta</h2>
+    <p>1. Elche - Alavés: <span class="signo">1X2</span></p>
+    <p>2. Sevilla - Espanyol: <span class="signo">X</span></p>
+    <p>3. Atlético - Celta: <span class="signo">1</span></p>
+    <p>4. Real Sociedad - Betis: <span class="signo">1X2</span></p>
+    <p>5. Mallorca - Villarreal: <span class="signo">1X</span></p>
+    <p>10. Burgos - Almería: <span class="signo">X2</span></p>
 
-model = {
-    "status": "baseline_ready",
-    "nota": "Al cargar histórico completo y APIs, entrenar modelo ML real con scikit-learn/XGBoost.",
-    "targets": ["resultado_1X2", "valor_quinielistico", "jornada_caotica", "probabilidad_sorpresa"],
-    "features": [
-        "forma_5", "forma_10", "localia", "xg_diff", "odds_implied_prob",
-        "public_bet_share", "injury_impact", "suspension_impact", "rest_days",
-        "weather_risk", "ref_cards_avg", "motivation_score", "surprise_history",
-        "eduardo_losilla_consensus"
-    ]
-}
-
-(DATA / "modelo_entrenado.json").write_text(json.dumps(model, indent=2, ensure_ascii=False), encoding="utf-8")
-print("Modelo base generado.")
+    <h2>Estado</h2>
+    <p>✅ GitHub Actions funcionando</p>
+    <p>✅ Web publicada</p>
+    <p>✅ Actualización automática preparada</p>
+  </div>
+</body>
+</html>
