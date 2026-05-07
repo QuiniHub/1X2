@@ -369,6 +369,38 @@
     document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
   }
+  async function cargarHistorial() {
+  try {
+    const response = await fetch("data/historico_quinielas.csv");
+    const text = await response.text();
+
+    const lineas = text.trim().split("\n").slice(1);
+    const tbody = document.getElementById("historial-body");
+
+    tbody.innerHTML = "";
+
+    lineas.forEach(linea => {
+      const columnas = linea.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)
+        .map(c => c.replace(/^"|"$/g, ""));
+
+      const fila = document.createElement("tr");
+
+      columnas.forEach(valor => {
+        const td = document.createElement("td");
+        td.textContent = valor;
+        fila.appendChild(td);
+      });
+
+      tbody.appendChild(fila);
+    });
+
+  } catch (error) {
+    document.getElementById("historial-body").innerHTML =
+      "<tr><td colspan='8'>No se pudo cargar el historial.</td></tr>";
+  }
+}
+
+cargarHistorial();
 </script>
 
 </body>
