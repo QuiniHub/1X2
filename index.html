@@ -152,12 +152,17 @@
   </div>
 
   <nav>
-    <button onclick="showTab('quiniela')">Quiniela</button>
-    <button class="secondary" onclick="showTab('elige8')">Elige 8</button>
-    <button class="secondary" onclick="showTab('analisis')">Análisis</button>
-    <button class="secondary" onclick="showTab('fuentes')">Fuentes</button>
-    <button class="secondary" onclick="showTab('mejoras')">Próximas mejoras</button>
-    <button class="secondary" onclick="showTab('historial')">Historial</button>
+    <button class="active-tab" onclick="showTab('quiniela', this)">Quiniela</button>
+
+<button onclick="showTab('elige8', this)">Elige 8</button>
+
+<button onclick="showTab('analisis', this)">Análisis</button>
+
+<button onclick="showTab('fuentes', this)">Fuentes</button>
+
+<button onclick="showTab('mejoras', this)">Próximas mejoras</button>
+
+<button onclick="showTab('historial', this)">Historial</button>
   </nav>
 
   <section id="quiniela" class="active">
