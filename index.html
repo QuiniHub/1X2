@@ -437,7 +437,11 @@ nav button:hover {
         td.textContent = valor.replaceAll('"', "");
         fila.appendChild(td);
       });
+const jornada = columnas[0];
 
+const tdDetalle = document.createElement("td");
+tdDetalle.innerHTML = `<button onclick="abrirJornada(${jornada})">Ver boleto</button>`;
+fila.appendChild(tdDetalle);
       tbody.appendChild(fila);
     });
 
