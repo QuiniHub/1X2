@@ -48,6 +48,7 @@ with salida.open("w", newline="", encoding="utf-8") as f:
         vistos = set()
 for jornada in range(1, 61):
     if jornada not in vistos:
+        vistos.add(jornada)
         writer.writerow([
             jornada,
             "Fecha pendiente",
