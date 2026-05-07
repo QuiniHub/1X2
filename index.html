@@ -315,7 +315,20 @@
 </div>
 
 <script>
-  function showTab(id) {
+  function showTab(id, boton) {
+
+  document.querySelectorAll("section").forEach(s => {
+    s.classList.remove("active");
+  });
+
+  document.getElementById(id).classList.add("active");
+
+  document.querySelectorAll(".tabs button").forEach(b => {
+    b.classList.remove("active-tab");
+  });
+
+  boton.classList.add("active-tab");
+}
     document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
   }
