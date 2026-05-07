@@ -23,7 +23,23 @@ bloques = re.findall(
 
 filas = []
 
-for jornada, bloque in bloques:
+for jornada, resultado in bloques:
+
+    jornada = int(jornada)
+
+    if jornada > 60:
+        continue
+
+    filas.append([
+        jornada,
+        "Fecha pendiente",
+        resultado,
+        "No jugada por nosotros",
+        "Pendiente",
+        "Pendiente",
+        "Pendiente",
+        "Cargada automáticamente desde QuinielaFutbol"
+    ])
     jornada = int(jornada)
 
     if jornada > 60:
