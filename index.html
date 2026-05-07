@@ -453,6 +453,44 @@ nav button:hover {
 }
 
 cargarHistorial();
+  async function cargarClasificaciones() {
+  try {
+    const response = await fetch("./clasificaciones.json?v=" + Date.now());
+    const data = await response.json();
+
+    pintarClasificacion("tabla-primera", data.primera);
+    pintarClasificacion("tabla-segunda", data.segunda);
+
+  } catch (error) {
+    console.log("No se pudieron cargar las clasificaciones", error);
+  }
+}
+
+function pintarClasificacion(id, equipos) {
+  const tbody = document.getElementById(id);
+
+  tbody.innerHTML = "";
+
+  equipos.forEach((e, index) => {
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${e.equipo}</td>
+        <td>${e.pj}</td>
+        <td>${e.g}</td>
+        <td>${e.e}</td>
+        <td>${e.p}</td>
+        <td>${e.gf}</td>
+        <td>${e.gc}</td>
+        <td>${e.dg}</td>
+        <td><strong>${e.pts}</strong></td>
+      </tr>
+    `;
+  });
+}
+
+cargarClasificaciones();
 </script>
 
 </body>
