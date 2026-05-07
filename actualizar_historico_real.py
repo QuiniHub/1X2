@@ -46,7 +46,18 @@ with salida.open("w", newline="", encoding="utf-8") as f:
         ])
     else:
         vistos = set()
-
+for jornada in range(1, 61):
+    if jornada not in vistos:
+        writer.writerow([
+            jornada,
+            "Fecha pendiente",
+            "XXXXXXXXXXXXXX",
+            "No jugada por nosotros",
+            "Pendiente",
+            "Pendiente",
+            "Pendiente",
+            "Cargada desde histórico real"
+        ])
         for jornada, signos in patrones:
             if jornada in vistos:
                 continue
