@@ -328,14 +328,13 @@ nav button:hover {
 
 <script>
   function showTab(id, boton) {
-
   document.querySelectorAll("section").forEach(s => {
     s.classList.remove("active");
   });
 
   document.getElementById(id).classList.add("active");
 
-  document.querySelectorAll(".tabs button").forEach(b => {
+  document.querySelectorAll("nav button").forEach(b => {
     b.classList.remove("active-tab");
   });
 
