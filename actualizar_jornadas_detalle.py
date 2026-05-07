@@ -87,7 +87,7 @@ def extraer_jornada_qf(jornada, url):
             }
 
     if len(partidos) < 14:
-    print(f"WARNING jornada {jornada}: solo {len(partidos)} partidos")
+        print(f"WARNING jornada {jornada}: solo {len(partidos)} partidos")
 
     datos = {
         "jornada": jornada,
