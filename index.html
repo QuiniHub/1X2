@@ -370,24 +370,28 @@
     document.getElementById(id).classList.add("active");
   }
   async function cargarHistorial() {
-  try {
-    const response = await fetch("data/historico_quinielas.csv");
-    const text = await response.text();
+  const tbody = document.getElementById("historial-body");
 
-    const lineas = text.trim().split("\n").slice(1);
-    const tbody = document.getElementById("historial-body");
+  try {
+    const response = await fetch("./data/historico_quinielas.csv");
+
+    if (!response.ok) {
+      throw new Error("No se encontró el archivo CSV");
+    }
+
+    const text = await response.text();
+    const lineas = text.trim().split(/\r?\n/).slice(1);
 
     tbody.innerHTML = "";
 
     lineas.forEach(linea => {
-      const columnas = linea.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)
-        .map(c => c.replace(/^"|"$/g, ""));
+      const columnas = linea.split(",");
 
       const fila = document.createElement("tr");
 
       columnas.forEach(valor => {
         const td = document.createElement("td");
-        td.textContent = valor;
+        td.textContent = valor.replaceAll('"', "");
         fila.appendChild(td);
       });
 
@@ -395,8 +399,14 @@
     });
 
   } catch (error) {
-    document.getElementById("historial-body").innerHTML =
-      "<tr><td colspan='8'>No se pudo cargar el historial.</td></tr>";
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8">
+          No se pudo cargar el historial. Revisa que exista:
+          data/historico_quinielas.csv
+        </td>
+      </tr>
+    `;
   }
 }
 
