@@ -16,21 +16,29 @@ patron = re.compile(
     r"(\d{1,2})\s+"
     r"(Q-[A-ZÁÉÍÓÚÑ]+)\s+"
     r"(\d{4}/\d{3})\s+"
-    r"((?:[12X],){13}[12X]),([012M]{2})",
+    r"([12XM0,]+)",
     re.I
 )
 
 filas = []
 
 for match in patron.finditer(texto):
-    semana, anio, jornada, dia, sorteo, signos14, pleno15 = match.groups()
-
+    semana, anio, jornada, dia, sorteo, combinacion = match.groups()
     jornada = int(jornada)
 
     if jornada > 60:
         continue
 
-    resultado = signos14.replace(",", "") + " | P15 " + pleno15
+    partes = [p.strip() for p in combinacion.split(",") if p.strip()]
+    signos = [p for p in partes if p in ["1", "X", "2"]]
+
+    if len(signos) < 14:
+        continue
+
+    resultado_14 = "".join(signos[:14])
+    pleno15 = partes[-1] if partes else ""
+
+    resultado = resultado_14 + " | P15 " + pleno15
 
     filas.append([
         jornada,
@@ -43,7 +51,7 @@ for match in patron.finditer(texto):
         "Cargada automáticamente desde QuinielaFutbol"
     ])
 
-filas = sorted(filas, key=lambda x: x[0])
+filas = sorted({fila[0]: fila for fila in filas}.values(), key=lambda x: x[0])
 
 salida = Path("historico_quinielas.csv")
 
