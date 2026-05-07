@@ -1,7 +1,8 @@
 import os
 
 scripts = [
-    "actualizar_historico_real.py"
+    "actualizar_historico_real.py",
+    "actualizar_clasificaciones.py"
 ]
 
 for script in scripts:
