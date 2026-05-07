@@ -16,8 +16,8 @@ texto = re.sub(r"\s+", " ", html)
 
 # Extrae bloques por jornada
 bloques = re.findall(
-    r"JORNADA\s*(?:Nº|N°|N\.|NUM)?\s*(\d{1,2})(.*?)(?=JORNADA\s*(?:Nº|N°|N\.|NUM)?\s*\d{1,2}|$)",
-    texto,
+    r"Jornada\s+(\d+).*?Resultado.*?([1X2]{14})",
+    html,
     flags=re.I | re.S
 )
 
