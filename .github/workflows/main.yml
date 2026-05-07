@@ -29,6 +29,6 @@ jobs:
         run: |
           git config user.name "quiniela-bot"
           git config user.email "bot@example.com"
-          git add historico_quinielas.csv clasificaciones.json data/jornadas/
+          git add -A
           git commit -m "Actualizar histórico real quinielas" || echo "Sin cambios"
           git push
