@@ -323,7 +323,7 @@
   const tbody = document.getElementById("historial-body");
 
   try {
-    const response = await fetch("./historico_quinielas.csv");
+    const response = await fetch("./historico_quinielas.csv?v=" + Date.now());
 
     if (!response.ok) {
       throw new Error("No se encontró el archivo CSV");
