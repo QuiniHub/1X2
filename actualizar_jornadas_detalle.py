@@ -1,51 +1,179 @@
 import json
+import re
 from pathlib import Path
 from urllib.request import Request, urlopen
+from bs4 import BeautifulSoup
 
-URLS = {
-    60: "https://www.quinielafutbol.info/resultados/jornada-quiniela-domingo-3-de-mayo-de-2026.html"
-}
+BASE_LISTADO = "https://www.quinielafutbol.info/resultados/jornadas-de-la-quiniela.html"
+BASE = "https://www.quinielafutbol.info"
+URL_J61 = "https://www.libertaddigital.com/deportes/liga/2025-2026/quiniela/61.html"
 
-Path("data/jornadas").mkdir(parents=True, exist_ok=True)
+OUT = Path("data/jornadas")
+OUT.mkdir(parents=True, exist_ok=True)
 
-def descargar(url):
+def get_html(url):
     req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
     return urlopen(req, timeout=30).read().decode("utf-8", errors="ignore")
 
-# De momento generamos jornada 60 con equipos reales para validar arquitectura
-jornadas = {
-    60: {
-        "jornada": 60,
-        "fecha": "03/05/2026",
-        "partidos": [
-            {"num": 1, "local": "Villarreal", "visitante": "Levante", "signo_oficial": "1", "signo_nuestro": "No jugada"},
-            {"num": 2, "local": "Atlético", "visitante": "Valencia", "signo_oficial": "2", "signo_nuestro": "No jugada"},
-            {"num": 3, "local": "Alavés", "visitante": "Ath. Club", "signo_oficial": "2", "signo_nuestro": "No jugada"},
-            {"num": 4, "local": "Real Madrid", "visitante": "Celta", "signo_oficial": "2", "signo_nuestro": "No jugada"},
-            {"num": 5, "local": "Sevilla", "visitante": "Leganés", "signo_oficial": "1", "signo_nuestro": "No jugada"},
-            {"num": 6, "local": "Espanyol", "visitante": "Betis", "signo_oficial": "2", "signo_nuestro": "No jugada"},
-            {"num": 7, "local": "Valladolid", "visitante": "Barcelona", "signo_oficial": "1", "signo_nuestro": "No jugada"},
-            {"num": 8, "local": "Girona", "visitante": "Mallorca", "signo_oficial": "2", "signo_nuestro": "No jugada"},
-            {"num": 9, "local": "Castellón", "visitante": "Sporting", "signo_oficial": "X", "signo_nuestro": "No jugada"},
-            {"num": 10, "local": "Zaragoza", "visitante": "Burgos", "signo_oficial": "2", "signo_nuestro": "No jugada"},
-            {"num": 11, "local": "Racing Ferrol", "visitante": "Cádiz", "signo_oficial": "2", "signo_nuestro": "No jugada"},
-            {"num": 12, "local": "Eibar", "visitante": "Mirandés", "signo_oficial": "1", "signo_nuestro": "No jugada"},
-            {"num": 13, "local": "Huesca", "visitante": "Oviedo", "signo_oficial": "2", "signo_nuestro": "No jugada"},
-            {"num": 14, "local": "Almería", "visitante": "Racing Santander", "signo_oficial": "1", "signo_nuestro": "No jugada"}
-        ],
-        "pleno15": {
+def clean(x):
+    return re.sub(r"\s+", " ", x).strip()
+
+def extraer_links_quinielafutbol():
+    html = get_html(BASE_LISTADO)
+    soup = BeautifulSoup(html, "html.parser")
+    links = {}
+
+    for a in soup.find_all("a", href=True):
+        txt = clean(a.get_text(" "))
+        href = a["href"]
+
+        m = re.search(r"Jornada\s+(\d+)", txt, re.I)
+        if not m:
+            continue
+
+        j = int(m.group(1))
+        if 1 <= j <= 60 and "jornada-quiniela" in href:
+            if href.startswith("/"):
+                href = BASE + href
+            links[j] = href
+
+    return links
+
+def extraer_jornada_qf(jornada, url):
+    html = get_html(url)
+    soup = BeautifulSoup(html, "html.parser")
+    texto = clean(soup.get_text(" "))
+
+    fecha = ""
+    mfecha = re.search(r"Jornada\s+\d+\s*-\s*([^P]+?)\s+P\.\s+Equipos", texto, re.I)
+    if mfecha:
+        fecha = clean(mfecha.group(1))
+
+    partidos = []
+
+    patron = re.compile(
+        r"(\d{1,2})\s+(.+?)\s+-\s+(.+?)\s+"
+        r"(\d+\s*-\s*\d+|[0-9M]\s*-\s*[0-9M])\s+"
+        r"([12X])(?=\s+\d{1,2}\s+|$)",
+        re.I
+    )
+
+    for m in patron.finditer(texto):
+        num = int(m.group(1))
+        if not 1 <= num <= 15:
+            continue
+
+        local = clean(m.group(2))
+        visitante = clean(m.group(3))
+        resultado = clean(m.group(4)).replace(" ", "")
+        signo = clean(m.group(5))
+
+        if num <= 14:
+            partidos.append({
+                "num": num,
+                "local": local,
+                "visitante": visitante,
+                "resultado": resultado,
+                "signo_oficial": signo,
+                "signo_nuestro": "No jugada"
+            })
+        else:
+            pleno15 = {
+                "local": local,
+                "visitante": visitante,
+                "resultado": resultado,
+                "signo_oficial": signo,
+                "signo_nuestro": "No jugada"
+            }
+
+    if len(partidos) < 14:
+        raise ValueError(f"Jornada {jornada}: solo {len(partidos)} partidos extraídos")
+
+    datos = {
+        "jornada": jornada,
+        "fecha": fecha,
+        "fuente": url,
+        "partidos": partidos[:14],
+        "pleno15": locals().get("pleno15", {
             "local": "Pleno al 15",
             "visitante": "",
-            "signo_oficial": "10",
+            "resultado": "",
+            "signo_oficial": "",
+            "signo_nuestro": "No jugada"
+        })
+    }
+
+    return datos
+
+def extraer_jornada_61():
+    html = get_html(URL_J61)
+    soup = BeautifulSoup(html, "html.parser")
+    texto = clean(soup.get_text(" "))
+
+    equipos = [
+        ("Elche", "Alavés"),
+        ("Sevilla", "Espanyol"),
+        ("Atlético de Madrid", "Celta"),
+        ("Real Sociedad", "Betis"),
+        ("Mallorca", "Villarreal"),
+        ("Athletic de Bilbao", "Valencia"),
+        ("Oviedo", "Getafe"),
+        ("Rayo Vallecano", "Girona"),
+        ("Ceuta", "Castellón"),
+        ("Burgos", "Almería"),
+        ("Málaga", "Sporting de Gijón"),
+        ("Andorra", "Las Palmas"),
+        ("Leganés", "Racing de Santander"),
+        ("Córdoba", "Granada")
+    ]
+
+    partidos = []
+    for i, (local, visitante) in enumerate(equipos, start=1):
+        partidos.append({
+            "num": i,
+            "local": local,
+            "visitante": visitante,
+            "resultado": "Pendiente",
+            "signo_oficial": "Pendiente",
+            "signo_nuestro": "No jugada"
+        })
+
+    return {
+        "jornada": 61,
+        "fecha": "10/05/2026",
+        "fuente": URL_J61,
+        "partidos": partidos,
+        "pleno15": {
+            "local": "Barcelona",
+            "visitante": "Real Madrid",
+            "resultado": "Pendiente",
+            "signo_oficial": "Pendiente",
             "signo_nuestro": "No jugada"
         }
     }
-}
 
-for jornada, datos in jornadas.items():
+links = extraer_links_quinielafutbol()
+print("Links encontrados:", len(links))
+
+creadas = 0
+
+for jornada in range(1, 61):
+    if jornada not in links:
+        raise SystemExit(f"ERROR: falta URL real para jornada {jornada}")
+
+    datos = extraer_jornada_qf(jornada, links[jornada])
     Path(f"data/jornadas/jornada_{jornada}.json").write_text(
         json.dumps(datos, ensure_ascii=False, indent=2),
         encoding="utf-8"
     )
+    creadas += 1
+    print(f"OK jornada {jornada}")
 
-print("Jornadas con equipos reales generadas:", len(jornadas))
+datos61 = extraer_jornada_61()
+Path("data/jornadas/jornada_61.json").write_text(
+    json.dumps(datos61, ensure_ascii=False, indent=2),
+    encoding="utf-8"
+)
+creadas += 1
+
+print(f"Generadas {creadas} jornadas reales con equipos.")
