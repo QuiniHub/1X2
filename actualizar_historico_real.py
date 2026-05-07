@@ -3,19 +3,59 @@ import re
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-URL = "https://www.quinielafutbol.info/resultados/jornadas-de-la-quiniela.html"
+URL = "https://www.quinielafutbol.info/historico/resultados-la-quiniela-2025-2026.html"
 
-print("Descargando histórico real de Quiniela...")
+def descargar(url):
+    req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    return urlopen(req, timeout=30).read().decode("utf-8", errors="ignore")
 
-headers = {
-    "User-Agent": "Mozilla/5.0"
-}
+html = descargar(URL)
 
-req = Request(URL, headers=headers)
-html = urlopen(req, timeout=30).read().decode("utf-8", errors="ignore")
+# Quitar saltos raros
+texto = re.sub(r"\s+", " ", html)
 
-# Buscamos patrones de jornada y columnas 1X2 dentro de la página
-patrones = re.findall(r"Jornada\s+(\d+).*?([12X]{14,15})", html, re.IGNORECASE | re.DOTALL)
+# Extrae bloques por jornada
+bloques = re.findall(
+    r"JORNADA\s*(?:Nº|N°|N\.|NUM)?\s*(\d{1,2})(.*?)(?=JORNADA\s*(?:Nº|N°|N\.|NUM)?\s*\d{1,2}|$)",
+    texto,
+    flags=re.I | re.S
+)
+
+filas = []
+
+for jornada, bloque in bloques:
+    jornada = int(jornada)
+
+    if jornada > 60:
+        continue
+
+    fecha_match = re.search(
+        r"(Domingo|Lunes|Martes|Miércoles|Miercoles|Jueves|Viernes|Sábado|Sabado),?\s+(\d{1,2}\s+de\s+\w+\s+de\s+2026|\d{1,2}\s+de\s+\w+\s+de\s+2025)",
+        bloque,
+        flags=re.I
+    )
+    fecha = fecha_match.group(0) if fecha_match else "Fecha pendiente"
+
+    signos = re.findall(r">\s*([1X2])\s*<", bloque)
+
+    if len(signos) < 14:
+        signos = re.findall(r"\b([1X2])\b", bloque)
+
+    resultado = "".join(signos[:14])
+
+    if len(resultado) == 14:
+        filas.append([
+            jornada,
+            fecha,
+            resultado,
+            "No jugada por nosotros",
+            "Pendiente",
+            "Pendiente",
+            "Pendiente",
+            "Cargada automáticamente desde QuinielaFutbol"
+        ])
+
+filas = sorted({fila[0]: fila for fila in filas}.values(), key=lambda x: x[0])
 
 salida = Path("historico_quinielas.csv")
 
@@ -32,47 +72,18 @@ with salida.open("w", newline="", encoding="utf-8") as f:
         "lectura"
     ])
 
-    if not patrones:
-        print("No se han encontrado jornadas automáticamente.")
-        writer.writerow([
-            61,
-            "10/05/2026",
-            "Pendiente",
-            "1X2 X 1 1X2 1X 1 X 1X2 2 X2 1 X 2 1",
-            "Pendiente",
-            "Pendiente",
-            "Pendiente",
-            "Pendiente de cargar histórico real"
-        ])
-    else:
-        vistos = set()
+    writer.writerows(filas)
 
-        for jornada, signos in patrones:
-            if jornada in vistos:
-                continue
+    writer.writerow([
+        61,
+        "10/05/2026",
+        "Pendiente",
+        "1X2 X 1 1X2 1X 1 X 1X2 2 X2 1 X 2 1",
+        "Pendiente",
+        "Pendiente",
+        "Pendiente",
+        "Se actualizará al terminar la jornada"
+    ])
 
-            vistos.add(jornada)
-
-            writer.writerow([
-                jornada,
-                "Fecha pendiente",
-                signos,
-                "No jugada por nosotros",
-                "Pendiente",
-                "Pendiente",
-                "Pendiente",
-                "Cargada desde QuinielaFutbol"
-            ])
-
-        writer.writerow([
-            61,
-            "10/05/2026",
-            "Pendiente",
-            "1X2 X 1 1X2 1X 1 X 1X2 2 X2 1 X 2 1",
-            "Pendiente",
-            "Pendiente",
-            "Pendiente",
-            "Se actualizará al terminar la jornada"
-        ])
-
-print("Histórico generado:", salida)
+print(f"Jornadas cargadas: {len(filas)}")
+print("Archivo generado:", salida)
