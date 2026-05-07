@@ -513,6 +513,59 @@ function pintarClasificacion(id, equipos) {
 }
 
 cargarClasificaciones();
+  async function abrirJornada(jornada) {
+  showTab("detalle-jornada", document.querySelector("button[onclick*='historial']"));
+
+  const titulo = document.getElementById("detalle-titulo");
+  const oficial = document.getElementById("boleto-oficial");
+  const nuestro = document.getElementById("boleto-nuestro");
+
+  titulo.textContent = `Detalle Jornada ${jornada}`;
+  oficial.innerHTML = "Cargando boleto oficial...";
+  nuestro.innerHTML = "Cargando nuestra quiniela...";
+
+  try {
+    const response = await fetch(`data/jornadas/jornada_${jornada}.json?v=${Date.now()}`);
+    const data = await response.json();
+
+    oficial.innerHTML = "";
+    nuestro.innerHTML = "";
+
+    data.partidos.forEach(p => {
+      oficial.innerHTML += `
+        <div class="match-row">
+          <strong>${p.num}.</strong> ${p.local} ${p.visitante ? "- " + p.visitante : ""}
+          <span class="signo">${p.signo_oficial}</span>
+        </div>
+      `;
+
+      nuestro.innerHTML += `
+        <div class="match-row">
+          <strong>${p.num}.</strong> ${p.local} ${p.visitante ? "- " + p.visitante : ""}
+          <span class="signo">${p.signo_nuestro}</span>
+        </div>
+      `;
+    });
+
+    oficial.innerHTML += `
+      <div class="match-row">
+        <strong>Pleno al 15</strong>
+        <span class="signo">${data.pleno15.signo_oficial}</span>
+      </div>
+    `;
+
+    nuestro.innerHTML += `
+      <div class="match-row">
+        <strong>Pleno al 15</strong>
+        <span class="signo">${data.pleno15.signo_nuestro}</span>
+      </div>
+    `;
+
+  } catch (error) {
+    oficial.innerHTML = "No se pudo cargar esta jornada.";
+    nuestro.innerHTML = "No hay datos disponibles.";
+  }
+}
 </script>
 
 </body>
