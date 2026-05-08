@@ -85,8 +85,8 @@ def extraer_segunda():
 
     jornadas = {}
 
-    for ronda in data.get("rounds", []):
-        nombre_ronda = ronda.get("name", "")
+    for match in data.get("matches", []):
+        nombre_ronda = match.get("round", "")
         numero = re.search(r"(\d+)", nombre_ronda)
 
         if not numero:
@@ -94,28 +94,26 @@ def extraer_segunda():
 
         jornada = int(numero.group(1))
 
-        partidos = []
+        score = match.get("score", {})
+        ft = score.get("ft", [])
 
-        for match in ronda.get("matches", []):
-            partido = {
-                "fecha": match.get("date", ""),
-                "hora": "",
-                "local": clean(match.get("team1", {}).get("name", "")),
-                "visitante": clean(match.get("team2", {}).get("name", "")),
-                "estado": "Programado",
-                "resultado": ""
-            }
+        resultado = ""
+        estado = "Programado"
 
-            score1 = match.get("score1")
-            score2 = match.get("score2")
+        if isinstance(ft, list) and len(ft) == 2:
+            resultado = f"{ft[0]}-{ft[1]}"
+            estado = "Jugado"
 
-            if score1 is not None and score2 is not None:
-                partido["estado"] = "Jugado"
-                partido["resultado"] = f"{score1}-{score2}"
+        partido = {
+            "fecha": match.get("date", ""),
+            "hora": match.get("time", ""),
+            "local": clean(match.get("team1", "")),
+            "visitante": clean(match.get("team2", "")),
+            "estado": estado,
+            "resultado": resultado
+        }
 
-            partidos.append(partido)
-
-        jornadas[jornada] = partidos
+        jornadas.setdefault(jornada, []).append(partido)
 
     escribir("segunda", FUENTES["segunda"], jornadas)
 
