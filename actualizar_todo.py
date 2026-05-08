@@ -4,7 +4,7 @@ scripts = [
     "actualizar_historico_real.py",
     "actualizar_clasificaciones.py",
     "actualizar_jornadas_detalle.py",
-    "actualizar_calendario.py"
+    "actualizar_calendario.py",
 ]
 
 for script in scripts:
