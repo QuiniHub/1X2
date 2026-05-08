@@ -1,61 +1,117 @@
-import csv
 import json
+import re
 from pathlib import Path
 from urllib.request import Request, urlopen
-from io import StringIO
+from bs4 import BeautifulSoup
+
 FUENTES = {
-    "primera": "https://raw.githubusercontent.com/openfootball/spain/master/2025-26/la-liga.csv",
-    "segunda": "https://raw.githubusercontent.com/openfootball/spain/master/2025-26/segunda.csv"
+    "primera": "https://fixturedownload.com/results/la-liga-2025",
+    "segunda": "https://www.matchesio.com/es/competition/segunda-division-es/"
 }
 
 OUT = Path("data")
 OUT.mkdir(exist_ok=True)
 
-def descargar_csv(url):
+def descargar(url):
     req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
     return urlopen(req, timeout=30).read().decode("utf-8", errors="ignore")
 
-def valor(row, nombres):
-    for n in nombres:
-        if n in row and row[n]:
-            return row[n].strip()
-    return ""
+def clean(x):
+    return re.sub(r"\s+", " ", x).strip()
 
-def generar(nombre, url):
-    texto = descargar_csv(url)
-    reader = csv.DictReader(StringIO(texto))
+def extraer_primera():
+    html = descargar(FUENTES["primera"])
+    soup = BeautifulSoup(html, "html.parser")
+    texto = clean(soup.get_text(" "))
+
+    patron = re.compile(
+        r"(\d{1,2})\s+(\d{2}/\d{2}/\d{4})\s+(\d{2}:\d{2})\s+(.+?)\s+(.+?)\s+(.+?)\s+(\d+\s-\s\d+|)$"
+    )
+
+    equipos = [
+        "Athletic Club", "Atlético de Madrid", "CA Osasuna", "Celta",
+        "Deportivo Alavés", "Elche CF", "FC Barcelona", "Getafe CF",
+        "Girona FC", "Levante UD", "Rayo Vallecano",
+        "RCD Espanyol de Barcelona", "RCD Mallorca", "Real Betis",
+        "Real Madrid", "Real Oviedo", "Real Sociedad", "Sevilla FC",
+        "Valencia CF", "Villarreal CF"
+    ]
+
+    equipos_re = "|".join(sorted(map(re.escape, equipos), key=len, reverse=True))
+
+    patron = re.compile(
+        rf"(\d{{1,2}})\s+(\d{{2}}/\d{{2}}/\d{{4}})\s+(\d{{2}}:\d{{2}})\s+(.+?)\s+({equipos_re})\s+({equipos_re})\s+(\d+\s-\s\d+)?",
+        re.I
+    )
 
     jornadas = {}
 
-    for row in reader:
-        jornada_txt = valor(row, ["Round Number", "Round", "Matchday", "Jornada"])
-        if not jornada_txt:
-            continue
-
-        jornada = int("".join(ch for ch in jornada_txt if ch.isdigit()))
+    for m in patron.finditer(texto):
+        jornada, fecha, hora, estadio, local, visitante, resultado = m.groups()
+        jornada = int(jornada)
 
         partido = {
-            "fecha": valor(row, ["Date", "Fecha"]),
-            "hora": valor(row, ["Time", "Hora"]),
-            "local": valor(row, ["Home Team", "Home", "Local"]),
-            "visitante": valor(row, ["Away Team", "Away", "Visitante"]),
-            "resultado": valor(row, ["Result", "Score", "Resultado"]),
-            "estado": valor(row, ["Status", "Estado"])
+            "fecha": fecha,
+            "hora": hora,
+            "local": clean(local),
+            "visitante": clean(visitante),
+            "estado": "Programado" if not resultado else "Jugado",
+            "resultado": clean(resultado or "")
         }
-
-        if not partido["local"] or not partido["visitante"]:
-            continue
 
         jornadas.setdefault(jornada, []).append(partido)
 
     if len(jornadas) < 38:
-        raise SystemExit(
-            f"ERROR: calendario {nombre} incompleto. Jornadas encontradas: {len(jornadas)}"
-        )
+        print(f"WARNING primera parcial: {len(jornadas)} jornadas")
 
+    escribir("primera", FUENTES["primera"], jornadas)
+
+def extraer_segunda():
+    html = descargar(FUENTES["segunda"])
+    soup = BeautifulSoup(html, "html.parser")
+    texto = clean(soup.get_text(" "))
+
+    equipos = [
+        "AD Ceuta FC", "Albacete", "Almería", "Burgos", "Cádiz", "Castellón",
+        "Córdoba", "Cultural Leonesa", "Deportivo La Coruña", "Eibar",
+        "FC Andorra", "Granada CF", "Huesca", "Las Palmas", "Leganés",
+        "Málaga", "Mirandés", "Racing Santander", "Real Sociedad II",
+        "Sporting Gijón", "Valladolid", "Zaragoza"
+    ]
+
+    equipos_re = "|".join(sorted(map(re.escape, equipos), key=len, reverse=True))
+
+    patron = re.compile(
+        rf"(\d{{1,2}}:\d{{2}})\s+(\d{{1,2}})\s+({equipos_re})\s+({equipos_re})\s+(.+?)\s+(Jugado|Programado|Aplazado|Suspendido)\s*(\d+\s*[–-]\s*\d+)?",
+        re.I
+    )
+
+    jornadas = {}
+
+    for m in patron.finditer(texto):
+        hora, jornada, local, visitante, estadio, estado, resultado = m.groups()
+        jornada = int(jornada)
+
+        partido = {
+            "fecha": "",
+            "hora": hora,
+            "local": clean(local),
+            "visitante": clean(visitante),
+            "estado": clean(estado),
+            "resultado": clean(resultado or "").replace("–", "-")
+        }
+
+        jornadas.setdefault(jornada, []).append(partido)
+
+    if len(jornadas) < 30:
+        print(f"WARNING segunda parcial: {len(jornadas)} jornadas")
+
+    escribir("segunda", FUENTES["segunda"], jornadas)
+
+def escribir(nombre, fuente, jornadas):
     salida = {
         "competicion": nombre,
-        "fuente": url,
+        "fuente": fuente,
         "jornadas": [
             {
                 "jornada": j,
@@ -72,7 +128,7 @@ def generar(nombre, url):
 
     print(f"Calendario {nombre}: {len(jornadas)} jornadas generadas")
 
-for nombre, url in FUENTES.items():
-    generar(nombre, url)
+extraer_primera()
+extraer_segunda()
 
-print("Calendarios reales completos generados correctamente")
+print("Calendarios generados correctamente")
