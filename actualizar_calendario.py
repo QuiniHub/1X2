@@ -4,8 +4,8 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 from io import StringIO
 FUENTES = {
-    "primera": "https://fixturedownload.com/download/laliga-2025-UTC.csv",
-    "segunda": "https://fixturedownload.com/download/laliga2-2025-UTC.csv"
+    "primera": "https://raw.githubusercontent.com/openfootball/spain/master/2025-26/la-liga.csv",
+    "segunda": "https://raw.githubusercontent.com/openfootball/spain/master/2025-26/segunda.csv"
 }
 
 OUT = Path("data")
