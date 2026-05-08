@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 FUENTES = {
     "primera": "https://fixturedownload.com/results/la-liga-2025",
-    "segunda": "https://www.matchesio.com/es/competition/segunda-division-es/"
+    "segunda": "https://www.laliga.com/laliga-hypermotion/calendario"
 }
 
 OUT = Path("data")
