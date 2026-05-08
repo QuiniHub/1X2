@@ -1,70 +1,58 @@
+import csv
 import json
-import re
 from pathlib import Path
 from urllib.request import Request, urlopen
-from bs4 import BeautifulSoup
+from io import StringIO
 
 FUENTES = {
-    "primera": "https://www.matchesio.com/es/competition/la-liga-es/",
-    "segunda": "https://www.matchesio.com/es/competition/segunda-division-es/"
+    "primera": "https://fixturedownload.com/download/la-liga-2025/csv",
+    "segunda": "https://fixturedownload.com/download/segunda-division-2025/csv"
 }
 
 OUT = Path("data")
 OUT.mkdir(exist_ok=True)
 
-def get_html(url):
+def descargar_csv(url):
     req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
     return urlopen(req, timeout=30).read().decode("utf-8", errors="ignore")
 
-def clean(x):
-    return re.sub(r"\s+", " ", x).strip()
+def valor(row, nombres):
+    for n in nombres:
+        if n in row and row[n]:
+            return row[n].strip()
+    return ""
 
-def extraer_calendario(nombre, url):
-    html = get_html(url)
-    soup = BeautifulSoup(html, "html.parser")
-    texto = clean(soup.get_text(" "))
-
-    equipos_primera = [
-        "Alaves", "Athletic Club", "Atletico Madrid", "Barcelona", "Celta Vigo",
-        "Elche", "Espanyol", "Getafe", "Girona", "Levante", "Mallorca",
-        "Osasuna", "Oviedo", "Rayo Vallecano", "Real Betis", "Real Madrid",
-        "Real Sociedad", "Sevilla", "Valencia", "Villarreal"
-    ]
-
-    equipos_segunda = [
-        "AD Ceuta FC", "Albacete", "Almeria", "Burgos", "Cadiz", "Castellón",
-        "Cordoba", "Cultural Leonesa", "Deportivo La Coruna", "Eibar",
-        "FC Andorra", "Granada CF", "Huesca", "Las Palmas", "Leganes",
-        "Malaga", "Mirandes", "Racing Santander", "Real Sociedad II",
-        "Sporting Gijon", "Valladolid", "Zaragoza"
-    ]
-
-    equipos = equipos_primera if nombre == "primera" else equipos_segunda
-    equipos_regex = "|".join(sorted(map(re.escape, equipos), key=len, reverse=True))
-
-    patron = re.compile(
-        rf"(\d{{1,2}}:\d{{2}})\s+(\d{{1,2}})\s+({equipos_regex})\s+({equipos_regex})\s+(.+?)\s+(Jugado|Programado|Aplazado|Suspendido)\s+(\d+–\d+|\d+-\d+|)",
-        re.I
-    )
+def generar(nombre, url):
+    texto = descargar_csv(url)
+    reader = csv.DictReader(StringIO(texto))
 
     jornadas = {}
 
-    for m in patron.finditer(texto):
-        hora, jornada, local, visitante, ciudad_estadio, estado, resultado = m.groups()
-        jornada = int(jornada)
+    for row in reader:
+        jornada_txt = valor(row, ["Round Number", "Round", "Matchday", "Jornada"])
+        if not jornada_txt:
+            continue
+
+        jornada = int("".join(ch for ch in jornada_txt if ch.isdigit()))
 
         partido = {
-            "hora": hora,
-            "local": clean(local),
-            "visitante": clean(visitante),
-            "estado": clean(estado),
-            "resultado": clean(resultado).replace("–", "-") if resultado else ""
+            "fecha": valor(row, ["Date", "Fecha"]),
+            "hora": valor(row, ["Time", "Hora"]),
+            "local": valor(row, ["Home Team", "Home", "Local"]),
+            "visitante": valor(row, ["Away Team", "Away", "Visitante"]),
+            "resultado": valor(row, ["Result", "Score", "Resultado"]),
+            "estado": valor(row, ["Status", "Estado"])
         }
+
+        if not partido["local"] or not partido["visitante"]:
+            continue
 
         jornadas.setdefault(jornada, []).append(partido)
 
-    if len(jornadas) < 30:
-        print(f"WARNING: calendario {nombre} parcial ({len(jornadas)} jornadas)")
+    if len(jornadas) < 38:
+        raise SystemExit(
+            f"ERROR: calendario {nombre} incompleto. Jornadas encontradas: {len(jornadas)}"
+        )
 
     salida = {
         "competicion": nombre,
@@ -86,6 +74,6 @@ def extraer_calendario(nombre, url):
     print(f"Calendario {nombre}: {len(jornadas)} jornadas generadas")
 
 for nombre, url in FUENTES.items():
-    extraer_calendario(nombre, url)
+    generar(nombre, url)
 
-print("Calendarios reales generados correctamente")
+print("Calendarios reales completos generados correctamente")
