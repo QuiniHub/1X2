@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 FUENTES = {
     "primera": "https://fixturedownload.com/results/la-liga-2025",
-    "segunda": "https://raw.githubusercontent.com/openfootball/spain/master/2025-26/laliga2.csv"
+    "segunda": "https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/es.2.json"
 }
 
 OUT = Path("data")
@@ -17,16 +17,32 @@ def descargar(url):
     return urlopen(req, timeout=30).read().decode("utf-8", errors="ignore")
 
 def clean(x):
-    return re.sub(r"\s+", " ", x).strip()
+    return re.sub(r"\s+", " ", str(x)).strip()
+
+def escribir(nombre, fuente, jornadas):
+    salida = {
+        "competicion": nombre,
+        "fuente": fuente,
+        "jornadas": [
+            {
+                "jornada": j,
+                "partidos": jornadas[j]
+            }
+            for j in sorted(jornadas)
+        ]
+    }
+
+    Path(f"data/calendario_{nombre}.json").write_text(
+        json.dumps(salida, ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
+
+    print(f"Calendario {nombre}: {len(jornadas)} jornadas generadas")
 
 def extraer_primera():
     html = descargar(FUENTES["primera"])
     soup = BeautifulSoup(html, "html.parser")
     texto = clean(soup.get_text(" "))
-
-    patron = re.compile(
-        r"(\d{1,2})\s+(\d{2}/\d{2}/\d{4})\s+(\d{2}:\d{2})\s+(.+?)\s+(.+?)\s+(.+?)\s+(\d+\s-\s\d+|)$"
-    )
 
     equipos = [
         "Athletic Club", "Atlético de Madrid", "CA Osasuna", "Celta",
@@ -61,73 +77,47 @@ def extraer_primera():
 
         jornadas.setdefault(jornada, []).append(partido)
 
-    if len(jornadas) < 38:
-        print(f"WARNING primera parcial: {len(jornadas)} jornadas")
-
     escribir("primera", FUENTES["primera"], jornadas)
 
 def extraer_segunda():
-    html = descargar(FUENTES["segunda"])
-    print("Descargando Segunda División...")
-    soup = BeautifulSoup(html, "html.parser")
-    texto = clean(soup.get_text(" "))
-
-    equipos = [
-        "AD Ceuta FC", "Albacete", "Almería", "Burgos", "Cádiz", "Castellón",
-        "Córdoba", "Cultural Leonesa", "Deportivo La Coruña", "Eibar",
-        "FC Andorra", "Granada CF", "Huesca", "Las Palmas", "Leganés",
-        "Málaga", "Mirandés", "Racing Santander", "Real Sociedad II",
-        "Sporting Gijón", "Valladolid", "Zaragoza"
-    ]
-
-    equipos_re = "|".join(sorted(map(re.escape, equipos), key=len, reverse=True))
-
-    patron = re.compile(
-        rf"(\d{{1,2}}:\d{{2}})\s+(\d{{1,2}})\s+({equipos_re})\s+({equipos_re})\s+(.+?)\s+(Jugado|Programado|Aplazado|Suspendido)\s*(\d+\s*[–-]\s*\d+)?",
-        re.I
-    )
+    texto = descargar(FUENTES["segunda"])
+    data = json.loads(texto)
 
     jornadas = {}
 
-    for m in patron.finditer(texto):
-        hora, jornada, local, visitante, estadio, estado, resultado = m.groups()
-        jornada = int(jornada)
+    for ronda in data.get("rounds", []):
+        nombre_ronda = ronda.get("name", "")
+        numero = re.search(r"(\d+)", nombre_ronda)
 
-        partido = {
-            "fecha": "",
-            "hora": hora,
-            "local": clean(local),
-            "visitante": clean(visitante),
-            "estado": clean(estado),
-            "resultado": clean(resultado or "").replace("–", "-")
-        }
+        if not numero:
+            continue
 
-        jornadas.setdefault(jornada, []).append(partido)
+        jornada = int(numero.group(1))
 
-    if len(jornadas) < 30:
-        print(f"WARNING segunda parcial: {len(jornadas)} jornadas")
+        partidos = []
+
+        for match in ronda.get("matches", []):
+            partido = {
+                "fecha": match.get("date", ""),
+                "hora": "",
+                "local": clean(match.get("team1", {}).get("name", "")),
+                "visitante": clean(match.get("team2", {}).get("name", "")),
+                "estado": "Programado",
+                "resultado": ""
+            }
+
+            score1 = match.get("score1")
+            score2 = match.get("score2")
+
+            if score1 is not None and score2 is not None:
+                partido["estado"] = "Jugado"
+                partido["resultado"] = f"{score1}-{score2}"
+
+            partidos.append(partido)
+
+        jornadas[jornada] = partidos
 
     escribir("segunda", FUENTES["segunda"], jornadas)
-
-def escribir(nombre, fuente, jornadas):
-    salida = {
-        "competicion": nombre,
-        "fuente": fuente,
-        "jornadas": [
-            {
-                "jornada": j,
-                "partidos": jornadas[j]
-            }
-            for j in sorted(jornadas)
-        ]
-    }
-
-    Path(f"data/calendario_{nombre}.json").write_text(
-        json.dumps(salida, ensure_ascii=False, indent=2),
-        encoding="utf-8"
-    )
-
-    print(f"Calendario {nombre}: {len(jornadas)} jornadas generadas")
 
 extraer_primera()
 extraer_segunda()
