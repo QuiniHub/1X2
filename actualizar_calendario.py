@@ -24,6 +24,46 @@ def clean(x):
 def normalizar(txt):
     txt = clean(txt).lower()
     txt = unicodedata.normalize("NFKD", txt).encode("ascii", "ignore").decode("ascii")
+
+    reemplazos = {
+        "ud ": "",
+        "cd ": "",
+        "cf ": "",
+        "sd ": "",
+        "fc ": "",
+        "real ": "",
+        "club ": "",
+        "deportivo ": "",
+        "la coruna": "coruna",
+        "racing de santander": "racing santander",
+        "sporting de gijon": "sporting gijon",
+        "almeria": "almeria",
+        "las palmas": "las palmas",
+        "castellon": "castellon",
+        "cordoba": "cordoba",
+        "malaga": "malaga",
+        "cadiz": "cadiz",
+        "leganes": "leganes",
+        "zaragoza": "zaragoza",
+        "valladolid": "valladolid",
+        "huesca": "huesca",
+        "eibar": "eibar",
+        "mirandes": "mirandes",
+        "burgos": "burgos",
+        "granada": "granada",
+        "ceuta": "ceuta",
+        "andorra": "andorra",
+        "cultural leonesa": "cultural leonesa",
+        "real sociedad b": "real sociedad b",
+        "albacete": "albacete"
+    }
+
+    for a, b in reemplazos.items():
+        txt = txt.replace(a, b)
+
+    return clean(txt)
+    txt = clean(txt).lower()
+    txt = unicodedata.normalize("NFKD", txt).encode("ascii", "ignore").decode("ascii")
     for basura in [" cf", " cd", " sd", " ud", " fc", " real ", " club"]:
         txt = txt.replace(basura, " ")
     return clean(txt)
