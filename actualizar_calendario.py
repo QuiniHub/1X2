@@ -3,10 +3,10 @@ import json
 from pathlib import Path
 from urllib.request import Request, urlopen
 from io import StringIO
-
-FUENTES = {
-    "primera": "https://fixturedownload.com/download/la-liga-2025/csv",
-    "segunda": "https://fixturedownload.com/download/segunda-division-2025/csv"
+    FUENTES = {
+    "primera": "https://fixturedownload.com/download/laliga-2025-UTC.csv",
+    "segunda": "https://fixturedownload.com/download/laliga2-2025-UTC.csv"
+}
 }
 
 OUT = Path("data")
