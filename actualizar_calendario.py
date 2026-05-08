@@ -68,6 +68,7 @@ def extraer_primera():
 
 def extraer_segunda():
     html = descargar(FUENTES["segunda"])
+    print("Descargando Segunda División...")
     soup = BeautifulSoup(html, "html.parser")
     texto = clean(soup.get_text(" "))
 
