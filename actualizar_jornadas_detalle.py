@@ -42,69 +42,70 @@ def extraer_links_quinielafutbol():
 def extraer_jornada_qf(jornada, url):
     html = get_html(url)
     soup = BeautifulSoup(html, "html.parser")
-    texto = clean(soup.get_text(" "))
-
-    fecha = ""
-    mfecha = re.search(r"Jornada\s+\d+\s*-\s*([^P]+?)\s+P\.\s+Equipos", texto, re.I)
-    if mfecha:
-        fecha = clean(mfecha.group(1))
 
     partidos = []
+    pleno15 = {
+        "local": "Pleno al 15",
+        "visitante": "",
+        "resultado": "",
+        "signo_oficial": "",
+        "signo_nuestro": "No jugada"
+    }
 
-    patron = re.compile(
-        r"(\d{1,2})\s+(.+?)\s+-\s+(.+?)\s+"
-        r"(\d+\s*-\s*\d+|[0-9M]\s*-\s*[0-9M])\s+"
-        r"([12X])(?=\s+\d{1,2}\s+|$)",
-        re.I
-    )
+    fecha = ""
 
-    for m in patron.finditer(texto):
-        num = int(m.group(1))
-        if not 1 <= num <= 15:
+    h1 = soup.find(["h1", "h2"])
+    if h1:
+        fecha = clean(h1.get_text(" "))
+
+    for tr in soup.find_all("tr"):
+        celdas = [clean(td.get_text(" ")) for td in tr.find_all(["td", "th"])]
+
+        if len(celdas) < 4:
             continue
 
-        local = clean(m.group(2))
-        visitante = clean(m.group(3))
-        resultado = clean(m.group(4)).replace(" ", "")
-        signo = clean(m.group(5))
+        if not celdas[0].isdigit():
+            continue
+
+        num = int(celdas[0])
+
+        if num < 1 or num > 15:
+            continue
+
+        equipos = celdas[1]
+        resultado = celdas[2]
+        signo = celdas[3]
+
+        if " - " in equipos:
+            local, visitante = equipos.split(" - ", 1)
+        else:
+            local = equipos
+            visitante = ""
+
+        item = {
+            "num": num,
+            "local": clean(local),
+            "visitante": clean(visitante),
+            "resultado": clean(resultado),
+            "signo_oficial": clean(signo),
+            "signo_nuestro": "No jugada"
+        }
 
         if num <= 14:
-            partidos.append({
-                "num": num,
-                "local": local,
-                "visitante": visitante,
-                "resultado": resultado,
-                "signo_oficial": signo,
-                "signo_nuestro": "No jugada"
-            })
+            partidos.append(item)
         else:
-            pleno15 = {
-                "local": local,
-                "visitante": visitante,
-                "resultado": resultado,
-                "signo_oficial": signo,
-                "signo_nuestro": "No jugada"
-            }
+            pleno15 = item
 
     if len(partidos) < 14:
-        print(f"WARNING jornada {jornada}: solo {len(partidos)} partidos")
+        raise SystemExit(f"ERROR jornada {jornada}: solo {len(partidos)} partidos reales extraídos")
 
-    datos = {
+    return {
         "jornada": jornada,
         "fecha": fecha,
         "fuente": url,
-        "partidos": partidos[:14],
-        "pleno15": locals().get("pleno15", {
-            "local": "Pleno al 15",
-            "visitante": "",
-            "resultado": "",
-            "signo_oficial": "",
-            "signo_nuestro": "No jugada"
-        })
+        "partidos": partidos,
+        "pleno15": pleno15
     }
-
-    return datos
-
 def extraer_jornada_61():
     html = get_html(URL_J61)
     soup = BeautifulSoup(html, "html.parser")
