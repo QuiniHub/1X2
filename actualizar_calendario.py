@@ -145,9 +145,9 @@ def actualizar_resultados_segunda_laliga(jornadas):
 
             for p in jornadas[jornada]:
                 pl = normalizar(p["local"])
-pv = normalizar(p["visitante"])
+                pv = normalizar(p["visitante"])
 
-if (pl in nl or nl in pl) and (pv in nv or nv in pv):
+                if (pl in nl or nl in pl) and (pv in nv or nv in pv):
                     p["resultado"] = clean(resultado).replace(" ", "")
                     p["estado"] = "Jugado"
                     encontrados += 1
