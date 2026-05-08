@@ -7,7 +7,6 @@ FUENTES = {
     "primera": "https://fixturedownload.com/download/laliga-2025-UTC.csv",
     "segunda": "https://fixturedownload.com/download/laliga2-2025-UTC.csv"
 }
-}
 
 OUT = Path("data")
 OUT.mkdir(exist_ok=True)
