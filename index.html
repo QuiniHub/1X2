@@ -612,6 +612,65 @@ cargarClasificaciones();
     nuestro.innerHTML = "No hay datos disponibles.";
   }
 }
+  async function mostrarCalendario(liga) {
+  const contenedor = document.getElementById("calendario-contenido");
+
+  contenedor.innerHTML = "Cargando calendario...";
+
+  try {
+
+    const response = await fetch(
+      `data/calendario_${liga}.json?v=` + Date.now()
+    );
+
+    const data = await response.json();
+
+    let html = "";
+
+    data.jornadas.forEach(jornada => {
+
+      html += `
+        <div class="card" style="margin-bottom:20px;">
+          <h3>Jornada ${jornada.jornada}</h3>
+      `;
+
+      jornada.partidos.forEach((p, index) => {
+
+        html += `
+          <div class="partido">
+
+            <strong>${index + 1}.</strong>
+
+            ${p.local}
+            vs
+            ${p.visitante}
+
+            ${p.hora ? `<br><small>${p.hora}</small>` : ""}
+
+            ${p.estado ? `<br><small>${p.estado}</small>` : ""}
+
+            ${p.resultado ? `<br><strong>${p.resultado}</strong>` : ""}
+
+          </div>
+        `;
+
+      });
+
+      html += `</div>`;
+
+    });
+
+    contenedor.innerHTML = html;
+
+  } catch (error) {
+
+    console.log(error);
+
+    contenedor.innerHTML =
+      "No se pudo cargar el calendario.";
+
+  }
+}
 </script>
 
 </body>
