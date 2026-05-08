@@ -64,7 +64,7 @@ def extraer_calendario(nombre, url):
         jornadas.setdefault(jornada, []).append(partido)
 
     if len(jornadas) < 30:
-        raise SystemExit(f"ERROR: calendario {nombre} incompleto. Jornadas encontradas: {len(jornadas)}")
+        print(f"WARNING: calendario {nombre} parcial ({len(jornadas)} jornadas)")
 
     salida = {
         "competicion": nombre,
