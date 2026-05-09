@@ -137,51 +137,98 @@ def extraer_segunda():
     escribir("segunda", FUENTES["segunda"], jornadas)
 
 def actualizar_resultados_segunda_laliga(jornadas):
-    for jornada in jornadas:
-        url = f"https://www.laliga.com/laliga-hypermotion/resultados/{jornada}"
+    fuentes = [
+        "https://www.mundodeportivo.com/resultados/futbol/liga-segunda-division/2025-2026/jornada-{}",
+        "https://as.com/resultados/futbol/segunda/2025_2026/jornada/regular_a_{}/",
+        "https://elpais.com/deportes/resultados/futbol/segunda/2025_2026/jornada/regular-a-{}/"
+    ]
 
-        try:
-            html = descargar(url)
-        except:
-            continue
+    def marcar_resultado(jornada, local_web, visitante_web, resultado):
+        nl = normalizar(local_web)
+        nv = normalizar(visitante_web)
 
-        soup = BeautifulSoup(html, "html.parser")
-        texto = clean(soup.get_text(" "))
+        for p in jornadas.get(jornada, []):
+            pl = normalizar(p["local"])
+            pv = normalizar(p["visitante"])
 
-        equipos = set()
+            mismo_orden = (pl in nl or nl in pl) and (pv in nv or nv in pv)
+            orden_inverso = (pl in nv or nv in pl) and (pv in nl or nl in pv)
 
-        for p in jornadas[jornada]:
+            if mismo_orden:
+                p["resultado"] = clean(resultado).replace(" ", "")
+                p["estado"] = "Jugado"
+                return True
+
+            if orden_inverso:
+                goles = clean(resultado).replace(" ", "").split("-")
+                if len(goles) == 2:
+                    p["resultado"] = f"{goles[1]}-{goles[0]}"
+                else:
+                    p["resultado"] = clean(resultado).replace(" ", "")
+                p["estado"] = "Jugado"
+                return True
+
+        return False
+
+    equipos = set()
+    for partidos in jornadas.values():
+        for p in partidos:
             equipos.add(p["local"])
             equipos.add(p["visitante"])
 
-        equipos_re = "|".join(
-            sorted(map(re.escape, equipos), key=len, reverse=True)
-        )
+    equipos_re = "|".join(sorted(map(re.escape, equipos), key=len, reverse=True))
 
-        patron = re.compile(
+    patrones = [
+        re.compile(
             rf"({equipos_re})\s+(\d+\s*-\s*\d+)\s+({equipos_re})",
             re.I
+        ),
+        re.compile(
+            rf"({equipos_re})\s+(\d+)\s*-\s*(\d+)\s+({equipos_re})",
+            re.I
         )
+    ]
 
-        encontrados = 0
+    for jornada in sorted(jornadas):
+        añadidos_total = 0
 
-        for m in patron.finditer(texto):
-            local_web, resultado, visitante_web = m.groups()
+        for plantilla in fuentes:
+            url = plantilla.format(jornada)
 
-            nl = normalizar(local_web)
-            nv = normalizar(visitante_web)
+            try:
+                html = descargar(url)
+            except Exception as e:
+                print(f"WARNING Segunda J{jornada}: no se pudo leer {url} ({e})")
+                continue
 
-            for p in jornadas[jornada]:
-                pl = normalizar(p["local"])
-                pv = normalizar(p["visitante"])
+            soup = BeautifulSoup(html, "html.parser")
+            texto = clean(soup.get_text(" "))
 
-                if (pl in nl or nl in pl) and (pv in nv or nv in pv):
-                    p["resultado"] = clean(resultado).replace(" ", "")
-                    p["estado"] = "Jugado"
-                    encontrados += 1
+            añadidos = 0
 
-        print(f"Segunda jornada {jornada}: {encontrados} resultados oficiales añadidos")
+            for patron in patrones:
+                for m in patron.finditer(texto):
+                    if len(m.groups()) == 3:
+                        local_web, resultado, visitante_web = m.groups()
+                    else:
+                        local_web, g1, g2, visitante_web = m.groups()
+                        resultado = f"{g1}-{g2}"
 
+                    if marcar_resultado(jornada, local_web, visitante_web, resultado):
+                        añadidos += 1
+                        añadidos_total += 1
+
+            if añadidos > 0:
+                print(f"Segunda J{jornada}: {añadidos} resultados añadidos desde {url}")
+
+        pendientes = [
+            f'{p["local"]}-{p["visitante"]}'
+            for p in jornadas[jornada]
+            if not p.get("resultado")
+        ]
+
+        if pendientes:
+            print(f"Segunda J{jornada}: pendientes {len(pendientes)} -> {pendientes}")
 extraer_primera()
 extraer_segunda()
 
