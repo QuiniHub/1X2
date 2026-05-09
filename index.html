@@ -737,7 +737,7 @@ async function cargarClasificacionHome(tipo, contenedorId) {
           </tr>
         </thead>
         <tbody>
-          ${equipos.slice(0, 20).map((e, i) => `
+          ${equipos.slice(0, tipo === "segunda" ? 22 : 20).map((e, i) => `
             <tr>
               <td>${e.posicion || e.pos || i + 1}</td>
               <td>${e.equipo || e.nombre || e.team || ""}</td>
