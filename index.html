@@ -814,11 +814,12 @@ async function cargarJornadaHome(tipo, contenedorId) {
       <h3>Jornada ${actual.jornada}</h3>
       ${actual.partidos.map((p, i) => `
         <div class="partido">
-          <strong>${i + 1}. ${p.local} - ${p.visitante}</strong><br>
-          ${p.hora ? `<span>${p.hora}</span><br>` : ""}
-          <span>${p.estado || ""}</span>
-          ${p.resultado ? `<br><strong>${p.resultado}</strong>` : ""}
-        </div>
+<strong>${i + 1}.</strong>
+${p.hora ? p.hora + " · " : ""}
+${p.local}
+${p.resultado ? " " + p.resultado + " " : " - "}
+${p.visitante}
+</div>
       `).join("")}
     `;
   } catch (e) {
