@@ -851,6 +851,129 @@ ${p.visitante}
 }
 
 cargarPortada();
+  let jornadaActualIA = null;
+let partidosJornadaIA = [];
+
+async function cargarJornadasQuinielaIA() {
+  const contenedor = document.getElementById("lista-jornadas-quiniela");
+  if (!contenedor) return;
+
+  contenedor.innerHTML = "";
+
+  for (let j = 1; j <= 61; j++) {
+    contenedor.innerHTML += `
+      <button onclick="abrirQuinielaIA(${j})">Jornada ${j}</button>
+    `;
+  }
+}
+
+async function abrirQuinielaIA(jornada) {
+  jornadaActualIA = jornada;
+
+  const res = await fetch(`data/jornadas/jornada_${jornada}.json?v=${Date.now()}`);
+  const data = await res.json();
+
+  partidosJornadaIA = data.partidos || [];
+
+  document.getElementById("config-quiniela").style.display = "block";
+  document.getElementById("titulo-jornada-ia").textContent = `Jornada ${jornada}`;
+
+  pintarBoletoVacioIA();
+  calcularImporteIA();
+}
+
+function calcularImporteIA() {
+  const dobles = parseInt(document.getElementById("num-dobles").value || "0");
+  const triples = parseInt(document.getElementById("num-triples").value || "0");
+
+  const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
+  const importe = Math.max(apuestas * 0.75, 1.50);
+
+  document.getElementById("total-apuestas").textContent = apuestas;
+  document.getElementById("importe-quiniela").textContent =
+    importe.toFixed(2).replace(".", ",") + " €";
+}
+
+function pintarBoletoVacioIA() {
+  const contenedor = document.getElementById("boleto-ia");
+
+  contenedor.innerHTML = partidosJornadaIA.map(p => `
+    <div class="fila-boleto">
+      <div>${p.num}</div>
+      <div>${p.local} - ${p.visitante}</div>
+      <div class="signos-ia"><span>?</span></div>
+    </div>
+  `).join("");
+}
+
+async function generarBoletoIA() {
+  const dobles = parseInt(document.getElementById("num-dobles").value || "0");
+  const triples = parseInt(document.getElementById("num-triples").value || "0");
+
+  const res = await fetch(`data/analisis_ia.json?v=${Date.now()}`);
+  const ia = await res.json();
+
+  const analisis = [
+    ...(ia.ligas?.primera?.proximos_partidos || []),
+    ...(ia.ligas?.segunda?.proximos_partidos || [])
+  ];
+
+  let partidos = partidosJornadaIA.map(p => {
+    const encontrado = analisis.find(a =>
+      a.local === p.local && a.visitante === p.visitante
+    );
+
+    let recomendacion = encontrado?.recomendacion || "1";
+    let confianza = encontrado?.confianza || "Baja";
+
+    return {
+      ...p,
+      recomendacion,
+      confianza,
+      riesgo: encontrado?.riesgo_sorpresa || "Medio",
+      explicacion: encontrado?.explicacion || "Sin análisis IA disponible."
+    };
+  });
+
+  partidos.sort((a, b) => {
+    const peso = { "Baja": 3, "Media": 2, "Alta": 1 };
+    return (peso[a.confianza] || 2) - (peso[b.confianza] || 2);
+  });
+
+  let triplesRestantes = triples;
+  let doblesRestantes = dobles;
+
+  partidos = partidos.map(p => {
+    let signo = p.recomendacion;
+
+    if (triplesRestantes > 0 && p.confianza === "Baja") {
+      signo = "1X2";
+      triplesRestantes--;
+    } else if (doblesRestantes > 0 && signo.length === 1) {
+      signo = signo === "1" ? "1X" : signo === "2" ? "X2" : "1X";
+      doblesRestantes--;
+    }
+
+    return { ...p, signo_final: signo };
+  });
+
+  partidos.sort((a, b) => a.num - b.num);
+
+  document.getElementById("boleto-ia").innerHTML = partidos.map(p => `
+    <div class="fila-boleto">
+      <div>${p.num}</div>
+      <div>
+        <strong>${p.local} - ${p.visitante}</strong><br>
+        <small>${p.explicacion}</small>
+      </div>
+      <div class="signos-ia">
+        ${p.signo_final.split("").map(s => `<span>${s}</span>`).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+
+cargarJornadasQuinielaIA();
 </script>
 
 </body>
