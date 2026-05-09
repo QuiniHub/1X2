@@ -248,6 +248,7 @@ primera = cargar_openfootball("primera", FUENTES["primera"])
 segunda = cargar_openfootball("segunda", FUENTES["segunda"])
 
 reforzar_segunda(segunda)
+actualizar_resultados_segunda_laliga(segunda)
 
 escribir("primera", FUENTES["primera"], primera)
 escribir("segunda", FUENTES["segunda"], segunda)
