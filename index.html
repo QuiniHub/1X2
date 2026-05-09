@@ -716,23 +716,20 @@ cargarClasificaciones();
 
       jornada.partidos.forEach((p, index) => {
 
-        html += `
+          html += `
           <div class="partido">
+          <strong>${index + 1}.</strong>
 
-            <strong>${index + 1}.</strong>
+          ${p.hora ? p.hora + " · " : ""}
 
-            ${p.local}
-            vs
-            ${p.visitante}
+          ${p.local}
 
-            ${p.hora ? `<br><small>${p.hora}</small>` : ""}
+          ${p.resultado ? " " + p.resultado + " " : " - "}
 
-            ${p.estado ? `<br><small>${p.estado}</small>` : ""}
-
-            ${p.resultado ? `<br><strong>${p.resultado}</strong>` : ""}
+          ${p.visitante}
 
           </div>
-        `;
+          `;
 
       });
 
