@@ -97,39 +97,36 @@ def extraer_segunda():
 
     jornadas = {}
 
-    for ronda in data.get("rounds", []):
-        nombre_ronda = ronda.get("name", "")
-        numero = re.search(r"(\d+)", nombre_ronda)
+    for match in data.get("matches", []):
+        jornada_txt = str(match.get("round", ""))
+        numeros = re.findall(r"\d+", jornada_txt)
 
-        if not numero:
+        if not numeros:
             continue
 
-        jornada = int(numero.group(1))
+        jornada = int(numeros[0])
 
-        partidos = []
+        score = match.get("score", {})
+        ft = score.get("ft", []) if isinstance(score, dict) else []
 
-        for match in ronda.get("matches", []):
-            partido = {
-                "fecha": match.get("date", ""),
-                "hora": "",
-                "local": clean(match.get("team1", {}).get("name", "")),
-                "visitante": clean(match.get("team2", {}).get("name", "")),
-                "estado": "Programado",
-                "resultado": ""
-            }
+        estado = "Programado"
+        resultado = ""
 
-            score1 = match.get("score1")
-            score2 = match.get("score2")
+        if isinstance(ft, list) and len(ft) == 2:
+            estado = "Jugado"
+            resultado = f"{ft[0]}-{ft[1]}"
 
-            if score1 is not None and score2 is not None:
-                partido["estado"] = "Jugado"
-                partido["resultado"] = f"{score1}-{score2}"
+        partido = {
+            "fecha": match.get("date", ""),
+            "hora": match.get("time", ""),
+            "local": clean(match.get("team1", "")),
+            "visitante": clean(match.get("team2", "")),
+            "estado": estado,
+            "resultado": resultado
+        }
 
-            partidos.append(partido)
-
-        jornadas[jornada] = partidos
-
-    actualizar_resultados_segunda_laliga(jornadas)
+        if partido["local"] and partido["visitante"]:
+            jornadas.setdefault(jornada, []).append(partido)
 
     escribir("segunda", FUENTES["segunda"], jornadas)
 
