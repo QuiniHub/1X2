@@ -29,6 +29,12 @@ def normalizar(txt):
     txt = txt.replace("rcd", "")
     txt = txt.replace("real ", "")
     txt = txt.replace("deportivo ", "")
+    txt = txt.replace("sporting gijón", "sporting")
+    txt = txt.replace("real sociedad b", "real sociedad")
+    txt = txt.replace("deportivo la coruña", "deportivo")
+    txt = txt.replace("real zaragoza", "zaragoza")
+    txt = txt.replace("cádiz cf", "cadiz")
+    txt = txt.replace("málaga cf", "malaga")
     return clean(txt)
 
 def escribir(nombre, fuente, jornadas):
