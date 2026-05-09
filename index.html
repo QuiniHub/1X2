@@ -686,6 +686,85 @@ cargarClasificaciones();
 
   }
 }
+  async function cargarPortada() {
+  await cargarClasificacionHome("primera", "home-clasificacion-primera");
+  await cargarClasificacionHome("segunda", "home-clasificacion-segunda");
+  await cargarJornadaHome("primera", "home-jornada-primera");
+  await cargarJornadaHome("segunda", "home-jornada-segunda");
+}
+
+async function cargarClasificacionHome(tipo, contenedorId) {
+  const contenedor = document.getElementById(contenedorId);
+  if (!contenedor) return;
+
+  try {
+    const res = await fetch(`data/clasificacion_${tipo}.json?v=${Date.now()}`);
+    const data = await res.json();
+
+    const equipos = Array.isArray(data) ? data : (data.equipos || data.clasificacion || []);
+
+    contenedor.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Pos</th>
+            <th>Equipo</th>
+            <th>Pts</th>
+            <th>PJ</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${equipos.slice(0, 20).map((e, i) => `
+            <tr>
+              <td>${e.posicion || e.pos || i + 1}</td>
+              <td>${e.equipo || e.nombre || e.team || ""}</td>
+              <td><strong>${e.puntos || e.pts || e.points || 0}</strong></td>
+              <td>${e.partidos || e.pj || e.played || 0}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    contenedor.innerHTML = "No se pudo cargar la clasificación.";
+  }
+}
+
+async function cargarJornadaHome(tipo, contenedorId) {
+  const contenedor = document.getElementById(contenedorId);
+  if (!contenedor) return;
+
+  try {
+    const res = await fetch(`data/calendario_${tipo}.json?v=${Date.now()}`);
+    const data = await res.json();
+
+    const jornadas = data.jornadas || [];
+    const actual = jornadas.find(j =>
+      j.partidos && j.partidos.some(p => p.estado === "Programado")
+    ) || jornadas[jornadas.length - 1];
+
+    if (!actual) {
+      contenedor.innerHTML = "No hay jornada disponible.";
+      return;
+    }
+
+    contenedor.innerHTML = `
+      <h3>Jornada ${actual.jornada}</h3>
+      ${actual.partidos.map((p, i) => `
+        <div class="partido">
+          <strong>${i + 1}. ${p.local} - ${p.visitante}</strong><br>
+          ${p.hora ? `<span>${p.hora}</span><br>` : ""}
+          <span>${p.estado || ""}</span>
+          ${p.resultado ? `<br><strong>${p.resultado}</strong>` : ""}
+        </div>
+      `).join("")}
+    `;
+  } catch (e) {
+    contenedor.innerHTML = "No se pudo cargar la jornada.";
+  }
+}
+
+cargarPortada();
 </script>
 
 </body>
