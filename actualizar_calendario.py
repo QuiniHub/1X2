@@ -35,6 +35,41 @@ def normalizar(txt):
     txt = txt.replace("real zaragoza", "zaragoza")
     txt = txt.replace("cádiz cf", "cadiz")
     txt = txt.replace("málaga cf", "malaga")
+        equivalencias = {
+        "deportivo la coruna": "deportivo",
+        "deportivo coruna": "deportivo",
+        "deportivo de la coruna": "deportivo",
+        "deportivo la Coruña": "deportivo",
+        "racing santander": "racing",
+        "racing de santander": "racing",
+        "sporting gijon": "sporting",
+        "sporting de gijon": "sporting",
+        "real sporting": "sporting",
+        "real sociedad b": "sociedad b",
+        "real sociedad ii": "sociedad b",
+        "real sociedad de futbol b": "sociedad b",
+        "fc andorra": "andorra",
+        "ad ceuta": "ceuta",
+        "ad ceuta fc": "ceuta",
+        "ud almeria": "almeria",
+        "ud las palmas": "las palmas",
+        "cd castellon": "castellon",
+        "cordoba cf": "cordoba",
+        "malaga cf": "malaga",
+        "cadiz cf": "cadiz",
+        "granada cf": "granada",
+        "burgos cf": "burgos",
+        "sd huesca": "huesca",
+        "sd eibar": "eibar",
+        "cd mirandes": "mirandes",
+        "real zaragoza": "zaragoza",
+        "real valladolid": "valladolid",
+        "cultural leonesa": "cultural",
+        "albacete balompie": "albacete"
+    }
+
+    for a, b in equivalencias.items():
+        txt = txt.replace(a, b)
     return clean(txt)
 
 def escribir(nombre, fuente, jornadas):
