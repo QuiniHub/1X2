@@ -287,36 +287,28 @@ button:hover {
 
   <section id="quiniela" class="active">
     <div class="card">
-      <h2>Quiniela ganadora propuesta</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Nº</th>
-            <th>Partido</th>
-            <th>Signo</th>
-            <th>Tipo</th>
-            <th>Lectura</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>1</td><td>Elche - Alavés</td><td class="signo">1X2</td><td>Triple</td><td>Descenso puro, caos emocional.</td></tr>
-          <tr><td>2</td><td>Sevilla - Espanyol</td><td class="signo">X</td><td>Fijo bomba</td><td>Favorito vulnerable, ansiedad local.</td></tr>
-          <tr><td>3</td><td>Atlético - Celta</td><td class="signo">1</td><td>Fijo</td><td>Metropolitano y objetivo fuerte.</td></tr>
-          <tr><td>4</td><td>Real Sociedad - Betis</td><td class="signo">1X2</td><td>Triple</td><td>Partido europeo, técnico e imprevisible.</td></tr>
-          <tr><td>5</td><td>Mallorca - Villarreal</td><td class="signo">1X</td><td>Doble</td><td>Mallorca más necesitado, posible bomba.</td></tr>
-          <tr><td>6</td><td>Athletic - Valencia</td><td class="signo">1</td><td>Fijo</td><td>San Mamés pesa mucho.</td></tr>
-          <tr><td>7</td><td>Oviedo - Getafe</td><td class="signo">X</td><td>Fijo</td><td>Partido físico, feo y de bloqueo.</td></tr>
-          <tr><td>8</td><td>Rayo - Girona</td><td class="signo">1X2</td><td>Triple</td><td>Caos, ritmo y partido abierto.</td></tr>
-          <tr><td>9</td><td>Ceuta - Castellón</td><td class="signo">2</td><td>Fijo</td><td>Visitante con objetivo fuerte.</td></tr>
-          <tr><td>10</td><td>Burgos - Almería</td><td class="signo">X2</td><td>Doble</td><td>Almería obligado, Burgos trampa.</td></tr>
-          <tr><td>11</td><td>Málaga - Sporting</td><td class="signo">1</td><td>Fijo</td><td>Málaga mejor dinámica local.</td></tr>
-          <tr><td>12</td><td>Andorra - Las Palmas</td><td class="signo">X</td><td>Fijo bomba</td><td>Partido de control y miedo a perder.</td></tr>
-          <tr><td>13</td><td>Leganés - Racing</td><td class="signo">2</td><td>Fijo diferencial</td><td>Racing con mentalidad de ascenso.</td></tr>
-          <tr><td>14</td><td>Córdoba - Granada</td><td class="signo">1</td><td>Fijo</td><td>Córdoba con hambre y mejor ánimo.</td></tr>
-          <tr><td>15</td><td>Barcelona - Real Madrid</td><td class="signo">M-1</td><td>Pleno al 15</td><td>Marcador orientativo: 2-1.</td></tr>
-        </tbody>
-      </table>
-    </div>
+  <h2>Quiniela IA</h2>
+  <p>Selecciona una jornada, configura dobles/triples y genera el boleto con análisis IA.</p>
+
+  <div id="lista-jornadas-quiniela" class="jornadas-grid"></div>
+
+  <div id="config-quiniela" style="display:none; margin-top:20px;">
+    <h3 id="titulo-jornada-ia"></h3>
+
+    <label>Dobles:</label>
+    <input id="num-dobles" type="number" min="0" max="14" value="0" onchange="calcularImporteIA()">
+
+    <label>Triples:</label>
+    <input id="num-triples" type="number" min="0" max="14" value="0" onchange="calcularImporteIA()">
+
+    <p><strong>Apuestas:</strong> <span id="total-apuestas">1</span></p>
+    <p><strong>Importe:</strong> <span id="importe-quiniela">1,50 €</span></p>
+
+    <button onclick="generarBoletoIA()">OK, generar boleto IA</button>
+  </div>
+
+  <div id="boleto-ia" class="boleto-ia"></div>
+</div>
   </section>
 
   <section id="elige8">
