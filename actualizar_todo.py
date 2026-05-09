@@ -5,6 +5,7 @@ scripts = [
     "actualizar_clasificaciones.py",
     "actualizar_jornadas_detalle.py",
     "actualizar_calendario.py",
+    "actualizar_analisis_ia.py",
 ]
 
 for script in scripts:
