@@ -13,10 +13,10 @@ FUENTES = {
 }
 
 FUENTES_SEGUNDA_RESULTADOS = [
-    "https://www.laliga.com/laliga-hypermotion/resultados/2025-26/jornada-{}",
-    "https://www.laliga.com/laliga-hypermotion/resultados",
     "https://www.mundodeportivo.com/resultados/futbol/liga-segunda-division/2025-2026/jornada-{}",
+    "https://www.mundodeportivo.com/resultados/futbol/liga-segunda-division/jornada-{}",
     "https://as.com/resultados/futbol/segunda/2025_2026/jornada/regular_a_{}/",
+    "https://www.laliga.com/laliga-hypermotion/resultados/2025-26/jornada-{}",
 ]
 
 Path("data").mkdir(exist_ok=True)
@@ -248,7 +248,6 @@ primera = cargar_openfootball("primera", FUENTES["primera"])
 segunda = cargar_openfootball("segunda", FUENTES["segunda"])
 
 reforzar_segunda(segunda)
-actualizar_resultados_segunda_laliga(segunda)
 
 escribir("primera", FUENTES["primera"], primera)
 escribir("segunda", FUENTES["segunda"], segunda)
