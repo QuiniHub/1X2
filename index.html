@@ -270,6 +270,15 @@ button:hover {
   background: #fff7ed;
   border-left: 4px solid #f97316;
 }
+    .elige8-activo {
+  background: #dbeafe;
+  border-left: 4px solid #2563eb;
+}
+
+.pleno15 {
+  background: #fff7ed;
+  border-left: 4px solid #f97316;
+}
   </style>
 </head>
 <body>
@@ -894,12 +903,12 @@ function pintarBoletoVacioIA() {
 }
 
 async function generarBoletoIA() {
+
   const dobles = parseInt(document.getElementById("num-dobles").value || "0");
   const triples = parseInt(document.getElementById("num-triples").value || "0");
   const activarElige8 = document.getElementById("activar-elige8")?.checked;
 
   const ia = await fetch(`data/analisis_ia.json?v=${Date.now()}`).then(r => r.json());
-  const clasif = await fetch(`clasificaciones.json?v=${Date.now()}`).then(r => r.json());
 
   function norm(txt) {
     return (txt || "")
@@ -910,79 +919,50 @@ async function generarBoletoIA() {
   }
 
   function buscarAnalisis(local, visitante) {
+
     const todos = [
       ...(ia.ligas?.primera?.proximos_partidos || []),
       ...(ia.ligas?.segunda?.proximos_partidos || [])
     ];
 
     return todos.find(a =>
-      (norm(a.local).includes(norm(local)) || norm(local).includes(norm(a.local))) &&
-      (norm(a.visitante).includes(norm(visitante)) || norm(visitante).includes(norm(a.visitante)))
+      (
+        norm(a.local).includes(norm(local)) ||
+        norm(local).includes(norm(a.local))
+      ) &&
+      (
+        norm(a.visitante).includes(norm(visitante)) ||
+        norm(visitante).includes(norm(a.visitante))
+      )
     );
-  }
-
-  function buscarClasificacion(nombre) {
-    const equipos = [
-      ...(clasif.primera || []),
-      ...(clasif.segunda || [])
-    ];
-
-    return equipos.find(e =>
-      norm(e.equipo).includes(norm(nombre)) ||
-      norm(nombre).includes(norm(e.equipo))
-    );
-  }
-
-  function ajustarProbabilidades(probs, local, visitante) {
-    let p = { ...probs };
-
-    const cl = buscarClasificacion(local);
-    const cv = buscarClasificacion(visitante);
-
-    if (cl && cv) {
-      const posL = cl.posicion || 99;
-      const posV = cv.posicion || 99;
-      const ptsL = cl.puntos || 0;
-      const ptsV = cv.puntos || 0;
-
-      const ajuste = Math.max(
-        Math.min((posV - posL) * 0.8 + (ptsL - ptsV) * 0.25, 12),
-        -12
-      );
-
-      p["1"] += ajuste;
-      p["2"] -= ajuste;
-
-      if (Math.abs(posL - posV) <= 3) {
-        p["X"] += 3;
-      }
-    }
-
-    const total = p["1"] + p["X"] + p["2"];
-
-    return {
-      "1": +(p["1"] / total * 100).toFixed(1),
-      "X": +(p["X"] / total * 100).toFixed(1),
-      "2": +(p["2"] / total * 100).toFixed(1)
-    };
   }
 
   function signoMasProbable(probs) {
-    return Object.entries(probs).sort((a, b) => b[1] - a[1])[0][0];
+    return Object.entries(probs)
+      .sort((a, b) => b[1] - a[1])[0][0];
   }
 
   function dobleMasProbable(probs) {
+
     const top2 = Object.entries(probs)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 2)
       .map(x => x[0]);
 
-    return ["1", "X", "2"].filter(s => top2.includes(s)).join("");
+    return ["1", "X", "2"]
+      .filter(s => top2.includes(s))
+      .join("");
   }
 
   function incertidumbre(probs, riesgo) {
-    const valores = Object.values(probs).sort((a, b) => b - a);
-    let puntos = 100 - (valores[0] - valores[1]) + probs["X"] * 0.35;
+
+    const valores = Object.values(probs)
+      .sort((a, b) => b - a);
+
+    let puntos =
+      100 -
+      (valores[0] - valores[1]) +
+      probs["X"] * 0.35;
 
     if (riesgo === "Alto") puntos += 12;
     if (riesgo === "Medio") puntos += 6;
@@ -990,28 +970,38 @@ async function generarBoletoIA() {
     return puntos;
   }
 
-  let partidos = partidosJornadaIA.map(p => {
-    const analisis = buscarAnalisis(p.local, p.visitante);
+  let partidos = partidosJornadaIA
+    .filter(p => Number(p.num) <= 14)
+    .map(p => {
 
-    let probs = analisis?.probabilidades || { "1": 37, "X": 31, "2": 32 };
-    probs = ajustarProbabilidades(probs, p.local, p.visitante);
+      const analisis = buscarAnalisis(p.local, p.visitante);
 
-    const riesgo = analisis?.riesgo_sorpresa || "Alto";
-    const signoBase = signoMasProbable(probs);
+      const probs = analisis?.probabilidades || {
+        "1": 37,
+        "X": 31,
+        "2": 32
+      };
 
-    return {
-      ...p,
-      probabilidades: probs,
-      signo_base: signoBase,
-      signo_final: signoBase,
-      explicacion: analisis?.explicacion || "Estimación basada en clasificación, histórico y equilibrio del partido.",
-      confianza: analisis?.confianza || "Baja",
-      riesgo,
-      incertidumbre: incertidumbre(probs, riesgo)
-    };
-  });
+      const riesgo = analisis?.riesgo_sorpresa || "Alto";
 
-  const porRiesgo = [...partidos].sort((a, b) => b.incertidumbre - a.incertidumbre);
+      const signoBase = signoMasProbable(probs);
+
+      return {
+        ...p,
+        probabilidades: probs,
+        signo_base: signoBase,
+        signo_final: signoBase,
+        explicacion:
+          analisis?.explicacion ||
+          "Estimación basada en forma, clasificación y equilibrio estadístico.",
+        confianza: analisis?.confianza || "Baja",
+        riesgo,
+        incertidumbre: incertidumbre(probs, riesgo)
+      };
+    });
+
+  const porRiesgo = [...partidos]
+    .sort((a, b) => b.incertidumbre - a.incertidumbre);
 
   const triplesSet = new Set(
     porRiesgo.slice(0, triples).map(p => p.num)
@@ -1025,11 +1015,13 @@ async function generarBoletoIA() {
   );
 
   partidos = partidos.map(p => {
+
     let signo = p.signo_base;
 
     if (triplesSet.has(p.num)) {
       signo = "1X2";
-    } else if (doblesSet.has(p.num)) {
+    }
+    else if (doblesSet.has(p.num)) {
       signo = dobleMasProbable(p.probabilidades);
     }
 
@@ -1042,62 +1034,109 @@ async function generarBoletoIA() {
   const elige8Set = new Set();
 
   if (activarElige8) {
-    const masFiables = [...partidos]
+
+    const fiables = [...partidos]
       .sort((a, b) => a.incertidumbre - b.incertidumbre)
       .slice(0, 8);
 
-    masFiables.forEach(p => elige8Set.add(p.num));
+    fiables.forEach(p => elige8Set.add(p.num));
   }
 
   partidos.sort((a, b) => a.num - b.num);
 
+  const pleno15 = partidosJornadaIA.find(
+    p => Number(p.num) === 15
+  );
+
   document.getElementById("boleto-ia").innerHTML = `
-  const pleno = partidosJornadaIA.find(p => Number(p.num) === 15);
+
     ${partidos.map(p => `
+
       <div class="fila-boleto ${elige8Set.has(p.num) ? "elige8-activo" : ""}">
+
         <div>${p.num}</div>
 
         <div>
+
           <strong>${p.local} - ${p.visitante}</strong><br>
+
           <small>
             1: ${p.probabilidades["1"]}% ·
             X: ${p.probabilidades["X"]}% ·
             2: ${p.probabilidades["2"]}%
           </small><br>
+
           <small>
-            Confianza: ${p.confianza} · Riesgo: ${p.riesgo}
+            Confianza: ${p.confianza} ·
+            Riesgo: ${p.riesgo}
           </small>
+
         </div>
 
         <div class="signos-ia">
-          ${p.signo_final.split("").map(s => `<span>${s}</span>`).join("")}
+
+          ${p.signo_final
+            .split("")
+            .map(s => `<span>${s}</span>`)
+            .join("")}
+
         </div>
+
       </div>
+
     `).join("")}
-${pleno ? `
-  <div class="fila-boleto pleno15">
-    <div>15</div>
-    <div>
-      <strong>Pleno al 15</strong><br>
-      <small>${pleno.local} - ${pleno.visitante}</small>
-    </div>
-    <div class="signos-ia">
-      <span>${pleno.resultado || "2-1"}</span>
-    </div>
-  </div>
-` : ""}
+
+    ${pleno15 ? `
+
+      <div class="fila-boleto pleno15">
+
+        <div>15</div>
+
+        <div>
+
+          <strong>Pleno al 15</strong><br>
+
+          <small>
+            ${pleno15.local} - ${pleno15.visitante}
+          </small>
+
+        </div>
+
+        <div class="signos-ia">
+          <span>2-1</span>
+        </div>
+
+      </div>
+
+    ` : ""}
+
     <div class="card" style="margin-top:20px;">
+
       <h3>Análisis IA del boleto</h3>
 
       ${partidos.map(p => `
+
         <p>
-          <strong>${p.num}. ${p.local} - ${p.visitante}</strong><br>
-          Signo recomendado: <strong>${p.signo_final}</strong><br>
-          ${elige8Set.has(p.num) ? "<strong>Marcado para Elige 8.</strong><br>" : ""}
+
+          <strong>
+            ${p.num}. ${p.local} - ${p.visitante}
+          </strong><br>
+
+          Signo recomendado:
+          <strong>${p.signo_final}</strong><br>
+
+          ${elige8Set.has(p.num)
+            ? "<strong>Marcado para Elige 8.</strong><br>"
+            : ""}
+
           ${p.explicacion}
+
         </p>
+
       `).join("")}
+
     </div>
+
   `;
 }
 
