@@ -887,68 +887,197 @@ function pintarBoletoVacioIA() {
 async function generarBoletoIA() {
   const dobles = parseInt(document.getElementById("num-dobles").value || "0");
   const triples = parseInt(document.getElementById("num-triples").value || "0");
+  const activarElige8 = document.getElementById("activar-elige8")?.checked;
 
-  const res = await fetch(`data/analisis_ia.json?v=${Date.now()}`);
-  const ia = await res.json();
+  const ia = await fetch(`data/analisis_ia.json?v=${Date.now()}`).then(r => r.json());
+  const clasif = await fetch(`clasificaciones.json?v=${Date.now()}`).then(r => r.json());
 
-  const analisis = [
-    ...(ia.ligas?.primera?.proximos_partidos || []),
-    ...(ia.ligas?.segunda?.proximos_partidos || [])
-  ];
+  function norm(txt) {
+    return (txt || "")
+      .toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/fc|cf|cd|sd|ud|rcd|rc|real|club|de|la|el/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  function buscarAnalisis(local, visitante) {
+    const todos = [
+      ...(ia.ligas?.primera?.proximos_partidos || []),
+      ...(ia.ligas?.segunda?.proximos_partidos || [])
+    ];
+
+    return todos.find(a =>
+      (norm(a.local).includes(norm(local)) || norm(local).includes(norm(a.local))) &&
+      (norm(a.visitante).includes(norm(visitante)) || norm(visitante).includes(norm(a.visitante)))
+    );
+  }
+
+  function buscarClasificacion(nombre) {
+    const equipos = [
+      ...(clasif.primera || []),
+      ...(clasif.segunda || [])
+    ];
+
+    return equipos.find(e =>
+      norm(e.equipo).includes(norm(nombre)) ||
+      norm(nombre).includes(norm(e.equipo))
+    );
+  }
+
+  function ajustarProbabilidades(probs, local, visitante) {
+    let p = { ...probs };
+
+    const cl = buscarClasificacion(local);
+    const cv = buscarClasificacion(visitante);
+
+    if (cl && cv) {
+      const posL = cl.posicion || 99;
+      const posV = cv.posicion || 99;
+      const ptsL = cl.puntos || 0;
+      const ptsV = cv.puntos || 0;
+
+      const ajuste = Math.max(
+        Math.min((posV - posL) * 0.8 + (ptsL - ptsV) * 0.25, 12),
+        -12
+      );
+
+      p["1"] += ajuste;
+      p["2"] -= ajuste;
+
+      if (Math.abs(posL - posV) <= 3) {
+        p["X"] += 3;
+      }
+    }
+
+    const total = p["1"] + p["X"] + p["2"];
+
+    return {
+      "1": +(p["1"] / total * 100).toFixed(1),
+      "X": +(p["X"] / total * 100).toFixed(1),
+      "2": +(p["2"] / total * 100).toFixed(1)
+    };
+  }
+
+  function signoMasProbable(probs) {
+    return Object.entries(probs).sort((a, b) => b[1] - a[1])[0][0];
+  }
+
+  function dobleMasProbable(probs) {
+    const top2 = Object.entries(probs)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(x => x[0]);
+
+    return ["1", "X", "2"].filter(s => top2.includes(s)).join("");
+  }
+
+  function incertidumbre(probs, riesgo) {
+    const valores = Object.values(probs).sort((a, b) => b - a);
+    let puntos = 100 - (valores[0] - valores[1]) + probs["X"] * 0.35;
+
+    if (riesgo === "Alto") puntos += 12;
+    if (riesgo === "Medio") puntos += 6;
+
+    return puntos;
+  }
 
   let partidos = partidosJornadaIA.map(p => {
-    const encontrado = analisis.find(a =>
-      a.local === p.local && a.visitante === p.visitante
-    );
+    const analisis = buscarAnalisis(p.local, p.visitante);
 
-    let recomendacion = encontrado?.recomendacion || "1";
-    let confianza = encontrado?.confianza || "Baja";
+    let probs = analisis?.probabilidades || { "1": 37, "X": 31, "2": 32 };
+    probs = ajustarProbabilidades(probs, p.local, p.visitante);
+
+    const riesgo = analisis?.riesgo_sorpresa || "Alto";
+    const signoBase = signoMasProbable(probs);
 
     return {
       ...p,
-      recomendacion,
-      confianza,
-      riesgo: encontrado?.riesgo_sorpresa || "Medio",
-      explicacion: encontrado?.explicacion || "Sin análisis IA disponible."
+      probabilidades: probs,
+      signo_base: signoBase,
+      signo_final: signoBase,
+      explicacion: analisis?.explicacion || "Estimación basada en clasificación, histórico y equilibrio del partido.",
+      confianza: analisis?.confianza || "Baja",
+      riesgo,
+      incertidumbre: incertidumbre(probs, riesgo)
     };
   });
 
-  partidos.sort((a, b) => {
-    const peso = { "Baja": 3, "Media": 2, "Alta": 1 };
-    return (peso[a.confianza] || 2) - (peso[b.confianza] || 2);
-  });
+  const porRiesgo = [...partidos].sort((a, b) => b.incertidumbre - a.incertidumbre);
 
-  let triplesRestantes = triples;
-  let doblesRestantes = dobles;
+  const triplesSet = new Set(
+    porRiesgo.slice(0, triples).map(p => p.num)
+  );
+
+  const doblesSet = new Set(
+    porRiesgo
+      .filter(p => !triplesSet.has(p.num))
+      .slice(0, dobles)
+      .map(p => p.num)
+  );
 
   partidos = partidos.map(p => {
-    let signo = p.recomendacion;
+    let signo = p.signo_base;
 
-    if (triplesRestantes > 0 && p.confianza === "Baja") {
+    if (triplesSet.has(p.num)) {
       signo = "1X2";
-      triplesRestantes--;
-    } else if (doblesRestantes > 0 && signo.length === 1) {
-      signo = signo === "1" ? "1X" : signo === "2" ? "X2" : "1X";
-      doblesRestantes--;
+    } else if (doblesSet.has(p.num)) {
+      signo = dobleMasProbable(p.probabilidades);
     }
 
-    return { ...p, signo_final: signo };
+    return {
+      ...p,
+      signo_final: signo
+    };
   });
+
+  const elige8Set = new Set();
+
+  if (activarElige8) {
+    const masFiables = [...partidos]
+      .sort((a, b) => a.incertidumbre - b.incertidumbre)
+      .slice(0, 8);
+
+    masFiables.forEach(p => elige8Set.add(p.num));
+  }
 
   partidos.sort((a, b) => a.num - b.num);
 
-  document.getElementById("boleto-ia").innerHTML = partidos.map(p => `
-    <div class="fila-boleto">
-      <div>${p.num}</div>
-      <div>
-        <strong>${p.local} - ${p.visitante}</strong><br>
-        <small>${p.explicacion}</small>
+  document.getElementById("boleto-ia").innerHTML = `
+    ${partidos.map(p => `
+      <div class="fila-boleto ${elige8Set.has(p.num) ? "elige8-activo" : ""}">
+        <div>${p.num}</div>
+
+        <div>
+          <strong>${p.local} - ${p.visitante}</strong><br>
+          <small>
+            1: ${p.probabilidades["1"]}% ·
+            X: ${p.probabilidades["X"]}% ·
+            2: ${p.probabilidades["2"]}%
+          </small><br>
+          <small>
+            Confianza: ${p.confianza} · Riesgo: ${p.riesgo}
+          </small>
+        </div>
+
+        <div class="signos-ia">
+          ${p.signo_final.split("").map(s => `<span>${s}</span>`).join("")}
+        </div>
       </div>
-      <div class="signos-ia">
-        ${p.signo_final.split("").map(s => `<span>${s}</span>`).join("")}
-      </div>
+    `).join("")}
+
+    <div class="card" style="margin-top:20px;">
+      <h3>Análisis IA del boleto</h3>
+
+      ${partidos.map(p => `
+        <p>
+          <strong>${p.num}. ${p.local} - ${p.visitante}</strong><br>
+          Signo recomendado: <strong>${p.signo_final}</strong><br>
+          ${elige8Set.has(p.num) ? "<strong>Marcado para Elige 8.</strong><br>" : ""}
+          ${p.explicacion}
+        </p>
+      `).join("")}
     </div>
-  `).join("");
+  `;
 }
 
 cargarJornadasQuinielaIA();
