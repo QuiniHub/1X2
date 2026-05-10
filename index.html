@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quiniela IA Pro</title>
+
   <style>
     body {
       margin: 0;
@@ -11,1137 +12,1063 @@
       background: #f3f6fb;
       color: #132033;
     }
+
     header {
       background: linear-gradient(135deg, #123c69, #1f7a4c);
       color: white;
-      padding: 40px 24px;
+      padding: 34px 24px;
     }
+
     .wrap {
-      max-width: 1150px;
+      max-width: 1220px;
       margin: auto;
     }
+
     h1 {
-      font-size: 40px;
-      margin: 0 0 10px;
+      font-size: 38px;
+      margin: 0 0 8px;
     }
+
     h2 {
       margin-top: 0;
       color: #123c69;
     }
-    .subtitle {
-      font-size: 18px;
+
+    h3 {
+      margin-top: 0;
+      color: #123c69;
+    }
+
+    nav {
+      background: white;
+      border-bottom: 1px solid #d9e2ec;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    nav .wrap {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px 0;
+    }
+
+    button {
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover {
       opacity: 0.9;
     }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 18px;
-      margin: 24px 0;
-    }
-    .card {
-      background: white;
-      border-radius: 20px;
-      padding: 22px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-    }
-    .table-wrapper {
-    overflow-x: auto;
-    width: 100%;
-}
-    .badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-weight: bold;
-      font-size: 13px;
-      background: #eef4ff;
-      color: #123c69;
-    }
-    .green { background: #ecfdf3; color: #1f7a4c; }
-    .orange { background: #fff7ed; color: #b54708; }
-    .red { background: #fef3f2; color: #b42318; }
-    .signo {
-      font-size: 24px;
-      font-weight: 900;
-      color: #1f7a4c;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 12px;
-    }
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #e6e9f0;
-      text-align: left;
-    }
-    th {
-      color: #667085;
-      font-size: 13px;
-      text-transform: uppercase;
-    }
-    nav {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 24px 0;
-    }
+
     nav button {
-    background: white;
-    color: #1e3a5f;
-    border: 2px solid #d0d7e2;
-    padding: 12px 22px;
-    border-radius: 999px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-nav button:hover {
-    background: #eef4ff;
-}
-
-.active-tab {
-    background: #1e3a5f !important;
-    color: white !important;
-    border-color: #1e3a5f !important;
-}
-    }
-    button.secondary {
       background: white;
       color: #123c69;
-      border: 1px solid #d0d5dd;
+      border: 1px solid #d9e2ec;
     }
+
+    nav button.active {
+      background: #1e3a8a;
+      color: white;
+    }
+
+    main {
+      max-width: 1220px;
+      margin: 22px auto;
+      padding: 0 14px;
+    }
+
     section {
       display: none;
     }
+
     section.active {
       display: block;
     }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      margin-bottom: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .dashboard-grid .card {
+      padding: 12px 16px;
+      min-height: auto;
+      height: fit-content;
+    }
+
+    .dashboard-grid h2 {
+      font-size: 18px;
+      margin: 0 0 8px;
+    }
+
+    .dashboard-grid h3 {
+      font-size: 15px;
+      margin: 0 0 8px;
+    }
+
+    .dashboard-grid table {
+      font-size: 12px;
+      line-height: 1.15;
+    }
+
+    .dashboard-grid th,
+    .dashboard-grid td {
+      padding: 3px 5px;
+    }
+
+    .dashboard-grid .partido {
+      font-size: 12px;
+      line-height: 1.25;
+      padding: 3px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e6e9f0;
+      padding: 8px 10px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #123c69;
+    }
+
+    .jornadas-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .jornadas-grid button {
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    input[type="number"] {
+      width: 70px;
+      padding: 7px;
+      margin: 0 12px 0 4px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+    }
+
+    .boleto-ia {
+      margin-top: 20px;
+    }
+
+    .fila-boleto {
+      display: grid;
+      grid-template-columns: 34px 1fr 110px;
+      gap: 8px;
+      padding: 9px 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 14px;
+      align-items: center;
+    }
+
+    .signos-ia span {
+      display: inline-block;
+      min-width: 20px;
+      text-align: center;
+      padding: 3px 7px;
+      border-radius: 6px;
+      background: #e5e7eb;
+      margin-left: 3px;
+      font-weight: bold;
+    }
+
+    .elige8-activo {
+      background: #dbeafe;
+      border-left: 4px solid #2563eb;
+      padding-left: 8px;
+    }
+
+    .elige8-activo .elige8-badge {
+      display: inline-block;
+      color: #1d4ed8;
+      font-weight: 800;
+      margin-top: 3px;
+    }
+
+    .pleno15 {
+      background: #fff7ed;
+      border-left: 4px solid #f97316;
+      padding-left: 8px;
+      margin-top: 8px;
+    }
+
+    .pleno15 .signos-ia span {
+      background: #fed7aa;
+    }
+
+    .match-row,
+    .partido {
+      padding: 8px 0;
+      border-bottom: 1px solid #e6e9f0;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #e0f2fe;
+      color: #075985;
+      margin-left: 5px;
+    }
+
+    .small-muted {
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      padding: 10px;
+      font-family: inherit;
+    }
+
     .footer {
       text-align: center;
-      padding: 30px;
-      color: #667085;
+      padding: 28px;
+      color: #64748b;
+      font-size: 13px;
     }
-    .partido {
-  padding: 10px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #ddd;
-}
 
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
 
-}
+      .fila-boleto {
+        grid-template-columns: 28px 1fr;
+      }
 
-#detalle-jornada .card {
-  margin-top: 20px;
-}
-
-button {
-  background: #1e3a8a;
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-button:hover {
-  opacity: 0.9;
-}
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-top: 20px;
-}
-
-@media (max-width: 900px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-}
-    .dashboard-grid .card {
-  padding: 18px;
-}
-
-.dashboard-grid h2 {
-  font-size: 22px;
-  margin-bottom: 12px;
-}
-
-.dashboard-grid table {
-  font-size: 13px;
-}
-
-.dashboard-grid th,
-.dashboard-grid td {
-  padding: 5px 6px;
-}
-
-.dashboard-grid .partido {
-  font-size: 13px;
-  padding: 6px 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-    .dashboard-grid {
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 12px;
-}
-
-.dashboard-grid .card {
-  padding: 12px 16px;
-  min-height: auto;
-  height: fit-content;
-}
-
-.dashboard-grid h2 {
-  font-size: 19px;
-  margin: 0 0 8px;
-}
-
-.dashboard-grid h3 {
-  font-size: 16px;
-  margin: 0 0 8px;
-}
-
-.dashboard-grid table {
-  font-size: 12px;
-  line-height: 1.15;
-}
-
-.dashboard-grid th,
-.dashboard-grid td {
-  padding: 3px 5px;
-}
-
-.dashboard-grid .partido {
-  font-size: 12px;
-  line-height: 1.15;
-  padding: 3px 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.dashboard-grid .partido br {
-  display: none;
-}
-    .jornadas-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.jornadas-grid button {
-  padding: 8px 12px;
-  border-radius: 8px;
-}
-
-.boleto-ia {
-  margin-top: 20px;
-}
-
-.fila-boleto {
-  display: grid;
-  grid-template-columns: 35px 1fr 90px;
-  gap: 8px;
-  padding: 7px 0;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 14px;
-}
-
-.signos-ia span {
-  padding: 3px 7px;
-  border-radius: 6px;
-  background: #e5e7eb;
-  margin-left: 3px;
-  font-weight: bold;
-}
-    .elige8-activo {
-  background: #dbeafe;
-  border-left: 4px solid #2563eb;
-  padding-left: 8px;
-}
-    .pleno15 {
-  background: #fff7ed;
-  border-left: 4px solid #f97316;
-}
-    .elige8-activo {
-  background: #dbeafe;
-  border-left: 4px solid #2563eb;
-}
-
-.pleno15 {
-  background: #fff7ed;
-  border-left: 4px solid #f97316;
-}
+      .signos-ia {
+        grid-column: 2;
+      }
+    }
   </style>
 </head>
+
 <body>
-
-<header>
-  <div class="wrap">
-    <span class="badge green">Web activa</span>
-    <h1>Quiniela IA Pro</h1>
-    <p class="subtitle">
-      Plataforma de análisis quinielístico con IA, dinámicas, sorpresas, Elige 8,
-      histórico de boletos y actualización automática.
-    </p>
-  </div>
-</header>
-
-<main class="wrap">
-
- <div class="dashboard-grid">
-
-  <div class="card">
-    <h2>Clasificación 1ª División</h2>
-    <div id="home-clasificacion-primera"></div>
-  </div>
-
-  <div class="card">
-    <h2>Jornada actual 1ª División</h2>
-    <div id="home-jornada-primera"></div>
-  </div>
-
-  <div class="card">
-    <h2>Clasificación 2ª División</h2>
-    <div id="home-clasificacion-segunda"></div>
-  </div>
-
-  <div class="card">
-    <h2>Jornada actual 2ª División</h2>
-    <div id="home-jornada-segunda"></div>
-  </div>
-
-</div>
-
-</div>
+  <header>
+    <div class="wrap">
+      <h1>Quiniela IA Pro</h1>
+      <p>Plataforma de análisis quinielístico con IA, calendarios, clasificaciones, histórico, Elige 8 y aprendizaje.</p>
+    </div>
+  </header>
 
   <nav>
-    <button class="active-tab" onclick="showTab('quiniela', this)">Quiniela</button>
-<button onclick="showTab('analisis', this)">Análisis</button>
-<button onclick="showTab('fuentes', this)">Fuentes</button>
-<button onclick="showTab('mejoras', this)">Próximas mejoras</button>
-<button onclick="showTab('historial', this)">Historial</button>
-    <button onclick="showTab('asistente', this)">Asistente IA</button>
-    <button onclick="showTab('clasificaciones', this)">Clasificaciones</button>
-    <button onclick="showTab('calendario', this)">Calendario</button>
+    <div class="wrap">
+      <button onclick="showTab('quiniela', this)" class="active">Quiniela</button>
+      <button onclick="showTab('analisis', this)">Análisis</button>
+      <button onclick="showTab('fuentes', this)">Fuentes</button>
+      <button onclick="showTab('mejoras', this)">Próximas mejoras</button>
+      <button onclick="showTab('historial', this)">Historial</button>
+      <button onclick="showTab('asistente', this)">Asistente IA</button>
+      <button onclick="showTab('clasificaciones', this)">Clasificaciones</button>
+      <button onclick="showTab('calendario', this)">Calendario</button>
+    </div>
   </nav>
 
-  <section id="quiniela" class="active">
-    <div class="card">
-  <h2>Quiniela IA</h2>
-  <p>Selecciona una jornada, configura dobles/triples y genera el boleto con análisis IA.</p>
-
-  <div id="lista-jornadas-quiniela" class="jornadas-grid"></div>
-
-  <div id="config-quiniela" style="display:none; margin-top:20px;">
-    <h3 id="titulo-jornada-ia"></h3>
-
-    <label>Dobles:</label>
-    <input id="num-dobles" type="number" min="0" max="14" value="0" onchange="calcularImporteIA()">
-
-    <label>Triples:</label>
-    <input id="num-triples" type="number" min="0" max="14" value="0" onchange="calcularImporteIA()">
-<label style="display:block; margin-top:10px;">
-  <input id="activar-elige8" type="checkbox" onchange="calcularImporteIA()">
-  Activar Elige 8
-</label>
-    <p><strong>Apuestas:</strong> <span id="total-apuestas">1</span></p>
-    <p><strong>Importe:</strong> <span id="importe-quiniela">1,50 €</span></p>
-
-    <button onclick="generarBoletoIA()">OK, generar boleto IA</button>
-  </div>
-
-  <div id="boleto-ia" class="boleto-ia"></div>
-</div>
-  </section>
-
-  <section id="analisis">
-    <div class="grid">
-      <div class="card">
-        <h2>Partidos bomba</h2>
-        <p><strong>Sevilla - Espanyol:</strong> posible empate por ansiedad.</p>
-        <p><strong>Mallorca - Villarreal:</strong> necesidad local contra favorito técnico.</p>
-        <p><strong>Andorra - Las Palmas:</strong> empate de control.</p>
-        <p><strong>Leganés - Racing:</strong> 2 diferencial.</p>
-      </div>
-
-      <div class="card">
-        <h2>Qué analiza el motor</h2>
-        <p>✅ Dinámicas</p>
-        <p>✅ Necesidad competitiva</p>
-        <p>✅ Sorpresas históricas</p>
-        <p>✅ Lesiones y sanciones preparadas</p>
-        <p>✅ Cuotas preparadas</p>
-        <p>✅ xG preparado</p>
-        <p>✅ Histórico de boletos preparado</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="fuentes">
-    <div class="card">
-      <h2>Fuentes de datos</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Fuente</th>
-            <th>Uso</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Football-Data</td><td>Resultados y cuotas históricas</td><td>Conectado</td></tr>
-          <tr><td>SELAE / Quiniela</td><td>Histórico, premios, bote, signos</td><td>Preparado</td></tr>
-          <tr><td>Eduardo Losilla</td><td>Contrastar análisis experto</td><td>Preparado</td></tr>
-          <tr><td>Open-Meteo</td><td>Clima</td><td>Preparado</td></tr>
-          <tr><td>APIs de cuotas</td><td>Cuotas en tiempo real</td><td>Requiere clave</td></tr>
-          <tr><td>APIs fútbol</td><td>Lesiones, sanciones, alineaciones</td><td>Requiere clave</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section id="mejoras">
-  <div class="card">
-    <h2>Roadmap de mejoras</h2>
-    <p>Plan de evolución de nuestra plataforma Quiniela IA Pro.</p>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Prioridad</th>
-          <th>Mejora</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>Alta</td><td>Historial real de todas las jornadas</td><td>En progreso</td></tr>
-        <tr><td>Alta</td><td>Panel de aciertos, fallos claros y sorpresas</td><td>Pendiente</td></tr>
-        <tr><td>Alta</td><td>Probabilidad por partido: 1 / X / 2</td><td>Pendiente</td></tr>
-        <tr><td>Media</td><td>Cuotas en tiempo real</td><td>Requiere API</td></tr>
-        <tr><td>Media</td><td>Lesiones, sanciones y alineaciones</td><td>Requiere API</td></tr>
-        <tr><td>Alta</td><td>Machine learning real con histórico</td><td>Pendiente</td></tr>
-        <tr><td>Media</td><td>Ranking de boletos recomendados</td><td>Pendiente</td></tr>
-        <tr><td>Baja</td><td>Diseño visual profesional avanzado</td><td>Pendiente</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-<section id="historial">
-  <div class="card">
-    <h2>Historial de jornadas</h2>
-    <p>
-      Comparativa entre los resultados oficiales de cada Quiniela y nuestra quiniela jugada.
-    </p>
-
-    <div class="table-wrapper">
-<table>
-      <thead>
-        <tr>
-          <th>Jornada</th>
-          <th>Fecha</th>
-          <th>Resultado oficial</th>
-          <th>Nuestra quiniela</th>
-          <th>Aciertos</th>
-          <th>Fallos claros</th>
-          <th>Fallos sorpresa</th>
-          <th>Lectura</th>
-          <th>Detalle</th>
-        </tr>
-      </thead>
-      <tbody id="historial-body">
-        <tr>
-          <td colspan="8">Cargando historial...</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-  <section id="asistente">
-  <div class="card">
-    <h2>Asistente IA Quiniela</h2>
-
-    <p>
-      Pregúntame sobre jornadas, aciertos, fallos, sorpresas o patrones del historial.
-    </p>
-
-    <div class="ia-box">
-      <input 
-        id="ia-pregunta"
-        type="text"
-        placeholder="Ejemplo: ¿Cuál fue nuestra mejor jornada?"
-      >
-
-      <button onclick="responderIA()">
-        Preguntar
-      </button>
-    </div>
-
-    <div id="ia-respuesta" class="ia-respuesta">
-      Estoy listo para analizar el historial.
-    </div>
-  </div>
-</section>
-  <section id="clasificaciones">
-  <div class="card">
-    <h2>Clasificaciones</h2>
-    <p>Primera y Segunda División actualizadas automáticamente.</p>
-
-    <h3>Primera División</h3>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th>
-          </tr>
-        </thead>
-        <tbody id="tabla-primera"></tbody>
-      </table>
-    </div>
-
-    <h3>Segunda División</h3>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th>
-          </tr>
-        </thead>
-        <tbody id="tabla-segunda"></tbody>
-      </table>
-    </div>
-  </div>
-</section>
-  <section id="detalle-jornada">
-  <div class="card">
-    <h2 id="detalle-titulo">Detalle de jornada</h2>
-
-    <div class="grid">
-      <div class="card">
-        <h2>Boleto oficial</h2>
-        <div id="boleto-oficial"></div>
-      </div>
-
-      <div class="card">
-        <h2>Nuestra quiniela</h2>
-        <div id="boleto-nuestro"></div>
-      </div>
-    </div>
-  </div>
-</section>
-  <section id="calendario">
-  <div class="card">
-    <h2>Calendario</h2>
-    <p>Calendario real de Primera y Segunda División por jornadas.</p>
-
-    <div style="margin-bottom:20px;">
-      <button onclick="mostrarCalendario('primera')">1ª División</button>
-      <button onclick="mostrarCalendario('segunda')">2ª División</button>
-    </div>
-
-    <div id="calendario-contenido">
-      Selecciona 1ª División o 2ª División.
-    </div>
-  </div>
-</section>
-</main>
-
-<div class="footer">
-  Quiniela IA Pro · Proyecto de Noelia + IA
-</div>
-
-<script>
-  function showTab(id, boton) {
-  document.querySelectorAll("section").forEach(s => {
-    s.classList.remove("active");
-  });
-
-  document.getElementById(id).classList.add("active");
-
-  document.querySelectorAll("nav button").forEach(b => {
-    b.classList.remove("active-tab");
-  });
-
-  boton.classList.add("active-tab");
-}
-
-  async function cargarHistorial() {
-  const tbody = document.getElementById("historial-body");
-
-  try {
-    const response = await fetch("./historico_quinielas.csv?v=" + Date.now());
-
-    if (!response.ok) {
-      throw new Error("No se encontró el archivo CSV");
-    }
-
-    const text = await response.text();
-    const lineas = text.trim().split(/\r?\n/).slice(1);
-
-    tbody.innerHTML = "";
-
-    lineas.forEach(linea => {
-      const columnas = linea.split(",");
-
-      const fila = document.createElement("tr");
-
-      columnas.forEach(valor => {
-        const td = document.createElement("td");
-        td.textContent = valor.replaceAll('"', "");
-        fila.appendChild(td);
-      });
-const jornada = columnas[0];
-
-const tdDetalle = document.createElement("td");
-tdDetalle.innerHTML = `<button onclick="abrirJornada(${jornada})">Ver boleto</button>`;
-fila.appendChild(tdDetalle);
-      tbody.appendChild(fila);
-    });
-
-  } catch (error) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="8">
-          No se pudo cargar el historial. Revisa que exista:
-          data/historico_quinielas.csv
-        </td>
-      </tr>
-    `;
-  }
-}
-
-cargarHistorial();
-  async function cargarClasificaciones() {
-  try {
-    const response = await fetch("./clasificaciones.json?v=" + Date.now());
-    const data = await response.json();
-
-    pintarClasificacion("tabla-primera", data.primera);
-    pintarClasificacion("tabla-segunda", data.segunda);
-
-  } catch (error) {
-    console.log("No se pudieron cargar las clasificaciones", error);
-  }
-}
-
-function pintarClasificacion(id, equipos) {
-  const tbody = document.getElementById(id);
-
-  tbody.innerHTML = "";
-
-  equipos.forEach((e, index) => {
-
-    tbody.innerHTML += `
-      <tr>
-        <td>${index + 1}</td>
-        <td>${e.equipo}</td>
-        <td>${e.pj}</td>
-        <td>${e.g}</td>
-        <td>${e.e}</td>
-        <td>${e.p}</td>
-        <td>${e.gf}</td>
-        <td>${e.gc}</td>
-        <td>${e.dg}</td>
-        <td><strong>${e.pts}</strong></td>
-      </tr>
-    `;
-  });
-}
-
-cargarClasificaciones();
-  async function abrirJornada(jornada) {
-  showTab("detalle-jornada", document.querySelector("button[onclick*='historial']"));
-
-  const titulo = document.getElementById("detalle-titulo");
-  const oficial = document.getElementById("boleto-oficial");
-  const nuestro = document.getElementById("boleto-nuestro");
-
-  titulo.textContent = `Detalle Jornada ${jornada}`;
-  oficial.innerHTML = "Cargando boleto oficial...";
-  nuestro.innerHTML = "Cargando nuestra quiniela...";
-
-  try {
-    const response = await fetch(`data/jornadas/jornada_${jornada}.json?v=${Date.now()}`);
-    const data = await response.json();
-
-    oficial.innerHTML = "";
-    nuestro.innerHTML = "";
-
-    data.partidos.forEach(p => {
-      oficial.innerHTML += `
-        <div class="match-row">
-          <strong>${p.num}.</strong> ${p.local} ${p.visitante ? "- " + p.visitante : ""}
-          <span class="signo">${p.signo_oficial}</span>
+  <main>
+    <section id="quiniela" class="active">
+      <div class="dashboard-grid">
+        <div class="card">
+          <h2>Clasificación 1ª División</h2>
+          <div id="home-clasificacion-primera">Cargando...</div>
         </div>
-      `;
 
-      nuestro.innerHTML += `
-        <div class="match-row">
-          <strong>${p.num}.</strong> ${p.local} ${p.visitante ? "- " + p.visitante : ""}
-          <span class="signo">${p.signo_nuestro}</span>
+        <div class="card">
+          <h2>Jornada actual 1ª División</h2>
+          <div id="home-jornada-primera">Cargando...</div>
         </div>
-      `;
-    });
 
-    oficial.innerHTML += `
-      <div class="match-row">
-        <strong>Pleno al 15</strong>
-        <span class="signo">${data.pleno15.signo_oficial}</span>
+        <div class="card">
+          <h2>Clasificación 2ª División</h2>
+          <div id="home-clasificacion-segunda">Cargando...</div>
+        </div>
+
+        <div class="card">
+          <h2>Jornada actual 2ª División</h2>
+          <div id="home-jornada-segunda">Cargando...</div>
+        </div>
       </div>
-    `;
 
-    nuestro.innerHTML += `
-      <div class="match-row">
-        <strong>Pleno al 15</strong>
-        <span class="signo">${data.pleno15.signo_nuestro}</span>
+      <div class="card">
+        <h2>Quiniela IA</h2>
+        <p>Selecciona una jornada, configura dobles/triples y genera el boleto con análisis IA.</p>
+
+        <div id="lista-jornadas-quiniela" class="jornadas-grid"></div>
+
+        <div id="config-quiniela" style="display:none; margin-top:20px;">
+          <h3 id="titulo-jornada-ia"></h3>
+
+          <label>Dobles:</label>
+          <input id="num-dobles" type="number" min="0" max="14" value="0" onchange="calcularImporteIA()">
+
+          <label>Triples:</label>
+          <input id="num-triples" type="number" min="0" max="14" value="0" onchange="calcularImporteIA()">
+
+          <label style="display:block; margin-top:10px;">
+            <input id="activar-elige8" type="checkbox" onchange="calcularImporteIA()">
+            Activar Elige 8
+          </label>
+
+          <p><strong>Apuestas:</strong> <span id="total-apuestas">1</span></p>
+          <p><strong>Importe:</strong> <span id="importe-quiniela">1,50 €</span></p>
+
+          <button onclick="generarBoletoIA()">OK, generar boleto IA</button>
+        </div>
+
+        <div id="boleto-ia" class="boleto-ia"></div>
       </div>
-    `;
+    </section>
 
-  } catch (error) {
-    oficial.innerHTML = "No se pudo cargar esta jornada.";
-    nuestro.innerHTML = "No hay datos disponibles.";
-  }
-}
-  async function mostrarCalendario(liga) {
-  const contenedor = document.getElementById("calendario-contenido");
+    <section id="analisis">
+      <div class="grid">
+        <div class="card">
+          <h2>Partidos bomba</h2>
+          <p>La IA detecta partidos con alta incertidumbre, posibles empates, visitantes peligrosos y favoritos vulnerables.</p>
+        </div>
+        <div class="card">
+          <h2>Qué analiza el motor</h2>
+          <p>Forma, casa/fuera, goles, clasificación, histórico de quinielas, rachas, riesgo de sorpresa, dobles y triples.</p>
+        </div>
+      </div>
+    </section>
 
-  contenedor.innerHTML = "Cargando calendario...";
+    <section id="fuentes">
+      <div class="card">
+        <h2>Fuentes de datos</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Fuente</th><th>Uso</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Calendarios JSON</td><td>Resultados, horas y jornadas</td><td>Conectado</td></tr>
+              <tr><td>Clasificaciones</td><td>Posición y puntos</td><td>Conectado</td></tr>
+              <tr><td>Histórico Quiniela</td><td>Patrones de signos</td><td>Conectado</td></tr>
+              <tr><td>Analisis IA</td><td>Probabilidades y explicaciones</td><td>Conectado</td></tr>
+              <tr><td>Aprendizaje IA</td><td>Errores y aciertos</td><td>Preparado</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-  try {
+    <section id="mejoras">
+      <div class="card">
+        <h2>Roadmap de mejoras</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Prioridad</th><th>Mejora</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Alta</td><td>Validar quinielas IA contra resultados reales</td><td>En progreso</td></tr>
+              <tr><td>Alta</td><td>Aprendizaje automático por errores</td><td>Preparado</td></tr>
+              <tr><td>Alta</td><td>Ranking de boletos recomendados</td><td>Pendiente</td></tr>
+              <tr><td>Media</td><td>Cuotas en tiempo real</td><td>Requiere API</td></tr>
+              <tr><td>Media</td><td>Lesiones, sanciones y alineaciones</td><td>Requiere API</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-    const response = await fetch(
-      `data/calendario_${liga}.json?v=` + Date.now()
-    );
+    <section id="historial">
+      <div class="card">
+        <h2>Historial de jornadas</h2>
+        <p>Comparativa entre los resultados oficiales de cada Quiniela y nuestra quiniela jugada.</p>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Jornada</th>
+                <th>Fecha</th>
+                <th>Resultado oficial</th>
+                <th>Nuestra quiniela</th>
+                <th>Aciertos</th>
+                <th>Fallos claros</th>
+                <th>Fallos sorpresa</th>
+                <th>Lectura</th>
+                <th>Detalle</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-historial">
+              <tr><td colspan="9">Cargando historial...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-    const data = await response.json();
+    <section id="asistente">
+      <div class="card">
+        <h2>Asistente IA Quiniela</h2>
+        <p>Pregúntame sobre jornadas, aciertos, fallos, sorpresas o patrones del historial.</p>
+        <textarea id="pregunta-ia" placeholder="Ejemplo: ¿qué partidos son más de empate?"></textarea>
+        <br><br>
+        <button onclick="responderIA()">Preguntar</button>
+        <p id="respuesta-ia">Estoy listo para analizar el historial.</p>
+      </div>
+    </section>
 
-    let html = "";
+    <section id="clasificaciones">
+      <div class="card">
+        <h2>Clasificaciones</h2>
+        <p>Primera y Segunda División actualizadas automáticamente.</p>
 
-    data.jornadas.forEach(jornada => {
+        <h3>Primera División</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th></tr>
+            </thead>
+            <tbody id="tabla-primera"></tbody>
+          </table>
+        </div>
 
-      html += `
-        <div class="card" style="margin-bottom:20px;">
-          <h3>Jornada ${jornada.jornada}</h3>
-      `;
+        <h3>Segunda División</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th></tr>
+            </thead>
+            <tbody id="tabla-segunda"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-      jornada.partidos.forEach((p, index) => {
-
-          html += `
-          <div class="partido">
-          <strong>${index + 1}.</strong>
-
-          ${p.hora ? p.hora + " · " : ""}
-
-          ${p.local}
-
-          ${p.resultado ? " " + p.resultado + " " : " - "}
-
-          ${p.visitante}
-
+    <section id="detalle-jornada">
+      <div class="card">
+        <h2 id="detalle-titulo">Detalle de jornada</h2>
+        <div class="grid">
+          <div class="card">
+            <h2>Boleto oficial</h2>
+            <div id="boleto-oficial"></div>
           </div>
-          `;
+          <div class="card">
+            <h2>Nuestra quiniela</h2>
+            <div id="boleto-nuestro"></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      });
+    <section id="calendario">
+      <div class="card">
+        <h2>Calendario</h2>
+        <p>Calendario real de Primera y Segunda División por jornadas.</p>
+        <div style="margin-bottom:20px;">
+          <button onclick="mostrarCalendario('primera')">1ª División</button>
+          <button onclick="mostrarCalendario('segunda')">2ª División</button>
+        </div>
+        <div id="calendario-contenido">Selecciona 1ª División o 2ª División.</div>
+      </div>
+    </section>
+  </main>
 
-      html += `</div>`;
+  <div class="footer">
+    Quiniela IA Pro · Proyecto de Noelia + IA
+  </div>
 
-    });
+  <script>
+    let jornadaActualIA = null;
+    let partidosJornadaIA = [];
+    let pleno15JornadaIA = null;
 
-    contenedor.innerHTML = html;
+    function showTab(id, btn) {
+      document.querySelectorAll("main section").forEach(s => s.classList.remove("active"));
+      const section = document.getElementById(id);
+      if (section) section.classList.add("active");
 
-  } catch (error) {
-
-    console.log(error);
-
-    contenedor.innerHTML =
-      "No se pudo cargar el calendario.";
-
-  }
-}
-  async function cargarPortada() {
-  await cargarClasificacionHome("primera", "home-clasificacion-primera");
-  await cargarClasificacionHome("segunda", "home-clasificacion-segunda");
-  await cargarJornadaHome("primera", "home-jornada-primera");
-  await cargarJornadaHome("segunda", "home-jornada-segunda");
-}
-
-async function cargarClasificacionHome(tipo, contenedorId) {
-  const contenedor = document.getElementById(contenedorId);
-  if (!contenedor) return;
-
-  try {
-    const res = await fetch(`clasificaciones.json?v=${Date.now()}`);
-    const data = await res.json();
-
-    const equipos = data[tipo] || [];
-
-    contenedor.innerHTML = `
-      <table>
-        <thead>
-          <tr>
-            <th>Pos</th>
-            <th>Equipo</th>
-            <th>Pts</th>
-            <th>PJ</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${equipos.slice(0, tipo === "segunda" ? 22 : 20).map((e, i) => `
-            <tr>
-              <td>${e.posicion || e.pos || i + 1}</td>
-              <td>${e.equipo || e.nombre || e.team || ""}</td>
-              <td><strong>${e.puntos || e.pts || e.points || 0}</strong></td>
-              <td>${e.partidos || e.pj || e.played || 0}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
-  } catch (e) {
-    contenedor.innerHTML = "No se pudo cargar la clasificación.";
-  }
-}
-
-async function cargarJornadaHome(tipo, contenedorId) {
-  const contenedor = document.getElementById(contenedorId);
-  if (!contenedor) return;
-
-  try {
-    const res = await fetch(`data/calendario_${tipo}.json?v=${Date.now()}`);
-    const data = await res.json();
-
-    const jornadas = data.jornadas || [];
-    const actual = jornadas.find(j =>
-      j.partidos && j.partidos.some(p => p.estado === "Programado")
-    ) || jornadas[jornadas.length - 1];
-
-    if (!actual) {
-      contenedor.innerHTML = "No hay jornada disponible.";
-      return;
+      document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+      if (btn) btn.classList.add("active");
     }
 
-    contenedor.innerHTML = `
-      <h3>Jornada ${actual.jornada}</h3>
-      ${actual.partidos.map((p, i) => `
-        <div class="partido">
-<strong>${i + 1}.</strong>
-${p.hora || "--:--"} ·
-${p.local}
-${p.resultado ? " <strong>" + p.resultado + "</strong> " : " - "}
-${p.visitante}
-</div>
-      `).join("")}
-    `;
-  } catch (e) {
-    contenedor.innerHTML = "No se pudo cargar la jornada.";
-  }
-}
+    async function fetchJSON(url, fallback = null) {
+      try {
+        const res = await fetch(url + "?v=" + Date.now());
+        if (!res.ok) throw new Error(url);
+        return await res.json();
+      } catch (e) {
+        return fallback;
+      }
+    }
 
-cargarPortada();
-  let jornadaActualIA = null;
-let partidosJornadaIA = [];
+    function norm(txt) {
+      return (txt || "")
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/fc|cf|cd|sd|ud|rcd|rc|real|club|de|la|el/g, "")
+        .replace(/[^a-z0-9]/g, "");
+    }
 
-async function cargarJornadasQuinielaIA() {
-  const contenedor = document.getElementById("lista-jornadas-quiniela");
-  if (!contenedor) return;
+    async function cargarPortada() {
+      await cargarClasificacionHome("primera", "home-clasificacion-primera");
+      await cargarClasificacionHome("segunda", "home-clasificacion-segunda");
+      await cargarJornadaHome("primera", "home-jornada-primera");
+      await cargarJornadaHome("segunda", "home-jornada-segunda");
+    }
 
-  contenedor.innerHTML = "";
+    async function cargarClasificacionHome(tipo, contenedorId) {
+      const contenedor = document.getElementById(contenedorId);
+      if (!contenedor) return;
 
-  for (let j = 1; j <= 61; j++) {
-    contenedor.innerHTML += `
-      <button onclick="abrirQuinielaIA(${j})">Jornada ${j}</button>
-    `;
-  }
-}
+      const data = await fetchJSON("clasificaciones.json", {});
+      const equipos = data?.[tipo] || [];
 
-async function abrirQuinielaIA(jornada) {
-  jornadaActualIA = jornada;
+      if (!equipos.length) {
+        contenedor.innerHTML = "No se pudo cargar la clasificación.";
+        return;
+      }
 
-  const res = await fetch(`data/jornadas/jornada_${jornada}.json?v=${Date.now()}`);
-  const data = await res.json();
+      const limite = tipo === "segunda" ? 22 : 20;
 
-  partidosJornadaIA = data.partidos || [];
+      contenedor.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Pos</th>
+              <th>Equipo</th>
+              <th>Pts</th>
+              <th>PJ</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${equipos.slice(0, limite).map((e, i) => `
+              <tr>
+                <td>${e.posicion || e.pos || i + 1}</td>
+                <td>${e.equipo || e.nombre || e.team || ""}</td>
+                <td><strong>${e.puntos || e.pts || e.points || 0}</strong></td>
+                <td>${e.pj || e.partidos || e.played || 0}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
 
-  document.getElementById("config-quiniela").style.display = "block";
-  document.getElementById("titulo-jornada-ia").textContent = `Jornada ${jornada}`;
+    async function cargarJornadaHome(tipo, contenedorId) {
+      const contenedor = document.getElementById(contenedorId);
+      if (!contenedor) return;
 
-  pintarBoletoVacioIA();
-  calcularImporteIA();
-}
+      const data = await fetchJSON(`data/calendario_${tipo}.json`, {});
+      const jornadas = data?.jornadas || [];
 
-function calcularImporteIA() {
-  const dobles = parseInt(document.getElementById("num-dobles").value || "0");
-  const triples = parseInt(document.getElementById("num-triples").value || "0");
+      const actual = jornadas.find(j =>
+        j.partidos && j.partidos.some(p => !p.resultado)
+      ) || jornadas[jornadas.length - 1];
 
-  const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
-  const importe = Math.max(apuestas * 0.75, 1.50);
-const elige8 = document.getElementById("activar-elige8")?.checked;
-const importeElige8 = elige8 ? 0.50 : 0;
-const importeTotal = importe + importeElige8;
-  document.getElementById("total-apuestas").textContent = apuestas;
-  document.getElementById("importe-quiniela").textContent =
-    importeTotal.toFixed(2).replace(".", ",") + " €";
-}
+      if (!actual) {
+        contenedor.innerHTML = "No hay jornada disponible.";
+        return;
+      }
 
-function pintarBoletoVacioIA() {
-  const contenedor = document.getElementById("boleto-ia");
+      contenedor.innerHTML = `
+        <h3>Jornada ${actual.jornada}</h3>
+        ${actual.partidos.map((p, i) => `
+          <div class="partido">
+            <strong>${i + 1}.</strong>
+            ${p.hora || "--:--"} ·
+            ${p.local}
+            ${p.resultado ? " <strong>" + p.resultado + "</strong> " : " - "}
+            ${p.visitante}
+          </div>
+        `).join("")}
+      `;
+    }
 
-  contenedor.innerHTML = partidosJornadaIA.map(p => `
-    <div class="fila-boleto">
-      <div>${p.num}</div>
-      <div>${p.local} - ${p.visitante}</div>
-      <div class="signos-ia"><span>?</span></div>
-    </div>
-  `).join("");
-}
+    async function cargarClasificaciones() {
+      const data = await fetchJSON("clasificaciones.json", {});
+      pintarClasificacion("tabla-primera", data.primera || []);
+      pintarClasificacion("tabla-segunda", data.segunda || []);
+    }
 
-async function generarBoletoIA() {
+    function pintarClasificacion(id, equipos) {
+      const tbody = document.getElementById(id);
+      if (!tbody) return;
 
-  const dobles = parseInt(document.getElementById("num-dobles").value || "0");
-  const triples = parseInt(document.getElementById("num-triples").value || "0");
-  const activarElige8 = document.getElementById("activar-elige8")?.checked;
+      tbody.innerHTML = equipos.map((e, index) => `
+        <tr>
+          <td>${e.posicion || index + 1}</td>
+          <td>${e.equipo || ""}</td>
+          <td>${e.pj || e.partidos || 0}</td>
+          <td>${e.g || e.ganados || 0}</td>
+          <td>${e.e || e.empatados || 0}</td>
+          <td>${e.p || e.perdidos || 0}</td>
+          <td>${e.gf || 0}</td>
+          <td>${e.gc || 0}</td>
+          <td>${e.dg || 0}</td>
+          <td><strong>${e.puntos || e.pts || 0}</strong></td>
+        </tr>
+      `).join("");
+    }
 
-  const ia = await fetch(`data/analisis_ia.json?v=${Date.now()}`).then(r => r.json());
+    async function cargarHistorial() {
+      const tbody = document.getElementById("tabla-historial");
+      if (!tbody) return;
 
-  function norm(txt) {
-    return (txt || "")
-      .toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/fc|cf|cd|sd|ud|rcd|rc|real|club|de|la|el/g, "")
-      .replace(/[^a-z0-9]/g, "");
-  }
+      try {
+        const res = await fetch("historico_quinielas.csv?v=" + Date.now());
+        const text = await res.text();
+        const lineas = text.trim().split("\n").filter(Boolean);
+        const datos = lineas.slice(1);
 
-  function buscarAnalisis(local, visitante) {
+        tbody.innerHTML = "";
 
-    const todos = [
-      ...(ia.ligas?.primera?.proximos_partidos || []),
-      ...(ia.ligas?.segunda?.proximos_partidos || [])
-    ];
+        datos.forEach(linea => {
+          const columnas = linea.split(",");
+          if (!columnas.length) return;
 
-    return todos.find(a =>
-      (
-        norm(a.local).includes(norm(local)) ||
-        norm(local).includes(norm(a.local))
-      ) &&
-      (
-        norm(a.visitante).includes(norm(visitante)) ||
-        norm(visitante).includes(norm(a.visitante))
-      )
-    );
-  }
+          const jornada = parseInt(columnas[0]) || "";
+          const fila = document.createElement("tr");
 
-  function signoMasProbable(probs) {
-    return Object.entries(probs)
-      .sort((a, b) => b[1] - a[1])[0][0];
-  }
+          columnas.slice(0, 8).forEach(valor => {
+            const td = document.createElement("td");
+            td.textContent = valor;
+            fila.appendChild(td);
+          });
 
-  function dobleMasProbable(probs) {
+          const tdDetalle = document.createElement("td");
+          tdDetalle.innerHTML = `<button onclick="abrirJornada(${jornada})">Ver boleto</button>`;
+          fila.appendChild(tdDetalle);
 
-    const top2 = Object.entries(probs)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 2)
-      .map(x => x[0]);
+          tbody.appendChild(fila);
+        });
 
-    return ["1", "X", "2"]
-      .filter(s => top2.includes(s))
-      .join("");
-  }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="9">No se pudo cargar el historial.</td></tr>`;
+      }
+    }
 
-  function incertidumbre(probs, riesgo) {
+    async function abrirJornada(jornada) {
+      showTab("detalle-jornada", null);
 
-    const valores = Object.values(probs)
-      .sort((a, b) => b - a);
+      const titulo = document.getElementById("detalle-titulo");
+      const oficial = document.getElementById("boleto-oficial");
+      const nuestro = document.getElementById("boleto-nuestro");
 
-    let puntos =
-      100 -
-      (valores[0] - valores[1]) +
-      probs["X"] * 0.35;
+      titulo.textContent = `Detalle Jornada ${jornada}`;
+      oficial.innerHTML = "Cargando...";
+      nuestro.innerHTML = "Cargando...";
 
-    if (riesgo === "Alto") puntos += 12;
-    if (riesgo === "Medio") puntos += 6;
+      const data = await fetchJSON(`data/jornadas/jornada_${jornada}.json`, null);
+      if (!data) {
+        oficial.innerHTML = "No se pudo cargar esta jornada.";
+        nuestro.innerHTML = "No hay datos disponibles.";
+        return;
+      }
 
-    return puntos;
-  }
+      const partidos = data.partidos || [];
+      const pleno = data.pleno15 || null;
 
-  let partidos = partidosJornadaIA
-    .filter(p => Number(p.num) <= 14)
-    .map(p => {
+      oficial.innerHTML = partidos.map(p => `
+        <div class="match-row">
+          <strong>${p.num}.</strong> ${p.local} - ${p.visitante}
+          <span class="badge">${p.signo_oficial || p.resultado || ""}</span>
+        </div>
+      `).join("");
 
-      const analisis = buscarAnalisis(p.local, p.visitante);
+      nuestro.innerHTML = partidos.map(p => `
+        <div class="match-row">
+          <strong>${p.num}.</strong> ${p.local} - ${p.visitante}
+          <span class="badge">${p.signo_nuestro || "No jugada"}</span>
+        </div>
+      `).join("");
 
-      const probs = analisis?.probabilidades || {
-        "1": 37,
-        "X": 31,
-        "2": 32
+      if (pleno) {
+        oficial.innerHTML += `
+          <div class="match-row pleno15">
+            <strong>15.</strong> Pleno al 15: ${pleno.local || ""} - ${pleno.visitante || ""}
+            <span class="badge">${pleno.signo_oficial || pleno.resultado || ""}</span>
+          </div>
+        `;
+
+        nuestro.innerHTML += `
+          <div class="match-row pleno15">
+            <strong>15.</strong> Pleno al 15: ${pleno.local || ""} - ${pleno.visitante || ""}
+            <span class="badge">${pleno.signo_nuestro || "Pendiente"}</span>
+          </div>
+        `;
+      }
+    }
+
+    async function mostrarCalendario(liga) {
+      const contenedor = document.getElementById("calendario-contenido");
+      contenedor.innerHTML = "Cargando calendario...";
+
+      const data = await fetchJSON(`data/calendario_${liga}.json`, {});
+      const jornadas = data?.jornadas || [];
+
+      if (!jornadas.length) {
+        contenedor.innerHTML = "No se pudo cargar el calendario.";
+        return;
+      }
+
+      contenedor.innerHTML = jornadas.map(jornada => `
+        <div class="card">
+          <h3>Jornada ${jornada.jornada}</h3>
+          ${jornada.partidos.map((p, index) => `
+            <div class="partido">
+              <strong>${index + 1}.</strong>
+              ${p.hora || "--:--"} ·
+              ${p.local}
+              ${p.resultado ? " <strong>" + p.resultado + "</strong> " : " - "}
+              ${p.visitante}
+            </div>
+          `).join("")}
+        </div>
+      `).join("");
+    }
+
+    function responderIA() {
+      const pregunta = document.getElementById("pregunta-ia").value;
+      const respuesta = document.getElementById("respuesta-ia");
+      respuesta.textContent = pregunta
+        ? "La IA ya está conectada al histórico, calendario, clasificación y análisis. Para respuestas conversacionales profundas añadiremos un módulo de consulta en la siguiente fase."
+        : "Escribe una pregunta para analizar.";
+    }
+
+    async function cargarJornadasQuinielaIA() {
+      const contenedor = document.getElementById("lista-jornadas-quiniela");
+      if (!contenedor) return;
+
+      contenedor.innerHTML = "";
+      for (let j = 1; j <= 61; j++) {
+        contenedor.innerHTML += `<button onclick="abrirQuinielaIA(${j})">Jornada ${j}</button>`;
+      }
+    }
+
+    async function abrirQuinielaIA(jornada) {
+      jornadaActualIA = jornada;
+
+      const data = await fetchJSON(`data/jornadas/jornada_${jornada}.json`, null);
+      if (!data) {
+        document.getElementById("boleto-ia").innerHTML = "No se pudo cargar esta jornada.";
+        return;
+      }
+
+      partidosJornadaIA = data.partidos || [];
+      pleno15JornadaIA = data.pleno15 || null;
+
+      document.getElementById("config-quiniela").style.display = "block";
+      document.getElementById("titulo-jornada-ia").textContent = `Jornada ${jornada}`;
+
+      pintarBoletoVacioIA();
+      calcularImporteIA();
+    }
+
+    function calcularImporteIA() {
+      const dobles = parseInt(document.getElementById("num-dobles").value || "0");
+      const triples = parseInt(document.getElementById("num-triples").value || "0");
+      const elige8 = document.getElementById("activar-elige8")?.checked;
+
+      const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
+      const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
+      const importeElige8 = elige8 ? 0.50 : 0;
+      const importeTotal = importeQuiniela + importeElige8;
+
+      document.getElementById("total-apuestas").textContent = apuestas;
+      document.getElementById("importe-quiniela").textContent =
+        importeTotal.toFixed(2).replace(".", ",") + " €";
+    }
+
+    function pintarBoletoVacioIA() {
+      const contenedor = document.getElementById("boleto-ia");
+      const partidos14 = partidosJornadaIA.filter(p => Number(p.num) <= 14);
+
+      contenedor.innerHTML = `
+        ${partidos14.map(p => `
+          <div class="fila-boleto">
+            <div>${p.num}</div>
+            <div>${p.local} - ${p.visitante}</div>
+            <div class="signos-ia"><span>?</span></div>
+          </div>
+        `).join("")}
+
+        ${pleno15JornadaIA ? `
+          <div class="fila-boleto pleno15">
+            <div>15</div>
+            <div>
+              <strong>Pleno al 15</strong><br>
+              <small>${pleno15JornadaIA.local || ""} - ${pleno15JornadaIA.visitante || ""}</small>
+            </div>
+            <div class="signos-ia"><span>?</span></div>
+          </div>
+        ` : ""}
+      `;
+    }
+
+    function buscarAnalisisIA(ia, local, visitante) {
+      const todos = [
+        ...(ia.ligas?.primera?.proximos_partidos || []),
+        ...(ia.ligas?.segunda?.proximos_partidos || [])
+      ];
+
+      return todos.find(a =>
+        (norm(a.local).includes(norm(local)) || norm(local).includes(norm(a.local))) &&
+        (norm(a.visitante).includes(norm(visitante)) || norm(visitante).includes(norm(a.visitante)))
+      );
+    }
+
+    function buscarClasificacionEquipo(clasif, nombre) {
+      const equipos = [
+        ...(clasif.primera || []),
+        ...(clasif.segunda || [])
+      ];
+
+      return equipos.find(e =>
+        norm(e.equipo).includes(norm(nombre)) ||
+        norm(nombre).includes(norm(e.equipo))
+      );
+    }
+
+    function normalizarProbabilidades(p) {
+      p = {
+        "1": Math.max(+p["1"] || 1, 1),
+        "X": Math.max(+p["X"] || 1, 1),
+        "2": Math.max(+p["2"] || 1, 1)
       };
 
-      const riesgo = analisis?.riesgo_sorpresa || "Alto";
+      const total = p["1"] + p["X"] + p["2"];
+      return {
+        "1": +(p["1"] / total * 100).toFixed(1),
+        "X": +(p["X"] / total * 100).toFixed(1),
+        "2": +(p["2"] / total * 100).toFixed(1)
+      };
+    }
 
-      const signoBase = signoMasProbable(probs);
+    function ajustarProbabilidades(probs, local, visitante, clasif) {
+      let p = { ...probs };
+
+      const cl = buscarClasificacionEquipo(clasif, local);
+      const cv = buscarClasificacionEquipo(clasif, visitante);
+
+      if (cl && cv) {
+        const posL = cl.posicion || 99;
+        const posV = cv.posicion || 99;
+        const ptsL = cl.puntos || cl.pts || 0;
+        const ptsV = cv.puntos || cv.pts || 0;
+
+        const ajuste = Math.max(
+          Math.min((posV - posL) * 0.8 + (ptsL - ptsV) * 0.25, 12),
+          -12
+        );
+
+        p["1"] += ajuste;
+        p["2"] -= ajuste;
+
+        if (Math.abs(posL - posV) <= 3) {
+          p["X"] += 3;
+        }
+      }
+
+      return normalizarProbabilidades(p);
+    }
+
+    function signoMasProbable(probs) {
+      return Object.entries(probs).sort((a, b) => b[1] - a[1])[0][0];
+    }
+
+    function dobleMasProbable(probs) {
+      const top2 = Object.entries(probs).sort((a, b) => b[1] - a[1]).slice(0, 2).map(x => x[0]);
+      return ["1", "X", "2"].filter(s => top2.includes(s)).join("");
+    }
+
+    function incertidumbre(probs, riesgo) {
+      const valores = Object.values(probs).sort((a, b) => b - a);
+      let puntos = 100 - (valores[0] - valores[1]) + probs["X"] * 0.35;
+      if (riesgo === "Alto") puntos += 12;
+      if (riesgo === "Medio") puntos += 6;
+      return puntos;
+    }
+
+    function pronosticarPleno15(pleno, partidos) {
+      if (!pleno) return null;
+
+      const mediaLocal = partidos.reduce((a, p) => a + (p.probabilidades?.["1"] || 33), 0) / Math.max(partidos.length, 1);
+      const mediaVisitante = partidos.reduce((a, p) => a + (p.probabilidades?.["2"] || 33), 0) / Math.max(partidos.length, 1);
+
+      let pronostico = "1-1";
+      if (mediaLocal > mediaVisitante + 6) pronostico = "2-1";
+      else if (mediaVisitante > mediaLocal + 6) pronostico = "1-2";
 
       return {
-        ...p,
-        probabilidades: probs,
-        signo_base: signoBase,
-        signo_final: signoBase,
-        explicacion:
-          analisis?.explicacion ||
-          "Estimación basada en forma, clasificación y equilibrio estadístico.",
-        confianza: analisis?.confianza || "Baja",
-        riesgo,
-        incertidumbre: incertidumbre(probs, riesgo)
+        local: pleno.local || "",
+        visitante: pleno.visitante || "",
+        pronostico,
+        explicacion: "Pronóstico orientativo del Pleno al 15 basado en tendencia global del boleto, fuerza local/visitante y equilibrio esperado."
       };
-    });
-
-  const porRiesgo = [...partidos]
-    .sort((a, b) => b.incertidumbre - a.incertidumbre);
-
-  const triplesSet = new Set(
-    porRiesgo.slice(0, triples).map(p => p.num)
-  );
-
-  const doblesSet = new Set(
-    porRiesgo
-      .filter(p => !triplesSet.has(p.num))
-      .slice(0, dobles)
-      .map(p => p.num)
-  );
-
-  partidos = partidos.map(p => {
-
-    let signo = p.signo_base;
-
-    if (triplesSet.has(p.num)) {
-      signo = "1X2";
-    }
-    else if (doblesSet.has(p.num)) {
-      signo = dobleMasProbable(p.probabilidades);
     }
 
-    return {
-      ...p,
-      signo_final: signo
-    };
-  });
+    async function generarBoletoIA() {
+      const dobles = parseInt(document.getElementById("num-dobles").value || "0");
+      const triples = parseInt(document.getElementById("num-triples").value || "0");
+      const activarElige8 = document.getElementById("activar-elige8")?.checked;
 
-  const elige8Set = new Set();
+      const ia = await fetchJSON("data/analisis_ia.json", {});
+      const clasif = await fetchJSON("clasificaciones.json", {});
 
-  if (activarElige8) {
+      let partidos = partidosJornadaIA
+        .filter(p => Number(p.num) <= 14)
+        .map(p => {
+          const analisis = buscarAnalisisIA(ia, p.local, p.visitante);
 
-    const fiables = [...partidos]
-      .sort((a, b) => a.incertidumbre - b.incertidumbre)
-      .slice(0, 8);
+          let probs = analisis?.probabilidades || { "1": 37, "X": 31, "2": 32 };
+          probs = ajustarProbabilidades(probs, p.local, p.visitante, clasif);
 
-    fiables.forEach(p => elige8Set.add(p.num));
-  }
+          const riesgo = analisis?.riesgo_sorpresa || "Alto";
+          const signoBase = signoMasProbable(probs);
 
-  partidos.sort((a, b) => a.num - b.num);
+          return {
+            ...p,
+            probabilidades: probs,
+            signo_base: signoBase,
+            signo_final: signoBase,
+            explicacion: analisis?.explicacion || "Estimación basada en clasificación, histórico y equilibrio estadístico.",
+            confianza: analisis?.confianza || "Baja",
+            riesgo,
+            incertidumbre: incertidumbre(probs, riesgo)
+          };
+        });
 
-  const pleno15 = partidosJornadaIA.find(
-    p => Number(p.num) === 15
-  );
+      const porRiesgo = [...partidos].sort((a, b) => b.incertidumbre - a.incertidumbre);
+      const triplesSet = new Set(porRiesgo.slice(0, triples).map(p => p.num));
+      const doblesSet = new Set(
+        porRiesgo.filter(p => !triplesSet.has(p.num)).slice(0, dobles).map(p => p.num)
+      );
 
-  document.getElementById("boleto-ia").innerHTML = `
+      partidos = partidos.map(p => {
+        let signo = p.signo_base;
 
-    ${partidos.map(p => `
+        if (triplesSet.has(p.num)) signo = "1X2";
+        else if (doblesSet.has(p.num)) signo = dobleMasProbable(p.probabilidades);
 
-      <div class="fila-boleto ${elige8Set.has(p.num) ? "elige8-activo" : ""}">
+        return { ...p, signo_final: signo };
+      });
 
-        <div>${p.num}</div>
+      const elige8Set = new Set();
+      if (activarElige8) {
+        [...partidos]
+          .sort((a, b) => a.incertidumbre - b.incertidumbre)
+          .slice(0, 8)
+          .forEach(p => elige8Set.add(p.num));
+      }
 
-        <div>
+      partidos.sort((a, b) => a.num - b.num);
+      const plenoIA = pronosticarPleno15(pleno15JornadaIA, partidos);
 
-          <strong>${p.local} - ${p.visitante}</strong><br>
+      document.getElementById("boleto-ia").innerHTML = `
+        ${partidos.map(p => `
+          <div class="fila-boleto ${elige8Set.has(p.num) ? "elige8-activo" : ""}">
+            <div>${p.num}</div>
 
-          <small>
-            1: ${p.probabilidades["1"]}% ·
-            X: ${p.probabilidades["X"]}% ·
-            2: ${p.probabilidades["2"]}%
-          </small><br>
+            <div>
+              <strong>${p.local} - ${p.visitante}</strong><br>
+              <small>
+                1: ${p.probabilidades["1"]}% ·
+                X: ${p.probabilidades["X"]}% ·
+                2: ${p.probabilidades["2"]}%
+              </small><br>
+              <small>Confianza: ${p.confianza} · Riesgo: ${p.riesgo}</small>
+              ${elige8Set.has(p.num) ? `<br><span class="elige8-badge">Elige 8</span>` : ""}
+            </div>
 
-          <small>
-            Confianza: ${p.confianza} ·
-            Riesgo: ${p.riesgo}
-          </small>
+            <div class="signos-ia">
+              ${p.signo_final.split("").map(s => `<span>${s}</span>`).join("")}
+            </div>
+          </div>
+        `).join("")}
 
+        ${plenoIA ? `
+          <div class="fila-boleto pleno15">
+            <div>15</div>
+            <div>
+              <strong>Pleno al 15</strong><br>
+              <small>${plenoIA.local} - ${plenoIA.visitante}</small><br>
+              <small>${plenoIA.explicacion}</small>
+            </div>
+            <div class="signos-ia">
+              <span>${plenoIA.pronostico}</span>
+            </div>
+          </div>
+        ` : ""}
+
+        <div class="card" style="margin-top:20px;">
+          <h3>Análisis IA del boleto</h3>
+
+          ${partidos.map(p => `
+            <p>
+              <strong>${p.num}. ${p.local} - ${p.visitante}</strong><br>
+              Signo recomendado: <strong>${p.signo_final}</strong><br>
+              ${elige8Set.has(p.num) ? "<strong>Marcado para Elige 8.</strong><br>" : ""}
+              ${p.explicacion}
+            </p>
+          `).join("")}
+
+          ${plenoIA ? `
+            <p>
+              <strong>15. Pleno al 15: ${plenoIA.local} - ${plenoIA.visitante}</strong><br>
+              Resultado exacto recomendado: <strong>${plenoIA.pronostico}</strong><br>
+              ${plenoIA.explicacion}
+            </p>
+          ` : ""}
         </div>
+      `;
+    }
 
-        <div class="signos-ia">
-
-          ${p.signo_final
-            .split("")
-            .map(s => `<span>${s}</span>`)
-            .join("")}
-
-        </div>
-
-      </div>
-
-    `).join("")}
-
-    ${pleno15 ? `
-
-      <div class="fila-boleto pleno15">
-
-        <div>15</div>
-
-        <div>
-
-          <strong>Pleno al 15</strong><br>
-
-          <small>
-            ${pleno15.local} - ${pleno15.visitante}
-          </small>
-
-        </div>
-
-        <div class="signos-ia">
-          <span>2-1</span>
-        </div>
-
-      </div>
-
-    ` : ""}
-
-    <div class="card" style="margin-top:20px;">
-
-      <h3>Análisis IA del boleto</h3>
-
-      ${partidos.map(p => `
-
-        <p>
-
-          <strong>
-            ${p.num}. ${p.local} - ${p.visitante}
-          </strong><br>
-
-          Signo recomendado:
-          <strong>${p.signo_final}</strong><br>
-
-          ${elige8Set.has(p.num)
-            ? "<strong>Marcado para Elige 8.</strong><br>"
-            : ""}
-
-          ${p.explicacion}
-
-        </p>
-
-      `).join("")}
-
-    </div>
-
-  `;
-}
-
-cargarJornadasQuinielaIA();
-</script>
-
+    cargarPortada();
+    cargarClasificaciones();
+    cargarHistorial();
+    cargarJornadasQuinielaIA();
+  </script>
 </body>
 </html>
+
