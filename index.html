@@ -1048,6 +1048,7 @@ async function generarBoletoIA() {
   partidos.sort((a, b) => a.num - b.num);
 
   document.getElementById("boleto-ia").innerHTML = `
+  const pleno = partidosJornadaIA.find(p => Number(p.num) === 15);
     ${partidos.map(p => `
       <div class="fila-boleto ${elige8Set.has(p.num) ? "elige8-activo" : ""}">
         <div>${p.num}</div>
