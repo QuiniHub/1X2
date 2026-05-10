@@ -864,7 +864,9 @@ function calcularImporteIA() {
 
   const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
   const importe = Math.max(apuestas * 0.75, 1.50);
-
+const elige8 = document.getElementById("activar-elige8")?.checked;
+const importeElige8 = elige8 ? 0.50 : 0;
+const importeTotal = importe + importeElige8;
   document.getElementById("total-apuestas").textContent = apuestas;
   document.getElementById("importe-quiniela").textContent =
     importe.toFixed(2).replace(".", ",") + " €";
