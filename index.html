@@ -1070,7 +1070,18 @@ async function generarBoletoIA() {
         </div>
       </div>
     `).join("")}
-
+${pleno ? `
+  <div class="fila-boleto pleno15">
+    <div>15</div>
+    <div>
+      <strong>Pleno al 15</strong><br>
+      <small>${pleno.local} - ${pleno.visitante}</small>
+    </div>
+    <div class="signos-ia">
+      <span>${pleno.resultado || "2-1"}</span>
+    </div>
+  </div>
+` : ""}
     <div class="card" style="margin-top:20px;">
       <h3>Análisis IA del boleto</h3>
 
