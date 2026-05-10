@@ -8,33 +8,33 @@ import xml.etree.ElementTree as ET
 MAPEO_EQUIPOS = {
     "primera": {
         "barcelona": "Barcelona", "real madrid": "Real Madrid", "atletico": "Ath Madrid",
-        "athletic": "Ath Bilbao", "real sociedad": "Sociedad", "betis": "Betis",
-        "villarreal": "Villarreal", "valencia": "Valencia", "sevilla": "Sevilla",
-        "osasuna": "Osasuna", "girona": "Girona", "rayo": "Vallecano",
-        "celta": "Celta", "getafe": "Getafe", "mallorca": "Mallorca",
-        "alaves": "Alaves", "las palmas": "Las Palmas", "valladolid": "Valladolid",
-        "leganes": "Leganes", "espanyol": "Espanol"
+        "atleti": "Ath Madrid", "athletic": "Ath Bilbao", "real sociedad": "Sociedad", 
+        "betis": "Betis", "villarreal": "Villarreal", "valencia": "Valencia", 
+        "sevilla": "Sevilla", "osasuna": "Osasuna", "girona": "Girona", 
+        "rayo": "Vallecano", "celta": "Celta", "getafe": "Getafe", 
+        "mallorca": "Mallorca", "alaves": "Alaves", "valladolid": "Valladolid",
+        "leganes": "Leganes", "espanyol": "Espanol", "levante": "Levante", 
+        "elche": "Elche", "oviedo": "Real Oviedo"
     },
     "segunda": {
         "albacete": "Albacete", "almeria": "Almeria", "andorra": "Andorra",
         "burgos": "Burgos", "cadiz": "Cadiz", "castellon": "Castellon",
         "ceuta": "Ceuta", "cordoba": "Cordoba", "coruña": "La Coruña",
-        "deportivo": "La Coruña", "eibar": "Eibar", "elche": "Elche",
-        "eldense": "Eldense", "granada": "Granada", "huesca": "Huesca",
-        "levante": "Levante", "malaga": "Malaga", "mirandes", "Mirandes",
-        "oviedo": "Oviedo", "racing": "Santander", "santander": "Santander",
-        "sporting": "Sp Gijon", "gijon": "Sp Gijon", "tenerife": "Tenerife",
-        "zaragoza": "Zaragoza", "ferrol": "Racing Ferrol", "leonesa": "Cultural Leonesa",
-        "cultural": "Cultural Leonesa", "sociedad b": "Sociedad B"
+        "deportivo": "La Coruña", "eibar": "Eibar", "eldense": "Eldense", 
+        "granada": "Granada", "huesca": "Huesca", "malaga": "Malaga", 
+        "mirandes": "Mirandes", "oviedo": "Oviedo", "racing": "Santander", 
+        "santander": "Santander", "sporting": "Sp Gijon", "gijon": "Sp Gijon", 
+        "tenerife": "Tenerife", "zaragoza": "Zaragoza", "ferrol": "Racing Ferrol", 
+        "leonesa": "Cultural Leonesa", "cultural": "Cultural Leonesa", 
+        "sociedad b": "Sociedad B", "las palmas": "Las Palmas"
     }
 }
 
-# Alias simplificados para que las expresiones regulares capturen los resultados sin fallar por iniciales
 ALIAS_EXTRA = {
     "primera": [
-        "Barcelona", "Real Madrid", "Atletico", "Athletic", "Real Sociedad", "Betis",
+        "Barcelona", "Real Madrid", "Atletico", "Atleti", "Athletic", "Real Sociedad", "Betis",
         "Villarreal", "Valencia", "Sevilla", "Osasuna", "Girona", "Rayo", "Celta",
-        "Getafe", "Mallorca", "Alaves", "Las Palmas", "Valladolid", "Leganes", "Espanyol"
+        "Getafe", "Mallorca", "Alaves", "Valladolid", "Leganes", "Espanyol", "Levante", "Elche", "Oviedo"
     ],
     "segunda": [
         "Albacete", "Deportivo", "La Coruña", "Racing", "Sporting", "Gijon",
@@ -43,6 +43,7 @@ ALIAS_EXTRA = {
         "Burgos", "Huesca", "Eibar", "Mirandes", "Leganes", "Andorra", "Zaragoza"
     ]
 }
+
 
 def clean(txt):
     if not txt:
