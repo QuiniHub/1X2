@@ -58,6 +58,14 @@ def sin_acentos(txt):
 
 def normalizar(txt, tipo):
     txt = sin_acentos(clean(txt).lower())
+        palabras_a_eliminar = [
+        "cf", "sad", "ud", "rc", "club", "de futbol", 
+        "balompie", "de madrid", "de vigo"
+    ]
+    for palabra in palabras_a_eliminar:
+        txt = txt.replace(palabra, "")
+    txt = txt.strip()
+
     for clave, valor in MAPEO_EQUIPOS[tipo].items():
         if clave in txt:
             return valor
