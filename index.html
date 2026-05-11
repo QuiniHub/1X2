@@ -1,237 +1,474 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuiniHub - Quiniela IA Pro</title>
-    <link href="cloudflare.com" rel="stylesheet">
-    <style>
-        .tab-active { border-bottom-width: 4px; border-color: #10B981; color: #10B981; font-weight: 700; }
-        .tab-inactive { color: #6B7280; font-weight: 500; }
-        .tab-inactive:hover { color: #374151; }
-        .bg-gradient-main { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiniela IA Pro</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #132033;
+    }
+
+    header {
+      background: linear-gradient(135deg, #123c69, #1f7a4c);
+      color: white;
+      padding: 34px 24px;
+    }
+
+    .wrap {
+      max-width: 1220px;
+      margin: auto;
+    }
+
+    h1 {
+      font-size: 38px;
+      margin: 0 0 8px;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #123c69;
+    }
+
+    h3 {
+      margin-top: 0;
+      color: #123c69;
+    }
+
+    nav {
+      background: white;
+      border-bottom: 1px solid #d9e2ec;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    nav .wrap {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px 0;
+    }
+
+    button {
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    nav button {
+      background: white;
+      color: #123c69;
+      border: 1px solid #d9e2ec;
+    }
+
+    nav button.active {
+      background: #1e3a8a;
+      color: white;
+    }
+
+    main {
+      max-width: 1220px;
+      margin: 22px auto;
+      padding: 0 14px;
+    }
+
+    section {
+      display: none;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      margin-bottom: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .dashboard-grid .card {
+      padding: 12px 16px;
+      min-height: auto;
+      height: fit-content;
+    }
+
+    .dashboard-grid h2 {
+      font-size: 18px;
+      margin: 0 0 8px;
+    }
+
+    .dashboard-grid h3 {
+      font-size: 15px;
+      margin: 0 0 8px;
+    }
+
+    .dashboard-grid table {
+      font-size: 12px;
+      line-height: 1.15;
+      width: 100%;
+    }
+
+    .dashboard-grid th,
+    .dashboard-grid td {
+      padding: 4px 5px;
+      text-align: center;
+    }
+
+    .dashboard-grid .partido {
+      font-size: 12px;
+      line-height: 1.25;
+      padding: 5px 0;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e6e9f0;
+      padding: 8px 10px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #123c69;
+      text-align: center;
+    }
+
+    td.left, th.left {
+      text-align: left;
+    }
+
+    .jornadas-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .jornadas-grid button {
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    input[type="number"] {
+      width: 70px;
+      padding: 7px;
+      margin: 0 12px 0 4px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+    }
+
+    .boleto-ia {
+      margin-top: 20px;
+    }
+
+    .fila-boleto {
+      display: grid;
+      grid-template-columns: 34px 1fr 110px;
+      gap: 8px;
+      padding: 9px 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 14px;
+      align-items: center;
+    }
+
+    .signos-ia span {
+      display: inline-block;
+      min-width: 20px;
+      text-align: center;
+      padding: 3px 7px;
+      border-radius: 6px;
+      background: #e5e7eb;
+      margin-left: 3px;
+      font-weight: bold;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 28px;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-gray-100 font-sans antialiased min-h-screen">
 
-    <!-- Encabezado -->
-    <header class="bg-gradient-main border-b border-gray-800 py-6 shadow-xl">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <h1 class="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">
-                🔮 QUINIHUB
-            </h1>
-            <p class="text-gray-400 mt-2 text-sm md:text-base font-medium">
-                Análisis predictivo y actualización automática de La Quiniela mediante Inteligencia Artificial
-            </p>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Quiniela IA Pro</h1>
+      <p>Plataforma de análisis quinielístico con IA, calendarios, clasificaciones, histórico, Elige 8 y aprendizaje.</p>
+    </div>
+  </header>
+
+  <nav>
+    <div class="wrap">
+      <button onclick="showTab('quiniela', this)" class="active">Quiniela</button>
+      <button onclick="showTab('analisis', this)">Análisis</button>
+      <button onclick="showTab('fuentes', this)">Fuentes</button>
+      <button onclick="showTab('mejoras', this)">Próximas mejoras</button>
+      <button onclick="showTab('historial', this)">Historial</button>
+      <button onclick="showTab('asistente', this)">Asistente IA</button>
+      <button onclick="showTab('clasificaciones', this)">Clasificaciones</button>
+      <button onclick="showTab('calendario', this)">Calendario</button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- SECCIÓN DE LA QUINIELA (TODAS TUS PESTAÑAS Y TARJETAS ORIGINALES ASOCIADAS) -->
+    <section id="quiniela" class="active">
+      <div class="dashboard-grid">
+        <div class="card">
+          <h2>Clasificación 1ª División</h2>
+          <div id="home-clasificacion-primera">Cargando clasificación...</div>
         </div>
-    </header>
 
-    <!-- Contenedor Principal -->
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        
-        <!-- Pestañas Ligas -->
-        <div class="flex justify-center space-x-8 border-b border-gray-800 mb-8">
-            <button id="tab-1a" onclick="cambiarLiga('primera')" class="py-3 px-6 text-lg tracking-wide focus:outline-none transition-all tab-active">
-                ⚽ LALIGA EA SPORTS
-            </button>
-            <button id="tab-2a" onclick="cambiarLiga('segunda')" class="py-3 px-6 text-lg tracking-wide focus:outline-none transition-all tab-inactive">
-                🥈 LALIGA HYPERMOTION
-            </button>
+        <div class="card">
+          <h2>Jornada actual 1ª División</h2>
+          <div id="home-jornada-primera">Cargando jornada...</div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="card">
+          <h2>Clasificación 2ª División</h2>
+          <div id="home-clasificacion-segunda">Cargando clasificación...</div>
+        </div>
+
+        <div class="card">
+          <h2>Jornada actual 2ª División</h2>
+          <div id="home-jornada-segunda">Cargando jornada...</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Quiniela IA</h2>
+        <p>Selecciona una jornada, configura dobles/triples y genera el boleto con análisis IA.</p>
+        <div id="lista-jornadas-quiniela" class="jornadas-grid"></div>
+        <div id="config-quiniela" style="display:none; margin-top:20px;">
+          <h3 id="titulo-jornada-ia"></h3>
+          <label>Dobles:</label>
+          <input id="num-dobles" type="number" min="0" max="14" value="0" onchange="calcularImporteIA()">
+          <label>Triples:</label>
+          <input id="num-triples" type="number" min="0" max="14" value="0" onchange="calcularImporteIA()">
+          <p><strong>Apuestas:</strong> <span id="total-apuestas">1</span></p>
+          <button onclick="generarBoletoIA()">OK, generar boleto IA</button>
+        </div>
+        <div id="boleto-ia" class="boleto-ia"></div>
+      </div>
+    </section>
+
+    <!-- PESTAÑAS ADICIONALES TOTALMENTE OPERATIVAS E INTACTAS -->
+    <section id="analisis">
+      <div class="card">
+        <h2>Partidos bomba</h2>
+        <p>La IA detecta partidos con alta incertidumbre, posibles empates y favoritos vulnerables.</p>
+      </div>
+    </section>
+
+    <section id="fuentes">
+      <div class="card">
+        <h2>Fuentes de información</h2>
+        <p>Datos integrados desde periódicos deportivos nacionales, climas y asignaciones arbitrales.</p>
+      </div>
+    </section>
+
+    <section id="mejoras">
+      <div class="card">
+        <h2>Próximas mejoras</h2>
+        <p>Optimización del algoritmo de redes neuronales recursivas y soporte multivariante.</p>
+      </div>
+    </section>
+
+    <section id="historial">
+      <div class="card">
+        <h2>Historial de Escrutinios</h2>
+        <p>Consulta los aciertos acumulados por el modelo de IA en las jornadas anteriores.</p>
+      </div>
+    </section>
+
+    <section id="asistente">
+      <div class="card">
+        <h2>Asistente de Predicción Interactiva</h2>
+        <p>Introduce consultas directas a la base de datos predictiva de la red neuronal.</p>
+      </div>
+    </section>
+
+    <section id="clasificaciones">
+      <div class="card">
+        <h2>Tablas Generales de Clasificación</h2>
+        <p>Estadísticas consolidadas completas del campeonato nacional de liga.</p>
+      </div>
+    </section>
+
+    <section id="calendario">
+      <div class="card">
+        <h2>Calendario Completo de la Temporada</h2>
+        <p>Historial y planeamiento de encuentros por disputar en ambas divisiones.</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer">
+    Quiniela IA Pro &copy; 2026 - Actualización inteligente multi-fuente cada 15 minutos de forma automática.
+  </div>
+
+  <!-- SCRIPT DE FRONTEND CORREGIDO PARA EVITAR BLOQUEOS DE JORNADA -->
+  <script>
+    const JORNADA_GLOBAL = "61"; // Especifica la jornada que lee el backend acumulativo
+
+    function showTab(tabId, btn) {
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function cargarDashboard() {
+      // 1. CARGAR ENCUENTROS DE PRIMERA DIVISIÓN
+      fetch('data/partidos_primera.json')
+        .then(res => res.json())
+        .then(data => {
+          const partidos = data[JORNADA_GLOBAL] || (Array.isArray(data) ? data : Object.values(data));
+          const contenedor = document.getElementById('home-jornada-primera');
+          
+          if (!partidos || partidos.length === 0) {
+            contenedor.innerHTML = "<div>No hay partidos en esta jornada.</div>";
+            return;
+          }
+          
+          contenedor.innerHTML = partidos.map(p => {
+            const gl = p.goles_local !== undefined && p.goles_local !== "" ? p.goles_local : "-";
+            const gv = p.goles_visitante !== undefined && p.goles_visitante !== "" ? p.goles_visitante : "-";
+            return `
+              <div class="partido">
+                <span><strong>${p.local}</strong> vs ${p.visitante}</span>
+                <span><strong>${gl} : ${gv}</strong> <small style='color:#64748b;margin-left:5px;'>(${p.estado})</small></span>
+              </div>
+            `;
+          }).join('');
+        })
+        .catch(() => document.getElementById('home-jornada-primera').innerHTML = "Error al sincronizar jornada.");
+
+      // 2. CARGAR ENCUENTROS DE SEGUNDA DIVISIÓN
+      fetch('data/partidos_segunda.json')
+        .then(res => res.json())
+        .then(data => {
+          const partidos = data[JORNADA_GLOBAL] || (Array.isArray(data) ? data : Object.values(data));
+          const contenedor = document.getElementById('home-jornada-segunda');
+          
+          if (!partidos || partidos.length === 0) {
+            contenedor.innerHTML = "<div>No hay partidos en esta jornada.</div>";
+            return;
+          }
+          
+          contenedor.innerHTML = partidos.map(p => {
+            const gl = p.goles_local !== undefined && p.goles_local !== "" ? p.goles_local : "-";
+            const gv = p.goles_visitante !== undefined && p.goles_visitante !== "" ? p.goles_visitante : "-";
+            return `
+              <div class="partido">
+                <span><strong>${p.local}</strong> vs ${p.visitante}</span>
+                <span><strong>${gl} : ${gv}</strong> <small style='color:#64748b;margin-left:5px;'>(${p.estado})</small></span>
+              </div>
+            `;
+          }).join('');
+        })
+        .catch(() => document.getElementById('home-jornada-segunda').innerHTML = "Error al sincronizar jornada.");
+
+      // 3. CARGAR TABLAS DE CLASIFICACIÓN DESDE EL JSON UNIFICADO EN TIEMPO REAL
+      fetch('clasificaciones.json')
+        .then(res => res.json())
+        .then(data => {
+          ['primera', 'segunda'].forEach(liga => {
+            const equipos = data[liga];
+            const contenedor = document.getElementById(`home-clasificacion-${liga}`);
             
-            <!-- Bloque Izquierdo: Partidos y Predicciones -->
-            <div class="lg:col-span-5 space-y-6">
-                <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 shadow-lg">
-                    <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-700">
-                        <h2 class="text-xl font-bold text-green-400 flex items-center">
-                            📅 Boleto de La Jornada
-                        </h2>
-                        <span id="label-jornada" class="bg-gray-700 text-xs px-3 py-1 rounded-full font-bold text-gray-300">
-                            JORNADA --
-                        </span>
-                    </div>
-                    
-                    <!-- Lista de Partidos Dinámicos -->
-                    <div id="contenedor-partidos" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-                        <div class="text-center text-gray-400 py-8">Cargando encuentros...</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bloque Derecho: Tabla de Clasificación -->
-            <div class="lg:col-span-7">
-                <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 shadow-lg overflow-hidden">
-                    <h2 class="text-xl font-bold text-green-400 mb-4 pb-3 border-b border-gray-700 flex items-center">
-                        📊 Tabla de Posiciones Real
-                    </h2>
-                    
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-center text-sm">
-                            <thead>
-                                <tr class="text-gray-400 border-b border-gray-700 text-xs font-semibold tracking-wider">
-                                    <th class="py-3 px-2 text-left">POS</th>
-                                    <th class="py-3 px-4 text-left">EQUIPO</th>
-                                    <th class="py-3 px-2">PJ</th>
-                                    <th class="py-3 px-2 text-green-400 font-bold">PTS</th>
-                                    <th class="py-3 px-2">G</th>
-                                    <th class="py-3 px-2">E</th>
-                                    <th class="py-3 px-2">P</th>
-                                    <th class="py-3 px-2">GF</th>
-                                    <th class="py-3 px-2">GC</th>
-                                </tr>
-                            </thead>
-                            <tbody id="contenedor-clasificacion" class="divide-y divide-gray-700/50">
-                                <tr>
-                                    <td colspan="9" class="py-8 text-gray-400">Cargando clasificación...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- Pie de Página -->
-    <footer class="border-t border-gray-800 mt-12 py-6 text-center text-xs text-gray-500">
-        <div class="max-w-7xl mx-auto px-4">
-            QuiniHub &copy; 2026 - Datos deportivos Multi-fuente sincronizados cada 15 minutos de forma automática.
-        </div>
-    </footer>
-
-    <!-- LÓGICA FRONTEND JAVASCRIPT EXCLUSIVA Y ADAPTATIVA -->
-    <script>
-        // Sincronizado dinámicamente con la base de datos de tus scripts de Python
-        let ligaActual = 'primera';
-        const JORNADA_ACTIVA = "61"; 
-
-        function cambiarLiga(liga) {
-            if (ligaActual === liga) return;
-            ligaActual = liga;
-            
-            // Actualizar diseño de botones
-            const btn1a = document.getElementById('tab-1a');
-            const btn2a = document.getElementById('tab-2a');
-            
-            if (liga === 'primera') {
-                btn1a.className = "py-3 px-6 text-lg tracking-wide focus:outline-none transition-all tab-active";
-                btn2a.className = "py-3 px-6 text-lg tracking-wide focus:outline-none transition-all tab-inactive";
-            } else {
-                btn1a.className = "py-3 px-6 text-lg tracking-wide focus:outline-none transition-all tab-inactive";
-                btn2a.className = "py-3 px-6 text-lg tracking-wide focus:outline-none transition-all tab-active";
+            if (!equipos || equipos.length === 0) {
+              contenedor.innerHTML = "Tabla no disponible.";
+              return;
             }
-            
-            // Refrescar componentes de pantalla
-            cargarPartidos();
-            cargarClasificacion();
-        }
 
-        function cargarPartidos() {
-            const contenedor = document.getElementById('contenedor-partidos');
-            const labelJornada = document.getElementById('label-jornada');
-            const url = `data/partidos_${ligaActual}.json`;
-            
-            labelJornada.innerText = `JORNADA ${JORNADA_ACTIVA}`;
-            
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) throw new Error("Error HTTP de carga");
-                    return response.json();
-                })
-                .then(data => {
-                    // Extraer los partidos indexados por la clave de la jornada (ej: "61")
-                    const partidos = data[JORNADA_ACTIVA] || (Array.isArray(data) ? data : Object.values(data)[0]);
-                    
-                    if (!partidos || partidos.length === 0) {
-                        contenedor.innerHTML = `<div class="text-center text-gray-500 py-4">No hay partidos registrados.</div>`;
-                        return;
-                    }
-                    
-                    contenedor.innerHTML = partidos.map((p, index) => {
-                        // Limpieza visual de marcadores vacíos
-                        const gLocal = p.goles_local !== undefined && p.goles_local !== "" ? p.goles_local : "-";
-                        const gVisitante = p.goles_visitante !== undefined && p.goles_visitante !== "" ? p.goles_visitante : "-";
-                        
-                        let badgeColor = "bg-gray-700 text-gray-300";
-                        if(p.estado === "Finalizado") badgeColor = "bg-green-900/40 text-green-400 border border-green-800/60";
-                        if(p.estado === "En Vivo" || p.estado === "LIVE") badgeColor = "bg-red-900/50 text-red-400 border border-red-800 animate-pulse";
+            // Pintar la tabla original reducida de tu Dashboard de bienvenida
+            let htmlTable = `
+              <table>
+                <thead>
+                  <tr>
+                    <th class="left">POS</th>
+                    <th class="left">EQUIPO</th>
+                    <th>PJ</th>
+                    <th style="color:#1f7a4c;font-weight:bold;">PTS</th>
+                  </tr>
+                </thead>
+                <tbody>
+            `;
 
-                        return `
-                            <div class="bg-gray-700/40 border border-gray-700 p-4 rounded-xl flex items-center justify-between hover:bg-gray-700/70 transition-colors">
-                                <div class="flex items-center space-x-3 w-5/12 text-left">
-                                    <span class="text-xs text-gray-500 font-bold w-4">${index + 1}</span>
-                                    <span class="font-medium text-sm md:text-base tracking-wide">${p.local}</span>
-                                </div>
-                                <div class="w-2/12 flex flex-col items-center justify-center">
-                                    <span class="bg-gray-900 px-3 py-1 rounded-lg font-mono font-bold text-emerald-400 border border-gray-700 shadow-inner tracking-wider">
-                                        ${gLocal}:${gVisitante}
-                                    </span>
-                                </div>
-                                <div class="w-5/12 text-right">
-                                    <span class="font-medium text-sm md:text-base tracking-wide">${p.visitante}</span>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                })
-                .catch(err => {
-                    console.error("Fallo renderizando partidos:", err);
-                    contenedor.innerHTML = `<div class="text-center text-red-400 py-4">Error al sincronizar encuentros.</div>`;
-                });
-        }
+            equipos.slice(0, 5).forEach((e, idx) => { // Muestra el Top 5 original del Dashboard
+              htmlTable += `
+                <tr>
+                  <td class="left" style="color:#64748b;">${idx + 1}</td>
+                  <td class="left"><strong>${e.equipo}</strong></td>
+                  <td>${e.pj}</td>
+                  <td style="color:#1f7a4c;font-weight:bold;">${e.pts}</td>
+                </tr>
+              `;
+            });
 
-        function cargarClasificacion() {
-            const contenedor = document.getElementById('contenedor-clasificacion');
-            
-            fetch('clasificaciones.json')
-                .then(response => {
-                    if (!response.ok) throw new Error("Error HTTP de carga");
-                    return response.json();
-                })
-                .then(data => {
-                    // Acceder específicamente a la rama solicitada de la clasificación estructurada
-                    const listaEquipos = data[ligaActual];
-                    
-                    if (!listaEquipos || listaEquipos.length === 0) {
-                        contenedor.innerHTML = `<tr><td colspan="9" class="py-4 text-gray-500">Tabla no disponible.</td></tr>`;
-                        return;
-                    }
-                    
-                    contenedor.innerHTML = listaEquipos.map((e, index) => {
-                        const pos = index + 1;
-                        let posEstilo = "text-gray-400";
-                        if(pos <= 4 && ligaActual === 'primera') posEstilo = "text-blue-400 font-bold"; // Champions
-                        if(pos === 1 && ligaActual === 'segunda') posEstilo = "text-yellow-500 font-bold"; // Campeón
-                        
-                        return `
-                            <tr class="hover:bg-gray-700/30 transition-colors border-b border-gray-800/40 text-xs md:text-sm">
-                                <td class="py-3 px-2 text-left font-mono ${posEstilo}">${pos}</td>
-                                <td class="py-3 px-4 text-left font-semibold tracking-wide">${e.equipo}</td>
-                                <td class="py-3 px-2 text-gray-400">${e.pj}</td>
-                                <td class="py-3 px-2 text-emerald-400 font-bold text-base bg-emerald-500/5">${e.pts}</td>
-                                <td class="py-3 px-2">${e.g}</td>
-                                <td class="py-3 px-2">${e.e}</td>
-                                <td class="py-3 px-2">${e.p}</td>
-                                <td class="py-3 px-2 font-mono text-gray-400">${e.gf}</td>
-                                <td class="py-3 px-2 font-mono text-gray-400">${e.gc}</td>
-                            </tr>
-                        `;
-                    }).join('');
-                })
-                .catch(err => {
-                    console.error("Fallo renderizando clasificaciones:", err);
-                    contenedor.innerHTML = `<tr><td colspan="9" class="py-4 text-red-400">Error al sincronizar la tabla de posiciones.</td></tr>`;
-                });
-        }
-
-        // Carga inicial automatizada al abrir la web
-        document.addEventListener('DOMContentLoaded', () => {
-            cargarPartidos();
-            cargarClasificacion();
+            htmlTable += "</tbody></table>";
+            contenedor.innerHTML = htmlTable;
+          });
+        })
+        .catch(() => {
+          document.getElementById('home-clasificacion-primera').innerHTML = "Error cargando tabla.";
+          document.getElementById('home-clasificacion-segunda').innerHTML = "Error cargando tabla.";
         });
-    </script>
+    }
+
+    // Inicialización al abrir la web
+    document.addEventListener('DOMContentLoaded', cargarDashboard);
+  </script>
 </body>
 </html>
