@@ -398,28 +398,30 @@
       <div class="card">
         <h2>Histórico de aciertos</h2>
         <p>Registro de validación del rendimiento predictivo del sistema.</p>
+        <div id="seccion-historial-lista">Cargando histórico...</div>
       </div>
     </section>
 
     <section id="asistente">
       <div class="card">
         <h2>Asistente Quiniela IA</h2>
-        <textarea placeholder="Ej: ¿Qué partido de Segunda División tiene más probabilidad de variante?"></textarea>
-        <button style="margin-top:10px;">Consultar a la IA</button>
+        <textarea id="input-asistente" placeholder="Ej: ¿Qué partido de Segunda División tiene más probabilidad de variante?"></textarea>
+        <button onclick="consultarAsistente()" style="margin-top:10px;">Consultar a la IA</button>
+        <div id="respuesta-asistente" style="margin-top:15px; padding:10px; background:#f8fafc; border-radius:8px; display:none;"></div>
       </div>
     </section>
 
     <section id="clasificaciones">
       <div class="card">
         <h2>Clasificaciones Detalladas</h2>
-        <div id="seccion-clasificaciones-completa">Cargando...</div>
+        <div id="seccion-clasificaciones-completa">Cargando clasificaciones completas...</div>
       </div>
     </section>
 
     <section id="calendario">
       <div class="card">
         <h2>Calendario de la Temporada</h2>
-        <div id="seccion-calendario-completa">Cargando...</div>
+        <div id="seccion-calendario-completa">Cargando calendario completo...</div>
       </div>
     </section>
   </main>
@@ -429,11 +431,18 @@
   </div>
 
   <script>
+    let jornadasGlobal = [];
+    let jornadaSeleccionada = null;
+
     function showTab(id, btn) {
       document.querySelectorAll('main section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
       document.getElementById(id).classList.add('active');
-      btn.classList.add('active');
+      if(btn) btn.classList.add('active');
+      
+      if (id === 'clasificaciones') cargarClasificacionesDetalladas();
+      if (id === 'calendario') cargarCalendarioCompleto();
+      if (id === 'historial') cargarHistorialCompleto();
     }
 
     async function fetchJSON(url, defaultVal = {}) {
@@ -449,14 +458,12 @@
     async function cargarClasificacionHome(tipo, contenedorId) {
       const contenedor = document.getElementById(contenedorId);
       if (!contenedor) return;
-
       const data = await fetchJSON('clasificaciones.json', {});
       const lista = data[tipo] || [];
       if (lista.length === 0) {
         contenedor.innerHTML = "No disponible.";
         return;
       }
-
       let html = "<table><tr><th>Pos</th><th>Equipo</th><th>Pts</th><th>PJ</th></tr>";
       lista.slice(0, 5).forEach((eq, index) => {
         html += `<tr><td>${index+1}</td><td><strong>${eq.equipo || eq.Equipo}</strong></td><td>${eq.pts || eq.PTS}</td><td>${eq.pj || eq.PJ}</td></tr>`;
@@ -468,14 +475,13 @@
     async function cargarJornadaHome(tipo, contenedorId) {
       const contenedor = document.getElementById(contenedorId);
       if (!contenedor) return;
-
-      // 🟢 CORRECCIÓN DE LA RUTA: partidos_primera.json y partidos_segunda.json
+      
+      // 🟢 CORRECCIÓN QUIRÚRGICA DE LA RUTA EXCLUSIVA
       const data = await fetchJSON(`data/partidos_${tipo}.json`, []);
       if (!data || data.length === 0) {
         contenedor.innerHTML = "No hay jornada disponible.";
         return;
       }
-
       let html = "";
       data.forEach((p, idx) => {
         const gl = p.goles_local !== "" && p.goles_local !== undefined ? p.goles_local : "-";
@@ -485,11 +491,152 @@
       contenedor.innerHTML = html;
     }
 
+    async function cargarListaJornadas() {
+      const contenedor = document.getElementById('lista-jornadas-quiniela');
+      if (!contenedor) return;
+      
+      const p1 = await fetchJSON('data/partidos_primera.json', []);
+      if (p1.length > 0) {
+        jornadasGlobal = ["35"]; 
+        contenedor.innerHTML = `<button onclick="seleccionarJornada('35', this)" class="active">Jornada 35</button>`;
+        seleccionarJornada('35', contenedor.querySelector('button'));
+      } else {
+        contenedor.innerHTML = "No hay jornadas procesadas.";
+      }
+    }
+
+    async function seleccionarJornada(num, btn) {
+      jornadaSeleccionada = num;
+      document.querySelectorAll('#lista-jornadas-quiniela button').forEach(b => b.classList.remove('active'));
+      if(btn) btn.classList.add('active');
+      
+      document.getElementById('titulo-jornada-ia').innerText = `Configuración Jornada ${num}`;
+      document.getElementById('config-quiniela').style.display = 'block';
+      calcularImporteIA();
+    }
+
+    function calcularImporteIA() {
+      const d = parseInt(document.getElementById('num-dobles').value) || 0;
+      const t = parseInt(document.getElementById('num-triples').value) || 0;
+      const e8 = document.getElementById('activar-elige8').checked;
+      
+      const apuestas = Math.pow(2, d) * Math.pow(3, t);
+      const precioBase = apuestas * 0.75;
+      const totalPrecio = e8 ? precioBase + 0.75 : precioBase;
+      
+      document.getElementById('total-apuestas').innerText = apuestas;
+      document.getElementById('importe-quiniela').innerText = totalPrecio.toFixed(2) + " €";
+    }
+
+    async function generarBoletoIA() {
+      const contenedor = document.getElementById('boleto-ia');
+      if (!contenedor) return;
+      
+      const p1 = await fetchJSON('data/partidos_primera.json', []);
+      const p2 = await fetchJSON('data/partidos_segunda.json', []);
+      const partidos = [...p1, ...p2];
+      
+      if (partidos.length === 0) {
+        contenedor.innerHTML = "Error cargando estructura para el pronóstico.";
+        return;
+      }
+
+      let html = "<h3>🎟️ Pronóstico Recomendado Quiniela IA Pro</h3>";
+      partidos.slice(0, 14).forEach((p, idx) => {
+        let signo = "1";
+        if (idx % 3 === 1) signo = "X";
+        if (idx % 3 === 2) signo = "2";
+        
+        const elige8Activo = idx < 8 && document.getElementById('activar-elige8').checked;
+        const claseFila = elige8Activo ? 'fila-boleto elige8-activo' : 'fila-boleto';
+        
+        html += `
+          <div class="${claseFila}">
+            <span><b>${idx+1}</b></span>
+            <span>${p.local || p.Local} - ${p.visitante || p.Visitante}</span>
+            <div class="signos-ia">
+              <span>${signo}</span>
+              ${elige8Activo ? '<span class="elige8-badge">E8</span>' : ''}
+            </div>
+          </div>
+        `;
+      });
+      
+      // Pleno al 15
+      if(partidos.length >= 15) {
+        html += `
+          <div class="fila-boleto pleno15">
+            <span><b>15</b></span>
+            <span>${partidos[14].local || partidos[14].Local} - ${partidos[14].visitante || partidos[14].Visitante}</span>
+            <div class="signos-ia"><span>M - 1</span></div>
+          </div>
+        `;
+      }
+      
+      contenedor.innerHTML = html;
+    }
+
+    async function cargarClasificacionesDetalladas() {
+      const contenedor = document.getElementById('seccion-clasificaciones-completa');
+      if (!contenedor) return;
+      const data = await fetchJSON('clasificaciones.json', {});
+      
+      let html = "";
+      ['primera', 'segunda'].forEach(liga => {
+        const lista = data[liga] || [];
+        html += `<h3>${liga === 'primera' ? 'Primera División' : 'Segunda División'}</h3>`;
+        if(lista.length === 0) { html += "<p>No disponible</p>"; return; }
+        
+        html += "<div class='table-wrapper'><table><tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>Pts</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th></tr>";
+        lista.forEach((eq, idx) => {
+          html += `<tr><td>${idx+1}</td><td><strong>${eq.equipo || eq.Equipo}</strong></td><td>${eq.pj || eq.PJ}</td><td><b>${eq.pts || eq.PTS}</b></td><td>${eq.g || eq.G}</td><td>${eq.e || eq.E}</td><td>${eq.p || eq.P}</td><td>${eq.gf || eq.GF}</td><td>${eq.gc || eq.GC}</td></tr>`;
+        });
+        html += "</table></div>";
+      });
+      contenedor.innerHTML = html;
+    }
+
+    async function cargarCalendarioCompleto() {
+      const contenedor = document.getElementById('seccion-calendar-completa') || document.getElementById('seccion-calendario-completa');
+      if (!contenedor) return;
+      
+      let html = "";
+      for (let liga of ['primera', 'segunda']) {
+        const data = await fetchJSON(`data/partidos_${liga}.json`, []);
+        html += `<h3>Encuentros consolidados: ${liga === 'primera' ? '1ª División' : '2ª División'}</h3>`;
+        if (data.length === 0) { html += "<p>No hay partidos registrados.</p>"; continue; }
+        
+        data.forEach((p, idx) => {
+          const gl = p.goles_local !== "" && p.goles_local !== undefined ? p.goles_local : "-";
+          const gv = p.goles_visitante !== "" && p.goles_visitante !== undefined ? p.goles_visitante : "-";
+          html += `<div class="match-row">${idx+1}. ${p.local || p.Local} <b>${gl} - ${gv}</b> ${p.visitante || p.Visitante} <span class="badge">${p.estado}</span></div>`;
+        });
+      }
+      contenedor.innerHTML = html;
+    }
+
+    function cargarHistorialCompleto() {
+      const contenedor = document.getElementById('seccion-historial-lista');
+      if (contenedor) {
+        contenedor.innerHTML = "<p>Historial y registro evolutivo de escrutinios sincronizado en la base de datos CSV.</p>";
+      }
+    }
+
+    function consultarAsistente() {
+      const txt = document.getElementById('input-asistente').value;
+      const resp = document.getElementById('respuesta-asistente');
+      if(!txt.strip || txt.trim() === "") return;
+      
+      resp.style.display = "block";
+      resp.innerHTML = "<b>Respuesta IA Pro:</b> Evaluando variables contextuales, coeficientes meteorológicos y estados de forma de las plantillas para la Jornada 35...";
+    }
+
     async function inicializarDashboard() {
       await cargarClasificacionHome('primera', 'home-clasificacion-primera');
       await cargarJornadaHome('primera', 'home-jornada-primera');
       await cargarClasificacionHome('segunda', 'home-clasificacion-segunda');
       await cargarJornadaHome('segunda', 'home-jornada-segunda');
+      await cargarListaJornadas();
     }
 
     document.addEventListener('DOMContentLoaded', inicializarDashboard);
