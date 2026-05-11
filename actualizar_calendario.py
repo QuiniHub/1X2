@@ -59,7 +59,7 @@ def sin_acentos(txt):
 
 def normalizar(txt, tipo):
     txt = sin_acentos(clean(txt).lower())
-        palabras_a_eliminar = [
+      palabras_a_eliminar = [
         "cf", "sad", "ud", "rc", "club", "de futbol", 
         "balompie", "de madrid", "de vigo"
     ]
