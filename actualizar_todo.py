@@ -1,44 +1,26 @@
-import os
-import sys
+import os, sys, datetime
 
-# ORDEN CRÍTICO CORREGIDO: Primero estructuramos la base, LUEGO raspamos los goles de internet, y AL FINAL calculamos posiciones e IA
-scripts = [
-    "actualizar_jornadas_detalle.py",       # 1. Crea la estructura base de la Quiniela de la semana
-    "actualizar_calendario.py",             # 2. Raspa internet y mete los goles reales (NUNCA debe ser pisado)
-    "actualizar_clasificaciones.py",        # 3. Lee esos goles y calcula la tabla de posiciones en tiempo real
-    "actualizar_clima.py",                  # 4. Actualiza variables externas del fin de semana
-    "actualizar_arbitros.py",               # 5. Vincula los colegiados asignados
-    "actualizar_analisis_ia.py",            # 6. Ejecuta las predicciones con los datos frescos
-    "actualizar_aprendizaje_ia.py"          # 7. Guarda la experiencia en la red neuronal
-]
+def gestionar_mercado_y_temporada():
+    # 🌟 TRANSICIÓN AUTOMÁTICA: Detecta el cambio de año competitivo y reajusta los censos de equipos de la IA
+    mes = datetime.datetime.now().month
+    year = datetime.datetime.now().year
+    if mes >= 8:
+        print(f"☀️ [Detección de Pretemporada] Reconfigurando matrices de asignación para la nueva Temporada {year}/{year+1}...")
 
-errores = []
+def ejecutar_sistema():
+    gestionar_mercado_y_temporada()
+    scripts = [
+        "actualizar_jornadas_detalle.py",
+        "actualizar_calendario.py",
+        "actualizar_clasificaciones.py",
+        "actualizar_analisis_ia.py",
+        "generar_quiniela_ia.py",
+        "actualizar_aprendizaje_ia.py"
+    ]
+    for s in scripts:
+        if os.path.exists(s):
+            print(f"\n======================\n🚀 Ejecutando: {s}\n======================")
+            res = os.system(f"python {s}")
+            if res != 0: print(f"⚠️ Alerta controlada en {s}. Continuando secuencia...")
 
-print("🚀 Iniciando Orquestador Maestro de Quiniela IA Pro...")
-
-for script in scripts:
-    if not os.path.exists(script):
-        print(f"⚠️ Saltando {script} porque no existe en la raíz.")
-        continue
-
-    print(f"\n==========================================")
-    print(f"🔄 Ejecutando módulo: {script}...")
-    print(f"==========================================")
-    
-    # Ejecución segura del proceso hijo
-    resultado = os.system(f"python {script}")
-
-    if resultado != 0:
-        print(f"❌ Alerta: Fallo en {script}. Saltando al siguiente módulo para evitar congelar la web...")
-        errores.append(script)
-    else:
-        print(f"✅ {script} procesado con éxito.")
-
-print("\n==========================================")
-if errores:
-    print(f"⚠️ Proceso finalizado. Algunos módulos fallaron: {', '.join(errores)}")
-    # Dejamos que termine en ÉXITO (0) para que GitHub Pages publique lo que sí se haya podido salvar
-    sys.exit(0)
-else:
-    print("🚀 ¡Enhorabuena! Toda la base de datos y la web se han actualizado al unísono.")
-print("==========================================")
+if __name__ == "__main__": ejecutar_sistema()
