@@ -2,6 +2,7 @@ import os
 import re
 import requests
 import json
+import xml.etree.ElementTree as ET
 
 MAPEO_EQUIPOS = {
     "primera": {
@@ -43,8 +44,7 @@ ALIAS_EXTRA = {
 }
 
 def clean(txt):
-    if not txt:
-        return ""
+    if not txt: return ""
     return " ".join(txt.split())
 
 def sin_acentos(txt):
@@ -56,100 +56,134 @@ def sin_acentos(txt):
 
 def normalizar(txt, tipo):
     txt = sin_acentos(clean(txt).lower())
-    palabras_a_eliminar = [
-        "cf", "sad", "ud", "rc", "club", "de futbol", 
-        "balompie", "de madrid", "de vigo"
-    ]
+    palabras_a_eliminar = ["cf", "sad", "ud", "rc", "club", "de futbol", "balompie", "de madrid", "de vigo"]
     for palabra in palabras_a_eliminar:
         txt = txt.replace(palabra, "")
     txt = txt.strip()
-    
     for clave, valor in MAPEO_EQUIPOS[tipo].items():
-        if clave in txt:
-            return valor
+        if clave in txt: return valor
     return None
 
-def construir_regex_equipos(jornadas, tipo):
+def construir_regex_equipos(tipo):
     todos = ALIAS_EXTRA[tipo]
-    todos_esc = [re.escape(x) for x in todos]
-    return "|".join(todos_esc)
+    return "|".join([re.escape(x) for x in todos])
 
 def descargar_texto_url(url):
     try:
-        r = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
-        if r.status_code == 200:
-            return r.text
+        r = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+        if r.status_code == 200: return r.text
     except Exception as e:
-        print(f"Error accediendo a {url}: {e}")
+        print(f"⚠️ Error al raspar la URL {url}: {e}")
     return ""
 
-def reforzar_resultados_y_horas(tipo, jornadas):
-    print(f"Reforzando {tipo}...")
-    equipos_re = construir_regex_equipos(jornadas, tipo)
-    
-    patrones = [
-        re.compile(rf"({equipos_re})\s+(\d+)\s*-\s*(\d+)\s+({equipos_re})", re.I),
-        re.compile(rf"({equipos_re})\s*vs\s*({equipos_re})\s*.*?(\d{{2}}:\d{{2}})", re.I)
-    ]
-    
-    urls_fuentes = [
-        "mundodeportivo.com",
-        "as.com"
-    ]
-    
-    for url in urls_fuentes:
-        html_content = descargar_texto_url(url)
-        if not html_content:
-            continue
-            
-        # CORRECCIÓN AQUÍ: Usamos patrones[0] para los goles guardados
-        for m in patrones[0].finditer(html_content):
-            loc_web, g_l, g_v, vis_web = m.group(1), int(m.group(2)), int(m.group(3)), m.group(4)
-            loc_norm = normalizar(loc_web, tipo)
-            vis_norm = normalizar(vis_web, tipo)
-            
-            if loc_norm and vis_norm:
-                for j_num, partidos in jornadas.items():
-                    for p in partidos:
-                        if p["local"] == loc_norm and p["visitante"] == vis_norm:
+def procesar_fuente_html(url, tipo, jornadas, patrones):
+    """ Escanea el HTML de un periódico deportivo en busca de goles u horarios """
+    html_content = descargar_texto_url(url)
+    if not html_content: return
+
+    # Buscar goles y partidos finalizados
+    for m in patrones["goles"].finditer(html_content):
+        loc_web, g_l, g_v, vis_web = m.group(1), int(m.group(2)), int(m.group(3)), m.group(4)
+        loc_norm, vis_norm = normalizar(loc_web, tipo), normalizar(vis_web, tipo)
+        if loc_norm and vis_norm:
+            for j_num, partidos in jornadas.items():
+                for p in partidos:
+                    if p["local"] == loc_norm and p["visitante"] == vis_norm:
+                        # Si no hay goles guardados o están vacíos, los actualiza
+                        if not p.get("goles_local") or p["estado"] != "Finalizado":
                             p["goles_local"] = str(g_l)
                             p["goles_visitante"] = str(g_v)
                             p["estado"] = "Finalizado"
 
-        # CORRECCIÓN AQUÍ: Usamos patrones[1] para capturar las horas planificadas
-        for m in patrones[1].finditer(html_content):
-            loc_web, vis_web, hora = m.group(1), m.group(2), m.group(3)
-            loc_norm = normalizar(loc_web, tipo)
-            vis_norm = normalizar(vis_web, tipo)
-            
-            if loc_norm and vis_norm:
-                for j_num, partidos in jornadas.items():
-                    for p in partidos:
-                        if p["local"] == loc_norm and p["visitante"] == vis_norm:
-                            if not p.get("goles_local"):
-                                p["hora"] = hora
-                                p["estado"] = "Programado"
+    # Buscar horarios planificados
+    for m in patrones["horas"].finditer(html_content):
+        loc_web, vis_web, hora = m.group(1), m.group(2), m.group(3)
+        loc_norm, vis_norm = normalizar(loc_web, tipo), normalizar(vis_web, tipo)
+        if loc_norm and vis_norm:
+            for j_num, partidos in jornadas.items():
+                for p in partidos:
+                    if p["local"] == loc_norm and p["visitante"] == vis_norm:
+                        if not p.get("goles_local"):
+                            p["hora"] = hora
+                            p["estado"] = "Programado"
+
+def procesar_fuente_rss(url, tipo, jornadas):
+    """ Lee feeds de noticias/resultados RSS en formato XML como alternativa rápida """
+    try:
+        r = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        if r.status_code != 200: return
+        root = ET.fromstring(r.content)
+        for item in root.findall('.//item'):
+            titulo = item.find('title').text if item.find('title') is not None else ""
+            # Ejemplo de parseo de títulos RSS: "Real Madrid 2-1 Barcelona"
+            m = re.search(r"([\w\s]+)\s+(\d+)\s*-\s*(\d+)\s+([\w\s]+)", titulo)
+            if m:
+                loc_web, g_l, g_v, vis_web = m.group(1), int(m.group(2)), int(m.group(3)), m.group(4)
+                loc_norm, vis_norm = normalizar(loc_web, tipo), normalizar(vis_web, tipo)
+                if loc_norm and vis_norm:
+                    for j_num, partidos in jornadas.items():
+                        for p in partidos:
+                            if p["local"] == loc_norm and p["visitante"] == vis_norm:
+                                if not p.get("goles_local"):
+                                    p["goles_local"] = str(g_l)
+                                    p["goles_visitante"] = str(g_v)
+                                    p["estado"] = "Finalizado"
+    except Exception as e:
+        print(f"⚠️ Error procesando RSS {url}: {e}")
+
+def reforzar_resultados_y_horas(tipo, jornadas):
+    print(f"🚀 Iniciando recopilación multi-fuente para {tipo}...")
+    equipos_re = construir_regex_equipos(tipo)
+    
+    patrones = {
+        "goles": re.compile(rf"({equipos_re})\s+(\d+)\s*-\s*(\d+)\s+({equipos_re})", re.I),
+        "horas": re.compile(rf"({equipos_re})\s*vs\s*({equipos_re})\s*.*?(\d{{2}}:\d{{2}})", re.I)
+    }
+    
+    # 🌍 RED DE FUENTES 1: Periódicos y diarios deportivos por Web Scraping
+    fuentes_web = [
+        "mundodeportivo.com",
+        "as.com",
+        "marca.com",
+        "sport.es"
+    ] if tipo == "primera" else [
+        "mundodeportivo.com",
+        "as.com",
+        "marca.com"
+    ]
+    
+    for url in fuentes_web:
+        print(f"   -> Escaneando Web: {url}")
+        procesar_fuente_html(url, tipo, jornadas, patrones)
+        
+    # 🌍 RED DE FUENTES 2: Feeds RSS alternativos en tiempo real (Soporte de caída)
+    fuentes_rss = [
+        "eldesmarque.com",
+        "resultados-futbol.com"
+    ] if tipo == "primera" else [
+        "eldesmarque.com"
+    ]
+    
+    for url in fuentes_rss:
+        print(f"   -> Escaneando RSS de respaldo: {url}")
+        procesar_fuente_rss(url, tipo, jornadas)
 
 def procesar_actualizacion():
     os.makedirs("data", exist_ok=True)
-    
     for tipo in ["primera", "segunda"]:
         ruta_archivo = f"data/partidos_{tipo}.json"
-        
         if os.path.exists(ruta_archivo):
             try:
                 with open(ruta_archivo, "r", encoding="utf-8") as f:
                     jornadas = json.load(f)
-            except Exception:
-                jornadas = {}
-        else:
-            jornadas = {}
+            except Exception: jornadas = {}
+        else: jornadas = {}
             
         reforzar_resultados_y_horas(tipo, jornadas)
         
         with open(ruta_archivo, "w", encoding="utf-8") as f:
             json.dump(jornadas, f, indent=4, ensure_ascii=False)
-            print(f"Archivo actualizado guardado con éxito: {ruta_archivo}")
+        print(f"💾 Base de datos multi-fuente consolidada para {tipo}.\n")
 
 if __name__ == "__main__":
     procesar_actualizacion()
