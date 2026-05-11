@@ -61,7 +61,7 @@ def generar_archivos_jornadas_limpios():
         # Clasificar los partidos según su orden oficial en el boleto
         for idx, partido in enumerate(partidos):
             if "goles_local" not in partido:
-                partio["goles_local"] = ""
+                partido["goles_local"] = ""
             if "goles_visitante" not in partido:
                 partido["goles_visitante"] = ""
                 
@@ -87,4 +87,3 @@ def generar_archivos_jornadas_limpios():
 if __name__ == "__main__":
     generar_archivos_jornadas_limpios()
     print("🚀 Proceso de consolidación de jornadas finalizado OK.")
-
