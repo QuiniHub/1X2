@@ -1,90 +1,33 @@
-import csv
-import json
-from pathlib import Path
-from urllib.request import urlopen
+import os, json
 
-LIGAS = {
-    "primera": "https://www.football-data.co.uk/mmz4281/2526/SP1.csv",
-    "segunda": "https://www.football-data.co.uk/mmz4281/2526/SP2.csv",
+EQUIPOS_LIGA = {
+    "primera": ["Barcelona", "Real Madrid", "Ath Madrid", "Ath Bilbao", "Sociedad", "Betis", "Villarreal", "Valencia", "Sevilla", "Osasuna", "Girona", "Vallecano", "Celta", "Getafe", "Mallorca", "Alaves", "Valladolid", "Leganes", "Espanyol", "Elche", "Oviedo", "Levante"],
+    "segunda": ["Santander", "Mirandés", "Zaragoza", "Burgos", "Sporting", "Castellón", "Huesca", "Oviedo", "Eibar", "Elche", "Albacete", "Almería", "Málaga", "Eldense", "Córdoba", "Cádiz", "Granada", "Ferrol", "Cartagena", "Tenerife", "Andorra", "Ceuta", "La Coruna", "Las Palmas", "Sp Gijon", "Sociedad B", "Cultural Leonesa"]
 }
 
-def nueva_tabla():
-    return {}
+def procesar():
+    salida = {}
+    for tipo in ["primera", "segunda"]:
+        tabla = {eq: {"equipo": eq, "Equipo": eq, "pj": 0, "PJ": 0, "g": 0, "G": 0, "e": 0, "E": 0, "p": 0, "P": 0, "gf": 0, "GF": 0, "gc": 0, "GC": 0, "pts": 0, "PTS": 0} for eq in EQUIPOS_LIGA[tipo]}
+        ruta = f"data/partidos_{tipo}.json"
+        if os.path.exists(ruta):
+            with open(ruta, "r", encoding="utf-8") as f: partidos = json.load(f)
+            for p in partidos:
+                gl, gv = p.get("goles_local"), p.get("goles_visitante")
+                if gl and gv and str(gl).isdigit() and str(gv).isdigit():
+                    l, v = p["local"], p["visitante"]
+                    # Mapeo elástico para el sumador de puntos
+                    l_key = next((k for k in tabla if k.lower() in l.lower() or l.lower() in k.lower()), None)
+                    v_key = next((k for k in tabla if k.lower() in v.lower() or v.lower() in k.lower()), None)
+                    if l_key and v_key:
+                        intl, intv = int(gl), int(gv)
+                        tabla[l_key]["pj"]+=1; tabla[l_key]["PJ"]+=1; tabla[v_key]["pj"]+=1; tabla[v_key]["PJ"]+=1
+                        tabla[l_key]["gf"]+=intl; tabla[l_key]["GF"]+=intl; tabla[v_key]["gf"]+=intv; tabla[v_key]["GF"]+=intv
+                        tabla[l_key]["gc"]+=intv; tabla[l_key]["GC"]+=intv; tabla[v_key]["gc"]+=intl; tabla[v_key]["GC"]+=intl
+                        if intl > intv: tabla[l_key]["pts"]+=3; tabla[l_key]["PTS"]+=3; tabla[l_key]["g"]+=1; tabla[l_key]["G"]+=1; tabla[v_key]["p"]+=1; tabla[v_key]["P"]+=1
+                        elif intl < intv: tabla[v_key]["pts"]+=3; tabla[v_key]["PTS"]+=3; tabla[v_key]["g"]+=1; tabla[v_key]["G"]+=1; tabla[l_key]["p"]+=1; tabla[l_key]["P"]+=1
+                        else: tabla[l_key]["pts"]+=1; tabla[l_key]["PTS"]+=1; tabla[v_key]["pts"]+=1; tabla[v_key]["PTS"]+=1; tabla[l_key]["e"]+=1; tabla[l_key]["E"]+=1; tabla[v_key]["e"]+=1; tabla[v_key]["E"]+=1
+        salida[tipo] = sorted(tabla.values(), key=lambda x: (x["pts"], x["gf"]-x["gc"]), reverse=True)
+    with open("clasificaciones.json", "w", encoding="utf-8") as f: json.dump(salida, f, indent=4, ensure_ascii=False)
 
-def equipo(tabla, nombre):
-    if nombre not in tabla:
-        tabla[nombre] = {
-            "equipo": nombre,
-            "pj": 0,
-            "g": 0,
-            "e": 0,
-            "p": 0,
-            "gf": 0,
-            "gc": 0,
-            "dg": 0,
-            "pts": 0
-        }
-    return tabla[nombre]
-
-def procesar_liga(url):
-    data = urlopen(url, timeout=30).read().decode("utf-8", errors="ignore").splitlines()
-    reader = csv.DictReader(data)
-    tabla = nueva_tabla()
-
-    for row in reader:
-        local = row.get("HomeTeam")
-        visitante = row.get("AwayTeam")
-        gl = row.get("FTHG")
-        gv = row.get("FTAG")
-
-        if not local or not visitante or gl in ("", None) or gv in ("", None):
-            continue
-
-        gl = int(gl)
-        gv = int(gv)
-
-        l = equipo(tabla, local)
-        v = equipo(tabla, visitante)
-
-        l["pj"] += 1
-        v["pj"] += 1
-
-        l["gf"] += gl
-        l["gc"] += gv
-        v["gf"] += gv
-        v["gc"] += gl
-
-        if gl > gv:
-            l["g"] += 1
-            v["p"] += 1
-            l["pts"] += 3
-        elif gl < gv:
-            v["g"] += 1
-            l["p"] += 1
-            v["pts"] += 3
-        else:
-            l["e"] += 1
-            v["e"] += 1
-            l["pts"] += 1
-            v["pts"] += 1
-
-    for e in tabla.values():
-        e["dg"] = e["gf"] - e["gc"]
-
-    return sorted(
-        tabla.values(),
-        key=lambda x: (x["pts"], x["dg"], x["gf"]),
-        reverse=True
-    )
-
-salida = {
-    "primera": procesar_liga(LIGAS["primera"]),
-    "segunda": procesar_liga(LIGAS["segunda"])
-}
-
-Path("clasificaciones.json").write_text(
-    json.dumps(salida, ensure_ascii=False, indent=2),
-    encoding="utf-8"
-)
-
-print("Clasificaciones actualizadas correctamente")
+if __name__ == "__main__": procesar()
