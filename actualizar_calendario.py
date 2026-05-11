@@ -2,9 +2,7 @@ import os
 import re
 import requests
 import json
-import xml.etree.ElementTree as ET
 
-# Diccionarios globales de mapeo y limpieza
 MAPEO_EQUIPOS = {
     "primera": {
         "barcelona": "Barcelona", "real madrid": "Real Madrid", "atletico": "Ath Madrid",
@@ -44,7 +42,6 @@ ALIAS_EXTRA = {
     ]
 }
 
-
 def clean(txt):
     if not txt:
         return ""
@@ -59,20 +56,20 @@ def sin_acentos(txt):
 
 def normalizar(txt, tipo):
     txt = sin_acentos(clean(txt).lower())
-      palabras_a_eliminar = [
+    palabras_a_eliminar = [
         "cf", "sad", "ud", "rc", "club", "de futbol", 
         "balompie", "de madrid", "de vigo"
     ]
     for palabra in palabras_a_eliminar:
         txt = txt.replace(palabra, "")
     txt = txt.strip()
-
+    
     for clave, valor in MAPEO_EQUIPOS[tipo].items():
         if clave in txt:
             return valor
     return None
 
-def construir_regex_equipos(tipo):
+def construir_regex_equipos(jornadas, tipo):
     todos = ALIAS_EXTRA[tipo]
     todos_esc = [re.escape(x) for x in todos]
     return "|".join(todos_esc)
@@ -86,11 +83,10 @@ def descargar_texto_url(url):
         print(f"Error accediendo a {url}: {e}")
     return ""
 
-def reforzar_resultados_y_horas(tipo, jornadas_dict):
+def reforzar_resultados_y_horas(tipo, jornadas):
     print(f"Reforzando {tipo}...")
-    equipos_re = construir_regex_equipos(tipo)
+    equipos_re = construir_regex_equipos(jornadas, tipo)
     
-    # Expresiones regulares adaptadas a los alias elásticos
     patrones = [
         re.compile(rf"({equipos_re})\s+(\d+)\s*-\s*(\d+)\s+({equipos_re})", re.I),
         re.compile(rf"({equipos_re})\s*vs\s*({equipos_re})\s*.*?(\d{{2}}:\d{{2}})", re.I)
@@ -106,28 +102,28 @@ def reforzar_resultados_y_horas(tipo, jornadas_dict):
         if not html_content:
             continue
             
-        # Buscar partidos ya jugados (goles)
+        # CORRECCIÓN AQUÍ: Usamos patrones[0] para los goles guardados
         for m in patrones[0].finditer(html_content):
             loc_web, g_l, g_v, vis_web = m.group(1), int(m.group(2)), int(m.group(3)), m.group(4)
             loc_norm = normalizar(loc_web, tipo)
             vis_norm = normalizar(vis_web, tipo)
             
             if loc_norm and vis_norm:
-                for j_num, partidos in jornadas_dict.items():
+                for j_num, partidos in jornadas.items():
                     for p in partidos:
                         if p["local"] == loc_norm and p["visitante"] == vis_norm:
                             p["goles_local"] = str(g_l)
                             p["goles_visitante"] = str(g_v)
                             p["estado"] = "Finalizado"
 
-        # Buscar horarios de partidos futuros
+        # CORRECCIÓN AQUÍ: Usamos patrones[1] para capturar las horas planificadas
         for m in patrones[1].finditer(html_content):
             loc_web, vis_web, hora = m.group(1), m.group(2), m.group(3)
             loc_norm = normalizar(loc_web, tipo)
             vis_norm = normalizar(vis_web, tipo)
             
             if loc_norm and vis_norm:
-                for j_num, partidos in jornadas_dict.items():
+                for j_num, partidos in jornadas.items():
                     for p in partidos:
                         if p["local"] == loc_norm and p["visitante"] == vis_norm:
                             if not p.get("goles_local"):
@@ -140,7 +136,6 @@ def procesar_actualizacion():
     for tipo in ["primera", "segunda"]:
         ruta_archivo = f"data/partidos_{tipo}.json"
         
-        # Cargar base de datos existente o crear estructura básica vacía si no existe
         if os.path.exists(ruta_archivo):
             try:
                 with open(ruta_archivo, "r", encoding="utf-8") as f:
