@@ -1,8 +1,5 @@
-import os
-import re
-import requests
-import json
-import xml.etree.ElementTree as ET
+import os, re, requests, json
+from bs4 import BeautifulSoup
 
 MAPEO_EQUIPOS = {
     "primera": {
@@ -11,179 +8,70 @@ MAPEO_EQUIPOS = {
         "betis": "Betis", "villarreal": "Villarreal", "valencia": "Valencia", 
         "sevilla": "Sevilla", "osasuna": "Osasuna", "girona": "Girona", 
         "rayo": "Vallecano", "celta": "Celta", "getafe": "Getafe", 
-        "mallorca": "Mallorca", "alaves": "Alaves", "valladolid": "Valladolid",
-        "leganes": "Leganes", "espanyol": "Espanol", "levante": "Levante", 
-        "elche": "Elche", "oviedo": "Real Oviedo"
+        "mallorca": "Mallorca", "alaves": "Alaves", "espanyol": "Espanol",
+        "elche": "Elche", "oviedo": "Oviedo", "levante": "Levante"
     },
     "segunda": {
-        "albacete": "Albacete", "almeria": "Almeria", "andorra": "Andorra",
-        "burgos": "Burgos", "cadiz": "Cadiz", "castellon": "Castellon",
-        "ceuta": "Ceuta", "cordoba": "Cordoba", "coruña": "La Coruña",
-        "deportivo": "La Coruña", "eibar": "Eibar", "eldense": "Eldense", 
-        "granada": "Granada", "huesca": "Huesca", "malaga": "Malaga", 
-        "mirandes": "Mirandes", "oviedo": "Oviedo", "racing": "Santander", 
-        "santander": "Santander", "sporting": "Sp Gijon", "gijon": "Sp Gijon", 
-        "tenerife": "Tenerife", "zaragoza": "Zaragoza", "ferrol": "Racing Ferrol", 
-        "leonesa": "Cultural Leonesa", "cultural": "Cultural Leonesa", 
-        "sociedad b": "Sociedad B", "las palmas": "Las Palmas"
+        "santander": "Santander", "racing": "Santander", "almeria": "Almeria",
+        "coruña": "La Coruna", "deportivo": "La Coruna", "las palmas": "Las Palmas",
+        "castellon": "Castellon", "malaga": "Malaga", "burgos": "Burgos",
+        "eibar": "Eibar", "cordoba": "Cordoba", "andorra": "Andorra",
+        "ceuta": "Ceuta", "gijon": "Sp Gijon", "sporting": "Sp Gijon",
+        "albacete": "Albacete", "granada": "Granada", "valladolid": "Valladolid",
+        "leganes": "Leganes", "sociedad b": "Sociedad B", "cadiz": "Cadiz",
+        "huesca": "Huesca", "mirandes": "Mirandes", "zaragoza": "Zaragoza",
+        "leonesa": "Cultural Leonesa", "cultural": "Cultural Leonesa"
     }
 }
 
 ALIAS_EXTRA = {
-    "primera": [
-        "Barcelona", "Real Madrid", "Atletico", "Atleti", "Athletic", "Real Sociedad", "Betis",
-        "Villarreal", "Valencia", "Sevilla", "Osasuna", "Girona", "Rayo", "Celta",
-        "Getafe", "Mallorca", "Alaves", "Valladolid", "Leganes", "Espanyol", "Levante", "Elche", "Oviedo"
-    ],
-    "segunda": [
-        "Albacete", "Deportivo", "La Coruña", "Racing", "Sporting", "Gijon",
-        "Sociedad B", "Valladolid", "Cultural", "Leonesa", "Ceuta", "Almeria", 
-        "Las Palmas", "Castellon", "Cordoba", "Malaga", "Cadiz", "Granada", 
-        "Burgos", "Huesca", "Eibar", "Mirandes", "Leganes", "Andorra", "Zaragoza"
-    ]
+    "primera": ["Barcelona", "Real Madrid", "Atletico", "Atleti", "Athletic", "Real Sociedad", "Betis", "Villarreal", "Valencia", "Sevilla", "Osasuna", "Girona", "Rayo", "Celta", "Getafe", "Mallorca", "Alaves", "Espanyol", "Elche", "Oviedo", "Levante"],
+    "segunda": ["Santander", "Racing", "Almeria", "La Coruna", "Deportivo", "Las Palmas", "Castellon", "Malaga", "Burgos", "Eibar", "Cordoba", "Andorra", "Ceuta", "Sporting", "Gijon", "Albacete", "Granada", "Valladolid", "Leganes", "Sociedad B", "Cadiz", "Huesca", "Mirandes", "Zaragoza", "Leonesa", "Cultural"]
 }
 
-def clean(txt):
-    if not txt: return ""
-    return " ".join(txt.split())
-
-def sin_acentos(txt):
-    reemplazos = {('á', 'é', 'í', 'ó', 'ú'): ('a', 'e', 'i', 'o', 'u')}
-    for origenes, destino in reemplazos.items():
-        for origen in origenes:
-            txt = txt.replace(origen, destino)
-    return txt
-
 def normalizar(txt, tipo):
-    txt = sin_acentos(clean(txt).lower())
-    palabras_a_eliminar = ["cf", "sad", "ud", "rc", "club", "de futbol", "balompie", "de madrid", "de vigo"]
-    for palabra in palabras_a_eliminar:
-        txt = txt.replace(palabra, "")
-    txt = txt.strip()
+    txt = txt.lower().strip()
+    for p in ["cf", "sad", "ud", "rc", "rcd", "club", "de futbol", "balompie", "de madrid", "de vigo", "de barcelona", "ca", "real", "sd", "ad"]:
+        txt = txt.replace(p, "")
+    txt = txt.replace("á", "a").replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u").strip()
     for clave, valor in MAPEO_EQUIPOS[tipo].items():
         if clave in txt: return valor
     return None
 
-def construir_regex_equipos(tipo):
-    todos = ALIAS_EXTRA[tipo]
-    return "|".join([re.escape(x) for x in todos])
+def raspar_contexto():
+    noticias = []
+    for url in ["https://marca.com", "https://futbolfantasy.com"]:
+        try:
+            r = requests.get(url, timeout=5, headers={"User-Agent": "Mozilla"})
+            if r.status_code == 200:
+                soup = BeautifulSoup(r.text, 'html.parser')
+                for tag in soup.find_all(['h2', 'h3'])[:5]:
+                    if len(tag.text.strip()) > 15: noticias.append(tag.text.strip())
+        except: pass
+    with open("data/contexto_ia.json", "w", encoding="utf-8") as f: json.dump({"noticias": noticias}, f, indent=4, ensure_ascii=False)
 
-def descargar_texto_url(url):
-    try:
-        r = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-        if r.status_code == 200: return r.text
-    except Exception as e:
-        print(f"⚠️ Error al raspar la URL {url}: {e}")
-    return ""
-
-def procesar_fuente_html(url, tipo, jornadas, patrones):
-    """ Escanea el HTML de un periódico deportivo en busca de goles u horarios """
-    html_content = descargar_texto_url(url)
-    if not html_content: return
-
-    # Buscar goles y partidos finalizados
-    for m in patrones["goles"].finditer(html_content):
-        loc_web, g_l, g_v, vis_web = m.group(1), int(m.group(2)), int(m.group(3)), m.group(4)
-        loc_norm, vis_norm = normalizar(loc_web, tipo), normalizar(vis_web, tipo)
-        if loc_norm and vis_norm:
-            for j_num, partidos in jornadas.items():
+def reforzar_partidos(tipo, partidos):
+    regex = re.compile(rf"({'|'.join([re.escape(x) for x in ALIAS_EXTRA[tipo]])})\s+(\d+)\s*-\s*(\d+)\s+({'|'.join([re.escape(x) for x in ALIAS_EXTRA[tipo]])})", re.I)
+    for url in ["https://mundodeportivo.com", "https://as.com"]:
+        try:
+            r = requests.get(url, timeout=5, headers={"User-Agent": "Mozilla"})
+            for m in regex.finditer(r.text):
+                l_web, g_l, g_v, v_web = m.group(1), int(m.group(2)), int(m.group(3)), m.group(4)
+                l_norm, v_norm = normalizar(l_web, tipo), normalizar(v_web, tipo)
                 for p in partidos:
-                    if p["local"] == loc_norm and p["visitante"] == vis_norm:
-                        # Si no hay goles guardados o están vacíos, los actualiza
-                        if not p.get("goles_local") or p["estado"] != "Finalizado":
-                            p["goles_local"] = str(g_l)
-                            p["goles_visitante"] = str(g_v)
-                            p["estado"] = "Finalizado"
+                    if normalizar(p["local"], tipo) == l_norm and normalizar(p["visitante"], tipo) == v_norm:
+                        p.update({"goles_local": str(g_l), "Goles_Local": str(g_l), "goles_visitante": str(g_v), "Goles_Visitante": str(g_v), "estado": "Finalizado"})
+        except: pass
 
-    # Buscar horarios planificados
-    for m in patrones["horas"].finditer(html_content):
-        loc_web, vis_web, hora = m.group(1), m.group(2), m.group(3)
-        loc_norm, vis_norm = normalizar(loc_web, tipo), normalizar(vis_web, tipo)
-        if loc_norm and vis_norm:
-            for j_num, partidos in jornadas.items():
-                for p in partidos:
-                    if p["local"] == loc_norm and p["visitante"] == vis_norm:
-                        if not p.get("goles_local"):
-                            p["hora"] = hora
-                            p["estado"] = "Programado"
-
-def procesar_fuente_rss(url, tipo, jornadas):
-    """ Lee feeds de noticias/resultados RSS en formato XML como alternativa rápida """
-    try:
-        r = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
-        if r.status_code != 200: return
-        root = ET.fromstring(r.content)
-        for item in root.findall('.//item'):
-            titulo = item.find('title').text if item.find('title') is not None else ""
-            # Ejemplo de parseo de títulos RSS: "Real Madrid 2-1 Barcelona"
-            m = re.search(r"([\w\s]+)\s+(\d+)\s*-\s*(\d+)\s+([\w\s]+)", titulo)
-            if m:
-                loc_web, g_l, g_v, vis_web = m.group(1), int(m.group(2)), int(m.group(3)), m.group(4)
-                loc_norm, vis_norm = normalizar(loc_web, tipo), normalizar(vis_web, tipo)
-                if loc_norm and vis_norm:
-                    for j_num, partidos in jornadas.items():
-                        for p in partidos:
-                            if p["local"] == loc_norm and p["visitante"] == vis_norm:
-                                if not p.get("goles_local"):
-                                    p["goles_local"] = str(g_l)
-                                    p["goles_visitante"] = str(g_v)
-                                    p["estado"] = "Finalizado"
-    except Exception as e:
-        print(f"⚠️ Error procesando RSS {url}: {e}")
-
-def reforzar_resultados_y_horas(tipo, jornadas):
-    print(f"🚀 Iniciando recopilación multi-fuente para {tipo}...")
-    equipos_re = construir_regex_equipos(tipo)
-    
-    patrones = {
-        "goles": re.compile(rf"({equipos_re})\s+(\d+)\s*-\s*(\d+)\s+({equipos_re})", re.I),
-        "horas": re.compile(rf"({equipos_re})\s*vs\s*({equipos_re})\s*.*?(\d{{2}}:\d{{2}})", re.I)
-    }
-    
-    # 🌍 RED DE FUENTES 1: Periódicos y diarios deportivos por Web Scraping
-    fuentes_web = [
-        "mundodeportivo.com",
-        "as.com",
-        "marca.com",
-        "sport.es"
-    ] if tipo == "primera" else [
-        "mundodeportivo.com",
-        "as.com",
-        "marca.com"
-    ]
-    
-    for url in fuentes_web:
-        print(f"   -> Escaneando Web: {url}")
-        procesar_fuente_html(url, tipo, jornadas, patrones)
-        
-    # 🌍 RED DE FUENTES 2: Feeds RSS alternativos en tiempo real (Soporte de caída)
-    fuentes_rss = [
-        "eldesmarque.com",
-        "resultados-futbol.com"
-    ] if tipo == "primera" else [
-        "eldesmarque.com"
-    ]
-    
-    for url in fuentes_rss:
-        print(f"   -> Escaneando RSS de respaldo: {url}")
-        procesar_fuente_rss(url, tipo, jornadas)
-
-def procesar_actualizacion():
+def ejecutar():
     os.makedirs("data", exist_ok=True)
+    raspar_contexto()
     for tipo in ["primera", "segunda"]:
-        ruta_archivo = f"data/partidos_{tipo}.json"
-        if os.path.exists(ruta_archivo):
-            try:
-                with open(ruta_archivo, "r", encoding="utf-8") as f:
-                    jornadas = json.load(f)
-            except Exception: jornadas = {}
-        else: jornadas = {}
-            
-        reforzar_resultados_y_horas(tipo, jornadas)
-        
-        with open(ruta_archivo, "w", encoding="utf-8") as f:
-            json.dump(jornadas, f, indent=4, ensure_ascii=False)
-        print(f"💾 Base de datos multi-fuente consolidada para {tipo}.\n")
+        ruta = f"data/partidos_{tipo}.json"
+        if os.path.exists(ruta):
+            with open(ruta, "r", encoding="utf-8") as f: partidos = json.load(f)
+            reforzar_partidos(tipo, partidos)
+            with open(ruta, "w", encoding="utf-8") as f: json.dump(partidos, f, indent=4, ensure_ascii=False)
 
-if __name__ == "__main__":
-    procesar_actualizacion()
+if __name__ == "__main__": ejecutar()
+
