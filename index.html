@@ -339,6 +339,15 @@
       font-size: 12px;
     }
 
+    .respuesta-ia {
+      white-space: pre-line;
+      line-height: 1.45;
+      background: #f8fafc;
+      border: 1px solid #d9e2ec;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
     textarea {
       width: 100%;
       min-height: 90px;
@@ -548,11 +557,11 @@
     <section id="asistente">
       <div class="card">
         <h2>Asistente IA Quiniela</h2>
-        <p>Pregúntame sobre jornadas, aciertos, fallos, sorpresas o patrones del historial.</p>
+        <p>Pregúntame sobre clasificación, rachas, ascenso, empates, resultados, quinielas validadas, memoria y estado de actualización.</p>
         <textarea id="pregunta-ia" placeholder="Ejemplo: ¿qué partidos son más de empate?"></textarea>
         <br><br>
         <button onclick="responderIA()">Preguntar</button>
-        <p id="respuesta-ia">Estoy listo para analizar el historial.</p>
+        <p id="respuesta-ia" class="respuesta-ia">Estoy listo para analizar el historial.</p>
       </div>
     </section>
 
@@ -1021,12 +1030,189 @@
       `).join("");
     }
 
-    function responderIA() {
+    async function responderIA() {
       const pregunta = document.getElementById("pregunta-ia").value;
       const respuesta = document.getElementById("respuesta-ia");
-      respuesta.textContent = pregunta
-        ? "La IA ya está conectada al histórico, calendario, clasificación y análisis. Para respuestas conversacionales profundas añadiremos un módulo de consulta en la siguiente fase."
-        : "Escribe una pregunta para analizar.";
+      const q = norm(pregunta);
+
+      if (!q) {
+        respuesta.textContent = "Escribe una pregunta para analizar.";
+        return;
+      }
+
+      respuesta.textContent = "Consultando memoria IA...";
+
+      const [clasif, memoria, historial, contexto, primera, segunda] = await Promise.all([
+        fetchJSON("clasificaciones.json", {}),
+        fetchJSON("data/memoria_ia/aprendizaje_global.json", {}),
+        fetchJSON("data/historial_quinielas.json", { jornadas: [] }),
+        fetchJSON("data/contexto_equipos.json", { equipos: {} }),
+        fetchJSON("data/calendario_primera.json", { jornadas: [] }),
+        fetchJSON("data/calendario_segunda.json", { jornadas: [] })
+      ]);
+
+      const texto = construirRespuestaIA(q, { clasif, memoria, historial, contexto, primera, segunda });
+      respuesta.textContent = texto;
+    }
+
+    function construirRespuestaIA(q, data) {
+      if (incluye(q, ["actualizada", "actualizado", "ultima actualizacion", "actualizacion", "al dia"])) {
+        return respuestaActualizacion(data);
+      }
+      if (incluye(q, ["gano la liga", "ganado la liga", "campeon", "campeón", "liga de 1a", "liga de primera"])) {
+        return respuestaCampeonPrimera(data.clasif);
+      }
+      if (incluye(q, ["ascenso", "subir", "suben", "playoff", "play off", "segunda"])) {
+        return respuestaAscensoSegunda(data.clasif);
+      }
+      if (incluye(q, ["peor racha", "mala racha", "sin ganar", "perdiendo", "derrotas"])) {
+        return respuestaPeorRacha(data.clasif, q);
+      }
+      if (incluye(q, ["mas empates", "más empates", "empata", "empates"])) {
+        return respuestaMasEmpates(data.clasif, q);
+      }
+      if (incluye(q, ["ultimas 5", "últimas 5", "ultimos 5", "últimos 5", "forma"])) {
+        return respuestaFormaCinco(data.clasif, q);
+      }
+      if (incluye(q, ["acertado", "aciertos", "quinielas hemos", "validada", "validadas", "nuestra quiniela"])) {
+        return respuestaAciertos(data.historial);
+      }
+      if (incluye(q, ["noticias", "lesion", "lesión", "sancion", "sanción", "bajas", "altas", "dudas"])) {
+        return respuestaContexto(data.contexto, q);
+      }
+      if (incluye(q, ["jornada 63", "proxima", "próxima", "siguiente"])) {
+        return respuestaJornada(data.historial, 63);
+      }
+      if (incluye(q, ["memoria", "aprendiendo", "aprende", "guarda", "datos"])) {
+        return respuestaMemoria(data);
+      }
+
+      return respuestaGeneral(data);
+    }
+
+    function incluye(q, palabras) {
+      return palabras.some(p => q.includes(norm(p)));
+    }
+
+    function ligaDesdePregunta(q) {
+      if (incluye(q, ["2a", "segunda", "hypermotion"])) return "segunda";
+      if (incluye(q, ["1a", "primera", "easports"])) return "primera";
+      return null;
+    }
+
+    function equiposLiga(clasif, q) {
+      const liga = ligaDesdePregunta(q);
+      if (liga) return clasif[liga] || [];
+      return [...(clasif.primera || []), ...(clasif.segunda || [])];
+    }
+
+    function respuestaActualizacion({ memoria, historial, contexto, primera, segunda }) {
+      const p1 = resumenJornadaActual(primera);
+      const p2 = resumenJornadaActual(segunda);
+      return [
+        `Última memoria IA: ${memoria.generado_en || "sin fecha guardada"}.`,
+        `Historial cargado: ${historial.total_jornadas || historial.jornadas?.length || 0} jornadas.`,
+        `Contexto equipos: ${Object.keys(contexto.equipos || {}).length} equipos, generado en ${contexto.generado_en || "sin fecha"}.`,
+        `1ª División: ${p1}.`,
+        `2ª División: ${p2}.`
+      ].join("\n");
+    }
+
+    function resumenJornadaActual(cal) {
+      const jornada = elegirJornadaActual(cal.jornadas || []);
+      if (!jornada) return "sin jornada detectada";
+      const jugados = (jornada.partidos || []).filter(p => p.resultado).length;
+      const total = (jornada.partidos || []).length;
+      return `Jornada ${jornada.jornada}: ${jugados}/${total} partidos con resultado`;
+    }
+
+    function respuestaCampeonPrimera(clasif) {
+      const equipos = clasif.primera || [];
+      if (!equipos.length) return "No tengo clasificación de Primera cargada.";
+      const lider = equipos[0];
+      const segundo = equipos[1];
+      const pendientes = Math.max(38 - Number(lider.pj || 0), 0);
+      const margenMax = pendientes * 3;
+      const ventaja = Number(lider.puntos || lider.pts || 0) - Number(segundo?.puntos || segundo?.pts || 0);
+      const campeon = ventaja > margenMax;
+      return campeon
+        ? `${lider.equipo} ya tiene la Liga de 1ª prácticamente/matemáticamente sentenciada según la tabla cargada: ${lider.puntos || lider.pts} puntos, ventaja de ${ventaja} sobre ${segundo.equipo}, y quedan ${pendientes} jornadas.`
+        : `Según la tabla cargada, lidera ${lider.equipo} con ${lider.puntos || lider.pts} puntos. Aún no puedo dar campeón matemático solo con estos datos: ventaja ${ventaja}, quedan ${pendientes} jornadas.`;
+    }
+
+    function respuestaAscensoSegunda(clasif) {
+      const equipos = clasif.segunda || [];
+      if (!equipos.length) return "No tengo clasificación de Segunda cargada.";
+      const directos = equipos.slice(0, 2).map(e => `${e.posicion}. ${e.equipo} (${e.puntos || e.pts} pts)`).join("\n");
+      const playoff = equipos.slice(2, 6).map(e => `${e.posicion}. ${e.equipo} (${e.puntos || e.pts} pts)`).join("\n");
+      return `Ascenso directo ahora mismo:\n${directos}\n\nZona playoff:\n${playoff}`;
+    }
+
+    function respuestaPeorRacha(clasif, q) {
+      const equipos = equiposLiga(clasif, q);
+      const orden = [...equipos].sort((a, b) => {
+        const ra = a.racha_actual || {};
+        const rb = b.racha_actual || {};
+        return (rb.derrotas || rb.sin_ganar || 0) - (ra.derrotas || ra.sin_ganar || 0);
+      }).slice(0, 8);
+      return `Peores rachas detectadas:\n${orden.map(e => `${e.equipo}: ${rachaTexto(e)}, ${e.puntos || e.pts} pts`).join("\n")}`;
+    }
+
+    function respuestaMasEmpates(clasif, q) {
+      const equipos = equiposLiga(clasif, q);
+      const orden = [...equipos].sort((a, b) => Number(b.e || 0) - Number(a.e || 0)).slice(0, 8);
+      return `Equipos con más empates:\n${orden.map(e => `${e.equipo}: ${e.e || 0} empates en ${e.pj || 0} partidos`).join("\n")}`;
+    }
+
+    function respuestaFormaCinco(clasif, q) {
+      const equipos = equiposLiga(clasif, q);
+      const orden = [...equipos].sort((a, b) => Number(a.tendencias?.forma_5_pts || 0) - Number(b.tendencias?.forma_5_pts || 0)).slice(0, 8);
+      return `Peor forma en las últimas 5 jornadas:\n${orden.map(e => `${e.equipo}: ${e.tendencias?.forma_5_pts || 0} puntos, racha ${rachaTexto(e)}`).join("\n")}`;
+    }
+
+    function respuestaAciertos(historial) {
+      const jornadas = historial.jornadas || [];
+      const validaciones = jornadas.map(j => {
+        const v = cargarValidacionLocal(j.jornada);
+        return v ? { jornada: j, validacion: v, aciertos: contarAciertosResumen(j, v) } : null;
+      }).filter(Boolean);
+      if (!validaciones.length) return "Todavía no hay quinielas nuestras validadas en este navegador. Cuando valides una jornada, podré comparar signos y contar aciertos.";
+      return `Quinielas nuestras validadas: ${validaciones.length}\n${validaciones.map(x => `Jornada ${x.jornada.jornada}: ${x.aciertos}`).join("\n")}`;
+    }
+
+    function respuestaContexto(contexto, q) {
+      const equipos = contexto.equipos || {};
+      const encontrados = Object.entries(equipos).filter(([equipo]) => q.includes(norm(equipo)) || norm(equipo).split(" ").some(p => p.length > 4 && q.includes(p))).slice(0, 5);
+      const lista = encontrados.length ? encontrados : Object.entries(equipos).filter(([, d]) => (d.alertas || []).length).slice(0, 8);
+      if (!lista.length) return "No tengo alertas recientes de noticias en el contexto cargado.";
+      return `Contexto de noticias reciente:\n${lista.map(([equipo, d]) => `${equipo}: ${(d.alertas || []).join(", ") || "sin alertas"} · ${d.resumen || ""}`).join("\n")}`;
+    }
+
+    function respuestaJornada(historial, numero) {
+      const j = (historial.jornadas || []).find(x => Number(x.jornada) === numero);
+      if (!j) return `No tengo cargada la jornada ${numero}.`;
+      return `Jornada ${numero}: ${j.estado}. Resultado oficial: ${j.resultado_oficial}. Partidos con resultado: ${j.partidos_con_resultado}/${j.total_partidos}. Pleno al 15: ${j.pleno15_oficial}.`;
+    }
+
+    function respuestaMemoria({ memoria, historial, contexto, clasif }) {
+      const p1 = clasif.primera?.length || 0;
+      const p2 = clasif.segunda?.length || 0;
+      return `Sí, tengo memoria cargada.\nTemporada base: ${memoria.temporada || "sin etiqueta"}.\nJornadas de quiniela: ${historial.total_jornadas || historial.jornadas?.length || 0}.\nEquipos en clasificación: ${p1} de 1ª y ${p2} de 2ª.\nContexto de noticias: ${Object.keys(contexto.equipos || {}).length} equipos.\nPartidos analizados en memoria: 1ª ${memoria.ligas?.primera?.partidos_jugados || 0}, 2ª ${memoria.ligas?.segunda?.partidos_jugados || 0}.`;
+    }
+
+    function respuestaGeneral(data) {
+      return [
+        "Puedo responder con los datos cargados sobre:",
+        "- campeón/líder de 1ª",
+        "- ascenso y playoff de 2ª",
+        "- peores rachas y forma últimos 5",
+        "- equipos con más empates",
+        "- estado de actualización",
+        "- quinielas validadas y aciertos",
+        "- noticias, lesiones, sanciones, altas y dudas detectadas",
+        "",
+        respuestaActualizacion(data)
+      ].join("\n");
     }
 
     async function cargarJornadasQuinielaIA() {
