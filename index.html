@@ -678,7 +678,7 @@
       });
 
       const enCurso = enriquecidas
-        .filter(j => j.primeraFecha && j.primeraFecha <= inicioDia && (!j.ultimaFecha || j.ultimaFecha >= inicioDia - 6 * 86400000))
+        .filter(j => j.primeraFecha && j.primeraFecha <= inicioDia && j.ultimaFecha >= inicioDia)
         .sort((a, b) => b.primeraFecha - a.primeraFecha)[0];
       if (enCurso) return enCurso.jornada;
 
