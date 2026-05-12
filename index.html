@@ -636,17 +636,19 @@
       const data = await fetchJSON(`data/calendario_${tipo}.json`, {});
       const jornadas = data?.jornadas || [];
 
-      const actual = jornadas.find(j =>
-        j.partidos && j.partidos.some(p => !p.resultado)
-      ) || jornadas[jornadas.length - 1];
+      const actual = elegirJornadaActual(jornadas);
 
       if (!actual) {
         contenedor.innerHTML = "No hay jornada disponible.";
         return;
       }
 
+      const pendientes = actual.partidos.filter(p => !p.resultado).length;
+      const jugados = actual.partidos.length - pendientes;
+
       contenedor.innerHTML = `
         <h3>Jornada ${actual.jornada}</h3>
+        <p class="small-muted">${jugados} jugados · ${pendientes} pendientes</p>
         ${actual.partidos.map((p, i) => `
           <div class="partido">
             <strong>${i + 1}.</strong>
@@ -657,6 +659,37 @@
           </div>
         `).join("")}
       `;
+    }
+
+    function elegirJornadaActual(jornadas) {
+      if (!jornadas.length) return null;
+
+      const hoy = new Date();
+      const inicioDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime();
+
+      const enriquecidas = jornadas.map(jornada => {
+        const fechas = (jornada.partidos || [])
+          .map(p => p.fecha ? new Date(p.fecha + "T12:00:00").getTime() : null)
+          .filter(Boolean);
+        const primeraFecha = fechas.length ? Math.min(...fechas) : 0;
+        const ultimaFecha = fechas.length ? Math.max(...fechas) : 0;
+        const pendientes = (jornada.partidos || []).filter(p => !p.resultado).length;
+        return { jornada, primeraFecha, ultimaFecha, pendientes };
+      });
+
+      const enCurso = enriquecidas
+        .filter(j => j.primeraFecha && j.primeraFecha <= inicioDia && (!j.ultimaFecha || j.ultimaFecha >= inicioDia - 6 * 86400000))
+        .sort((a, b) => b.primeraFecha - a.primeraFecha)[0];
+      if (enCurso) return enCurso.jornada;
+
+      const proxima = enriquecidas
+        .filter(j => j.primeraFecha && j.primeraFecha >= inicioDia)
+        .sort((a, b) => a.primeraFecha - b.primeraFecha)[0];
+      if (proxima) return proxima.jornada;
+
+      return enriquecidas
+        .filter(j => j.primeraFecha)
+        .sort((a, b) => b.primeraFecha - a.primeraFecha)[0]?.jornada || jornadas[jornadas.length - 1];
     }
 
     async function cargarClasificaciones() {
