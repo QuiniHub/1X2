@@ -11,6 +11,7 @@ def ejecutar_sistema():
     gestionar_mercado_y_temporada()
     scripts = [
         "actualizar_jornadas_detalle.py",
+        "actualizar_resultados_directo.py",
         "actualizar_calendario.py",
         "actualizar_clasificaciones.py",
         "actualizar_contexto_equipos.py",

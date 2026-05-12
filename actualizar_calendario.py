@@ -46,6 +46,7 @@ RESULTADOS_VERIFICADOS = {
         },
         36: {
             ("RC Celta de Vigo", "Levante UD"): "2-3",
+            ("Real Betis Balompie", "Elche CF"): "2-1",
         },
     },
     "segunda": {
