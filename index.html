@@ -340,6 +340,9 @@
       <div class="card">
         <h2>Quiniela IA</h2>
         <p>Selecciona una jornada, configura dobles/triples y genera el boleto con análisis IA.</p>
+        <div id="prediccion-resumen" class="card" style="box-shadow:none; border:1px solid #d9e2ec; background:#f8fafc;">
+          Cargando predicción IA...
+        </div>
 
         <div id="lista-jornadas-quiniela" class="jornadas-grid"></div>
 
@@ -555,6 +558,37 @@
       await cargarClasificacionHome("segunda", "home-clasificacion-segunda");
       await cargarJornadaHome("primera", "home-jornada-primera");
       await cargarJornadaHome("segunda", "home-jornada-segunda");
+      await cargarPrediccionResumen();
+    }
+
+    async function cargarPrediccionResumen() {
+      const contenedor = document.getElementById("prediccion-resumen");
+      if (!contenedor) return;
+
+      const data = await fetchJSON("data/predicciones/ultima_prediccion.json", null);
+      if (!data) {
+        contenedor.innerHTML = "Todavía no hay predicción IA generada.";
+        return;
+      }
+
+      const coste = data.coste || {};
+      const resumen = data.resumen || {};
+      contenedor.innerHTML = `
+        <h3>Predicción Quiniela Jornada ${data.jornada}</h3>
+        <p>
+          <strong>${coste.apuestas || 1}</strong> apuestas ·
+          <strong>${(coste.importe_total || 1.5).toFixed(2).replace(".", ",")} €</strong>
+          ${data.configuracion?.elige8 ? " · Elige 8 activado" : ""}
+        </p>
+        <p class="small-muted">
+          ${resumen.fijos || 0} fijos · ${resumen.dobles || 0} dobles · ${resumen.triples || 0} triples ·
+          ${resumen.elige8_seleccionados || 0} seleccionados para Elige 8.
+        </p>
+        <p class="small-muted">
+          Estado: ${data.estado === "validada" ? "quiniela validada/jugada" : "predicción no validada"}.
+          Solo se considera jugada cuando se valida.
+        </p>
+      `;
     }
 
     async function cargarClasificacionHome(tipo, contenedorId) {

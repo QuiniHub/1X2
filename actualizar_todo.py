@@ -15,7 +15,9 @@ def ejecutar_sistema():
         "actualizar_clasificaciones.py",
         "actualizar_analisis_ia.py",
         "generar_quiniela_ia.py",
-        "actualizar_aprendizaje_ia.py"
+        "actualizar_aprendizaje_ia.py",
+        "construir_memoria_ia.py",
+        "motor_prediccion_quiniela.py"
     ]
     for s in scripts:
         if os.path.exists(s):
