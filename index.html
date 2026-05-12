@@ -288,6 +288,52 @@
       margin-left: 5px;
     }
 
+    .link-jornada {
+      background: transparent;
+      color: #1d4ed8;
+      border: 0;
+      padding: 0;
+      border-radius: 0;
+      font-weight: 800;
+      text-decoration: underline;
+    }
+
+    .manual-form {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid #d9e2ec;
+      border-radius: 10px;
+      background: #f8fafc;
+    }
+
+    .manual-row {
+      display: grid;
+      grid-template-columns: 34px 1fr 150px;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .manual-row select,
+    .manual-row input {
+      padding: 7px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .ok {
+      color: #15803d;
+      font-weight: 800;
+    }
+
+    .ko {
+      color: #b91c1c;
+      font-weight: 800;
+    }
+
     .small-muted {
       color: #64748b;
       font-size: 12px;
@@ -475,7 +521,7 @@
     <section id="historial">
       <div class="card">
         <h2>Historial de jornadas</h2>
-        <p>Comparativa entre los resultados oficiales de cada Quiniela y nuestra quiniela jugada.</p>
+        <p>Jornadas oficiales de La Quiniela, boleto oficial, validaciones propias y memoria para aprendizaje IA.</p>
         <div class="table-wrapper">
           <table>
             <thead>
@@ -483,16 +529,15 @@
                 <th>Jornada</th>
                 <th>Fecha</th>
                 <th>Resultado oficial</th>
+                <th>Pleno 15</th>
                 <th>Nuestra quiniela</th>
                 <th>Aciertos</th>
-                <th>Fallos claros</th>
-                <th>Fallos sorpresa</th>
-                <th>Lectura</th>
+                <th>Estado</th>
                 <th>Detalle</th>
               </tr>
             </thead>
             <tbody id="tabla-historial">
-              <tr><td colspan="9">Cargando historial...</td></tr>
+              <tr><td colspan="8">Cargando historial...</td></tr>
             </tbody>
           </table>
         </div>
@@ -574,6 +619,7 @@
     let jornadaActualIA = null;
     let partidosJornadaIA = [];
     let pleno15JornadaIA = null;
+    let detalleJornadaActual = null;
 
     function showTab(id, btn) {
       document.querySelectorAll("main section").forEach(s => s.classList.remove("active"));
@@ -772,40 +818,56 @@
       if (!tbody) return;
 
       try {
-        const res = await fetch("historico_quinielas.csv?v=" + Date.now());
-        const text = await res.text();
-        const lineas = text.trim().split("\n").filter(Boolean);
-        const datos = lineas.slice(1);
+        const data = await fetchJSON("data/historial_quinielas.json", { jornadas: [] });
+        const datos = data.jornadas || [];
 
         tbody.innerHTML = "";
 
-        datos.forEach(linea => {
-          const columnas = linea.split(",");
-          if (!columnas.length) return;
-
-          const jornada = parseInt(columnas[0]) || "";
+        datos.forEach(item => {
+          const jornada = Number(item.jornada);
+          const guardada = cargarValidacionLocal(jornada);
+          const aciertos = guardada ? contarAciertosResumen(item, guardada) : "No validada";
           const fila = document.createElement("tr");
-
-          columnas.slice(0, 8).forEach(valor => {
-            const td = document.createElement("td");
-            td.textContent = valor;
-            fila.appendChild(td);
-          });
-
-          const tdDetalle = document.createElement("td");
-          tdDetalle.innerHTML = `<button onclick="abrirJornada(${jornada})">Ver boleto</button>`;
-          fila.appendChild(tdDetalle);
+          fila.innerHTML = `
+            <td><button class="link-jornada" onclick="abrirJornada(${jornada})">${jornada}</button></td>
+            <td>${item.fecha || ""}</td>
+            <td>${item.resultado_oficial || "Pendiente"}</td>
+            <td>${item.pleno15_oficial || "Pendiente"}</td>
+            <td>${guardada ? guardada.signos.join(" ") : item.nuestra_quiniela || "No validada"}</td>
+            <td>${aciertos}</td>
+            <td>${guardada ? "Validada por nosotros" : item.estado === "cerrada" ? "Cerrada oficial" : "Abierta"}</td>
+            <td><button onclick="abrirJornada(${jornada})">Ver boleto</button></td>
+          `;
 
           tbody.appendChild(fila);
         });
 
       } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="9">No se pudo cargar el historial.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8">No se pudo cargar el historial.</td></tr>`;
       }
+    }
+
+    function cargarValidacionLocal(jornada) {
+      try {
+        return JSON.parse(localStorage.getItem(`quiniela_validada_${jornada}`) || "null");
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function contarAciertosResumen(item, validacion) {
+      const oficial = String(item.resultado_oficial || "");
+      if (oficial.length < 14 || !validacion?.signos?.length) return "Pendiente";
+      let aciertos = 0;
+      validacion.signos.forEach((signo, idx) => {
+        if (String(signo).includes(oficial[idx])) aciertos += 1;
+      });
+      return `${aciertos}/14`;
     }
 
     async function abrirJornada(jornada) {
       showTab("detalle-jornada", null);
+      detalleJornadaActual = jornada;
 
       const titulo = document.getElementById("detalle-titulo");
       const oficial = document.getElementById("boleto-oficial");
@@ -824,20 +886,17 @@
 
       const partidos = data.partidos || [];
       const pleno = data.pleno15 || null;
+      const validacion = cargarValidacionLocal(jornada);
 
       oficial.innerHTML = partidos.map(p => `
         <div class="match-row">
           <strong>${p.num}.</strong> ${p.local} - ${p.visitante}
-          <span class="badge">${p.signo_oficial || p.resultado || ""}</span>
+          <span class="badge">${p.signo_oficial || "Pendiente"}</span>
+          <span class="small-muted">${p.resultado || ""}</span>
         </div>
       `).join("");
 
-      nuestro.innerHTML = partidos.map(p => `
-        <div class="match-row">
-          <strong>${p.num}.</strong> ${p.local} - ${p.visitante}
-          <span class="badge">${p.signo_nuestro || "No jugada"}</span>
-        </div>
-      `).join("");
+      nuestro.innerHTML = pintarBoletoNuestro(data, validacion);
 
       if (pleno) {
         oficial.innerHTML += `
@@ -846,14 +905,91 @@
             <span class="badge">${pleno.signo_oficial || pleno.resultado || ""}</span>
           </div>
         `;
+      }
+    }
 
-        nuestro.innerHTML += `
+    function pintarBoletoNuestro(data, validacion) {
+      const partidos = data.partidos || [];
+      const pleno = data.pleno15 || null;
+      if (validacion) {
+        const filas = partidos.map((p, idx) => {
+          const oficial = String(p.signo_oficial || "").trim().toUpperCase();
+          const nuestro = validacion.signos[idx] || "";
+          const cerrado = ["1", "X", "2"].includes(oficial);
+          const acierto = cerrado && String(nuestro).includes(oficial);
+          return `
+            <div class="match-row">
+              <strong>${p.num}.</strong> ${p.local} - ${p.visitante}
+              <span class="badge">${nuestro}</span>
+              ${cerrado ? `<span class="${acierto ? "ok" : "ko"}">${acierto ? "Acierto" : "Fallo"}</span>` : `<span class="small-muted">Pendiente oficial</span>`}
+            </div>
+          `;
+        }).join("");
+        const plenoHtml = pleno ? `
           <div class="match-row pleno15">
             <strong>15.</strong> Pleno al 15: ${pleno.local || ""} - ${pleno.visitante || ""}
-            <span class="badge">${pleno.signo_nuestro || "Pendiente"}</span>
+            <span class="badge">${validacion.pleno15 || "Pendiente"}</span>
           </div>
+        ` : "";
+        return `
+          <p class="small-muted">Boleto validado por nosotros el ${validacion.validado_en || ""}. Esta jugada se usa en el aprendizaje local de la IA.</p>
+          ${filas}
+          ${plenoHtml}
+          <button onclick="generarFormularioValidacion(${data.jornada})">Editar validación</button>
         `;
       }
+
+      return `
+        <p>No hay boleto nuestro validado para esta jornada.</p>
+        <button onclick="generarFormularioValidacion(${data.jornada})">Generar manualmente y validar</button>
+      `;
+    }
+
+    async function generarFormularioValidacion(jornada) {
+      const data = await fetchJSON(`data/jornadas/jornada_${jornada}.json`, null);
+      if (!data) return;
+      const nuestro = document.getElementById("boleto-nuestro");
+      const partidos = data.partidos || [];
+      const guardada = cargarValidacionLocal(jornada);
+      const opciones = ["1", "X", "2"];
+      nuestro.innerHTML = `
+        <div class="manual-form">
+          <h3>Validar nuestra quiniela Jornada ${jornada}</h3>
+          ${partidos.map((p, idx) => `
+            <div class="manual-row">
+              <strong>${p.num}.</strong>
+              <span>${p.local} - ${p.visitante}</span>
+              <select id="manual-signo-${idx}">
+                ${opciones.map(op => `<option value="${op}" ${guardada?.signos?.[idx] === op ? "selected" : ""}>${op}</option>`).join("")}
+              </select>
+            </div>
+          `).join("")}
+          ${data.pleno15 ? `
+            <div class="manual-row pleno15">
+              <strong>15.</strong>
+              <span>${data.pleno15.local || ""} - ${data.pleno15.visitante || ""}</span>
+              <input id="manual-pleno15" value="${guardada?.pleno15 || ""}" placeholder="Ej: 2-1">
+            </div>
+          ` : ""}
+          <br>
+          <button onclick="validarManual(${jornada})">Validar Quiniela</button>
+        </div>
+      `;
+    }
+
+    async function validarManual(jornada) {
+      const data = await fetchJSON(`data/jornadas/jornada_${jornada}.json`, null);
+      if (!data) return;
+      const signos = (data.partidos || []).map((_, idx) => document.getElementById(`manual-signo-${idx}`)?.value || "1");
+      const pleno15 = document.getElementById("manual-pleno15")?.value || "";
+      localStorage.setItem(`quiniela_validada_${jornada}`, JSON.stringify({
+        jornada,
+        signos,
+        pleno15,
+        validado_en: new Date().toLocaleString("es-ES"),
+      }));
+      await abrirJornada(jornada);
+      await cargarHistorial();
     }
 
     async function mostrarCalendario(liga) {
@@ -897,11 +1033,11 @@
       if (!contenedor) return;
 
       contenedor.innerHTML = "";
-      for (let j = 1; j <= 61; j++) {
+      for (let j = 1; j <= 63; j++) {
         contenedor.innerHTML += `<button id="btn-jornada-${j}" onclick="abrirQuinielaIA(${j})">Jornada ${j}</button>`;
       }
 
-      abrirQuinielaIA(61);
+      abrirQuinielaIA(63);
     }
 
     async function abrirQuinielaIA(jornada) {

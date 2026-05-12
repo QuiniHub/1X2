@@ -16,6 +16,7 @@ def ejecutar_sistema():
         "actualizar_analisis_ia.py",
         "generar_quiniela_ia.py",
         "actualizar_aprendizaje_ia.py",
+        "construir_historial_quinielas.py",
         "construir_memoria_ia.py",
         "motor_prediccion_quiniela.py"
     ]
