@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: "*/15 * * * *"
 
+concurrency:
+  group: actualizar-quiniela
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -35,5 +39,6 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add .
-          git commit -m "Actualización automática completa" || echo "Sin cambios"
+          git diff --cached --quiet && echo "Sin cambios" || git commit -m "Actualizacion automatica completa"
+          git pull --rebase origin main
           git push

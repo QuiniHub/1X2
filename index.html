@@ -1061,6 +1061,75 @@
       return puntos;
     }
 
+    function puntosEquipo(equipo) {
+      return equipo?.puntos || equipo?.pts || 0;
+    }
+
+    function numeroSeguro(valor, decimales = 1) {
+      const n = Number(valor);
+      return Number.isFinite(n) ? n.toFixed(decimales).replace(".", ",") : "0";
+    }
+
+    function rachaTexto(equipo) {
+      const r = equipo?.racha_actual || {};
+      if (r.victorias) return `${r.victorias} victoria${r.victorias === 1 ? "" : "s"} seguida${r.victorias === 1 ? "" : "s"}`;
+      if (r.empates) return `${r.empates} empate${r.empates === 1 ? "" : "s"} seguido${r.empates === 1 ? "" : "s"}`;
+      if (r.derrotas) return `${r.derrotas} derrota${r.derrotas === 1 ? "" : "s"} seguida${r.derrotas === 1 ? "" : "s"}`;
+      if (r.sin_perder) return `${r.sin_perder} sin perder`;
+      if (r.sin_ganar) return `${r.sin_ganar} sin ganar`;
+      return "racha neutra";
+    }
+
+    function leerTendencia(equipo, campo) {
+      return Number(equipo?.tendencias?.[campo] || 0);
+    }
+
+    function generarRazonamientoPartido(partido, signo, tipoApuesta) {
+      const local = partido.clasificacion_local;
+      const visitante = partido.clasificacion_visitante;
+      const probs = partido.probabilidades || { "1": 33, "X": 33, "2": 34 };
+      const orden = Object.entries(probs).sort((a, b) => b[1] - a[1]);
+      const ventajaProb = orden.length > 1 ? orden[0][1] - orden[1][1] : 0;
+
+      if (!local || !visitante) {
+        return `Lectura IA: ${partido.local} - ${partido.visitante}. Probabilidades calculadas: 1=${probs["1"]}%, X=${probs["X"]}%, 2=${probs["2"]}%. Se recomienda ${signo} por equilibrio estadístico del boleto y riesgo ${partido.riesgo}.`;
+      }
+
+      const ptsLocal = puntosEquipo(local);
+      const ptsVisitante = puntosEquipo(visitante);
+      const formaLocal = leerTendencia(local, "forma_5_pts");
+      const formaVisitante = leerTendencia(visitante, "forma_5_pts");
+      const gfLocal = leerTendencia(local, "goles_favor_por_partido");
+      const gcLocal = leerTendencia(local, "goles_contra_por_partido");
+      const gfVisitante = leerTendencia(visitante, "goles_favor_por_partido");
+      const gcVisitante = leerTendencia(visitante, "goles_contra_por_partido");
+      const diferenciaPuntos = ptsLocal - ptsVisitante;
+      const diferenciaForma = formaLocal - formaVisitante;
+
+      let lecturaTipo = "Se deja fijo porque el signo principal mantiene ventaja suficiente frente a las alternativas.";
+      if (tipoApuesta === "TRIPLE") {
+        lecturaTipo = "Se abre triple porque hay mucha incertidumbre: las probabilidades están apretadas, el empate pesa y el partido puede romper el pronóstico base.";
+      } else if (tipoApuesta === "DOBLE") {
+        lecturaTipo = "Se cubre con doble porque hay un segundo signo con valor real y el favorito no tiene margen cómodo.";
+      }
+
+      let lecturaPuntos = `${partido.local} llega ${local.posicion || "-"}º con ${ptsLocal} puntos y ${partido.visitante} ${visitante.posicion || "-"}º con ${ptsVisitante}.`;
+      if (Math.abs(diferenciaPuntos) >= 10) {
+        lecturaPuntos += diferenciaPuntos > 0
+          ? ` La ventaja de ${Math.abs(diferenciaPuntos)} puntos empuja hacia el 1.`
+          : ` La ventaja visitante de ${Math.abs(diferenciaPuntos)} puntos empuja hacia el 2.`;
+      } else {
+        lecturaPuntos += " La distancia de puntos es corta, así que el empate o la sorpresa tienen más peso.";
+      }
+
+      const lecturaForma = `Dinámica reciente: ${partido.local} suma ${formaLocal} puntos en los últimos 5 y ${partido.visitante} suma ${formaVisitante}. ${diferenciaForma > 2 ? "La forma local llega mejor." : diferenciaForma < -2 ? "La forma visitante llega mejor." : "La forma reciente está bastante equilibrada."}`;
+      const lecturaGoles = `Goles: ${partido.local} promedia ${numeroSeguro(gfLocal)} a favor y ${numeroSeguro(gcLocal)} en contra; ${partido.visitante} promedia ${numeroSeguro(gfVisitante)} a favor y ${numeroSeguro(gcVisitante)} en contra.`;
+      const lecturaRachas = `Rachas: ${partido.local} está en ${rachaTexto(local)} y ${partido.visitante} en ${rachaTexto(visitante)}.`;
+      const lecturaProb = `Probabilidades IA: 1=${probs["1"]}%, X=${probs["X"]}%, 2=${probs["2"]}%; ventaja del primer signo: ${numeroSeguro(ventajaProb)} puntos.`;
+
+      return `${lecturaPuntos} ${lecturaForma} ${lecturaGoles} ${lecturaRachas} ${lecturaProb} ${lecturaTipo} Decisión final: ${signo}.`;
+    }
+
     function pronosticarPleno15(pleno, partidos) {
       if (!pleno) return null;
 
@@ -1091,6 +1160,8 @@
         .filter(p => Number(p.num) <= 14)
         .map(p => {
           const analisis = buscarAnalisisIA(ia, p.local, p.visitante);
+          const clasificacionLocal = buscarClasificacionEquipo(clasif, p.local);
+          const clasificacionVisitante = buscarClasificacionEquipo(clasif, p.visitante);
 
           let probs = analisis?.probabilidades || { "1": 37, "X": 31, "2": 32 };
           probs = ajustarProbabilidades(probs, p.local, p.visitante, clasif);
@@ -1103,7 +1174,9 @@
             probabilidades: probs,
             signo_base: signoBase,
             signo_final: signoBase,
-            explicacion: analisis?.explicacion || "Estimación basada en clasificación, histórico y equilibrio estadístico.",
+            clasificacion_local: clasificacionLocal,
+            clasificacion_visitante: clasificacionVisitante,
+            explicacion: "",
             confianza: analisis?.confianza || "Baja",
             riesgo,
             incertidumbre: incertidumbre(probs, riesgo)
@@ -1122,7 +1195,13 @@
         if (triplesSet.has(p.num)) signo = "1X2";
         else if (doblesSet.has(p.num)) signo = dobleMasProbable(p.probabilidades);
 
-        return { ...p, signo_final: signo };
+        const tipoApuesta = triplesSet.has(p.num) ? "TRIPLE" : doblesSet.has(p.num) ? "DOBLE" : "FIJO";
+        return {
+          ...p,
+          signo_final: signo,
+          tipo_apuesta: tipoApuesta,
+          explicacion: generarRazonamientoPartido(p, signo, tipoApuesta)
+        };
       });
 
       const elige8Set = new Set();
