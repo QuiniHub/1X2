@@ -181,16 +181,44 @@
       border-radius: 8px;
     }
 
+    .jornadas-grid button.active {
+      background: #0f766e;
+    }
+
+    .config-grid {
+      display: flex;
+      gap: 14px;
+      align-items: end;
+      flex-wrap: wrap;
+      margin: 12px 0;
+    }
+
+    .config-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-weight: 700;
+      color: #123c69;
+    }
+
     input[type="number"] {
       width: 70px;
       padding: 7px;
-      margin: 0 12px 0 4px;
+      margin: 0;
       border: 1px solid #cbd5e1;
       border-radius: 8px;
     }
 
     .boleto-ia {
       margin-top: 20px;
+    }
+
+    .boleto-resumen {
+      background: #f8fafc;
+      border: 1px solid #d9e2ec;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 14px;
     }
 
     .fila-boleto {
@@ -218,6 +246,11 @@
       background: #dbeafe;
       border-left: 4px solid #2563eb;
       padding-left: 8px;
+    }
+
+    .elige8-activo .signos-ia span {
+      background: #2563eb;
+      color: white;
     }
 
     .elige8-activo .elige8-badge {
@@ -339,31 +372,47 @@
 
       <div class="card">
         <h2>Quiniela IA</h2>
-        <p>Selecciona una jornada, configura dobles/triples y genera el boleto con análisis IA.</p>
+        <p>Configura dobles, triples y Elige 8. La IA genera el boleto predictivo y razona cada signo.</p>
         <div id="prediccion-resumen" class="card" style="box-shadow:none; border:1px solid #d9e2ec; background:#f8fafc;">
           Cargando predicción IA...
         </div>
 
         <div id="lista-jornadas-quiniela" class="jornadas-grid"></div>
 
-        <div id="config-quiniela" style="display:none; margin-top:20px;">
+        <div id="config-quiniela" style="margin-top:20px;">
           <h3 id="titulo-jornada-ia"></h3>
 
-          <label>Dobles:</label>
-          <input id="num-dobles" type="number" min="0" max="14" value="0" onchange="calcularImporteIA()">
+          <div class="config-grid">
+            <label class="config-field">
+              Sencillos
+              <input id="num-sencillos" type="number" value="14" readonly>
+            </label>
 
-          <label>Triples:</label>
-          <input id="num-triples" type="number" min="0" max="14" value="0" onchange="calcularImporteIA()">
+            <label class="config-field">
+              Dobles
+              <input id="num-dobles" type="number" min="0" max="14" value="0" onchange="calcularImporteIA()">
+            </label>
 
-          <label style="display:block; margin-top:10px;">
-            <input id="activar-elige8" type="checkbox" onchange="calcularImporteIA()">
-            Activar Elige 8
-          </label>
+            <label class="config-field">
+              Triples
+              <input id="num-triples" type="number" min="0" max="14" value="0" onchange="calcularImporteIA()">
+            </label>
 
-          <p><strong>Apuestas:</strong> <span id="total-apuestas">1</span></p>
-          <p><strong>Importe:</strong> <span id="importe-quiniela">1,50 €</span></p>
+            <label class="config-field">
+              Elige 8
+              <span>
+                <input id="activar-elige8" type="checkbox" onchange="calcularImporteIA()">
+                Activar
+              </span>
+            </label>
+          </div>
 
-          <button onclick="generarBoletoIA()">OK, generar boleto IA</button>
+          <div class="boleto-resumen">
+            <strong>Apuestas:</strong> <span id="total-apuestas">1</span> ·
+            <strong>Importe:</strong> <span id="importe-quiniela">1,50 €</span>
+          </div>
+
+          <button onclick="generarBoletoIA()">Generar Quiniela</button>
         </div>
 
         <div id="boleto-ia" class="boleto-ia"></div>
@@ -849,8 +898,10 @@
 
       contenedor.innerHTML = "";
       for (let j = 1; j <= 61; j++) {
-        contenedor.innerHTML += `<button onclick="abrirQuinielaIA(${j})">Jornada ${j}</button>`;
+        contenedor.innerHTML += `<button id="btn-jornada-${j}" onclick="abrirQuinielaIA(${j})">Jornada ${j}</button>`;
       }
+
+      abrirQuinielaIA(61);
     }
 
     async function abrirQuinielaIA(jornada) {
@@ -865,7 +916,8 @@
       partidosJornadaIA = data.partidos || [];
       pleno15JornadaIA = data.pleno15 || null;
 
-      document.getElementById("config-quiniela").style.display = "block";
+      document.querySelectorAll("#lista-jornadas-quiniela button").forEach(btn => btn.classList.remove("active"));
+      document.getElementById(`btn-jornada-${jornada}`)?.classList.add("active");
       document.getElementById("titulo-jornada-ia").textContent = `Jornada ${jornada}`;
 
       pintarBoletoVacioIA();
@@ -873,15 +925,27 @@
     }
 
     function calcularImporteIA() {
-      const dobles = parseInt(document.getElementById("num-dobles").value || "0");
-      const triples = parseInt(document.getElementById("num-triples").value || "0");
+      const doblesInput = document.getElementById("num-dobles");
+      const triplesInput = document.getElementById("num-triples");
+      let dobles = parseInt(doblesInput.value || "0");
+      let triples = parseInt(triplesInput.value || "0");
       const elige8 = document.getElementById("activar-elige8")?.checked;
+
+      dobles = Math.max(0, Math.min(dobles, 14));
+      triples = Math.max(0, Math.min(triples, 14));
+      if (dobles + triples > 14) {
+        dobles = Math.max(0, 14 - triples);
+      }
+
+      doblesInput.value = dobles;
+      triplesInput.value = triples;
 
       const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
       const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
       const importeElige8 = elige8 ? 0.50 : 0;
       const importeTotal = importeQuiniela + importeElige8;
 
+      document.getElementById("num-sencillos").value = 14 - dobles - triples;
       document.getElementById("total-apuestas").textContent = apuestas;
       document.getElementById("importe-quiniela").textContent =
         importeTotal.toFixed(2).replace(".", ",") + " €";
@@ -1063,8 +1127,17 @@
 
       const elige8Set = new Set();
       if (activarElige8) {
-        [...partidos]
-          .sort((a, b) => a.incertidumbre - b.incertidumbre)
+        const triplesPrimero = partidos
+          .filter(p => triplesSet.has(p.num))
+          .sort((a, b) => a.incertidumbre - b.incertidumbre);
+        const doblesDespues = partidos
+          .filter(p => doblesSet.has(p.num))
+          .sort((a, b) => a.incertidumbre - b.incertidumbre);
+        const fijosSeguros = partidos
+          .filter(p => !triplesSet.has(p.num) && !doblesSet.has(p.num))
+          .sort((a, b) => a.incertidumbre - b.incertidumbre);
+
+        [...triplesPrimero, ...doblesDespues, ...fijosSeguros]
           .slice(0, 8)
           .forEach(p => elige8Set.add(p.num));
       }
@@ -1073,6 +1146,13 @@
       const plenoIA = pronosticarPleno15(pleno15JornadaIA, partidos);
 
       document.getElementById("boleto-ia").innerHTML = `
+        <div class="boleto-resumen">
+          <strong>Jornada ${jornadaActualIA}</strong> ·
+          ${14 - dobles - triples} sencillos · ${dobles} dobles · ${triples} triples ·
+          ${activarElige8 ? "Elige 8 activado" : "Elige 8 no activado"} ·
+          ${document.getElementById("importe-quiniela").textContent}
+        </div>
+
         ${partidos.map(p => `
           <div class="fila-boleto ${elige8Set.has(p.num) ? "elige8-activo" : ""}">
             <div>${p.num}</div>
