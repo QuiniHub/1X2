@@ -395,6 +395,31 @@ def pesos_recomendados(ligas, quiniela):
     }
 
 
+def equipo_para_clasificacion(equipo):
+    return {
+        "posicion": equipo["posicion"],
+        "equipo": equipo["equipo"],
+        "pj": equipo["pj"],
+        "g": equipo["g"],
+        "e": equipo["e"],
+        "p": equipo["p"],
+        "gf": equipo["gf"],
+        "gc": equipo["gc"],
+        "dg": equipo["dg"],
+        "puntos": equipo["pts"],
+        "pts": equipo["pts"],
+        "racha_actual": equipo["racha_actual"],
+        "tendencias": equipo["tendencias"],
+    }
+
+
+def construir_clasificaciones(ligas):
+    return {
+        "primera": [equipo_para_clasificacion(e) for e in ligas["primera"]["equipos"]],
+        "segunda": [equipo_para_clasificacion(e) for e in ligas["segunda"]["equipos"]],
+    }
+
+
 def main():
     ligas = {nombre: analizar_liga(nombre, path) for nombre, path in CALENDARIOS.items()}
     quiniela = {
@@ -423,6 +448,7 @@ def main():
 
     guardar_json(OUT_TEMPORADA / "resumen_temporada.json", memoria)
     guardar_json(OUT_MEMORIA / "aprendizaje_global.json", memoria)
+    guardar_json(ROOT / "clasificaciones.json", construir_clasificaciones(ligas))
     print(f"Memoria IA construida: {OUT_MEMORIA / 'aprendizaje_global.json'}")
 
 
