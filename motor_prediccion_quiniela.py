@@ -9,6 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 MEMORIA = DATA / "memoria_ia" / "aprendizaje_global.json"
+CONTEXTO_EQUIPOS = DATA / "contexto_equipos.json"
 JORNADAS = DATA / "jornadas"
 PREDICCIONES = DATA / "predicciones"
 JUGADAS = DATA / "quinielas_jugadas"
@@ -86,6 +87,28 @@ def buscar_equipo(memoria, nombre):
     return mejor if mejor_score >= 20 else None
 
 
+def equipos_contexto(contexto):
+    return contexto.get("equipos", {})
+
+
+def buscar_contexto_equipo(contexto, nombre):
+    n = normalizar(nombre)
+    mejor = None
+    mejor_score = 0
+    for equipo, datos in equipos_contexto(contexto).items():
+        e = normalizar(equipo)
+        if e == n:
+            score = 100
+        elif e in n or n in e:
+            score = 80
+        else:
+            score = len(set(e.split()) & set(n.split())) * 20
+        if score > mejor_score:
+            mejor = datos
+            mejor_score = score
+    return mejor if mejor_score >= 20 else None
+
+
 def fuerza(equipo, condicion):
     if not equipo:
         return 0.0
@@ -146,6 +169,39 @@ def calcular_probabilidades(memoria, partido):
     return probs, local, visitante, round(diff, 2)
 
 
+def ajustar_por_contexto(probs, contexto_local, contexto_visitante):
+    probs = dict(probs)
+    riesgo_extra = 0
+    lecturas = []
+
+    def penalizar(datos, lado):
+        nonlocal riesgo_extra
+        if not datos:
+            return
+        alertas = set(datos.get("alertas", []))
+        nombre_lado = "local" if lado == "1" else "visitante"
+        contrario = "2" if lado == "1" else "1"
+        if "lesiones" in alertas or "sanciones" in alertas:
+            probs[lado] -= 3
+            probs[contrario] += 2
+            probs["X"] += 1
+            riesgo_extra += 5
+            lecturas.append(f"Contexto {nombre_lado}: posibles bajas/sanciones detectadas.")
+        if "dudas" in alertas:
+            probs[lado] -= 1.5
+            probs["X"] += 1.5
+            riesgo_extra += 3
+            lecturas.append(f"Contexto {nombre_lado}: dudas de disponibilidad o entrenamiento.")
+        if "altas" in alertas:
+            probs[lado] += 1.5
+            riesgo_extra = max(riesgo_extra - 1, 0)
+            lecturas.append(f"Contexto {nombre_lado}: posibles altas o regresos.")
+
+    penalizar(contexto_local, "1")
+    penalizar(contexto_visitante, "2")
+    return normalizar_probs(probs), riesgo_extra, lecturas
+
+
 def signo_top(probs):
     return sorted(probs.items(), key=lambda x: x[1], reverse=True)[0][0]
 
@@ -156,7 +212,7 @@ def doble_top(probs):
     return "".join(s for s in ("1", "X", "2") if s in signos)
 
 
-def incertidumbre(probs, local, visitante, diff):
+def incertidumbre(probs, local, visitante, diff, riesgo_contexto=0):
     orden = sorted(probs.values(), reverse=True)
     margen = orden[0] - orden[1]
     puntos = 100 - margen + probs["X"] * 0.35
@@ -166,10 +222,11 @@ def incertidumbre(probs, local, visitante, diff):
         puntos += 4
     if visitante and visitante.get("racha_actual", {}).get("sin_perder", 0) >= 3:
         puntos += 4
+    puntos += riesgo_contexto
     return round(puntos, 2)
 
 
-def explicar(partido, probs, signo, local, visitante, diff, tipo):
+def explicar(partido, probs, signo, local, visitante, diff, tipo, contexto_local=None, contexto_visitante=None, lecturas_contexto=None):
     razones = []
     razones.append(f"Probabilidades IA: 1={probs['1']}%, X={probs['X']}%, 2={probs['2']}%.")
     if local:
@@ -194,6 +251,12 @@ def explicar(partido, probs, signo, local, visitante, diff, tipo):
         razones.append("Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable.")
     else:
         razones.append("Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo.")
+    lecturas_contexto = lecturas_contexto or []
+    if contexto_local:
+        razones.append(contexto_local.get("resumen", ""))
+    if contexto_visitante:
+        razones.append(contexto_visitante.get("resumen", ""))
+    razones.extend(lecturas_contexto)
     razones.append(f"Decision final: {signo}.")
     return " ".join(razones)
 
@@ -212,6 +275,7 @@ def coste(dobles, triples, elige8):
 
 def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
     memoria = cargar_json(MEMORIA, {})
+    contexto = cargar_json(CONTEXTO_EQUIPOS, {})
     jornada = jornada or detectar_jornada_activa()
     data = cargar_json(JORNADAS / f"jornada_{jornada}.json", {})
     partidos_base = [p for p in data.get("partidos", []) if int(p.get("num", 0)) <= 14]
@@ -221,11 +285,17 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
     evaluados = []
     for partido in partidos_base:
         probs, local, visitante, diff = calcular_probabilidades(memoria, partido)
+        contexto_local = buscar_contexto_equipo(contexto, partido.get("local", ""))
+        contexto_visitante = buscar_contexto_equipo(contexto, partido.get("visitante", ""))
+        probs, riesgo_contexto, lecturas_contexto = ajustar_por_contexto(probs, contexto_local, contexto_visitante)
         evaluados.append({
             **partido,
             "probabilidades": probs,
             "signo_base": signo_top(probs),
-            "incertidumbre": incertidumbre(probs, local, visitante, diff),
+            "incertidumbre": incertidumbre(probs, local, visitante, diff, riesgo_contexto),
+            "contexto_local": contexto_local,
+            "contexto_visitante": contexto_visitante,
+            "lecturas_contexto": lecturas_contexto,
             "_local": local,
             "_visitante": visitante,
             "_diff": diff,
@@ -270,6 +340,9 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
                 partido["_visitante"],
                 partido["_diff"],
                 tipo,
+                partido.get("contexto_local"),
+                partido.get("contexto_visitante"),
+                partido.get("lecturas_contexto"),
             ),
         })
 
@@ -286,6 +359,10 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
         },
         "coste": coste(dobles, triples, elige8),
         "partidos": partidos,
+        "contexto_equipos": {
+            "generado_en": contexto.get("generado_en"),
+            "fuentes": contexto.get("fuentes", []),
+        },
         "pleno15": data.get("pleno15"),
         "resumen": {
             "fijos": sum(1 for p in partidos if p["tipo"] == "FIJO"),

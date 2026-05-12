@@ -491,6 +491,7 @@
               <tr><td>Clasificaciones</td><td>Posición y puntos</td><td>Conectado</td></tr>
               <tr><td>Histórico Quiniela</td><td>Patrones de signos</td><td>Conectado</td></tr>
               <tr><td>Analisis IA</td><td>Probabilidades y explicaciones</td><td>Conectado</td></tr>
+              <tr><td>Noticias equipos</td><td>Lesiones, sanciones, dudas, altas y mercado</td><td>Conectado</td></tr>
               <tr><td>Aprendizaje IA</td><td>Errores y aciertos</td><td>Preparado</td></tr>
             </tbody>
           </table>
@@ -1137,6 +1138,30 @@
       );
     }
 
+    function buscarContextoEquipo(contexto, nombre) {
+      const equipos = contexto?.equipos || {};
+      const objetivo = norm(nombre);
+      let mejor = null;
+      let mejorScore = 0;
+
+      Object.entries(equipos).forEach(([equipo, datos]) => {
+        const base = norm(equipo);
+        let score = 0;
+        if (base === objetivo) score = 100;
+        else if (base.includes(objetivo) || objetivo.includes(base)) score = 80;
+        else {
+          const comunes = base.split(" ").filter(p => objetivo.split(" ").includes(p));
+          score = comunes.length * 20;
+        }
+        if (score > mejorScore) {
+          mejorScore = score;
+          mejor = datos;
+        }
+      });
+
+      return mejorScore >= 20 ? mejor : null;
+    }
+
     function normalizarProbabilidades(p) {
       p = {
         "1": Math.max(+p["1"] || 1, 1),
@@ -1262,8 +1287,15 @@
       const lecturaGoles = `Goles: ${partido.local} promedia ${numeroSeguro(gfLocal)} a favor y ${numeroSeguro(gcLocal)} en contra; ${partido.visitante} promedia ${numeroSeguro(gfVisitante)} a favor y ${numeroSeguro(gcVisitante)} en contra.`;
       const lecturaRachas = `Rachas: ${partido.local} está en ${rachaTexto(local)} y ${partido.visitante} en ${rachaTexto(visitante)}.`;
       const lecturaProb = `Probabilidades IA: 1=${probs["1"]}%, X=${probs["X"]}%, 2=${probs["2"]}%; ventaja del primer signo: ${numeroSeguro(ventajaProb)} puntos.`;
+      const contextoLocal = partido.contexto_local?.resumen ? `Contexto ${partido.local}: ${partido.contexto_local.resumen}` : "";
+      const contextoVisitante = partido.contexto_visitante?.resumen ? `Contexto ${partido.visitante}: ${partido.contexto_visitante.resumen}` : "";
+      const alertas = [
+        ...(partido.contexto_local?.alertas || []).map(a => `${partido.local}: ${a}`),
+        ...(partido.contexto_visitante?.alertas || []).map(a => `${partido.visitante}: ${a}`)
+      ];
+      const lecturaAlertas = alertas.length ? `Alertas detectadas: ${alertas.join(", ")}.` : "Sin alertas fuertes detectadas en noticias recientes.";
 
-      return `${lecturaPuntos} ${lecturaForma} ${lecturaGoles} ${lecturaRachas} ${lecturaProb} ${lecturaTipo} Decisión final: ${signo}.`;
+      return `${lecturaPuntos} ${lecturaForma} ${lecturaGoles} ${lecturaRachas} ${lecturaProb} ${contextoLocal} ${contextoVisitante} ${lecturaAlertas} ${lecturaTipo} Decisión final: ${signo}.`;
     }
 
     function pronosticarPleno15(pleno, partidos) {
@@ -1291,6 +1323,7 @@
 
       const ia = await fetchJSON("data/analisis_ia.json", {});
       const clasif = await fetchJSON("clasificaciones.json", {});
+      const contextoEquipos = await fetchJSON("data/contexto_equipos.json", {});
 
       let partidos = partidosJornadaIA
         .filter(p => Number(p.num) <= 14)
@@ -1298,6 +1331,8 @@
           const analisis = buscarAnalisisIA(ia, p.local, p.visitante);
           const clasificacionLocal = buscarClasificacionEquipo(clasif, p.local);
           const clasificacionVisitante = buscarClasificacionEquipo(clasif, p.visitante);
+          const contextoLocal = buscarContextoEquipo(contextoEquipos, p.local);
+          const contextoVisitante = buscarContextoEquipo(contextoEquipos, p.visitante);
 
           let probs = analisis?.probabilidades || { "1": 37, "X": 31, "2": 32 };
           probs = ajustarProbabilidades(probs, p.local, p.visitante, clasif);
@@ -1312,6 +1347,8 @@
             signo_final: signoBase,
             clasificacion_local: clasificacionLocal,
             clasificacion_visitante: clasificacionVisitante,
+            contexto_local: contextoLocal,
+            contexto_visitante: contextoVisitante,
             explicacion: "",
             confianza: analisis?.confianza || "Baja",
             riesgo,
