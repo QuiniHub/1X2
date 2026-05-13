@@ -1,4 +1,6 @@
 import json
+import re
+import unicodedata
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -22,6 +24,37 @@ def cargar_json(path, defecto=None):
 def guardar_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def normalizar_nombre(nombre):
+    texto = unicodedata.normalize("NFKD", str(nombre or ""))
+    texto = "".join(c for c in texto if not unicodedata.combining(c)).lower()
+    texto = re.sub(r"\b(cf|fc|rc|cd|ud|sd|club|real|de|del|la|el|balompie|futbol)\b", "", texto)
+    return re.sub(r"[^a-z0-9]", "", texto)
+
+
+def crear_indice_competitivo(contexto):
+    indice = {}
+    for liga in ("primera", "segunda"):
+        for equipo in ((contexto.get(liga) or {}).get("equipos") or []):
+            registro = {**equipo, "liga": liga}
+            claves = {equipo.get("clave"), normalizar_nombre(equipo.get("equipo"))}
+            for clave in claves:
+                if clave:
+                    indice[clave] = registro
+    return indice
+
+
+def buscar_contexto_equipo(nombre, indice):
+    clave = normalizar_nombre(nombre)
+    if not clave:
+        return None
+    if clave in indice:
+        return indice[clave]
+    for clave_indice, equipo in indice.items():
+        if len(clave) >= 4 and (clave in clave_indice or clave_indice in clave):
+            return equipo
+    return None
 
 
 def signo_resultado(resultado):
@@ -102,10 +135,11 @@ def lectura_resultado(partido, signo):
     return f"Victoria local ({resultado}); confirma que el factor casa sigue teniendo valor cuando hay ventaja clara."
 
 
-def analizar_prediccion(prediccion):
+def analizar_prediccion(prediccion, contexto_competitivo=None):
     partidos = prediccion.get("partidos", [])
     orden_riesgo = sorted(partidos, key=lambda p: float(p.get("incertidumbre", 0)), reverse=True)
     orden_seguridad = sorted(partidos, key=lambda p: (float(p.get("incertidumbre", 999)), -margen_probabilidad(p)))
+    indice_competitivo = crear_indice_competitivo(contexto_competitivo or {})
 
     seguros = []
     trampas = []
@@ -144,7 +178,79 @@ def analizar_prediccion(prediccion):
         "partidos_mas_seguros": seguros,
         "partidos_trampa_o_sorpresa": trampas,
         "dudas_abiertas": dudas,
+        "partidos_con_motivacion": analizar_motivacion_prediccion(partidos, indice_competitivo),
     }
+
+
+def resumen_contexto_equipo(equipo):
+    if not equipo:
+        return None
+    objetivos = []
+    for objetivo in equipo.get("objetivos", [])[:4]:
+        objetivos.append({
+            "objetivo": objetivo.get("objetivo"),
+            "estado": objetivo.get("estado"),
+            "lectura": objetivo.get("lectura"),
+        })
+    return {
+        "equipo": equipo.get("equipo"),
+        "liga": equipo.get("liga"),
+        "posicion": equipo.get("posicion"),
+        "puntos": equipo.get("puntos"),
+        "puntos_en_juego": equipo.get("puntos_en_juego"),
+        "motivacion": equipo.get("motivacion_competitiva"),
+        "objetivos": objetivos,
+    }
+
+
+def valor_motivacion(equipo):
+    orden = {"baja": 0, "media": 1, "alta": 2, "maxima": 3}
+    if not equipo:
+        return 0
+    return orden.get(str(equipo.get("motivacion_competitiva", "baja")).lower(), 0)
+
+
+def etiquetas_objetivos(equipo):
+    if not equipo:
+        return "sin contexto competitivo suficiente"
+    etiquetas = []
+    for objetivo in equipo.get("objetivos", [])[:3]:
+        nombre = str(objetivo.get("objetivo", "")).replace("_", " ")
+        estado = str(objetivo.get("estado", "")).replace("_", " ")
+        etiquetas.append(f"{nombre} ({estado})")
+    return ", ".join(etiquetas) if etiquetas else "sin objetivo fuerte detectado"
+
+
+def lectura_motivacion(local, visitante):
+    local_valor = valor_motivacion(local)
+    visitante_valor = valor_motivacion(visitante)
+    local_nombre = local.get("equipo") if local else "local"
+    visitante_nombre = visitante.get("equipo") if visitante else "visitante"
+    if local_valor >= 2 and visitante_valor >= 2:
+        return f"Choque de alta presion: {local_nombre} pelea {etiquetas_objetivos(local)} y {visitante_nombre} pelea {etiquetas_objetivos(visitante)}."
+    if local_valor > visitante_valor:
+        return f"La urgencia competitiva pesa mas en {local_nombre}: {etiquetas_objetivos(local)}."
+    if visitante_valor > local_valor:
+        return f"La urgencia competitiva pesa mas en {visitante_nombre}: {etiquetas_objetivos(visitante)}."
+    return f"Motivacion parecida: {local_nombre} ({etiquetas_objetivos(local)}) frente a {visitante_nombre} ({etiquetas_objetivos(visitante)})."
+
+
+def analizar_motivacion_prediccion(partidos, indice_competitivo):
+    analisis = []
+    for partido in partidos:
+        local = buscar_contexto_equipo(partido.get("local"), indice_competitivo)
+        visitante = buscar_contexto_equipo(partido.get("visitante"), indice_competitivo)
+        if not local and not visitante:
+            continue
+        analisis.append({
+            "num": partido.get("num"),
+            "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
+            "nivel": max(valor_motivacion(local), valor_motivacion(visitante)),
+            "local": resumen_contexto_equipo(local),
+            "visitante": resumen_contexto_equipo(visitante),
+            "lectura": lectura_motivacion(local, visitante),
+        })
+    return sorted(analisis, key=lambda x: (-x["nivel"], x.get("num") or 99))
 
 
 def motivo_trampa(partido):
@@ -196,6 +302,38 @@ def aprendizajes(jornada_actual):
     return aprend
 
 
+def aprendizajes_contexto(contexto):
+    aprend = []
+    primera = contexto.get("primera") or {}
+    segunda = contexto.get("segunda") or {}
+    for lectura in (primera.get("lecturas_clave") or [])[:3]:
+        aprend.append(f"Primera: {lectura}")
+    for lectura in (segunda.get("lecturas_clave") or [])[:3]:
+        aprend.append(f"Segunda: {lectura}")
+    if contexto:
+        aprend.append("En la recta final debo subir peso a la necesidad real de puntos: titulo, Europa, ascenso, playoff y descenso.")
+    return aprend
+
+
+def resumir_contexto_competitivo(contexto):
+    if not contexto:
+        return {}
+    primera = contexto.get("primera") or {}
+    segunda = contexto.get("segunda") or {}
+    return {
+        "generado_en": contexto.get("generado_en"),
+        "reglas": contexto.get("reglas") or {},
+        "primera": {
+            "resumen": primera.get("resumen") or {},
+            "lecturas_clave": primera.get("lecturas_clave") or [],
+        },
+        "segunda": {
+            "resumen": segunda.get("resumen") or {},
+            "lecturas_clave": segunda.get("lecturas_clave") or [],
+        },
+    }
+
+
 def errores_a_evitar(prediccion):
     riesgos = sorted(prediccion.get("partidos", []), key=lambda p: float(p.get("incertidumbre", 0)), reverse=True)[:3]
     errores = [
@@ -210,12 +348,13 @@ def errores_a_evitar(prediccion):
 
 def main():
     memoria = cargar_json(MEMORIA / "aprendizaje_global.json", {})
+    contexto_competitivo = cargar_json(MEMORIA / "contexto_competitivo.json", {})
     prediccion = cargar_json(PREDICCIONES / "jornada_63.json", {})
     if not prediccion:
         prediccion = cargar_json(PREDICCIONES / "ultima_prediccion.json", {})
     jornada = leer_jornada_actual()
     estado_jornada = cambios_jornada_actual(jornada)
-    estado_prediccion = analizar_prediccion(prediccion)
+    estado_prediccion = analizar_prediccion(prediccion, contexto_competitivo)
 
     salida = {
         "version": "1.0",
@@ -223,12 +362,14 @@ def main():
         "estado": "vivo_en_desarrollo",
         "jornada_actual": estado_jornada,
         "prediccion_objetivo": estado_prediccion,
+        "contexto_competitivo": resumir_contexto_competitivo(contexto_competitivo),
         "que_ha_cambiado": estado_jornada["resultados_nuevos_o_vigentes"],
-        "que_aprende": aprendizajes(estado_jornada),
+        "que_aprende": aprendizajes(estado_jornada) + aprendizajes_contexto(contexto_competitivo),
         "que_modifica_para_jornada_63": [
             "Reordenar confianza segun resultados nuevos de la jornada actual.",
             "Subir vigilancia de empates o visitantes si la jornada actual los confirma.",
             "Priorizar dobles/triples en partidos con incertidumbre mas alta.",
+            "Cruzar cada signo con la necesidad real de puntos: titulo, Europa, ascenso, playoff y descenso.",
         ],
         "partidos_mas_seguros": estado_prediccion["partidos_mas_seguros"],
         "partidos_trampa_o_sorpresa": estado_prediccion["partidos_trampa_o_sorpresa"],

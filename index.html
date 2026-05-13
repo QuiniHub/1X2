@@ -506,6 +506,10 @@
         <h2>Estado vivo para jornada 63</h2>
         <div id="analisis-estado-vivo">Cargando diario interno...</div>
       </div>
+      <div class="card">
+        <h2>Motivacion final de temporada</h2>
+        <div id="analisis-motivacion">Cargando presion competitiva...</div>
+      </div>
       <div class="grid">
         <div class="card">
           <h2>Sorpresas detectadas</h2>
@@ -951,7 +955,8 @@
       const signosEl = document.getElementById("analisis-signos");
       const ajustesEl = document.getElementById("analisis-ajustes");
       const estadoEl = document.getElementById("analisis-estado-vivo");
-      if (!resumen || !sorpresasEl || !nuestrasEl || !signosEl || !ajustesEl || !estadoEl) return;
+      const motivacionEl = document.getElementById("analisis-motivacion");
+      if (!resumen || !sorpresasEl || !nuestrasEl || !signosEl || !ajustesEl || !estadoEl || !motivacionEl) return;
 
       const [memoria, historial, estadoVivo] = await Promise.all([
         fetchJSON("data/memoria_ia/aprendizaje_global.json", {}),
@@ -976,6 +981,7 @@
       ].join("<br>");
 
       estadoEl.innerHTML = pintarEstadoVivo(estadoVivo);
+      motivacionEl.innerHTML = pintarMotivacionFinal(estadoVivo);
 
       const sorpresas = [
         ...(primera.sorpresas_detectadas || []).map(s => ({ ...s, liga: "1a" })),
@@ -1057,6 +1063,52 @@
         ${pintarListaEstado("Dudas abiertas", estado.dudas_abiertas, x => `<li>${x.num}. ${x.partido}: ${x.pregunta}</li>`)}
         ${pintarListaEstado("Autocrítica", estado.autocritica, x => `<li>${x}</li>`)}
         ${pintarListaEstado("Errores a evitar", estado.errores_a_evitar, x => `<li>${x}</li>`)}
+      `;
+    }
+
+    function pintarObjetivosEquipo(equipo) {
+      if (!equipo) return "Sin contexto";
+      const objetivos = (equipo.objetivos || []).slice(0, 2).map(o => {
+        const nombre = String(o.objetivo || "").replaceAll("_", " ");
+        const estado = String(o.estado || "").replaceAll("_", " ");
+        return `${nombre}: ${estado}`;
+      });
+      return `${equipo.posicion || "-"}º · ${equipo.puntos ?? "-"} pts · ${equipo.puntos_en_juego ?? 0} en juego · ${equipo.motivacion || "baja"}${objetivos.length ? `<br><small>${objetivos.join("<br>")}</small>` : ""}`;
+    }
+
+    function pintarMotivacionFinal(estado) {
+      const contexto = estado.contexto_competitivo || {};
+      const reglasPrimera = contexto.reglas?.primera || {};
+      const reglasSegunda = contexto.reglas?.segunda || {};
+      const lecturas = [
+        ...(contexto.primera?.lecturas_clave || []).map(x => `1a: ${x}`),
+        ...(contexto.segunda?.lecturas_clave || []).map(x => `2a: ${x}`),
+      ];
+      const partidos = estado.prediccion_objetivo?.partidos_con_motivacion || [];
+
+      if (!contexto.generado_en && !partidos.length) {
+        return "<p>Aun no hay contexto competitivo generado. Se llenara en la siguiente actualizacion completa.</p>";
+      }
+
+      const filas = partidos.slice(0, 14).map(p => `
+        <tr>
+          <td>${p.num || ""}</td>
+          <td>${p.partido || ""}</td>
+          <td>${pintarObjetivosEquipo(p.local)}</td>
+          <td>${pintarObjetivosEquipo(p.visitante)}</td>
+          <td>${p.lectura || ""}</td>
+        </tr>
+      `).join("");
+
+      return `
+        <p><strong>Reglas que ya pondera:</strong> 1a: campeon ${reglasPrimera.campeon ?? 1}, Champions ${reglasPrimera.champions ?? 5}, Europa League ${reglasPrimera.europa_league ?? 2}, Conference ${reglasPrimera.conference ?? 1}, descenso ${reglasPrimera.descenso ?? 3}. 2a: ascenso directo ${reglasSegunda.ascenso_directo ?? 2}, playoff ${reglasSegunda.playoff_ascenso ?? 4}, descenso ${reglasSegunda.descenso ?? 4}.</p>
+        ${pintarListaEstado("Lecturas de frontera", lecturas, x => `<li>${x}</li>`)}
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>#</th><th>Partido</th><th>Local</th><th>Visitante</th><th>Lectura IA</th></tr></thead>
+            <tbody>${filas || `<tr><td colspan="5">No hay partidos de la proxima quiniela cruzados con clasificacion.</td></tr>`}</tbody>
+          </table>
+        </div>
       `;
     }
 

@@ -19,6 +19,7 @@ def ejecutar_sistema():
         "construir_historial_quinielas.py",
         "construir_memoria_ia.py",
         "motor_prediccion_quiniela.py",
+        "generar_contexto_competitivo.py",
         "generar_estado_vivo_ia.py"
     ]
     for s in scripts:
