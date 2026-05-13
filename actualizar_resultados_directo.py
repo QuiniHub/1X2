@@ -125,7 +125,7 @@ def partido_esta_programado_en_futuro(partido):
         fecha = datetime.fromisoformat(str(p_cal.get("fecha", ""))).date()
     except ValueError:
         return False
-    return fecha > datetime.utcnow().date() and str(p_cal.get("estado", "")).lower() != "jugado"
+    return fecha > datetime.utcnow().date()
 
 
 def buscar_resultado_final(texto, partido):

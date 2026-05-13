@@ -1053,11 +1053,7 @@
 
       const plenoOficial = resultadoPlenoOficial(data.pleno15);
       const plenoNuestro = String(validacion.pleno15 || "").trim();
-      const plenoLectura = data.pleno15 ? (
-        plenoOficial
-          ? (plenoNuestro ? (plenoNuestro === plenoOficial ? `Pleno al 15 acertado: ${plenoNuestro}.` : `Pleno al 15 fallado: jugamos ${plenoNuestro}, oficial ${plenoOficial}. Revisar marcador exacto, no solo signo.`) : `Pleno al 15 oficial ${plenoOficial}, pero no tenemos marcador nuestro guardado.`)
-          : "Pleno al 15 pendiente de resultado oficial."
-      ) : "Sin Pleno al 15 en esta jornada.";
+      const plenoAnalisis = analizarPleno15(data.pleno15, plenoNuestro);
 
       const conclusion = fallos
         ? `Aprendizaje principal: hubo ${fallos} fallo(s). La siguiente predicción debe revisar especialmente los fijos fallados, las coberturas que no alcanzaron el signo real y la selección Elige 8.`
@@ -1066,16 +1062,40 @@
       return `
         <div class="card">
           <h2>Análisis de aprendizaje</h2>
-          <p><strong>Resumen:</strong> ${aciertos}/14 aciertos, ${fallos} fallos y ${pendientes} pendientes. Elige 8: ${aciertosElige8} aciertos y ${fallosElige8} fallos. ${plenoLectura}</p>
+          <p><strong>Resumen:</strong> ${aciertos}/14 aciertos, ${fallos} fallos y ${pendientes} pendientes. Elige 8: ${aciertosElige8} aciertos y ${fallosElige8} fallos. ${plenoAnalisis.resumen}</p>
           <div class="table-wrapper">
             <table>
               <thead><tr><th>#</th><th>Partido</th><th>Nuestro</th><th>Resultado</th><th>Aprendizaje</th></tr></thead>
-              <tbody>${filas}</tbody>
+              <tbody>${filas}${plenoAnalisis.fila}</tbody>
             </table>
           </div>
           <p><strong>Solución para el siguiente boleto:</strong> ${conclusion}</p>
         </div>
       `;
+    }
+
+    function analizarPleno15(pleno, plenoNuestro) {
+      if (!pleno) {
+        return { resumen: "Sin Pleno al 15 en esta jornada.", fila: "" };
+      }
+      const oficial = resultadoPlenoOficial(pleno);
+      if (!oficial) {
+        return {
+          resumen: "Pleno al 15 pendiente de resultado oficial.",
+          fila: `<tr><td>15</td><td>${pleno.local || ""} - ${pleno.visitante || ""}</td><td>${plenoNuestro || "-"}</td><td>Pendiente</td><td>Esperando resultado oficial para analizar marcador exacto.</td></tr>`
+        };
+      }
+      if (!plenoNuestro) {
+        return {
+          resumen: `Pleno al 15 oficial ${oficial}, pero no tenemos marcador nuestro guardado.`,
+          fila: `<tr><td>15</td><td>${pleno.local || ""} - ${pleno.visitante || ""}</td><td>-</td><td>Pendiente nuestro</td><td>Falta introducir nuestro marcador para que la IA aprenda del Pleno.</td></tr>`
+        };
+      }
+      const acierto = plenoNuestro === oficial;
+      return {
+        resumen: `Pleno al 15 ${acierto ? "acertado" : "fallado"}: jugamos ${plenoNuestro}, oficial ${oficial}.`,
+        fila: `<tr><td>15</td><td>${pleno.local || ""} - ${pleno.visitante || ""}</td><td>${plenoNuestro}</td><td class="${acierto ? "ok" : "ko"}">${acierto ? "Acierto" : "Fallo"} (${oficial})</td><td>${acierto ? "Marcador exacto acertado; conservar criterios de goles previstos." : "Revisar predicción de marcador exacto, diferencia de goles y tendencia ofensiva/defensiva."}</td></tr>`
+      };
     }
 
     function guardarAprendizajeJornada(data, validacion) {
