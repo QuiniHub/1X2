@@ -498,6 +498,30 @@
           <p>Forma, casa/fuera, goles, clasificación, histórico de quinielas, rachas, riesgo de sorpresa, dobles y triples.</p>
         </div>
       </div>
+      <div class="card">
+        <h2>Cuaderno de aprendizaje IA</h2>
+        <p id="analisis-resumen">Cargando memoria de aprendizaje...</p>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h2>Sorpresas detectadas</h2>
+          <div id="analisis-sorpresas">Cargando...</div>
+        </div>
+        <div class="card">
+          <h2>Nuestras quinielas</h2>
+          <div id="analisis-nuestras">Cargando...</div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h2>Patrones de signos</h2>
+          <div id="analisis-signos">Cargando...</div>
+        </div>
+        <div class="card">
+          <h2>Lo que ajusta</h2>
+          <div id="analisis-ajustes">Cargando...</div>
+        </div>
+      </div>
     </section>
 
     <section id="fuentes">
@@ -914,6 +938,90 @@
       } catch (e) {
         tbody.innerHTML = `<tr><td colspan="8">No se pudo cargar el historial.</td></tr>`;
       }
+    }
+
+    async function cargarAnalisisIA() {
+      const resumen = document.getElementById("analisis-resumen");
+      const sorpresasEl = document.getElementById("analisis-sorpresas");
+      const nuestrasEl = document.getElementById("analisis-nuestras");
+      const signosEl = document.getElementById("analisis-signos");
+      const ajustesEl = document.getElementById("analisis-ajustes");
+      if (!resumen || !sorpresasEl || !nuestrasEl || !signosEl || !ajustesEl) return;
+
+      const [memoria, historial] = await Promise.all([
+        fetchJSON("data/memoria_ia/aprendizaje_global.json", {}),
+        fetchJSON("data/historial_quinielas.json", { jornadas: [] }),
+      ]);
+
+      const primera = memoria.ligas?.primera || {};
+      const segunda = memoria.ligas?.segunda || {};
+      const quiniela = memoria.quiniela || {};
+      const nuestrasMemoria = quiniela.nuestras_quinielas || {};
+      const jugadasVista = (historial.jornadas || [])
+        .map(j => ({ jornada: j, validacion: cargarValidacionLocal(j.jornada) }))
+        .filter(x => x.validacion);
+
+      resumen.innerHTML = [
+        `<strong>Memoria generada:</strong> ${memoria.generado_en || "pendiente de regenerar"}.`,
+        `<strong>Partidos de liga analizados:</strong> 1a ${primera.partidos_jugados || 0}, 2a ${segunda.partidos_jugados || 0}.`,
+        `<strong>Jornadas oficiales:</strong> ${historial.total_jornadas || historial.jornadas?.length || 0}.`,
+        `<strong>Nuestras jugadas en memoria/vista:</strong> ${nuestrasMemoria.jornadas_validadas || jugadasVista.length || 0}.`
+      ].join("<br>");
+
+      const sorpresas = [
+        ...(primera.sorpresas_detectadas || []).map(s => ({ ...s, liga: "1a" })),
+        ...(segunda.sorpresas_detectadas || []).map(s => ({ ...s, liga: "2a" })),
+      ].slice(-10).reverse();
+
+      sorpresasEl.innerHTML = sorpresas.length ? `
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Liga</th><th>Jornada</th><th>Partido</th><th>Real</th><th>Esperado</th><th>Lectura</th></tr></thead>
+            <tbody>
+              ${sorpresas.map(s => `
+                <tr>
+                  <td>${s.liga}</td>
+                  <td>${s.jornada_liga || ""}</td>
+                  <td>${s.local || ""} - ${s.visitante || ""}</td>
+                  <td>${s.resultado || ""} (${s.signo_real || ""})</td>
+                  <td>${s.signo_esperado || ""}</td>
+                  <td>${s.lectura || "Sorpresa por diferencia entre modelo previo y resultado real."}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      ` : "<p>Todavia no hay sorpresas guardadas en memoria. Se llenara al regenerar aprendizaje con mas resultados.</p>";
+
+      const filasNuestras = jugadasVista.map(x => {
+        const aciertos = contarAciertosResumen(x.jornada, x.validacion);
+        return `<tr><td>${x.jornada.jornada}</td><td>${x.validacion.signos.join(" ")}</td><td>${x.validacion.elige8?.join(", ") || "-"}</td><td>${x.validacion.pleno15 || "-"}</td><td>${aciertos}</td></tr>`;
+      });
+      nuestrasEl.innerHTML = filasNuestras.length ? `
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Jornada</th><th>Nuestra jugada</th><th>Elige 8</th><th>Pleno</th><th>Aciertos</th></tr></thead>
+            <tbody>${filasNuestras.join("")}</tbody>
+          </table>
+        </div>
+      ` : "<p>No hay boletos nuestros persistidos todavia. Si una jugada esta en Historial o en data/quinielas_jugadas.json, aparecera aqui y entrara en aprendizaje.</p>";
+
+      const hist = quiniela.historico_csv || {};
+      const oficial = quiniela.jornadas_oficiales || {};
+      signosEl.innerHTML = `
+        <p><strong>Historico largo:</strong> 1: ${hist.frecuencia_global?.["1"] ?? "-"}%, X: ${hist.frecuencia_global?.["X"] ?? "-"}%, 2: ${hist.frecuencia_global?.["2"] ?? "-"}%.</p>
+        <p><strong>Boletos oficiales cargados:</strong> 1: ${oficial.frecuencia_oficial?.["1"] ?? "-"}%, X: ${oficial.frecuencia_oficial?.["X"] ?? "-"}%, 2: ${oficial.frecuencia_oficial?.["2"] ?? "-"}%.</p>
+        <p><strong>1a Division:</strong> 1: ${primera.frecuencias_signos?.["1"] ?? "-"}%, X: ${primera.frecuencias_signos?.["X"] ?? "-"}%, 2: ${primera.frecuencias_signos?.["2"] ?? "-"}%.</p>
+        <p><strong>2a Division:</strong> 1: ${segunda.frecuencias_signos?.["1"] ?? "-"}%, X: ${segunda.frecuencias_signos?.["X"] ?? "-"}%, 2: ${segunda.frecuencias_signos?.["2"] ?? "-"}%.</p>
+      `;
+
+      const pesos = memoria.pesos_recomendados || {};
+      const precision = nuestrasMemoria.precision ?? oficial.nuestras_jugadas?.precision;
+      ajustesEl.innerHTML = `
+        <p><strong>Precision propia:</strong> ${precision ?? 0}% con las jugadas disponibles.</p>
+        <p><strong>Pesos actuales:</strong> forma ${pesos.forma_reciente ?? "-"}, casa/fuera ${pesos.casa_fuera ?? "-"}, clasificacion ${pesos.clasificacion_y_puntos ?? "-"}, goles ${pesos.goles_favor_contra ?? "-"}, empate ${pesos.tendencia_empate ?? "-"}, sorpresa ${pesos.riesgo_sorpresa ?? "-"}.</p>
+        <p><strong>Aprendizaje operativo:</strong> si fallamos fijos, sube la cautela; si fallamos Elige 8, baja la confianza de partidos similares; si acertamos dobles/triples, revisa si la cobertura estaba justificada.</p>
+      `;
     }
 
     function cargarValidacionLocal(jornada) {
@@ -1877,6 +1985,7 @@
       cargarPortada();
       cargarClasificaciones();
       cargarHistorial();
+      cargarAnalisisIA();
       cargarJornadasQuinielaIA();
     }
 
