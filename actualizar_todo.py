@@ -13,7 +13,6 @@ def ejecutar_sistema():
         "actualizar_jornadas_detalle.py",
         "actualizar_resultados_directo.py",
         "actualizar_calendario.py",
-        "actualizar_clasificaciones.py",
         "actualizar_contexto_equipos.py",
         "actualizar_analisis_ia.py",
         "generar_quiniela_ia.py",
