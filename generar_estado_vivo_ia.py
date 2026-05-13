@@ -162,6 +162,7 @@ def analizar_prediccion(prediccion, contexto_competitivo=None):
             "signo_base": p.get("signo_final") or signo,
             "probabilidad_top": prob,
             "incertidumbre": p.get("incertidumbre"),
+            "probabilidad_sorpresa": p.get("probabilidad_sorpresa"),
             "motivo": motivo_trampa(p),
         })
     for p in orden_riesgo[:4]:
@@ -271,6 +272,8 @@ def duda_partido(partido):
         return "El empate esta demasiado cerca del signo elegido; revisar si merece doble."
     if "lesion" in str(partido.get("razonamiento", "")).lower() or "baja" in str(partido.get("razonamiento", "")).lower():
         return "La noticia de bajas puede cambiar el valor real del signo."
+    if float(partido.get("probabilidad_sorpresa") or 0) >= 45:
+        return "El azar estimado es alto; no debo tratar este signo como lectura cerrada."
     return "La incertidumbre es alta; esperar resultados/noticias antes de cerrar fijo."
 
 
@@ -340,6 +343,7 @@ def errores_a_evitar(prediccion):
         "No convertir en Elige 8 partidos con incertidumbre alta.",
         "No dejar como fijo un partido donde el empate supera el 33% sin revisar cobertura.",
         "No ignorar bajas, sanciones o contexto si afectan al favorito.",
+        "No confundir probabilidad alta con certeza: el azar tambien forma parte de la quiniela.",
     ]
     for p in riesgos:
         errores.append(f"Revisar antes de validar: {p.get('local')} - {p.get('visitante')} tiene incertidumbre {p.get('incertidumbre')}.")

@@ -511,8 +511,12 @@ def pesos_recomendados(ligas, quiniela):
     equis = quiniela["historico_csv"]["frecuencia_global"].get("X", 28)
     doses = quiniela["historico_csv"]["frecuencia_global"].get("2", 27)
     sorpresas = sum(liga["resumen_sorpresas"]["total"] for liga in ligas.values())
+    propias = quiniela.get("nuestras_quinielas", {})
+    partidos_propios = int(propias.get("partidos_validados") or 0)
+    precision = float(propias.get("precision") or 0)
+    precision_elige8 = float((propias.get("elige8") or {}).get("precision") or 0)
 
-    return {
+    pesos = {
         "forma_reciente": 0.24,
         "casa_fuera": 0.18,
         "clasificacion_y_puntos": 0.18,
@@ -527,6 +531,28 @@ def pesos_recomendados(ligas, quiniela):
             "sorpresas_liga_detectadas": sorpresas,
         },
     }
+    ajustes = []
+    if partidos_propios >= 14:
+        pesos["estado_aprendizaje_propio"] = "activo"
+        pesos["partidos_propios_validados"] = partidos_propios
+        pesos["precision_propia"] = precision
+        if precision < 50:
+            pesos["forma_reciente"] = round(max(pesos["forma_reciente"] - 0.03, 0.16), 2)
+            pesos["tendencia_empate"] = round(min(pesos["tendencia_empate"] + 0.02, 0.18), 2)
+            pesos["riesgo_sorpresa"] = round(min(pesos["riesgo_sorpresa"] + 0.03, 0.16), 2)
+            ajustes.append("Precision propia baja: se sube cautela de empate/sorpresa y se reduce confianza ciega en forma.")
+        if 0 < precision_elige8 < 70:
+            pesos["riesgo_sorpresa"] = round(min(pesos["riesgo_sorpresa"] + 0.02, 0.16), 2)
+            ajustes.append("Elige 8 por debajo del umbral: no convertir partidos inciertos en seguros.")
+        if precision >= 65:
+            pesos["clasificacion_y_puntos"] = round(min(pesos["clasificacion_y_puntos"] + 0.02, 0.22), 2)
+            ajustes.append("Precision propia aceptable: se conserva estructura actual y se refuerza clasificacion.")
+    else:
+        pesos["estado_aprendizaje_propio"] = "pendiente_boletos_persistidos"
+        pesos["partidos_propios_validados"] = partidos_propios
+        ajustes.append("Faltan boletos propios persistidos: los pesos siguen siendo iniciales y no aprendizaje real de nuestras jugadas.")
+    pesos["ajustes_por_nuestras_quinielas"] = ajustes
+    return pesos
 
 
 def equipo_para_clasificacion(equipo):

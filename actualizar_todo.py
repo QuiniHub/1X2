@@ -14,13 +14,13 @@ def ejecutar_sistema():
         "actualizar_resultados_directo.py",
         "actualizar_contexto_equipos.py",
         "actualizar_analisis_ia.py",
-        "generar_quiniela_ia.py",
         "actualizar_aprendizaje_ia.py",
         "construir_historial_quinielas.py",
         "construir_memoria_ia.py",
-        "motor_prediccion_quiniela.py",
         "generar_contexto_competitivo.py",
-        "generar_estado_vivo_ia.py"
+        "motor_prediccion_quiniela.py",
+        "generar_estado_vivo_ia.py",
+        "diagnostico_sistema.py"
     ]
     for s in scripts:
         if os.path.exists(s):

@@ -507,6 +507,10 @@
         <div id="analisis-estado-vivo">Cargando diario interno...</div>
       </div>
       <div class="card">
+        <h2>Diagnostico predictivo</h2>
+        <div id="analisis-diagnostico">Cargando control de calidad...</div>
+      </div>
+      <div class="card">
         <h2>Motivacion final de temporada</h2>
         <div id="analisis-motivacion">Cargando presion competitiva...</div>
       </div>
@@ -955,13 +959,15 @@
       const signosEl = document.getElementById("analisis-signos");
       const ajustesEl = document.getElementById("analisis-ajustes");
       const estadoEl = document.getElementById("analisis-estado-vivo");
+      const diagnosticoEl = document.getElementById("analisis-diagnostico");
       const motivacionEl = document.getElementById("analisis-motivacion");
-      if (!resumen || !sorpresasEl || !nuestrasEl || !signosEl || !ajustesEl || !estadoEl || !motivacionEl) return;
+      if (!resumen || !sorpresasEl || !nuestrasEl || !signosEl || !ajustesEl || !estadoEl || !diagnosticoEl || !motivacionEl) return;
 
-      const [memoria, historial, estadoVivo] = await Promise.all([
+      const [memoria, historial, estadoVivo, diagnostico] = await Promise.all([
         fetchJSON("data/memoria_ia/aprendizaje_global.json", {}),
         fetchJSON("data/historial_quinielas.json", { jornadas: [] }),
         fetchJSON("data/memoria_ia/estado_vivo.json", {}),
+        fetchJSON("data/diagnostico_sistema.json", {}),
       ]);
 
       const primera = memoria.ligas?.primera || {};
@@ -975,12 +981,14 @@
       resumen.innerHTML = [
         `<strong>Memoria generada:</strong> ${memoria.generado_en || "pendiente de regenerar"}.`,
         `<strong>Estado vivo:</strong> ${estadoVivo.generado_en || "pendiente de generar"}.`,
+        `<strong>Diagnostico:</strong> ${diagnostico.estado || "pendiente"} (${diagnostico.score_salud ?? "-"} / 100).`,
         `<strong>Partidos de liga analizados:</strong> 1a ${primera.partidos_jugados || 0}, 2a ${segunda.partidos_jugados || 0}.`,
         `<strong>Jornadas oficiales:</strong> ${historial.total_jornadas || historial.jornadas?.length || 0}.`,
         `<strong>Nuestras jugadas en memoria/vista:</strong> ${nuestrasMemoria.jornadas_validadas || jugadasVista.length || 0}.`
       ].join("<br>");
 
       estadoEl.innerHTML = pintarEstadoVivo(estadoVivo);
+      diagnosticoEl.innerHTML = pintarDiagnosticoSistema(diagnostico);
       motivacionEl.innerHTML = pintarMotivacionFinal(estadoVivo);
 
       const sorpresas = [
@@ -1059,10 +1067,44 @@
         ${pintarListaEstado("Qué ha cambiado", estado.que_ha_cambiado, x => `<li>${x.partido || ""}: ${x.resultado || ""} (${x.signo || ""}). ${x.lectura || ""}</li>`)}
         ${pintarListaEstado("Qué aprende ahora", estado.que_aprende, x => `<li>${x}</li>`)}
         ${pintarListaEstado("Partidos más seguros", estado.partidos_mas_seguros, x => `<li>${x.num}. ${x.partido}: ${x.signo} · incertidumbre ${x.incertidumbre}</li>`)}
-        ${pintarListaEstado("Partidos trampa o sorpresa", estado.partidos_trampa_o_sorpresa, x => `<li>${x.num}. ${x.partido}: base ${x.signo_base}, incertidumbre ${x.incertidumbre}. ${x.motivo}</li>`)}
+        ${pintarListaEstado("Partidos trampa o sorpresa", estado.partidos_trampa_o_sorpresa, x => `<li>${x.num}. ${x.partido}: base ${x.signo_base}, incertidumbre ${x.incertidumbre}, sorpresa ${x.probabilidad_sorpresa ?? "-"}%. ${x.motivo}</li>`)}
         ${pintarListaEstado("Dudas abiertas", estado.dudas_abiertas, x => `<li>${x.num}. ${x.partido}: ${x.pregunta}</li>`)}
         ${pintarListaEstado("Autocrítica", estado.autocritica, x => `<li>${x}</li>`)}
         ${pintarListaEstado("Errores a evitar", estado.errores_a_evitar, x => `<li>${x}</li>`)}
+      `;
+    }
+
+    function pintarDiagnosticoSistema(diagnostico) {
+      if (!diagnostico || !diagnostico.version) {
+        return "<p>El diagnostico aun no se ha generado. Se creara en la siguiente actualizacion automatica.</p>";
+      }
+      const alertas = diagnostico.alertas || [];
+      const pred = diagnostico.prediccion || {};
+      const memoria = diagnostico.memoria_quinielas || {};
+      const jornadas = diagnostico.jornadas || {};
+      const actual = jornadas.jornada_actual || {};
+      const trampas = pred.partidos_trampa || [];
+      const modulos = diagnostico.fuentes?.modulos || {};
+      const filasModulos = Object.entries(modulos).map(([nombre, dato]) => `
+        <tr>
+          <td>${nombre.replaceAll("_", " ")}</td>
+          <td>${dato.estado || "-"}</td>
+          <td>${dato.detalle || ""}</td>
+        </tr>
+      `).join("");
+
+      return `
+        <p><strong>Salud:</strong> ${diagnostico.estado || "-"} (${diagnostico.score_salud ?? "-"} / 100).</p>
+        <p><strong>Jornada vigilada:</strong> ${actual.jornada || "-"} con ${actual.cerrados ?? 0}/${actual.partidos ?? 0} partidos cerrados. Riesgo de azar jornada ${pred.jornada || "-"}: ${pred.riesgo_azar || "-"}.</p>
+        <p><strong>Memoria propia:</strong> ${memoria.estado || "-"}; jugadas persistidas ${memoria.jugadas_persistidas_json ?? 0}, jornadas con signos nuestros ${memoria.jornadas_con_signo_nuestro ?? 0}.</p>
+        ${pintarListaEstado("Alertas de calidad", alertas, x => `<li><strong>${x.nivel || ""}:</strong> ${x.titulo || ""}. ${x.detalle || ""} ${x.accion || ""}</li>`)}
+        ${pintarListaEstado("Partidos donde manda el azar", trampas, x => `<li>${x.num}. ${x.partido}: ${x.signo}, prob. top ${x.probabilidad_top}%, margen ${x.margen}, incertidumbre ${x.incertidumbre}.</li>`)}
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Modulo</th><th>Estado</th><th>Lectura</th></tr></thead>
+            <tbody>${filasModulos || `<tr><td colspan="3">Sin modulos diagnosticados.</td></tr>`}</tbody>
+          </table>
+        </div>
       `;
     }
 
@@ -1213,10 +1255,17 @@
             ${plenoCerrado && plenoNuestro ? `<span class="${plenoAcierto ? "ok" : "ko"}">${plenoAcierto ? "Acierto" : "Fallo"}</span>` : `<span class="small-muted">${plenoCerrado ? "Pendiente nuestro" : "Pendiente oficial"}</span>`}
           </div>
         ` : "";
+        const avisoPersistencia = validacion.persistente ? "" : `
+          <div class="manual-form">
+            <p class="small-muted">Pendiente de memoria real: esta validacion esta guardada en este navegador, pero GitHub Actions no puede leer localStorage.</p>
+            <button onclick="copiarJugadaPersistente(${data.jornada})">Copiar jugada para memoria IA</button>
+          </div>
+        `;
         return `
           <p class="small-muted">Boleto validado por nosotros el ${validacion.validado_en || ""}. ${validacion.persistente ? "Esta jugada está guardada en la memoria persistente de la IA." : "Esta jugada está en este navegador; al pasarla a data/quinielas_jugadas.json quedará en memoria permanente."}</p>
           ${filas}
           ${plenoHtml}
+          ${avisoPersistencia}
           <button onclick="generarFormularioValidacion(${data.jornada})">Editar validación</button>
         `;
       }
@@ -1417,8 +1466,48 @@
         origen: "navegador_pendiente_de_sincronizar",
       };
       localStorage.setItem(`quiniela_validada_${jornada}`, JSON.stringify(validacion));
+      guardarPendientePersistencia(validacion);
       await abrirJornada(jornada);
       await cargarHistorial();
+    }
+
+    function guardarPendientePersistencia(validacion) {
+      const clave = "quinielas_pendientes_memoria_ia";
+      let lista = [];
+      try {
+        lista = JSON.parse(localStorage.getItem(clave) || "[]");
+      } catch (e) {
+        lista = [];
+      }
+      lista = lista.filter(item => Number(item.jornada) !== Number(validacion.jornada));
+      lista.push(validacion);
+      localStorage.setItem(clave, JSON.stringify(lista));
+    }
+
+    function jugadaParaMemoria(validacion) {
+      return {
+        jornada: Number(validacion.jornada),
+        signos: validacion.signos || [],
+        elige8: (validacion.elige8 || []).map(Number),
+        pleno15: validacion.pleno15 || "",
+        validado_en: validacion.validado_en || "",
+        origen: "validacion_manual_web",
+      };
+    }
+
+    async function copiarJugadaPersistente(jornada) {
+      const validacion = cargarValidacionLocal(jornada);
+      if (!validacion) {
+        alert("No encuentro una validacion local para esta jornada.");
+        return;
+      }
+      const texto = JSON.stringify(jugadaParaMemoria(validacion), null, 2);
+      try {
+        await navigator.clipboard.writeText(texto);
+        alert("Jugada copiada. Esta es la pieza que debe entrar en data/quinielas_jugadas.json para memoria permanente.");
+      } catch (e) {
+        alert(texto);
+      }
     }
 
     async function mostrarCalendario(liga) {
@@ -1461,20 +1550,27 @@
 
       respuesta.textContent = "Consultando memoria IA...";
 
-      const [clasif, memoria, historial, contexto, primera, segunda] = await Promise.all([
+      const [clasif, memoria, historial, contexto, primera, segunda, diagnostico] = await Promise.all([
         fetchJSON("clasificaciones.json", {}),
         fetchJSON("data/memoria_ia/aprendizaje_global.json", {}),
         fetchJSON("data/historial_quinielas.json", { jornadas: [] }),
         fetchJSON("data/contexto_equipos.json", { equipos: {} }),
         fetchJSON("data/calendario_primera.json", { jornadas: [] }),
-        fetchJSON("data/calendario_segunda.json", { jornadas: [] })
+        fetchJSON("data/calendario_segunda.json", { jornadas: [] }),
+        fetchJSON("data/diagnostico_sistema.json", {})
       ]);
 
-      const texto = construirRespuestaIA(q, { clasif, memoria, historial, contexto, primera, segunda });
+      const texto = construirRespuestaIA(q, { clasif, memoria, historial, contexto, primera, segunda, diagnostico });
       respuesta.textContent = texto;
     }
 
     function construirRespuestaIA(q, data) {
+      if (incluye(q, ["diagnostico", "perfecta", "perfecto", "fiabilidad", "autonoma", "autonoma", "por que no actualiza", "porque no actualiza", "fallos del sistema"])) {
+        return respuestaDiagnostico(data.diagnostico);
+      }
+      if (incluye(q, ["azar", "sorpresa", "sorpresas", "trampa", "bomba", "incierto", "incertidumbre"])) {
+        return respuestaAzar(data.diagnostico);
+      }
       if (incluye(q, ["actualizada", "actualizado", "ultima actualizacion", "actualizacion", "al dia"])) {
         return respuestaActualizacion(data);
       }
@@ -1525,13 +1621,44 @@
       return [...(clasif.primera || []), ...(clasif.segunda || [])];
     }
 
-    function respuestaActualizacion({ memoria, historial, contexto, primera, segunda }) {
+    function respuestaDiagnostico(diagnostico) {
+      if (!diagnostico || !diagnostico.version) {
+        return "Aun no tengo diagnostico generado. En la siguiente actualizacion automatica aparecera data/diagnostico_sistema.json.";
+      }
+      const memoria = diagnostico.memoria_quinielas || {};
+      const pred = diagnostico.prediccion || {};
+      const alertas = (diagnostico.alertas || []).slice(0, 6)
+        .map(a => `- ${a.nivel}: ${a.titulo}. ${a.detalle}`)
+        .join("\n");
+      return [
+        `Estado predictivo: ${diagnostico.estado} (${diagnostico.score_salud}/100).`,
+        `Lectura: ${diagnostico.lectura}`,
+        `Memoria propia: ${memoria.estado}; jugadas persistidas ${memoria.jugadas_persistidas_json || 0}.`,
+        `Prediccion jornada ${pred.jornada || "-"}: riesgo de azar ${pred.riesgo_azar || "-"}, partidos trampa ${(pred.partidos_trampa || []).length}.`,
+        "",
+        alertas || "Sin alertas fuertes ahora mismo."
+      ].join("\n");
+    }
+
+    function respuestaAzar(diagnostico) {
+      const trampas = diagnostico?.prediccion?.partidos_trampa || [];
+      if (!trampas.length) return "Ahora mismo no tengo partidos trampa calculados en el diagnostico. Se recalcularan en la siguiente actualizacion.";
+      return [
+        `Riesgo de azar de la jornada objetivo: ${diagnostico.prediccion.riesgo_azar}.`,
+        "Partidos donde no debo confiarme:",
+        ...trampas.slice(0, 8).map(p => `${p.num}. ${p.partido}: signo ${p.signo}, probabilidad top ${p.probabilidad_top}%, margen ${p.margen}, incertidumbre ${p.incertidumbre}.`)
+      ].join("\n");
+    }
+
+    function respuestaActualizacion({ memoria, historial, contexto, primera, segunda, diagnostico }) {
       const p1 = resumenJornadaActual(primera);
       const p2 = resumenJornadaActual(segunda);
+      const salud = diagnostico?.version ? `Diagnostico: ${diagnostico.estado} (${diagnostico.score_salud}/100).` : "Diagnostico pendiente.";
       return [
         `Última memoria IA: ${memoria.generado_en || "sin fecha guardada"}.`,
         `Historial cargado: ${historial.total_jornadas || historial.jornadas?.length || 0} jornadas.`,
         `Contexto equipos: ${Object.keys(contexto.equipos || {}).length} equipos, generado en ${contexto.generado_en || "sin fecha"}.`,
+        salud,
         `1ª División: ${p1}.`,
         `2ª División: ${p2}.`
       ].join("\n");
@@ -1613,10 +1740,12 @@
       return `Jornada ${numero}: ${j.estado}. Resultado oficial: ${j.resultado_oficial}. Partidos con resultado: ${j.partidos_con_resultado}/${j.total_partidos}. Pleno al 15: ${j.pleno15_oficial}.`;
     }
 
-    function respuestaMemoria({ memoria, historial, contexto, clasif }) {
+    function respuestaMemoria({ memoria, historial, contexto, clasif, diagnostico }) {
       const p1 = clasif.primera?.length || 0;
       const p2 = clasif.segunda?.length || 0;
-      return `Sí, tengo memoria cargada.\nTemporada base: ${memoria.temporada || "sin etiqueta"}.\nJornadas de quiniela: ${historial.total_jornadas || historial.jornadas?.length || 0}.\nEquipos en clasificación: ${p1} de 1ª y ${p2} de 2ª.\nContexto de noticias: ${Object.keys(contexto.equipos || {}).length} equipos.\nPartidos analizados en memoria: 1ª ${memoria.ligas?.primera?.partidos_jugados || 0}, 2ª ${memoria.ligas?.segunda?.partidos_jugados || 0}.`;
+      const propia = diagnostico?.memoria_quinielas;
+      const extra = propia ? `\nMemoria de nuestras jugadas: ${propia.estado}, persistidas ${propia.jugadas_persistidas_json || 0}.` : "";
+      return `Sí, tengo memoria cargada.\nTemporada base: ${memoria.temporada || "sin etiqueta"}.\nJornadas de quiniela: ${historial.total_jornadas || historial.jornadas?.length || 0}.\nEquipos en clasificación: ${p1} de 1ª y ${p2} de 2ª.\nContexto de noticias: ${Object.keys(contexto.equipos || {}).length} equipos.\nPartidos analizados en memoria: 1ª ${memoria.ligas?.primera?.partidos_jugados || 0}, 2ª ${memoria.ligas?.segunda?.partidos_jugados || 0}.${extra}`;
     }
 
     function respuestaGeneral(data) {

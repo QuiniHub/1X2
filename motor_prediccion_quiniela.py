@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 MEMORIA = DATA / "memoria_ia" / "aprendizaje_global.json"
 CONTEXTO_EQUIPOS = DATA / "contexto_equipos.json"
+CONTEXTO_COMPETITIVO = DATA / "memoria_ia" / "contexto_competitivo.json"
 JORNADAS = DATA / "jornadas"
 PREDICCIONES = DATA / "predicciones"
 JUGADAS = DATA / "quinielas_jugadas"
@@ -109,6 +110,61 @@ def buscar_contexto_equipo(contexto, nombre):
     return mejor if mejor_score >= 20 else None
 
 
+def equipos_contexto_competitivo(contexto):
+    equipos = []
+    for liga in ("primera", "segunda"):
+        for equipo in (contexto.get(liga) or {}).get("equipos", []):
+            equipos.append({**equipo, "liga": liga})
+    return equipos
+
+
+def buscar_contexto_competitivo(contexto, nombre):
+    n = normalizar(nombre)
+    mejor = None
+    mejor_score = 0
+    for equipo in equipos_contexto_competitivo(contexto):
+        e = normalizar(equipo.get("equipo", ""))
+        if e == n:
+            score = 100
+        elif e in n or n in e:
+            score = 80
+        else:
+            score = len(set(e.split()) & set(n.split())) * 20
+        if score > mejor_score:
+            mejor = equipo
+            mejor_score = score
+    return mejor if mejor_score >= 20 else None
+
+
+def valor_motivacion(equipo):
+    orden = {"baja": 0, "media": 1, "alta": 2, "maxima": 3}
+    if not equipo:
+        return 0
+    return orden.get(str(equipo.get("motivacion_competitiva", "baja")).lower(), 0)
+
+
+def objetivo_descenso(equipo):
+    if not equipo:
+        return False
+    for objetivo in equipo.get("objetivos", []):
+        texto = f"{objetivo.get('objetivo', '')} {objetivo.get('estado', '')}".lower()
+        if "descenso" in texto or "riesgo" in texto:
+            return True
+    return False
+
+
+def objetivos_texto(equipo):
+    if not equipo:
+        return "sin contexto competitivo claro"
+    objetivos = []
+    for objetivo in equipo.get("objetivos", [])[:3]:
+        nombre = str(objetivo.get("objetivo", "")).replace("_", " ")
+        estado = str(objetivo.get("estado", "")).replace("_", " ")
+        if nombre:
+            objetivos.append(f"{nombre} ({estado})")
+    return ", ".join(objetivos) if objetivos else "sin objetivo fuerte detectado"
+
+
 def fuerza(equipo, condicion):
     if not equipo:
         return 0.0
@@ -202,6 +258,45 @@ def ajustar_por_contexto(probs, contexto_local, contexto_visitante):
     return normalizar_probs(probs), riesgo_extra, lecturas
 
 
+def ajustar_por_motivacion(probs, local_comp, visitante_comp):
+    probs = dict(probs)
+    riesgo_extra = 0
+    lecturas = []
+    motivacion_local = valor_motivacion(local_comp)
+    motivacion_visitante = valor_motivacion(visitante_comp)
+    diferencia = motivacion_local - motivacion_visitante
+
+    if diferencia:
+        ajuste = max(min(diferencia * 2.2, 6), -6)
+        probs["1"] += ajuste
+        probs["2"] -= ajuste
+        riesgo_extra += min(abs(diferencia) * 3, 8)
+        if diferencia > 0:
+            lecturas.append(
+                f"Motivacion: el local compite con mas urgencia ({objetivos_texto(local_comp)})."
+            )
+        else:
+            lecturas.append(
+                f"Motivacion: el visitante compite con mas urgencia ({objetivos_texto(visitante_comp)})."
+            )
+
+    if motivacion_local >= 2 and motivacion_visitante >= 2:
+        probs["X"] += 2
+        riesgo_extra += 3
+        lecturas.append("Motivacion: choque de alta presion para ambos; sube el riesgo de empate o resultado cerrado.")
+
+    if objetivo_descenso(local_comp):
+        probs["1"] += 1.5
+        riesgo_extra += 2
+        lecturas.append("Contexto competitivo local: partido condicionado por permanencia/descenso.")
+    if objetivo_descenso(visitante_comp):
+        probs["2"] += 1.5
+        riesgo_extra += 2
+        lecturas.append("Contexto competitivo visitante: partido condicionado por permanencia/descenso.")
+
+    return normalizar_probs(probs), riesgo_extra, lecturas
+
+
 def signo_top(probs):
     return sorted(probs.items(), key=lambda x: x[1], reverse=True)[0][0]
 
@@ -226,7 +321,22 @@ def incertidumbre(probs, local, visitante, diff, riesgo_contexto=0):
     return round(puntos, 2)
 
 
-def explicar(partido, probs, signo, local, visitante, diff, tipo, contexto_local=None, contexto_visitante=None, lecturas_contexto=None):
+def explicar(
+    partido,
+    probs,
+    signo,
+    local,
+    visitante,
+    diff,
+    tipo,
+    contexto_local=None,
+    contexto_visitante=None,
+    lecturas_contexto=None,
+    local_comp=None,
+    visitante_comp=None,
+    lecturas_motivacion=None,
+    prob_sorpresa=None,
+):
     razones = []
     razones.append(f"Probabilidades IA: 1={probs['1']}%, X={probs['X']}%, 2={probs['2']}%.")
     if local:
@@ -257,8 +367,24 @@ def explicar(partido, probs, signo, local, visitante, diff, tipo, contexto_local
     if contexto_visitante:
         razones.append(contexto_visitante.get("resumen", ""))
     razones.extend(lecturas_contexto)
+    lecturas_motivacion = lecturas_motivacion or []
+    razones.extend(lecturas_motivacion)
+    if local_comp or visitante_comp:
+        razones.append(
+            f"Objetivos: {partido.get('local')} ({objetivos_texto(local_comp)}) frente a "
+            f"{partido.get('visitante')} ({objetivos_texto(visitante_comp)})."
+        )
+    if prob_sorpresa is not None:
+        razones.append(f"Riesgo de azar/sorpresa estimado: {prob_sorpresa}%.")
     razones.append(f"Decision final: {signo}.")
     return " ".join(razones)
+
+
+def probabilidad_sorpresa(probs, incertidumbre_puntos):
+    top = max(float(v) for v in probs.values())
+    base = 100 - top
+    extra = max(min((float(incertidumbre_puntos) - 90) * 0.25, 12), 0)
+    return round(max(min(base + extra, 70), 18), 1)
 
 
 def coste(dobles, triples, elige8):
@@ -276,6 +402,7 @@ def coste(dobles, triples, elige8):
 def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
     memoria = cargar_json(MEMORIA, {})
     contexto = cargar_json(CONTEXTO_EQUIPOS, {})
+    contexto_competitivo = cargar_json(CONTEXTO_COMPETITIVO, {})
     jornada = jornada or detectar_jornada_activa()
     data = cargar_json(JORNADAS / f"jornada_{jornada}.json", {})
     partidos_base = [p for p in data.get("partidos", []) if int(p.get("num", 0)) <= 14]
@@ -288,14 +415,23 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
         contexto_local = buscar_contexto_equipo(contexto, partido.get("local", ""))
         contexto_visitante = buscar_contexto_equipo(contexto, partido.get("visitante", ""))
         probs, riesgo_contexto, lecturas_contexto = ajustar_por_contexto(probs, contexto_local, contexto_visitante)
+        local_comp = buscar_contexto_competitivo(contexto_competitivo, partido.get("local", ""))
+        visitante_comp = buscar_contexto_competitivo(contexto_competitivo, partido.get("visitante", ""))
+        probs, riesgo_motivacion, lecturas_motivacion = ajustar_por_motivacion(probs, local_comp, visitante_comp)
+        inc = incertidumbre(probs, local, visitante, diff, riesgo_contexto + riesgo_motivacion)
+        sorpresa = probabilidad_sorpresa(probs, inc)
         evaluados.append({
             **partido,
             "probabilidades": probs,
             "signo_base": signo_top(probs),
-            "incertidumbre": incertidumbre(probs, local, visitante, diff, riesgo_contexto),
+            "incertidumbre": inc,
+            "probabilidad_sorpresa": sorpresa,
             "contexto_local": contexto_local,
             "contexto_visitante": contexto_visitante,
             "lecturas_contexto": lecturas_contexto,
+            "contexto_competitivo_local": local_comp,
+            "contexto_competitivo_visitante": visitante_comp,
+            "lecturas_motivacion": lecturas_motivacion,
             "_local": local,
             "_visitante": visitante,
             "_diff": diff,
@@ -331,6 +467,7 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
             "signo_final": signo,
             "tipo": tipo,
             "incertidumbre": partido["incertidumbre"],
+            "probabilidad_sorpresa": partido["probabilidad_sorpresa"],
             "elige8": partido["num"] in elige8_set,
             "razonamiento": explicar(
                 partido,
@@ -343,6 +480,10 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
                 partido.get("contexto_local"),
                 partido.get("contexto_visitante"),
                 partido.get("lecturas_contexto"),
+                partido.get("contexto_competitivo_local"),
+                partido.get("contexto_competitivo_visitante"),
+                partido.get("lecturas_motivacion"),
+                partido.get("probabilidad_sorpresa"),
             ),
         })
 
@@ -362,6 +503,10 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
         "contexto_equipos": {
             "generado_en": contexto.get("generado_en"),
             "fuentes": contexto.get("fuentes", []),
+        },
+        "contexto_competitivo": {
+            "generado_en": contexto_competitivo.get("generado_en"),
+            "reglas": contexto_competitivo.get("reglas", {}),
         },
         "pleno15": data.get("pleno15"),
         "resumen": {

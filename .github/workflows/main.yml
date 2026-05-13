@@ -31,6 +31,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install beautifulsoup4 requests pandas lxml
 
+      - name: Integrar cambios remotos
+        run: |
+          git pull --rebase origin main
+
       - name: Actualizar datos
         run: |
           python actualizar_todo.py
@@ -41,5 +45,4 @@ jobs:
           git config user.email "github-actions@github.com"
           git add .
           git diff --cached --quiet && echo "Sin cambios" || git commit -m "Actualizacion automatica completa"
-          git pull --rebase origin main
           git push
