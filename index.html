@@ -502,6 +502,10 @@
         <h2>Cuaderno de aprendizaje IA</h2>
         <p id="analisis-resumen">Cargando memoria de aprendizaje...</p>
       </div>
+      <div class="card">
+        <h2>Estado vivo para jornada 63</h2>
+        <div id="analisis-estado-vivo">Cargando diario interno...</div>
+      </div>
       <div class="grid">
         <div class="card">
           <h2>Sorpresas detectadas</h2>
@@ -946,11 +950,13 @@
       const nuestrasEl = document.getElementById("analisis-nuestras");
       const signosEl = document.getElementById("analisis-signos");
       const ajustesEl = document.getElementById("analisis-ajustes");
-      if (!resumen || !sorpresasEl || !nuestrasEl || !signosEl || !ajustesEl) return;
+      const estadoEl = document.getElementById("analisis-estado-vivo");
+      if (!resumen || !sorpresasEl || !nuestrasEl || !signosEl || !ajustesEl || !estadoEl) return;
 
-      const [memoria, historial] = await Promise.all([
+      const [memoria, historial, estadoVivo] = await Promise.all([
         fetchJSON("data/memoria_ia/aprendizaje_global.json", {}),
         fetchJSON("data/historial_quinielas.json", { jornadas: [] }),
+        fetchJSON("data/memoria_ia/estado_vivo.json", {}),
       ]);
 
       const primera = memoria.ligas?.primera || {};
@@ -963,10 +969,13 @@
 
       resumen.innerHTML = [
         `<strong>Memoria generada:</strong> ${memoria.generado_en || "pendiente de regenerar"}.`,
+        `<strong>Estado vivo:</strong> ${estadoVivo.generado_en || "pendiente de generar"}.`,
         `<strong>Partidos de liga analizados:</strong> 1a ${primera.partidos_jugados || 0}, 2a ${segunda.partidos_jugados || 0}.`,
         `<strong>Jornadas oficiales:</strong> ${historial.total_jornadas || historial.jornadas?.length || 0}.`,
         `<strong>Nuestras jugadas en memoria/vista:</strong> ${nuestrasMemoria.jornadas_validadas || jugadasVista.length || 0}.`
       ].join("<br>");
+
+      estadoEl.innerHTML = pintarEstadoVivo(estadoVivo);
 
       const sorpresas = [
         ...(primera.sorpresas_detectadas || []).map(s => ({ ...s, liga: "1a" })),
@@ -1021,6 +1030,33 @@
         <p><strong>Precision propia:</strong> ${precision ?? 0}% con las jugadas disponibles.</p>
         <p><strong>Pesos actuales:</strong> forma ${pesos.forma_reciente ?? "-"}, casa/fuera ${pesos.casa_fuera ?? "-"}, clasificacion ${pesos.clasificacion_y_puntos ?? "-"}, goles ${pesos.goles_favor_contra ?? "-"}, empate ${pesos.tendencia_empate ?? "-"}, sorpresa ${pesos.riesgo_sorpresa ?? "-"}.</p>
         <p><strong>Aprendizaje operativo:</strong> si fallamos fijos, sube la cautela; si fallamos Elige 8, baja la confianza de partidos similares; si acertamos dobles/triples, revisa si la cobertura estaba justificada.</p>
+      `;
+    }
+
+    function pintarListaEstado(titulo, items, render) {
+      const lista = (items || []).slice(0, 8);
+      if (!lista.length) return `<p><strong>${titulo}:</strong> sin datos suficientes.</p>`;
+      return `
+        <p><strong>${titulo}</strong></p>
+        <ul>
+          ${lista.map(render).join("")}
+        </ul>
+      `;
+    }
+
+    function pintarEstadoVivo(estado) {
+      const jornada = estado.jornada_actual || {};
+      const pred = estado.prediccion_objetivo || {};
+      return `
+        <p><strong>Jornada actual:</strong> ${jornada.jornada || "-"} · cerrados ${jornada.cerrados ?? 0}, pendientes ${jornada.pendientes ?? 0}. Signos: 1=${jornada.distribucion_signos?.["1"] ?? 0}, X=${jornada.distribucion_signos?.["X"] ?? 0}, 2=${jornada.distribucion_signos?.["2"] ?? 0}.</p>
+        <p><strong>Predicción que está recalibrando:</strong> Jornada ${pred.jornada || 63}. Fijos ${pred.configuracion_actual?.fijos ?? "-"}, dobles ${pred.configuracion_actual?.dobles ?? "-"}, triples ${pred.configuracion_actual?.triples ?? "-"}.</p>
+        ${pintarListaEstado("Qué ha cambiado", estado.que_ha_cambiado, x => `<li>${x.partido || ""}: ${x.resultado || ""} (${x.signo || ""}). ${x.lectura || ""}</li>`)}
+        ${pintarListaEstado("Qué aprende ahora", estado.que_aprende, x => `<li>${x}</li>`)}
+        ${pintarListaEstado("Partidos más seguros", estado.partidos_mas_seguros, x => `<li>${x.num}. ${x.partido}: ${x.signo} · incertidumbre ${x.incertidumbre}</li>`)}
+        ${pintarListaEstado("Partidos trampa o sorpresa", estado.partidos_trampa_o_sorpresa, x => `<li>${x.num}. ${x.partido}: base ${x.signo_base}, incertidumbre ${x.incertidumbre}. ${x.motivo}</li>`)}
+        ${pintarListaEstado("Dudas abiertas", estado.dudas_abiertas, x => `<li>${x.num}. ${x.partido}: ${x.pregunta}</li>`)}
+        ${pintarListaEstado("Autocrítica", estado.autocritica, x => `<li>${x}</li>`)}
+        ${pintarListaEstado("Errores a evitar", estado.errores_a_evitar, x => `<li>${x}</li>`)}
       `;
     }
 
