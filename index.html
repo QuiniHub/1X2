@@ -618,6 +618,7 @@
             <div id="boleto-nuestro"></div>
           </div>
         </div>
+        <div id="analisis-jornada-detalle"></div>
       </div>
     </section>
 
@@ -885,7 +886,12 @@
       validacion.signos.forEach((signo, idx) => {
         if (String(signo).includes(oficial[idx])) aciertos += 1;
       });
-      return `${aciertos}/14`;
+      const plenoOficial = String(item.pleno15_oficial || "").trim();
+      const plenoNuestro = String(validacion.pleno15 || "").trim();
+      const pleno = plenoOficial && plenoOficial.toLowerCase() !== "pendiente" && plenoNuestro
+        ? ` · Pleno ${plenoNuestro === plenoOficial ? "acierto" : "fallo"}`
+        : "";
+      return `${aciertos}/14${pleno}`;
     }
 
     async function abrirJornada(jornada) {
@@ -895,10 +901,12 @@
       const titulo = document.getElementById("detalle-titulo");
       const oficial = document.getElementById("boleto-oficial");
       const nuestro = document.getElementById("boleto-nuestro");
+      const analisis = document.getElementById("analisis-jornada-detalle");
 
       titulo.textContent = `Detalle Jornada ${jornada}`;
       oficial.innerHTML = "Cargando...";
       nuestro.innerHTML = "Cargando...";
+      analisis.innerHTML = "";
 
       const data = await fetchJSON(`data/jornadas/jornada_${jornada}.json`, null);
       if (!data) {
@@ -929,6 +937,8 @@
           </div>
         `;
       }
+      analisis.innerHTML = pintarAnalisisAprendizaje(data, validacion);
+      guardarAprendizajeJornada(data, validacion);
     }
 
     function pintarBoletoNuestro(data, validacion) {
@@ -950,10 +960,15 @@
             </div>
           `;
         }).join("");
+        const plenoOficial = resultadoPlenoOficial(pleno);
+        const plenoCerrado = Boolean(plenoOficial);
+        const plenoNuestro = String(validacion.pleno15 || "").trim();
+        const plenoAcierto = plenoCerrado && plenoNuestro && plenoNuestro === plenoOficial;
         const plenoHtml = pleno ? `
           <div class="match-row pleno15">
             <strong>15.</strong> Pleno al 15: ${pleno.local || ""} - ${pleno.visitante || ""}
             <span class="badge">${validacion.pleno15 || "Pendiente"}</span>
+            ${plenoCerrado && plenoNuestro ? `<span class="${plenoAcierto ? "ok" : "ko"}">${plenoAcierto ? "Acierto" : "Fallo"}</span>` : `<span class="small-muted">${plenoCerrado ? "Pendiente nuestro" : "Pendiente oficial"}</span>`}
           </div>
         ` : "";
         return `
@@ -968,6 +983,120 @@
         <p>No hay boleto nuestro validado para esta jornada.</p>
         <button onclick="generarFormularioValidacion(${data.jornada})">Generar manualmente y validar</button>
       `;
+    }
+
+    function resultadoPlenoOficial(pleno) {
+      const valor = String(pleno?.resultado || pleno?.signo_oficial || "").trim();
+      if (!valor || valor.toLowerCase() === "pendiente") return "";
+      return valor;
+    }
+
+    function tipoCobertura(signo) {
+      const limpio = String(signo || "").replace(/[^1X2]/g, "");
+      if (limpio.length >= 3) return "triple";
+      if (limpio.length === 2) return "doble";
+      return "fijo";
+    }
+
+    function aprendizajePartido(partido, signoNuestro, acierto, esElige8) {
+      const tipo = tipoCobertura(signoNuestro);
+      const oficial = String(partido.signo_oficial || "").trim().toUpperCase();
+      if (acierto) {
+        if (tipo === "fijo") return "Acierto limpio: la lectura fue suficientemente fuerte para jugarlo sin cobertura.";
+        return `Acierto cubierto con ${tipo}: conviene estudiar si la incertidumbre era real o si se gastó cobertura de más.`;
+      }
+      if (tipo === "fijo") return `Fallo de fijo: el signo ${oficial} quedó fuera. Para próximos boletos, revisar dinámica reciente, goles encajados y valor de empate/sorpresa antes de cerrar este perfil.`;
+      if (esElige8) return `Fallo en Elige 8: era una selección de confianza y debe penalizarse en el aprendizaje como partido mal priorizado.`;
+      return `Fallo pese a ${tipo}: la cobertura no incluyó el signo real ${oficial}. Aumentar peso de sorpresa, visitante peligroso o empate según el caso.`;
+    }
+
+    function pintarAnalisisAprendizaje(data, validacion) {
+      if (!validacion) {
+        return `
+          <div class="card">
+            <h2>Análisis de aprendizaje</h2>
+            <p>Cuando valides nuestra quiniela, aquí se comparará partido por partido contra el boleto oficial para aprender de aciertos, fallos, coberturas y Elige 8.</p>
+          </div>
+        `;
+      }
+
+      let aciertos = 0;
+      let fallos = 0;
+      let pendientes = 0;
+      let aciertosElige8 = 0;
+      let fallosElige8 = 0;
+      const elige8 = (validacion.elige8 || []).map(Number);
+
+      const filas = (data.partidos || []).map((p, idx) => {
+        const oficial = String(p.signo_oficial || "").trim().toUpperCase();
+        const nuestro = String(validacion.signos?.[idx] || "").trim().toUpperCase();
+        const cerrado = ["1", "X", "2"].includes(oficial);
+        const esElige8 = elige8.includes(Number(p.num));
+        if (!cerrado) {
+          pendientes += 1;
+          return `<tr><td>${p.num}</td><td>${p.local} - ${p.visitante}</td><td>${nuestro || "-"}</td><td>Pendiente</td><td>Pendiente oficial.</td></tr>`;
+        }
+        const acierto = nuestro.includes(oficial);
+        if (acierto) aciertos += 1; else fallos += 1;
+        if (esElige8 && acierto) aciertosElige8 += 1;
+        if (esElige8 && !acierto) fallosElige8 += 1;
+        return `
+          <tr>
+            <td>${p.num}${esElige8 ? " · E8" : ""}</td>
+            <td>${p.local} - ${p.visitante}<br><span class="small-muted">${p.resultado || ""}</span></td>
+            <td>${nuestro || "-"}</td>
+            <td class="${acierto ? "ok" : "ko"}">${acierto ? "Acierto" : "Fallo"} (${oficial})</td>
+            <td>${aprendizajePartido(p, nuestro, acierto, esElige8)}</td>
+          </tr>
+        `;
+      }).join("");
+
+      const plenoOficial = resultadoPlenoOficial(data.pleno15);
+      const plenoNuestro = String(validacion.pleno15 || "").trim();
+      const plenoLectura = data.pleno15 ? (
+        plenoOficial
+          ? (plenoNuestro ? (plenoNuestro === plenoOficial ? `Pleno al 15 acertado: ${plenoNuestro}.` : `Pleno al 15 fallado: jugamos ${plenoNuestro}, oficial ${plenoOficial}. Revisar marcador exacto, no solo signo.`) : `Pleno al 15 oficial ${plenoOficial}, pero no tenemos marcador nuestro guardado.`)
+          : "Pleno al 15 pendiente de resultado oficial."
+      ) : "Sin Pleno al 15 en esta jornada.";
+
+      const conclusion = fallos
+        ? `Aprendizaje principal: hubo ${fallos} fallo(s). La siguiente predicción debe revisar especialmente los fijos fallados, las coberturas que no alcanzaron el signo real y la selección Elige 8.`
+        : pendientes ? "Aprendizaje parcial: quedan partidos pendientes, así que la lectura definitiva se cerrará al completarse la jornada." : "Aprendizaje principal: boleto sin fallos en los 14 signos cerrados.";
+
+      return `
+        <div class="card">
+          <h2>Análisis de aprendizaje</h2>
+          <p><strong>Resumen:</strong> ${aciertos}/14 aciertos, ${fallos} fallos y ${pendientes} pendientes. Elige 8: ${aciertosElige8} aciertos y ${fallosElige8} fallos. ${plenoLectura}</p>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>#</th><th>Partido</th><th>Nuestro</th><th>Resultado</th><th>Aprendizaje</th></tr></thead>
+              <tbody>${filas}</tbody>
+            </table>
+          </div>
+          <p><strong>Solución para el siguiente boleto:</strong> ${conclusion}</p>
+        </div>
+      `;
+    }
+
+    function guardarAprendizajeJornada(data, validacion) {
+      if (!validacion) return;
+      const clave = `aprendizaje_quiniela_${data.jornada}`;
+      let cerrados = 0;
+      let aciertos = 0;
+      (data.partidos || []).forEach((p, idx) => {
+        const oficial = String(p.signo_oficial || "").trim().toUpperCase();
+        if (!["1", "X", "2"].includes(oficial)) return;
+        cerrados += 1;
+        if (String(validacion.signos?.[idx] || "").includes(oficial)) aciertos += 1;
+      });
+      localStorage.setItem(clave, JSON.stringify({
+        jornada: data.jornada,
+        aciertos,
+        partidos_cerrados: cerrados,
+        pleno15_oficial: resultadoPlenoOficial(data.pleno15),
+        pleno15_nuestro: validacion.pleno15 || "",
+        actualizado_en: new Date().toLocaleString("es-ES"),
+      }));
     }
 
     async function generarFormularioValidacion(jornada) {

@@ -107,6 +107,27 @@ def signo_resultado(resultado):
     return "2"
 
 
+def buscar_partido_en_calendario(partido):
+    for archivo in (DATA / "calendario_primera.json", DATA / "calendario_segunda.json"):
+        data = cargar_json(archivo, {})
+        for jornada in data.get("jornadas", []):
+            for p_cal in jornada.get("partidos", []):
+                if contiene_equipo(p_cal.get("local", ""), partido.get("local", "")) and contiene_equipo(p_cal.get("visitante", ""), partido.get("visitante", "")):
+                    return p_cal
+    return None
+
+
+def partido_esta_programado_en_futuro(partido):
+    p_cal = buscar_partido_en_calendario(partido)
+    if not p_cal:
+        return False
+    try:
+        fecha = datetime.fromisoformat(str(p_cal.get("fecha", ""))).date()
+    except ValueError:
+        return False
+    return fecha > datetime.utcnow().date() and str(p_cal.get("estado", "")).lower() != "jugado"
+
+
 def buscar_resultado_final(texto, partido):
     local = partido.get("local", "")
     visitante = partido.get("visitante", "")
@@ -155,6 +176,8 @@ def actualizar_jornada_quiniela(texto):
     cambios = 0
     actualizados = []
     for partido in data.get("partidos", []):
+        if partido_esta_programado_en_futuro(partido):
+            continue
         anterior = partido.get("resultado")
         resultado = buscar_resultado_final(texto, partido)
         if not resultado:
@@ -169,7 +192,7 @@ def actualizar_jornada_quiniela(texto):
 
     pleno = data.get("pleno15") or {}
     if pleno:
-        resultado = buscar_resultado_final(texto, pleno)
+        resultado = None if partido_esta_programado_en_futuro(pleno) else buscar_resultado_final(texto, pleno)
         if resultado and pleno.get("resultado") != resultado:
             pleno["resultado"] = resultado
             pleno["signo_oficial"] = resultado
