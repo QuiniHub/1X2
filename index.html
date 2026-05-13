@@ -666,21 +666,27 @@
     }
 
     async function cargarQuinielasJugadasPersistentes() {
-      const data = await fetchJSON("data/quinielas_jugadas.json", { jugadas: [] });
+      const [data, historial] = await Promise.all([
+        fetchJSON("data/quinielas_jugadas.json", { jugadas: [] }),
+        fetchJSON("data/historial_quinielas.json", { jornadas: [] }),
+      ]);
       quinielasJugadasPersistentes = {};
       (data.jugadas || []).forEach(jugada => {
         const normalizada = normalizarJugadaPersistente(jugada);
         if (normalizada) quinielasJugadasPersistentes[normalizada.jornada] = normalizada;
+      });
+      (historial.jornadas || []).forEach(jugada => {
+        const normalizada = normalizarJugadaPersistente({ ...jugada, origen: "data/historial_quinielas.json" });
+        if (normalizada && !quinielasJugadasPersistentes[normalizada.jornada]) {
+          quinielasJugadasPersistentes[normalizada.jornada] = normalizada;
+        }
       });
     }
 
     function normalizarJugadaPersistente(jugada) {
       const jornada = Number(jugada?.jornada);
       if (!jornada) return null;
-      let signos = Array.isArray(jugada.signos) ? jugada.signos : [];
-      if (!signos.length && typeof jugada.nuestra_quiniela === "string") {
-        signos = jugada.nuestra_quiniela.trim().split(/\s+/);
-      }
+      let signos = extraerSignosJugada(jugada.signos || jugada.nuestra_quiniela);
       if (!signos.length) return null;
       return {
         jornada,
@@ -691,6 +697,16 @@
         origen: jugada.origen || "data/quinielas_jugadas.json",
         persistente: true,
       };
+    }
+
+    function extraerSignosJugada(valor) {
+      if (Array.isArray(valor)) return valor;
+      const texto = String(valor || "").trim().toUpperCase();
+      if (!texto || texto === "NO VALIDADA" || texto === "NO JUGADA") return [];
+      const porEspacios = texto.split(/\s+/).filter(Boolean);
+      if (porEspacios.length > 1) return porEspacios;
+      if (/^[12X]{14}$/.test(texto)) return texto.split("");
+      return [];
     }
 
     function norm(txt) {

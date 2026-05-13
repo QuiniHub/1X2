@@ -19,6 +19,7 @@ CALENDARIOS = {
 
 JORNADAS_QUINIELA = DATA / "jornadas"
 QUINIELAS_JUGADAS = DATA / "quinielas_jugadas.json"
+HISTORIAL_QUINIELAS_JSON = DATA / "historial_quinielas.json"
 HISTORICO_QUINIELAS = ROOT / "historico_quinielas.csv"
 OUT_TEMPORADA = DATA / "temporadas" / TEMPORADA
 OUT_MEMORIA = DATA / "memoria_ia"
@@ -377,22 +378,49 @@ def analizar_jornadas_oficiales():
     }
 
 
+def extraer_signos_jugada(valor):
+    if isinstance(valor, list):
+        return [str(s).strip().upper() for s in valor if str(s).strip()]
+    texto = str(valor or "").strip().upper()
+    if not texto or texto in ("NO VALIDADA", "NO JUGADA"):
+        return []
+    partes = [p for p in texto.split() if p]
+    if len(partes) > 1:
+        return partes
+    if re.fullmatch(r"[12X]{14}", texto):
+        return list(texto)
+    return []
+
+
+def normalizar_jugada(jugada, origen):
+    jornada = jugada.get("jornada")
+    signos = extraer_signos_jugada(jugada.get("signos") or jugada.get("nuestra_quiniela"))
+    if isinstance(jornada, int) and signos:
+        return jornada, {
+            "signos": signos[:14],
+            "elige8": [int(x) for x in jugada.get("elige8", []) if str(x).isdigit()],
+            "pleno15": str(jugada.get("pleno15") or jugada.get("pleno15_nuestro") or "").strip(),
+            "validado_en": jugada.get("validado_en") or "",
+            "origen": jugada.get("origen") or origen,
+        }
+    return None, None
+
+
 def cargar_quinielas_jugadas():
-    data = cargar_json(QUINIELAS_JUGADAS, {"jugadas": []})
+    memoria = cargar_json(QUINIELAS_JUGADAS, {"jugadas": []})
+    historial = cargar_json(HISTORIAL_QUINIELAS_JSON, {"jornadas": []})
     jugadas = {}
-    for jugada in data.get("jugadas", []):
-        jornada = jugada.get("jornada")
-        signos = jugada.get("signos") or []
-        if isinstance(signos, str):
-            signos = signos.split()
-        if isinstance(jornada, int) and signos:
-            jugadas[jornada] = {
-                "signos": [str(s).strip().upper() for s in signos][:14],
-                "elige8": [int(x) for x in jugada.get("elige8", []) if str(x).isdigit()],
-                "pleno15": str(jugada.get("pleno15") or jugada.get("pleno15_nuestro") or "").strip(),
-                "validado_en": jugada.get("validado_en") or "",
-                "origen": jugada.get("origen") or "data/quinielas_jugadas.json",
-            }
+
+    for jugada in memoria.get("jugadas", []):
+        jornada, normalizada = normalizar_jugada(jugada, "data/quinielas_jugadas.json")
+        if normalizada:
+            jugadas[jornada] = normalizada
+
+    for jugada in historial.get("jornadas", []):
+        jornada, normalizada = normalizar_jugada(jugada, "data/historial_quinielas.json")
+        if normalizada and jornada not in jugadas:
+            jugadas[jornada] = normalizada
+
     return jugadas
 
 
