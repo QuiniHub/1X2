@@ -18,6 +18,7 @@ CALENDARIOS = {
 }
 
 JORNADAS_QUINIELA = DATA / "jornadas"
+QUINIELAS_JUGADAS = DATA / "quinielas_jugadas.json"
 HISTORICO_QUINIELAS = ROOT / "historico_quinielas.csv"
 OUT_TEMPORADA = DATA / "temporadas" / TEMPORADA
 OUT_MEMORIA = DATA / "memoria_ia"
@@ -376,6 +377,108 @@ def analizar_jornadas_oficiales():
     }
 
 
+def cargar_quinielas_jugadas():
+    data = cargar_json(QUINIELAS_JUGADAS, {"jugadas": []})
+    jugadas = {}
+    for jugada in data.get("jugadas", []):
+        jornada = jugada.get("jornada")
+        signos = jugada.get("signos") or []
+        if isinstance(signos, str):
+            signos = signos.split()
+        if isinstance(jornada, int) and signos:
+            jugadas[jornada] = {
+                "signos": [str(s).strip().upper() for s in signos][:14],
+                "elige8": [int(x) for x in jugada.get("elige8", []) if str(x).isdigit()],
+                "pleno15": str(jugada.get("pleno15") or jugada.get("pleno15_nuestro") or "").strip(),
+                "validado_en": jugada.get("validado_en") or "",
+                "origen": jugada.get("origen") or "data/quinielas_jugadas.json",
+            }
+    return jugadas
+
+
+def analizar_nuestras_quinielas():
+    jugadas = cargar_quinielas_jugadas()
+    resumen = []
+    total_partidos = 0
+    aciertos = 0
+    fallos = 0
+    elige8_total = 0
+    elige8_aciertos = 0
+    pleno_total = 0
+    pleno_aciertos = 0
+
+    for jornada, jugada in sorted(jugadas.items()):
+        path = JORNADAS_QUINIELA / f"jornada_{jornada}.json"
+        data = cargar_json(path, {})
+        detalle = []
+        jornada_aciertos = 0
+        jornada_fallos = 0
+        for idx, partido in enumerate(data.get("partidos", [])):
+            oficial = str(partido.get("signo_oficial") or "").strip().upper()
+            nuestro = str(jugada["signos"][idx] if idx < len(jugada["signos"]) else "").strip().upper()
+            if oficial not in ("1", "X", "2") or not nuestro:
+                continue
+            acierto = oficial in nuestro
+            total_partidos += 1
+            if acierto:
+                aciertos += 1
+                jornada_aciertos += 1
+            else:
+                fallos += 1
+                jornada_fallos += 1
+            if partido.get("num") in jugada["elige8"]:
+                elige8_total += 1
+                if acierto:
+                    elige8_aciertos += 1
+            detalle.append({
+                "num": partido.get("num"),
+                "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
+                "oficial": oficial,
+                "nuestro": nuestro,
+                "acierto": acierto,
+                "elige8": partido.get("num") in jugada["elige8"],
+            })
+
+        pleno_oficial = str((data.get("pleno15") or {}).get("resultado") or (data.get("pleno15") or {}).get("signo_oficial") or "").strip()
+        pleno_nuestro = jugada.get("pleno15", "")
+        pleno_acierto = None
+        if pleno_oficial and pleno_oficial.lower() != "pendiente" and pleno_nuestro:
+            pleno_total += 1
+            pleno_acierto = pleno_nuestro == pleno_oficial
+            if pleno_acierto:
+                pleno_aciertos += 1
+
+        resumen.append({
+            "jornada": jornada,
+            "aciertos": jornada_aciertos,
+            "fallos": jornada_fallos,
+            "partidos_analizados": jornada_aciertos + jornada_fallos,
+            "pleno15_oficial": pleno_oficial or "Pendiente",
+            "pleno15_nuestro": pleno_nuestro or "No validado",
+            "pleno15_acierto": pleno_acierto,
+            "detalle": detalle,
+        })
+
+    return {
+        "jornadas_validadas": len(jugadas),
+        "partidos_validados": total_partidos,
+        "aciertos": aciertos,
+        "fallos": fallos,
+        "precision": round(aciertos / max(total_partidos, 1) * 100, 2),
+        "elige8": {
+            "selecciones": elige8_total,
+            "aciertos": elige8_aciertos,
+            "precision": round(elige8_aciertos / max(elige8_total, 1) * 100, 2),
+        },
+        "pleno15": {
+            "jugados": pleno_total,
+            "aciertos": pleno_aciertos,
+            "precision": round(pleno_aciertos / max(pleno_total, 1) * 100, 2),
+        },
+        "resumen": resumen,
+    }
+
+
 def pesos_recomendados(ligas, quiniela):
     equis = quiniela["historico_csv"]["frecuencia_global"].get("X", 28)
     doses = quiniela["historico_csv"]["frecuencia_global"].get("2", 27)
@@ -428,6 +531,7 @@ def main():
     quiniela = {
         "historico_csv": analizar_historico_quiniela(),
         "jornadas_oficiales": analizar_jornadas_oficiales(),
+        "nuestras_quinielas": analizar_nuestras_quinielas(),
     }
 
     memoria = {

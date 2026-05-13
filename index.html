@@ -644,6 +644,7 @@
     let partidosJornadaIA = [];
     let pleno15JornadaIA = null;
     let detalleJornadaActual = null;
+    let quinielasJugadasPersistentes = {};
 
     function showTab(id, btn) {
       document.querySelectorAll("main section").forEach(s => s.classList.remove("active"));
@@ -662,6 +663,34 @@
       } catch (e) {
         return fallback;
       }
+    }
+
+    async function cargarQuinielasJugadasPersistentes() {
+      const data = await fetchJSON("data/quinielas_jugadas.json", { jugadas: [] });
+      quinielasJugadasPersistentes = {};
+      (data.jugadas || []).forEach(jugada => {
+        const normalizada = normalizarJugadaPersistente(jugada);
+        if (normalizada) quinielasJugadasPersistentes[normalizada.jornada] = normalizada;
+      });
+    }
+
+    function normalizarJugadaPersistente(jugada) {
+      const jornada = Number(jugada?.jornada);
+      if (!jornada) return null;
+      let signos = Array.isArray(jugada.signos) ? jugada.signos : [];
+      if (!signos.length && typeof jugada.nuestra_quiniela === "string") {
+        signos = jugada.nuestra_quiniela.trim().split(/\s+/);
+      }
+      if (!signos.length) return null;
+      return {
+        jornada,
+        signos: signos.map(s => String(s).trim().toUpperCase()).slice(0, 14),
+        elige8: (jugada.elige8 || []).map(Number),
+        pleno15: String(jugada.pleno15 || jugada.pleno15_nuestro || "").trim(),
+        validado_en: jugada.validado_en || jugada.fecha_validacion || "Memoria persistente",
+        origen: jugada.origen || "data/quinielas_jugadas.json",
+        persistente: true,
+      };
     }
 
     function norm(txt) {
@@ -859,7 +888,7 @@
             <td>${item.pleno15_oficial || "Pendiente"}</td>
             <td>${guardada ? guardada.signos.join(" ") : item.nuestra_quiniela || "No validada"}</td>
             <td>${aciertos}</td>
-            <td>${guardada ? "Validada por nosotros" : item.estado === "cerrada" ? "Cerrada oficial" : "Abierta"}</td>
+            <td>${guardada ? (guardada.persistente ? "Memoria IA" : "Validada en navegador") : item.estado === "cerrada" ? "Cerrada oficial" : "Abierta"}</td>
             <td><button onclick="abrirJornada(${jornada})">Ver boleto</button></td>
           `;
 
@@ -873,10 +902,11 @@
 
     function cargarValidacionLocal(jornada) {
       try {
-        return JSON.parse(localStorage.getItem(`quiniela_validada_${jornada}`) || "null");
+        const local = JSON.parse(localStorage.getItem(`quiniela_validada_${jornada}`) || "null");
+        if (local) return local;
       } catch (e) {
-        return null;
       }
+      return quinielasJugadasPersistentes[Number(jornada)] || null;
     }
 
     function contarAciertosResumen(item, validacion) {
@@ -972,7 +1002,7 @@
           </div>
         ` : "";
         return `
-          <p class="small-muted">Boleto validado por nosotros el ${validacion.validado_en || ""}. Esta jugada se usa en el aprendizaje local de la IA.</p>
+          <p class="small-muted">Boleto validado por nosotros el ${validacion.validado_en || ""}. ${validacion.persistente ? "Esta jugada está guardada en la memoria persistente de la IA." : "Esta jugada está en este navegador; al pasarla a data/quinielas_jugadas.json quedará en memoria permanente."}</p>
           ${filas}
           ${plenoHtml}
           <button onclick="generarFormularioValidacion(${data.jornada})">Editar validación</button>
@@ -1166,13 +1196,15 @@
         .map(p => p.num)
         .slice(0, 8);
       const pleno15 = document.getElementById("manual-pleno15")?.value || "";
-      localStorage.setItem(`quiniela_validada_${jornada}`, JSON.stringify({
+      const validacion = {
         jornada,
         signos,
         elige8,
         pleno15,
         validado_en: new Date().toLocaleString("es-ES"),
-      }));
+        origen: "navegador_pendiente_de_sincronizar",
+      };
+      localStorage.setItem(`quiniela_validada_${jornada}`, JSON.stringify(validacion));
       await abrirJornada(jornada);
       await cargarHistorial();
     }
@@ -1351,7 +1383,7 @@
         const v = cargarValidacionLocal(j.jornada);
         return v ? { jornada: j, validacion: v, aciertos: contarAciertosResumen(j, v) } : null;
       }).filter(Boolean);
-      if (!validaciones.length) return "Todavía no hay quinielas nuestras validadas en este navegador. Cuando valides una jornada, podré comparar signos y contar aciertos.";
+      if (!validaciones.length) return "Todavía no hay quinielas nuestras validadas en la memoria. Cuando añadamos jornadas a data/quinielas_jugadas.json, podré comparar signos, Pleno al 15, dobles, triples y Elige 8.";
       return `Quinielas nuestras validadas: ${validaciones.length}\n${validaciones.map(x => `Jornada ${x.jornada.jornada}: ${x.aciertos}`).join("\n")}`;
     }
 
@@ -1824,10 +1856,15 @@
       `;
     }
 
-    cargarPortada();
-    cargarClasificaciones();
-    cargarHistorial();
-    cargarJornadasQuinielaIA();
+    async function iniciarAplicacion() {
+      await cargarQuinielasJugadasPersistentes();
+      cargarPortada();
+      cargarClasificaciones();
+      cargarHistorial();
+      cargarJornadasQuinielaIA();
+    }
+
+    iniciarAplicacion();
   </script>
 </body>
 </html>
