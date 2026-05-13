@@ -49,7 +49,10 @@ def parse_resultado(resultado):
     m = re.match(r"^\s*(\d+)\s*-\s*(\d+)\s*$", str(resultado or ""))
     if not m:
         return None
-    return int(m.group(1)), int(m.group(2))
+    goles = int(m.group(1)), int(m.group(2))
+    if max(goles) > 15:
+        return None
+    return goles
 
 
 def signo_resultado(resultado):

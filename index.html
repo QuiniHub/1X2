@@ -308,7 +308,7 @@
 
     .manual-row {
       display: grid;
-      grid-template-columns: 34px 1fr 150px;
+      grid-template-columns: 34px 1fr 160px 110px;
       gap: 8px;
       align-items: center;
       padding: 7px 0;
@@ -322,6 +322,19 @@
       border-radius: 8px;
       width: 100%;
       box-sizing: border-box;
+    }
+
+    .manual-el8 {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 12px;
+      color: #1d4ed8;
+      font-weight: 800;
+    }
+
+    .manual-el8 input {
+      width: auto;
     }
 
     .ok {
@@ -925,12 +938,14 @@
         const filas = partidos.map((p, idx) => {
           const oficial = String(p.signo_oficial || "").trim().toUpperCase();
           const nuestro = validacion.signos[idx] || "";
+          const esElige8 = (validacion.elige8 || []).map(Number).includes(Number(p.num));
           const cerrado = ["1", "X", "2"].includes(oficial);
           const acierto = cerrado && String(nuestro).includes(oficial);
           return `
-            <div class="match-row">
+            <div class="match-row ${esElige8 ? "elige8-activo" : ""}">
               <strong>${p.num}.</strong> ${p.local} - ${p.visitante}
               <span class="badge">${nuestro}</span>
+              ${esElige8 ? `<span class="elige8-badge">Elige 8</span>` : ""}
               ${cerrado ? `<span class="${acierto ? "ok" : "ko"}">${acierto ? "Acierto" : "Fallo"}</span>` : `<span class="small-muted">Pendiente oficial</span>`}
             </div>
           `;
@@ -961,10 +976,11 @@
       const nuestro = document.getElementById("boleto-nuestro");
       const partidos = data.partidos || [];
       const guardada = cargarValidacionLocal(jornada);
-      const opciones = ["1", "X", "2"];
+      const opciones = ["1", "X", "2", "1X", "12", "X2", "1X2"];
       nuestro.innerHTML = `
         <div class="manual-form">
           <h3>Validar nuestra quiniela Jornada ${jornada}</h3>
+          <p class="small-muted">Puedes introducir fijos, dobles, triples y marcar los partidos de Elige 8.</p>
           ${partidos.map((p, idx) => `
             <div class="manual-row">
               <strong>${p.num}.</strong>
@@ -972,6 +988,10 @@
               <select id="manual-signo-${idx}">
                 ${opciones.map(op => `<option value="${op}" ${guardada?.signos?.[idx] === op ? "selected" : ""}>${op}</option>`).join("")}
               </select>
+              <label class="manual-el8">
+                <input id="manual-elige8-${idx}" type="checkbox" ${(guardada?.elige8 || []).map(Number).includes(Number(p.num)) ? "checked" : ""}>
+                Elige 8
+              </label>
             </div>
           `).join("")}
           ${data.pleno15 ? `
@@ -979,6 +999,7 @@
               <strong>15.</strong>
               <span>${data.pleno15.local || ""} - ${data.pleno15.visitante || ""}</span>
               <input id="manual-pleno15" value="${guardada?.pleno15 || ""}" placeholder="Ej: 2-1">
+              <span></span>
             </div>
           ` : ""}
           <br>
@@ -991,10 +1012,15 @@
       const data = await fetchJSON(`data/jornadas/jornada_${jornada}.json`, null);
       if (!data) return;
       const signos = (data.partidos || []).map((_, idx) => document.getElementById(`manual-signo-${idx}`)?.value || "1");
+      const elige8 = (data.partidos || [])
+        .filter((p, idx) => document.getElementById(`manual-elige8-${idx}`)?.checked)
+        .map(p => p.num)
+        .slice(0, 8);
       const pleno15 = document.getElementById("manual-pleno15")?.value || "";
       localStorage.setItem(`quiniela_validada_${jornada}`, JSON.stringify({
         jornada,
         signos,
+        elige8,
         pleno15,
         validado_en: new Date().toLocaleString("es-ES"),
       }));
