@@ -49,6 +49,13 @@ def signo_valido(valor):
     return str(valor or "").strip().upper() in {"1", "X", "2"}
 
 
+def pleno15_cerrado(pleno):
+    resultado = str((pleno or {}).get("resultado") or (pleno or {}).get("signo_oficial") or "").strip()
+    if not resultado or resultado.lower() == "pendiente":
+        return False
+    return bool(re.match(r"^\d+\s*-\s*\d+$", resultado))
+
+
 def jornada_numero(path, data):
     numero = data.get("jornada")
     if isinstance(numero, int):
@@ -64,7 +71,7 @@ def resumen_jornada(path):
     pendientes = [p for p in partidos if not signo_valido(p.get("signo_oficial"))]
     actualizados = [p.get("actualizado_en") for p in partidos if p.get("actualizado_en")]
     pleno = data.get("pleno15") or {}
-    pleno_cerrado = bool(pleno.get("resultado") and str(pleno.get("resultado")).lower() != "pendiente")
+    pleno_cerrado = pleno15_cerrado(pleno)
     return {
         "jornada": jornada_numero(path, data),
         "fecha": data.get("fecha") or "",
@@ -72,6 +79,7 @@ def resumen_jornada(path):
         "partidos": len(partidos),
         "cerrados": len(cerrados),
         "pendientes": len(pendientes),
+        "pendientes_totales_con_pleno15": len(pendientes) + (0 if pleno_cerrado or not pleno else 1),
         "pleno15_cerrado": pleno_cerrado,
         "ultima_actualizacion_partido": max(actualizados) if actualizados else "",
         "path": str(path.relative_to(ROOT)).replace("\\", "/"),
@@ -90,10 +98,11 @@ def diagnosticar_jornadas(alertas):
     proxima = max(abiertas, key=lambda j: j["jornada"], default=None)
 
     if jornada_actual and jornada_actual["pendientes"] > 0:
+        pleno_txt = " y el Pleno al 15 pendiente" if not jornada_actual.get("pleno15_cerrado") else ""
         alertas.append({
             "nivel": "media",
             "titulo": "Jornada actual incompleta",
-            "detalle": f"La jornada {jornada_actual['jornada']} tiene {jornada_actual['cerrados']} partidos cerrados y {jornada_actual['pendientes']} pendientes.",
+            "detalle": f"La jornada {jornada_actual['jornada']} tiene {jornada_actual['cerrados']} partidos cerrados, {jornada_actual['pendientes']} partidos normales pendientes{pleno_txt}.",
             "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados.",
         })
 

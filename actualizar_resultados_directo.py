@@ -1,8 +1,9 @@
 import json
 import re
 import unicodedata
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import requests
 from bs4 import BeautifulSoup
@@ -11,6 +12,8 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 JORNADAS = DATA / "jornadas"
+TZ_COMPETICION = ZoneInfo("Europe/Madrid")
+MARGEN_RESULTADO_FINAL = timedelta(minutes=105)
 
 FUENTES_DIRECTO = [
     "https://www.quiniela15.com/resultados-quiniela",
@@ -118,25 +121,36 @@ def signo_resultado(resultado):
     return "2"
 
 
-def buscar_partido_en_calendario(partido):
+def buscar_partidos_en_calendario(partido):
+    encontrados = []
     for archivo in (DATA / "calendario_primera.json", DATA / "calendario_segunda.json"):
         data = cargar_json(archivo, {})
         for jornada in data.get("jornadas", []):
             for p_cal in jornada.get("partidos", []):
                 if contiene_equipo(p_cal.get("local", ""), partido.get("local", "")) and contiene_equipo(p_cal.get("visitante", ""), partido.get("visitante", "")):
-                    return p_cal
-    return None
+                    encontrados.append(p_cal)
+    return encontrados
 
 
 def partido_esta_programado_en_futuro(partido):
-    p_cal = buscar_partido_en_calendario(partido)
-    if not p_cal:
-        return False
-    try:
-        fecha = datetime.fromisoformat(str(p_cal.get("fecha", ""))).date()
-    except ValueError:
-        return False
-    return fecha > datetime.utcnow().date()
+    ahora = datetime.now(TZ_COMPETICION)
+    for p_cal in buscar_partidos_en_calendario(partido):
+        try:
+            fecha = datetime.fromisoformat(str(p_cal.get("fecha", ""))).date()
+        except ValueError:
+            continue
+        if fecha > ahora.date():
+            return True
+        if fecha == ahora.date():
+            hora_txt = str(p_cal.get("hora") or "").strip()
+            m = re.match(r"^(\d{1,2}):(\d{2})$", hora_txt)
+            if not m:
+                return True
+            hora = time(int(m.group(1)), int(m.group(2)))
+            cierre_minimo = datetime.combine(fecha, hora, TZ_COMPETICION) + MARGEN_RESULTADO_FINAL
+            if cierre_minimo > ahora:
+                return True
+    return False
 
 
 def buscar_resultado_final(texto, partido):

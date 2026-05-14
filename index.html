@@ -581,6 +581,8 @@
       <div class="card">
         <h2>Historial de jornadas</h2>
         <p>Jornadas oficiales de La Quiniela, boleto oficial, validaciones propias y memoria para aprendizaje IA.</p>
+        <button onclick="copiarMemoriaPendiente()">Copiar memoria pendiente del navegador</button>
+        <p class="small-muted">Si una quiniela aparece validada solo en este navegador, este botón permite pasarla a memoria persistente de GitHub.</p>
         <div class="table-wrapper">
           <table>
             <thead>
@@ -1070,8 +1072,10 @@
     function pintarEstadoVivo(estado) {
       const jornada = estado.jornada_actual || {};
       const pred = estado.prediccion_objetivo || {};
+      const pleno = jornada.pleno15 || {};
+      const totalPendientes = jornada.pendientes_totales_con_pleno15 ?? jornada.pendientes ?? 0;
       return `
-        <p><strong>Jornada actual:</strong> ${jornada.jornada || "-"} · cerrados ${jornada.cerrados ?? 0}, pendientes ${jornada.pendientes ?? 0}. Signos: 1=${jornada.distribucion_signos?.["1"] ?? 0}, X=${jornada.distribucion_signos?.["X"] ?? 0}, 2=${jornada.distribucion_signos?.["2"] ?? 0}.</p>
+        <p><strong>Jornada actual:</strong> ${jornada.jornada || "-"} · partidos cerrados ${jornada.cerrados ?? 0}/${jornada.partidos ?? 14}, pendientes normales ${jornada.pendientes ?? 0}, Pleno al 15 ${pleno.estado || "sin datos"} (${totalPendientes} pendientes contando Pleno). Signos: 1=${jornada.distribucion_signos?.["1"] ?? 0}, X=${jornada.distribucion_signos?.["X"] ?? 0}, 2=${jornada.distribucion_signos?.["2"] ?? 0}.</p>
         <p><strong>Predicción que está recalibrando:</strong> Jornada ${pred.jornada || 63}. Fijos ${pred.configuracion_actual?.fijos ?? "-"}, dobles ${pred.configuracion_actual?.dobles ?? "-"}, triples ${pred.configuracion_actual?.triples ?? "-"}.</p>
         ${pintarListaEstado("Qué ha cambiado", estado.que_ha_cambiado, x => `<li>${x.partido || ""}: ${x.resultado || ""} (${x.signo || ""}). ${x.lectura || ""}</li>`)}
         ${pintarListaEstado("Qué aprende ahora", estado.que_aprende, x => `<li>${x}</li>`)}
@@ -1104,7 +1108,7 @@
 
       return `
         <p><strong>Salud:</strong> ${diagnostico.estado || "-"} (${diagnostico.score_salud ?? "-"} / 100).</p>
-        <p><strong>Jornada vigilada:</strong> ${actual.jornada || "-"} con ${actual.cerrados ?? 0}/${actual.partidos ?? 0} partidos cerrados. Riesgo de azar jornada ${pred.jornada || "-"}: ${pred.riesgo_azar || "-"}.</p>
+        <p><strong>Jornada vigilada:</strong> ${actual.jornada || "-"} con ${actual.cerrados ?? 0}/${actual.partidos ?? 0} partidos cerrados, ${actual.pendientes ?? 0} pendientes normales y Pleno al 15 ${actual.pleno15_cerrado ? "cerrado" : "pendiente"}. Riesgo de azar jornada ${pred.jornada || "-"}: ${pred.riesgo_azar || "-"}.</p>
         <p><strong>Memoria propia:</strong> ${memoria.estado || "-"}; jugadas persistidas ${memoria.jugadas_persistidas_json ?? 0}, jornadas con signos nuestros ${memoria.jornadas_con_signo_nuestro ?? 0}.</p>
         ${pintarListaEstado("Alertas de calidad", alertas, x => `<li><strong>${x.nivel || ""}:</strong> ${x.titulo || ""}. ${x.detalle || ""} ${x.accion || ""}</li>`)}
         ${pintarListaEstado("Partidos donde manda el azar", trampas, x => `<li>${x.num}. ${x.partido}: ${x.signo}, prob. top ${x.probabilidad_top}%, margen ${x.margen}, incertidumbre ${x.incertidumbre}.</li>`)}
@@ -1514,6 +1518,39 @@
       try {
         await navigator.clipboard.writeText(texto);
         alert("Jugada copiada. Esta es la pieza que debe entrar en data/quinielas_jugadas.json para memoria permanente.");
+      } catch (e) {
+        alert(texto);
+      }
+    }
+
+    async function copiarMemoriaPendiente() {
+      const jugadas = [];
+      Object.keys(localStorage)
+        .filter(clave => clave.startsWith("quiniela_validada_"))
+        .forEach(clave => {
+          try {
+            const validacion = JSON.parse(localStorage.getItem(clave) || "null");
+            if (validacion) jugadas.push(jugadaParaMemoria(validacion));
+          } catch (e) {}
+        });
+      try {
+        const pendientes = JSON.parse(localStorage.getItem("quinielas_pendientes_memoria_ia") || "[]");
+        pendientes.forEach(validacion => jugadas.push(jugadaParaMemoria(validacion)));
+      } catch (e) {}
+
+      const unicas = {};
+      jugadas.forEach(jugada => {
+        if (jugada.signos?.length >= 14) unicas[Number(jugada.jornada)] = jugada;
+      });
+      const salida = Object.values(unicas).sort((a, b) => Number(a.jornada) - Number(b.jornada));
+      if (!salida.length) {
+        alert("No hay quinielas locales pendientes de pasar a memoria.");
+        return;
+      }
+      const texto = JSON.stringify({ jugadas: salida }, null, 2);
+      try {
+        await navigator.clipboard.writeText(texto);
+        alert(`Memoria copiada: ${salida.length} quiniela(s).`);
       } catch (e) {
         alert(texto);
       }

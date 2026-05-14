@@ -80,6 +80,15 @@ def signo_resultado(resultado):
     return "2"
 
 
+def pleno15_cerrado(pleno):
+    if not pleno:
+        return False
+    resultado = str(pleno.get("resultado") or pleno.get("signo_oficial") or "").strip()
+    if not resultado or resultado.lower() == "pendiente":
+        return False
+    return bool(re.match(r"^\d+\s*-\s*\d+$", resultado))
+
+
 def top_probabilidad(partido):
     probs = partido.get("probabilidades") or {}
     orden = sorted(((signo, float(valor)) for signo, valor in probs.items()), key=lambda x: x[1], reverse=True)
@@ -131,10 +140,20 @@ def cambios_jornada_actual(jornada):
             })
         else:
             pendientes += 1
+    pleno = jornada.get("pleno15") or {}
+    pleno_cerrado = pleno15_cerrado(pleno)
+    pleno_estado = "cerrado" if pleno_cerrado else "pendiente" if pleno else "sin_datos"
     return {
         "jornada": jornada.get("jornada"),
+        "partidos": len(jornada.get("partidos", [])),
         "cerrados": cerrados,
         "pendientes": pendientes,
+        "pendientes_totales_con_pleno15": pendientes + (0 if pleno_cerrado or not pleno else 1),
+        "pleno15": {
+            "estado": pleno_estado,
+            "partido": f"{pleno.get('local', '')} - {pleno.get('visitante', '')}".strip(" -"),
+            "resultado": pleno.get("resultado") or "Pendiente",
+        },
         "distribucion_signos": {k: signos[k] for k in ("1", "X", "2")},
         "resultados_nuevos_o_vigentes": cambios[-8:],
     }
@@ -293,8 +312,8 @@ def duda_partido(partido):
 
 def autocritica(jornada_actual, prediccion, memoria):
     criticas = []
-    if jornada_actual.get("pendientes", 0):
-        criticas.append("Lectura provisional: no debo cerrar conclusiones fuertes mientras la jornada actual tenga partidos pendientes.")
+    if jornada_actual.get("pendientes_totales_con_pleno15", jornada_actual.get("pendientes", 0)):
+        criticas.append("Lectura provisional: no debo cerrar conclusiones fuertes mientras la jornada actual tenga partidos pendientes o el Pleno al 15 abierto.")
     if (prediccion.get("resumen") or {}).get("fijos", 0) >= 14:
         criticas.append("Autocritica: una quiniela con 14 fijos es demasiado rigida para una jornada con varios partidos equilibrados; deberia sugerir dobles/triples en los mayores riesgos.")
     propias = ((memoria.get("quiniela") or {}).get("nuestras_quinielas") or {})

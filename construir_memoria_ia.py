@@ -81,6 +81,22 @@ def signo_resultado(resultado):
     return "2"
 
 
+def pareja_partido(local, visitante):
+    return limpiar_nombre(local), limpiar_nombre(visitante)
+
+
+def partidos_pendientes_en_quiniela():
+    pendientes = set()
+    for path in JORNADAS_QUINIELA.glob("jornada_*.json"):
+        data = cargar_json(path, {})
+        for partido in data.get("partidos", []):
+            signo = str(partido.get("signo_oficial") or "").strip().upper()
+            if signo in {"1", "X", "2"}:
+                continue
+            pendientes.add(pareja_partido(partido.get("local", ""), partido.get("visitante", "")))
+    return pendientes
+
+
 def equipo_base(nombre):
     return {
         "equipo": nombre,
@@ -233,6 +249,7 @@ def completar_equipo(equipo):
 
 def analizar_liga(nombre_liga, path):
     data = cargar_json(path, {})
+    pendientes_quiniela = partidos_pendientes_en_quiniela()
     stats = {}
     signos = Counter()
     sorpresas = []
@@ -245,6 +262,10 @@ def analizar_liga(nombre_liga, path):
             signo = signo_resultado(resultado)
             local_nombre = partido.get("local", "")
             visitante_nombre = partido.get("visitante", "")
+
+            if pareja_partido(local_nombre, visitante_nombre) in pendientes_quiniela:
+                partidos_pendientes += 1
+                continue
 
             if not signo:
                 partidos_pendientes += 1
