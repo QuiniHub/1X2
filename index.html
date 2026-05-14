@@ -185,6 +185,27 @@
       background: #0f766e;
     }
 
+    .jornadas-grid button.validada {
+      background: #e8f7ee;
+      border-color: #63c68a;
+      color: #14532d;
+      font-weight: 800;
+    }
+
+    .jornadas-grid button.pendiente-sync {
+      background: #fff7ed;
+      border-color: #fb923c;
+      color: #9a3412;
+      font-weight: 800;
+    }
+
+    .jornadas-grid button.active.validada,
+    .jornadas-grid button.active.pendiente-sync {
+      background: #0f766e;
+      color: #fff;
+      border-color: #0f766e;
+    }
+
     .config-grid {
       display: flex;
       gap: 14px;
@@ -1565,6 +1586,7 @@
       };
       localStorage.setItem(`quiniela_validada_${jornada}`, JSON.stringify(validacion));
       guardarPendientePersistencia(validacion);
+      actualizarBotonJornadaQuiniela(jornada);
       await abrirJornada(jornada);
       await cargarHistorial();
     }
@@ -1900,10 +1922,27 @@
 
       contenedor.innerHTML = "";
       for (let j = 1; j <= 63; j++) {
-        contenedor.innerHTML += `<button id="btn-jornada-${j}" onclick="abrirQuinielaIA(${j})">Jornada ${j}</button>`;
+        contenedor.innerHTML += botonJornadaQuiniela(j);
       }
 
       abrirQuinielaIA(63);
+    }
+
+    function botonJornadaQuiniela(jornada) {
+      const validacion = cargarValidacionLocal(jornada);
+      const clase = validacion ? (validacion.persistente ? "validada" : "pendiente-sync") : "";
+      const marca = validacion ? " ✓" : "";
+      return `<button id="btn-jornada-${jornada}" class="${clase}" onclick="abrirQuinielaIA(${jornada})">Jornada ${jornada}${marca}</button>`;
+    }
+
+    function actualizarBotonJornadaQuiniela(jornada) {
+      const boton = document.getElementById(`btn-jornada-${jornada}`);
+      if (!boton) return;
+      const temporal = document.createElement("div");
+      temporal.innerHTML = botonJornadaQuiniela(jornada);
+      const nuevo = temporal.firstElementChild;
+      if (boton.classList.contains("active")) nuevo.classList.add("active");
+      boton.replaceWith(nuevo);
     }
 
     async function abrirQuinielaIA(jornada) {
@@ -1920,9 +1959,14 @@
 
       document.querySelectorAll("#lista-jornadas-quiniela button").forEach(btn => btn.classList.remove("active"));
       document.getElementById(`btn-jornada-${jornada}`)?.classList.add("active");
-      document.getElementById("titulo-jornada-ia").textContent = `Jornada ${jornada}`;
+      const validacion = cargarValidacionLocal(jornada);
+      const estado = estadoMemoriaJornada(validacion);
+      document.getElementById("titulo-jornada-ia").innerHTML = validacion
+        ? `Jornada ${jornada} <span class="${estado.clase}">· ${estado.etiqueta}</span>`
+        : `Jornada ${jornada}`;
 
-      pintarBoletoVacioIA();
+      if (validacion) pintarBoletoValidadoEnQuinielas(data, validacion);
+      else pintarBoletoVacioIA();
       calcularImporteIA();
     }
 
@@ -1976,6 +2020,70 @@
             <div class="signos-ia"><span>?</span></div>
           </div>
         ` : ""}
+      `;
+    }
+
+    function pintarBoletoValidadoEnQuinielas(data, validacion) {
+      const contenedor = document.getElementById("boleto-ia");
+      const partidos14 = (data.partidos || []).filter(p => Number(p.num) <= 14);
+      const elige8Set = new Set((validacion.elige8 || []).map(Number));
+      const estado = estadoMemoriaJornada(validacion);
+      const pleno = data.pleno15 || null;
+      const plenoOficial = resultadoPlenoOficial(pleno);
+      const plenoNuestro = String(validacion.pleno15 || "").trim();
+      const plenoAcierto = plenoOficial && plenoNuestro && plenoNuestro === plenoOficial;
+
+      contenedor.innerHTML = `
+        <div class="manual-form">
+          <h3>Boleto nuestro ya cargado</h3>
+          <p class="small-muted">
+            Esta jornada ya tiene una quiniela nuestra. Si viene de Historial, la uso aqui sin obligarte a generarla otra vez en Quinielas.
+            <strong class="${estado.clase}">${estado.etiqueta}:</strong> ${estado.detalle}
+          </p>
+          ${!validacion.persistente ? `<button onclick="copiarJugadaPersistente(${data.jornada})">Copiar jugada para memoria IA</button>` : ""}
+        </div>
+
+        ${partidos14.map((p, idx) => {
+          const nuestro = String(validacion.signos?.[idx] || "").trim().toUpperCase();
+          const oficial = String(p.signo_oficial || "").trim().toUpperCase();
+          const cerrado = ["1", "X", "2"].includes(oficial);
+          const acierto = cerrado && nuestro.includes(oficial);
+          const esElige8 = elige8Set.has(Number(p.num));
+          return `
+            <div class="fila-boleto ${esElige8 ? "elige8-activo" : ""}">
+              <div>${p.num}</div>
+              <div>
+                <strong>${p.local} - ${p.visitante}</strong><br>
+                <small>${p.resultado || "Resultado pendiente"} ${cerrado ? `· oficial ${oficial}` : ""}</small>
+                ${esElige8 ? `<br><span class="elige8-badge">Elige 8</span>` : ""}
+              </div>
+              <div class="signos-ia">
+                ${nuestro.split("").map(s => `<span>${s}</span>`).join("") || "<span>?</span>"}
+                ${cerrado ? `<br><small class="${acierto ? "ok" : "ko"}">${acierto ? "Acierto" : "Fallo"}</small>` : `<br><small class="small-muted">Pendiente</small>`}
+              </div>
+            </div>
+          `;
+        }).join("")}
+
+        ${pleno ? `
+          <div class="fila-boleto pleno15">
+            <div>15</div>
+            <div>
+              <strong>Pleno al 15</strong><br>
+              <small>${pleno.local || ""} - ${pleno.visitante || ""}</small><br>
+              <small>${plenoOficial ? `Oficial ${plenoOficial}` : "Pendiente oficial"}</small>
+            </div>
+            <div class="signos-ia">
+              <span>${plenoNuestro || "?"}</span>
+              ${plenoOficial && plenoNuestro ? `<br><small class="${plenoAcierto ? "ok" : "ko"}">${plenoAcierto ? "Acierto" : "Fallo"}</small>` : ""}
+            </div>
+          </div>
+        ` : ""}
+
+        <div class="manual-form">
+          <button onclick="abrirJornada(${data.jornada})">Editar en Historial</button>
+          <button onclick="generarBoletoIA()">Generar nueva prediccion IA</button>
+        </div>
       `;
     }
 
