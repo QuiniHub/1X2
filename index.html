@@ -603,7 +603,7 @@
         <h2>Historial de jornadas</h2>
         <p>Jornadas oficiales de La Quiniela, boleto oficial, validaciones propias y memoria para aprendizaje IA.</p>
         <button onclick="copiarMemoriaPendiente()">Copiar memoria pendiente del navegador</button>
-        <button onclick="sincronizarMemoriaRealGitHub()">Sincronizar memoria real con GitHub</button>
+        <button onclick="sincronizarMemoriaRealGitHub()">Enviar memoria a GitHub sin token</button>
         <p class="small-muted">Si una quiniela aparece validada solo en este navegador, este botón permite pasarla a memoria persistente de GitHub.</p>
         <div class="table-wrapper">
           <table>
@@ -1376,7 +1376,7 @@
           <div class="manual-form">
             <p class="small-muted">Pendiente de memoria real: esta validacion esta guardada en este navegador, pero GitHub Actions no puede leer localStorage.</p>
             <button onclick="copiarJugadaPersistente(${data.jornada})">Copiar jugada para memoria IA</button>
-            <button onclick="sincronizarMemoriaRealGitHub()">Sincronizar memoria real con GitHub</button>
+            <button onclick="sincronizarMemoriaRealGitHub()">Enviar memoria a GitHub sin token</button>
           </div>
         `;
         return `
@@ -1654,63 +1654,34 @@
         return;
       }
 
-      const token = prompt("Pega un token de GitHub con permiso contents:write. No se guardara en la web.");
-      if (!token) return;
-
-      const api = "https://api.github.com/repos/QuiniHub/1X2/contents/data/quinielas_jugadas.json";
-      try {
-        const actual = await fetch(api + "?ref=main", {
-          headers: {
-            "Accept": "application/vnd.github+json",
-            "Authorization": `Bearer ${token}`,
-            "X-GitHub-Api-Version": "2022-11-28"
-          }
-        });
-        if (!actual.ok) throw new Error(`No se pudo leer memoria real (${actual.status}).`);
-        const archivo = await actual.json();
-        const memoria = JSON.parse(decodificarBase64Unicode(archivo.content) || '{"jugadas":[]}');
-        const porJornada = {};
-        (memoria.jugadas || []).forEach(jugada => {
-          if (Number(jugada.jornada)) porJornada[Number(jugada.jornada)] = jugada;
-        });
-        pendientes.forEach(jugada => {
-          porJornada[Number(jugada.jornada)] = {
-            ...porJornada[Number(jugada.jornada)],
-            ...jugada,
-            origen: "sincronizada_desde_historial_web",
-          };
-        });
-
-        const salida = {
-          version: memoria.version || "1.0",
-          descripcion: memoria.descripcion || "Quinielas jugadas por nosotros para aprendizaje IA.",
-          actualizado_en: new Date().toISOString(),
-          jugadas: Object.values(porJornada).sort((a, b) => Number(a.jornada) - Number(b.jornada)),
-        };
-
-        const respuesta = await fetch(api, {
-          method: "PUT",
-          headers: {
-            "Accept": "application/vnd.github+json",
-            "Authorization": `Bearer ${token}`,
-            "X-GitHub-Api-Version": "2022-11-28"
-          },
-          body: JSON.stringify({
-            message: `Sincronizar quinielas jugadas (${pendientes.map(j => j.jornada).join(", ")})`,
-            content: codificarBase64Unicode(JSON.stringify(salida, null, 2)),
-            sha: archivo.sha,
-            branch: "main",
-          })
-        });
-        if (!respuesta.ok) {
-          const detalle = await respuesta.text();
-          throw new Error(`GitHub no acepto la sincronizacion (${respuesta.status}): ${detalle}`);
+      const payload = {
+        tipo: "memoria_quinielas_jugadas",
+        generado_en: new Date().toISOString(),
+        origen: "github_pages_sin_token",
+        jugadas: pendientes,
+      };
+      const body = [
+        "Solicitud automatica de memoria real para Quiniela IA.",
+        "",
+        "Al crear esta solicitud, GitHub Actions actualizara `data/quinielas_jugadas.json`, cerrara este issue y recalculara la memoria en la siguiente actualizacion.",
+        "",
+        "```json",
+        JSON.stringify(payload, null, 2),
+        "```"
+      ].join("\n");
+      const title = `Memoria Quiniela IA ${pendientes.map(j => j.jornada).join(", ")}`;
+      const url = `https://github.com/QuiniHub/1X2/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+      if (url.length > 7000) {
+        try {
+          await navigator.clipboard.writeText(body);
+          window.open(`https://github.com/QuiniHub/1X2/issues/new?title=${encodeURIComponent(title)}`, "_blank", "noopener,noreferrer");
+          alert("La memoria era grande y se ha copiado al portapapeles. En GitHub pega el texto en el cuerpo del issue y pulsa Create/New issue.");
+        } catch (e) {
+          alert(body);
         }
-
-        localStorage.setItem("quinielas_pendientes_memoria_ia", "[]");
-        alert(`Memoria real sincronizada: ${pendientes.length} quiniela(s). GitHub Actions recalculara el aprendizaje y la web se actualizara en unos minutos.`);
-      } catch (e) {
-        alert(`No se pudo sincronizar con GitHub: ${e.message}`);
+      } else {
+        window.open(url, "_blank", "noopener,noreferrer");
+        alert("Se abrira GitHub con la memoria preparada. Solo tienes que pulsar Create/New issue. GitHub Actions la pasara a data/ automaticamente, sin token.");
       }
     }
 
@@ -2215,6 +2186,10 @@
       const partidos14 = partidosJornadaIA.filter(p => Number(p.num) <= 14);
 
       contenedor.innerHTML = `
+        <div class="manual-form">
+          <button onclick="generarFormularioValidacionQuinielas(${jornadaActualIA})">Introducir manual y validar</button>
+        </div>
+
         ${partidos14.map(p => `
           <div class="fila-boleto">
             <div>${p.num}</div>
@@ -2236,6 +2211,69 @@
       `;
     }
 
+    async function generarFormularioValidacionQuinielas(jornada) {
+      const data = await fetchJSON(`data/jornadas/jornada_${jornada}.json`, null);
+      if (!data) return;
+      const contenedor = document.getElementById("boleto-ia");
+      const partidos = (data.partidos || []).filter(p => Number(p.num) <= 14);
+      const guardada = cargarValidacionLocal(jornada);
+      const opciones = ["1", "X", "2", "1X", "12", "X2", "1X2"];
+      contenedor.innerHTML = `
+        <div class="manual-form">
+          <h3>Introducir quiniela manual Jornada ${jornada}</h3>
+          <p class="small-muted">Puedes poner fijos, dobles, triples y marcar Elige 8. Al validar quedara en el navegador y podras enviarla a memoria real sin token.</p>
+          ${partidos.map((p, idx) => `
+            <div class="manual-row">
+              <strong>${p.num}.</strong>
+              <span>${p.local} - ${p.visitante}</span>
+              <select id="ia-manual-signo-${idx}">
+                ${opciones.map(op => `<option value="${op}" ${guardada?.signos?.[idx] === op ? "selected" : ""}>${op}</option>`).join("")}
+              </select>
+              <label class="manual-el8">
+                <input id="ia-manual-elige8-${idx}" type="checkbox" ${(guardada?.elige8 || []).map(Number).includes(Number(p.num)) ? "checked" : ""}>
+                Elige 8
+              </label>
+            </div>
+          `).join("")}
+          ${data.pleno15 ? `
+            <div class="manual-row pleno15">
+              <strong>15.</strong>
+              <span>${data.pleno15.local || ""} - ${data.pleno15.visitante || ""}</span>
+              <input id="ia-manual-pleno15" value="${guardada?.pleno15 || ""}" placeholder="Ej: 2-1">
+              <span></span>
+            </div>
+          ` : ""}
+          <br>
+          <button onclick="validarManualQuinielas(${jornada})">Validar en Quinielas</button>
+        </div>
+      `;
+    }
+
+    async function validarManualQuinielas(jornada) {
+      const data = await fetchJSON(`data/jornadas/jornada_${jornada}.json`, null);
+      if (!data) return;
+      const partidos = (data.partidos || []).filter(p => Number(p.num) <= 14);
+      const signos = partidos.map((_, idx) => document.getElementById(`ia-manual-signo-${idx}`)?.value || "1");
+      const elige8 = partidos
+        .filter((p, idx) => document.getElementById(`ia-manual-elige8-${idx}`)?.checked)
+        .map(p => p.num)
+        .slice(0, 8);
+      const validacion = {
+        jornada,
+        signos,
+        elige8,
+        pleno15: document.getElementById("ia-manual-pleno15")?.value || "",
+        validado_en: new Date().toLocaleString("es-ES"),
+        origen: "navegador_pendiente_de_sincronizar",
+      };
+      localStorage.setItem(`quiniela_validada_${jornada}`, JSON.stringify(validacion));
+      guardarPendientePersistencia(validacion);
+      actualizarBotonJornadaQuiniela(jornada);
+      await abrirQuinielaIA(jornada);
+      await cargarHistorial();
+      await cargarAnalisisIA();
+    }
+
     function pintarBoletoValidadoEnQuinielas(data, validacion) {
       const contenedor = document.getElementById("boleto-ia");
       const partidos14 = (data.partidos || []).filter(p => Number(p.num) <= 14);
@@ -2253,7 +2291,7 @@
             Esta jornada ya tiene una quiniela nuestra. Si viene de Historial, la uso aqui sin obligarte a generarla otra vez en Quinielas.
             <strong class="${estado.clase}">${estado.etiqueta}:</strong> ${estado.detalle}
           </p>
-          ${!validacion.persistente ? `<button onclick="copiarJugadaPersistente(${data.jornada})">Copiar jugada para memoria IA</button> <button onclick="sincronizarMemoriaRealGitHub()">Sincronizar memoria real con GitHub</button>` : ""}
+          ${!validacion.persistente ? `<button onclick="copiarJugadaPersistente(${data.jornada})">Copiar jugada para memoria IA</button> <button onclick="sincronizarMemoriaRealGitHub()">Enviar memoria a GitHub sin token</button>` : ""}
         </div>
 
         ${partidos14.map((p, idx) => {
@@ -2294,7 +2332,7 @@
         ` : ""}
 
         <div class="manual-form">
-          <button onclick="abrirJornada(${data.jornada})">Editar en Historial</button>
+          <button onclick="generarFormularioValidacionQuinielas(${data.jornada})">Editar manual aqui</button>
           <button onclick="generarBoletoIA()">Generar nueva prediccion IA</button>
         </div>
       `;

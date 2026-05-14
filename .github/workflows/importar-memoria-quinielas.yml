@@ -1,0 +1,124 @@
+name: Importar memoria de quinielas
+
+on:
+  issues:
+    types:
+      - opened
+      - edited
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  importar:
+    if: contains(github.event.issue.title, 'Memoria Quiniela IA')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Importar jugadas del issue
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import re
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text(encoding="utf-8"))
+          body = event.get("issue", {}).get("body") or ""
+          match = re.search(r"```json\s*(\{.*?\})\s*```", body, re.S)
+          if not match:
+              raise SystemExit("No se encontro bloque JSON en el issue.")
+
+          payload = json.loads(match.group(1))
+          jugadas = payload.get("jugadas") or []
+          if not isinstance(jugadas, list):
+              raise SystemExit("El campo jugadas debe ser una lista.")
+
+          path = Path("data/quinielas_jugadas.json")
+          if path.exists():
+              memoria = json.loads(path.read_text(encoding="utf-8"))
+          else:
+              memoria = {
+                  "version": "1.0",
+                  "descripcion": "Quinielas jugadas por nosotros para aprendizaje IA.",
+                  "jugadas": [],
+              }
+
+          def limpiar_signos(valor):
+              if not isinstance(valor, list):
+                  return []
+              salida = []
+              for signo in valor[:14]:
+                  limpio = re.sub(r"[^1X2]", "", str(signo).upper())
+                  if not limpio:
+                      return []
+                  salida.append(limpio[:3])
+              return salida
+
+          por_jornada = {}
+          for jugada in memoria.get("jugadas", []):
+              try:
+                  jornada = int(jugada.get("jornada"))
+              except Exception:
+                  continue
+              por_jornada[jornada] = jugada
+
+          importadas = []
+          for jugada in jugadas:
+              try:
+                  jornada = int(jugada.get("jornada"))
+              except Exception:
+                  continue
+              signos = limpiar_signos(jugada.get("signos") or [])
+              if len(signos) < 14:
+                  continue
+              nueva = {
+                  **por_jornada.get(jornada, {}),
+                  "jornada": jornada,
+                  "signos": signos[:14],
+                  "elige8": [int(x) for x in (jugada.get("elige8") or []) if str(x).isdigit()][:8],
+                  "pleno15": str(jugada.get("pleno15") or "").strip(),
+                  "validado_en": jugada.get("validado_en") or datetime.now(timezone.utc).isoformat(),
+                  "origen": "issue_memoria_sin_token",
+              }
+              por_jornada[jornada] = nueva
+              importadas.append(jornada)
+
+          if not importadas:
+              raise SystemExit("No habia jugadas validas para importar.")
+
+          memoria["version"] = memoria.get("version") or "1.0"
+          memoria["descripcion"] = memoria.get("descripcion") or "Quinielas jugadas por nosotros para aprendizaje IA."
+          memoria["actualizado_en"] = datetime.now(timezone.utc).isoformat()
+          memoria["jugadas"] = [por_jornada[j] for j in sorted(por_jornada)]
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text(json.dumps(memoria, ensure_ascii=False, indent=2), encoding="utf-8")
+          Path("importadas.txt").write_text(", ".join(str(j) for j in sorted(set(importadas))), encoding="utf-8")
+          PY
+
+      - name: Commit de memoria
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add data/quinielas_jugadas.json
+          if git diff --cached --quiet; then
+            echo "Sin cambios que guardar"
+          else
+            git commit -m "Importar quinielas jugadas desde issue #${{ github.event.issue.number }}"
+            git push
+          fi
+
+      - name: Cerrar issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          IMPORTADAS="$(cat importadas.txt)"
+          gh issue comment "${{ github.event.issue.number }}" --body "Memoria importada correctamente. Jornadas: ${IMPORTADAS}. La actualizacion automatica recalculara el aprendizaje."
+          gh issue close "${{ github.event.issue.number }}" --reason completed
