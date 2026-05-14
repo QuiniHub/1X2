@@ -38,8 +38,8 @@ ALIAS = {
     "Valencia CF": ["Valencia"],
     "Girona FC": ["Girona"],
     "Real Oviedo": ["Oviedo", "Real Oviedo"],
-    "Real Racing Club de Santander": ["Racing", "Racing Santander"],
-    "RC Deportivo de La Coruña": ["Deportivo", "Deportivo La Coruña", "Deportivo La Coruna"],
+    "Real Racing Club de Santander": ["R. Racing Club", "Racing", "Racing Santander"],
+    "RC Deportivo de La Coruña": ["RC Deportivo", "Deportivo", "Deportivo La Coruña", "Deportivo La Coruna"],
     "UD Almería": ["Almería", "Almeria"],
     "UD Las Palmas": ["Las Palmas"],
     "CD Castellón": ["Castellón", "Castellon"],
@@ -50,14 +50,14 @@ ALIAS = {
     "Granada CF": ["Granada"],
     "FC Andorra": ["Andorra"],
     "Córdoba CF": ["Córdoba", "Cordoba"],
-    "Real Sporting de Gijón": ["Sporting", "Sporting de Gijón", "Sporting de Gijon"],
+    "Real Sporting de Gijón": ["Real Sporting", "Sporting", "Sporting de Gijón", "Sporting de Gijon"],
     "Málaga CF": ["Málaga", "Malaga"],
-    "Albacete Balompié": ["Albacete"],
+    "Albacete Balompié": ["Albacete BP", "Albacete"],
     "CD Leganés": ["Leganés", "Leganes"],
-    "Real Sociedad B": ["Real Sociedad B"],
+    "Real Sociedad B": ["R. Sociedad B", "Real Sociedad B"],
     "Cádiz CF": ["Cádiz", "Cadiz"],
     "SD Huesca": ["Huesca"],
-    "Cultural Leonesa": ["Cultural Leonesa", "Cultural"],
+    "Cultural Leonesa": ["Cultural y Deportiva Leonesa", "Cultural Leonesa", "Cultural"],
     "CD Mirandés": ["Mirandés", "Mirandes"],
     "Real Zaragoza": ["Zaragoza"],
 }
@@ -117,7 +117,13 @@ def descargar_texto(url):
 
 
 def patrones_alias(nombre):
-    candidatos = ALIAS.get(nombre, []) + [nombre]
+    candidatos = []
+    clave_nombre = normalizar(nombre)
+    for equipo, aliases in ALIAS.items():
+        if normalizar(equipo) == clave_nombre:
+            candidatos.extend(aliases)
+            break
+    candidatos.append(nombre)
     vistos = set()
     for candidato in candidatos:
         clave = normalizar(candidato)
@@ -131,9 +137,9 @@ def buscar_fila(texto, nombre):
     mejor = None
     for alias in patrones_alias(nombre):
         patron = re.compile(
-            rf"(?:^|\s)(?:(\d{{1,2}})\.\s*)?{re.escape(alias)}\s+"
-            r"(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+"
-            r"(\d{1,3})\s*:\s*(\d{1,3})\s+([+-]?\d{1,3})\s+(\d{1,3})(?=\s|$)",
+            rf"(?:^|\s)(?:(\d{{1,2}})\s+)?(?:[a-z]{{2,4}}\s+)?{re.escape(alias)}\s+"
+            r"(\d{1,3})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+"
+            r"(\d{1,3})\s+(\d{1,3})\s+([+-]?\d{1,3})(?=\s|$)",
             re.I,
         )
         match = patron.search(normalizado)
@@ -141,7 +147,7 @@ def buscar_fila(texto, nombre):
             mejor = match
     if not mejor:
         return None
-    pos, pj, g, e, p, gf, gc, dg, puntos = mejor.groups()
+    pos, puntos, pj, g, e, p, gf, gc, dg = mejor.groups()
     return {
         "match_pos": mejor.start(),
         "posicion": int(pos) if pos else None,
