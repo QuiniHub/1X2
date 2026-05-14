@@ -16,6 +16,7 @@ CALENDARIOS = {
     "primera": DATA / "calendario_primera.json",
     "segunda": DATA / "calendario_segunda.json",
 }
+CLASIFICACIONES_OFICIALES = DATA / "clasificaciones_oficiales.json"
 
 JORNADAS_QUINIELA = DATA / "jornadas"
 QUINIELAS_JUGADAS = DATA / "quinielas_jugadas.json"
@@ -38,8 +39,19 @@ def guardar_json(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def reparar_mojibake(texto):
+    texto = str(texto or "")
+    try:
+        reparado = texto.encode("latin1").decode("utf-8")
+        if "�" not in reparado:
+            return reparado
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        pass
+    return texto
+
+
 def limpiar_nombre(texto):
-    texto = str(texto or "").lower()
+    texto = reparar_mojibake(texto).lower()
     texto = unicodedata.normalize("NFD", texto)
     texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
     texto = re.sub(r"\b(fc|cf|cd|sd|ud|rcd|rc|sad|club|real|de|del|la|el)\b", " ", texto)
@@ -580,8 +592,67 @@ def construir_clasificaciones(ligas):
     }
 
 
+def aplicar_clasificaciones_oficiales(ligas):
+    oficiales = cargar_json(CLASIFICACIONES_OFICIALES, {})
+    fuentes = oficiales.get("fuentes") or {}
+    actualizado = oficiales.get("actualizado_en")
+
+    for liga in ("primera", "segunda"):
+        filas = oficiales.get(liga) or []
+        if not filas or liga not in ligas:
+            continue
+
+        actuales = {
+            limpiar_nombre(equipo.get("equipo")): equipo
+            for equipo in ligas[liga].get("equipos", [])
+        }
+        fusionados = []
+        for fila in filas:
+            nombre = fila.get("equipo", "")
+            actual = actuales.get(limpiar_nombre(nombre), equipo_base(nombre))
+            equipo = dict(actual)
+            pj = int(fila.get("pj") or 0)
+            gf = int(fila.get("gf") or 0)
+            gc = int(fila.get("gc") or 0)
+            puntos = int(fila.get("puntos", fila.get("pts", 0)) or 0)
+            equipo.update({
+                "posicion": int(fila.get("posicion") or 0),
+                "equipo": nombre,
+                "pj": pj,
+                "g": int(fila.get("g") or 0),
+                "e": int(fila.get("e") or 0),
+                "p": int(fila.get("p") or 0),
+                "gf": gf,
+                "gc": gc,
+                "dg": int(fila.get("dg", gf - gc) or 0),
+                "pts": puntos,
+            })
+            tendencias = dict(actual.get("tendencias") or {})
+            if pj:
+                tendencias.update({
+                    "puntos_por_partido": round(puntos / pj, 3),
+                    "goles_favor_por_partido": round(gf / pj, 3),
+                    "goles_contra_por_partido": round(gc / pj, 3),
+                    "empates_pct": round(equipo["e"] / pj * 100, 2),
+                })
+            equipo["tendencias"] = tendencias
+            equipo["racha_actual"] = actual.get("racha_actual") or {}
+            equipo["local"] = actual.get("local") or equipo_base(nombre)["local"]
+            equipo["visitante"] = actual.get("visitante") or equipo_base(nombre)["visitante"]
+            equipo["ultimos"] = actual.get("ultimos") or []
+            fusionados.append(equipo)
+
+        ligas[liga]["equipos"] = fusionados
+        ligas[liga]["clasificacion_oficial"] = True
+        ligas[liga]["fuente_clasificacion"] = fuentes.get(liga) or oficiales.get("fuente") or ""
+        ligas[liga]["actualizado_en_clasificacion"] = actualizado
+
+    return ligas
+
+
 def main():
     ligas = {nombre: analizar_liga(nombre, path) for nombre, path in CALENDARIOS.items()}
+    ligas = aplicar_clasificaciones_oficiales(ligas)
     quiniela = {
         "historico_csv": analizar_historico_quiniela(),
         "jornadas_oficiales": analizar_jornadas_oficiales(),

@@ -45,8 +45,19 @@ def guardar_json(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def reparar_mojibake(texto):
+    texto = str(texto or "")
+    try:
+        reparado = texto.encode("latin1").decode("utf-8")
+        if "�" not in reparado:
+            return reparado
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        pass
+    return texto
+
+
 def normalizar_nombre(nombre):
-    texto = unicodedata.normalize("NFKD", str(nombre or ""))
+    texto = unicodedata.normalize("NFKD", reparar_mojibake(nombre))
     texto = "".join(c for c in texto if not unicodedata.combining(c)).lower()
     texto = re.sub(r"\b(cf|fc|rc|cd|ud|sd|club|real|de|del|la|el|balompie|futbol)\b", "", texto)
     return re.sub(r"[^a-z0-9]", "", texto)

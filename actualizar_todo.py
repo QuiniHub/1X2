@@ -12,6 +12,7 @@ def ejecutar_sistema():
     scripts = [
         "actualizar_jornadas_detalle.py",
         "actualizar_resultados_directo.py",
+        "actualizar_clasificaciones_oficiales.py",
         "actualizar_contexto_equipos.py",
         "actualizar_analisis_ia.py",
         "actualizar_aprendizaje_ia.py",

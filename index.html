@@ -745,8 +745,17 @@
       return [];
     }
 
+    function repararMojibake(txt) {
+      const texto = String(txt || "");
+      try {
+        const reparado = decodeURIComponent(escape(texto));
+        if (!reparado.includes("�")) return reparado;
+      } catch (e) {}
+      return texto;
+    }
+
     function norm(txt) {
-      return (txt || "")
+      return repararMojibake(txt)
         .toLowerCase()
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
         .replace(/fc|cf|cd|sd|ud|rcd|rc|real|club|de|la|el/g, "")
