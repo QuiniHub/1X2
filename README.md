@@ -1,68 +1,44 @@
-# Quiniela IA Pro - GitHub Completo
+# Quiniela IA Pro
 
-Esta carpeta es la versión completa para subir directamente a GitHub.
+Web y motor de analisis para La Quiniela. El flujo activo se centra en datos reales de jornadas, resultados, clasificaciones, memoria de quinielas jugadas, contexto competitivo y prediccion.
 
-## Qué incluye
+## Flujo activo
 
-- App web local: `index.html`
-- Quiniela Jornada 61
-- Elige 8
-- Dinámicas de equipos
-- Histórico de quinielas y boletos
-- Análisis de resultados de boletos
-- Integración preparada con EduardoLosilla.es
-- Módulos para:
-  - lesiones
-  - sanciones
-  - alineaciones
-  - cuotas
-  - porcentajes apostados
-  - xG
-  - árbitros
-  - clima
-  - fatiga
-  - rotaciones
-  - histórico exacto de quinielas
-  - machine learning
+El workflow real esta en:
 
-## Cómo subir a GitHub
+`.github/workflows/main.yml`
 
-1. Descomprime este ZIP.
-2. Entra en tu repositorio de GitHub.
-3. Pulsa **Upload files**.
-4. Arrastra TODO el contenido de la carpeta, no el ZIP.
-5. Pulsa **Commit changes**.
-6. Entra en **Actions**.
-7. Activa el workflow.
+Ese workflow ejecuta:
 
-## Actualización automática
+`python actualizar_todo.py`
 
-El archivo:
+`actualizar_todo.py` solo llama a scripts activos y falla si uno de ellos falla. Asi se evitan actualizaciones silenciosas con datos incompletos.
 
-`.github/workflows/actualizar-quiniela.yml`
+## Scripts activos
 
-ejecutará cada lunes:
+- `actualizar_jornadas_detalle.py`
+- `actualizar_resultados_directo.py`
+- `aplicar_correcciones_resultados.py`
+- `actualizar_clasificaciones_oficiales.py`
+- `actualizar_contexto_equipos.py`
+- `actualizar_analisis_ia.py`
+- `actualizar_aprendizaje_ia.py`
+- `construir_historial_quinielas.py`
+- `construir_memoria_ia.py`
+- `generar_contexto_competitivo.py`
+- `motor_prediccion_quiniela.py`
+- `generar_estado_vivo_ia.py`
+- `diagnostico_sistema.py`
 
-`scripts/actualizar_todo.py`
+## Memoria de quinielas jugadas
 
-## Importante
+La memoria persistente debe estar en:
 
-Algunas fuentes necesitan API o permisos:
+- `data/quinielas_jugadas.json`
+- `data/historial_quinielas.json`
 
-- cuotas en tiempo real
-- lesiones
-- sanciones
-- alineaciones
-- xG avanzado
-- porcentajes apostados
-- histórico oficial completo
+Una jugada guardada solo en el navegador no entra en el aprendizaje automatico hasta que quede persistida en esos archivos.
 
-Si no tienes esas APIs, la app actualiza lo gratuito y deja los módulos premium como `pendiente`.
+## Limpieza aplicada
 
-## Eduardo Losilla
-
-Se ha añadido:
-
-`scripts/actualizar_eduardo_losilla.py`
-
-El conector queda preparado para comparar sus análisis con el modelo IA, siempre respetando robots.txt y condiciones de uso.
+Se han retirado demos, duplicados y conectores antiguos que generaban datos inventados, tenian nombres cruzados o podian pisar informacion buena. El motor valido de prediccion es `motor_prediccion_quiniela.py`; `generar_quiniela_ia.py` queda solo como compatibilidad y delega en ese motor.

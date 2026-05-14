@@ -683,6 +683,7 @@
     let pleno15JornadaIA = null;
     let detalleJornadaActual = null;
     let quinielasJugadasPersistentes = {};
+    let contextoCompetitivoGlobal = {};
 
     function showTab(id, btn) {
       document.querySelectorAll("main section").forEach(s => s.classList.remove("active"));
@@ -734,6 +735,27 @@
         validado_en: jugada.validado_en || jugada.fecha_validacion || "Memoria persistente",
         origen: jugada.origen || "data/quinielas_jugadas.json",
         persistente: true,
+      };
+    }
+
+    function estadoMemoriaJornada(validacion) {
+      if (!validacion) return {
+        etiqueta: "No validada",
+        detalle: "Todavia no hay quiniela nuestra para esta jornada.",
+        persistente: false,
+        clase: "small-muted"
+      };
+      if (validacion.persistente) return {
+        etiqueta: "Memoria IA real",
+        detalle: `Guardada en ${validacion.origen || "data"}; entra en aprendizaje automatico al regenerar la IA.`,
+        persistente: true,
+        clase: "ok"
+      };
+      return {
+        etiqueta: "Pendiente de sincronizar",
+        detalle: "Esta en este navegador. La IA de GitHub no la aprende hasta pasarla a data/quinielas_jugadas.json o al Historial persistente.",
+        persistente: false,
+        clase: "ko"
       };
     }
 
@@ -942,6 +964,7 @@
         datos.forEach(item => {
           const jornada = Number(item.jornada);
           const guardada = cargarValidacionLocal(jornada);
+          const estadoMemoria = estadoMemoriaJornada(guardada);
           const aciertos = guardada ? contarAciertosResumen(item, guardada) : "No validada";
           const fila = document.createElement("tr");
           fila.innerHTML = `
@@ -951,7 +974,7 @@
             <td>${item.pleno15_oficial || "Pendiente"}</td>
             <td>${guardada ? guardada.signos.join(" ") : item.nuestra_quiniela || "No validada"}</td>
             <td>${aciertos}</td>
-            <td>${guardada ? (guardada.persistente ? "Memoria IA" : "Validada en navegador") : item.estado === "cerrada" ? "Cerrada oficial" : "Abierta"}</td>
+            <td><span class="${estadoMemoria.clase}">${estadoMemoria.etiqueta}</span><br><small>${guardada ? estadoMemoria.detalle : item.estado === "cerrada" ? "Cerrada oficial sin jugada nuestra." : "Abierta"}</small></td>
             <td><button onclick="abrirJornada(${jornada})">Ver boleto</button></td>
           `;
 
@@ -1029,12 +1052,13 @@
 
       const filasNuestras = jugadasVista.map(x => {
         const aciertos = contarAciertosResumen(x.jornada, x.validacion);
-        return `<tr><td>${x.jornada.jornada}</td><td>${x.validacion.signos.join(" ")}</td><td>${x.validacion.elige8?.join(", ") || "-"}</td><td>${x.validacion.pleno15 || "-"}</td><td>${aciertos}</td></tr>`;
+        const estadoMemoria = estadoMemoriaJornada(x.validacion);
+        return `<tr><td>${x.jornada.jornada}</td><td>${x.validacion.signos.join(" ")}</td><td>${x.validacion.elige8?.join(", ") || "-"}</td><td>${x.validacion.pleno15 || "-"}</td><td>${aciertos}</td><td><span class="${estadoMemoria.clase}">${estadoMemoria.etiqueta}</span><br><small>${estadoMemoria.detalle}</small></td></tr>`;
       });
       nuestrasEl.innerHTML = filasNuestras.length ? `
         <div class="table-wrapper">
           <table>
-            <thead><tr><th>Jornada</th><th>Nuestra jugada</th><th>Elige 8</th><th>Pleno</th><th>Aciertos</th></tr></thead>
+            <thead><tr><th>Jornada</th><th>Nuestra jugada</th><th>Elige 8</th><th>Pleno</th><th>Aciertos</th><th>Memoria IA</th></tr></thead>
             <tbody>${filasNuestras.join("")}</tbody>
           </table>
         </div>
@@ -1131,6 +1155,36 @@
       return `${equipo.posicion || "-"}º · ${equipo.puntos ?? "-"} pts · ${equipo.puntos_en_juego ?? 0} en juego · ${equipo.motivacion || "baja"}${objetivos.length ? `<br><small>${objetivos.join("<br>")}</small>` : ""}`;
     }
 
+    function pintarObjetivoPrincipalEquipo(equipo) {
+      const objetivo = equipo.objetivo_principal || (equipo.objetivos || [])[0];
+      if (!objetivo) return "Sin objetivo vivo claro";
+      const nombre = String(objetivo.objetivo || "").replaceAll("_", " ");
+      const estado = String(objetivo.estado || "").replaceAll("_", " ");
+      return `<strong>${nombre}</strong> (${estado})<br><small>${objetivo.lectura || ""}</small>`;
+    }
+
+    function pintarEquiposLiga(titulo, equipos) {
+      const filas = (equipos || []).map(equipo => `
+        <tr>
+          <td>${equipo.posicion || "-"}</td>
+          <td>${equipo.equipo || ""}</td>
+          <td>${equipo.puntos ?? "-"}</td>
+          <td>${equipo.puntos_en_juego ?? 0}</td>
+          <td>${equipo.motivacion || "baja"}</td>
+          <td>${pintarObjetivoPrincipalEquipo(equipo)}</td>
+        </tr>
+      `).join("");
+      return `
+        <p><strong>${titulo}</strong></p>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Pos.</th><th>Equipo</th><th>Puntos</th><th>En juego</th><th>Motivacion</th><th>Lectura competitiva</th></tr></thead>
+            <tbody>${filas || `<tr><td colspan="6">Sin lectura equipo por equipo.</td></tr>`}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
     function pintarMotivacionFinal(estado) {
       const contexto = estado.contexto_competitivo || {};
       const reglasPrimera = contexto.reglas?.primera || {};
@@ -1140,8 +1194,10 @@
         ...(contexto.segunda?.lecturas_clave || []).map(x => `2a: ${x}`),
       ];
       const partidos = estado.prediccion_objetivo?.partidos_con_motivacion || [];
+      const equiposPrimera = contexto.primera?.equipos || [];
+      const equiposSegunda = contexto.segunda?.equipos || [];
 
-      if (!contexto.generado_en && !partidos.length) {
+      if (!contexto.generado_en && !partidos.length && !equiposPrimera.length && !equiposSegunda.length) {
         return "<p>Aun no hay contexto competitivo generado. Se llenara en la siguiente actualizacion completa.</p>";
       }
 
@@ -1158,6 +1214,9 @@
       return `
         <p><strong>Reglas que ya pondera:</strong> 1a: campeon ${reglasPrimera.campeon ?? 1}, Champions ${reglasPrimera.champions ?? 5}, Europa League ${reglasPrimera.europa_league ?? 2}, Conference ${reglasPrimera.conference ?? 1}, descenso ${reglasPrimera.descenso ?? 3}. 2a: ascenso directo ${reglasSegunda.ascenso_directo ?? 2}, playoff ${reglasSegunda.playoff_ascenso ?? 4}, descenso ${reglasSegunda.descenso ?? 4}.</p>
         ${pintarListaEstado("Lecturas de frontera", lecturas, x => `<li>${x}</li>`)}
+        ${pintarEquiposLiga("Lectura equipo por equipo - Primera Division", equiposPrimera)}
+        ${pintarEquiposLiga("Lectura equipo por equipo - Segunda Division", equiposSegunda)}
+        <p><strong>Lectura aplicada al proximo boleto</strong></p>
         <div class="table-wrapper">
           <table>
             <thead><tr><th>#</th><th>Partido</th><th>Local</th><th>Visitante</th><th>Lectura IA</th></tr></thead>
@@ -1168,12 +1227,19 @@
     }
 
     function cargarValidacionLocal(jornada) {
+      const persistente = quinielasJugadasPersistentes[Number(jornada)] || null;
       try {
         const local = JSON.parse(localStorage.getItem(`quiniela_validada_${jornada}`) || "null");
-        if (local) return local;
+        if (local) {
+          if (!persistente) return local;
+          const signosLocal = JSON.stringify((local.signos || []).map(String));
+          const signosPersistente = JSON.stringify((persistente.signos || []).map(String));
+          const plenoIgual = String(local.pleno15 || "") === String(persistente.pleno15 || "");
+          return signosLocal === signosPersistente && plenoIgual ? persistente : local;
+        }
       } catch (e) {
       }
-      return quinielasJugadasPersistentes[Number(jornada)] || null;
+      return persistente;
     }
 
     function contarAciertosResumen(item, validacion) {
@@ -1206,6 +1272,9 @@
       analisis.innerHTML = "";
 
       const data = await fetchJSON(`data/jornadas/jornada_${jornada}.json`, null);
+      contextoCompetitivoGlobal = Object.keys(contextoCompetitivoGlobal || {}).length
+        ? contextoCompetitivoGlobal
+        : await fetchJSON("data/memoria_ia/contexto_competitivo.json", {});
       if (!data) {
         oficial.innerHTML = "No se pudo cargar esta jornada.";
         nuestro.innerHTML = "No hay datos disponibles.";
@@ -1234,7 +1303,7 @@
           </div>
         `;
       }
-      analisis.innerHTML = pintarAnalisisAprendizaje(data, validacion);
+      analisis.innerHTML = pintarAnalisisAprendizaje(data, validacion, contextoCompetitivoGlobal);
       guardarAprendizajeJornada(data, validacion);
     }
 
@@ -1242,6 +1311,7 @@
       const partidos = data.partidos || [];
       const pleno = data.pleno15 || null;
       if (validacion) {
+        const estadoMemoria = estadoMemoriaJornada(validacion);
         const filas = partidos.map((p, idx) => {
           const oficial = String(p.signo_oficial || "").trim().toUpperCase();
           const nuestro = validacion.signos[idx] || "";
@@ -1275,7 +1345,7 @@
           </div>
         `;
         return `
-          <p class="small-muted">Boleto validado por nosotros el ${validacion.validado_en || ""}. ${validacion.persistente ? "Esta jugada está guardada en la memoria persistente de la IA." : "Esta jugada está en este navegador; al pasarla a data/quinielas_jugadas.json quedará en memoria permanente."}</p>
+          <p class="small-muted">Boleto validado por nosotros el ${validacion.validado_en || ""}. <strong class="${estadoMemoria.clase}">${estadoMemoria.etiqueta}:</strong> ${estadoMemoria.detalle}</p>
           ${filas}
           ${plenoHtml}
           ${avisoPersistencia}
@@ -1302,19 +1372,22 @@
       return "fijo";
     }
 
-    function aprendizajePartido(partido, signoNuestro, acierto, esElige8) {
+    function aprendizajePartido(partido, signoNuestro, acierto, esElige8, contextoCompetitivo = {}) {
       const tipo = tipoCobertura(signoNuestro);
       const oficial = String(partido.signo_oficial || "").trim().toUpperCase();
+      const localComp = buscarContextoCompetitivo(contextoCompetitivo, partido.local);
+      const visitanteComp = buscarContextoCompetitivo(contextoCompetitivo, partido.visitante);
+      const lecturaCompetitiva = lecturaCompetitivaPartido(localComp, visitanteComp, partido.local, partido.visitante);
       if (acierto) {
-        if (tipo === "fijo") return "Acierto limpio: la lectura fue suficientemente fuerte para jugarlo sin cobertura.";
-        return `Acierto cubierto con ${tipo}: conviene estudiar si la incertidumbre era real o si se gastó cobertura de más.`;
+        if (tipo === "fijo") return `Acierto limpio: la lectura fue suficientemente fuerte para jugarlo sin cobertura. ${lecturaCompetitiva}`;
+        return `Acierto cubierto con ${tipo}: conviene estudiar si la incertidumbre era real o si se gastó cobertura de más. ${lecturaCompetitiva}`;
       }
-      if (tipo === "fijo") return `Fallo de fijo: el signo ${oficial} quedó fuera. Para próximos boletos, revisar dinámica reciente, goles encajados y valor de empate/sorpresa antes de cerrar este perfil.`;
-      if (esElige8) return `Fallo en Elige 8: era una selección de confianza y debe penalizarse en el aprendizaje como partido mal priorizado.`;
-      return `Fallo pese a ${tipo}: la cobertura no incluyó el signo real ${oficial}. Aumentar peso de sorpresa, visitante peligroso o empate según el caso.`;
+      if (tipo === "fijo") return `Fallo de fijo: el signo ${oficial} quedó fuera. Para próximos boletos, revisar dinámica reciente, goles encajados, valor de empate/sorpresa y necesidad competitiva antes de cerrar este perfil. ${lecturaCompetitiva}`;
+      if (esElige8) return `Fallo en Elige 8: era una selección de confianza y debe penalizarse en el aprendizaje como partido mal priorizado. ${lecturaCompetitiva}`;
+      return `Fallo pese a ${tipo}: la cobertura no incluyó el signo real ${oficial}. Aumentar peso de sorpresa, visitante peligroso, empate o motivacion competitiva según el caso. ${lecturaCompetitiva}`;
     }
 
-    function pintarAnalisisAprendizaje(data, validacion) {
+    function pintarAnalisisAprendizaje(data, validacion, contextoCompetitivo = {}) {
       if (!validacion) {
         return `
           <div class="card">
@@ -1350,7 +1423,7 @@
             <td>${p.local} - ${p.visitante}<br><span class="small-muted">${p.resultado || ""}</span></td>
             <td>${nuestro || "-"}</td>
             <td class="${acierto ? "ok" : "ko"}">${acierto ? "Acierto" : "Fallo"} (${oficial})</td>
-            <td>${aprendizajePartido(p, nuestro, acierto, esElige8)}</td>
+            <td>${aprendizajePartido(p, nuestro, acierto, esElige8, contextoCompetitivo)}</td>
           </tr>
         `;
       }).join("");
@@ -1517,7 +1590,7 @@
       const texto = JSON.stringify(jugadaParaMemoria(validacion), null, 2);
       try {
         await navigator.clipboard.writeText(texto);
-        alert("Jugada copiada. Esta es la pieza que debe entrar en data/quinielas_jugadas.json para memoria permanente.");
+        alert("Jugada copiada al portapapeles. Aun NO esta en memoria IA real: debe entrar en data/quinielas_jugadas.json o en Historial persistente para que GitHub Actions la aprenda.");
       } catch (e) {
         alert(texto);
       }
@@ -1550,7 +1623,7 @@
       const texto = JSON.stringify({ jugadas: salida }, null, 2);
       try {
         await navigator.clipboard.writeText(texto);
-        alert(`Memoria copiada: ${salida.length} quiniela(s).`);
+        alert(`Memoria copiada: ${salida.length} quiniela(s). Aun NO estan en memoria IA real hasta pasarlas a data/quinielas_jugadas.json o al Historial persistente.`);
       } catch (e) {
         alert(texto);
       }
@@ -1918,6 +1991,97 @@
       );
     }
 
+    function equiposContextoCompetitivo(contexto) {
+      return [
+        ...((contexto?.primera?.equipos) || []),
+        ...((contexto?.segunda?.equipos) || [])
+      ];
+    }
+
+    function buscarContextoCompetitivo(contexto, nombre) {
+      const objetivo = norm(nombre);
+      let mejor = null;
+      let mejorScore = 0;
+
+      equiposContextoCompetitivo(contexto).forEach(equipo => {
+        const base = norm(equipo.equipo || "");
+        let score = 0;
+        if (base === objetivo) score = 100;
+        else if (base.includes(objetivo) || objetivo.includes(base)) score = 80;
+        else {
+          const comunes = base.split(" ").filter(p => objetivo.split(" ").includes(p));
+          score = comunes.length * 20;
+        }
+        if (score > mejorScore) {
+          mejorScore = score;
+          mejor = equipo;
+        }
+      });
+
+      return mejorScore >= 20 ? mejor : null;
+    }
+
+    function valorMotivacionCompetitiva(equipo) {
+      const orden = { baja: 0, media: 1, alta: 2, maxima: 3, máxima: 3 };
+      return orden[String(equipo?.motivacion_competitiva || equipo?.motivacion || "baja").toLowerCase()] ?? 0;
+    }
+
+    function objetivoPrincipalCompetitivo(equipo) {
+      const prioridad = {
+        riesgo_descenso: 100,
+        en_descenso_con_opciones: 95,
+        permanencia_por_cerrar: 90,
+        descenso_muy_complicado: 80,
+        defiende_liderato: 75,
+        defiende_plaza: 70,
+        aspira_matematicamente: 65,
+        ventaja_por_permanencia: 45,
+        campeon_matematico: 20,
+        asegurado_matematicamente: 15
+      };
+      return [...(equipo?.objetivos || [])].sort((a, b) => (prioridad[b.estado] || 0) - (prioridad[a.estado] || 0))[0] || null;
+    }
+
+    function textoObjetivoCompetitivo(equipo) {
+      if (!equipo) return "sin contexto competitivo claro";
+      const objetivo = objetivoPrincipalCompetitivo(equipo);
+      const motivacion = equipo.motivacion_competitiva || equipo.motivacion || "baja";
+      if (!objetivo) return `${equipo.equipo || "Equipo"}: motivacion ${motivacion}`;
+      const nombre = String(objetivo.objetivo || "").replaceAll("_", " ");
+      const estado = String(objetivo.estado || "").replaceAll("_", " ");
+      return `${equipo.equipo}: motivacion ${motivacion}; ${nombre} (${estado}). ${objetivo.lectura || ""}`;
+    }
+
+    function lecturaCompetitivaPartido(localComp, visitanteComp, localNombre, visitanteNombre) {
+      const vLocal = valorMotivacionCompetitiva(localComp);
+      const vVisitante = valorMotivacionCompetitiva(visitanteComp);
+      const local = textoObjetivoCompetitivo(localComp) || `${localNombre}: sin contexto`;
+      const visitante = textoObjetivoCompetitivo(visitanteComp) || `${visitanteNombre}: sin contexto`;
+
+      if (!localComp && !visitanteComp) return "";
+      if (vLocal > vVisitante) {
+        return `Lectura competitiva: pesa mas la urgencia de ${localNombre}. ${local} Frente a ${visitante}.`;
+      }
+      if (vVisitante > vLocal) {
+        return `Lectura competitiva: pesa mas la urgencia de ${visitanteNombre}. ${visitante} Frente a ${local}.`;
+      }
+      return `Lectura competitiva: presion parecida. ${local} Frente a ${visitante}.`;
+    }
+
+    function ajustarPorMotivacionCompetitiva(probs, localComp, visitanteComp) {
+      const p = { ...probs };
+      const diferencia = valorMotivacionCompetitiva(localComp) - valorMotivacionCompetitiva(visitanteComp);
+      if (diferencia) {
+        const ajuste = Math.max(Math.min(diferencia * 2.2, 6), -6);
+        p["1"] += ajuste;
+        p["2"] -= ajuste;
+      }
+      if (valorMotivacionCompetitiva(localComp) >= 2 && valorMotivacionCompetitiva(visitanteComp) >= 2) {
+        p["X"] += 2;
+      }
+      return normalizarProbabilidades(p);
+    }
+
     function buscarContextoEquipo(contexto, nombre) {
       const equipos = contexto?.equipos || {};
       const objetivo = norm(nombre);
@@ -1957,11 +2121,13 @@
       };
     }
 
-    function ajustarProbabilidades(probs, local, visitante, clasif) {
+    function ajustarProbabilidades(probs, local, visitante, clasif, contextoCompetitivo) {
       let p = { ...probs };
 
       const cl = buscarClasificacionEquipo(clasif, local);
       const cv = buscarClasificacionEquipo(clasif, visitante);
+      const compLocal = buscarContextoCompetitivo(contextoCompetitivo, local);
+      const compVisitante = buscarContextoCompetitivo(contextoCompetitivo, visitante);
 
       if (cl && cv) {
         const posL = cl.posicion || 99;
@@ -1982,7 +2148,8 @@
         }
       }
 
-      return normalizarProbabilidades(p);
+      p = normalizarProbabilidades(p);
+      return ajustarPorMotivacionCompetitiva(p, compLocal, compVisitante);
     }
 
     function signoMasProbable(probs) {
@@ -2069,11 +2236,18 @@
       const lecturaProb = `Probabilidades IA: 1=${probs["1"]}%, X=${probs["X"]}%, 2=${probs["2"]}%; ventaja del primer signo: ${numeroSeguro(ventajaProb)} puntos.`;
       const contextoLocal = partido.contexto_local?.resumen ? `Contexto ${partido.local}: ${partido.contexto_local.resumen}` : "";
       const contextoVisitante = partido.contexto_visitante?.resumen ? `Contexto ${partido.visitante}: ${partido.contexto_visitante.resumen}` : "";
+      const lecturaCompetitiva = lecturaCompetitivaPartido(
+        partido.contexto_competitivo_local,
+        partido.contexto_competitivo_visitante,
+        partido.local,
+        partido.visitante
+      );
       const alertas = [
         ...(partido.contexto_local?.alertas || []).map(a => `${partido.local}: ${a}`),
         ...(partido.contexto_visitante?.alertas || []).map(a => `${partido.visitante}: ${a}`)
       ];
       const lecturaAlertas = alertas.length ? `Alertas detectadas: ${alertas.join(", ")}.` : "Sin alertas fuertes detectadas en noticias recientes.";
+      lecturaTipo = `${lecturaCompetitiva} ${lecturaTipo}`;
 
       return `${lecturaPuntos} ${lecturaForma} ${lecturaGoles} ${lecturaRachas} ${lecturaProb} ${contextoLocal} ${contextoVisitante} ${lecturaAlertas} ${lecturaTipo} Decisión final: ${signo}.`;
     }
@@ -2104,6 +2278,8 @@
       const ia = await fetchJSON("data/analisis_ia.json", {});
       const clasif = await fetchJSON("clasificaciones.json", {});
       const contextoEquipos = await fetchJSON("data/contexto_equipos.json", {});
+      const contextoCompetitivo = await fetchJSON("data/memoria_ia/contexto_competitivo.json", {});
+      contextoCompetitivoGlobal = contextoCompetitivo;
 
       let partidos = partidosJornadaIA
         .filter(p => Number(p.num) <= 14)
@@ -2113,9 +2289,11 @@
           const clasificacionVisitante = buscarClasificacionEquipo(clasif, p.visitante);
           const contextoLocal = buscarContextoEquipo(contextoEquipos, p.local);
           const contextoVisitante = buscarContextoEquipo(contextoEquipos, p.visitante);
+          const contextoCompetitivoLocal = buscarContextoCompetitivo(contextoCompetitivo, p.local);
+          const contextoCompetitivoVisitante = buscarContextoCompetitivo(contextoCompetitivo, p.visitante);
 
           let probs = analisis?.probabilidades || { "1": 37, "X": 31, "2": 32 };
-          probs = ajustarProbabilidades(probs, p.local, p.visitante, clasif);
+          probs = ajustarProbabilidades(probs, p.local, p.visitante, clasif, contextoCompetitivo);
 
           const riesgo = analisis?.riesgo_sorpresa || "Alto";
           const signoBase = signoMasProbable(probs);
@@ -2129,6 +2307,8 @@
             clasificacion_visitante: clasificacionVisitante,
             contexto_local: contextoLocal,
             contexto_visitante: contextoVisitante,
+            contexto_competitivo_local: contextoCompetitivoLocal,
+            contexto_competitivo_visitante: contextoCompetitivoVisitante,
             explicacion: "",
             confianza: analisis?.confianza || "Baja",
             riesgo,

@@ -121,7 +121,8 @@ def leer_jornada_actual():
     return sorted(candidatas, key=lambda x: (x[0], x[1]), reverse=True)[0][2]
 
 
-def cambios_jornada_actual(jornada):
+def cambios_jornada_actual(jornada, indice_competitivo=None):
+    indice_competitivo = indice_competitivo or {}
     cambios = []
     signos = Counter()
     cerrados = 0
@@ -136,7 +137,7 @@ def cambios_jornada_actual(jornada):
                 "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
                 "resultado": partido.get("resultado"),
                 "signo": oficial,
-                "lectura": lectura_resultado(partido, oficial),
+                "lectura": lectura_resultado(partido, oficial, indice_competitivo),
             })
         else:
             pendientes += 1
@@ -159,13 +160,77 @@ def cambios_jornada_actual(jornada):
     }
 
 
-def lectura_resultado(partido, signo):
+def objetivo_principal(equipo):
+    if not equipo:
+        return None
+    prioridad = {
+        "riesgo_descenso": 100,
+        "en_descenso_con_opciones": 95,
+        "permanencia_por_cerrar": 90,
+        "descenso_muy_complicado": 80,
+        "defiende_liderato": 75,
+        "defiende_plaza": 70,
+        "aspira_matematicamente": 65,
+        "ventaja_por_permanencia": 45,
+        "campeon_matematico": 20,
+        "asegurado_matematicamente": 15,
+    }
+    objetivos = equipo.get("objetivos") or []
+    if not objetivos:
+        return None
+    return sorted(objetivos, key=lambda obj: prioridad.get(obj.get("estado"), 0), reverse=True)[0]
+
+
+def motivacion_texto(equipo):
+    if not equipo:
+        return "sin contexto competitivo claro"
+    objetivo = objetivo_principal(equipo)
+    motivacion = equipo.get("motivacion_competitiva", "baja")
+    nombre = reparar_mojibake(equipo.get("equipo"))
+    base = f"{nombre} tiene motivacion {motivacion}"
+    if objetivo:
+        objetivo_txt = str(objetivo.get("objetivo", "")).replace("_", " ")
+        estado_txt = str(objetivo.get("estado", "")).replace("_", " ")
+        lectura = reparar_mojibake(objetivo.get("lectura"))
+        return f"{base}: {objetivo_txt} ({estado_txt}); {lectura}"
+    return base
+
+
+def resumen_objetivo(objetivo):
+    return {
+        "objetivo": objetivo.get("objetivo"),
+        "estado": objetivo.get("estado"),
+        "lectura": reparar_mojibake(objetivo.get("lectura")),
+    }
+
+
+def lectura_resultado(partido, signo, indice_competitivo=None):
     resultado = partido.get("resultado", "")
+    local_ctx = buscar_contexto_equipo(partido.get("local"), indice_competitivo or {})
+    visitante_ctx = buscar_contexto_equipo(partido.get("visitante"), indice_competitivo or {})
+    local_valor = valor_motivacion(local_ctx)
+    visitante_valor = valor_motivacion(visitante_ctx)
+
     if signo == "2":
-        return f"Victoria visitante ({resultado}); aumenta la cautela con favoritos locales y partidos de inercia rota."
-    if signo == "X":
-        return f"Empate ({resultado}); refuerza peso de equilibrio, rachas de empate y marcadores cerrados."
-    return f"Victoria local ({resultado}); confirma que el factor casa sigue teniendo valor cuando hay ventaja clara."
+        base = f"Victoria visitante ({resultado}); aumenta la cautela con favoritos locales y partidos de inercia rota."
+    elif signo == "X":
+        base = f"Empate ({resultado}); refuerza peso de equilibrio, rachas de empate y marcadores cerrados."
+    else:
+        base = f"Victoria local ({resultado}); el factor casa puede ayudar, pero no basta como explicacion."
+
+    if not local_ctx and not visitante_ctx:
+        return base
+
+    motivacion = f" Contexto competitivo: {motivacion_texto(local_ctx)}. {motivacion_texto(visitante_ctx)}."
+    if local_valor > visitante_valor and signo == "1":
+        motivacion += " Lectura IA: la necesidad del local pesa y puede explicar una victoria que no debe leerse solo como factor campo."
+    elif visitante_valor > local_valor and signo == "2":
+        motivacion += " Lectura IA: la necesidad del visitante pesa y puede explicar que rompa el pronostico local."
+    elif abs(local_valor - visitante_valor) >= 2:
+        motivacion += " Lectura IA: hay descompensacion de urgencia; debo subir peso de motivacion en partidos similares."
+    else:
+        motivacion += " Lectura IA: motivacion parecida; debo apoyarme mas en forma, goles y empates."
+    return base + motivacion
 
 
 def analizar_prediccion(prediccion, contexto_competitivo=None):
@@ -221,13 +286,9 @@ def resumen_contexto_equipo(equipo):
         return None
     objetivos = []
     for objetivo in equipo.get("objetivos", [])[:4]:
-        objetivos.append({
-            "objetivo": objetivo.get("objetivo"),
-            "estado": objetivo.get("estado"),
-            "lectura": objetivo.get("lectura"),
-        })
+        objetivos.append(resumen_objetivo(objetivo))
     return {
-        "equipo": equipo.get("equipo"),
+        "equipo": reparar_mojibake(equipo.get("equipo")),
         "liga": equipo.get("liga"),
         "posicion": equipo.get("posicion"),
         "puntos": equipo.get("puntos"),
@@ -258,8 +319,8 @@ def etiquetas_objetivos(equipo):
 def lectura_motivacion(local, visitante):
     local_valor = valor_motivacion(local)
     visitante_valor = valor_motivacion(visitante)
-    local_nombre = local.get("equipo") if local else "local"
-    visitante_nombre = visitante.get("equipo") if visitante else "visitante"
+    local_nombre = reparar_mojibake(local.get("equipo")) if local else "local"
+    visitante_nombre = reparar_mojibake(visitante.get("equipo")) if visitante else "visitante"
     if local_valor >= 2 and visitante_valor >= 2:
         return f"Choque de alta presion: {local_nombre} pelea {etiquetas_objetivos(local)} y {visitante_nombre} pelea {etiquetas_objetivos(visitante)}."
     if local_valor > visitante_valor:
@@ -326,6 +387,7 @@ def autocritica(jornada_actual, prediccion, memoria):
 
 def aprendizajes(jornada_actual):
     signos = jornada_actual.get("distribucion_signos", {})
+    resultados = jornada_actual.get("resultados_nuevos_o_vigentes") or []
     aprend = []
     if signos.get("2", 0):
         aprend.append("Los visitantes estan apareciendo con peso en la jornada actual; subir alerta de sorpresa visitante para la siguiente lectura.")
@@ -333,6 +395,13 @@ def aprendizajes(jornada_actual):
         aprend.append("Los empates cerrados siguen siendo relevantes; no bajar demasiado el peso de X en partidos de margen corto.")
     if signos.get("1", 0):
         aprend.append("El factor local se mantiene util cuando hay ventaja clara, pero no basta si la dinamica visitante es fuerte.")
+    for resultado in resultados:
+        lectura = str(resultado.get("lectura", ""))
+        if "Contexto competitivo:" in lectura and ("necesidad" in lectura or "descompensacion de urgencia" in lectura):
+            aprend.append(
+                f"{reparar_mojibake(resultado.get('partido'))}: debo explicar el signo con urgencia competitiva, puntos en juego y objetivos vivos, no solo con localia o favorito."
+            )
+            break
     if not aprend:
         aprend.append("Todavia no hay suficientes resultados cerrados en la jornada actual para extraer aprendizaje fuerte.")
     return aprend
@@ -351,6 +420,23 @@ def aprendizajes_contexto(contexto):
     return aprend
 
 
+def resumen_equipos_liga(liga, nombre_liga):
+    equipos = []
+    for equipo in (liga.get("equipos") or []):
+        principal = objetivo_principal(equipo)
+        equipos.append({
+            "equipo": reparar_mojibake(equipo.get("equipo")),
+            "liga": nombre_liga,
+            "posicion": equipo.get("posicion"),
+            "puntos": equipo.get("puntos"),
+            "puntos_en_juego": equipo.get("puntos_en_juego"),
+            "motivacion": equipo.get("motivacion_competitiva"),
+            "objetivo_principal": resumen_objetivo(principal) if principal else None,
+            "objetivos": [resumen_objetivo(obj) for obj in (equipo.get("objetivos") or [])[:4]],
+        })
+    return sorted(equipos, key=lambda x: x.get("posicion") or 999)
+
+
 def resumir_contexto_competitivo(contexto):
     if not contexto:
         return {}
@@ -362,10 +448,12 @@ def resumir_contexto_competitivo(contexto):
         "primera": {
             "resumen": primera.get("resumen") or {},
             "lecturas_clave": primera.get("lecturas_clave") or [],
+            "equipos": resumen_equipos_liga(primera, "primera"),
         },
         "segunda": {
             "resumen": segunda.get("resumen") or {},
             "lecturas_clave": segunda.get("lecturas_clave") or [],
+            "equipos": resumen_equipos_liga(segunda, "segunda"),
         },
     }
 
@@ -390,7 +478,8 @@ def main():
     if not prediccion:
         prediccion = cargar_json(PREDICCIONES / "ultima_prediccion.json", {})
     jornada = leer_jornada_actual()
-    estado_jornada = cambios_jornada_actual(jornada)
+    indice_competitivo = crear_indice_competitivo(contexto_competitivo or {})
+    estado_jornada = cambios_jornada_actual(jornada, indice_competitivo)
     estado_prediccion = analizar_prediccion(prediccion, contexto_competitivo)
 
     salida = {
