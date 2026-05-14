@@ -745,15 +745,20 @@
         persistente: false,
         clase: "small-muted"
       };
-      if (validacion.persistente) return {
-        etiqueta: "Memoria IA real",
-        detalle: `Guardada en ${validacion.origen || "data"}; entra en aprendizaje automatico al regenerar la IA.`,
-        persistente: true,
-        clase: "ok"
-      };
+      if (validacion.persistente) {
+        const desdeHistorial = String(validacion.origen || "").includes("historial_quinielas");
+        return {
+          etiqueta: desdeHistorial ? "Memoria IA real (Historial)" : "Memoria IA real (Quinielas)",
+          detalle: desdeHistorial
+            ? "Introducida manualmente en Historial persistente; la IA la lee igual que una generada en Quinielas."
+            : `Guardada en ${validacion.origen || "data"}; entra en aprendizaje automatico al regenerar la IA.`,
+          persistente: true,
+          clase: "ok"
+        };
+      }
       return {
         etiqueta: "Pendiente de sincronizar",
-        detalle: "Esta en este navegador. La IA de GitHub no la aprende hasta pasarla a data/quinielas_jugadas.json o al Historial persistente.",
+        detalle: "Esta en este navegador. La IA de GitHub no la aprende hasta pasarla a Quinielas persistente o al Historial persistente.",
         persistente: false,
         clase: "ko"
       };
@@ -1011,6 +1016,11 @@
       const jugadasVista = (historial.jornadas || [])
         .map(j => ({ jornada: j, validacion: cargarValidacionLocal(j.jornada) }))
         .filter(x => x.validacion);
+      const jugadasPersistentesVista = jugadasVista.filter(x => x.validacion.persistente).length;
+      const jugadasLocalesPendientes = jugadasVista.filter(x => !x.validacion.persistente).length;
+      const fuentesNuestras = Object.entries(nuestrasMemoria.fuentes || {})
+        .map(([fuente, total]) => `${fuente}: ${total}`)
+        .join(" | ");
 
       resumen.innerHTML = [
         `<strong>Memoria generada:</strong> ${memoria.generado_en || "pendiente de regenerar"}.`,
@@ -1018,8 +1028,10 @@
         `<strong>Diagnostico:</strong> ${diagnostico.estado || "pendiente"} (${diagnostico.score_salud ?? "-"} / 100).`,
         `<strong>Partidos de liga analizados:</strong> 1a ${primera.partidos_jugados || 0}, 2a ${segunda.partidos_jugados || 0}.`,
         `<strong>Jornadas oficiales:</strong> ${historial.total_jornadas || historial.jornadas?.length || 0}.`,
-        `<strong>Nuestras jugadas en memoria/vista:</strong> ${nuestrasMemoria.jornadas_validadas || jugadasVista.length || 0}.`
-      ].join("<br>");
+        `<strong>Nuestras jugadas en memoria real:</strong> ${nuestrasMemoria.jornadas_validadas || jugadasPersistentesVista || 0} (Quinielas o Historial persistente).`,
+        `<strong>Nuestras jugadas visibles aqui:</strong> ${jugadasVista.length || 0}; pendientes solo en este navegador: ${jugadasLocalesPendientes}.`,
+        fuentesNuestras ? `<strong>Fuentes leidas por la IA:</strong> ${fuentesNuestras}.` : ""
+      ].filter(Boolean).join("<br>");
 
       estadoEl.innerHTML = pintarEstadoVivo(estadoVivo);
       diagnosticoEl.innerHTML = pintarDiagnosticoSistema(diagnostico);
@@ -1062,7 +1074,7 @@
             <tbody>${filasNuestras.join("")}</tbody>
           </table>
         </div>
-      ` : "<p>No hay boletos nuestros persistidos todavia. Si una jugada esta en Historial o en data/quinielas_jugadas.json, aparecera aqui y entrara en aprendizaje.</p>";
+      ` : "<p>No hay boletos nuestros persistidos todavia. Si una jugada esta en Historial persistente o en data/quinielas_jugadas.json, aparecera aqui y entrara en aprendizaje.</p>";
 
       const hist = quiniela.historico_csv || {};
       const oficial = quiniela.jornadas_oficiales || {};
@@ -1590,7 +1602,7 @@
       const texto = JSON.stringify(jugadaParaMemoria(validacion), null, 2);
       try {
         await navigator.clipboard.writeText(texto);
-        alert("Jugada copiada al portapapeles. Aun NO esta en memoria IA real: debe entrar en data/quinielas_jugadas.json o en Historial persistente para que GitHub Actions la aprenda.");
+        alert("Jugada copiada al portapapeles. Aun NO esta en memoria IA real: debe entrar en Quinielas persistente o en Historial persistente para que GitHub Actions la aprenda.");
       } catch (e) {
         alert(texto);
       }
@@ -1623,7 +1635,7 @@
       const texto = JSON.stringify({ jugadas: salida }, null, 2);
       try {
         await navigator.clipboard.writeText(texto);
-        alert(`Memoria copiada: ${salida.length} quiniela(s). Aun NO estan en memoria IA real hasta pasarlas a data/quinielas_jugadas.json o al Historial persistente.`);
+        alert(`Memoria copiada: ${salida.length} quiniela(s). Aun NO estan en memoria IA real hasta pasarlas a Quinielas persistente o al Historial persistente.`);
       } catch (e) {
         alert(texto);
       }
@@ -1841,7 +1853,7 @@
         const v = cargarValidacionLocal(j.jornada);
         return v ? { jornada: j, validacion: v, aciertos: contarAciertosResumen(j, v) } : null;
       }).filter(Boolean);
-      if (!validaciones.length) return "Todavía no hay quinielas nuestras validadas en la memoria. Cuando añadamos jornadas a data/quinielas_jugadas.json, podré comparar signos, Pleno al 15, dobles, triples y Elige 8.";
+      if (!validaciones.length) return "Todavia no hay quinielas nuestras validadas en la memoria. Cuando anadamos jornadas en Quinielas o en Historial persistente, podre comparar signos, Pleno al 15, dobles, triples y Elige 8.";
       return `Quinielas nuestras validadas: ${validaciones.length}\n${validaciones.map(x => `Jornada ${x.jornada.jornada}: ${x.aciertos}`).join("\n")}`;
     }
 

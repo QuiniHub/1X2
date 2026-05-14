@@ -49,6 +49,25 @@ def signo_valido(valor):
     return str(valor or "").strip().upper() in {"1", "X", "2"}
 
 
+def extraer_signos_jugada(valor):
+    if isinstance(valor, list):
+        return [str(s).strip().upper() for s in valor if str(s).strip()]
+    texto = str(valor or "").strip().upper()
+    if not texto or texto in {"NO VALIDADA", "NO JUGADA", "PENDIENTE"}:
+        return []
+    partes = [p for p in texto.split() if p]
+    if len(partes) > 1:
+        return partes
+    if re.fullmatch(r"[12X]{14}", texto):
+        return list(texto)
+    return []
+
+
+def jugada_historial_valida(jornada):
+    signos = extraer_signos_jugada(jornada.get("signos") or jornada.get("nuestra_quiniela"))
+    return str(jornada.get("jornada") or "").isdigit() and len(signos) >= 14
+
+
 def pleno15_cerrado(pleno):
     resultado = str((pleno or {}).get("resultado") or (pleno or {}).get("signo_oficial") or "").strip()
     if not resultado or resultado.lower() == "pendiente":
@@ -117,7 +136,8 @@ def diagnosticar_jornadas(alertas):
 def diagnosticar_memoria(alertas):
     jugadas = cargar_json(DATA / "quinielas_jugadas.json", {"jugadas": []}).get("jugadas", [])
     historial = cargar_json(DATA / "historial_quinielas.json", {"jornadas": []}).get("jornadas", [])
-    historico_validadas = [j for j in historial if j.get("validada")]
+    jugadas_validas = [j for j in jugadas if jugada_historial_valida(j)]
+    historico_validadas = [j for j in historial if jugada_historial_valida(j)]
     signos_en_jornadas = 0
     jornadas_con_signos = 0
     for path in JORNADAS.glob("jornada_*.json"):
@@ -131,22 +151,28 @@ def diagnosticar_memoria(alertas):
             jornadas_con_signos += 1
             signos_en_jornadas += len(jugados)
 
-    persistidas = len(jugadas) + len(historico_validadas) + jornadas_con_signos
+    persistidas = len(jugadas_validas) + len(historico_validadas) + jornadas_con_signos
     if persistidas == 0:
         alertas.append({
             "nivel": "alta",
             "titulo": "No hay boletos nuestros en memoria real",
-            "detalle": "La web puede tener validaciones guardadas en el navegador, pero data/quinielas_jugadas.json no contiene jugadas persistidas.",
-            "accion": "Persistir las quinielas jugadas para que la IA aprenda de aciertos, fallos, dobles, triples, Elige 8 y Pleno al 15.",
+            "detalle": "La web puede tener validaciones guardadas solo en el navegador, pero no hay jugadas persistidas ni en data/quinielas_jugadas.json ni en data/historial_quinielas.json.",
+            "accion": "Persistir las quinielas jugadas en Quinielas o en Historial para que la IA aprenda de aciertos, fallos, dobles, triples, Elige 8 y Pleno al 15.",
         })
 
     return {
-        "jugadas_persistidas_json": len(jugadas),
+        "jugadas_persistidas_json": len(jugadas_validas),
         "jornadas_validadas_historial": len(historico_validadas),
+        "jornadas_memoria_real_total": persistidas,
         "jornadas_con_signo_nuestro": jornadas_con_signos,
         "signos_nuestros_en_jornadas": signos_en_jornadas,
         "estado": "sin_memoria_propia" if persistidas == 0 else "memoria_propia_disponible",
-        "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions.",
+        "fuentes_validas": [
+            "data/quinielas_jugadas.json",
+            "data/historial_quinielas.json",
+            "data/jornadas/jornada_*.json signo_nuestro",
+        ],
+        "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente.",
     }
 
 
@@ -356,7 +382,7 @@ def main():
         "fuentes": fuentes,
         "alertas": alertas,
         "acciones_prioritarias": [
-            "Persistir quinielas jugadas nuestras en data/quinielas_jugadas.json.",
+            "Persistir quinielas jugadas nuestras en data/quinielas_jugadas.json o data/historial_quinielas.json.",
             "No validar 14 fijos si el diagnostico detecta varios partidos trampa.",
             "Conectar fuente fiable de resultados/clasificaciones o usar consenso de fuentes.",
             "Integrar cuotas, xG, alineaciones y sanciones como datos estructurados.",

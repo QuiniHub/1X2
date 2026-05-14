@@ -46,9 +46,10 @@ def extraer_signos_jugada(valor):
 
 def normalizar_jugada(jugada, origen):
     jornada = jugada.get('jornada')
+    jornada_num = int(jornada) if str(jornada or '').isdigit() else None
     signos = extraer_signos_jugada(jugada.get('signos') or jugada.get('nuestra_quiniela'))
-    if isinstance(jornada, int) and len(signos) >= 14:
-        return jornada, {
+    if jornada_num and len(signos) >= 14:
+        return jornada_num, {
             'signos': signos[:14],
             'pleno15': str(jugada.get('pleno15') or jugada.get('pleno15_nuestro') or '').strip(),
             'elige8': [int(x) for x in jugada.get('elige8', []) if str(x).isdigit()],
@@ -87,6 +88,7 @@ def numero_jornada(path):
 def main():
     resumen = {'jornadas_revisadas':0, 'partidos_revisados':0, 'aciertos':0, 'fallos':0, 'fallos_por_tipo':Counter(), 'detalle':[]}
     jugadas = cargar_jugadas_validadas()
+    fuentes_jugadas = Counter(jugada.get('origen') or 'desconocido' for jugada in jugadas.values())
     for path in sorted(JORNADAS.glob('jornada_*.json'), key=numero_jornada):
         data = cargar_json(path, {}); revisados_jornada = 0
         jornada_num = data.get('jornada')
@@ -109,6 +111,7 @@ def main():
         if revisados_jornada: resumen['jornadas_revisadas'] += 1
     total = max(resumen['partidos_revisados'], 1)
     salida = {'version':'1.0', 'precision': round(resumen['aciertos']/total*100, 2), 'jornadas_revisadas': resumen['jornadas_revisadas'], 'partidos_revisados': resumen['partidos_revisados'], 'aciertos': resumen['aciertos'], 'fallos': resumen['fallos'], 'fallos_por_tipo': dict(resumen['fallos_por_tipo']), 'detalle': resumen['detalle'][-250:], 'ajustes_recomendados':['Subir peso del empate si aumenta No cubrio empate.', 'Reducir fijos en partidos con margen probabilístico bajo.', 'Asignar triples a partidos con historial de sorpresa alta.']}
+    salida['fuentes_jugadas'] = dict(fuentes_jugadas)
     OUT.write_text(json.dumps(salida, ensure_ascii=False, indent=2), encoding='utf-8')
     print(f'Aprendizaje IA generado: {OUT}')
 

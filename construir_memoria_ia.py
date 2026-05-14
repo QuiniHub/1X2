@@ -427,9 +427,10 @@ def extraer_signos_jugada(valor):
 
 def normalizar_jugada(jugada, origen):
     jornada = jugada.get("jornada")
+    jornada_num = int(jornada) if str(jornada or "").isdigit() else None
     signos = extraer_signos_jugada(jugada.get("signos") or jugada.get("nuestra_quiniela"))
-    if isinstance(jornada, int) and signos:
-        return jornada, {
+    if jornada_num and len(signos) >= 14:
+        return jornada_num, {
             "signos": signos[:14],
             "elige8": [int(x) for x in jugada.get("elige8", []) if str(x).isdigit()],
             "pleno15": str(jugada.get("pleno15") or jugada.get("pleno15_nuestro") or "").strip(),
@@ -459,6 +460,7 @@ def cargar_quinielas_jugadas():
 
 def analizar_nuestras_quinielas():
     jugadas = cargar_quinielas_jugadas()
+    fuentes = Counter(jugada.get("origen") or "desconocido" for jugada in jugadas.values())
     resumen = []
     total_partidos = 0
     aciertos = 0
@@ -511,6 +513,7 @@ def analizar_nuestras_quinielas():
 
         resumen.append({
             "jornada": jornada,
+            "origen": jugada.get("origen") or "desconocido",
             "aciertos": jornada_aciertos,
             "fallos": jornada_fallos,
             "partidos_analizados": jornada_aciertos + jornada_fallos,
@@ -522,6 +525,7 @@ def analizar_nuestras_quinielas():
 
     return {
         "jornadas_validadas": len(jugadas),
+        "fuentes": dict(fuentes),
         "partidos_validados": total_partidos,
         "aciertos": aciertos,
         "fallos": fallos,
@@ -583,7 +587,7 @@ def pesos_recomendados(ligas, quiniela):
     else:
         pesos["estado_aprendizaje_propio"] = "pendiente_boletos_persistidos"
         pesos["partidos_propios_validados"] = partidos_propios
-        ajustes.append("Faltan boletos propios persistidos: los pesos siguen siendo iniciales y no aprendizaje real de nuestras jugadas.")
+        ajustes.append("Faltan boletos propios persistidos en Quinielas o Historial: los pesos siguen siendo iniciales y no aprendizaje real de nuestras jugadas.")
     pesos["ajustes_por_nuestras_quinielas"] = ajustes
     return pesos
 

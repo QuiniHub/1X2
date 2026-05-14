@@ -38,6 +38,7 @@ La memoria persistente debe estar en:
 - `data/historial_quinielas.json`
 
 Una jugada guardada solo en el navegador no entra en el aprendizaje automatico hasta que quede persistida en esos archivos.
+Las quinielas manuales cargadas en Historial cuentan igual que las generadas en Quinielas cuando `data/historial_quinielas.json` contiene `nuestra_quiniela`.
 
 ## Limpieza aplicada
 
