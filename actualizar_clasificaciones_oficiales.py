@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 OFICIALES = DATA / "clasificaciones_oficiales.json"
+PUBLICA = ROOT / "clasificaciones.json"
 
 FUENTES = {
     "primera": "https://www.laliga.com/laliga-easports/clasificacion",
@@ -183,6 +184,33 @@ def actualizar_liga(liga, actuales):
     return filas
 
 
+def fusionar_clasificacion_publica(oficial, publica):
+    # Actualiza la clasificacion que ve la web sin perder campos calculados
+    # por otros modulos como racha_actual, tendencias o pts.
+    salida = dict(publica)
+
+    for liga in ("primera", "segunda"):
+        anteriores = {
+            normalizar(e.get("equipo", "")): e
+            for e in publica.get(liga, [])
+            if e.get("equipo")
+        }
+        nuevos = []
+
+        for equipo_oficial in oficial.get(liga, []):
+            clave = normalizar(equipo_oficial.get("equipo", ""))
+            base = dict(anteriores.get(clave, {}))
+            base.update(equipo_oficial)
+            base["pts"] = equipo_oficial.get("puntos", equipo_oficial.get("pts", 0))
+            nuevos.append(base)
+
+        if nuevos:
+            salida[liga] = nuevos
+
+    salida["actualizado_en"] = oficial.get("actualizado_en")
+    salida["fuentes"] = oficial.get("fuentes", {})
+    return salida
+
 def main():
     data = cargar_json(OFICIALES, {})
     if not data:
@@ -193,6 +221,13 @@ def main():
         salida[liga] = actualizar_liga(liga, data.get(liga, []))
     salida["actualizado_en"] = datetime.now(timezone.utc).isoformat()
     guardar_json(OFICIALES, salida)
+
+    publica_actual = cargar_json(PUBLICA, {})
+    if publica_actual:
+        publica_actualizada = fusionar_clasificacion_publica(salida, publica_actual)
+        guardar_json(PUBLICA, publica_actualizada)
+        print(PUBLICA)
+
     print(OFICIALES)
 
 
