@@ -1,22 +1,22 @@
 {
   "version": "1.0",
-  "generado_en": "2026-05-14T12:06:32.100409+00:00",
-  "estado": "critico_para_prediccion_fuerte",
-  "score_salud": 58,
+  "generado_en": "2026-05-15T08:35:25.172067+00:00",
+  "estado": "necesita_mejoras",
+  "score_salud": 72,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 63,
     "jornada_actual": {
-      "jornada": 62,
-      "fecha": "13 de Mayo de 2026",
-      "estado": "en_juego",
+      "jornada": 63,
+      "fecha": "17 de Mayo de 2026",
+      "estado": "publicada",
       "partidos": 14,
-      "cerrados": 12,
-      "pendientes": 2,
-      "pendientes_totales_con_pleno15": 3,
+      "cerrados": 0,
+      "pendientes": 14,
+      "pendientes_totales_con_pleno15": 15,
       "pleno15_cerrado": false,
-      "ultima_actualizacion_partido": "2026-05-13T21:55:13Z",
-      "path": "data/jornadas/jornada_62.json"
+      "ultima_actualizacion_partido": "",
+      "path": "data/jornadas/jornada_63.json"
     },
     "proxima_jornada": {
       "jornada": 63,
@@ -70,13 +70,13 @@
       {
         "jornada": 62,
         "fecha": "13 de Mayo de 2026",
-        "estado": "en_juego",
+        "estado": "cerrada",
         "partidos": 14,
-        "cerrados": 12,
-        "pendientes": 2,
-        "pendientes_totales_con_pleno15": 3,
-        "pleno15_cerrado": false,
-        "ultima_actualizacion_partido": "2026-05-13T21:55:13Z",
+        "cerrados": 14,
+        "pendientes": 0,
+        "pendientes_totales_con_pleno15": 0,
+        "pleno15_cerrado": true,
+        "ultima_actualizacion_partido": "2026-05-15T08:35:09Z",
         "path": "data/jornadas/jornada_62.json"
       },
       {
@@ -94,16 +94,22 @@
     ]
   },
   "memoria_quinielas": {
-    "jugadas_persistidas_json": 0,
-    "jornadas_validadas_historial": 0,
+    "jugadas_persistidas_json": 3,
+    "jornadas_validadas_historial": 3,
+    "jornadas_memoria_real_total": 6,
     "jornadas_con_signo_nuestro": 0,
     "signos_nuestros_en_jornadas": 0,
-    "estado": "sin_memoria_propia",
-    "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions."
+    "estado": "memoria_propia_disponible",
+    "fuentes_validas": [
+      "data/quinielas_jugadas.json",
+      "data/historial_quinielas.json",
+      "data/jornadas/jornada_*.json signo_nuestro"
+    ],
+    "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
     "jornada": 63,
-    "generado_en": "2026-05-14T12:06:32.016626+00:00",
+    "generado_en": "2026-05-15T08:35:25.099839+00:00",
     "configuracion": {
       "dobles": 0,
       "triples": 0,
@@ -122,27 +128,18 @@
         "num": 7,
         "partido": "Real Sociedad - Valencia",
         "signo": "X",
-        "probabilidad_top": 35.9,
-        "margen": 0.2,
-        "incertidumbre": 140.37,
+        "probabilidad_top": 36.3,
+        "margen": 2.2,
+        "incertidumbre": 138.5,
         "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
       },
       {
         "num": 4,
         "partido": "Elche - Getafe",
         "signo": "1",
-        "probabilidad_top": 37.9,
-        "margen": 4.0,
-        "incertidumbre": 129.87,
-        "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
-      },
-      {
-        "num": 8,
-        "partido": "Oviedo - Alavés",
-        "signo": "2",
-        "probabilidad_top": 38.6,
-        "margen": 5.4,
-        "incertidumbre": 126.22,
+        "probabilidad_top": 38.7,
+        "margen": 5.3,
+        "incertidumbre": 128.39,
         "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
       },
       {
@@ -152,6 +149,24 @@
         "probabilidad_top": 34.9,
         "margen": 2.2,
         "incertidumbre": 123.02,
+        "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
+      },
+      {
+        "num": 8,
+        "partido": "Oviedo - Alavés",
+        "signo": "2",
+        "probabilidad_top": 45.0,
+        "margen": 12.6,
+        "incertidumbre": 119.74,
+        "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
+      },
+      {
+        "num": 6,
+        "partido": "Rayo Vallecano - Villarreal",
+        "signo": "2",
+        "probabilidad_top": 35.9,
+        "margen": 2.4,
+        "incertidumbre": 118.31,
         "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
       },
       {
@@ -171,15 +186,6 @@
         "margen": 7.8,
         "incertidumbre": 114.68,
         "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
-      },
-      {
-        "num": 6,
-        "partido": "Rayo Vallecano - Villarreal",
-        "signo": "2",
-        "probabilidad_top": 37.9,
-        "margen": 6.0,
-        "incertidumbre": 114.53,
-        "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
       }
     ]
   },
@@ -198,7 +204,7 @@
         {
           "posicion": 2,
           "equipo": "Real Madrid CF",
-          "puntos": 77
+          "puntos": 80
         },
         {
           "posicion": 3,
@@ -234,7 +240,7 @@
   "fuentes": {
     "memoria_horas": 0.0,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 5.43,
+    "contexto_equipos_horas": 0.0,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -270,14 +276,8 @@
     {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
-      "detalle": "La jornada 62 tiene 12 partidos cerrados, 2 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "detalle": "La jornada 63 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
       "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
-    },
-    {
-      "nivel": "alta",
-      "titulo": "No hay boletos nuestros en memoria real",
-      "detalle": "La web puede tener validaciones guardadas en el navegador, pero data/quinielas_jugadas.json no contiene jugadas persistidas.",
-      "accion": "Persistir las quinielas jugadas para que la IA aprenda de aciertos, fallos, dobles, triples, Elige 8 y Pleno al 15."
     },
     {
       "nivel": "media",
@@ -299,7 +299,7 @@
     }
   ],
   "acciones_prioritarias": [
-    "Persistir quinielas jugadas nuestras en data/quinielas_jugadas.json.",
+    "Persistir quinielas jugadas nuestras en data/quinielas_jugadas.json o data/historial_quinielas.json.",
     "No validar 14 fijos si el diagnostico detecta varios partidos trampa.",
     "Conectar fuente fiable de resultados/clasificaciones o usar consenso de fuentes.",
     "Integrar cuotas, xG, alineaciones y sanciones como datos estructurados.",
