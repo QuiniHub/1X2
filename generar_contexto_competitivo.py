@@ -31,6 +31,39 @@ REGLAS = {
     },
 }
 
+ESTADOS_VIVOS = {
+    "defiende_liderato",
+    "defiende_plaza",
+    "aspira_matematicamente",
+    "aspira_por_desempate_o_fallo_ajeno",
+    "en_descenso_con_opciones",
+    "riesgo_descenso",
+    "permanencia_por_cerrar",
+}
+
+PRIORIDAD_OBJETIVO = {
+    "en_descenso_con_opciones": 120,
+    "riesgo_descenso": 115,
+    "permanencia_por_cerrar": 105,
+    "defiende_liderato": 100,
+    "defiende_plaza": 90,
+    "aspira_matematicamente": 82,
+    "aspira_por_desempate_o_fallo_ajeno": 78,
+    "ventaja_por_permanencia": 45,
+    "campeon_matematico": 38,
+    "asegurado_matematicamente": 34,
+    "salvado_matematicamente": 28,
+    "descendido_matematicamente": 26,
+    "sin_opciones_matematicas": 18,
+    "no_se_juega_nada_clasificatorio": 5,
+}
+
+
+OBJETIVOS_AMPLIOS = {
+    "europa_league": "Europa League",
+    "conference": "Conference",
+}
+
 
 def cargar_json(path, defecto=None):
     if defecto is None:
@@ -81,6 +114,7 @@ def preparar_tabla(tabla, total_partidos):
             "equipo": item.get("equipo"),
             "posicion": int_valor(item.get("posicion")),
             "pj": pj,
+            "partidos_restantes": restantes,
             "puntos": puntos,
             "puntos_en_juego": restantes * 3,
             "maximo_puntos": puntos + restantes * 3,
@@ -97,39 +131,99 @@ def frontera_superior(equipos, fin):
     return dentro, perseguidor
 
 
+def texto_puntos(puntos):
+    return f"{puntos} punto" if puntos == 1 else f"{puntos} puntos"
+
+
+def nombre_objetivo(objetivo):
+    return OBJETIVOS_AMPLIOS.get(objetivo, objetivo.replace("_", " "))
+
+
 def evaluar_plaza(equipo, equipos, fin, objetivo):
     dentro, perseguidor = frontera_superior(equipos, fin)
     if not dentro:
         return None
+
     pos = equipo["posicion"]
     puntos = equipo["puntos"]
     maximo = equipo["maximo_puntos"]
+    puntos_en_juego = equipo["puntos_en_juego"]
+    etiqueta = nombre_objetivo(objetivo)
 
     if pos <= fin:
         if not perseguidor:
             return {
                 "objetivo": objetivo,
-                "estado": "en_plaza",
+                "estado": "asegurado_matematicamente",
+                "vivo": False,
+                "terminal": True,
                 "distancia_o_colchon": None,
-                "lectura": f"Esta dentro de {objetivo}; no hay perseguidor directo fuera del corte.",
+                "puntos_necesarios_para_asegurar": 0,
+                "lectura": f"Tiene plaza de {etiqueta} asegurada por puntos.",
             }
+
         colchon = puntos - perseguidor["puntos"]
         asegurado = puntos > perseguidor["maximo_puntos"]
-        estado = "asegurado_matematicamente" if asegurado else "defiende_plaza"
+        puntos_para_asegurar = max(0, perseguidor["maximo_puntos"] + 1 - puntos)
+        if asegurado:
+            estado = "asegurado_matematicamente"
+            lectura = (
+                f"Tiene {etiqueta} asegurado: suma {puntos} puntos y "
+                f"{perseguidor['equipo']} solo puede llegar a {perseguidor['maximo_puntos']}."
+            )
+        else:
+            estado = "defiende_plaza"
+            lectura = (
+                f"Defiende plaza de {etiqueta} con {texto_puntos(colchon)} sobre "
+                f"{perseguidor['equipo']}. Para asegurarla por puntos necesita "
+                f"{texto_puntos(puntos_para_asegurar)} más."
+            )
         return {
             "objetivo": objetivo,
             "estado": estado,
+            "vivo": estado in ESTADOS_VIVOS,
+            "terminal": estado == "asegurado_matematicamente",
             "distancia_o_colchon": colchon,
-            "lectura": f"Esta dentro de {objetivo} con {colchon} puntos sobre el primer perseguidor ({perseguidor['equipo']}).",
+            "corte_equipo": perseguidor["equipo"],
+            "corte_puntos_actuales": perseguidor["puntos"],
+            "corte_maximo_puntos": perseguidor["maximo_puntos"],
+            "puntos_necesarios_para_asegurar": puntos_para_asegurar,
+            "lectura": lectura,
         }
 
-    distancia = max(dentro["puntos"] - puntos + 1, 0)
-    vivo = maximo >= dentro["puntos"]
+    distancia = max(dentro["puntos"] + 1 - puntos, 0)
+    puede_superar = maximo > dentro["puntos"]
+    puede_igualar = maximo >= dentro["puntos"]
+    if puede_superar:
+        estado = "aspira_matematicamente"
+        lectura = (
+            f"Está fuera de {etiqueta}, pero puede alcanzarlo: necesita "
+            f"{texto_puntos(distancia)} para superar sin desempates el corte de {dentro['equipo']}."
+        )
+    elif puede_igualar:
+        estado = "aspira_por_desempate_o_fallo_ajeno"
+        lectura = (
+            f"Solo puede igualar el corte de {etiqueta}; necesita pleno y dependería "
+            f"de desempates o fallos de {dentro['equipo']}."
+        )
+    else:
+        estado = "sin_opciones_matematicas"
+        lectura = (
+            f"No llega por puntos a {etiqueta}: su máximo es {maximo} y "
+            f"el corte actual de {dentro['equipo']} está en {dentro['puntos']}."
+        )
+
     return {
         "objetivo": objetivo,
-        "estado": "aspira_matematicamente" if vivo else "sin_opciones_reales",
+        "estado": estado,
+        "vivo": estado in ESTADOS_VIVOS,
+        "terminal": estado == "sin_opciones_matematicas",
         "distancia_o_colchon": -distancia,
-        "lectura": f"Esta a {distancia} puntos de entrar en {objetivo}; maximo posible {maximo}.",
+        "corte_equipo": dentro["equipo"],
+        "corte_puntos_actuales": dentro["puntos"],
+        "puntos_necesarios_para_entrar": distancia,
+        "depende_de_rivales": distancia > puntos_en_juego or estado == "aspira_por_desempate_o_fallo_ajeno",
+        "lectura": lectura,
     }
 
 
@@ -142,25 +236,50 @@ def evaluar_titulo(equipo, equipos):
         if not segundo:
             return None
         colchon = equipo["puntos"] - segundo["puntos"]
-        estado = "campeon_matematico" if equipo["puntos"] > segundo["maximo_puntos"] else "defiende_liderato"
+        campeon = equipo["puntos"] > segundo["maximo_puntos"]
+        puntos_para_titulo = max(0, segundo["maximo_puntos"] + 1 - equipo["puntos"])
+        estado = "campeon_matematico" if campeon else "defiende_liderato"
         lectura = (
-            f"Lidera con {colchon} puntos sobre {segundo['equipo']}. "
-            f"{'Ya no puede ser alcanzado por puntos.' if estado == 'campeon_matematico' else 'Aun debe cerrar matematicamente el titulo.'}"
+            f"Ya es campeón matemático: suma {equipo['puntos']} puntos y "
+            f"{segundo['equipo']} solo puede llegar a {segundo['maximo_puntos']}."
+            if campeon else
+            f"Lidera con {texto_puntos(colchon)} sobre {segundo['equipo']} y necesita "
+            f"{texto_puntos(puntos_para_titulo)} para cerrar el título por puntos."
         )
         return {
             "objetivo": "titulo_liga",
             "estado": estado,
+            "vivo": estado in ESTADOS_VIVOS,
+            "terminal": campeon,
             "distancia_o_colchon": colchon,
+            "puntos_necesarios_para_asegurar": puntos_para_titulo,
             "lectura": lectura,
         }
 
-    distancia = lider["puntos"] - equipo["puntos"] + 1
-    vivo = equipo["maximo_puntos"] >= lider["puntos"]
+    distancia = max(lider["puntos"] + 1 - equipo["puntos"], 0)
+    if equipo["maximo_puntos"] > lider["puntos"]:
+        estado = "aspira_matematicamente"
+        lectura = (
+            f"Aún puede pelear el título por puntos: necesita {texto_puntos(distancia)} "
+            f"para superar al líder {lider['equipo']}."
+        )
+    elif equipo["maximo_puntos"] >= lider["puntos"]:
+        estado = "aspira_por_desempate_o_fallo_ajeno"
+        lectura = f"Solo puede igualar al líder {lider['equipo']} y dependería de desempates."
+    else:
+        estado = "sin_opciones_matematicas"
+        lectura = (
+            f"No puede alcanzar el título: su máximo es {equipo['maximo_puntos']} y "
+            f"{lider['equipo']} ya tiene {lider['puntos']}."
+        )
     return {
         "objetivo": "titulo_liga",
-        "estado": "aspira_matematicamente" if vivo else "sin_opciones_reales",
+        "estado": estado,
+        "vivo": estado in ESTADOS_VIVOS,
+        "terminal": estado == "sin_opciones_matematicas",
         "distancia_o_colchon": -distancia,
-        "lectura": f"Esta a {distancia} puntos del lider ({lider['equipo']}); maximo posible {equipo['maximo_puntos']}.",
+        "puntos_necesarios_para_entrar": distancia,
+        "lectura": lectura,
     }
 
 
@@ -176,69 +295,144 @@ def evaluar_descenso(equipo, equipos, plazas, nombre_objetivo):
     equipo_descenso = equipos[ultima_safe]
 
     if pos >= primera_descenso:
-        distancia = max(equipo_safe["puntos"] - equipo["puntos"] + 1, 0)
-        estado = "en_descenso_con_opciones" if equipo["maximo_puntos"] >= equipo_safe["puntos"] else "descenso_muy_complicado"
+        puntos_para_salir = max(equipo_safe["puntos"] + 1 - equipo["puntos"], 0)
+        if equipo["maximo_puntos"] < equipo_safe["puntos"]:
+            return {
+                "objetivo": "situacion_final",
+                "estado": "descendido_matematicamente",
+                "vivo": False,
+                "terminal": True,
+                "distancia_o_colchon": -puntos_para_salir,
+                "corte_equipo": equipo_safe["equipo"],
+                "corte_puntos_actuales": equipo_safe["puntos"],
+                "maximo_puntos": equipo["maximo_puntos"],
+                "puntos_necesarios_para_salvarse": puntos_para_salir,
+                "lectura": (
+                    f"Descendido matemáticamente por puntos: aunque gane todo solo llega a "
+                    f"{equipo['maximo_puntos']} y el corte de permanencia ya está en "
+                    f"{equipo_safe['puntos']} ({equipo_safe['equipo']})."
+                ),
+            }
+
+        depende = puntos_para_salir > equipo["puntos_en_juego"]
+        lectura = (
+            f"Está en descenso, pero aún tiene opciones. Necesita {texto_puntos(puntos_para_salir)} "
+            f"para superar sin desempates el corte de {equipo_safe['equipo']} ({equipo_safe['puntos']})."
+        )
+        if depende:
+            lectura += " Con los puntos que le quedan no le basta solo ganar: depende de rivales o desempates."
         return {
             "objetivo": nombre_objetivo,
-            "estado": estado,
-            "distancia_o_colchon": -distancia,
-            "lectura": f"Esta en zona de descenso y necesita {distancia} puntos para superar el corte de {equipo_safe['equipo']}.",
+            "estado": "en_descenso_con_opciones",
+            "vivo": True,
+            "terminal": False,
+            "distancia_o_colchon": -puntos_para_salir,
+            "corte_equipo": equipo_safe["equipo"],
+            "corte_puntos_actuales": equipo_safe["puntos"],
+            "puntos_necesarios_para_salvarse": puntos_para_salir,
+            "depende_de_rivales": depende,
+            "lectura": lectura,
         }
 
     colchon = equipo["puntos"] - equipo_descenso["puntos"]
-    asegurado = equipo["puntos"] > equipo_descenso["maximo_puntos"]
-    if asegurado:
+    puntos_para_salvarse = max(equipo_descenso["maximo_puntos"] + 1 - equipo["puntos"], 0)
+    salvado = equipo["puntos"] > equipo_descenso["maximo_puntos"]
+    if salvado:
         estado = "salvado_matematicamente"
+        objetivo = "situacion_final"
+        lectura = (
+            f"Salvado matemáticamente: tiene {equipo['puntos']} puntos y "
+            f"{equipo_descenso['equipo']} solo puede llegar a {equipo_descenso['maximo_puntos']}."
+        )
     elif colchon <= 3:
         estado = "riesgo_descenso"
+        objetivo = nombre_objetivo
+        lectura = (
+            f"Riesgo de descenso: solo tiene {texto_puntos(colchon)} sobre "
+            f"{equipo_descenso['equipo']}. Necesita {texto_puntos(puntos_para_salvarse)} "
+            "para salvarse por puntos sin depender de otros."
+        )
     elif colchon <= equipo_descenso["puntos_en_juego"]:
         estado = "permanencia_por_cerrar"
+        objetivo = nombre_objetivo
+        lectura = (
+            f"Tiene ventaja, pero la permanencia no está cerrada. Colchón: "
+            f"{texto_puntos(colchon)} sobre {equipo_descenso['equipo']}; necesita "
+            f"{texto_puntos(puntos_para_salvarse)} para cerrarla por puntos."
+        )
     else:
         estado = "ventaja_por_permanencia"
+        objetivo = nombre_objetivo
+        lectura = (
+            f"Tiene {texto_puntos(colchon)} de margen sobre {equipo_descenso['equipo']}. "
+            "No está marcado como salvado por puntos puros, pero el riesgo es bajo."
+        )
+
     return {
-        "objetivo": nombre_objetivo,
+        "objetivo": objetivo,
         "estado": estado,
+        "vivo": estado in ESTADOS_VIVOS,
+        "terminal": estado == "salvado_matematicamente",
         "distancia_o_colchon": colchon,
-        "lectura": f"Tiene {colchon} puntos sobre el primer equipo en descenso ({equipo_descenso['equipo']}).",
+        "corte_equipo": equipo_descenso["equipo"],
+        "corte_puntos_actuales": equipo_descenso["puntos"],
+        "corte_maximo_puntos": equipo_descenso["maximo_puntos"],
+        "puntos_necesarios_para_salvarse": puntos_para_salvarse,
+        "lectura": lectura,
     }
 
 
 def nivel_motivacion(objetivos):
     score = 0
-    estados_altos = {
-        "defiende_liderato",
-        "defiende_plaza",
-        "aspira_matematicamente",
-        "en_descenso_con_opciones",
-        "riesgo_descenso",
-    }
-    estados_medios = {"permanencia_por_cerrar", "ventaja_por_permanencia", "descenso_muy_complicado"}
     for objetivo in objetivos:
         estado = objetivo.get("estado")
-        if estado in estados_altos:
+        if estado in {"en_descenso_con_opciones", "riesgo_descenso", "defiende_liderato", "defiende_plaza"}:
+            score += 3
+        elif estado in {"aspira_matematicamente", "permanencia_por_cerrar"}:
             score += 2
-        elif estado in estados_medios:
+        elif estado in {"aspira_por_desempate_o_fallo_ajeno", "ventaja_por_permanencia"}:
             score += 1
-    if score >= 5:
+
+    if score >= 7:
         return "maxima"
-    if score >= 3:
+    if score >= 4:
         return "alta"
     if score >= 1:
         return "media"
     return "baja"
 
 
-def limpiar_objetivos(equipo, objetivos):
-    visibles = []
-    for objetivo in objetivos:
-        if not objetivo:
-            continue
-        estado = objetivo.get("estado")
-        if estado in ("sin_opciones_reales", "salvado_matematicamente"):
-            continue
-        visibles.append(objetivo)
+def elegir_objetivo_principal(objetivos):
+    if not objetivos:
+        return None
+    return sorted(
+        objetivos,
+        key=lambda objetivo: PRIORIDAD_OBJETIVO.get(objetivo.get("estado"), 0),
+        reverse=True,
+    )[0]
+
+
+def cerrar_equipo(equipo, objetivos):
+    visibles = [objetivo for objetivo in objetivos if objetivo]
     equipo["objetivos"] = visibles
-    equipo["motivacion_competitiva"] = nivel_motivacion(visibles)
+    equipo["objetivos_vivos"] = [objetivo for objetivo in visibles if objetivo.get("vivo")]
+    equipo["objetivo_principal"] = elegir_objetivo_principal(visibles)
+
+    if not equipo["objetivos_vivos"] and not equipo["objetivo_principal"]:
+        equipo["objetivo_principal"] = {
+            "objetivo": "situacion_final",
+            "estado": "no_se_juega_nada_clasificatorio",
+            "vivo": False,
+            "terminal": True,
+            "lectura": "Por puntos no tiene un objetivo clasificatorio vivo claro para la jornada.",
+        }
+        equipo["objetivos"] = [equipo["objetivo_principal"]]
+
+    equipo["motivacion_competitiva"] = nivel_motivacion(equipo["objetivos_vivos"])
+    equipo["motivacion"] = equipo["motivacion_competitiva"]
+    principal = equipo.get("objetivo_principal") or {}
+    equipo["lectura_resumen"] = principal.get("lectura", "Sin lectura competitiva clara.")
+    equipo["situacion_competitiva"] = principal.get("estado", "no_se_juega_nada_clasificatorio")
     return equipo
 
 
@@ -247,7 +441,15 @@ def resumen_frontera(equipos, fin, etiqueta):
     if not dentro or not fuera:
         return None
     diferencia = dentro["puntos"] - fuera["puntos"]
-    return f"{etiqueta}: {dentro['equipo']} marca el corte con {dentro['puntos']} puntos; {fuera['equipo']} persigue a {diferencia}."
+    if dentro["puntos"] > fuera["maximo_puntos"]:
+        return (
+            f"{etiqueta}: {dentro['equipo']} tiene el corte asegurado por puntos; "
+            f"{fuera['equipo']} solo puede llegar a {fuera['maximo_puntos']}."
+        )
+    return (
+        f"{etiqueta}: {dentro['equipo']} marca el corte con {dentro['puntos']} puntos; "
+        f"{fuera['equipo']} persigue a {texto_puntos(diferencia)}."
+    )
 
 
 def resumen_titulo(equipos):
@@ -255,9 +457,12 @@ def resumen_titulo(equipos):
         return None
     lider, segundo = equipos[0], equipos[1]
     if lider["puntos"] > segundo["maximo_puntos"]:
-        return f"Titulo: {lider['equipo']} ya es campeon matematico con {lider['puntos']} puntos; {segundo['equipo']} solo puede llegar a {segundo['maximo_puntos']}."
+        return (
+            f"Título: {lider['equipo']} ya es campeón matemático con {lider['puntos']} puntos; "
+            f"{segundo['equipo']} solo puede llegar a {segundo['maximo_puntos']}."
+        )
     diferencia = lider["puntos"] - segundo["puntos"]
-    return f"Titulo: {lider['equipo']} lidera con {lider['puntos']} puntos; {segundo['equipo']} esta a {diferencia}."
+    return f"Título: {lider['equipo']} lidera con {lider['puntos']} puntos; {segundo['equipo']} está a {texto_puntos(diferencia)}."
 
 
 def resumen_descenso(equipos, plazas, etiqueta):
@@ -266,8 +471,12 @@ def resumen_descenso(equipos, plazas, etiqueta):
         return None
     safe = equipos[total - plazas - 1]
     drop = equipos[total - plazas]
+    matematicos = [e["equipo"] for e in equipos[total - plazas:] if e["maximo_puntos"] < safe["puntos"]]
     diferencia = safe["puntos"] - drop["puntos"]
-    return f"{etiqueta}: {safe['equipo']} esta justo fuera con {safe['puntos']}; {drop['equipo']} esta dentro a {diferencia}."
+    base = f"{etiqueta}: {safe['equipo']} está justo fuera con {safe['puntos']}; {drop['equipo']} está dentro a {texto_puntos(diferencia)}."
+    if matematicos:
+        base += f" Descendidos matemáticos por puntos: {', '.join(matematicos)}."
+    return base
 
 
 def analizar_primera(tabla):
@@ -286,7 +495,7 @@ def analizar_primera(tabla):
             evaluar_plaza(equipo, equipos, fin_conference, "conference"),
             evaluar_descenso(equipo, equipos, reglas["descenso"], "descenso"),
         ]
-        analizados.append(limpiar_objetivos(equipo, objetivos))
+        analizados.append(cerrar_equipo(equipo, objetivos))
 
     lecturas = [
         resumen_titulo(equipos),
@@ -320,12 +529,12 @@ def analizar_segunda(tabla):
             evaluar_plaza(equipo, equipos, fin_playoff, "playoff_ascenso"),
             evaluar_descenso(equipo, equipos, reglas["descenso"], "descenso_primera_federacion"),
         ]
-        analizados.append(limpiar_objetivos(equipo, objetivos))
+        analizados.append(cerrar_equipo(equipo, objetivos))
 
     lecturas = [
         resumen_frontera(equipos, fin_directo, "Ascenso directo"),
-        resumen_frontera(equipos, fin_playoff, "Promocion de ascenso"),
-        resumen_descenso(equipos, reglas["descenso"], "Descenso a Primera Federacion"),
+        resumen_frontera(equipos, fin_playoff, "Promoción de ascenso"),
+        resumen_descenso(equipos, reglas["descenso"], "Descenso a Primera Federación"),
     ]
     return {
         "reglas": reglas,
@@ -342,9 +551,9 @@ def analizar_segunda(tabla):
 def main():
     clasificaciones = cargar_json(CLASIFICACIONES, {})
     salida = {
-        "version": "1.0",
+        "version": "1.1",
         "generado_en": datetime.now(timezone.utc).isoformat(),
-        "descripcion": "Contexto de objetivos y presion competitiva para calibrar predicciones de final de temporada.",
+        "descripcion": "Contexto de objetivos, puntos en juego y presión competitiva para calibrar predicciones de final de temporada.",
         "reglas": REGLAS,
         "primera": analizar_primera(clasificaciones.get("primera", [])),
         "segunda": analizar_segunda(clasificaciones.get("segunda", [])),
