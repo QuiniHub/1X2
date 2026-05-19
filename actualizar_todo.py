@@ -22,6 +22,7 @@ SCRIPTS_ACTIVOS = [
     "motor_prediccion_quiniela.py",
     "generar_estado_vivo_ia.py",
     "regenerar_estado_vivo_actual.py",
+    "ajustar_estado_vivo_motivacion.py",
     "mejorar_asistente_ia.py",
     "corregir_asistente_objeciones.py",
     "corregir_puntos_asistente.py",
