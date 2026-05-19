@@ -19,6 +19,8 @@ SCRIPTS_ACTIVOS = [
     "construir_historial_quinielas.py",
     "actualizar_aprendizaje_ia.py",
     "construir_memoria_ia.py",
+    "recalcular_dinamicas_calendario.py",
+    "sincronizar_dinamicas_memoria.py",
     "generar_contexto_competitivo.py",
     "mejorar_motor_dinamica_10.py",
     "motor_prediccion_quiniela.py",
