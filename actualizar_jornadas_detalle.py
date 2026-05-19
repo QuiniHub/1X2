@@ -1,115 +1,235 @@
 import json
-import os
+import re
+import unicodedata
+from datetime import datetime, timezone
+from pathlib import Path
+
+import requests
+from bs4 import BeautifulSoup
 
 
-def obtener_datos_base_jornadas():
-    # Define el orden oficial de los partidos del boleto activo de la Quiniela.
-    # Aqui se anade la jornada objetivo sin cambiar el contrato de los JSON actuales.
-    jornadas_maestras = {
-        "61": [
-            {"local": "Elche", "visitante": "Alaves", "estado": "Programado"},
-            {"local": "Sevilla", "visitante": "Espanyol", "estado": "Programado"},
-            {"local": "Ath Madrid", "visitante": "Celta", "estado": "Programado"},
-            {"local": "Sociedad", "visitante": "Betis", "estado": "Programado"},
-            {"local": "Mallorca", "visitante": "Villarreal", "estado": "Programado"},
-            {"local": "Ath Bilbao", "visitante": "Valencia", "estado": "Programado"},
-            {"local": "Real Oviedo", "visitante": "Getafe", "estado": "Programado"},
-            {"local": "Vallecano", "visitante": "Girona", "estado": "Programado"},
-            {"local": "Ceuta", "visitante": "Castellon", "estado": "Programado"},
-            {"local": "Burgos", "visitante": "Almeria", "estado": "Programado"},
-            {"local": "Sp Gijon", "visitante": "Malaga", "estado": "Programado"},
-            {"local": "Andorra", "visitante": "Las Palmas", "estado": "Programado"},
-            {"local": "Leganes", "visitante": "Santander", "estado": "Programado"},
-            {"local": "Cordoba", "visitante": "Granada", "estado": "Programado"},
-            {"local": "Barcelona", "visitante": "Real Madrid", "estado": "Programado"},
-        ]
-    }
-    return jornadas_maestras
+ROOT = Path(__file__).resolve().parent
+DATA = ROOT / "data"
+JORNADAS = DATA / "jornadas"
+FUENTE_PROXIMAS = "https://www.quinielafutbol.info/proximas-jornadas-de-la-quiniela.html"
+
+CANONICOS = {
+    "alaves": "Deportivo Alaves",
+    "rayo": "Rayo Vallecano de Madrid",
+    "betis": "Real Betis Balompie",
+    "levante": "Levante UD",
+    "celta": "RC Celta de Vigo",
+    "sevilla": "Sevilla FC",
+    "espanyol": "RCD Espanyol de Barcelona",
+    "r sociedad": "Real Sociedad de Futbol",
+    "getafe": "Getafe CF",
+    "osasuna": "CA Osasuna",
+    "mallorca": "RCD Mallorca",
+    "r oviedo": "Real Oviedo",
+    "villarreal": "Villarreal CF",
+    "at madrid": "Club Atletico de Madrid",
+    "valencia": "Valencia CF",
+    "barcelona": "FC Barcelona",
+    "girona": "Girona FC",
+    "elche": "Elche CF",
+    "malaga": "Malaga CF",
+    "racing s": "Real Racing Club de Santander",
+    "andorra fc": "FC Andorra",
+    "ceuta": "AD Ceuta FC",
+    "huesca": "SD Huesca",
+    "castellon": "CD Castellon",
+    "eibar": "SD Eibar",
+    "cordoba": "Cordoba CF",
+    "sporting": "Real Sporting de Gijon",
+    "almeria": "UD Almeria",
+    "r madrid": "Real Madrid CF",
+    "ath club": "Athletic Club",
+}
 
 
-def cargar_json_seguro(ruta_archivo, defecto):
-    if not os.path.exists(ruta_archivo):
+def cargar_json(path, defecto=None):
+    if defecto is None:
+        defecto = {}
+    if not path.exists():
         return defecto
     try:
-        with open(ruta_archivo, "r", encoding="utf-8") as f:
-            datos = json.load(f)
+        return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
-        print(f"Archivo {ruta_archivo} corrupto o vacio. Se usa valor por defecto.")
         return defecto
-    return datos
 
 
-def cargar_historial_existente(ruta_archivo):
-    # El historial debe ser un diccionario por jornada.
-    # Si por error apunta a un JSON antiguo tipo lista, no lo usa como historial para evitar TypeError.
-    datos = cargar_json_seguro(ruta_archivo, {})
-    if isinstance(datos, dict):
-        return datos
-    print(f"{ruta_archivo} no tiene formato historial; se inicia historial nuevo sin tocar el JSON actual.")
-    return {}
+def guardar_json(path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def preparar_partido(partido):
-    partido = dict(partido)
-    partido.setdefault("goles_local", "")
-    partido.setdefault("goles_visitante", "")
-    return partido
+def normalizar(texto):
+    texto = str(texto or "").lower()
+    texto = unicodedata.normalize("NFD", texto)
+    texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
+    texto = re.sub(r"[^a-z0-9]+", " ", texto)
+    return " ".join(texto.split()).strip()
 
 
-def guardar_json(ruta_archivo, datos):
-    with open(ruta_archivo, "w", encoding="utf-8") as f:
-        json.dump(datos, f, indent=4, ensure_ascii=False)
+def canonico(nombre):
+    clave = normalizar(nombre)
+    return CANONICOS.get(clave, nombre.strip())
 
 
-def generar_archivos_jornadas_limpios():
-    print("Actualizando jornadas sin romper los JSON que ya usa la web...")
-    os.makedirs("data", exist_ok=True)
+def descargar_lineas():
+    respuesta = requests.get(
+        FUENTE_PROXIMAS,
+        timeout=30,
+        headers={
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+            )
+        },
+    )
+    respuesta.raise_for_status()
+    soup = BeautifulSoup(respuesta.text, "html.parser")
+    return [linea.strip() for linea in soup.get_text("\n", strip=True).splitlines() if linea.strip()]
 
-    # Archivos actuales: se mantienen como listas para no romper dependencias existentes.
-    ruta_1a_actual = "data/partidos_primera.json"
-    ruta_2a_actual = "data/partidos_segunda.json"
 
-    # Archivos historicos nuevos: aqui si se guarda por numero de jornada.
-    ruta_1a_historial = "data/historial_partidos_primera.json"
-    ruta_2a_historial = "data/historial_partidos_segunda.json"
+def fecha_iso(fecha):
+    m = re.match(r"^(\d{2})/(\d{2})/(\d{4})$", fecha.strip())
+    if not m:
+        return fecha
+    dia, mes, year = m.groups()
+    return f"{year}-{mes}-{dia}"
 
-    historial_primera = cargar_historial_existente(ruta_1a_historial)
-    historial_segunda = cargar_historial_existente(ruta_2a_historial)
 
-    ultimos_primera = []
-    ultimos_segunda = []
+def parsear_partido(linea):
+    m = re.match(r"^(\d{1,2})\s+(.+?)\s+(\d{2}/\d{2}/\d{4})\s+(\d{1,2}:\d{2})$", linea)
+    if not m:
+        return None
+    num, equipos, fecha, hora = m.groups()
+    if " - " not in equipos:
+        return None
+    local, visitante = equipos.split(" - ", 1)
+    return {
+        "num": int(num),
+        "local": canonico(local),
+        "visitante": canonico(visitante),
+        "fecha": fecha_iso(fecha),
+        "hora": hora,
+        "resultado": "Pendiente",
+        "signo_oficial": "Pendiente",
+        "signo_nuestro": "No jugada",
+    }
 
-    for num_jornada, partidos in obtener_datos_base_jornadas().items():
-        partidos_primera = []
-        partidos_segunda = []
 
-        for idx, partido_original in enumerate(partidos):
-            partido = preparar_partido(partido_original)
-            if idx < 8 or idx == 14:
-                partidos_primera.append(partido)
-            else:
-                partidos_segunda.append(partido)
+def extraer_jornadas():
+    lineas = descargar_lineas()
+    jornadas = []
+    actual = None
 
-        historial_primera[str(num_jornada)] = partidos_primera
-        historial_segunda[str(num_jornada)] = partidos_segunda
-        ultimos_primera = partidos_primera
-        ultimos_segunda = partidos_segunda
+    for linea in lineas:
+        cabecera = re.search(r"JORNADA\s*(?:N[ºO]\s*)?(\d{1,3})\s+(.+)$", linea, re.I)
+        if cabecera:
+            if actual and len(actual["items"]) >= 15:
+                jornadas.append(actual)
+            actual = {
+                "jornada": int(cabecera.group(1)),
+                "fecha_texto": cabecera.group(2).strip(),
+                "items": [],
+            }
+            continue
 
-    guardar_json(ruta_1a_historial, historial_primera)
-    guardar_json(ruta_2a_historial, historial_segunda)
+        if actual:
+            partido = parsear_partido(linea)
+            if partido:
+                actual["items"].append(partido)
+                if len(actual["items"]) >= 15:
+                    jornadas.append(actual)
+                    actual = None
 
-    # Se escriben tambien los archivos actuales, pero conservando su formato de lista.
-    if ultimos_primera:
-        guardar_json(ruta_1a_actual, ultimos_primera)
-    if ultimos_segunda:
-        guardar_json(ruta_2a_actual, ultimos_segunda)
+    if actual and len(actual["items"]) >= 15:
+        jornadas.append(actual)
 
-    print(f"Historial Primera guardado en: {ruta_1a_historial}")
-    print(f"Historial Segunda guardado en: {ruta_2a_historial}")
-    print(f"JSON actual Primera conservado como lista en: {ruta_1a_actual}")
-    print(f"JSON actual Segunda conservado como lista en: {ruta_2a_actual}")
+    return jornadas
+
+
+def fusionar_con_existente(nuevo, existente):
+    if not existente:
+        return nuevo
+    existentes_por_num = {
+        int(p.get("num", 0)): p
+        for p in existente.get("partidos", [])
+        if str(p.get("num", "")).isdigit()
+    }
+    partidos = []
+    for partido in nuevo.get("partidos", []):
+        anterior = existentes_por_num.get(int(partido.get("num", 0)), {})
+        fusionado = dict(partido)
+        for campo in ("resultado", "signo_oficial", "signo_nuestro", "actualizado_en"):
+            valor = anterior.get(campo)
+            if valor and str(valor).lower() not in {"pendiente", "no jugada"}:
+                fusionado[campo] = valor
+        partidos.append(fusionado)
+    nuevo["partidos"] = partidos
+
+    pleno_anterior = existente.get("pleno15") or {}
+    pleno = dict(nuevo.get("pleno15") or {})
+    for campo in ("resultado", "signo_oficial", "signo_nuestro", "actualizado_en"):
+        valor = pleno_anterior.get(campo)
+        if valor and str(valor).lower() not in {"pendiente", "no jugada"}:
+            pleno[campo] = valor
+    nuevo["pleno15"] = pleno
+    return nuevo
+
+
+def jornada_a_json(jornada):
+    items = sorted(jornada["items"], key=lambda p: p["num"])
+    partidos = [p for p in items if p["num"] <= 14]
+    pleno = next((p for p in items if p["num"] == 15), None)
+    return {
+        "jornada": jornada["jornada"],
+        "fecha": jornada["fecha_texto"],
+        "fuente": FUENTE_PROXIMAS,
+        "estado": "abierta",
+        "actualizado_en": datetime.now(timezone.utc).isoformat(),
+        "partidos": partidos,
+        "pleno15": pleno,
+    }
+
+
+def actualizar_legado(jornada_json):
+    primera = []
+    segunda = []
+    for partido in jornada_json.get("partidos", []):
+        item = {
+            "local": partido.get("local"),
+            "visitante": partido.get("visitante"),
+            "fecha": partido.get("fecha"),
+            "hora": partido.get("hora"),
+            "estado": "Programado",
+        }
+        if int(partido.get("num", 0)) <= 9:
+            primera.append(item)
+        else:
+            segunda.append(item)
+    guardar_json(DATA / "partidos_primera.json", primera)
+    guardar_json(DATA / "partidos_segunda.json", segunda)
+
+
+def main():
+    jornadas = extraer_jornadas()
+    if not jornadas:
+        raise SystemExit("No se encontraron proximas jornadas de La Quiniela.")
+
+    creadas = []
+    for jornada in jornadas:
+        data = jornada_a_json(jornada)
+        path = JORNADAS / f"jornada_{data['jornada']}.json"
+        data = fusionar_con_existente(data, cargar_json(path, {}))
+        guardar_json(path, data)
+        actualizar_legado(data)
+        creadas.append(data["jornada"])
+
+    print(f"Jornadas actualizadas automaticamente: {', '.join(map(str, creadas))}")
 
 
 if __name__ == "__main__":
-    generar_archivos_jornadas_limpios()
-    print("Proceso de consolidacion de jornadas finalizado OK.")
+    main()
