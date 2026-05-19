@@ -524,7 +524,7 @@
         <p id="analisis-resumen">Cargando memoria de aprendizaje...</p>
       </div>
       <div class="card">
-        <h2>Estado vivo para jornada 63</h2>
+        <h2>Estado vivo de la jornada activa</h2>
         <div id="analisis-estado-vivo">Cargando diario interno...</div>
       </div>
       <div class="card">
@@ -1134,7 +1134,7 @@
       const totalPendientes = jornada.pendientes_totales_con_pleno15 ?? jornada.pendientes ?? 0;
       return `
         <p><strong>Jornada actual:</strong> ${jornada.jornada || "-"} · partidos cerrados ${jornada.cerrados ?? 0}/${jornada.partidos ?? 14}, pendientes normales ${jornada.pendientes ?? 0}, Pleno al 15 ${pleno.estado || "sin datos"} (${totalPendientes} pendientes contando Pleno). Signos: 1=${jornada.distribucion_signos?.["1"] ?? 0}, X=${jornada.distribucion_signos?.["X"] ?? 0}, 2=${jornada.distribucion_signos?.["2"] ?? 0}.</p>
-        <p><strong>Predicción que está recalibrando:</strong> Jornada ${pred.jornada || 63}. Fijos ${pred.configuracion_actual?.fijos ?? "-"}, dobles ${pred.configuracion_actual?.dobles ?? "-"}, triples ${pred.configuracion_actual?.triples ?? "-"}.</p>
+        <p><strong>Predicción que está recalibrando:</strong> Jornada ${pred.jornada || "-"}. Fijos ${pred.configuracion_actual?.fijos ?? "-"}, dobles ${pred.configuracion_actual?.dobles ?? "-"}, triples ${pred.configuracion_actual?.triples ?? "-"}.</p>
         ${pintarListaEstado("Qué ha cambiado", estado.que_ha_cambiado, x => `<li>${x.partido || ""}: ${x.resultado || ""} (${x.signo || ""}). ${x.lectura || ""}</li>`)}
         ${pintarListaEstado("Qué aprende ahora", estado.que_aprende, x => `<li>${x}</li>`)}
         ${pintarListaEstado("Partidos más seguros", estado.partidos_mas_seguros, x => `<li>${x.num}. ${x.partido}: ${x.signo} · incertidumbre ${x.incertidumbre}</li>`)}
@@ -1811,7 +1811,7 @@
         return respuestaContexto(data.contexto, q);
       }
       if (incluye(q, ["jornada 63", "proxima", "próxima", "siguiente"])) {
-        return respuestaJornada(data.historial, 63);
+        return respuestaJornada(data.historial, Number(data.prediccion?.jornada || 0));
       }
       if (incluye(q, ["memoria", "aprendiendo", "aprende", "guarda", "datos"])) {
         return respuestaMemoria(data);
@@ -1873,7 +1873,7 @@
       const partidos = pred.partidos || [];
       const seguros = vivo.partidos_mas_seguros || [];
       const trampas = vivo.partidos_trampa_o_sorpresa || data.diagnostico?.prediccion?.partidos_trampa || [];
-      if (!partidos.length) return respuestaJornada(data.historial, 63);
+      if (!partidos.length) return respuestaJornada(data.historial, Number(data.prediccion?.jornada || 0));
 
       return [
         `Prediccion activa: jornada ${pred.jornada || "-"} (${pred.estado || "sin estado"}).`,
@@ -2105,11 +2105,11 @@
       if (!contenedor) return;
 
       contenedor.innerHTML = "";
-      for (let j = 1; j <= 63; j++) {
+      for (let j = 1; j <= 64; j++) {
         contenedor.innerHTML += botonJornadaQuiniela(j);
       }
 
-      abrirQuinielaIA(63);
+      abrirQuinielaIA(64);
     }
 
     function botonJornadaQuiniela(jornada) {
