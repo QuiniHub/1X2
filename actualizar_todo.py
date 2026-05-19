@@ -27,6 +27,7 @@ SCRIPTS_ACTIVOS = [
     "corregir_puntos_asistente.py",
     "mejorar_asistente_estrategia_apuesta.py",
     "corregir_comparacion_estrategia.py",
+    "corregir_recomendacion_estrategia.py",
     "diagnostico_sistema.py",
     "control_calidad_actualizacion.py",
     "normalizar_diagnostico_control.py",
