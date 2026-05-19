@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-05-19T16:46:48.403047+00:00",
+  "generado_en": "2026-05-19T16:51:01.663620+00:00",
   "estado": "necesita_mejoras",
   "score_salud": 72,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
@@ -108,95 +108,15 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 63,
-    "generado_en": "2026-05-18T22:12:12.079847+00:00",
-    "configuracion": {
-      "dobles": 0,
-      "triples": 0,
-      "elige8": false
-    },
+    "jornada": 64,
+    "generado_en": "2026-05-19T16:51:01.550939+00:00",
+    "partidos": 14,
     "resumen": {
       "fijos": 14,
       "dobles": 0,
       "triples": 0,
       "elige8_seleccionados": 0
-    },
-    "partidos": 14,
-    "riesgo_azar": "alto",
-    "partidos_trampa": [
-      {
-        "num": 7,
-        "partido": "Real Sociedad - Valencia",
-        "signo": "X",
-        "probabilidad_top": 38.6,
-        "margen": 7.6,
-        "incertidumbre": 126.91,
-        "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
-      },
-      {
-        "num": 1,
-        "partido": "Athletic de Bilbao - Celta",
-        "signo": "1",
-        "probabilidad_top": 34.5,
-        "margen": 0.4,
-        "incertidumbre": 126.53,
-        "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
-      },
-      {
-        "num": 8,
-        "partido": "Oviedo - Alavés",
-        "signo": "2",
-        "probabilidad_top": 46.8,
-        "margen": 15.5,
-        "incertidumbre": 116.45,
-        "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
-      },
-      {
-        "num": 10,
-        "partido": "Ceuta - Málaga",
-        "signo": "2",
-        "probabilidad_top": 43.8,
-        "margen": 11.4,
-        "incertidumbre": 114.94,
-        "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
-      },
-      {
-        "num": 14,
-        "partido": "Leganés - Huesca",
-        "signo": "1",
-        "probabilidad_top": 46.3,
-        "margen": 13.7,
-        "incertidumbre": 112.71,
-        "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
-      },
-      {
-        "num": 4,
-        "partido": "Elche - Getafe",
-        "signo": "1",
-        "probabilidad_top": 38.9,
-        "margen": 7.5,
-        "incertidumbre": 112.49,
-        "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
-      },
-      {
-        "num": 9,
-        "partido": "Osasuna - Espanyol",
-        "signo": "2",
-        "probabilidad_top": 40.0,
-        "margen": 8.9,
-        "incertidumbre": 110.98,
-        "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
-      },
-      {
-        "num": 12,
-        "partido": "Almería - Las Palmas",
-        "signo": "1",
-        "probabilidad_top": 43.7,
-        "margen": 9.2,
-        "incertidumbre": 110.88,
-        "motivo": "Partido con margen corto, empate alto o incertidumbre elevada."
-      }
-    ]
+    }
   },
   "clasificaciones": {
     "primera": {
@@ -249,7 +169,7 @@
   "fuentes": {
     "memoria_horas": 0.0,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.6,
+    "contexto_equipos_horas": 0.67,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -313,5 +233,671 @@
     "Conectar fuente fiable de resultados/clasificaciones o usar consenso de fuentes.",
     "Integrar cuotas, xG, alineaciones y sanciones como datos estructurados.",
     "Backtesting: guardar prediccion previa al cierre y comparar contra resultado real."
-  ]
+  ],
+  "control_calidad": {
+    "version": "1.0",
+    "generado_en": "2026-05-19T16:51:01.663620+00:00",
+    "estado": "operativo",
+    "score": 100,
+    "alertas": [],
+    "jornadas": {
+      "total": 64,
+      "actual": {
+        "jornada": 64,
+        "fecha": "Domingo, 24 de mayo de 2026",
+        "partidos": 14,
+        "cerrados": 0,
+        "pendientes": 14,
+        "path": "data/jornadas/jornada_64.json"
+      },
+      "ultima": {
+        "jornada": 64,
+        "fecha": "Domingo, 24 de mayo de 2026",
+        "partidos": 14,
+        "cerrados": 0,
+        "pendientes": 14,
+        "path": "data/jornadas/jornada_64.json"
+      },
+      "ultimas_5": [
+        {
+          "jornada": 60,
+          "fecha": "La Quiniela Domingo, 3 de mayo de 2026",
+          "partidos": 14,
+          "cerrados": 14,
+          "pendientes": 0,
+          "path": "data/jornadas/jornada_60.json"
+        },
+        {
+          "jornada": 61,
+          "fecha": "10/05/2026",
+          "partidos": 14,
+          "cerrados": 14,
+          "pendientes": 0,
+          "path": "data/jornadas/jornada_61.json"
+        },
+        {
+          "jornada": 62,
+          "fecha": "13 de Mayo de 2026",
+          "partidos": 14,
+          "cerrados": 14,
+          "pendientes": 0,
+          "path": "data/jornadas/jornada_62.json"
+        },
+        {
+          "jornada": 63,
+          "fecha": "17 de Mayo de 2026",
+          "partidos": 14,
+          "cerrados": 14,
+          "pendientes": 0,
+          "path": "data/jornadas/jornada_63.json"
+        },
+        {
+          "jornada": 64,
+          "fecha": "Domingo, 24 de mayo de 2026",
+          "partidos": 14,
+          "cerrados": 0,
+          "pendientes": 14,
+          "path": "data/jornadas/jornada_64.json"
+        }
+      ]
+    },
+    "clasificacion": {
+      "primera_equipos": 20,
+      "segunda_equipos": 22,
+      "segunda_control": {
+        "racing": {
+          "posicion": 1,
+          "equipo": "Real Racing Club de Santander",
+          "pj": 40,
+          "g": 24,
+          "e": 6,
+          "p": 10,
+          "gf": 85,
+          "gc": 59,
+          "dg": 26,
+          "puntos": 78,
+          "pts": 78,
+          "racha_actual": {
+            "victorias": 3,
+            "empates": 0,
+            "derrotas": 0,
+            "sin_ganar": 0,
+            "sin_perder": 6
+          },
+          "tendencias": {
+            "puntos_por_partido": 1.95,
+            "goles_favor_por_partido": 2.125,
+            "goles_contra_por_partido": 1.475,
+            "empates_pct": 15.0,
+            "forma_5_pts": 13,
+            "forma_10_pts": 19
+          }
+        },
+        "deportivo": {
+          "posicion": 2,
+          "equipo": "RC Deportivo de La Coruna",
+          "pj": 40,
+          "g": 21,
+          "e": 11,
+          "p": 8,
+          "gf": 62,
+          "gc": 42,
+          "dg": 20,
+          "puntos": 74,
+          "pts": 74,
+          "racha_actual": {
+            "victorias": 2,
+            "empates": 0,
+            "derrotas": 0,
+            "sin_ganar": 0,
+            "sin_perder": 10
+          },
+          "tendencias": {
+            "puntos_por_partido": 1.85,
+            "goles_favor_por_partido": 1.55,
+            "goles_contra_por_partido": 1.05,
+            "empates_pct": 27.5,
+            "forma_5_pts": 11,
+            "forma_10_pts": 22
+          }
+        },
+        "leganes": {
+          "posicion": 17,
+          "equipo": "CD Leganes",
+          "pj": 40,
+          "g": 10,
+          "e": 13,
+          "p": 17,
+          "gf": 42,
+          "gc": 48,
+          "dg": -6,
+          "puntos": 43,
+          "pts": 43,
+          "racha_actual": {
+            "victorias": 0,
+            "empates": 1,
+            "derrotas": 0,
+            "sin_ganar": 5,
+            "sin_perder": 1
+          },
+          "tendencias": {
+            "puntos_por_partido": 1.075,
+            "goles_favor_por_partido": 1.05,
+            "goles_contra_por_partido": 1.2,
+            "empates_pct": 32.5,
+            "forma_5_pts": 1,
+            "forma_10_pts": 9
+          }
+        },
+        "huesca": {
+          "posicion": 19,
+          "equipo": "SD Huesca",
+          "pj": 40,
+          "g": 9,
+          "e": 10,
+          "p": 21,
+          "gf": 40,
+          "gc": 61,
+          "dg": -21,
+          "puntos": 37,
+          "pts": 37,
+          "racha_actual": {
+            "victorias": 0,
+            "empates": 1,
+            "derrotas": 0,
+            "sin_ganar": 3,
+            "sin_perder": 1
+          },
+          "tendencias": {
+            "puntos_por_partido": 0.925,
+            "goles_favor_por_partido": 1.0,
+            "goles_contra_por_partido": 1.525,
+            "empates_pct": 25.0,
+            "forma_5_pts": 4,
+            "forma_10_pts": 6
+          }
+        }
+      }
+    },
+    "contexto_competitivo": {
+      "generado_en": "2026-05-19T16:51:01.486968+00:00",
+      "oviedo": {
+        "clave": "oviedo",
+        "equipo": "Real Oviedo",
+        "posicion": 20,
+        "pj": 37,
+        "partidos_restantes": 1,
+        "puntos": 29,
+        "puntos_en_juego": 3,
+        "maximo_puntos": 32,
+        "dg": -31,
+        "racha_actual": {
+          "victorias": 0,
+          "empates": 0,
+          "derrotas": 2,
+          "sin_ganar": 6,
+          "sin_perder": 0
+        },
+        "tendencias": {
+          "puntos_por_partido": 0.784,
+          "goles_favor_por_partido": 0.703,
+          "goles_contra_por_partido": 1.541,
+          "empates_pct": 29.73,
+          "forma_5_pts": 2,
+          "forma_10_pts": 11
+        },
+        "objetivos": [
+          {
+            "objetivo": "situacion_final",
+            "estado": "descendido_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -14,
+            "corte_equipo": "Elche CF",
+            "corte_puntos_actuales": 42,
+            "maximo_puntos": 32,
+            "puntos_necesarios_para_salvarse": 14,
+            "lectura": "Descendido matemáticamente por puntos: aunque gane todo solo llega a 32 y el corte de permanencia ya está en 42 (Elche CF)."
+          },
+          {
+            "objetivo": "titulo_liga",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -66,
+            "puntos_necesarios_para_entrar": 66,
+            "lectura": "No puede alcanzar el título: su máximo es 32 y FC Barcelona ya tiene 94."
+          },
+          {
+            "objetivo": "champions",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -29,
+            "corte_equipo": "Real Betis Balompie",
+            "corte_puntos_actuales": 57,
+            "puntos_necesarios_para_entrar": 29,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a champions: su máximo es 32 y el corte actual de Real Betis Balompie está en 57."
+          },
+          {
+            "objetivo": "europa_league",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -20,
+            "corte_equipo": "Getafe CF",
+            "corte_puntos_actuales": 48,
+            "puntos_necesarios_para_entrar": 20,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a Europa League: su máximo es 32 y el corte actual de Getafe CF está en 48."
+          },
+          {
+            "objetivo": "conference",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -19,
+            "corte_equipo": "Rayo Vallecano de Madrid",
+            "corte_puntos_actuales": 47,
+            "puntos_necesarios_para_entrar": 19,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a Conference: su máximo es 32 y el corte actual de Rayo Vallecano de Madrid está en 47."
+          }
+        ],
+        "objetivos_vivos": [],
+        "objetivo_principal": {
+          "objetivo": "situacion_final",
+          "estado": "descendido_matematicamente",
+          "vivo": false,
+          "terminal": true,
+          "distancia_o_colchon": -14,
+          "corte_equipo": "Elche CF",
+          "corte_puntos_actuales": 42,
+          "maximo_puntos": 32,
+          "puntos_necesarios_para_salvarse": 14,
+          "lectura": "Descendido matemáticamente por puntos: aunque gane todo solo llega a 32 y el corte de permanencia ya está en 42 (Elche CF)."
+        },
+        "motivacion_competitiva": "baja",
+        "motivacion": "baja",
+        "lectura_resumen": "Descendido matemáticamente por puntos: aunque gane todo solo llega a 32 y el corte de permanencia ya está en 42 (Elche CF).",
+        "situacion_competitiva": "descendido_matematicamente"
+      },
+      "racing": {
+        "clave": "racingsantander",
+        "equipo": "Real Racing Club de Santander",
+        "posicion": 1,
+        "pj": 40,
+        "partidos_restantes": 2,
+        "puntos": 78,
+        "puntos_en_juego": 6,
+        "maximo_puntos": 84,
+        "dg": 26,
+        "racha_actual": {
+          "victorias": 3,
+          "empates": 0,
+          "derrotas": 0,
+          "sin_ganar": 0,
+          "sin_perder": 6
+        },
+        "tendencias": {
+          "puntos_por_partido": 1.95,
+          "goles_favor_por_partido": 2.125,
+          "goles_contra_por_partido": 1.475,
+          "empates_pct": 15.0,
+          "forma_5_pts": 13,
+          "forma_10_pts": 19
+        },
+        "objetivos": [
+          {
+            "objetivo": "ascenso_directo",
+            "estado": "asegurado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 7,
+            "corte_equipo": "UD Almeria",
+            "corte_puntos_actuales": 71,
+            "corte_maximo_puntos": 77,
+            "puntos_necesarios_para_asegurar": 0,
+            "lectura": "Tiene ascenso directo asegurado: suma 78 puntos y UD Almeria solo puede llegar a 77."
+          },
+          {
+            "objetivo": "playoff_ascenso",
+            "estado": "asegurado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 12,
+            "corte_equipo": "Burgos CF",
+            "corte_puntos_actuales": 66,
+            "corte_maximo_puntos": 72,
+            "puntos_necesarios_para_asegurar": 0,
+            "lectura": "Tiene playoff ascenso asegurado: suma 78 puntos y Burgos CF solo puede llegar a 72."
+          },
+          {
+            "objetivo": "situacion_final",
+            "estado": "salvado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 41,
+            "corte_equipo": "SD Huesca",
+            "corte_puntos_actuales": 37,
+            "corte_maximo_puntos": 43,
+            "puntos_necesarios_para_salvarse": 0,
+            "lectura": "Salvado matemáticamente: tiene 78 puntos y SD Huesca solo puede llegar a 43."
+          }
+        ],
+        "objetivos_vivos": [],
+        "objetivo_principal": {
+          "objetivo": "ascenso_directo",
+          "estado": "asegurado_matematicamente",
+          "vivo": false,
+          "terminal": true,
+          "distancia_o_colchon": 7,
+          "corte_equipo": "UD Almeria",
+          "corte_puntos_actuales": 71,
+          "corte_maximo_puntos": 77,
+          "puntos_necesarios_para_asegurar": 0,
+          "lectura": "Tiene ascenso directo asegurado: suma 78 puntos y UD Almeria solo puede llegar a 77."
+        },
+        "motivacion_competitiva": "baja",
+        "motivacion": "baja",
+        "lectura_resumen": "Tiene ascenso directo asegurado: suma 78 puntos y UD Almeria solo puede llegar a 77.",
+        "situacion_competitiva": "asegurado_matematicamente"
+      },
+      "deportivo": {
+        "clave": "deportivocoruna",
+        "equipo": "RC Deportivo de La Coruna",
+        "posicion": 2,
+        "pj": 40,
+        "partidos_restantes": 2,
+        "puntos": 74,
+        "puntos_en_juego": 6,
+        "maximo_puntos": 80,
+        "dg": 20,
+        "racha_actual": {
+          "victorias": 2,
+          "empates": 0,
+          "derrotas": 0,
+          "sin_ganar": 0,
+          "sin_perder": 10
+        },
+        "tendencias": {
+          "puntos_por_partido": 1.85,
+          "goles_favor_por_partido": 1.55,
+          "goles_contra_por_partido": 1.05,
+          "empates_pct": 27.5,
+          "forma_5_pts": 11,
+          "forma_10_pts": 22
+        },
+        "objetivos": [
+          {
+            "objetivo": "ascenso_directo",
+            "estado": "defiende_plaza",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": 3,
+            "corte_equipo": "UD Almeria",
+            "corte_puntos_actuales": 71,
+            "corte_maximo_puntos": 77,
+            "puntos_necesarios_para_asegurar": 4,
+            "lectura": "Defiende plaza de ascenso directo con 3 puntos sobre UD Almeria. Para asegurarla por puntos necesita 4 puntos más."
+          },
+          {
+            "objetivo": "playoff_ascenso",
+            "estado": "asegurado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 8,
+            "corte_equipo": "Burgos CF",
+            "corte_puntos_actuales": 66,
+            "corte_maximo_puntos": 72,
+            "puntos_necesarios_para_asegurar": 0,
+            "lectura": "Tiene playoff ascenso asegurado: suma 74 puntos y Burgos CF solo puede llegar a 72."
+          },
+          {
+            "objetivo": "situacion_final",
+            "estado": "salvado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 37,
+            "corte_equipo": "SD Huesca",
+            "corte_puntos_actuales": 37,
+            "corte_maximo_puntos": 43,
+            "puntos_necesarios_para_salvarse": 0,
+            "lectura": "Salvado matemáticamente: tiene 74 puntos y SD Huesca solo puede llegar a 43."
+          }
+        ],
+        "objetivos_vivos": [
+          {
+            "objetivo": "ascenso_directo",
+            "estado": "defiende_plaza",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": 3,
+            "corte_equipo": "UD Almeria",
+            "corte_puntos_actuales": 71,
+            "corte_maximo_puntos": 77,
+            "puntos_necesarios_para_asegurar": 4,
+            "lectura": "Defiende plaza de ascenso directo con 3 puntos sobre UD Almeria. Para asegurarla por puntos necesita 4 puntos más."
+          }
+        ],
+        "objetivo_principal": {
+          "objetivo": "ascenso_directo",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 3,
+          "corte_equipo": "UD Almeria",
+          "corte_puntos_actuales": 71,
+          "corte_maximo_puntos": 77,
+          "puntos_necesarios_para_asegurar": 4,
+          "lectura": "Defiende plaza de ascenso directo con 3 puntos sobre UD Almeria. Para asegurarla por puntos necesita 4 puntos más."
+        },
+        "motivacion_competitiva": "media",
+        "motivacion": "media",
+        "lectura_resumen": "Defiende plaza de ascenso directo con 3 puntos sobre UD Almeria. Para asegurarla por puntos necesita 4 puntos más.",
+        "situacion_competitiva": "defiende_plaza"
+      },
+      "leganes": {
+        "clave": "leganes",
+        "equipo": "CD Leganes",
+        "posicion": 17,
+        "pj": 40,
+        "partidos_restantes": 2,
+        "puntos": 43,
+        "puntos_en_juego": 6,
+        "maximo_puntos": 49,
+        "dg": -6,
+        "racha_actual": {
+          "victorias": 0,
+          "empates": 1,
+          "derrotas": 0,
+          "sin_ganar": 5,
+          "sin_perder": 1
+        },
+        "tendencias": {
+          "puntos_por_partido": 1.075,
+          "goles_favor_por_partido": 1.05,
+          "goles_contra_por_partido": 1.2,
+          "empates_pct": 32.5,
+          "forma_5_pts": 1,
+          "forma_10_pts": 9
+        },
+        "objetivos": [
+          {
+            "objetivo": "descenso_primera_federacion",
+            "estado": "permanencia_por_cerrar",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": 6,
+            "corte_equipo": "SD Huesca",
+            "corte_puntos_actuales": 37,
+            "corte_maximo_puntos": 43,
+            "puntos_necesarios_para_salvarse": 1,
+            "lectura": "Tiene ventaja, pero la permanencia no está cerrada. Colchón: 6 puntos sobre SD Huesca; necesita 1 punto para cerrarla por puntos."
+          },
+          {
+            "objetivo": "ascenso_directo",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -32,
+            "corte_equipo": "RC Deportivo de La Coruna",
+            "corte_puntos_actuales": 74,
+            "puntos_necesarios_para_entrar": 32,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a ascenso directo: su máximo es 49 y el corte actual de RC Deportivo de La Coruna está en 74."
+          },
+          {
+            "objetivo": "playoff_ascenso",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -24,
+            "corte_equipo": "CD Castellon",
+            "corte_puntos_actuales": 66,
+            "puntos_necesarios_para_entrar": 24,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a playoff ascenso: su máximo es 49 y el corte actual de CD Castellon está en 66."
+          }
+        ],
+        "objetivos_vivos": [
+          {
+            "objetivo": "descenso_primera_federacion",
+            "estado": "permanencia_por_cerrar",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": 6,
+            "corte_equipo": "SD Huesca",
+            "corte_puntos_actuales": 37,
+            "corte_maximo_puntos": 43,
+            "puntos_necesarios_para_salvarse": 1,
+            "lectura": "Tiene ventaja, pero la permanencia no está cerrada. Colchón: 6 puntos sobre SD Huesca; necesita 1 punto para cerrarla por puntos."
+          }
+        ],
+        "objetivo_principal": {
+          "objetivo": "descenso_primera_federacion",
+          "estado": "permanencia_por_cerrar",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 6,
+          "corte_equipo": "SD Huesca",
+          "corte_puntos_actuales": 37,
+          "corte_maximo_puntos": 43,
+          "puntos_necesarios_para_salvarse": 1,
+          "lectura": "Tiene ventaja, pero la permanencia no está cerrada. Colchón: 6 puntos sobre SD Huesca; necesita 1 punto para cerrarla por puntos."
+        },
+        "motivacion_competitiva": "media",
+        "motivacion": "media",
+        "lectura_resumen": "Tiene ventaja, pero la permanencia no está cerrada. Colchón: 6 puntos sobre SD Huesca; necesita 1 punto para cerrarla por puntos.",
+        "situacion_competitiva": "permanencia_por_cerrar"
+      },
+      "huesca": {
+        "clave": "huesca",
+        "equipo": "SD Huesca",
+        "posicion": 19,
+        "pj": 40,
+        "partidos_restantes": 2,
+        "puntos": 37,
+        "puntos_en_juego": 6,
+        "maximo_puntos": 43,
+        "dg": -21,
+        "racha_actual": {
+          "victorias": 0,
+          "empates": 1,
+          "derrotas": 0,
+          "sin_ganar": 3,
+          "sin_perder": 1
+        },
+        "tendencias": {
+          "puntos_por_partido": 0.925,
+          "goles_favor_por_partido": 1.0,
+          "goles_contra_por_partido": 1.525,
+          "empates_pct": 25.0,
+          "forma_5_pts": 4,
+          "forma_10_pts": 6
+        },
+        "objetivos": [
+          {
+            "objetivo": "descenso_primera_federacion",
+            "estado": "en_descenso_con_opciones",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": -4,
+            "corte_equipo": "Cadiz CF",
+            "corte_puntos_actuales": 40,
+            "puntos_necesarios_para_salvarse": 4,
+            "depende_de_rivales": false,
+            "lectura": "Está en descenso, pero aún tiene opciones. Necesita 4 puntos para superar sin desempates el corte de Cadiz CF (40)."
+          },
+          {
+            "objetivo": "ascenso_directo",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -38,
+            "corte_equipo": "RC Deportivo de La Coruna",
+            "corte_puntos_actuales": 74,
+            "puntos_necesarios_para_entrar": 38,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a ascenso directo: su máximo es 43 y el corte actual de RC Deportivo de La Coruna está en 74."
+          },
+          {
+            "objetivo": "playoff_ascenso",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -30,
+            "corte_equipo": "CD Castellon",
+            "corte_puntos_actuales": 66,
+            "puntos_necesarios_para_entrar": 30,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a playoff ascenso: su máximo es 43 y el corte actual de CD Castellon está en 66."
+          }
+        ],
+        "objetivos_vivos": [
+          {
+            "objetivo": "descenso_primera_federacion",
+            "estado": "en_descenso_con_opciones",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": -4,
+            "corte_equipo": "Cadiz CF",
+            "corte_puntos_actuales": 40,
+            "puntos_necesarios_para_salvarse": 4,
+            "depende_de_rivales": false,
+            "lectura": "Está en descenso, pero aún tiene opciones. Necesita 4 puntos para superar sin desempates el corte de Cadiz CF (40)."
+          }
+        ],
+        "objetivo_principal": {
+          "objetivo": "descenso_primera_federacion",
+          "estado": "en_descenso_con_opciones",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -4,
+          "corte_equipo": "Cadiz CF",
+          "corte_puntos_actuales": 40,
+          "puntos_necesarios_para_salvarse": 4,
+          "depende_de_rivales": false,
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 4 puntos para superar sin desempates el corte de Cadiz CF (40)."
+        },
+        "motivacion_competitiva": "media",
+        "motivacion": "media",
+        "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 4 puntos para superar sin desempates el corte de Cadiz CF (40).",
+        "situacion_competitiva": "en_descenso_con_opciones"
+      }
+    },
+    "prediccion": {
+      "jornada": 64,
+      "generado_en": "2026-05-19T16:51:01.550939+00:00",
+      "partidos": 14,
+      "resumen": {
+        "fijos": 14,
+        "dobles": 0,
+        "triples": 0,
+        "elige8_seleccionados": 0
+      }
+    },
+    "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
+  }
 }
