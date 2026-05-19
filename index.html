@@ -1915,15 +1915,20 @@
       const probs = partido?.probabilidades || {};
       const signoBase = partido?.signo_final || partido?.signo_base || "-";
       const esVisitante = norm(partido?.visitante || "").includes(norm(equipoObjecion?.equipo || ""));
-      const necesitaPuntuar = String(datosObjecion?.competitivo?.objetivo_principal?.objetivo || "").includes("descenso")
-        || String(datosObjecion?.competitivo?.situacion_competitiva || "").includes("descenso")
-        || String(datosObjecion?.competitivo?.objetivo_principal?.estado || "").includes("riesgo");
+      const textoNecesidad = `${datosObjecion?.competitivo?.objetivo_principal?.objetivo || ""} ${datosObjecion?.competitivo?.objetivo_principal?.estado || ""} ${datosObjecion?.competitivo?.situacion_competitiva || ""}`.toLowerCase();
+      const necesitaPuntuar = datosObjecion?.competitivo?.objetivo_principal?.vivo === true
+        || textoNecesidad.includes("descenso")
+        || textoNecesidad.includes("riesgo")
+        || textoNecesidad.includes("defiende")
+        || textoNecesidad.includes("aspira")
+        || textoNecesidad.includes("playoff")
+        || textoNecesidad.includes("ascenso");
 
       if (necesitaPuntuar && esVisitante && signoBase === "1") {
         return "Yo mantendria el 1 como favorito, pero tu objecion sube mucho el valor del empate: si se cubre, el primer doble logico es 1X.";
       }
       if (necesitaPuntuar && !esVisitante && signoBase === "2") {
-        return "Yo mantendria el 2 como lectura base, pero si ese equipo necesita puntuar, el primer doble logico seria X2.";
+        return "Aqui no trataria el 2 visitante como fijo limpio: si el local necesita puntuar, el primer doble logico pasa a ser 1X.";
       }
       const orden = Object.entries(probs).sort((a, b) => Number(b[1]) - Number(a[1])).map(([s]) => s);
       const doble = orden.slice(0, 2).join("");
@@ -2040,7 +2045,7 @@
     }
 
     function signosOrdenadosEstrategia(partido) {
-      const probs = partido?.probabilidades || {};
+      const probs = probabilidadesAjustadasEstrategia(partido);
       return ["1", "X", "2"].map(signo => ({ signo, prob: Number(probs[signo] || 0) }))
         .sort((a, b) => b.prob - a.prob);
     }
@@ -2061,7 +2066,8 @@
       const orden = signosOrdenadosEstrategia(partido);
       const margen = orden.length > 1 ? orden[0].prob - orden[1].prob : 0;
       const sorpresa = Number(partido?.probabilidad_sorpresa || 0);
-      const x = Number(partido?.probabilidades?.X || 0);
+      const probsAjustadas = probabilidadesAjustadasEstrategia(partido);
+      const x = Number(probsAjustadas?.X || 0);
       const incertidumbreBase = Number(partido?.incertidumbre || (100 - margen + x * 0.35));
       let extra = 0;
       if (margen <= 4) extra += 14;
@@ -2084,6 +2090,79 @@
       return `${partido.num}. ${partido.local} - ${partido.visitante}`;
     }
 
+
+    function competitivoPartidoLocal(partido) {
+      return partido?.estrategia_local || partido?.contexto_competitivo_local || {};
+    }
+
+    function competitivoPartidoVisitante(partido) {
+      return partido?.estrategia_visitante || partido?.contexto_competitivo_visitante || {};
+    }
+
+    function valorMotivacionEstrategia(comp) {
+      const texto = `${comp?.motivacion_competitiva || comp?.motivacion || ""} ${comp?.situacion_competitiva || ""} ${comp?.objetivo_principal?.estado || ""} ${comp?.objetivo_principal?.objetivo || ""}`.toLowerCase();
+      let valor = { baja: 0, media: 1, alta: 2, maxima: 3, maxima: 3 }[String(comp?.motivacion_competitiva || comp?.motivacion || "baja").toLowerCase()] ?? 0;
+      if ((comp?.objetivos_vivos || []).length) valor += 1;
+      if (comp?.objetivo_principal?.vivo === true) valor += 1;
+      if (texto.includes("defiende") || texto.includes("aspira") || texto.includes("riesgo") || texto.includes("descenso") || texto.includes("playoff") || texto.includes("ascenso")) valor += 1;
+      if (comp?.objetivo_principal?.terminal === true && !(comp?.objetivos_vivos || []).length) valor -= 2;
+      if (texto.includes("asegurado") || texto.includes("campeon") || texto.includes("salvado matematicamente")) valor -= 1;
+      return Math.max(0, Math.min(valor, 4));
+    }
+
+    function probabilidadesAjustadasEstrategia(partido) {
+      const base = partido?.probabilidades || {};
+      const p = {
+        "1": Number(base["1"] || 0),
+        "X": Number(base["X"] || 0),
+        "2": Number(base["2"] || 0)
+      };
+      const local = competitivoPartidoLocal(partido);
+      const visitante = competitivoPartidoVisitante(partido);
+      const diferencia = valorMotivacionEstrategia(local) - valorMotivacionEstrategia(visitante);
+      if (diferencia) {
+        const ajuste = Math.max(Math.min(diferencia * 4, 10), -10);
+        p["1"] += ajuste;
+        p["2"] -= ajuste;
+        if (valorMotivacionEstrategia(local) >= 2 || valorMotivacionEstrategia(visitante) >= 2) p["X"] += 2;
+      }
+      return normalizarProbabilidades(p);
+    }
+
+    function probTextoAjustadoEstrategia(partido) {
+      const p = probabilidadesAjustadasEstrategia(partido);
+      return `1=${p["1"]}%, X=${p["X"]}%, 2=${p["2"]}%`;
+    }
+
+    function rangoAjustadoEstrategia(partido) {
+      const valores = Object.values(probabilidadesAjustadasEstrategia(partido)).map(Number).sort((a, b) => b - a);
+      return valores.length ? valores[0] - valores[valores.length - 1] : 99;
+    }
+
+    function esTripleNaturalEstrategia(partido) {
+      const p = probabilidadesAjustadasEstrategia(partido);
+      return rangoAjustadoEstrategia(partido) <= 9 && Number(p["X"] || 0) >= 28;
+    }
+
+    function prioridadTripleEstrategia(partido) {
+      const local = valorMotivacionEstrategia(competitivoPartidoLocal(partido));
+      const visitante = valorMotivacionEstrategia(competitivoPartidoVisitante(partido));
+      const desequilibrio = Math.abs(local - visitante);
+      return riesgoPartidoEstrategia(partido)
+        + (esTripleNaturalEstrategia(partido) ? 22 : -18)
+        - desequilibrio * 7;
+    }
+
+    function resumenMotivacionEstrategia(partido) {
+      const local = competitivoPartidoLocal(partido);
+      const visitante = competitivoPartidoVisitante(partido);
+      const vl = valorMotivacionEstrategia(local);
+      const vv = valorMotivacionEstrategia(visitante);
+      if (vl > vv) return `Ajuste competitivo: pesa mas la necesidad de ${partido.local}. ${local?.objetivo_principal?.lectura || local?.lectura_resumen || ""}`.trim();
+      if (vv > vl) return `Ajuste competitivo: pesa mas la necesidad de ${partido.visitante}. ${visitante?.objetivo_principal?.lectura || visitante?.lectura_resumen || ""}`.trim();
+      return "Ajuste competitivo: motivacion parecida o sin diferencia clara.";
+    }
+
     function evaluarConfiguracionEstrategia(partidosBase, dobles, triples, elige8 = false) {
       const partidos = (partidosBase || []).filter(p => Number(p.num) <= 14);
       dobles = Math.max(0, Math.min(Number(dobles || 0), 14));
@@ -2091,7 +2170,8 @@
       if (dobles + triples > 14) dobles = Math.max(0, 14 - triples);
 
       const ordenados = [...partidos].sort((a, b) => riesgoPartidoEstrategia(b) - riesgoPartidoEstrategia(a));
-      const triplesSet = new Set(ordenados.slice(0, triples).map(p => Number(p.num)));
+      const ordenadosTriple = [...partidos].sort((a, b) => prioridadTripleEstrategia(b) - prioridadTripleEstrategia(a));
+      const triplesSet = new Set(ordenadosTriple.slice(0, triples).map(p => Number(p.num)));
       const doblesSet = new Set(ordenados.filter(p => !triplesSet.has(Number(p.num))).slice(0, dobles).map(p => Number(p.num)));
 
       const detalle = partidos.map(p => {
@@ -2171,7 +2251,13 @@
 
     function respuestaEstrategiaApuesta(q, data) {
       if (!esPreguntaEstrategiaApuesta(q)) return "";
-      const partidos = (data.prediccion?.partidos || []).filter(p => Number(p.num) <= 14);
+      const partidos = (data.prediccion?.partidos || [])
+        .filter(p => Number(p.num) <= 14)
+        .map(p => ({
+          ...p,
+          estrategia_local: datosEquipoCompetitivo(data, p.local)?.competitivo || {},
+          estrategia_visitante: datosEquipoCompetitivo(data, p.visitante)?.competitivo || {}
+        }));
       if (!partidos.length) return "No tengo una prediccion activa con 14 partidos para comparar dobles, triples y Elige 8.";
 
       const jornada = data.prediccion?.jornada || data.estadoVivo?.jornada_actual?.jornada || "-";
@@ -2211,14 +2297,14 @@
         `Para la jornada ${jornada}, la lectura de sistema es: no trataria esta quiniela como sencilla. Hay varios partidos con riesgo alto y empates con peso.`,
         "",
         "Partidos que mas condicionan la estrategia:",
-        ...trampas.map(p => `- ${nombrePartidoEstrategia(p)}: riesgo ${riesgoPartidoEstrategia(p).toFixed(1)}, probabilidades ${probTexto(p)}, sorpresa ${p.probabilidad_sorpresa ?? "-"}%.`),
+        ...trampas.map(p => `- ${nombrePartidoEstrategia(p)}: riesgo ${riesgoPartidoEstrategia(p).toFixed(1)}, probabilidades base ${probTexto(p)}, ajustadas ${probTextoAjustadoEstrategia(p)}, sorpresa ${p.probabilidad_sorpresa ?? "-"}%. ${resumenMotivacionEstrategia(p)}`),
         "",
         pedidas.length ? "Comparacion de las opciones que me planteas:" : "Ranking de opciones razonables:",
         ...comparacion.map(textoResumenEstrategia),
         "",
         decisionPedida,
         `${pedidas.length ? "Mi recomendacion entre esas opciones" : "Mi recomendacion global ahora mismo"}: ${mejor.dobles} dobles y ${mejor.triples} triples${mejor.elige8 ? " + Elige 8" : ""}. Coste: ${eurosEstrategia(mejor.coste.importeTotal)} (${mejor.coste.apuestas} apuestas).`,
-        triplesElegidos.length ? `Triples prioritarios: ${triplesElegidos.map(x => `${nombrePartidoEstrategia(x.partido)} (${probTexto(x.partido)})`).join("; ")}.` : "Triples prioritarios: no abriria triples en esta configuracion.",
+        triplesElegidos.length ? `Triples prioritarios: ${triplesElegidos.map(x => `${nombrePartidoEstrategia(x.partido)} (ajustadas ${probTextoAjustadoEstrategia(x.partido)})`).join("; ")}.` : "Triples prioritarios: no abriria triples en esta configuracion.",
         doblesElegidos.length ? `Dobles prioritarios: ${doblesElegidos.map(x => `${nombrePartidoEstrategia(x.partido)} -> ${x.signos}`).join("; ")}.` : "Dobles prioritarios: no abriria dobles en esta configuracion.",
         "",
         mejor.elige8
