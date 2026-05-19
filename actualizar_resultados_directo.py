@@ -45,7 +45,7 @@ def reparar_mojibake(texto):
     texto = str(texto or "")
     try:
         reparado = texto.encode("latin1").decode("utf-8")
-        if "�" not in reparado:
+        if "\ufffd" not in reparado:
             return reparado
     except (UnicodeEncodeError, UnicodeDecodeError):
         pass
@@ -112,6 +112,10 @@ def jornada_directo(texto):
     return int(m.group(1)) if m else None
 
 
+def signo_valido(valor):
+    return str(valor or "").strip().upper() in {"1", "X", "2"}
+
+
 def signo_resultado(resultado):
     gl, gv = [int(x) for x in resultado.split("-")]
     if gl > gv:
@@ -119,6 +123,57 @@ def signo_resultado(resultado):
     if gl == gv:
         return "X"
     return "2"
+
+
+def inicio_partido(partido):
+    fecha_txt = str(partido.get("fecha") or "").strip()
+    if not fecha_txt:
+        return None
+    try:
+        fecha = datetime.fromisoformat(fecha_txt).date()
+    except ValueError:
+        return None
+
+    hora_txt = str(partido.get("hora") or "").strip()
+    m = re.match(r"^(\d{1,2}):(\d{2})$", hora_txt)
+    hora = time(int(m.group(1)), int(m.group(2))) if m else time(0, 0)
+    return datetime.combine(fecha, hora, TZ_COMPETICION)
+
+
+def partido_ya_deberia_tener_resultado(partido):
+    inicio = inicio_partido(partido)
+    if not inicio:
+        return False
+    return inicio + MARGEN_RESULTADO_FINAL <= datetime.now(TZ_COMPETICION)
+
+
+def partido_ya_empezo(partido):
+    inicio = inicio_partido(partido)
+    if not inicio:
+        return False
+    return inicio <= datetime.now(TZ_COMPETICION)
+
+
+def resumen_temporal_jornada(data):
+    partidos = list(data.get("partidos", []))
+    pleno = data.get("pleno15") or {}
+    if pleno:
+        partidos.append(pleno)
+
+    inicios = [inicio_partido(p) for p in partidos]
+    inicios = [i for i in inicios if i]
+    cerrados = sum(1 for p in data.get("partidos", []) if signo_valido(p.get("signo_oficial")))
+    pendientes = sum(1 for p in data.get("partidos", []) if not signo_valido(p.get("signo_oficial")))
+    vencidos = sum(1 for p in data.get("partidos", []) if not signo_valido(p.get("signo_oficial")) and partido_ya_deberia_tener_resultado(p))
+    empezados = sum(1 for p in data.get("partidos", []) if partido_ya_empezo(p))
+    return {
+        "jornada": data.get("jornada"),
+        "cerrados": cerrados,
+        "pendientes": pendientes,
+        "vencidos": vencidos,
+        "empezados": empezados,
+        "primer_inicio": min(inicios).isoformat() if inicios else "",
+    }
 
 
 def buscar_partidos_en_calendario(partido):
@@ -134,6 +189,10 @@ def buscar_partidos_en_calendario(partido):
 
 def partido_esta_programado_en_futuro(partido):
     ahora = datetime.now(TZ_COMPETICION)
+    inicio = inicio_partido(partido)
+    if inicio:
+        return inicio + MARGEN_RESULTADO_FINAL > ahora
+
     for p_cal in buscar_partidos_en_calendario(partido):
         try:
             fecha = datetime.fromisoformat(str(p_cal.get("fecha", ""))).date()
@@ -176,14 +235,37 @@ def jornada_activa_desde_archivos(jornada_detectada=None):
         path = JORNADAS / f"jornada_{jornada_detectada}.json"
         if path.exists():
             return jornada_detectada
+
     candidatas = []
     for path in JORNADAS.glob("jornada_*.json"):
         data = cargar_json(path, {})
         numero = data.get("jornada")
-        pendientes = sum(1 for p in data.get("partidos", []) if str(p.get("signo_oficial", "")).lower() == "pendiente")
-        if pendientes and isinstance(numero, int):
-            candidatas.append(numero)
-    return max(candidatas) if candidatas else jornada_detectada
+        if not isinstance(numero, int):
+            continue
+        resumen = resumen_temporal_jornada(data)
+        if resumen["pendientes"]:
+            resumen["numero"] = numero
+            candidatas.append(resumen)
+
+    if not candidatas:
+        return jornada_detectada
+
+    en_juego = [c for c in candidatas if c["cerrados"] > 0 and c["pendientes"] > 0]
+    if en_juego:
+        return sorted(en_juego, key=lambda c: (c["numero"], c["cerrados"]), reverse=True)[0]["numero"]
+
+    vencidas = [c for c in candidatas if c["vencidos"] > 0]
+    if vencidas:
+        return sorted(vencidas, key=lambda c: (c["numero"], c["vencidos"]), reverse=True)[0]["numero"]
+
+    empezadas = [c for c in candidatas if c["empezados"] > 0]
+    if empezadas:
+        return sorted(empezadas, key=lambda c: (c["numero"], c["empezados"]), reverse=True)[0]["numero"]
+
+    con_fecha = [c for c in candidatas if c["primer_inicio"]]
+    if con_fecha:
+        return sorted(con_fecha, key=lambda c: c["primer_inicio"])[0]["numero"]
+    return max(c["numero"] for c in candidatas)
 
 
 def actualizar_jornada_quiniela(texto):
