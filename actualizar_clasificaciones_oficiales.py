@@ -22,6 +22,7 @@ FUENTES = {
     "primera": FUENTES_AS["primera"],
     "segunda": FUENTES_AS["segunda"],
     "respaldo": FUENTE_QUINIELA,
+    "correccion_jornada_40": "Leganes 0-0 Huesca, 18/05/2026",
 }
 
 CANONICOS = {
@@ -310,6 +311,47 @@ def extraer_tablas():
         return extraer_tablas_quiniela()
 
 
+def buscar_equipo(tabla, nombre):
+    clave = normalizar(nombre)
+    for equipo in tabla:
+        if normalizar(equipo.get("equipo")) == clave:
+            return equipo
+    return None
+
+
+def reordenar_tabla(tabla):
+    tabla.sort(key=lambda e: (-int(e.get("puntos", 0)), -int(e.get("dg", 0)), -int(e.get("gf", 0)), normalizar(e.get("equipo"))))
+    for posicion, equipo in enumerate(tabla, start=1):
+        equipo["posicion"] = posicion
+    return tabla
+
+
+def aplicar_empate_jugado_si_falta(tabla, local, visitante, pj_objetivo=40):
+    equipo_local = buscar_equipo(tabla, local)
+    equipo_visitante = buscar_equipo(tabla, visitante)
+    if not equipo_local or not equipo_visitante:
+        return False
+    if int(equipo_local.get("pj", 0)) >= pj_objetivo and int(equipo_visitante.get("pj", 0)) >= pj_objetivo:
+        return False
+
+    for equipo in (equipo_local, equipo_visitante):
+        if int(equipo.get("pj", 0)) < pj_objetivo:
+            equipo["pj"] = int(equipo.get("pj", 0)) + 1
+            equipo["e"] = int(equipo.get("e", 0)) + 1
+            equipo["puntos"] = int(equipo.get("puntos", 0)) + 1
+            equipo["pts"] = equipo["puntos"]
+    return True
+
+
+def aplicar_correcciones_resultados(tablas):
+    segunda = tablas.get("segunda", [])
+    cambiado = aplicar_empate_jugado_si_falta(segunda, "CD Leganes", "SD Huesca", 40)
+    if cambiado:
+        reordenar_tabla(segunda)
+        print("Correccion aplicada: CD Leganes 0-0 SD Huesca ya contabilizado en Segunda.")
+    return tablas
+
+
 def fusionar_clasificacion_publica(oficial, publica):
     salida = dict(publica) if isinstance(publica, dict) else {}
     for liga in ("primera", "segunda"):
@@ -341,7 +383,7 @@ def validar_guardada(data):
 
 def main():
     try:
-        tablas = extraer_tablas()
+        tablas = aplicar_correcciones_resultados(extraer_tablas())
         oficial = {
             "actualizado_en": datetime.now(timezone.utc).isoformat(),
             "fuentes": FUENTES,
