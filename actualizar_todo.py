@@ -19,6 +19,7 @@ SCRIPTS_ACTIVOS = [
     "actualizar_aprendizaje_ia.py",
     "construir_memoria_ia.py",
     "generar_contexto_competitivo.py",
+    "mejorar_motor_dinamica_10.py",
     "motor_prediccion_quiniela.py",
     "generar_estado_vivo_ia.py",
     "regenerar_estado_vivo_actual.py",
