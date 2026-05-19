@@ -22,6 +22,7 @@ SCRIPTS_ACTIVOS = [
     "generar_estado_vivo_ia.py",
     "diagnostico_sistema.py",
     "control_calidad_actualizacion.py",
+    "normalizar_diagnostico_control.py",
 ]
 
 
