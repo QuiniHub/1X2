@@ -2130,7 +2130,10 @@
       const dobles = Array.from(q.matchAll(/(\d+)\s*dobl/g)).map(m => Number(m[1])).filter(Number.isFinite);
       const triples = Array.from(q.matchAll(/(\d+)\s*tripl/g)).map(m => Number(m[1])).filter(Number.isFinite);
       const opciones = [];
-      const comparaSeparado = dobles.length && triples.length && (q.includes(" o ") || q.includes("frente") || q.includes("compar"));
+      const combinaDoblesTriples = q.includes("doblesy") || q.includes("dobley")
+        || q.includes("doblesmas") || q.includes("doblemas")
+        || q.includes("doblescon") || q.includes("doblecon");
+      const comparaSeparado = dobles.length && triples.length && !combinaDoblesTriples;
 
       if (comparaSeparado) {
         dobles.forEach(d => opciones.push({ dobles: d, triples: 0, nombre: `${d} dobles` }));
