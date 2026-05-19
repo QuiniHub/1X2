@@ -156,7 +156,7 @@ def extraer_tablas():
     esperados = {"primera": 20, "segunda": 22}
     for nombre, esperado in esperados.items():
         if len(tablas[nombre]) != esperado:
-            raise SystemExit(
+            raise ValueError(
                 f"Clasificacion {nombre}: se esperaban {esperado} equipos y se encontraron {len(tablas[nombre])}."
             )
 
@@ -175,30 +175,48 @@ def fusionar_clasificacion_publica(oficial, publica):
         for fila in oficial.get(liga, []):
             base = dict(anteriores.get(normalizar(fila.get("equipo", "")), {}))
             base.update(fila)
-            base["pts"] = fila["puntos"]
+            base["pts"] = fila.get("puntos", fila.get("pts", 0))
             nuevos.append(base)
-        salida[liga] = nuevos
-    salida["actualizado_en"] = oficial.get("actualizado_en")
-    salida["fuentes"] = oficial.get("fuentes", {})
+        if nuevos:
+            salida[liga] = nuevos
+    salida["actualizado_en"] = oficial.get("actualizado_en") or salida.get("actualizado_en")
+    salida["fuentes"] = oficial.get("fuentes", salida.get("fuentes", {}))
     return salida
 
 
+def validar_guardada(data):
+    return (
+        isinstance(data, dict)
+        and len(data.get("primera", [])) == 20
+        and len(data.get("segunda", [])) == 22
+    )
+
+
 def main():
-    tablas = extraer_tablas()
-    oficial = {
-        "actualizado_en": datetime.now(timezone.utc).isoformat(),
-        "fuentes": FUENTES,
-        "primera": tablas["primera"],
-        "segunda": tablas["segunda"],
-    }
-    guardar_json(OFICIALES, oficial)
+    try:
+        tablas = extraer_tablas()
+        oficial = {
+            "actualizado_en": datetime.now(timezone.utc).isoformat(),
+            "fuentes": FUENTES,
+            "primera": tablas["primera"],
+            "segunda": tablas["segunda"],
+        }
+        guardar_json(OFICIALES, oficial)
+        print("Clasificacion descargada desde fuente externa.")
+    except Exception as exc:
+        oficial = cargar_json(OFICIALES, {})
+        if not validar_guardada(oficial):
+            oficial = cargar_json(PUBLICA, {})
+        if not validar_guardada(oficial):
+            raise SystemExit(f"No hay clasificacion valida para conservar: {exc}")
+        print(f"No se pudo refrescar clasificacion externa; se conserva la ultima valida. Motivo: {exc}")
 
     publica_actual = cargar_json(PUBLICA, {})
     publica = fusionar_clasificacion_publica(oficial, publica_actual)
     guardar_json(PUBLICA, publica)
 
-    print(f"Clasificacion 1a actualizada: {len(oficial['primera'])} equipos")
-    print(f"Clasificacion 2a actualizada: {len(oficial['segunda'])} equipos")
+    print(f"Clasificacion 1a disponible: {len(publica.get('primera', []))} equipos")
+    print(f"Clasificacion 2a disponible: {len(publica.get('segunda', []))} equipos")
     print(OFICIALES)
     print(PUBLICA)
 
