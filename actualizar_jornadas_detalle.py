@@ -126,7 +126,7 @@ def extraer_jornadas():
     actual = None
 
     for linea in lineas:
-        cabecera = re.search(r"JORNADA\s*(?:N[ºO]\s*)?(\d{1,3})\s+(.+)$", linea, re.I)
+        cabecera = re.search(r"JORNADA[^0-9]{0,30}(\d{1,3})\s+(.+)$", linea, re.I)
         if cabecera:
             if actual and len(actual["items"]) >= 15:
                 jornadas.append(actual)
@@ -215,9 +215,19 @@ def actualizar_legado(jornada_json):
 
 
 def main():
-    jornadas = extraer_jornadas()
+    try:
+        jornadas = extraer_jornadas()
+    except Exception as exc:
+        print(f"No se pudo leer la fuente de proximas jornadas: {exc}")
+        jornadas = []
+
     if not jornadas:
-        raise SystemExit("No se encontraron proximas jornadas de La Quiniela.")
+        existentes = sorted(JORNADAS.glob("jornada_*.json"))
+        print(
+            "No se encontraron nuevas jornadas en la fuente; "
+            f"se conservan las {len(existentes)} jornadas ya publicadas."
+        )
+        return
 
     creadas = []
     for jornada in jornadas:
