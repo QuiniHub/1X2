@@ -26,6 +26,7 @@ FUNCION_GLOBAL = r'''
     function equipoTieneNecesidadCompetitiva(equipo) {
       const vivos = equipo?.objetivos_vivos || [];
       const texto = `${equipo?.motivacion_competitiva || ""} ${equipo?.situacion_competitiva || ""} ${estadoLegibleCompetitivo(equipo)}`.toLowerCase();
+      if (equipoSinObjetivoVivo(equipo)) return false;
       return vivos.length > 0
         || texto.includes("defiende")
         || texto.includes("aspira")
@@ -62,8 +63,10 @@ FUNCION_GLOBAL = r'''
       if (!pregunta) return "";
       if (equiposMencionados(data, q).length) return "";
 
+      const pidePrimera = incluye(q, ["1a", "primera", "easports"]);
+      const pideSegunda = incluye(q, ["2a", "segunda", "hypermotion"]);
       const ligaPedida = ligaDesdePregunta(q);
-      const ligas = ligaPedida ? [ligaPedida] : ["primera", "segunda"];
+      const ligas = pidePrimera && pideSegunda ? ["primera", "segunda"] : ligaPedida ? [ligaPedida] : ["primera", "segunda"];
       const bloques = [];
 
       ligas.forEach(liga => {
@@ -123,6 +126,39 @@ def patch(html):
         if llamada_old not in html:
             raise SystemExit("No encuentro punto de llamada para lectura competitiva.")
         html = html.replace(llamada_old, llamada_new, 1)
+
+    necesidad_old = '''      return vivos.length > 0
+        || texto.includes("defiende")
+        || texto.includes("aspira")
+        || texto.includes("riesgo")
+        || texto.includes("descenso")
+        || texto.includes("permanencia por cerrar")
+        || texto.includes("playoff")
+        || texto.includes("ascenso directo");
+'''
+    necesidad_new = '''      if (equipoSinObjetivoVivo(equipo)) return false;
+      return vivos.length > 0
+        || texto.includes("defiende")
+        || texto.includes("aspira")
+        || texto.includes("riesgo")
+        || texto.includes("descenso")
+        || texto.includes("permanencia por cerrar")
+        || texto.includes("playoff")
+        || texto.includes("ascenso directo");
+'''
+    if necesidad_old in html and "if (equipoSinObjetivoVivo(equipo)) return false;" not in html:
+        html = html.replace(necesidad_old, necesidad_new, 1)
+
+    ligas_old = '''      const ligaPedida = ligaDesdePregunta(q);
+      const ligas = ligaPedida ? [ligaPedida] : ["primera", "segunda"];
+'''
+    ligas_new = '''      const pidePrimera = incluye(q, ["1a", "primera", "easports"]);
+      const pideSegunda = incluye(q, ["2a", "segunda", "hypermotion"]);
+      const ligaPedida = ligaDesdePregunta(q);
+      const ligas = pidePrimera && pideSegunda ? ["primera", "segunda"] : ligaPedida ? [ligaPedida] : ["primera", "segunda"];
+'''
+    if ligas_old in html:
+        html = html.replace(ligas_old, ligas_new, 1)
 
     texto_old = '''        yaLoContempla
           ? `La prediccion si lo tenia en cuenta, pero probablemente lo explicaba demasiado poco. En este caso ${equipoObjecion.equipo} no es un visitante cualquiera: su necesidad competitiva obliga a desconfiar de un fijo limpio.`
