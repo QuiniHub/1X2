@@ -1886,8 +1886,14 @@
       return `${nombre} (${estado}). ${lectura}`.trim();
     }
 
-    function puntosEquipo(datos) {
-      return Number(datos?.competitivo?.puntos ?? datos?.tabla?.puntos ?? datos?.tabla?.pts ?? 0);
+    function puntosEquipoCompetitivo(datos) {
+      const candidatos = [
+        datos?.competitivo?.puntos,
+        datos?.competitivo?.pts,
+        datos?.tabla?.puntos,
+        datos?.tabla?.pts
+      ].map(Number).filter(n => Number.isFinite(n) && n > 0);
+      return candidatos.length ? candidatos[0] : 0;
     }
 
     function posicionEquipo(datos) {
@@ -2033,8 +2039,8 @@
         "",
         `Partido de la jornada ${data.prediccion?.jornada || "-"}: ${partido.num}. ${partido.local} - ${partido.visitante}. Signo actual: ${signoBase}. Probabilidades: ${probTexto(partido)}. Riesgo de sorpresa: ${partido.probabilidad_sorpresa ?? "-"}%.`,
         "",
-        `${partido.local}: puesto ${posicionEquipo(localDatos)}, ${puntosEquipo(localDatos)} puntos, forma ultimos 5: ${formaEquipo(localDatos)}. ${objetivoPrincipalTexto(localDatos)}`,
-        `${partido.visitante}: puesto ${posicionEquipo(visitanteDatos)}, ${puntosEquipo(visitanteDatos)} puntos, forma ultimos 5: ${formaEquipo(visitanteDatos)}. ${objetivoPrincipalTexto(visitanteDatos)}`,
+        `${partido.local}: puesto ${posicionEquipo(localDatos)}, ${puntosEquipoCompetitivo(localDatos)} puntos, forma ultimos 5: ${formaEquipo(localDatos)}. ${objetivoPrincipalTexto(localDatos)}`,
+        `${partido.visitante}: puesto ${posicionEquipo(visitanteDatos)}, ${puntosEquipoCompetitivo(visitanteDatos)} puntos, forma ultimos 5: ${formaEquipo(visitanteDatos)}. ${objetivoPrincipalTexto(visitanteDatos)}`,
         "",
         yaLoContempla
           ? `La prediccion si lo tenia en cuenta, pero probablemente lo explicaba demasiado poco. En este caso ${equipoObjecion.equipo} no es un visitante cualquiera: su necesidad competitiva obliga a desconfiar de un fijo limpio.`
