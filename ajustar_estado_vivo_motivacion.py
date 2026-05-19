@@ -180,31 +180,31 @@ def penalizaciones_competitivas(partido, local_ctx, visitante_ctx):
     motivos = []
 
     if local_need and visitor_need:
-        penalty += 22
+        penalty += 38
         motivos.append("los dos equipos tienen objetivo vivo; no es fijo limpio")
     elif local_need or visitor_need:
         penalty += 8
 
     if lado == "1" and visitor_need:
-        penalty += 18
+        penalty += 22
         motivos.append(f"{partido.get('visitante')} necesita puntuar: {objetivo_texto(visitante_ctx)}")
     if lado == "2" and local_need:
-        penalty += 18
+        penalty += 22
         motivos.append(f"{partido.get('local')} necesita puntuar: {objetivo_texto(local_ctx)}")
 
     if lado == "1" and local_need and visitor_closed:
         penalty -= 16
-        motivos.append(f"la necesidad del local apoya el 1 y el visitante tiene objetivo cerrado")
+        motivos.append("la necesidad del local apoya el 1 y el visitante tiene objetivo cerrado")
     if lado == "2" and visitor_need and local_closed:
         penalty -= 16
-        motivos.append(f"la necesidad del visitante apoya el 2 y el local tiene objetivo cerrado")
+        motivos.append("la necesidad del visitante apoya el 2 y el local tiene objetivo cerrado")
 
     if lado == "1" and local_closed and visitor_need:
-        penalty += 22
-        motivos.append(f"el favorito local tiene objetivo cerrado y el visitante se juega puntos")
+        penalty += 24
+        motivos.append("el favorito local tiene objetivo cerrado y el visitante se juega puntos")
     if lado == "2" and visitor_closed and local_need:
-        penalty += 22
-        motivos.append(f"el favorito visitante tiene objetivo cerrado y el local se juega puntos")
+        penalty += 24
+        motivos.append("el favorito visitante tiene objetivo cerrado y el local se juega puntos")
 
     if prob < 55:
         penalty += 7
@@ -227,6 +227,19 @@ def seguridad_ajustada(partido, indice):
     penalty, motivos = penalizaciones_competitivas(partido, local_ctx, visitante_ctx)
     score = inc - margen * 0.35 - prob * 0.08 + penalty
     return round(score, 2), motivos, local_ctx, visitante_ctx
+
+
+def es_seguro_aceptable(item):
+    texto = " ".join(item.get("motivos", [])).lower()
+    if "no es fijo limpio" in texto:
+        return False
+    if "necesita puntuar" in texto:
+        return False
+    if "objetivo cerrado" in texto and "se juega puntos" in texto:
+        return False
+    if item.get("prob", 0) < 50 and "apoya" not in texto:
+        return False
+    return True
 
 
 def motivo_seguro(partido, motivos):
@@ -254,10 +267,16 @@ def construir_listas(prediccion, contexto):
             continue
         score, motivos, local_ctx, visitante_ctx = seguridad_ajustada(partido, indice)
         signo, prob = top_probabilidad(partido)
+        riesgo_extra = 0
+        texto_motivos = " ".join(motivos).lower()
+        if "no es fijo limpio" in texto_motivos:
+            riesgo_extra += 45
+        if "necesita puntuar" in texto_motivos:
+            riesgo_extra += 12
         evaluados.append({
             "partido": partido,
             "score_seguridad": score,
-            "score_riesgo": round(score + float(partido.get("probabilidad_sorpresa") or 0) * 0.25, 2),
+            "score_riesgo": round(score + float(partido.get("probabilidad_sorpresa") or 0) * 0.25 + riesgo_extra, 2),
             "motivos": motivos,
             "local_ctx": local_ctx,
             "visitante_ctx": visitante_ctx,
@@ -265,8 +284,9 @@ def construir_listas(prediccion, contexto):
             "prob": prob,
         })
 
+    candidatos_seguros = [item for item in evaluados if es_seguro_aceptable(item)]
     seguros = []
-    for item in sorted(evaluados, key=lambda x: (x["score_seguridad"], -margen_probabilidad(x["partido"])) )[:5]:
+    for item in sorted(candidatos_seguros, key=lambda x: (x["score_seguridad"], -margen_probabilidad(x["partido"])))[:5]:
         p = item["partido"]
         seguros.append({
             "num": p.get("num"),
@@ -279,7 +299,7 @@ def construir_listas(prediccion, contexto):
         })
 
     trampas = []
-    for item in sorted(evaluados, key=lambda x: x["score_riesgo"], reverse=True)[:7]:
+    for item in sorted(evaluados, key=lambda x: x["score_riesgo"], reverse=True)[:8]:
         p = item["partido"]
         trampas.append({
             "num": p.get("num"),
@@ -293,7 +313,7 @@ def construir_listas(prediccion, contexto):
         })
 
     dudas = []
-    for item in sorted(evaluados, key=lambda x: x["score_riesgo"], reverse=True)[:6]:
+    for item in sorted(evaluados, key=lambda x: x["score_riesgo"], reverse=True)[:7]:
         p = item["partido"]
         pregunta = motivo_trampa_ajustado(p, item["motivos"])
         dudas.append({
