@@ -18,6 +18,9 @@ CORRECCION = {
     "temporada": "2025-2026",
 }
 
+INICIO_CORRECCION = datetime(2026, 5, 18, tzinfo=timezone.utc)
+FIN_CORRECCION = datetime(2026, 7, 1, tzinfo=timezone.utc)
+
 
 def cargar_json(path):
     if not path.exists():
@@ -44,6 +47,11 @@ def buscar(tabla, nombre):
         if normalizar(equipo.get("equipo")) == objetivo:
             return equipo
     return None
+
+
+def correccion_activa():
+    ahora = datetime.now(timezone.utc)
+    return INICIO_CORRECCION <= ahora <= FIN_CORRECCION
 
 
 def sumar_empate_si_falta(equipo, pj_objetivo=40):
@@ -90,6 +98,10 @@ def corregir_archivo(path):
 
 
 def main():
+    if not correccion_activa():
+        print("Correccion Segunda desactivada fuera del cierre 2025-2026.")
+        return
+
     cambios = [str(path) for path in ARCHIVOS if corregir_archivo(path)]
     if cambios:
         print("Correccion Segunda aplicada: Leganes 0-0 Huesca en " + ", ".join(cambios))
