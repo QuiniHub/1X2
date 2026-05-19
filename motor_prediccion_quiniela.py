@@ -176,6 +176,13 @@ def objetivos_texto(equipo):
     return ", ".join(objetivos) if objetivos else "sin objetivo fuerte detectado"
 
 
+def forma_float(tendencias, clave, divisor):
+    try:
+        return float(tendencias.get(clave) or 0) / divisor
+    except Exception:
+        return 0.0
+
+
 def fuerza(equipo, condicion):
     if not equipo:
         return 0.0
@@ -186,9 +193,38 @@ def fuerza(equipo, condicion):
     ppg = float(equipo.get("pts") or 0) / pj
     dg = float(equipo.get("dg") or 0) / pj
     cond_ppg = float(cond.get("pts") or 0) / cond_pj
-    forma_5 = float(tendencias.get("forma_5_pts") or 0) / 5.0
+    forma_5 = forma_float(tendencias, "forma_5_pts", 5.0)
+    forma_10 = forma_float(tendencias, "forma_10_pts", 10.0)
+    aceleracion = forma_5 - forma_10
     empates = float(tendencias.get("empates_pct") or 0)
-    return ppg * 34 + dg * 12 + cond_ppg * 22 + forma_5 * 20 + empates * 0.08
+    return (
+        ppg * 30
+        + dg * 12
+        + cond_ppg * 20
+        + forma_5 * 14
+        + forma_10 * 12
+        + aceleracion * 6
+        + empates * 0.08
+    )
+
+
+def dinamica_texto(equipo):
+    if not equipo:
+        return ""
+    tendencias = equipo.get("tendencias", {})
+    forma_5 = float(tendencias.get("forma_5_pts") or 0)
+    forma_10 = float(tendencias.get("forma_10_pts") or 0)
+    if forma_10 <= 0:
+        return "sin dinámica de 10 jornadas suficiente"
+    media_5 = forma_5 / 5.0
+    media_10 = forma_10 / 10.0
+    if media_5 >= media_10 + 0.35:
+        etiqueta = "dinámica positiva reciente"
+    elif media_5 <= media_10 - 0.35:
+        etiqueta = "dinámica negativa reciente"
+    else:
+        etiqueta = "dinámica estable"
+    return f"forma últimos 5/10: {forma_5:.0f}/{forma_10:.0f} puntos, {etiqueta}"
 
 
 def normalizar_probs(probs):
@@ -354,14 +390,14 @@ def explicar(
         t = local.get("tendencias", {})
         razones.append(
             f"{partido.get('local')} llega con {local.get('pts', 0)} puntos, "
-            f"{t.get('forma_5_pts', 0)} puntos en los ultimos 5 y "
+            f"{dinamica_texto(local)} y "
             f"{t.get('goles_favor_por_partido', 0)} goles a favor por partido."
         )
     if visitante:
         t = visitante.get("tendencias", {})
         razones.append(
             f"{partido.get('visitante')} llega con {visitante.get('pts', 0)} puntos, "
-            f"{t.get('forma_5_pts', 0)} puntos en los ultimos 5 y "
+            f"{dinamica_texto(visitante)} y "
             f"{t.get('goles_contra_por_partido', 0)} goles encajados por partido."
         )
     if abs(diff) < 8:
