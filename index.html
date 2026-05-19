@@ -2372,6 +2372,7 @@
     function equipoTieneNecesidadCompetitiva(equipo) {
       const vivos = equipo?.objetivos_vivos || [];
       const texto = `${equipo?.motivacion_competitiva || ""} ${equipo?.situacion_competitiva || ""} ${estadoLegibleCompetitivo(equipo)}`.toLowerCase();
+      if (equipoSinObjetivoVivo(equipo)) return false;
       return vivos.length > 0
         || texto.includes("defiende")
         || texto.includes("aspira")
@@ -2408,8 +2409,10 @@
       if (!pregunta) return "";
       if (equiposMencionados(data, q).length) return "";
 
+      const pidePrimera = incluye(q, ["1a", "primera", "easports"]);
+      const pideSegunda = incluye(q, ["2a", "segunda", "hypermotion"]);
       const ligaPedida = ligaDesdePregunta(q);
-      const ligas = ligaPedida ? [ligaPedida] : ["primera", "segunda"];
+      const ligas = pidePrimera && pideSegunda ? ["primera", "segunda"] : ligaPedida ? [ligaPedida] : ["primera", "segunda"];
       const bloques = [];
 
       ligas.forEach(liga => {
