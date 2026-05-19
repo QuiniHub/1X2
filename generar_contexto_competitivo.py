@@ -46,8 +46,8 @@ PRIORIDAD_OBJETIVO = {
     "riesgo_descenso": 115,
     "permanencia_por_cerrar": 105,
     "defiende_liderato": 100,
+    "aspira_matematicamente": 92,
     "defiende_plaza": 90,
-    "aspira_matematicamente": 82,
     "aspira_por_desempate_o_fallo_ajeno": 78,
     "ventaja_por_permanencia": 45,
     "campeon_matematico": 38,
@@ -412,11 +412,20 @@ def elegir_objetivo_principal(objetivos):
     )[0]
 
 
+def ordenar_objetivos(objetivos, principal):
+    if not principal:
+        return objetivos
+    resto = [objetivo for objetivo in objetivos if objetivo is not principal]
+    return [principal] + resto
+
+
 def cerrar_equipo(equipo, objetivos):
     visibles = [objetivo for objetivo in objetivos if objetivo]
+    principal = elegir_objetivo_principal(visibles)
+    visibles = ordenar_objetivos(visibles, principal)
     equipo["objetivos"] = visibles
     equipo["objetivos_vivos"] = [objetivo for objetivo in visibles if objetivo.get("vivo")]
-    equipo["objetivo_principal"] = elegir_objetivo_principal(visibles)
+    equipo["objetivo_principal"] = principal
 
     if not equipo["objetivos_vivos"] and not equipo["objetivo_principal"]:
         equipo["objetivo_principal"] = {
