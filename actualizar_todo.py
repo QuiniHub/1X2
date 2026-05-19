@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parent
 
 SCRIPTS_ACTIVOS = [
     "actualizar_jornadas_detalle.py",
+    "actualizar_selector_jornadas_web.py",
     "actualizar_resultados_directo.py",
     "aplicar_correcciones_resultados.py",
     "actualizar_clasificaciones_oficiales.py",
@@ -20,6 +21,7 @@ SCRIPTS_ACTIVOS = [
     "generar_contexto_competitivo.py",
     "motor_prediccion_quiniela.py",
     "generar_estado_vivo_ia.py",
+    "regenerar_estado_vivo_actual.py",
     "diagnostico_sistema.py",
     "control_calidad_actualizacion.py",
     "normalizar_diagnostico_control.py",
