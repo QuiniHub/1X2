@@ -1,26 +1,36 @@
 {
   "version": "1.0",
-  "generado_en": "2026-05-18T22:12:12.168549+00:00",
+  "generado_en": "2026-05-19T07:18:59.288821+00:00",
   "estado": "necesita_mejoras",
-  "score_salud": 79,
+  "score_salud": 72,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
-    "total_jornadas": 63,
-    "jornada_actual": null,
-    "proxima_jornada": null,
+    "total_jornadas": 64,
+    "jornada_actual": {
+      "jornada": 64,
+      "fecha": "Domingo, 24 de mayo de 2026",
+      "estado": "abierta",
+      "partidos": 14,
+      "cerrados": 0,
+      "pendientes": 14,
+      "pendientes_totales_con_pleno15": 15,
+      "pleno15_cerrado": false,
+      "ultima_actualizacion_partido": "",
+      "path": "data/jornadas/jornada_64.json"
+    },
+    "proxima_jornada": {
+      "jornada": 64,
+      "fecha": "Domingo, 24 de mayo de 2026",
+      "estado": "abierta",
+      "partidos": 14,
+      "cerrados": 0,
+      "pendientes": 14,
+      "pendientes_totales_con_pleno15": 15,
+      "pleno15_cerrado": false,
+      "ultima_actualizacion_partido": "",
+      "path": "data/jornadas/jornada_64.json"
+    },
     "ultimas": [
-      {
-        "jornada": 59,
-        "fecha": "La Quiniela Domingo, 26 de abril de 2026",
-        "estado": "cerrada",
-        "partidos": 14,
-        "cerrados": 14,
-        "pendientes": 0,
-        "pendientes_totales_con_pleno15": 0,
-        "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "",
-        "path": "data/jornadas/jornada_59.json"
-      },
       {
         "jornada": 60,
         "fecha": "La Quiniela Domingo, 3 de mayo de 2026",
@@ -68,13 +78,25 @@
         "pleno15_cerrado": true,
         "ultima_actualizacion_partido": "2026-05-18T20:58:11Z",
         "path": "data/jornadas/jornada_63.json"
+      },
+      {
+        "jornada": 64,
+        "fecha": "Domingo, 24 de mayo de 2026",
+        "estado": "abierta",
+        "partidos": 14,
+        "cerrados": 0,
+        "pendientes": 14,
+        "pendientes_totales_con_pleno15": 15,
+        "pleno15_cerrado": false,
+        "ultima_actualizacion_partido": "",
+        "path": "data/jornadas/jornada_64.json"
       }
     ]
   },
   "memoria_quinielas": {
-    "jugadas_persistidas_json": 3,
-    "jornadas_validadas_historial": 3,
-    "jornadas_memoria_real_total": 6,
+    "jugadas_persistidas_json": 5,
+    "jornadas_validadas_historial": 5,
+    "jornadas_memoria_real_total": 10,
     "jornadas_con_signo_nuestro": 0,
     "signos_nuestros_en_jornadas": 0,
     "estado": "memoria_propia_disponible",
@@ -209,16 +231,16 @@
         {
           "posicion": 1,
           "equipo": "Real Racing Club de Santander",
-          "puntos": 75
+          "puntos": 78
         },
         {
           "posicion": 2,
-          "equipo": "RC Deportivo de La Coruña",
-          "puntos": 71
+          "equipo": "RC Deportivo de La Coruna",
+          "puntos": 74
         },
         {
           "posicion": 3,
-          "equipo": "UD Almería",
+          "equipo": "UD Almeria",
           "puntos": 71
         }
       ]
@@ -227,7 +249,7 @@
   "fuentes": {
     "memoria_horas": 0.0,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 3.8,
+    "contexto_equipos_horas": 0.0,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -260,6 +282,12 @@
     }
   },
   "alertas": [
+    {
+      "nivel": "media",
+      "titulo": "Jornada actual incompleta",
+      "detalle": "La jornada 64 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
+    },
     {
       "nivel": "media",
       "titulo": "Prediccion demasiado rigida",
