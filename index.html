@@ -3004,6 +3004,88 @@
       return orden[String(equipo?.motivacion_competitiva || equipo?.motivacion || "baja").toLowerCase()] ?? 0;
     }
 
+    function textoCompetitivoBoleto(equipo) {
+      const objetivos = (equipo?.objetivos || [])
+        .map(o => `${o.objetivo || ""} ${o.estado || ""} ${o.lectura || ""}`)
+        .join(" ");
+      return `${objetivos} ${equipo?.situacion_competitiva || ""} ${equipo?.motivacion_competitiva || ""} ${equipo?.motivacion || ""}`.toLowerCase();
+    }
+
+    function equipoObjetivoCerradoBoleto(equipo) {
+      if (!equipo) return false;
+      if ((equipo.objetivos_vivos || []).length) return false;
+      const texto = textoCompetitivoBoleto(equipo);
+      return texto.includes("asegurado matematicamente")
+        || texto.includes("campeon matematico")
+        || texto.includes("salvado matematicamente")
+        || texto.includes("descendido matematicamente")
+        || texto.includes("sin opciones matematicas")
+        || texto.includes("sin opciones")
+        || texto.includes("no se juega nada");
+    }
+
+    function equipoNecesidadVivaBoleto(equipo) {
+      if (!equipo) return false;
+      if (equipoObjetivoCerradoBoleto(equipo)) return false;
+      const texto = textoCompetitivoBoleto(equipo);
+      const motivacion = valorMotivacionCompetitiva(equipo);
+      return (equipo.objetivos_vivos || []).length > 0
+        || motivacion >= 2
+        || texto.includes("defiende")
+        || texto.includes("aspira")
+        || texto.includes("riesgo")
+        || texto.includes("descenso")
+        || texto.includes("permanencia")
+        || texto.includes("playoff")
+        || texto.includes("ascenso")
+        || texto.includes("conference")
+        || texto.includes("europa")
+        || texto.includes("champions");
+    }
+
+    function contieneDescensoVivoBoleto(equipo) {
+      if (!equipo || equipoObjetivoCerradoBoleto(equipo)) return false;
+      const texto = textoCompetitivoBoleto(equipo);
+      return texto.includes("descenso") || texto.includes("permanencia") || texto.includes("salvarse");
+    }
+
+    function signoTopProbabilidad(probs) {
+      return Object.entries(probs || {}).sort((a, b) => b[1] - a[1])[0]?.[0] || "X";
+    }
+
+    function bonusRiesgoCompetitivo(localComp, visitanteComp, probs) {
+      const localVivo = equipoNecesidadVivaBoleto(localComp);
+      const visitanteVivo = equipoNecesidadVivaBoleto(visitanteComp);
+      const localCerrado = equipoObjetivoCerradoBoleto(localComp);
+      const visitanteCerrado = equipoObjetivoCerradoBoleto(visitanteComp);
+      const top = signoTopProbabilidad(probs);
+      const valores = Object.values(probs || {}).sort((a, b) => b - a);
+      const margen = valores.length > 1 ? valores[0] - valores[1] : 0;
+      let bonus = 0;
+
+      if (localVivo || visitanteVivo) bonus += 10;
+      if (localVivo && visitanteVivo) bonus += 8;
+      if (localVivo && visitanteCerrado) bonus += 16;
+      if (visitanteVivo && localCerrado) bonus += 16;
+      if (visitanteVivo && top === "1") bonus += 16;
+      if (localVivo && top === "2") bonus += 16;
+      if (contieneDescensoVivoBoleto(localComp) || contieneDescensoVivoBoleto(visitanteComp)) bonus += 10;
+      if ((probs?.["X"] || 0) >= 30) bonus += 6;
+      if (margen < 18) bonus += 8;
+      if (valores[0] < 55) bonus += 8;
+
+      return Math.min(bonus, 44);
+    }
+
+    function puntosCasaFueraTexto(equipo, condicion) {
+      const datos = equipo?.[condicion] || {};
+      const pj = datos.pj || datos.partidos || datos.jugados || 0;
+      const pts = datos.puntos ?? datos.pts ?? datos.puntos_totales;
+      if (!pj && pts === undefined) return "sin dato suficiente";
+      return `${pts ?? 0} pts en ${pj || "-"} partidos`;
+    }
+
+
     function objetivoPrincipalCompetitivo(equipo) {
       const prioridad = {
         riesgo_descenso: 100,
@@ -3139,12 +3221,12 @@
       return ["1", "X", "2"].filter(s => top2.includes(s)).join("");
     }
 
-    function incertidumbre(probs, riesgo) {
+    function incertidumbre(probs, riesgo, bonusCompetitivo = 0) {
       const valores = Object.values(probs).sort((a, b) => b - a);
       let puntos = 100 - (valores[0] - valores[1]) + probs["X"] * 0.35;
       if (riesgo === "Alto") puntos += 12;
       if (riesgo === "Medio") puntos += 6;
-      return puntos;
+      return puntos + bonusCompetitivo;
     }
 
     function puntosEquipo(equipo) {
@@ -3185,6 +3267,8 @@
       const ptsVisitante = puntosEquipo(visitante);
       const formaLocal = leerTendencia(local, "forma_5_pts");
       const formaVisitante = leerTendencia(visitante, "forma_5_pts");
+      const forma10Local = leerTendencia(local, "forma_10_pts");
+      const forma10Visitante = leerTendencia(visitante, "forma_10_pts");
       const gfLocal = leerTendencia(local, "goles_favor_por_partido");
       const gcLocal = leerTendencia(local, "goles_contra_por_partido");
       const gfVisitante = leerTendencia(visitante, "goles_favor_por_partido");
@@ -3192,7 +3276,9 @@
       const diferenciaPuntos = ptsLocal - ptsVisitante;
       const diferenciaForma = formaLocal - formaVisitante;
 
-      let lecturaTipo = "Se deja fijo porque el signo principal mantiene ventaja suficiente frente a las alternativas.";
+      let lecturaTipo = partido.riesgo_necesidad
+        ? "No es un fijo tranquilo: queda como signo base solo si faltan dobles/triples, porque la necesidad competitiva obliga a revisar cobertura."
+        : "Se deja fijo porque el signo principal mantiene ventaja suficiente frente a las alternativas.";
       if (tipoApuesta === "TRIPLE") {
         lecturaTipo = "Se abre triple porque hay mucha incertidumbre: las probabilidades están apretadas, el empate pesa y el partido puede romper el pronóstico base.";
       } else if (tipoApuesta === "DOBLE") {
@@ -3208,7 +3294,8 @@
         lecturaPuntos += " La distancia de puntos es corta, así que el empate o la sorpresa tienen más peso.";
       }
 
-      const lecturaForma = `Dinámica reciente: ${partido.local} suma ${formaLocal} puntos en los últimos 5 y ${partido.visitante} suma ${formaVisitante}. ${diferenciaForma > 2 ? "La forma local llega mejor." : diferenciaForma < -2 ? "La forma visitante llega mejor." : "La forma reciente está bastante equilibrada."}`;
+      const lecturaForma = `Dinámica reciente: ${partido.local} suma ${formaLocal}/${forma10Local} puntos en últimos 5/10 y ${partido.visitante} suma ${formaVisitante}/${forma10Visitante}. ${diferenciaForma > 2 ? "La forma local llega mejor." : diferenciaForma < -2 ? "La forma visitante llega mejor." : "La forma reciente está bastante equilibrada."}`;
+      const lecturaCasaFuera = `Casa/fuera: ${partido.local} en casa ${puntosCasaFueraTexto(local, "local")}; ${partido.visitante} fuera ${puntosCasaFueraTexto(visitante, "visitante")}.`;
       const lecturaGoles = `Goles: ${partido.local} promedia ${numeroSeguro(gfLocal)} a favor y ${numeroSeguro(gcLocal)} en contra; ${partido.visitante} promedia ${numeroSeguro(gfVisitante)} a favor y ${numeroSeguro(gcVisitante)} en contra.`;
       const lecturaRachas = `Rachas: ${partido.local} está en ${rachaTexto(local)} y ${partido.visitante} en ${rachaTexto(visitante)}.`;
       const lecturaProb = `Probabilidades IA: 1=${probs["1"]}%, X=${probs["X"]}%, 2=${probs["2"]}%; ventaja del primer signo: ${numeroSeguro(ventajaProb)} puntos.`;
@@ -3227,7 +3314,8 @@
       const lecturaAlertas = alertas.length ? `Alertas detectadas: ${alertas.join(", ")}.` : "Sin alertas fuertes detectadas en noticias recientes.";
       lecturaTipo = `${lecturaCompetitiva} ${lecturaTipo}`;
 
-      return `${lecturaPuntos} ${lecturaForma} ${lecturaGoles} ${lecturaRachas} ${lecturaProb} ${contextoLocal} ${contextoVisitante} ${lecturaAlertas} ${lecturaTipo} Decisión final: ${signo}.`;
+      const lecturaNecesidad = partido.riesgo_necesidad ? `Riesgo competitivo extra: ${partido.bonus_competitivo} puntos; conviene desconfiar del fijo si no entra en cobertura.` : "";
+      return `${lecturaPuntos} ${lecturaForma} ${lecturaCasaFuera} ${lecturaGoles} ${lecturaRachas} ${lecturaProb} ${contextoLocal} ${contextoVisitante} ${lecturaAlertas} ${lecturaNecesidad} ${lecturaTipo} Decisión final: ${signo}.`;
     }
 
     function pronosticarPleno15(pleno, partidos) {
@@ -3275,6 +3363,7 @@
 
           const riesgo = analisis?.riesgo_sorpresa || "Alto";
           const signoBase = signoMasProbable(probs);
+          const bonusCompetitivo = bonusRiesgoCompetitivo(contextoCompetitivoLocal, contextoCompetitivoVisitante, probs);
 
           return {
             ...p,
@@ -3290,7 +3379,9 @@
             explicacion: "",
             confianza: analisis?.confianza || "Baja",
             riesgo,
-            incertidumbre: incertidumbre(probs, riesgo)
+            bonus_competitivo: bonusCompetitivo,
+            riesgo_necesidad: bonusCompetitivo >= 18,
+            incertidumbre: incertidumbre(probs, riesgo, bonusCompetitivo)
           };
         });
 
@@ -3354,7 +3445,7 @@
                 X: ${p.probabilidades["X"]}% ·
                 2: ${p.probabilidades["2"]}%
               </small><br>
-              <small>Confianza: ${p.confianza} · Riesgo: ${p.riesgo}</small>
+              <small>Confianza: ${p.confianza} · Riesgo: ${p.riesgo}${p.riesgo_necesidad ? " · Necesidad competitiva alta" : ""}</small>
               ${elige8Set.has(p.num) ? `<br><span class="elige8-badge">Elige 8</span>` : ""}
             </div>
 
