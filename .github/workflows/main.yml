@@ -39,6 +39,17 @@ jobs:
         run: |
           git pull --rebase origin main
 
+      - name: Aplicar alineacion critica pronostico analisis
+        run: |
+          python alinear_pronostico_analisis.py
+          python verificar_coherencia_pronostico.py
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add index.html motor_prediccion_quiniela.py data/memoria_ia/verificacion_pronostico_analisis.json
+          git diff --cached --quiet && echo "Alineacion ya aplicada" || git commit -m "Alinear pronostico y analisis en web"
+          git push
+          git pull --rebase origin main
+
       - name: Actualizar datos
         run: |
           python actualizar_todo.py
