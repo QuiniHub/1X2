@@ -37,6 +37,7 @@ SCRIPTS_ACTIVOS = [
     "mejorar_lectura_competitiva_global.py",
     "mejorar_coberturas_necesidad.py",
     "corregir_ajuste_necesidad_boleto.py",
+    "reforzar_coberturas_descenso.py",
     "diagnostico_sistema.py",
     "control_calidad_actualizacion.py",
     "normalizar_diagnostico_control.py",
