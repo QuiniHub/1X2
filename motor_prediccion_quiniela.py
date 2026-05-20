@@ -439,19 +439,19 @@ def ajustar_por_patrones_aprendidos(probs, patrones, local_comp, visitante_comp)
 
     if visitante_descenso and top == "1":
         tasa = tasa_patron(patrones, "visitante_descenso_vs_local_favorito")
-        probs["X"] += 9 + tasa * 0.07
-        probs["2"] += 9 + tasa * 0.07
-        probs["1"] -= 8
-        riesgo_extra += 24 + tasa * 0.25
-        lecturas.append(f"Aprendizaje de descenso: un visitante que se juega permanencia contra favorito local debe subir a zona de cobertura; patron historico {tasa:.1f}%.")
+        probs["X"] += 12 + tasa * 0.10
+        probs["2"] += 14 + tasa * 0.12
+        probs["1"] -= 10
+        riesgo_extra += 75 + tasa * 0.40
+        lecturas.append(f"Aprendizaje de descenso: un visitante que se juega permanencia contra favorito local debe subir a zona prioritaria de cobertura; patron historico {tasa:.1f}%.")
 
     if local_descenso and top == "2":
         tasa = tasa_patron(patrones, "local_descenso_vs_visitante_favorito")
-        probs["X"] += 9 + tasa * 0.07
-        probs["1"] += 9 + tasa * 0.07
-        probs["2"] -= 8
-        riesgo_extra += 24 + tasa * 0.25
-        lecturas.append(f"Aprendizaje de descenso: un local que se juega permanencia contra favorito visitante debe subir a zona de cobertura; patron historico {tasa:.1f}%.")
+        probs["X"] += 12 + tasa * 0.10
+        probs["1"] += 14 + tasa * 0.12
+        probs["2"] -= 10
+        riesgo_extra += 75 + tasa * 0.40
+        lecturas.append(f"Aprendizaje de descenso: un local que se juega permanencia contra favorito visitante debe subir a zona prioritaria de cobertura; patron historico {tasa:.1f}%.")
 
     if (local_necesita and visitante_cerrado) or (visitante_necesita and local_cerrado):
         tasa = tasa_patron(patrones, "equipo_necesitado_vs_equipo_sin_objetivo")
