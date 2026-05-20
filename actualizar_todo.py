@@ -24,6 +24,7 @@ SCRIPTS_ACTIVOS = [
     "generar_contexto_competitivo.py",
     "aprender_patrones_competitivos.py",
     "aplicar_patrones_motor.py",
+    "reforzar_patrones_motor.py",
     "mejorar_motor_dinamica_10.py",
     "motor_prediccion_quiniela.py",
     "generar_estado_vivo_ia.py",
