@@ -3004,16 +3004,30 @@
       return orden[String(equipo?.motivacion_competitiva || equipo?.motivacion || "baja").toLowerCase()] ?? 0;
     }
 
+
+    function normalizarCompetitivoTextoBoleto(texto) {
+      return norm(String(texto || "").replaceAll("_", " "));
+    }
+
     function textoCompetitivoBoleto(equipo) {
       const objetivos = (equipo?.objetivos || [])
         .map(o => `${o.objetivo || ""} ${o.estado || ""} ${o.lectura || ""}`)
         .join(" ");
-      return `${objetivos} ${equipo?.situacion_competitiva || ""} ${equipo?.motivacion_competitiva || ""} ${equipo?.motivacion || ""}`.toLowerCase();
+      return normalizarCompetitivoTextoBoleto(`${objetivos} ${equipo?.situacion_competitiva || ""} ${equipo?.motivacion_competitiva || ""} ${equipo?.motivacion || ""}`);
+    }
+
+    function objetivosVivosBoleto(equipo) {
+      if (!equipo) return [];
+      const vivosDirectos = Array.isArray(equipo.objetivos_vivos) ? equipo.objetivos_vivos : [];
+      const vivosObjetivos = (equipo.objetivos || []).filter(o => o?.vivo === true && o?.terminal !== true);
+      return [...vivosDirectos, ...vivosObjetivos];
     }
 
     function equipoObjetivoCerradoBoleto(equipo) {
       if (!equipo) return false;
-      if ((equipo.objetivos_vivos || []).length) return false;
+      if (objetivosVivosBoleto(equipo).length) return false;
+      const objetivos = equipo.objetivos || [];
+      if (objetivos.some(o => o?.terminal === true)) return true;
       const texto = textoCompetitivoBoleto(equipo);
       return texto.includes("asegurado matematicamente")
         || texto.includes("campeon matematico")
@@ -3029,7 +3043,7 @@
       if (equipoObjetivoCerradoBoleto(equipo)) return false;
       const texto = textoCompetitivoBoleto(equipo);
       const motivacion = valorMotivacionCompetitiva(equipo);
-      return (equipo.objetivos_vivos || []).length > 0
+      return objetivosVivosBoleto(equipo).length > 0
         || motivacion >= 2
         || texto.includes("defiende")
         || texto.includes("aspira")
@@ -3045,13 +3059,17 @@
 
     function contieneDescensoVivoBoleto(equipo) {
       if (!equipo || equipoObjetivoCerradoBoleto(equipo)) return false;
-      const texto = textoCompetitivoBoleto(equipo);
+      const vivosTexto = objetivosVivosBoleto(equipo)
+        .map(o => `${o.objetivo || ""} ${o.estado || ""} ${o.lectura || ""}`)
+        .join(" ");
+      const texto = normalizarCompetitivoTextoBoleto(`${vivosTexto} ${textoCompetitivoBoleto(equipo)}`);
       return texto.includes("descenso") || texto.includes("permanencia") || texto.includes("salvarse");
     }
 
     function signoTopProbabilidad(probs) {
       return Object.entries(probs || {}).sort((a, b) => b[1] - a[1])[0]?.[0] || "X";
     }
+
 
     function bonusRiesgoCompetitivo(localComp, visitanteComp, probs) {
       const localVivo = equipoNecesidadVivaBoleto(localComp);
@@ -3079,6 +3097,7 @@
       return Math.min(bonus, 110);
     }
 
+
     function tasaPatronCompetitivo(patrones, clave) {
       return Number(patrones?.patrones?.[clave]?.tasa_sorpresa || 0);
     }
@@ -3095,27 +3114,30 @@
 
       if (visitanteCerrado && localNecesita) {
         const tasa = tasaPatronCompetitivo(patrones, "necesitado_local_vs_visitante_objetivo_cerrado");
-        p["1"] += 5 + tasa * 0.08;
-        p["X"] += 5 + tasa * 0.06;
-        p["2"] -= 4;
+        p["1"] += 16 + tasa * 0.16;
+        p["X"] += 11 + tasa * 0.09;
+        p["2"] -= 12;
       }
       if (localCerrado && visitanteNecesita) {
         const tasa = tasaPatronCompetitivo(patrones, "visitante_necesitado_vs_local_objetivo_cerrado");
-        p["2"] += 5 + tasa * 0.08;
-        p["X"] += 5 + tasa * 0.06;
-        p["1"] -= 4;
+        p["2"] += 16 + tasa * 0.16;
+        p["X"] += 11 + tasa * 0.09;
+        p["1"] -= 12;
       }
       if (visitanteDescenso && top === "1") {
         const tasa = tasaPatronCompetitivo(patrones, "visitante_descenso_vs_local_favorito");
-        p["X"] += 9 + tasa * 0.07;
-        p["2"] += 9 + tasa * 0.07;
-        p["1"] -= 8;
+        p["X"] += 16 + tasa * 0.12;
+        p["2"] += 18 + tasa * 0.16;
+        p["1"] -= 20;
       }
       if (localDescenso && top === "2") {
         const tasa = tasaPatronCompetitivo(patrones, "local_descenso_vs_visitante_favorito");
-        p["X"] += 9 + tasa * 0.07;
-        p["1"] += 9 + tasa * 0.07;
-        p["2"] -= 8;
+        p["X"] += 16 + tasa * 0.12;
+        p["1"] += 18 + tasa * 0.16;
+        p["2"] -= 20;
+      }
+      if (localNecesita && visitanteNecesita) {
+        p["X"] += 7;
       }
       return normalizarProbabilidades(p);
     }
@@ -3130,14 +3152,48 @@
       const top = signoTopProbabilidad(probs);
       let bonus = 0;
 
-      if (visitanteCerrado && localNecesita) bonus += 10 + tasaPatronCompetitivo(patrones, "necesitado_local_vs_visitante_objetivo_cerrado") * 0.35;
-      if (localCerrado && visitanteNecesita) bonus += 10 + tasaPatronCompetitivo(patrones, "visitante_necesitado_vs_local_objetivo_cerrado") * 0.35;
-      if (visitanteDescenso && top === "1") bonus += 35 + tasaPatronCompetitivo(patrones, "visitante_descenso_vs_local_favorito") * 0.45;
-      if (localDescenso && top === "2") bonus += 35 + tasaPatronCompetitivo(patrones, "local_descenso_vs_visitante_favorito") * 0.45;
+      if (visitanteCerrado && localNecesita) bonus += 24 + tasaPatronCompetitivo(patrones, "necesitado_local_vs_visitante_objetivo_cerrado") * 0.38;
+      if (localCerrado && visitanteNecesita) bonus += 24 + tasaPatronCompetitivo(patrones, "visitante_necesitado_vs_local_objetivo_cerrado") * 0.38;
+      if (visitanteDescenso && top === "1") bonus += 72 + tasaPatronCompetitivo(patrones, "visitante_descenso_vs_local_favorito") * 0.55;
+      if (localDescenso && top === "2") bonus += 72 + tasaPatronCompetitivo(patrones, "local_descenso_vs_visitante_favorito") * 0.55;
       if ((localNecesita && visitanteCerrado) || (visitanteNecesita && localCerrado)) {
-        bonus += 12 + tasaPatronCompetitivo(patrones, "equipo_necesitado_vs_equipo_sin_objetivo") * 0.25;
+        bonus += 22 + tasaPatronCompetitivo(patrones, "equipo_necesitado_vs_equipo_sin_objetivo") * 0.34;
       }
+      if (localNecesita && visitanteNecesita) bonus += 20;
       return Math.round(bonus * 10) / 10;
+    }
+
+    function riesgoNecesidadRealBoleto(localComp, visitanteComp) {
+      return equipoNecesidadVivaBoleto(localComp)
+        || equipoNecesidadVivaBoleto(visitanteComp)
+        || contieneDescensoVivoBoleto(localComp)
+        || contieneDescensoVivoBoleto(visitanteComp);
+    }
+
+    function prioridadCoberturaAnalisis(partido) {
+      const localComp = partido.contexto_competitivo_local;
+      const visitanteComp = partido.contexto_competitivo_visitante;
+      const localNecesita = equipoNecesidadVivaBoleto(localComp);
+      const visitanteNecesita = equipoNecesidadVivaBoleto(visitanteComp);
+      const localCerrado = equipoObjetivoCerradoBoleto(localComp);
+      const visitanteCerrado = equipoObjetivoCerradoBoleto(visitanteComp);
+      const localDescenso = contieneDescensoVivoBoleto(localComp);
+      const visitanteDescenso = contieneDescensoVivoBoleto(visitanteComp);
+      const top = signoTopProbabilidad(partido.probabilidades || {});
+      const valores = Object.values(partido.probabilidades || {}).sort((a, b) => b - a);
+      const margen = valores.length > 1 ? valores[0] - valores[1] : 0;
+      let score = Number(partido.incertidumbre || 0) + Number(partido.bonus_competitivo || 0);
+
+      if (partido.riesgo_necesidad) score += 25;
+      if (localDescenso || visitanteDescenso) score += 70;
+      if (localDescenso && visitanteDescenso) score += 40;
+      if ((visitanteDescenso && top === "1") || (localDescenso && top === "2")) score += 85;
+      if ((localNecesita && visitanteCerrado) || (visitanteNecesita && localCerrado)) score += 75;
+      if (localNecesita && visitanteNecesita) score += 45;
+      if (partido.riesgo === "Alto") score += 10;
+      if (margen < 8) score += 28;
+      else if (margen < 16) score += 18;
+      return score;
     }
 
 
@@ -3359,7 +3415,7 @@
       const diferenciaForma = formaLocal - formaVisitante;
 
       let lecturaTipo = partido.riesgo_necesidad
-        ? "No es un fijo tranquilo: queda como signo base solo si faltan dobles/triples, porque la necesidad competitiva obliga a revisar cobertura."
+        ? "Fijo condicionado: el analisis lo marca como peligroso; si hay mas presupuesto debe subir a doble o triple antes que un partido sin necesidad viva."
         : "Se deja fijo porque el signo principal mantiene ventaja suficiente frente a las alternativas.";
       if (tipoApuesta === "TRIPLE") {
         lecturaTipo = "Se abre triple porque hay mucha incertidumbre: las probabilidades están apretadas, el empate pesa y el partido puede romper el pronóstico base.";
@@ -3443,11 +3499,13 @@
 
           let probs = analisis?.probabilidades || { "1": 37, "X": 31, "2": 32 };
           probs = ajustarProbabilidades(probs, p.local, p.visitante, clasif, contextoCompetitivo);
+          probs = ajustarPorPatronesAprendidosWeb(probs, contextoCompetitivoLocal, contextoCompetitivoVisitante, patronesCompetitivos);
 
           const riesgo = analisis?.riesgo_sorpresa || "Alto";
           const signoBase = signoMasProbable(probs);
           const bonusCompetitivo = bonusRiesgoCompetitivo(contextoCompetitivoLocal, contextoCompetitivoVisitante, probs)
             + bonusPatronesAprendidosWeb(contextoCompetitivoLocal, contextoCompetitivoVisitante, patronesCompetitivos, probs);
+          const riesgoNecesidad = riesgoNecesidadRealBoleto(contextoCompetitivoLocal, contextoCompetitivoVisitante);
 
           return {
             ...p,
@@ -3464,12 +3522,12 @@
             confianza: analisis?.confianza || "Baja",
             riesgo,
             bonus_competitivo: bonusCompetitivo,
-            riesgo_necesidad: bonusCompetitivo >= 18,
+            riesgo_necesidad: riesgoNecesidad,
             incertidumbre: incertidumbre(probs, riesgo, bonusCompetitivo)
           };
         });
 
-      const porRiesgo = [...partidos].sort((a, b) => b.incertidumbre - a.incertidumbre);
+      const porRiesgo = [...partidos].sort((a, b) => prioridadCoberturaAnalisis(b) - prioridadCoberturaAnalisis(a));
       const triplesSet = new Set(porRiesgo.slice(0, triples).map(p => p.num));
       const doblesSet = new Set(
         porRiesgo.filter(p => !triplesSet.has(p.num)).slice(0, dobles).map(p => p.num)

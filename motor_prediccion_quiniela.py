@@ -423,40 +423,45 @@ def ajustar_por_patrones_aprendidos(probs, patrones, local_comp, visitante_comp)
 
     if visitante_cerrado and local_necesita:
         tasa = tasa_patron(patrones, "necesitado_local_vs_visitante_objetivo_cerrado")
-        probs["1"] += 5 + tasa * 0.08
-        probs["X"] += 5 + tasa * 0.06
-        probs["2"] -= 4
-        riesgo_extra += 10 + tasa * 0.20
+        probs["1"] += 16 + tasa * 0.16
+        probs["X"] += 11 + tasa * 0.09
+        probs["2"] -= 12
+        riesgo_extra += 24 + tasa * 0.38
         lecturas.append(f"Aprendizaje competitivo: cuando el local necesita y el visitante tiene objetivo cerrado, el fijo visitante se rompe con frecuencia ({tasa:.1f}% en la memoria).")
 
     if local_cerrado and visitante_necesita:
         tasa = tasa_patron(patrones, "visitante_necesitado_vs_local_objetivo_cerrado")
-        probs["2"] += 5 + tasa * 0.08
-        probs["X"] += 5 + tasa * 0.06
-        probs["1"] -= 4
-        riesgo_extra += 10 + tasa * 0.20
+        probs["2"] += 16 + tasa * 0.16
+        probs["X"] += 11 + tasa * 0.09
+        probs["1"] -= 12
+        riesgo_extra += 24 + tasa * 0.38
         lecturas.append(f"Aprendizaje competitivo: cuando el visitante necesita y el local tiene objetivo cerrado, el 1 fijo no debe ser tranquilo ({tasa:.1f}% de rupturas en memoria).")
 
     if visitante_descenso and top == "1":
         tasa = tasa_patron(patrones, "visitante_descenso_vs_local_favorito")
-        probs["X"] += 12 + tasa * 0.10
-        probs["2"] += 14 + tasa * 0.12
-        probs["1"] -= 10
+        probs["X"] += 16 + tasa * 0.12
+        probs["2"] += 18 + tasa * 0.16
+        probs["1"] -= 20
         riesgo_extra += 75 + tasa * 0.40
         lecturas.append(f"Aprendizaje de descenso: un visitante que se juega permanencia contra favorito local debe subir a zona prioritaria de cobertura; patron historico {tasa:.1f}%.")
 
     if local_descenso and top == "2":
         tasa = tasa_patron(patrones, "local_descenso_vs_visitante_favorito")
-        probs["X"] += 12 + tasa * 0.10
-        probs["1"] += 14 + tasa * 0.12
-        probs["2"] -= 10
+        probs["X"] += 16 + tasa * 0.12
+        probs["1"] += 18 + tasa * 0.16
+        probs["2"] -= 20
         riesgo_extra += 75 + tasa * 0.40
         lecturas.append(f"Aprendizaje de descenso: un local que se juega permanencia contra favorito visitante debe subir a zona prioritaria de cobertura; patron historico {tasa:.1f}%.")
 
     if (local_necesita and visitante_cerrado) or (visitante_necesita and local_cerrado):
         tasa = tasa_patron(patrones, "equipo_necesitado_vs_equipo_sin_objetivo")
-        riesgo_extra += 8 + tasa * 0.15
+        riesgo_extra += 22 + tasa * 0.34
         lecturas.append(f"Patron general aprendido: necesidad contra objetivo cerrado aumenta sorpresa y exige desconfiar del fijo limpio ({tasa:.1f}%).")
+
+    if local_necesita and visitante_necesita:
+        probs["X"] += 7
+        riesgo_extra += 20
+        lecturas.append("Choque de necesidades vivas: el empate y la cobertura amplia ganan valor frente al fijo limpio.")
 
     return normalizar_probs(probs), round(riesgo_extra, 2), lecturas
 
@@ -550,6 +555,49 @@ def probabilidad_sorpresa(probs, incertidumbre_puntos):
     return round(max(min(base + extra, 70), 18), 1)
 
 
+def riesgo_necesidad_real(local_comp, visitante_comp):
+    return (
+        necesidad_viva_motor(local_comp)
+        or necesidad_viva_motor(visitante_comp)
+        or descenso_vivo_motor(local_comp)
+        or descenso_vivo_motor(visitante_comp)
+    )
+
+
+def prioridad_cobertura(partido):
+    probs = partido.get("probabilidades", {})
+    valores = sorted(probs.values(), reverse=True)
+    margen = valores[0] - valores[1] if len(valores) > 1 else 0
+    local_comp = partido.get("contexto_competitivo_local")
+    visitante_comp = partido.get("contexto_competitivo_visitante")
+    local_necesita = necesidad_viva_motor(local_comp)
+    visitante_necesita = necesidad_viva_motor(visitante_comp)
+    local_cerrado = objetivo_cerrado_motor(local_comp)
+    visitante_cerrado = objetivo_cerrado_motor(visitante_comp)
+    local_descenso = descenso_vivo_motor(local_comp)
+    visitante_descenso = descenso_vivo_motor(visitante_comp)
+    top = signo_top(probs)
+    score = float(partido.get("incertidumbre", 0))
+
+    if partido.get("riesgo_necesidad_real"):
+        score += 25
+    if local_descenso or visitante_descenso:
+        score += 70
+    if local_descenso and visitante_descenso:
+        score += 40
+    if (visitante_descenso and top == "1") or (local_descenso and top == "2"):
+        score += 85
+    if (local_necesita and visitante_cerrado) or (visitante_necesita and local_cerrado):
+        score += 75
+    if local_necesita and visitante_necesita:
+        score += 45
+    if margen < 8:
+        score += 28
+    elif margen < 16:
+        score += 18
+    return score
+
+
 def coste(dobles, triples, elige8):
     apuestas = 2 ** dobles * 3 ** triples
     importe_quiniela = max(apuestas * PRECIO_APUESTA, IMPORTE_MINIMO)
@@ -594,6 +642,7 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
             "signo_base": signo_top(probs),
             "incertidumbre": inc,
             "probabilidad_sorpresa": sorpresa,
+            "riesgo_necesidad_real": riesgo_necesidad_real(local_comp, visitante_comp),
             "contexto_local": contexto_local,
             "contexto_visitante": contexto_visitante,
             "lecturas_contexto": lecturas_contexto,
@@ -605,7 +654,7 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
             "_diff": diff,
         })
 
-    por_riesgo = sorted(evaluados, key=lambda p: p["incertidumbre"], reverse=True)
+    por_riesgo = sorted(evaluados, key=prioridad_cobertura, reverse=True)
     triples_set = {p["num"] for p in por_riesgo[:triples]}
     dobles_set = {p["num"] for p in por_riesgo if p["num"] not in triples_set}
     dobles_set = set(list(dobles_set)[:dobles])
