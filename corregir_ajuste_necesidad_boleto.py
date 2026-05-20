@@ -52,10 +52,15 @@ NEW = r'''    function ajustarPorMotivacionCompetitiva(probs, localComp, visitan
     }
 '''
 
+APLICADO = '''    function ajustarPorMotivacionCompetitiva(probs, localComp, visitanteComp) {
+      const p = { ...probs };
+      const vLocal = valorMotivacionCompetitiva(localComp);
+'''
+
 
 def main():
     html = INDEX.read_text(encoding="utf-8")
-    if "const vLocal = valorMotivacionCompetitiva(localComp);" in html:
+    if APLICADO in html:
         print("Ajuste de necesidad ya aplicado en probabilidades.")
         return
     if OLD not in html:
