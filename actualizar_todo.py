@@ -35,6 +35,7 @@ SCRIPTS_ACTIVOS = [
     "corregir_recomendacion_estrategia.py",
     "ajustar_estrategia_motivacion.py",
     "mejorar_lectura_competitiva_global.py",
+    "mejorar_coberturas_necesidad.py",
     "diagnostico_sistema.py",
     "control_calidad_actualizacion.py",
     "normalizar_diagnostico_control.py",
