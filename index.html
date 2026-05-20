@@ -3069,12 +3069,14 @@
       if (visitanteVivo && localCerrado) bonus += 16;
       if (visitanteVivo && top === "1") bonus += 16;
       if (localVivo && top === "2") bonus += 16;
+      if (visitanteVivo && contieneDescensoVivoBoleto(visitanteComp) && top === "1") bonus += 40;
+      if (localVivo && contieneDescensoVivoBoleto(localComp) && top === "2") bonus += 40;
       if (contieneDescensoVivoBoleto(localComp) || contieneDescensoVivoBoleto(visitanteComp)) bonus += 10;
       if ((probs?.["X"] || 0) >= 30) bonus += 6;
       if (margen < 18) bonus += 8;
       if (valores[0] < 55) bonus += 8;
 
-      return Math.min(bonus, 44);
+      return Math.min(bonus, 80);
     }
 
     function puntosCasaFueraTexto(equipo, condicion) {
