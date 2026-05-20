@@ -46,6 +46,7 @@ SCRIPTS_ACTIVOS = [
     "aplicar_patrones_web.py",
     "corregir_emparejamiento_equipos.py",
     "alinear_pronostico_analisis.py",
+    "verificar_coherencia_pronostico.py",
     "diagnostico_sistema.py",
     "control_calidad_actualizacion.py",
     "normalizar_diagnostico_control.py",
