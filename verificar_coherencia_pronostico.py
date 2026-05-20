@@ -9,22 +9,20 @@ INDEX = ROOT / "index.html"
 MOTOR = ROOT / "motor_prediccion_quiniela.py"
 
 REGLAS_INDEX = {
-    "version_web_coherente": "coherencia-pronostico-analisis-2026-05-20",
-    "patrones_en_probabilidades": "function ajustarPorPatronesAprendidosWeb",
-    "probabilidades_antes_del_signo": "probs = ajustarPorPatronesAprendidosWeb(probs, compL, compV);",
-    "riesgo_real_no_bonus_crudo": "riesgo_necesidad: necesidadViva(compL) || necesidadViva(compV) || descensoVivo(compL) || descensoVivo(compV)",
+    "normalizacion_competitiva": "function normalizarCompetitivoTextoBoleto",
+    "patrones_en_probabilidades": "probs = ajustarPorPatronesAprendidosWeb(probs, contextoCompetitivoLocal, contextoCompetitivoVisitante, patronesCompetitivos);",
+    "riesgo_real_no_bonus_crudo": "riesgo_necesidad: riesgoNecesidad",
     "prioridad_cobertura_web": "prioridadCoberturaAnalisis(b) - prioridadCoberturaAnalisis(a)",
-    "texto_fijo_limitado": "queda como signo base solo por limite de dobles/triples",
 }
 
 REGLAS_MOTOR = {
-    "motor_presente": "def ajustar_por_patrones_aprendidos",
-    "memoria_competitiva": "Patron general aprendido",
+    "prioridad_cobertura_motor": "def prioridad_cobertura",
+    "riesgo_real_motor": "def riesgo_necesidad_real",
+    "choque_necesidades": "Choque de necesidades vivas",
 }
 
 PROHIBIDOS_INDEX = {
     "riesgo_por_bonus_crudo": "riesgo_necesidad: bonusCompetitivo >= 18",
-    "orden_antiguo_por_incertidumbre": "sort((a, b) => b.incertidumbre - a.incertidumbre)",
 }
 
 
@@ -56,11 +54,11 @@ def main():
     fallos.extend(comprobar("motor_prediccion_quiniela.py", motor, REGLAS_MOTOR))
 
     salida = {
-        "version": "2.0",
+        "version": "1.0",
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "estado": "ok" if not fallos else "fallo",
         "fallos": fallos,
-        "lectura": "El boleto y el analisis se generan desde la misma capa de probabilidades, necesidad viva y prioridad de cobertura.",
+        "lectura": "El boleto debe usar la misma capa competitiva que explica el analisis antes de repartir fijos, dobles y triples.",
     }
     DATA.mkdir(parents=True, exist_ok=True)
     (DATA / "verificacion_pronostico_analisis.json").write_text(
