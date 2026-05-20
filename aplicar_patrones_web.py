@@ -21,27 +21,30 @@ HELPERS = r'''
 
       if (visitanteCerrado && localNecesita) {
         const tasa = tasaPatronCompetitivo(patrones, "necesitado_local_vs_visitante_objetivo_cerrado");
-        p["1"] += 5 + tasa * 0.08;
-        p["X"] += 5 + tasa * 0.06;
-        p["2"] -= 4;
+        p["1"] += 12 + tasa * 0.14;
+        p["X"] += 8 + tasa * 0.08;
+        p["2"] -= 8;
       }
       if (localCerrado && visitanteNecesita) {
         const tasa = tasaPatronCompetitivo(patrones, "visitante_necesitado_vs_local_objetivo_cerrado");
-        p["2"] += 5 + tasa * 0.08;
-        p["X"] += 5 + tasa * 0.06;
-        p["1"] -= 4;
+        p["2"] += 12 + tasa * 0.14;
+        p["X"] += 8 + tasa * 0.08;
+        p["1"] -= 8;
       }
       if (visitanteDescenso && top === "1") {
         const tasa = tasaPatronCompetitivo(patrones, "visitante_descenso_vs_local_favorito");
-        p["X"] += 9 + tasa * 0.07;
-        p["2"] += 9 + tasa * 0.07;
-        p["1"] -= 8;
+        p["X"] += 12 + tasa * 0.10;
+        p["2"] += 14 + tasa * 0.14;
+        p["1"] -= 14;
       }
       if (localDescenso && top === "2") {
         const tasa = tasaPatronCompetitivo(patrones, "local_descenso_vs_visitante_favorito");
-        p["X"] += 9 + tasa * 0.07;
-        p["1"] += 9 + tasa * 0.07;
-        p["2"] -= 8;
+        p["X"] += 12 + tasa * 0.10;
+        p["1"] += 14 + tasa * 0.14;
+        p["2"] -= 14;
+      }
+      if (localNecesita && visitanteNecesita) {
+        p["X"] += 6;
       }
       return normalizarProbabilidades(p);
     }
@@ -56,13 +59,14 @@ HELPERS = r'''
       const top = signoTopProbabilidad(probs);
       let bonus = 0;
 
-      if (visitanteCerrado && localNecesita) bonus += 10 + tasaPatronCompetitivo(patrones, "necesitado_local_vs_visitante_objetivo_cerrado") * 0.35;
-      if (localCerrado && visitanteNecesita) bonus += 10 + tasaPatronCompetitivo(patrones, "visitante_necesitado_vs_local_objetivo_cerrado") * 0.35;
-      if (visitanteDescenso && top === "1") bonus += 35 + tasaPatronCompetitivo(patrones, "visitante_descenso_vs_local_favorito") * 0.45;
-      if (localDescenso && top === "2") bonus += 35 + tasaPatronCompetitivo(patrones, "local_descenso_vs_visitante_favorito") * 0.45;
+      if (visitanteCerrado && localNecesita) bonus += 18 + tasaPatronCompetitivo(patrones, "necesitado_local_vs_visitante_objetivo_cerrado") * 0.35;
+      if (localCerrado && visitanteNecesita) bonus += 18 + tasaPatronCompetitivo(patrones, "visitante_necesitado_vs_local_objetivo_cerrado") * 0.35;
+      if (visitanteDescenso && top === "1") bonus += 55 + tasaPatronCompetitivo(patrones, "visitante_descenso_vs_local_favorito") * 0.50;
+      if (localDescenso && top === "2") bonus += 55 + tasaPatronCompetitivo(patrones, "local_descenso_vs_visitante_favorito") * 0.50;
       if ((localNecesita && visitanteCerrado) || (visitanteNecesita && localCerrado)) {
-        bonus += 12 + tasaPatronCompetitivo(patrones, "equipo_necesitado_vs_equipo_sin_objetivo") * 0.25;
+        bonus += 16 + tasaPatronCompetitivo(patrones, "equipo_necesitado_vs_equipo_sin_objetivo") * 0.30;
       }
+      if (localNecesita && visitanteNecesita) bonus += 14;
       return Math.round(bonus * 10) / 10;
     }
 '''
@@ -95,7 +99,8 @@ def main():
 
           const riesgo = analisis?.riesgo_sorpresa || "Alto";
 '''
-    if "ajustarPorPatronesAprendidosWeb(probs" not in html:
+    llamada_patrones = "probs = ajustarPorPatronesAprendidosWeb(probs, contextoCompetitivoLocal, contextoCompetitivoVisitante, patronesCompetitivos);"
+    if llamada_patrones not in html:
         if old_probs not in html:
             raise SystemExit("No encuentro bloque de probabilidades del boleto IA.")
         html = html.replace(old_probs, new_probs, 1)
