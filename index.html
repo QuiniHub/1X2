@@ -1134,11 +1134,11 @@
       const totalPendientes = jornada.pendientes_totales_con_pleno15 ?? jornada.pendientes ?? 0;
       return `
         <p><strong>Jornada actual:</strong> ${jornada.jornada || "-"} · partidos cerrados ${jornada.cerrados ?? 0}/${jornada.partidos ?? 14}, pendientes normales ${jornada.pendientes ?? 0}, Pleno al 15 ${pleno.estado || "sin datos"} (${totalPendientes} pendientes contando Pleno). Signos: 1=${jornada.distribucion_signos?.["1"] ?? 0}, X=${jornada.distribucion_signos?.["X"] ?? 0}, 2=${jornada.distribucion_signos?.["2"] ?? 0}.</p>
-        <p><strong>Predicción que está recalibrando:</strong> Jornada ${pred.jornada || "-"}. Fijos ${pred.configuracion_actual?.fijos ?? "-"}, dobles ${pred.configuracion_actual?.dobles ?? "-"}, triples ${pred.configuracion_actual?.triples ?? "-"}.</p>
+        <p><strong>Prediccion base automatica:</strong> Jornada ${pred.jornada || "-"}. Fijos ${pred.configuracion_actual?.fijos ?? "-"}, dobles ${pred.configuracion_actual?.dobles ?? "-"}, triples ${pred.configuracion_actual?.triples ?? "-"}.</p>
         ${pintarListaEstado("Qué ha cambiado", estado.que_ha_cambiado, x => `<li>${x.partido || ""}: ${x.resultado || ""} (${x.signo || ""}). ${x.lectura || ""}</li>`)}
         ${pintarListaEstado("Qué aprende ahora", estado.que_aprende, x => `<li>${x}</li>`)}
-        ${pintarListaEstado("Partidos más seguros", estado.partidos_mas_seguros, x => `<li>${x.num}. ${x.partido}: ${x.signo} · incertidumbre ${x.incertidumbre}</li>`)}
-        ${pintarListaEstado("Partidos trampa o sorpresa", estado.partidos_trampa_o_sorpresa, x => `<li>${x.num}. ${x.partido}: base ${x.signo_base}, incertidumbre ${x.incertidumbre}, sorpresa ${x.probabilidad_sorpresa ?? "-"}%. ${x.motivo}</li>`)}
+        ${pintarListaEstado("Fijos mas defendibles", estado.partidos_mas_seguros, x => `<li>${x.num}. ${x.partido}: ${x.signo} - riesgo de dejarlo fijo ${riesgoFijoLegible(x.riesgo_dejar_fijo ?? x.seguridad_ajustada ?? x.incertidumbre)}</li>`)}
+        ${pintarListaEstado("Partidos trampa o sorpresa", estado.partidos_trampa_o_sorpresa, x => `<li>${x.num}. ${x.partido}: base ${x.signo_base}, riesgo de dejarlo fijo ${riesgoFijoLegible(x.riesgo_dejar_fijo ?? x.riesgo_ajustado ?? x.incertidumbre)}, sorpresa ${x.probabilidad_sorpresa ?? "-"}%. ${x.motivo}</li>`)}
         ${pintarListaEstado("Dudas abiertas", estado.dudas_abiertas, x => `<li>${x.num}. ${x.partido}: ${x.pregunta}</li>`)}
         ${pintarListaEstado("Autocrítica", estado.autocritica, x => `<li>${x}</li>`)}
         ${pintarListaEstado("Errores a evitar", estado.errores_a_evitar, x => `<li>${x}</li>`)}
@@ -1169,7 +1169,7 @@
         <p><strong>Jornada vigilada:</strong> ${actual.jornada || "-"} con ${actual.cerrados ?? 0}/${actual.partidos ?? 0} partidos cerrados, ${actual.pendientes ?? 0} pendientes normales y Pleno al 15 ${actual.pleno15_cerrado ? "cerrado" : "pendiente"}. Riesgo de azar jornada ${pred.jornada || "-"}: ${pred.riesgo_azar || "-"}.</p>
         <p><strong>Memoria propia:</strong> ${memoria.estado || "-"}; jugadas persistidas ${memoria.jugadas_persistidas_json ?? 0}, jornadas con signos nuestros ${memoria.jornadas_con_signo_nuestro ?? 0}.</p>
         ${pintarListaEstado("Alertas de calidad", alertas, x => `<li><strong>${x.nivel || ""}:</strong> ${x.titulo || ""}. ${x.detalle || ""} ${x.accion || ""}</li>`)}
-        ${pintarListaEstado("Partidos donde manda el azar", trampas, x => `<li>${x.num}. ${x.partido}: ${x.signo}, prob. top ${x.probabilidad_top}%, margen ${x.margen}, incertidumbre ${x.incertidumbre}.</li>`)}
+        ${pintarListaEstado("Partidos donde manda el azar", trampas, x => `<li>${x.num}. ${x.partido}: ${x.signo}, prob. top ${x.probabilidad_top}%, margen ${x.margen}, riesgo de dejarlo fijo ${riesgoFijoLegible(x.riesgo_dejar_fijo ?? x.riesgo_ajustado ?? x.incertidumbre)}.</li>`)}
         <div class="table-wrapper">
           <table>
             <thead><tr><th>Modulo</th><th>Estado</th><th>Lectura</th></tr></thead>
@@ -2470,7 +2470,7 @@
       return [
         `Riesgo de azar de la jornada objetivo: ${diagnostico.prediccion?.riesgo_azar || "pendiente"}.`,
         "Partidos donde no debo confiarme:",
-        ...trampas.slice(0, 8).map(p => `${p.num || ""}. ${p.partido || `${p.local || ""} - ${p.visitante || ""}`}: signo ${p.signo || p.signo_base || "-"}, probabilidad top ${p.probabilidad_top || "-"}%, margen ${p.margen || "-"}, incertidumbre ${p.incertidumbre || "-"}. ${p.motivo || ""}`)
+        ...trampas.slice(0, 8).map(p => `${p.num || ""}. ${p.partido || `${p.local || ""} - ${p.visitante || ""}`}: signo ${p.signo || p.signo_base || "-"}, probabilidad top ${p.probabilidad_top || "-"}%, margen ${p.margen || "-"}, riesgo de dejarlo fijo ${riesgoFijoLegible(p.riesgo_dejar_fijo ?? p.riesgo_ajustado ?? p.incertidumbre)}. ${p.motivo || ""}`)
       ].join("\n");
     }
 
@@ -3010,6 +3010,7 @@
 
 
 
+
     function normalizarCompetitivoTextoBoleto(texto) {
       return norm(String(texto || "").replaceAll("_", " "));
     }
@@ -3108,6 +3109,7 @@
 
 
 
+
     function tasaPatronCompetitivo(patrones, clave) {
       return Number(patrones?.patrones?.[clave]?.tasa_sorpresa || 0);
     }
@@ -3180,6 +3182,21 @@
         || contieneDescensoVivoBoleto(visitanteComp);
     }
 
+
+    function valoresProbabilidadOrdenados(partido) {
+      return Object.values(partido.probabilidades || {}).sort((a, b) => b - a);
+    }
+
+    function margenProbabilidadBoleto(partido) {
+      const valores = valoresProbabilidadOrdenados(partido);
+      return valores.length > 1 ? valores[0] - valores[1] : 0;
+    }
+
+    function terceraProbabilidadBoleto(partido) {
+      const valores = valoresProbabilidadOrdenados(partido);
+      return valores.length > 2 ? valores[2] : 0;
+    }
+
     function prioridadCoberturaAnalisis(partido) {
       const localComp = partido.contexto_competitivo_local;
       const visitanteComp = partido.contexto_competitivo_visitante;
@@ -3190,8 +3207,7 @@
       const localDescenso = contieneDescensoVivoBoleto(localComp);
       const visitanteDescenso = contieneDescensoVivoBoleto(visitanteComp);
       const top = signoTopProbabilidad(partido.probabilidades || {});
-      const valores = Object.values(partido.probabilidades || {}).sort((a, b) => b - a);
-      const margen = valores.length > 1 ? valores[0] - valores[1] : 0;
+      const margen = margenProbabilidadBoleto(partido);
       let score = Number(partido.incertidumbre || 0) + Number(partido.bonus_competitivo || 0);
 
       if (partido.riesgo_necesidad) score += 25;
@@ -3199,11 +3215,61 @@
       if (localDescenso && visitanteDescenso) score += 40;
       if ((visitanteDescenso && top === "1") || (localDescenso && top === "2")) score += 85;
       if ((localNecesita && visitanteCerrado) || (visitanteNecesita && localCerrado)) score += 75;
-      if (localNecesita && visitanteNecesita) score += 45;
+      if (localNecesita && visitanteNecesita) score += 65;
+      if ((localDescenso || visitanteDescenso) && localNecesita && visitanteNecesita) score += 55;
+      if (top === "X" && localNecesita && visitanteNecesita) score += 35;
       if (partido.riesgo === "Alto") score += 10;
       if (margen < 8) score += 28;
       else if (margen < 16) score += 18;
       return score;
+    }
+
+    function prioridadTripleAnalisis(partido) {
+      const localComp = partido.contexto_competitivo_local;
+      const visitanteComp = partido.contexto_competitivo_visitante;
+      const localNecesita = equipoNecesidadVivaBoleto(localComp);
+      const visitanteNecesita = equipoNecesidadVivaBoleto(visitanteComp);
+      const localCerrado = equipoObjetivoCerradoBoleto(localComp);
+      const visitanteCerrado = equipoObjetivoCerradoBoleto(visitanteComp);
+      const localDescenso = contieneDescensoVivoBoleto(localComp);
+      const visitanteDescenso = contieneDescensoVivoBoleto(visitanteComp);
+      const top = signoTopProbabilidad(partido.probabilidades || {});
+      const tercera = terceraProbabilidadBoleto(partido);
+      let score = prioridadCoberturaAnalisis(partido);
+
+      if (tercera >= 18) score += 85;
+      else if (tercera >= 14) score += 40;
+      else if (tercera < 8) score -= 70;
+      else score -= 35;
+
+      if (top === "X" && tercera >= 18) score += 25;
+      if (localNecesita && visitanteNecesita) score += 70;
+      if ((localDescenso || visitanteDescenso) && localNecesita && visitanteNecesita) score += 45;
+      if ((localNecesita && visitanteCerrado) || (visitanteNecesita && localCerrado)) score += 35;
+      return score;
+    }
+
+    function prioridadDobleAnalisis(partido) {
+      const tercera = terceraProbabilidadBoleto(partido);
+      const margen = margenProbabilidadBoleto(partido);
+      const top = signoTopProbabilidad(partido.probabilidades || {});
+      let score = prioridadCoberturaAnalisis(partido);
+
+      if (tercera < 10) score += 45;
+      else if (tercera >= 22) score -= 50;
+      if (margen < 12) score += 30;
+      if (top === "X") score += 8;
+      return score;
+    }
+
+    function riesgoFijoLegible(valor) {
+      const n = Number(valor);
+      if (!Number.isFinite(n)) return "sin dato";
+      const numero = n.toFixed(0);
+      if (n < 85) return `bajo (${numero})`;
+      if (n < 130) return `medio (${numero})`;
+      if (n < 180) return `alto (${numero})`;
+      return `muy alto (${numero})`;
     }
 
 
@@ -3537,11 +3603,12 @@
           };
         });
 
-      const porRiesgo = [...partidos].sort((a, b) => prioridadCoberturaAnalisis(b) - prioridadCoberturaAnalisis(a));
-      const triplesSet = new Set(porRiesgo.slice(0, triples).map(p => p.num));
-      const doblesSet = new Set(
-        porRiesgo.filter(p => !triplesSet.has(p.num)).slice(0, dobles).map(p => p.num)
-      );
+      const porTriple = [...partidos].sort((a, b) => prioridadTripleAnalisis(b) - prioridadTripleAnalisis(a));
+      const triplesSet = new Set(porTriple.slice(0, triples).map(p => p.num));
+      const porDoble = [...partidos]
+        .filter(p => !triplesSet.has(p.num))
+        .sort((a, b) => prioridadDobleAnalisis(b) - prioridadDobleAnalisis(a));
+      const doblesSet = new Set(porDoble.slice(0, dobles).map(p => p.num));
 
       partidos = partidos.map(p => {
         let signo = p.signo_base;

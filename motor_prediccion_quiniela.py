@@ -598,6 +598,65 @@ def prioridad_cobertura(partido):
     return score
 
 
+def tercera_probabilidad(partido):
+    valores = sorted((partido.get("probabilidades") or {}).values(), reverse=True)
+    return valores[2] if len(valores) > 2 else 0
+
+
+def prioridad_triple(partido):
+    probs = partido.get("probabilidades", {})
+    valores = sorted(probs.values(), reverse=True)
+    tercera = valores[2] if len(valores) > 2 else 0
+    local_comp = partido.get("contexto_competitivo_local")
+    visitante_comp = partido.get("contexto_competitivo_visitante")
+    local_necesita = necesidad_viva_motor(local_comp)
+    visitante_necesita = necesidad_viva_motor(visitante_comp)
+    local_cerrado = objetivo_cerrado_motor(local_comp)
+    visitante_cerrado = objetivo_cerrado_motor(visitante_comp)
+    local_descenso = descenso_vivo_motor(local_comp)
+    visitante_descenso = descenso_vivo_motor(visitante_comp)
+    top = signo_top(probs)
+    score = prioridad_cobertura(partido)
+
+    if tercera >= 18:
+        score += 85
+    elif tercera >= 14:
+        score += 40
+    elif tercera < 8:
+        score -= 70
+    else:
+        score -= 35
+
+    if top == "X" and tercera >= 18:
+        score += 25
+    if local_necesita and visitante_necesita:
+        score += 70
+    if (local_descenso or visitante_descenso) and local_necesita and visitante_necesita:
+        score += 45
+    if (local_necesita and visitante_cerrado) or (visitante_necesita and local_cerrado):
+        score += 35
+    return score
+
+
+def prioridad_doble(partido):
+    probs = partido.get("probabilidades", {})
+    valores = sorted(probs.values(), reverse=True)
+    margen = valores[0] - valores[1] if len(valores) > 1 else 0
+    tercera = valores[2] if len(valores) > 2 else 0
+    top = signo_top(probs)
+    score = prioridad_cobertura(partido)
+
+    if tercera < 10:
+        score += 45
+    elif tercera >= 22:
+        score -= 50
+    if margen < 12:
+        score += 30
+    if top == "X":
+        score += 8
+    return score
+
+
 def coste(dobles, triples, elige8):
     apuestas = 2 ** dobles * 3 ** triples
     importe_quiniela = max(apuestas * PRECIO_APUESTA, IMPORTE_MINIMO)
@@ -654,10 +713,14 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
             "_diff": diff,
         })
 
-    por_riesgo = sorted(evaluados, key=prioridad_cobertura, reverse=True)
-    triples_set = {p["num"] for p in por_riesgo[:triples]}
-    dobles_set = {p["num"] for p in por_riesgo if p["num"] not in triples_set}
-    dobles_set = set(list(dobles_set)[:dobles])
+    por_triple = sorted(evaluados, key=prioridad_triple, reverse=True)
+    triples_set = {p["num"] for p in por_triple[:triples]}
+    por_doble = sorted(
+        [p for p in evaluados if p["num"] not in triples_set],
+        key=prioridad_doble,
+        reverse=True,
+    )
+    dobles_set = {p["num"] for p in por_doble[:dobles]}
 
     elige8_set = set()
     if elige8:
