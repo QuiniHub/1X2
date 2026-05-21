@@ -192,21 +192,22 @@ def patch_index(html):
         "prioridad de coberturas web",
     )
 
-    html = replace_regex(
-        html,
-        r"""      const porRiesgo = \[\.\.\.partidos\]\.sort\(\(a, b\) => prioridadCoberturaAnalisis\(b\) - prioridadCoberturaAnalisis\(a\)\);
+    if "const porTriple = [...partidos].sort((a, b) => prioridadTripleAnalisis(b) - prioridadTripleAnalisis(a));" not in html:
+        html = replace_regex(
+            html,
+            r"""      const porRiesgo = \[\.\.\.partidos\]\.sort\(\(a, b\) => prioridadCoberturaAnalisis\(b\) - prioridadCoberturaAnalisis\(a\)\);
       const triplesSet = new Set\(porRiesgo\.slice\(0, triples\)\.map\(p => p\.num\)\);
       const doblesSet = new Set\(
         porRiesgo\.filter\(p => !triplesSet\.has\(p\.num\)\)\.slice\(0, dobles\)\.map\(p => p\.num\)
       \);""",
-        """      const porTriple = [...partidos].sort((a, b) => prioridadTripleAnalisis(b) - prioridadTripleAnalisis(a));
+            """      const porTriple = [...partidos].sort((a, b) => prioridadTripleAnalisis(b) - prioridadTripleAnalisis(a));
       const triplesSet = new Set(porTriple.slice(0, triples).map(p => p.num));
       const porDoble = [...partidos]
         .filter(p => !triplesSet.has(p.num))
         .sort((a, b) => prioridadDobleAnalisis(b) - prioridadDobleAnalisis(a));
       const doblesSet = new Set(porDoble.slice(0, dobles).map(p => p.num));""",
-        "reparto de triples y dobles web",
-    )
+            "reparto de triples y dobles web",
+        )
 
     html = re.sub(
         r'<strong>Predicci.n que est. recalibrando:</strong>',
@@ -214,18 +215,20 @@ def patch_index(html):
         html,
         count=1,
     )
-    html = replace_regex(
-        html,
-        r'\$\{pintarListaEstado\("Partidos m.s seguros", estado\.partidos_mas_seguros, x => `<li>\$\{x\.num\}\. \$\{x\.partido\}: \$\{x\.signo\} .*? incertidumbre \$\{x\.incertidumbre\}</li>`\)\}',
-        '${pintarListaEstado("Fijos mas defendibles", estado.partidos_mas_seguros, x => `<li>${x.num}. ${x.partido}: ${x.signo} - riesgo de dejarlo fijo ${riesgoFijoLegible(x.riesgo_dejar_fijo ?? x.seguridad_ajustada ?? x.incertidumbre)}</li>`)}',
-        "etiqueta de fijos defendibles",
-    )
-    html = replace_regex(
-        html,
-        r'\$\{pintarListaEstado\("Partidos trampa o sorpresa", estado\.partidos_trampa_o_sorpresa, x => `<li>\$\{x\.num\}\. \$\{x\.partido\}: base \$\{x\.signo_base\}, incertidumbre \$\{x\.incertidumbre\}, sorpresa \$\{x\.probabilidad_sorpresa \?\? "-"\}%\. \$\{x\.motivo\}</li>`\)\}',
-        '${pintarListaEstado("Partidos trampa o sorpresa", estado.partidos_trampa_o_sorpresa, x => `<li>${x.num}. ${x.partido}: base ${x.signo_base}, riesgo de dejarlo fijo ${riesgoFijoLegible(x.riesgo_dejar_fijo ?? x.riesgo_ajustado ?? x.incertidumbre)}, sorpresa ${x.probabilidad_sorpresa ?? "-"}%. ${x.motivo}</li>`)}',
-        "etiqueta de trampas",
-    )
+    if "Fijos mas defendibles" not in html:
+        html = replace_regex(
+            html,
+            r'\$\{pintarListaEstado\("Partidos m.s seguros", estado\.partidos_mas_seguros, x => `<li>\$\{x\.num\}\. \$\{x\.partido\}: \$\{x\.signo\} .*? incertidumbre \$\{x\.incertidumbre\}</li>`\)\}',
+            '${pintarListaEstado("Fijos mas defendibles", estado.partidos_mas_seguros, x => `<li>${x.num}. ${x.partido}: ${x.signo} - riesgo de dejarlo fijo ${riesgoFijoLegible(x.riesgo_dejar_fijo ?? x.seguridad_ajustada ?? x.incertidumbre)}</li>`)}',
+            "etiqueta de fijos defendibles",
+        )
+    if 'base ${x.signo_base}, incertidumbre ${x.incertidumbre}' in html:
+        html = replace_regex(
+            html,
+            r'\$\{pintarListaEstado\("Partidos trampa o sorpresa", estado\.partidos_trampa_o_sorpresa, x => `<li>\$\{x\.num\}\. \$\{x\.partido\}: base \$\{x\.signo_base\}, incertidumbre \$\{x\.incertidumbre\}, sorpresa \$\{x\.probabilidad_sorpresa \?\? "-"\}%\. \$\{x\.motivo\}</li>`\)\}',
+            '${pintarListaEstado("Partidos trampa o sorpresa", estado.partidos_trampa_o_sorpresa, x => `<li>${x.num}. ${x.partido}: base ${x.signo_base}, riesgo de dejarlo fijo ${riesgoFijoLegible(x.riesgo_dejar_fijo ?? x.riesgo_ajustado ?? x.incertidumbre)}, sorpresa ${x.probabilidad_sorpresa ?? "-"}%. ${x.motivo}</li>`)}',
+            "etiqueta de trampas",
+        )
     html = html.replace(
         'incertidumbre ${x.incertidumbre}.',
         'riesgo de dejarlo fijo ${riesgoFijoLegible(x.riesgo_dejar_fijo ?? x.riesgo_ajustado ?? x.incertidumbre)}.',
@@ -245,13 +248,14 @@ def patch_motor(text):
             1,
         )
 
-    text = replace_regex(
-        text,
-        r"""    por_riesgo = sorted\(evaluados, key=prioridad_cobertura, reverse=True\)
+    if "por_triple = sorted(evaluados, key=prioridad_triple, reverse=True)" not in text:
+        text = replace_regex(
+            text,
+            r"""    por_riesgo = sorted\(evaluados, key=prioridad_cobertura, reverse=True\)
     triples_set = \{p\["num"\] for p in por_riesgo\[:triples\]\}
     dobles_set = \{p\["num"\] for p in por_riesgo if p\["num"\] not in triples_set\}
     dobles_set = set\(list\(dobles_set\)\[:dobles\]\)""",
-        """    por_triple = sorted(evaluados, key=prioridad_triple, reverse=True)
+            """    por_triple = sorted(evaluados, key=prioridad_triple, reverse=True)
     triples_set = {p["num"] for p in por_triple[:triples]}
     por_doble = sorted(
         [p for p in evaluados if p["num"] not in triples_set],
@@ -259,8 +263,8 @@ def patch_motor(text):
         reverse=True,
     )
     dobles_set = {p["num"] for p in por_doble[:dobles]}""",
-        "reparto de triples y dobles motor",
-    )
+            "reparto de triples y dobles motor",
+        )
     return text
 
 
