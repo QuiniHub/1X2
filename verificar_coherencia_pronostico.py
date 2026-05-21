@@ -12,11 +12,16 @@ REGLAS_INDEX = {
     "normalizacion_competitiva": "function normalizarCompetitivoTextoBoleto",
     "patrones_en_probabilidades": "probs = ajustarPorPatronesAprendidosWeb(probs, contextoCompetitivoLocal, contextoCompetitivoVisitante, patronesCompetitivos);",
     "riesgo_real_no_bonus_crudo": "riesgo_necesidad: riesgoNecesidad",
-    "prioridad_cobertura_web": "prioridadCoberturaAnalisis(b) - prioridadCoberturaAnalisis(a)",
+    "prioridad_cobertura_base_web": "function prioridadCoberturaAnalisis",
+    "prioridad_triples_web": "prioridadTripleAnalisis(b) - prioridadTripleAnalisis(a)",
+    "prioridad_dobles_web": "prioridadDobleAnalisis(b) - prioridadDobleAnalisis(a)",
+    "riesgo_fijo_legible_web": "function riesgoFijoLegible",
 }
 
 REGLAS_MOTOR = {
     "prioridad_cobertura_motor": "def prioridad_cobertura",
+    "prioridad_triples_motor": "def prioridad_triple",
+    "prioridad_dobles_motor": "def prioridad_doble",
     "riesgo_real_motor": "def riesgo_necesidad_real",
     "choque_necesidades": "Choque de necesidades vivas",
 }
@@ -54,11 +59,11 @@ def main():
     fallos.extend(comprobar("motor_prediccion_quiniela.py", motor, REGLAS_MOTOR))
 
     salida = {
-        "version": "1.0",
+        "version": "1.1",
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "estado": "ok" if not fallos else "fallo",
         "fallos": fallos,
-        "lectura": "El boleto debe usar la misma capa competitiva que explica el analisis antes de repartir fijos, dobles y triples.",
+        "lectura": "El boleto debe usar la misma capa competitiva que explica el analisis antes de repartir fijos, dobles y triples. Los triples y dobles se verifican por prioridades separadas.",
     }
     DATA.mkdir(parents=True, exist_ok=True)
     (DATA / "verificacion_pronostico_analisis.json").write_text(
