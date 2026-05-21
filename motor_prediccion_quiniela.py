@@ -78,26 +78,50 @@ def equipos_memoria(memoria):
     return equipos
 
 
-def buscar_equipo(memoria, nombre):
-    n = normalizar(nombre)
+def puntuacion_nombre_equipo(candidato, objetivo):
+    base = normalizar(candidato)
+    buscado = normalizar(objetivo)
+    if not base or not buscado:
+        return 0
+    if base == buscado:
+        return 1000
+
+    base_tokens = base.split()
+    buscado_tokens = buscado.split()
+    comunes = [token for token in base_tokens if token in buscado_tokens]
+    if not comunes:
+        return 0
+
+    ambiguos = {"madrid", "barcelona"}
+    if len(comunes) == 1 and comunes[0] in ambiguos and max(len(base_tokens), len(buscado_tokens)) > 1:
+        return 0
+
+    cobertura_buscado = len(comunes) / max(len(buscado_tokens), 1)
+    cobertura_base = len(comunes) / max(len(base_tokens), 1)
+    score = len(comunes) * 30 + cobertura_buscado * 45 + cobertura_base * 35
+    if base in buscado or buscado in base:
+        score += 20
+    score -= abs(len(base_tokens) - len(buscado_tokens)) * 8
+    return score
+
+
+def mejor_coincidencia_equipo(items, nombre, getter):
     mejor = None
     mejor_score = 0
-    for equipo in equipos_memoria(memoria):
-        e = normalizar(equipo.get("equipo", ""))
-        if not e:
-            continue
-        score = 0
-        if e == n:
-            score = 100
-        elif e in n or n in e:
-            score = 80
-        else:
-            comunes = set(e.split()) & set(n.split())
-            score = len(comunes) * 20
+    for item in items or []:
+        score = puntuacion_nombre_equipo(getter(item), nombre)
         if score > mejor_score:
-            mejor = equipo
+            mejor = item
             mejor_score = score
-    return mejor if mejor_score >= 20 else None
+    return mejor if mejor_score >= 55 else None
+
+
+def buscar_equipo(memoria, nombre):
+    return mejor_coincidencia_equipo(
+        equipos_memoria(memoria),
+        nombre,
+        lambda equipo: equipo.get("equipo", ""),
+    )
 
 
 def equipos_contexto(contexto):
@@ -105,21 +129,12 @@ def equipos_contexto(contexto):
 
 
 def buscar_contexto_equipo(contexto, nombre):
-    n = normalizar(nombre)
-    mejor = None
-    mejor_score = 0
-    for equipo, datos in equipos_contexto(contexto).items():
-        e = normalizar(equipo)
-        if e == n:
-            score = 100
-        elif e in n or n in e:
-            score = 80
-        else:
-            score = len(set(e.split()) & set(n.split())) * 20
-        if score > mejor_score:
-            mejor = datos
-            mejor_score = score
-    return mejor if mejor_score >= 20 else None
+    entradas = [
+        {"equipo": equipo, "datos": datos}
+        for equipo, datos in equipos_contexto(contexto).items()
+    ]
+    mejor = mejor_coincidencia_equipo(entradas, nombre, lambda item: item.get("equipo", ""))
+    return mejor.get("datos") if mejor else None
 
 
 def equipos_contexto_competitivo(contexto):
@@ -131,21 +146,11 @@ def equipos_contexto_competitivo(contexto):
 
 
 def buscar_contexto_competitivo(contexto, nombre):
-    n = normalizar(nombre)
-    mejor = None
-    mejor_score = 0
-    for equipo in equipos_contexto_competitivo(contexto):
-        e = normalizar(equipo.get("equipo", ""))
-        if e == n:
-            score = 100
-        elif e in n or n in e:
-            score = 80
-        else:
-            score = len(set(e.split()) & set(n.split())) * 20
-        if score > mejor_score:
-            mejor = equipo
-            mejor_score = score
-    return mejor if mejor_score >= 20 else None
+    return mejor_coincidencia_equipo(
+        equipos_contexto_competitivo(contexto),
+        nombre,
+        lambda equipo: equipo.get("equipo", ""),
+    )
 
 
 def valor_motivacion(equipo):
