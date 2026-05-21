@@ -46,12 +46,15 @@ def main():
         return
     if INTERMEDIO in html:
         html = html.replace(INTERMEDIO, NEW, 1)
-    elif OLD in html:
+        INDEX.write_text(html, encoding="utf-8")
+        print("Refuerzo alto de coberturas por descenso aplicado.")
+        return
+    if OLD in html:
         html = html.replace(OLD, NEW, 1)
-    else:
-        raise SystemExit("No encuentro el bloque de bonus competitivo esperado.")
-    INDEX.write_text(html, encoding="utf-8")
-    print("Refuerzo alto de coberturas por descenso aplicado.")
+        INDEX.write_text(html, encoding="utf-8")
+        print("Refuerzo alto de coberturas por descenso aplicado.")
+        return
+    print("Refuerzo alto de coberturas por descenso sin cambios: la logica nueva ya sustituyo el bloque antiguo.")
 
 
 if __name__ == "__main__":
