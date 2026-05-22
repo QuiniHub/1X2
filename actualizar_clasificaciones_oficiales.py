@@ -247,7 +247,7 @@ def extraer_tabla_as(liga, esperado):
 
 def parsear_fila_quiniela(linea):
     m = re.match(
-        r"^(\d{1,2})\s+(.+?)\s+(\d{1,3})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,3})\s+(\d{1,3})\s+[-+]?\d{1,3}$",
+        r"^(\d{1,2})\s+(.+?)\s+(\d{1,3})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,2})\s+(\d{1,3})\s+(\d{1,3})\s+[-+]?\d{1,3}$",
         linea,
     )
     if not m:
@@ -369,6 +369,7 @@ def fusionar_clasificacion_publica(oficial, publica):
         if nuevos:
             salida[liga] = nuevos
     salida["actualizado_en"] = oficial.get("actualizado_en") or salida.get("actualizado_en")
+    salida["validado_en"] = oficial.get("validado_en") or salida.get("validado_en")
     salida["fuentes"] = oficial.get("fuentes", salida.get("fuentes", {}))
     return salida
 
@@ -382,10 +383,12 @@ def validar_guardada(data):
 
 
 def main():
+    ahora = datetime.now(timezone.utc).isoformat()
     try:
         tablas = aplicar_correcciones_resultados(extraer_tablas())
         oficial = {
-            "actualizado_en": datetime.now(timezone.utc).isoformat(),
+            "actualizado_en": ahora,
+            "validado_en": ahora,
             "fuentes": FUENTES,
             "primera": tablas["primera"],
             "segunda": tablas["segunda"],
@@ -398,7 +401,10 @@ def main():
             oficial = cargar_json(PUBLICA, {})
         if not validar_guardada(oficial):
             raise SystemExit(f"No hay clasificacion valida para conservar: {exc}")
-        print(f"No se pudo refrescar clasificacion externa; se conserva la ultima valida. Motivo: {exc}")
+        oficial["validado_en"] = ahora
+        oficial.setdefault("fuentes", FUENTES)
+        guardar_json(OFICIALES, oficial)
+        print(f"No se pudo refrescar clasificacion externa; se conserva la ultima valida y se marca como validada ahora. Motivo: {exc}")
 
     publica_actual = cargar_json(PUBLICA, {})
     publica = fusionar_clasificacion_publica(oficial, publica_actual)
