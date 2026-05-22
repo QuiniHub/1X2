@@ -1,6 +1,6 @@
 {
-  "version": "1.1",
-  "generado_en": "2026-05-22T17:48:22.485979+00:00",
+  "version": "1.3",
+  "generado_en": "2026-05-22T17:49:23.440474+00:00",
   "descripcion": "Contexto de objetivos, puntos en juego y presión competitiva para calibrar predicciones de final de temporada.",
   "reglas": {
     "primera": {
@@ -568,6 +568,15 @@
         "objetivos": [
           {
             "objetivo": "europa_league",
+            "estado": "defiende_plaza",
+            "vivo": true,
+            "terminal": false,
+            "override_oficial_jornada": true,
+            "lectura": "Necesita 1 punto para asegurar Europa League. Debe tratarse como objetivo vivo real y motivacion alta/maxima.",
+            "puntos_necesarios_para_asegurar": 1
+          },
+          {
+            "objetivo": "europa_league",
             "estado": "asegurado_matematicamente",
             "vivo": false,
             "terminal": true,
@@ -624,23 +633,31 @@
             "lectura": "Salvado matemáticamente: tiene 51 puntos y Girona FC solo puede llegar a 43."
           }
         ],
-        "objetivos_vivos": [],
+        "objetivos_vivos": [
+          {
+            "objetivo": "europa_league",
+            "estado": "defiende_plaza",
+            "vivo": true,
+            "terminal": false,
+            "override_oficial_jornada": true,
+            "lectura": "Necesita 1 punto para asegurar Europa League. Debe tratarse como objetivo vivo real y motivacion alta/maxima.",
+            "puntos_necesarios_para_asegurar": 1
+          }
+        ],
         "objetivo_principal": {
           "objetivo": "europa_league",
-          "estado": "asegurado_matematicamente",
-          "vivo": false,
-          "terminal": true,
-          "distancia_o_colchon": 4,
-          "corte_equipo": "Rayo Vallecano de Madrid",
-          "corte_puntos_actuales": 47,
-          "corte_maximo_puntos": 50,
-          "puntos_necesarios_para_asegurar": 0,
-          "lectura": "Tiene Europa League asegurado: suma 51 puntos y Rayo Vallecano de Madrid solo puede llegar a 50."
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "override_oficial_jornada": true,
+          "lectura": "Necesita 1 punto para asegurar Europa League. Debe tratarse como objetivo vivo real y motivacion alta/maxima.",
+          "puntos_necesarios_para_asegurar": 1
         },
-        "motivacion_competitiva": "baja",
-        "motivacion": "baja",
-        "lectura_resumen": "Tiene Europa League asegurado: suma 51 puntos y Rayo Vallecano de Madrid solo puede llegar a 50.",
-        "situacion_competitiva": "asegurado_matematicamente"
+        "motivacion_competitiva": "maxima",
+        "motivacion": "maxima",
+        "lectura_resumen": "Necesita 1 punto para asegurar Europa League. Debe tratarse como objetivo vivo real y motivacion alta/maxima.",
+        "situacion_competitiva": "defiende_plaza",
+        "override_oficial_jornada": true
       },
       {
         "clave": "getafe",
@@ -796,6 +813,15 @@
         },
         "objetivos": [
           {
+            "objetivo": "europa",
+            "estado": "defiende_plaza",
+            "vivo": true,
+            "terminal": false,
+            "override_oficial_jornada": true,
+            "lectura": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
+            "puntos_necesarios_para_asegurar": 1
+          },
+          {
             "objetivo": "europa_league",
             "estado": "aspira_matematicamente",
             "vivo": true,
@@ -855,46 +881,29 @@
         ],
         "objetivos_vivos": [
           {
-            "objetivo": "europa_league",
-            "estado": "aspira_matematicamente",
-            "vivo": true,
-            "terminal": false,
-            "distancia_o_colchon": -2,
-            "corte_equipo": "Getafe CF",
-            "corte_puntos_actuales": 48,
-            "puntos_necesarios_para_entrar": 2,
-            "depende_de_rivales": false,
-            "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Getafe CF."
-          },
-          {
-            "objetivo": "conference",
+            "objetivo": "europa",
             "estado": "defiende_plaza",
             "vivo": true,
             "terminal": false,
-            "distancia_o_colchon": 1,
-            "corte_equipo": "Valencia CF",
-            "corte_puntos_actuales": 46,
-            "corte_maximo_puntos": 49,
-            "puntos_necesarios_para_asegurar": 3,
-            "lectura": "Defiende plaza de Conference con 1 punto sobre Valencia CF. Para asegurarla por puntos necesita 3 puntos más."
+            "override_oficial_jornada": true,
+            "lectura": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
+            "puntos_necesarios_para_asegurar": 1
           }
         ],
         "objetivo_principal": {
-          "objetivo": "europa_league",
-          "estado": "aspira_matematicamente",
+          "objetivo": "europa",
+          "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -2,
-          "corte_equipo": "Getafe CF",
-          "corte_puntos_actuales": 48,
-          "puntos_necesarios_para_entrar": 2,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Getafe CF."
+          "override_oficial_jornada": true,
+          "lectura": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
+          "puntos_necesarios_para_asegurar": 1
         },
-        "motivacion_competitiva": "alta",
-        "motivacion": "alta",
-        "lectura_resumen": "Está fuera de Europa League, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Getafe CF.",
-        "situacion_competitiva": "aspira_matematicamente"
+        "motivacion_competitiva": "maxima",
+        "motivacion": "maxima",
+        "lectura_resumen": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
+        "situacion_competitiva": "defiende_plaza_europea",
+        "override_oficial_jornada": true
       },
       {
         "clave": "valencia",
@@ -1431,6 +1440,15 @@
         },
         "objetivos": [
           {
+            "objetivo": "situacion_final",
+            "estado": "salvado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "override_oficial_jornada": true,
+            "lectura": "Salvado matematicamente. No debe aparecer como riesgo de descenso; sus opciones europeas no dependen solo de si mismo y no deben inflar la motivacion.",
+            "puntos_necesarios_para_asegurar": 0
+          },
+          {
             "objetivo": "descenso",
             "estado": "riesgo_descenso",
             "vivo": true,
@@ -1488,36 +1506,21 @@
             "lectura": "No llega por puntos a Conference: su máximo es 46 y el corte actual de Rayo Vallecano de Madrid está en 47."
           }
         ],
-        "objetivos_vivos": [
-          {
-            "objetivo": "descenso",
-            "estado": "riesgo_descenso",
-            "vivo": true,
-            "terminal": false,
-            "distancia_o_colchon": 3,
-            "corte_equipo": "Girona FC",
-            "corte_puntos_actuales": 40,
-            "corte_maximo_puntos": 43,
-            "puntos_necesarios_para_salvarse": 1,
-            "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Girona FC. Necesita 1 punto para salvarse por puntos sin depender de otros."
-          }
-        ],
+        "objetivos_vivos": [],
         "objetivo_principal": {
-          "objetivo": "descenso",
-          "estado": "riesgo_descenso",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": 3,
-          "corte_equipo": "Girona FC",
-          "corte_puntos_actuales": 40,
-          "corte_maximo_puntos": 43,
-          "puntos_necesarios_para_salvarse": 1,
-          "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Girona FC. Necesita 1 punto para salvarse por puntos sin depender de otros."
+          "objetivo": "situacion_final",
+          "estado": "salvado_matematicamente",
+          "vivo": false,
+          "terminal": true,
+          "override_oficial_jornada": true,
+          "lectura": "Salvado matematicamente. No debe aparecer como riesgo de descenso; sus opciones europeas no dependen solo de si mismo y no deben inflar la motivacion.",
+          "puntos_necesarios_para_asegurar": 0
         },
-        "motivacion_competitiva": "media",
-        "motivacion": "media",
-        "lectura_resumen": "Riesgo de descenso: solo tiene 3 puntos sobre Girona FC. Necesita 1 punto para salvarse por puntos sin depender de otros.",
-        "situacion_competitiva": "riesgo_descenso"
+        "motivacion_competitiva": "baja",
+        "motivacion": "baja",
+        "lectura_resumen": "Salvado matematicamente. No debe aparecer como riesgo de descenso; sus opciones europeas no dependen solo de si mismo y no deben inflar la motivacion.",
+        "situacion_competitiva": "salvado_matematicamente",
+        "override_oficial_jornada": true
       },
       {
         "clave": "deportivoalaves",
@@ -1546,6 +1549,15 @@
         },
         "objetivos": [
           {
+            "objetivo": "situacion_final",
+            "estado": "salvado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "override_oficial_jornada": true,
+            "lectura": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
+            "puntos_necesarios_para_asegurar": 0
+          },
+          {
             "objetivo": "descenso",
             "estado": "riesgo_descenso",
             "vivo": true,
@@ -1603,36 +1615,21 @@
             "lectura": "No llega por puntos a Conference: su máximo es 46 y el corte actual de Rayo Vallecano de Madrid está en 47."
           }
         ],
-        "objetivos_vivos": [
-          {
-            "objetivo": "descenso",
-            "estado": "riesgo_descenso",
-            "vivo": true,
-            "terminal": false,
-            "distancia_o_colchon": 3,
-            "corte_equipo": "Girona FC",
-            "corte_puntos_actuales": 40,
-            "corte_maximo_puntos": 43,
-            "puntos_necesarios_para_salvarse": 1,
-            "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Girona FC. Necesita 1 punto para salvarse por puntos sin depender de otros."
-          }
-        ],
+        "objetivos_vivos": [],
         "objetivo_principal": {
-          "objetivo": "descenso",
-          "estado": "riesgo_descenso",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": 3,
-          "corte_equipo": "Girona FC",
-          "corte_puntos_actuales": 40,
-          "corte_maximo_puntos": 43,
-          "puntos_necesarios_para_salvarse": 1,
-          "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Girona FC. Necesita 1 punto para salvarse por puntos sin depender de otros."
+          "objetivo": "situacion_final",
+          "estado": "salvado_matematicamente",
+          "vivo": false,
+          "terminal": true,
+          "override_oficial_jornada": true,
+          "lectura": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
+          "puntos_necesarios_para_asegurar": 0
         },
-        "motivacion_competitiva": "media",
-        "motivacion": "media",
-        "lectura_resumen": "Riesgo de descenso: solo tiene 3 puntos sobre Girona FC. Necesita 1 punto para salvarse por puntos sin depender de otros.",
-        "situacion_competitiva": "riesgo_descenso"
+        "motivacion_competitiva": "baja",
+        "motivacion": "baja",
+        "lectura_resumen": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
+        "situacion_competitiva": "salvado_matematicamente",
+        "override_oficial_jornada": true
       },
       {
         "clave": "levante",
@@ -2365,6 +2362,15 @@
             "estado": "asegurado_matematicamente",
             "vivo": false,
             "terminal": true,
+            "override_oficial_jornada": true,
+            "lectura": "Ascendido matematicamente. Objetivo cerrado; no debe inflar triple por necesidad competitiva.",
+            "puntos_necesarios_para_asegurar": 0
+          },
+          {
+            "objetivo": "ascenso_directo",
+            "estado": "asegurado_matematicamente",
+            "vivo": false,
+            "terminal": true,
             "distancia_o_colchon": 7,
             "corte_equipo": "UD Almeria",
             "corte_puntos_actuales": 71,
@@ -2403,17 +2409,15 @@
           "estado": "asegurado_matematicamente",
           "vivo": false,
           "terminal": true,
-          "distancia_o_colchon": 7,
-          "corte_equipo": "UD Almeria",
-          "corte_puntos_actuales": 71,
-          "corte_maximo_puntos": 77,
-          "puntos_necesarios_para_asegurar": 0,
-          "lectura": "Tiene ascenso directo asegurado: suma 78 puntos y UD Almeria solo puede llegar a 77."
+          "override_oficial_jornada": true,
+          "lectura": "Ascendido matematicamente. Objetivo cerrado; no debe inflar triple por necesidad competitiva.",
+          "puntos_necesarios_para_asegurar": 0
         },
         "motivacion_competitiva": "baja",
         "motivacion": "baja",
-        "lectura_resumen": "Tiene ascenso directo asegurado: suma 78 puntos y UD Almeria solo puede llegar a 77.",
-        "situacion_competitiva": "asegurado_matematicamente"
+        "lectura_resumen": "Ascendido matematicamente. Objetivo cerrado; no debe inflar triple por necesidad competitiva.",
+        "situacion_competitiva": "ascendido_matematicamente",
+        "override_oficial_jornada": true
       },
       {
         "clave": "deportivocoruna",
@@ -2642,6 +2646,15 @@
         },
         "objetivos": [
           {
+            "objetivo": "objetivo_competitivo",
+            "estado": "aspira_matematicamente",
+            "vivo": true,
+            "terminal": false,
+            "override_oficial_jornada": true,
+            "lectura": "Se juega objetivo competitivo real en la ultima jornada. Debe pesar mas que un rival con objetivo cerrado.",
+            "puntos_necesarios_para_asegurar": 1
+          },
+          {
             "objetivo": "ascenso_directo",
             "estado": "aspira_matematicamente",
             "vivo": true,
@@ -2680,46 +2693,29 @@
         ],
         "objetivos_vivos": [
           {
-            "objetivo": "ascenso_directo",
+            "objetivo": "objetivo_competitivo",
             "estado": "aspira_matematicamente",
             "vivo": true,
             "terminal": false,
-            "distancia_o_colchon": -6,
-            "corte_equipo": "RC Deportivo de La Coruna",
-            "corte_puntos_actuales": 74,
-            "puntos_necesarios_para_entrar": 6,
-            "depende_de_rivales": false,
-            "lectura": "Está fuera de ascenso directo, pero puede alcanzarlo: necesita 6 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
-          },
-          {
-            "objetivo": "playoff_ascenso",
-            "estado": "defiende_plaza",
-            "vivo": true,
-            "terminal": false,
-            "distancia_o_colchon": 3,
-            "corte_equipo": "Burgos CF",
-            "corte_puntos_actuales": 66,
-            "corte_maximo_puntos": 72,
-            "puntos_necesarios_para_asegurar": 4,
-            "lectura": "Defiende plaza de playoff ascenso con 3 puntos sobre Burgos CF. Para asegurarla por puntos necesita 4 puntos más."
+            "override_oficial_jornada": true,
+            "lectura": "Se juega objetivo competitivo real en la ultima jornada. Debe pesar mas que un rival con objetivo cerrado.",
+            "puntos_necesarios_para_asegurar": 1
           }
         ],
         "objetivo_principal": {
-          "objetivo": "ascenso_directo",
+          "objetivo": "objetivo_competitivo",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -6,
-          "corte_equipo": "RC Deportivo de La Coruna",
-          "corte_puntos_actuales": 74,
-          "puntos_necesarios_para_entrar": 6,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de ascenso directo, pero puede alcanzarlo: necesita 6 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
+          "override_oficial_jornada": true,
+          "lectura": "Se juega objetivo competitivo real en la ultima jornada. Debe pesar mas que un rival con objetivo cerrado.",
+          "puntos_necesarios_para_asegurar": 1
         },
-        "motivacion_competitiva": "alta",
-        "motivacion": "alta",
-        "lectura_resumen": "Está fuera de ascenso directo, pero puede alcanzarlo: necesita 6 puntos para superar sin desempates el corte de RC Deportivo de La Coruna.",
-        "situacion_competitiva": "aspira_matematicamente"
+        "motivacion_competitiva": "maxima",
+        "motivacion": "maxima",
+        "lectura_resumen": "Se juega objetivo competitivo real en la ultima jornada. Debe pesar mas que un rival con objetivo cerrado.",
+        "situacion_competitiva": "objetivo_vivo",
+        "override_oficial_jornada": true
       },
       {
         "clave": "laspalmas",
@@ -3046,6 +3042,15 @@
             "estado": "aspira_matematicamente",
             "vivo": true,
             "terminal": false,
+            "override_oficial_jornada": true,
+            "lectura": "Se juega entrar en promocion/playoff. Objetivo vivo real.",
+            "puntos_necesarios_para_entrar": 3
+          },
+          {
+            "objetivo": "playoff_ascenso",
+            "estado": "aspira_matematicamente",
+            "vivo": true,
+            "terminal": false,
             "distancia_o_colchon": -3,
             "corte_equipo": "CD Castellon",
             "corte_puntos_actuales": 66,
@@ -3084,12 +3089,9 @@
             "estado": "aspira_matematicamente",
             "vivo": true,
             "terminal": false,
-            "distancia_o_colchon": -3,
-            "corte_equipo": "CD Castellon",
-            "corte_puntos_actuales": 66,
-            "puntos_necesarios_para_entrar": 3,
-            "depende_de_rivales": false,
-            "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 3 puntos para superar sin desempates el corte de CD Castellon."
+            "override_oficial_jornada": true,
+            "lectura": "Se juega entrar en promocion/playoff. Objetivo vivo real.",
+            "puntos_necesarios_para_entrar": 3
           }
         ],
         "objetivo_principal": {
@@ -3097,17 +3099,15 @@
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -3,
-          "corte_equipo": "CD Castellon",
-          "corte_puntos_actuales": 66,
-          "puntos_necesarios_para_entrar": 3,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 3 puntos para superar sin desempates el corte de CD Castellon."
+          "override_oficial_jornada": true,
+          "lectura": "Se juega entrar en promocion/playoff. Objetivo vivo real.",
+          "puntos_necesarios_para_entrar": 3
         },
-        "motivacion_competitiva": "media",
-        "motivacion": "media",
-        "lectura_resumen": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 3 puntos para superar sin desempates el corte de CD Castellon.",
-        "situacion_competitiva": "aspira_matematicamente"
+        "motivacion_competitiva": "maxima",
+        "motivacion": "maxima",
+        "lectura_resumen": "Se juega entrar en promocion/playoff. Objetivo vivo real.",
+        "situacion_competitiva": "aspira_matematicamente",
+        "override_oficial_jornada": true
       },
       {
         "clave": "cordoba",
@@ -3135,6 +3135,15 @@
           "forma_10_pts": 19
         },
         "objetivos": [
+          {
+            "objetivo": "situacion_final",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "override_oficial_jornada": true,
+            "lectura": "Sin opciones reales de promocion/playoff. No debe salir como equipo con objetivo vivo.",
+            "puntos_necesarios_para_entrar": null
+          },
           {
             "objetivo": "playoff_ascenso",
             "estado": "aspira_por_desempate_o_fallo_ajeno",
@@ -3172,36 +3181,21 @@
             "lectura": "Salvado matemáticamente: tiene 60 puntos y SD Huesca solo puede llegar a 43."
           }
         ],
-        "objetivos_vivos": [
-          {
-            "objetivo": "playoff_ascenso",
-            "estado": "aspira_por_desempate_o_fallo_ajeno",
-            "vivo": true,
-            "terminal": false,
-            "distancia_o_colchon": -7,
-            "corte_equipo": "CD Castellon",
-            "corte_puntos_actuales": 66,
-            "puntos_necesarios_para_entrar": 7,
-            "depende_de_rivales": true,
-            "lectura": "Solo puede igualar el corte de playoff ascenso; necesita pleno y dependería de desempates o fallos de CD Castellon."
-          }
-        ],
+        "objetivos_vivos": [],
         "objetivo_principal": {
-          "objetivo": "playoff_ascenso",
-          "estado": "aspira_por_desempate_o_fallo_ajeno",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -7,
-          "corte_equipo": "CD Castellon",
-          "corte_puntos_actuales": 66,
-          "puntos_necesarios_para_entrar": 7,
-          "depende_de_rivales": true,
-          "lectura": "Solo puede igualar el corte de playoff ascenso; necesita pleno y dependería de desempates o fallos de CD Castellon."
+          "objetivo": "situacion_final",
+          "estado": "sin_opciones_matematicas",
+          "vivo": false,
+          "terminal": true,
+          "override_oficial_jornada": true,
+          "lectura": "Sin opciones reales de promocion/playoff. No debe salir como equipo con objetivo vivo.",
+          "puntos_necesarios_para_entrar": null
         },
-        "motivacion_competitiva": "media",
-        "motivacion": "media",
-        "lectura_resumen": "Solo puede igualar el corte de playoff ascenso; necesita pleno y dependería de desempates o fallos de CD Castellon.",
-        "situacion_competitiva": "aspira_por_desempate_o_fallo_ajeno"
+        "motivacion_competitiva": "baja",
+        "motivacion": "baja",
+        "lectura_resumen": "Sin opciones reales de promocion/playoff. No debe salir como equipo con objetivo vivo.",
+        "situacion_competitiva": "sin_opciones_matematicas",
+        "override_oficial_jornada": true
       },
       {
         "clave": "andorra",
@@ -4346,16 +4340,46 @@
       "Descenso a Primera Federación: Cadiz CF está justo fuera con 40; SD Huesca está dentro a 3 puntos."
     ]
   },
+  "objetivos_oficiales_jornada": {
+    "aplicados_en": "2026-05-22T17:49:23.473050+00:00",
+    "fuente": "data/memoria_ia/objetivos_jornada_actual.json",
+    "equipos": [
+      "RC Celta de Vigo",
+      "Rayo Vallecano de Madrid",
+      "Sevilla FC",
+      "Deportivo Alaves",
+      "Real Racing Club de Santander",
+      "Malaga CF",
+      "SD Eibar",
+      "Cordoba CF"
+    ]
+  },
   "patrones_aprendidos": {
     "version": "1.0",
-    "generado_en": "2026-05-22T17:48:22.565855+00:00",
+    "generado_en": "2026-05-22T17:49:23.547922+00:00",
     "descripcion": "Patrones aprendidos de resultados reales de 1a y 2a para no tratar como fijos tranquilos partidos con objetivos cerrados contra rivales necesitados.",
     "patrones": {
       "equipo_necesitado_vs_equipo_sin_objetivo": {
-        "casos": 387,
-        "sorpresas": 205,
-        "tasa_sorpresa": 53.0,
+        "casos": 406,
+        "sorpresas": 221,
+        "tasa_sorpresa": 54.4,
         "ejemplos": [
+          {
+            "liga": "segunda",
+            "jornada_liga": 34,
+            "partido": "SD Eibar - AD Ceuta FC",
+            "resultado": "3-0",
+            "signo_real": "1",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
+          {
+            "liga": "segunda",
+            "jornada_liga": 35,
+            "partido": "Burgos CF - Sporting Gijón",
+            "resultado": "1-0",
+            "signo_real": "1",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
           {
             "liga": "segunda",
             "jornada_liga": 35,
@@ -4391,14 +4415,6 @@
           {
             "liga": "segunda",
             "jornada_liga": 37,
-            "partido": "Córdoba CF - Sporting Gijón",
-            "resultado": "3-2",
-            "signo_real": "1",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 37,
             "partido": "Granada CF - UD Almería",
             "resultado": "2-4",
             "signo_real": "2",
@@ -4418,14 +4434,6 @@
             "partido": "Real Sociedad B - Burgos CF",
             "resultado": "0-0",
             "signo_real": "X",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 39,
-            "partido": "Córdoba CF - Granada CF",
-            "resultado": "1-0",
-            "signo_real": "1",
             "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
           },
           {
@@ -4455,9 +4463,9 @@
         ]
       },
       "local_descenso_vs_visitante_favorito": {
-        "casos": 154,
-        "sorpresas": 81,
-        "tasa_sorpresa": 52.6,
+        "casos": 141,
+        "sorpresas": 75,
+        "tasa_sorpresa": 53.2,
         "ejemplos": [
           {
             "liga": "segunda",
@@ -4558,16 +4566,32 @@
         ]
       },
       "necesitado_local_vs_visitante_objetivo_cerrado": {
-        "casos": 193,
-        "sorpresas": 125,
-        "tasa_sorpresa": 64.8,
+        "casos": 203,
+        "sorpresas": 130,
+        "tasa_sorpresa": 64.0,
         "ejemplos": [
+          {
+            "liga": "segunda",
+            "jornada_liga": 33,
+            "partido": "Burgos CF - AD Ceuta FC",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
           {
             "liga": "segunda",
             "jornada_liga": 33,
             "partido": "CD Mirandés - Albacete",
             "resultado": "1-1",
             "signo_real": "X",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
+          {
+            "liga": "segunda",
+            "jornada_liga": 33,
+            "partido": "Deportivo La Coruña - Córdoba CF",
+            "resultado": "2-0",
+            "signo_real": "1",
             "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
           },
           {
@@ -4628,25 +4652,9 @@
           },
           {
             "liga": "segunda",
-            "jornada_liga": 37,
-            "partido": "Córdoba CF - Sporting Gijón",
-            "resultado": "3-2",
-            "signo_real": "1",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
             "jornada_liga": 38,
             "partido": "UD Las Palmas - Real Valladolid",
             "resultado": "2-1",
-            "signo_real": "1",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 39,
-            "partido": "Córdoba CF - Granada CF",
-            "resultado": "1-0",
             "signo_real": "1",
             "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
           },
@@ -4661,9 +4669,9 @@
         ]
       },
       "visitante_descenso_vs_local_favorito": {
-        "casos": 152,
-        "sorpresas": 53,
-        "tasa_sorpresa": 34.9,
+        "casos": 139,
+        "sorpresas": 48,
+        "tasa_sorpresa": 34.5,
         "ejemplos": [
           {
             "liga": "segunda",
@@ -4764,15 +4772,15 @@
         ]
       },
       "visitante_necesitado_vs_local_objetivo_cerrado": {
-        "casos": 194,
-        "sorpresas": 80,
-        "tasa_sorpresa": 41.2,
+        "casos": 203,
+        "sorpresas": 91,
+        "tasa_sorpresa": 44.8,
         "ejemplos": [
           {
             "liga": "segunda",
             "jornada_liga": 32,
-            "partido": "Albacete - CD Castellón",
-            "resultado": "1-1",
+            "partido": "Córdoba CF - CD Mirandés",
+            "resultado": "2-2",
             "signo_real": "X",
             "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
           },
