@@ -22,6 +22,7 @@ SCRIPTS_ACTIVOS = [
     "recalcular_dinamicas_calendario.py",
     "sincronizar_dinamicas_memoria.py",
     "generar_contexto_competitivo.py",
+    "aplicar_objetivos_oficiales_json.py",
     "aprender_patrones_competitivos.py",
     "aplicar_patrones_motor.py",
     "reforzar_patrones_motor.py",
