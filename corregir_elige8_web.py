@@ -38,7 +38,7 @@ FUNCIONES = r'''
       else if (signo === "X" && prob < 60) score -= 10;
 
       if (item?.tipo === "TRIPLE") score -= 8;
-      if (partido.riesgo_necesidad_real) score -= 2;
+      if (partido.riesgo_necesidad_real || partido.riesgo_necesidad) score -= 2;
       return score;
     }
 
@@ -54,7 +54,7 @@ FUNCIONES = r'''
     }
 '''
 
-BLOQUE_ANTIGUO = r'''      const elige8Candidatos = [...detalle]
+BLOQUE_ESTRATEGIA_ANTIGUO = r'''      const elige8Candidatos = [...detalle]
         .sort((a, b) => {
           const pesoA = a.tipo === "TRIPLE" ? 0 : a.tipo === "DOBLE" ? 1 : 2;
           const pesoB = b.tipo === "TRIPLE" ? 0 : b.tipo === "DOBLE" ? 1 : 2;
@@ -63,7 +63,35 @@ BLOQUE_ANTIGUO = r'''      const elige8Candidatos = [...detalle]
         })
         .slice(0, 8);'''
 
-BLOQUE_NUEVO = r'''      const elige8Candidatos = candidatosElige8CobroWeb(detalle);'''
+BLOQUE_ESTRATEGIA_NUEVO = r'''      const elige8Candidatos = candidatosElige8CobroWeb(detalle);'''
+
+BLOQUE_GENERAR_ANTIGUO = r'''      const elige8Set = new Set();
+      if (activarElige8) {
+        const triplesPrimero = partidos
+          .filter(p => triplesSet.has(p.num))
+          .sort((a, b) => a.incertidumbre - b.incertidumbre);
+        const doblesDespues = partidos
+          .filter(p => doblesSet.has(p.num))
+          .sort((a, b) => a.incertidumbre - b.incertidumbre);
+        const fijosSeguros = partidos
+          .filter(p => !triplesSet.has(p.num) && !doblesSet.has(p.num))
+          .sort((a, b) => a.incertidumbre - b.incertidumbre);
+
+        [...triplesPrimero, ...doblesDespues, ...fijosSeguros]
+          .slice(0, 8)
+          .forEach(p => elige8Set.add(p.num));
+      }'''
+
+BLOQUE_GENERAR_NUEVO = r'''      const elige8Set = new Set();
+      if (activarElige8) {
+        candidatosElige8CobroWeb(partidos.map(p => ({
+          partido: p,
+          num: p.num,
+          tipo: p.tipo_apuesta,
+          signos: p.signo_final,
+          riesgo: p.incertidumbre
+        }))).forEach(item => elige8Set.add(item.num));
+      }'''
 
 LECTURA_ANTIGUA = "porque concentra la proteccion en los partidos cubiertos y en los fijos mas limpios."
 LECTURA_NUEVA = "porque marca los 8 signos con mayor probabilidad real de cobro, no los partidos mas vistosos."
@@ -74,16 +102,22 @@ def main():
     original = html
 
     if "function candidatosElige8CobroWeb" not in html:
-        html = html.replace("    function evaluarConfiguracionEstrategia(partidosBase, dobles, triples, elige8 = false) {", FUNCIONES + "\n    function evaluarConfiguracionEstrategia(partidosBase, dobles, triples, elige8 = false) {")
+        html = html.replace(
+            "    function evaluarConfiguracionEstrategia(partidosBase, dobles, triples, elige8 = false) {",
+            FUNCIONES + "\n    function evaluarConfiguracionEstrategia(partidosBase, dobles, triples, elige8 = false) {",
+        )
 
-    if BLOQUE_ANTIGUO not in html:
-        raise SystemExit("No encuentro el bloque antiguo de Elige 8 en index.html")
-    html = html.replace(BLOQUE_ANTIGUO, BLOQUE_NUEVO)
+    if BLOQUE_ESTRATEGIA_ANTIGUO in html:
+        html = html.replace(BLOQUE_ESTRATEGIA_ANTIGUO, BLOQUE_ESTRATEGIA_NUEVO)
+
+    if BLOQUE_GENERAR_ANTIGUO not in html:
+        raise SystemExit("No encuentro el bloque antiguo de Elige 8 dentro de generarBoletoIA")
+    html = html.replace(BLOQUE_GENERAR_ANTIGUO, BLOQUE_GENERAR_NUEVO)
     html = html.replace(LECTURA_ANTIGUA, LECTURA_NUEVA)
 
     if html != original:
         INDEX.write_text(html, encoding="utf-8")
-        print("Elige 8 web corregido: ahora prioriza probabilidad de cobro.")
+        print("Elige 8 web corregido tambien en Generar Quiniela.")
     else:
         print("Elige 8 web ya estaba corregido.")
 
