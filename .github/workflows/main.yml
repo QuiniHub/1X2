@@ -43,6 +43,7 @@ jobs:
         run: |
           python generar_contexto_competitivo.py
           python aplicar_objetivos_oficiales_json.py
+          python forzar_overrides.py
           python alinear_pronostico_analisis.py
           python mejorar_prioridad_coberturas.py
           python corregir_elige8_web.py
@@ -62,6 +63,7 @@ jobs:
           python corregir_elige8_web.py
           python ajustar_coberturas_contexto_global.py
           python aplicar_objetivos_oficiales_json.py
+          python forzar_overrides.py
 
       - name: Guardar cambios
         run: |
