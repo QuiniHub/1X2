@@ -2176,39 +2176,43 @@
 
 
 
-    function probabilidadSignoElige8Web(item) {
+
+
+    function signosElige8Web(item) {
       const partido = item?.partido || item || {};
-      const probs = partido.probabilidades || {};
-      const signos = String(item?.signos || partido.signo_base || partido.signo_final || "")
+      const signos = String(item?.signos || partido.signo_final || partido.signo_base || "")
         .replace(/[^1X2]/g, "")
         .split("");
-      const candidatos = signos.length ? signos : ["1", "X", "2"];
-      return candidatos.reduce((max, signo) => Math.max(max, Number(probs[signo] || 0)), 0);
+      return signos.length ? Array.from(new Set(signos)) : ["1", "X", "2"];
+    }
+
+    function probabilidadCubiertaElige8Web(item) {
+      const partido = item?.partido || item || {};
+      const probs = partido.probabilidades || {};
+      const signos = signosElige8Web(item);
+      return Math.min(100, signos.reduce((total, signo) => total + Number(probs[signo] || 0), 0));
     }
 
     function signoObjetivoElige8Web(item) {
       const partido = item?.partido || item || {};
       const probs = partido.probabilidades || {};
-      const signos = String(item?.signos || partido.signo_base || partido.signo_final || "")
-        .replace(/[^1X2]/g, "")
-        .split("");
-      const candidatos = signos.length ? signos : ["1", "X", "2"];
-      return candidatos.sort((a, b) => Number(probs[b] || 0) - Number(probs[a] || 0))[0] || "";
+      const signos = signosElige8Web(item);
+      return signos.sort((a, b) => Number(probs[b] || 0) - Number(probs[a] || 0))[0] || "";
     }
 
     function puntuacionElige8CobroWeb(item) {
       const partido = item?.partido || item || {};
-      const signo = signoObjetivoElige8Web(item);
-      const prob = probabilidadSignoElige8Web(item);
+      const probCubierta = probabilidadCubiertaElige8Web(item);
+      const signos = signosElige8Web(item);
       const incertidumbre = Number(partido.incertidumbre || item?.riesgo || 0);
       const sorpresa = Number(partido.probabilidad_sorpresa || 0);
-      let score = prob * 3 - incertidumbre * 0.08 - sorpresa * 0.12;
+      let score = probCubierta * 4 - incertidumbre * 0.05 - sorpresa * 0.08;
 
-      if (signo === "X" && prob < 55) score -= 25;
-      else if (signo === "X" && prob < 60) score -= 10;
+      if (signos.length === 3) score += 30;
+      else if (signos.length === 2) score += 12;
+      else if (signos[0] === "X" && probCubierta < 55) score -= 20;
 
-      if (item?.tipo === "TRIPLE") score -= 8;
-      if (partido.riesgo_necesidad_real) score -= 2;
+      if (partido.riesgo_necesidad_real || partido.riesgo_necesidad) score -= 1;
       return score;
     }
 
@@ -2218,7 +2222,7 @@
           const scoreA = puntuacionElige8CobroWeb(a);
           const scoreB = puntuacionElige8CobroWeb(b);
           if (scoreA !== scoreB) return scoreB - scoreA;
-          return probabilidadSignoElige8Web(b) - probabilidadSignoElige8Web(a);
+          return probabilidadCubiertaElige8Web(b) - probabilidadCubiertaElige8Web(a);
         })
         .slice(0, 8);
     }
@@ -3105,6 +3109,7 @@
 
 
 
+
     function normalizarCompetitivoTextoBoleto(texto) {
       return norm(String(texto || "").replaceAll("_", " "));
     }
@@ -3196,6 +3201,7 @@
 
       return Math.min(bonus, 110);
     }
+
 
 
 
