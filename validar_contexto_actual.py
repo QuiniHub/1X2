@@ -4,6 +4,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 CLASIF = ROOT / "clasificaciones.json"
+CLASIF_OFICIAL = ROOT / "data" / "clasificaciones_oficiales.json"
 CTX = ROOT / "data" / "memoria_ia" / "contexto_competitivo.json"
 OVR = ROOT / "data" / "memoria_ia" / "objetivos_jornada_actual.json"
 MAX_EDAD_MIN = 120
@@ -57,16 +58,26 @@ def buscar(ctx, nombre):
     return None
 
 
+def fecha_clasificacion(clasif):
+    f = fecha(clasif.get("actualizado_en"))
+    if f:
+        return f
+    if CLASIF_OFICIAL.exists():
+        oficial = cargar(CLASIF_OFICIAL)
+        return fecha(oficial.get("actualizado_en"))
+    return None
+
+
 def validar_fechas(clasif, ctx):
     ahora = datetime.now(timezone.utc)
-    f_clasif = fecha(clasif.get("actualizado_en"))
+    f_clasif = fecha_clasificacion(clasif)
     f_ctx = fecha(ctx.get("generado_en"))
     if not f_clasif:
-        error("clasificaciones.json no tiene actualizado_en valido")
+        error("No hay fecha valida de clasificacion en clasificaciones.json ni data/clasificaciones_oficiales.json")
     if not f_ctx:
         error("contexto_competitivo.json no tiene generado_en valido")
     if ahora - f_clasif > timedelta(minutes=MAX_EDAD_MIN):
-        error(f"clasificaciones.json demasiado antiguo: {f_clasif.isoformat()}")
+        error(f"clasificacion demasiado antigua: {f_clasif.isoformat()}")
     if ahora - f_ctx > timedelta(minutes=MAX_EDAD_MIN):
         error(f"contexto_competitivo.json demasiado antiguo: {f_ctx.isoformat()}")
     if f_ctx + timedelta(seconds=5) < f_clasif:
