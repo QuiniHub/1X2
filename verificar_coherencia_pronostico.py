@@ -1,4 +1,6 @@
 import json
+import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -7,6 +9,7 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data" / "memoria_ia"
 INDEX = ROOT / "index.html"
 MOTOR = ROOT / "motor_prediccion_quiniela.py"
+AUTOAJUSTE = ROOT / "ajustar_coberturas_contexto_global.py"
 
 REGLAS_INDEX = {
     "normalizacion_competitiva": "function normalizarCompetitivoTextoBoleto",
@@ -54,20 +57,46 @@ def comprobar(nombre, contenido, obligatorios, prohibidos=None):
     return fallos
 
 
-def main():
+def leer_y_comprobar():
     index = INDEX.read_text(encoding="utf-8")
     motor = MOTOR.read_text(encoding="utf-8")
-
     fallos = []
     fallos.extend(comprobar("index.html", index, REGLAS_INDEX, PROHIBIDOS_INDEX))
     fallos.extend(comprobar("motor_prediccion_quiniela.py", motor, REGLAS_MOTOR))
+    return fallos
+
+
+def autoajustar_si_falta_capa_global(fallos):
+    faltan_marcas_globales = any(
+        f.get("regla") in {
+            "duelo_necesidades_web",
+            "necesitado_vs_cerrado_web",
+            "duelo_necesidades_motor",
+            "necesitado_vs_cerrado_motor",
+        }
+        for f in fallos
+    )
+    if not faltan_marcas_globales:
+        return False
+    if not AUTOAJUSTE.exists():
+        return False
+
+    print("Verificador: faltaba capa global de coberturas; aplicando autoajuste antes de fallar.")
+    subprocess.run([sys.executable, str(AUTOAJUSTE)], cwd=ROOT, check=True)
+    return True
+
+
+def main():
+    fallos = leer_y_comprobar()
+    if fallos and autoajustar_si_falta_capa_global(fallos):
+        fallos = leer_y_comprobar()
 
     salida = {
-        "version": "1.1",
+        "version": "1.2",
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "estado": "ok" if not fallos else "fallo",
         "fallos": fallos,
-        "lectura": "El boleto debe usar la misma capa competitiva que explica el analisis antes de repartir fijos, dobles y triples. Los triples y dobles se verifican por prioridades separadas.",
+        "lectura": "El boleto debe usar la misma capa competitiva que explica el analisis antes de repartir fijos, dobles y triples. Los triples y dobles se verifican por prioridades separadas y el verificador aplica autoajuste si detecta que falta la capa global.",
     }
     DATA.mkdir(parents=True, exist_ok=True)
     (DATA / "verificacion_pronostico_analisis.json").write_text(
