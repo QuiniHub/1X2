@@ -21,10 +21,15 @@ SCRIPTS_ACTIVOS = [
     "construir_memoria_ia.py",
     "recalcular_dinamicas_calendario.py",
     "sincronizar_dinamicas_memoria.py",
+
+    # Fuente unica de verdad competitiva. Todo lo posterior debe leer esto.
     "generar_contexto_competitivo.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
     "validar_contexto_actual.py",
+    "construir_fuente_verdad_competitiva.py",
+
+    # Motor y salidas.
     "aprender_patrones_competitivos.py",
     "aplicar_patrones_motor.py",
     "reforzar_patrones_motor.py",
@@ -35,8 +40,6 @@ SCRIPTS_ACTIVOS = [
     "validar_contexto_actual.py",
     "motor_prediccion_quiniela.py",
     "generar_estado_vivo_ia.py",
-    "forzar_overrides.py",
-    "validar_contexto_actual.py",
     "regenerar_estado_vivo_actual.py",
     "ajustar_estado_vivo_motivacion.py",
     "mejorar_prioridad_coberturas.py",
@@ -58,6 +61,7 @@ SCRIPTS_ACTIVOS = [
     "ajustar_coberturas_contexto_global.py",
     "verificar_coherencia_pronostico.py",
     "validar_contexto_actual.py",
+    "construir_fuente_verdad_competitiva.py",
     "diagnostico_sistema.py",
     "control_calidad_actualizacion.py",
     "normalizar_diagnostico_control.py",
