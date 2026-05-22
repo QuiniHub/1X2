@@ -102,24 +102,28 @@ def main():
     original = html
 
     if "function candidatosElige8CobroWeb" not in html:
-        html = html.replace(
-            "    function evaluarConfiguracionEstrategia(partidosBase, dobles, triples, elige8 = false) {",
-            FUNCIONES + "\n    function evaluarConfiguracionEstrategia(partidosBase, dobles, triples, elige8 = false) {",
-        )
+        marcador = "    function evaluarConfiguracionEstrategia(partidosBase, dobles, triples, elige8 = false) {"
+        if marcador not in html:
+            raise SystemExit("No encuentro donde insertar funciones de Elige 8")
+        html = html.replace(marcador, FUNCIONES + "\n" + marcador)
 
     if BLOQUE_ESTRATEGIA_ANTIGUO in html:
         html = html.replace(BLOQUE_ESTRATEGIA_ANTIGUO, BLOQUE_ESTRATEGIA_NUEVO)
 
-    if BLOQUE_GENERAR_ANTIGUO not in html:
-        raise SystemExit("No encuentro el bloque antiguo de Elige 8 dentro de generarBoletoIA")
-    html = html.replace(BLOQUE_GENERAR_ANTIGUO, BLOQUE_GENERAR_NUEVO)
+    if BLOQUE_GENERAR_ANTIGUO in html:
+        html = html.replace(BLOQUE_GENERAR_ANTIGUO, BLOQUE_GENERAR_NUEVO)
+    elif BLOQUE_GENERAR_NUEVO in html:
+        pass
+    else:
+        raise SystemExit("No encuentro ni el bloque viejo ni el bloque nuevo de Elige 8 en generarBoletoIA")
+
     html = html.replace(LECTURA_ANTIGUA, LECTURA_NUEVA)
 
     if html != original:
         INDEX.write_text(html, encoding="utf-8")
-        print("Elige 8 web corregido tambien en Generar Quiniela.")
+        print("Elige 8 web corregido en Generar Quiniela.")
     else:
-        print("Elige 8 web ya estaba corregido.")
+        print("Elige 8 web ya estaba corregido; no hay cambios.")
 
 
 if __name__ == "__main__":
