@@ -2174,6 +2174,55 @@
       return "Ajuste competitivo: motivacion parecida o sin diferencia clara.";
     }
 
+
+
+    function probabilidadSignoElige8Web(item) {
+      const partido = item?.partido || item || {};
+      const probs = partido.probabilidades || {};
+      const signos = String(item?.signos || partido.signo_base || partido.signo_final || "")
+        .replace(/[^1X2]/g, "")
+        .split("");
+      const candidatos = signos.length ? signos : ["1", "X", "2"];
+      return candidatos.reduce((max, signo) => Math.max(max, Number(probs[signo] || 0)), 0);
+    }
+
+    function signoObjetivoElige8Web(item) {
+      const partido = item?.partido || item || {};
+      const probs = partido.probabilidades || {};
+      const signos = String(item?.signos || partido.signo_base || partido.signo_final || "")
+        .replace(/[^1X2]/g, "")
+        .split("");
+      const candidatos = signos.length ? signos : ["1", "X", "2"];
+      return candidatos.sort((a, b) => Number(probs[b] || 0) - Number(probs[a] || 0))[0] || "";
+    }
+
+    function puntuacionElige8CobroWeb(item) {
+      const partido = item?.partido || item || {};
+      const signo = signoObjetivoElige8Web(item);
+      const prob = probabilidadSignoElige8Web(item);
+      const incertidumbre = Number(partido.incertidumbre || item?.riesgo || 0);
+      const sorpresa = Number(partido.probabilidad_sorpresa || 0);
+      let score = prob * 3 - incertidumbre * 0.08 - sorpresa * 0.12;
+
+      if (signo === "X" && prob < 55) score -= 25;
+      else if (signo === "X" && prob < 60) score -= 10;
+
+      if (item?.tipo === "TRIPLE") score -= 8;
+      if (partido.riesgo_necesidad_real) score -= 2;
+      return score;
+    }
+
+    function candidatosElige8CobroWeb(detalle) {
+      return [...detalle]
+        .sort((a, b) => {
+          const scoreA = puntuacionElige8CobroWeb(a);
+          const scoreB = puntuacionElige8CobroWeb(b);
+          if (scoreA !== scoreB) return scoreB - scoreA;
+          return probabilidadSignoElige8Web(b) - probabilidadSignoElige8Web(a);
+        })
+        .slice(0, 8);
+    }
+
     function evaluarConfiguracionEstrategia(partidosBase, dobles, triples, elige8 = false) {
       const partidos = (partidosBase || []).filter(p => Number(p.num) <= 14);
       dobles = Math.max(0, Math.min(Number(dobles || 0), 14));
@@ -2198,14 +2247,7 @@
       const fijosPeligrosos = detalle.filter(x => x.tipo === "FIJO" && x.peligroso);
       const trampasCubiertas = detalle.filter(x => x.tipo !== "FIJO" && x.peligroso);
       const coste = importeEstrategiaApuesta(dobles, triples, elige8);
-      const elige8Candidatos = [...detalle]
-        .sort((a, b) => {
-          const pesoA = a.tipo === "TRIPLE" ? 0 : a.tipo === "DOBLE" ? 1 : 2;
-          const pesoB = b.tipo === "TRIPLE" ? 0 : b.tipo === "DOBLE" ? 1 : 2;
-          if (pesoA !== pesoB) return pesoA - pesoB;
-          return a.riesgo - b.riesgo;
-        })
-        .slice(0, 8);
+      const elige8Candidatos = candidatosElige8CobroWeb(detalle);
 
       const valor = coberturaMedia
         + trampasCubiertas.length * 2.8
@@ -2319,7 +2361,7 @@
         doblesElegidos.length ? `Dobles prioritarios: ${doblesElegidos.map(x => `${nombrePartidoEstrategia(x.partido)} -> ${x.signos}`).join("; ")}.` : "Dobles prioritarios: no abriria dobles en esta configuracion.",
         "",
         mejor.elige8
-          ? `Elige 8: lo activaria y marcaria ${mejor.elige8Candidatos.map(x => x.num).join(", ")}, porque concentra la proteccion en los partidos cubiertos y en los fijos mas limpios.`
+          ? `Elige 8: lo activaria y marcaria ${mejor.elige8Candidatos.map(x => x.num).join(", ")}, porque marca los 8 signos con mayor probabilidad real de cobro, no los partidos mas vistosos.`
           : `Elige 8: lo valoraria si vas a validar un boleto serio; por solo 0,50 EUR mas, mis candidatos serian ${evaluarConfiguracionEstrategia(partidos, mejor.dobles, mejor.triples, true).elige8Candidatos.map(x => x.num).join(", ")}.`,
         fijosPeligrosos.length ? `Ojo: aun quedarian fijos peligrosos en ${fijosPeligrosos.map(x => nombrePartidoEstrategia(x.partido)).join("; ")}.` : "Con esa configuracion no quedan fijos peligrosos fuertes segun la memoria actual.",
         "",
@@ -3055,6 +3097,7 @@
 
 
 
+
     function normalizarCompetitivoTextoBoleto(texto) {
       return norm(String(texto || "").replaceAll("_", " "));
     }
@@ -3146,6 +3189,7 @@
 
       return Math.min(bonus, 110);
     }
+
 
 
 
