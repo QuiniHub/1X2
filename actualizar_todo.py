@@ -49,6 +49,7 @@ SCRIPTS_ACTIVOS = [
     "corregir_emparejamiento_equipos.py",
     "alinear_pronostico_analisis.py",
     "mejorar_prioridad_coberturas.py",
+    "ajustar_coberturas_contexto_global.py",
     "verificar_coherencia_pronostico.py",
     "diagnostico_sistema.py",
     "control_calidad_actualizacion.py",
