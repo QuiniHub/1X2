@@ -59,12 +59,16 @@ def buscar(ctx, nombre):
 
 
 def fecha_clasificacion(clasif):
-    f = fecha(clasif.get("actualizado_en"))
-    if f:
-        return f
+    for campo in ("validado_en", "actualizado_en"):
+        f = fecha(clasif.get(campo))
+        if f:
+            return f
     if CLASIF_OFICIAL.exists():
         oficial = cargar(CLASIF_OFICIAL)
-        return fecha(oficial.get("actualizado_en"))
+        for campo in ("validado_en", "actualizado_en"):
+            f = fecha(oficial.get(campo))
+            if f:
+                return f
     return None
 
 
@@ -77,7 +81,7 @@ def validar_fechas(clasif, ctx):
     if not f_ctx:
         error("contexto_competitivo.json no tiene generado_en valido")
     if ahora - f_clasif > timedelta(minutes=MAX_EDAD_MIN):
-        error(f"clasificacion demasiado antigua: {f_clasif.isoformat()}")
+        error(f"clasificacion no validada recientemente: {f_clasif.isoformat()}")
     if ahora - f_ctx > timedelta(minutes=MAX_EDAD_MIN):
         error(f"contexto_competitivo.json demasiado antiguo: {f_ctx.isoformat()}")
     if f_ctx + timedelta(seconds=5) < f_clasif:
