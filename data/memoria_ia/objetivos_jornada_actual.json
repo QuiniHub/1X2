@@ -1,0 +1,95 @@
+{
+  "version": "1.0",
+  "descripcion": "Overrides manuales de maxima prioridad para la ultima jornada. Corrige casos donde el calculo generico de puntos no captura desempates, plazas variables, ascensos ya cerrados o dependencia real de terceros.",
+  "prioridad": "maxima",
+  "equipos": {
+    "RC Celta de Vigo": {
+      "liga": "primera",
+      "motivacion_competitiva": "maxima",
+      "situacion_competitiva": "defiende_plaza",
+      "objetivo_principal": "europa_league",
+      "estado": "defiende_plaza",
+      "vivo": true,
+      "terminal": false,
+      "lectura": "Necesita 1 punto para asegurar Europa League. Debe tratarse como objetivo vivo real y motivacion alta/maxima.",
+      "puntos_necesarios_para_asegurar": 1
+    },
+    "Sevilla FC": {
+      "liga": "primera",
+      "motivacion_competitiva": "baja",
+      "situacion_competitiva": "salvado_matematicamente",
+      "objetivo_principal": "situacion_final",
+      "estado": "salvado_matematicamente",
+      "vivo": false,
+      "terminal": true,
+      "lectura": "Salvado matematicamente. No debe aparecer como riesgo de descenso; sus opciones europeas no dependen solo de si mismo y no deben inflar la motivacion.",
+      "puntos_necesarios_para_asegurar": 0
+    },
+    "Deportivo Alaves": {
+      "liga": "primera",
+      "motivacion_competitiva": "baja",
+      "situacion_competitiva": "salvado_matematicamente",
+      "objetivo_principal": "situacion_final",
+      "estado": "salvado_matematicamente",
+      "vivo": false,
+      "terminal": true,
+      "lectura": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
+      "puntos_necesarios_para_asegurar": 0
+    },
+    "Rayo Vallecano de Madrid": {
+      "liga": "primera",
+      "motivacion_competitiva": "maxima",
+      "situacion_competitiva": "defiende_plaza_europea",
+      "objetivo_principal": "europa",
+      "estado": "defiende_plaza",
+      "vivo": true,
+      "terminal": false,
+      "lectura": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
+      "puntos_necesarios_para_asegurar": 1
+    },
+    "Cordoba CF": {
+      "liga": "segunda",
+      "motivacion_competitiva": "baja",
+      "situacion_competitiva": "sin_opciones_matematicas",
+      "objetivo_principal": "situacion_final",
+      "estado": "sin_opciones_matematicas",
+      "vivo": false,
+      "terminal": true,
+      "lectura": "Sin opciones reales de promocion/playoff. No debe salir como equipo con objetivo vivo.",
+      "puntos_necesarios_para_entrar": null
+    },
+    "SD Eibar": {
+      "liga": "segunda",
+      "motivacion_competitiva": "maxima",
+      "situacion_competitiva": "aspira_matematicamente",
+      "objetivo_principal": "playoff_ascenso",
+      "estado": "aspira_matematicamente",
+      "vivo": true,
+      "terminal": false,
+      "lectura": "Se juega entrar en promocion/playoff. Objetivo vivo real.",
+      "puntos_necesarios_para_entrar": 3
+    },
+    "Malaga CF": {
+      "liga": "segunda",
+      "motivacion_competitiva": "maxima",
+      "situacion_competitiva": "objetivo_vivo",
+      "objetivo_principal": "objetivo_competitivo",
+      "estado": "aspira_matematicamente",
+      "vivo": true,
+      "terminal": false,
+      "lectura": "Se juega objetivo competitivo real en la ultima jornada. Debe pesar mas que un rival con objetivo cerrado.",
+      "puntos_necesarios_para_asegurar": 1
+    },
+    "Real Racing Club de Santander": {
+      "liga": "segunda",
+      "motivacion_competitiva": "baja",
+      "situacion_competitiva": "ascendido_matematicamente",
+      "objetivo_principal": "ascenso_directo",
+      "estado": "asegurado_matematicamente",
+      "vivo": false,
+      "terminal": true,
+      "lectura": "Ascendido matematicamente. Objetivo cerrado; no debe inflar triple por necesidad competitiva.",
+      "puntos_necesarios_para_asegurar": 0
+    }
+  }
+}
