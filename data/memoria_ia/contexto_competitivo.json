@@ -1,6 +1,6 @@
 {
   "version": "1.3",
-  "generado_en": "2026-05-22T18:01:05.641202+00:00",
+  "generado_en": "2026-05-22T18:01:24.768755+00:00",
   "descripcion": "Contexto de objetivos, puntos en juego y presión competitiva para calibrar predicciones de final de temporada.",
   "reglas": {
     "primera": {
@@ -574,6 +574,63 @@
             "override_oficial_jornada": true,
             "lectura": "Necesita 1 punto para asegurar Europa League. Debe tratarse como objetivo vivo real y motivacion alta/maxima.",
             "puntos_necesarios_para_asegurar": 1
+          },
+          {
+            "objetivo": "europa_league",
+            "estado": "asegurado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 4,
+            "corte_equipo": "Rayo Vallecano de Madrid",
+            "corte_puntos_actuales": 47,
+            "corte_maximo_puntos": 50,
+            "puntos_necesarios_para_asegurar": 0,
+            "lectura": "Tiene Europa League asegurado: suma 51 puntos y Rayo Vallecano de Madrid solo puede llegar a 50."
+          },
+          {
+            "objetivo": "titulo_liga",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -44,
+            "puntos_necesarios_para_entrar": 44,
+            "lectura": "No puede alcanzar el título: su máximo es 54 y FC Barcelona ya tiene 94."
+          },
+          {
+            "objetivo": "champions",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -7,
+            "corte_equipo": "Real Betis Balompie",
+            "corte_puntos_actuales": 57,
+            "puntos_necesarios_para_entrar": 7,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a champions: su máximo es 54 y el corte actual de Real Betis Balompie está en 57."
+          },
+          {
+            "objetivo": "conference",
+            "estado": "asegurado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 5,
+            "corte_equipo": "Valencia CF",
+            "corte_puntos_actuales": 46,
+            "corte_maximo_puntos": 49,
+            "puntos_necesarios_para_asegurar": 0,
+            "lectura": "Tiene Conference asegurado: suma 51 puntos y Valencia CF solo puede llegar a 49."
+          },
+          {
+            "objetivo": "situacion_final",
+            "estado": "salvado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 11,
+            "corte_equipo": "Girona FC",
+            "corte_puntos_actuales": 40,
+            "corte_maximo_puntos": 43,
+            "puntos_necesarios_para_salvarse": 0,
+            "lectura": "Salvado matemáticamente: tiene 51 puntos y Girona FC solo puede llegar a 43."
           }
         ],
         "objetivos_vivos": [
@@ -763,6 +820,63 @@
             "override_oficial_jornada": true,
             "lectura": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
             "puntos_necesarios_para_asegurar": 1
+          },
+          {
+            "objetivo": "europa_league",
+            "estado": "aspira_matematicamente",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": -2,
+            "corte_equipo": "Getafe CF",
+            "corte_puntos_actuales": 48,
+            "puntos_necesarios_para_entrar": 2,
+            "depende_de_rivales": false,
+            "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Getafe CF."
+          },
+          {
+            "objetivo": "titulo_liga",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -48,
+            "puntos_necesarios_para_entrar": 48,
+            "lectura": "No puede alcanzar el título: su máximo es 50 y FC Barcelona ya tiene 94."
+          },
+          {
+            "objetivo": "champions",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -11,
+            "corte_equipo": "Real Betis Balompie",
+            "corte_puntos_actuales": 57,
+            "puntos_necesarios_para_entrar": 11,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a champions: su máximo es 50 y el corte actual de Real Betis Balompie está en 57."
+          },
+          {
+            "objetivo": "conference",
+            "estado": "defiende_plaza",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": 1,
+            "corte_equipo": "Valencia CF",
+            "corte_puntos_actuales": 46,
+            "corte_maximo_puntos": 49,
+            "puntos_necesarios_para_asegurar": 3,
+            "lectura": "Defiende plaza de Conference con 1 punto sobre Valencia CF. Para asegurarla por puntos necesita 3 puntos más."
+          },
+          {
+            "objetivo": "situacion_final",
+            "estado": "salvado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 7,
+            "corte_equipo": "Girona FC",
+            "corte_puntos_actuales": 40,
+            "corte_maximo_puntos": 43,
+            "puntos_necesarios_para_salvarse": 0,
+            "lectura": "Salvado matemáticamente: tiene 47 puntos y Girona FC solo puede llegar a 43."
           }
         ],
         "objetivos_vivos": [
@@ -1333,6 +1447,63 @@
             "override_oficial_jornada": true,
             "lectura": "Salvado matematicamente. No debe aparecer como riesgo de descenso; sus opciones europeas no dependen solo de si mismo y no deben inflar la motivacion.",
             "puntos_necesarios_para_asegurar": 0
+          },
+          {
+            "objetivo": "descenso",
+            "estado": "riesgo_descenso",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": 3,
+            "corte_equipo": "Girona FC",
+            "corte_puntos_actuales": 40,
+            "corte_maximo_puntos": 43,
+            "puntos_necesarios_para_salvarse": 1,
+            "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Girona FC. Necesita 1 punto para salvarse por puntos sin depender de otros."
+          },
+          {
+            "objetivo": "titulo_liga",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -52,
+            "puntos_necesarios_para_entrar": 52,
+            "lectura": "No puede alcanzar el título: su máximo es 46 y FC Barcelona ya tiene 94."
+          },
+          {
+            "objetivo": "champions",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -15,
+            "corte_equipo": "Real Betis Balompie",
+            "corte_puntos_actuales": 57,
+            "puntos_necesarios_para_entrar": 15,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a champions: su máximo es 46 y el corte actual de Real Betis Balompie está en 57."
+          },
+          {
+            "objetivo": "europa_league",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -6,
+            "corte_equipo": "Getafe CF",
+            "corte_puntos_actuales": 48,
+            "puntos_necesarios_para_entrar": 6,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a Europa League: su máximo es 46 y el corte actual de Getafe CF está en 48."
+          },
+          {
+            "objetivo": "conference",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -5,
+            "corte_equipo": "Rayo Vallecano de Madrid",
+            "corte_puntos_actuales": 47,
+            "puntos_necesarios_para_entrar": 5,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a Conference: su máximo es 46 y el corte actual de Rayo Vallecano de Madrid está en 47."
           }
         ],
         "objetivos_vivos": [],
@@ -1385,6 +1556,63 @@
             "override_oficial_jornada": true,
             "lectura": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
             "puntos_necesarios_para_asegurar": 0
+          },
+          {
+            "objetivo": "descenso",
+            "estado": "riesgo_descenso",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": 3,
+            "corte_equipo": "Girona FC",
+            "corte_puntos_actuales": 40,
+            "corte_maximo_puntos": 43,
+            "puntos_necesarios_para_salvarse": 1,
+            "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Girona FC. Necesita 1 punto para salvarse por puntos sin depender de otros."
+          },
+          {
+            "objetivo": "titulo_liga",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -52,
+            "puntos_necesarios_para_entrar": 52,
+            "lectura": "No puede alcanzar el título: su máximo es 46 y FC Barcelona ya tiene 94."
+          },
+          {
+            "objetivo": "champions",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -15,
+            "corte_equipo": "Real Betis Balompie",
+            "corte_puntos_actuales": 57,
+            "puntos_necesarios_para_entrar": 15,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a champions: su máximo es 46 y el corte actual de Real Betis Balompie está en 57."
+          },
+          {
+            "objetivo": "europa_league",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -6,
+            "corte_equipo": "Getafe CF",
+            "corte_puntos_actuales": 48,
+            "puntos_necesarios_para_entrar": 6,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a Europa League: su máximo es 46 y el corte actual de Getafe CF está en 48."
+          },
+          {
+            "objetivo": "conference",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -5,
+            "corte_equipo": "Rayo Vallecano de Madrid",
+            "corte_puntos_actuales": 47,
+            "puntos_necesarios_para_entrar": 5,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a Conference: su máximo es 46 y el corte actual de Rayo Vallecano de Madrid está en 47."
           }
         ],
         "objetivos_vivos": [],
@@ -2137,6 +2365,42 @@
             "override_oficial_jornada": true,
             "lectura": "Ascendido matematicamente. Objetivo cerrado; no debe inflar triple por necesidad competitiva.",
             "puntos_necesarios_para_asegurar": 0
+          },
+          {
+            "objetivo": "ascenso_directo",
+            "estado": "asegurado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 7,
+            "corte_equipo": "UD Almeria",
+            "corte_puntos_actuales": 71,
+            "corte_maximo_puntos": 77,
+            "puntos_necesarios_para_asegurar": 0,
+            "lectura": "Tiene ascenso directo asegurado: suma 78 puntos y UD Almeria solo puede llegar a 77."
+          },
+          {
+            "objetivo": "playoff_ascenso",
+            "estado": "asegurado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 12,
+            "corte_equipo": "Burgos CF",
+            "corte_puntos_actuales": 66,
+            "corte_maximo_puntos": 72,
+            "puntos_necesarios_para_asegurar": 0,
+            "lectura": "Tiene playoff ascenso asegurado: suma 78 puntos y Burgos CF solo puede llegar a 72."
+          },
+          {
+            "objetivo": "situacion_final",
+            "estado": "salvado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 41,
+            "corte_equipo": "SD Huesca",
+            "corte_puntos_actuales": 37,
+            "corte_maximo_puntos": 43,
+            "puntos_necesarios_para_salvarse": 0,
+            "lectura": "Salvado matemáticamente: tiene 78 puntos y SD Huesca solo puede llegar a 43."
           }
         ],
         "objetivos_vivos": [],
@@ -2389,6 +2653,42 @@
             "override_oficial_jornada": true,
             "lectura": "Se juega objetivo competitivo real en la ultima jornada. Debe pesar mas que un rival con objetivo cerrado.",
             "puntos_necesarios_para_asegurar": 1
+          },
+          {
+            "objetivo": "ascenso_directo",
+            "estado": "aspira_matematicamente",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": -6,
+            "corte_equipo": "RC Deportivo de La Coruna",
+            "corte_puntos_actuales": 74,
+            "puntos_necesarios_para_entrar": 6,
+            "depende_de_rivales": false,
+            "lectura": "Está fuera de ascenso directo, pero puede alcanzarlo: necesita 6 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
+          },
+          {
+            "objetivo": "playoff_ascenso",
+            "estado": "defiende_plaza",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": 3,
+            "corte_equipo": "Burgos CF",
+            "corte_puntos_actuales": 66,
+            "corte_maximo_puntos": 72,
+            "puntos_necesarios_para_asegurar": 4,
+            "lectura": "Defiende plaza de playoff ascenso con 3 puntos sobre Burgos CF. Para asegurarla por puntos necesita 4 puntos más."
+          },
+          {
+            "objetivo": "situacion_final",
+            "estado": "salvado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 32,
+            "corte_equipo": "SD Huesca",
+            "corte_puntos_actuales": 37,
+            "corte_maximo_puntos": 43,
+            "puntos_necesarios_para_salvarse": 0,
+            "lectura": "Salvado matemáticamente: tiene 69 puntos y SD Huesca solo puede llegar a 43."
           }
         ],
         "objetivos_vivos": [
@@ -2745,6 +3045,42 @@
             "override_oficial_jornada": true,
             "lectura": "Se juega entrar en promocion/playoff. Objetivo vivo real.",
             "puntos_necesarios_para_entrar": 3
+          },
+          {
+            "objetivo": "playoff_ascenso",
+            "estado": "aspira_matematicamente",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": -3,
+            "corte_equipo": "CD Castellon",
+            "corte_puntos_actuales": 66,
+            "puntos_necesarios_para_entrar": 3,
+            "depende_de_rivales": false,
+            "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 3 puntos para superar sin desempates el corte de CD Castellon."
+          },
+          {
+            "objetivo": "ascenso_directo",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -11,
+            "corte_equipo": "RC Deportivo de La Coruna",
+            "corte_puntos_actuales": 74,
+            "puntos_necesarios_para_entrar": 11,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a ascenso directo: su máximo es 70 y el corte actual de RC Deportivo de La Coruna está en 74."
+          },
+          {
+            "objetivo": "situacion_final",
+            "estado": "salvado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 27,
+            "corte_equipo": "SD Huesca",
+            "corte_puntos_actuales": 37,
+            "corte_maximo_puntos": 43,
+            "puntos_necesarios_para_salvarse": 0,
+            "lectura": "Salvado matemáticamente: tiene 64 puntos y SD Huesca solo puede llegar a 43."
           }
         ],
         "objetivos_vivos": [
@@ -2807,6 +3143,42 @@
             "override_oficial_jornada": true,
             "lectura": "Sin opciones reales de promocion/playoff. No debe salir como equipo con objetivo vivo.",
             "puntos_necesarios_para_entrar": null
+          },
+          {
+            "objetivo": "playoff_ascenso",
+            "estado": "aspira_por_desempate_o_fallo_ajeno",
+            "vivo": true,
+            "terminal": false,
+            "distancia_o_colchon": -7,
+            "corte_equipo": "CD Castellon",
+            "corte_puntos_actuales": 66,
+            "puntos_necesarios_para_entrar": 7,
+            "depende_de_rivales": true,
+            "lectura": "Solo puede igualar el corte de playoff ascenso; necesita pleno y dependería de desempates o fallos de CD Castellon."
+          },
+          {
+            "objetivo": "ascenso_directo",
+            "estado": "sin_opciones_matematicas",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": -15,
+            "corte_equipo": "RC Deportivo de La Coruna",
+            "corte_puntos_actuales": 74,
+            "puntos_necesarios_para_entrar": 15,
+            "depende_de_rivales": true,
+            "lectura": "No llega por puntos a ascenso directo: su máximo es 66 y el corte actual de RC Deportivo de La Coruna está en 74."
+          },
+          {
+            "objetivo": "situacion_final",
+            "estado": "salvado_matematicamente",
+            "vivo": false,
+            "terminal": true,
+            "distancia_o_colchon": 23,
+            "corte_equipo": "SD Huesca",
+            "corte_puntos_actuales": 37,
+            "corte_maximo_puntos": 43,
+            "puntos_necesarios_para_salvarse": 0,
+            "lectura": "Salvado matemáticamente: tiene 60 puntos y SD Huesca solo puede llegar a 43."
           }
         ],
         "objetivos_vivos": [],
@@ -3969,7 +4341,7 @@
     ]
   },
   "objetivos_oficiales_jornada": {
-    "aplicados_en": "2026-05-22T18:01:06.806005+00:00",
+    "aplicados_en": "2026-05-22T18:01:24.803066+00:00",
     "fuente": "data/memoria_ia/objetivos_jornada_actual.json",
     "equipos": [
       "RC Celta de Vigo",
@@ -3981,528 +4353,5 @@
       "SD Eibar",
       "Cordoba CF"
     ]
-  },
-  "patrones_aprendidos": {
-    "version": "1.0",
-    "generado_en": "2026-05-22T18:01:05.777316+00:00",
-    "descripcion": "Patrones aprendidos de resultados reales de 1a y 2a para no tratar como fijos tranquilos partidos con objetivos cerrados contra rivales necesitados.",
-    "patrones": {
-      "equipo_necesitado_vs_equipo_sin_objetivo": {
-        "casos": 406,
-        "sorpresas": 221,
-        "tasa_sorpresa": 54.4,
-        "ejemplos": [
-          {
-            "liga": "segunda",
-            "jornada_liga": 34,
-            "partido": "SD Eibar - AD Ceuta FC",
-            "resultado": "3-0",
-            "signo_real": "1",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 35,
-            "partido": "Burgos CF - Sporting Gijón",
-            "resultado": "1-0",
-            "signo_real": "1",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 35,
-            "partido": "CD Leganés - Albacete",
-            "resultado": "2-1",
-            "signo_real": "1",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 35,
-            "partido": "Real Valladolid - SD Eibar",
-            "resultado": "0-0",
-            "signo_real": "X",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 36,
-            "partido": "Real Zaragoza - AD Ceuta FC",
-            "resultado": "2-2",
-            "signo_real": "X",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 37,
-            "partido": "Albacete - SD Eibar",
-            "resultado": "0-3",
-            "signo_real": "2",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 37,
-            "partido": "Granada CF - UD Almería",
-            "resultado": "2-4",
-            "signo_real": "2",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 38,
-            "partido": "UD Las Palmas - Real Valladolid",
-            "resultado": "2-1",
-            "signo_real": "1",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 38,
-            "partido": "Real Sociedad B - Burgos CF",
-            "resultado": "0-0",
-            "signo_real": "X",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 39,
-            "partido": "Málaga CF - Sporting Gijón",
-            "resultado": "2-1",
-            "signo_real": "1",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 39,
-            "partido": "AD Ceuta FC - CD Castellón",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 40,
-            "partido": "AD Ceuta FC - Málaga CF",
-            "resultado": "1-4",
-            "signo_real": "2",
-            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-          }
-        ]
-      },
-      "local_descenso_vs_visitante_favorito": {
-        "casos": 141,
-        "sorpresas": 75,
-        "tasa_sorpresa": 53.2,
-        "ejemplos": [
-          {
-            "liga": "segunda",
-            "jornada_liga": 26,
-            "partido": "CD Mirandés - UD Las Palmas",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 29,
-            "partido": "SD Huesca - Albacete",
-            "resultado": "0-0",
-            "signo_real": "X",
-            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 30,
-            "partido": "Real Zaragoza - UD Almería",
-            "resultado": "2-0",
-            "signo_real": "1",
-            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 31,
-            "partido": "CD Mirandés - Real Valladolid",
-            "resultado": "2-1",
-            "signo_real": "1",
-            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 31,
-            "partido": "CD Leganés - AD Ceuta FC",
-            "resultado": "5-2",
-            "signo_real": "1",
-            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 32,
-            "partido": "Real Zaragoza - Racing Santander",
-            "resultado": "2-0",
-            "signo_real": "1",
-            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 33,
-            "partido": "CD Mirandés - Albacete",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 34,
-            "partido": "Cultural Leonesa - Real Valladolid",
-            "resultado": "1-0",
-            "signo_real": "1",
-            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 35,
-            "partido": "CD Leganés - Albacete",
-            "resultado": "2-1",
-            "signo_real": "1",
-            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 35,
-            "partido": "CD Mirandés - CD Castellón",
-            "resultado": "2-2",
-            "signo_real": "X",
-            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 35,
-            "partido": "SD Huesca - Deportivo La Coruña",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 36,
-            "partido": "Real Zaragoza - AD Ceuta FC",
-            "resultado": "2-2",
-            "signo_real": "X",
-            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-          }
-        ]
-      },
-      "necesitado_local_vs_visitante_objetivo_cerrado": {
-        "casos": 203,
-        "sorpresas": 130,
-        "tasa_sorpresa": 64.0,
-        "ejemplos": [
-          {
-            "liga": "segunda",
-            "jornada_liga": 33,
-            "partido": "Burgos CF - AD Ceuta FC",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 33,
-            "partido": "CD Mirandés - Albacete",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 33,
-            "partido": "Deportivo La Coruña - Córdoba CF",
-            "resultado": "2-0",
-            "signo_real": "1",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 33,
-            "partido": "UD Las Palmas - Granada CF",
-            "resultado": "2-0",
-            "signo_real": "1",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 34,
-            "partido": "CD Castellón - Granada CF",
-            "resultado": "3-2",
-            "signo_real": "1",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 34,
-            "partido": "Cultural Leonesa - Real Valladolid",
-            "resultado": "1-0",
-            "signo_real": "1",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 34,
-            "partido": "SD Eibar - AD Ceuta FC",
-            "resultado": "3-0",
-            "signo_real": "1",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 35,
-            "partido": "Burgos CF - Sporting Gijón",
-            "resultado": "1-0",
-            "signo_real": "1",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 35,
-            "partido": "CD Leganés - Albacete",
-            "resultado": "2-1",
-            "signo_real": "1",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 36,
-            "partido": "Real Zaragoza - AD Ceuta FC",
-            "resultado": "2-2",
-            "signo_real": "X",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 38,
-            "partido": "UD Las Palmas - Real Valladolid",
-            "resultado": "2-1",
-            "signo_real": "1",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 39,
-            "partido": "Málaga CF - Sporting Gijón",
-            "resultado": "2-1",
-            "signo_real": "1",
-            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-          }
-        ]
-      },
-      "visitante_descenso_vs_local_favorito": {
-        "casos": 139,
-        "sorpresas": 48,
-        "tasa_sorpresa": 34.5,
-        "ejemplos": [
-          {
-            "liga": "segunda",
-            "jornada_liga": 21,
-            "partido": "FC Andorra - Cultural Leonesa",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 23,
-            "partido": "FC Andorra - SD Huesca",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 26,
-            "partido": "Burgos CF - Cádiz CF",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 27,
-            "partido": "CD Leganés - Cultural Leonesa",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 28,
-            "partido": "Sporting Gijón - CD Leganés",
-            "resultado": "0-0",
-            "signo_real": "X",
-            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 29,
-            "partido": "Cádiz CF - Real Zaragoza",
-            "resultado": "0-1",
-            "signo_real": "2",
-            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 31,
-            "partido": "CD Castellón - Cultural Leonesa",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 32,
-            "partido": "Córdoba CF - CD Mirandés",
-            "resultado": "2-2",
-            "signo_real": "X",
-            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 32,
-            "partido": "Málaga CF - CD Leganés",
-            "resultado": "0-0",
-            "signo_real": "X",
-            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 33,
-            "partido": "CD Leganés - Real Zaragoza",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 40,
-            "partido": "CD Castellón - Cádiz CF",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 40,
-            "partido": "CD Leganés - SD Huesca",
-            "resultado": "0-0",
-            "signo_real": "X",
-            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-          }
-        ]
-      },
-      "visitante_necesitado_vs_local_objetivo_cerrado": {
-        "casos": 203,
-        "sorpresas": 91,
-        "tasa_sorpresa": 44.8,
-        "ejemplos": [
-          {
-            "liga": "segunda",
-            "jornada_liga": 32,
-            "partido": "Córdoba CF - CD Mirandés",
-            "resultado": "2-2",
-            "signo_real": "X",
-            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 32,
-            "partido": "Real Valladolid - Burgos CF",
-            "resultado": "0-1",
-            "signo_real": "2",
-            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 32,
-            "partido": "Sporting Gijón - Deportivo La Coruña",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 33,
-            "partido": "FC Andorra - Málaga CF",
-            "resultado": "3-3",
-            "signo_real": "X",
-            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 33,
-            "partido": "Real Sociedad B - SD Eibar",
-            "resultado": "0-1",
-            "signo_real": "2",
-            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 34,
-            "partido": "Albacete - Burgos CF",
-            "resultado": "2-3",
-            "signo_real": "2",
-            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 35,
-            "partido": "Real Valladolid - SD Eibar",
-            "resultado": "0-0",
-            "signo_real": "X",
-            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 37,
-            "partido": "Albacete - SD Eibar",
-            "resultado": "0-3",
-            "signo_real": "2",
-            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 37,
-            "partido": "Granada CF - UD Almería",
-            "resultado": "2-4",
-            "signo_real": "2",
-            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 38,
-            "partido": "Real Sociedad B - Burgos CF",
-            "resultado": "0-0",
-            "signo_real": "X",
-            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 39,
-            "partido": "AD Ceuta FC - CD Castellón",
-            "resultado": "1-1",
-            "signo_real": "X",
-            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-          },
-          {
-            "liga": "segunda",
-            "jornada_liga": 40,
-            "partido": "AD Ceuta FC - Málaga CF",
-            "resultado": "1-4",
-            "signo_real": "2",
-            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-          }
-        ]
-      }
-    },
-    "regla_uso": "Si un patron supera el 30% de sorpresa, sube incertidumbre; si supera el 45%, recomienda cobertura cuando haya dobles/triples."
   }
 }
