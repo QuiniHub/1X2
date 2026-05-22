@@ -2204,6 +2204,8 @@
 
 
 
+
+
     function signosElige8Web(item) {
       const partido = item?.partido || item || {};
       const signos = String(item?.signos || partido.signo_final || partido.signo_base || "")
@@ -3156,6 +3158,7 @@
 
 
 
+
     function normalizarCompetitivoTextoBoleto(texto) {
       return norm(String(texto || "").replaceAll("_", " "));
     }
@@ -3247,6 +3250,7 @@
 
       return Math.min(bonus, 110);
     }
+
 
 
 
@@ -3460,10 +3464,18 @@
       else if (tercera < 8) score -= 70;
       else score -= 35;
 
+      const dueloNecesidades = localNecesita && visitanteNecesita;
+      const necesitadoVsCerrado = (localNecesita && visitanteCerrado) || (visitanteNecesita && localCerrado);
+      const ambosCerrados = localCerrado && visitanteCerrado;
+
       if (top === "X" && tercera >= 18) score += 25;
-      if (localNecesita && visitanteNecesita) score += 70;
-      if ((localDescenso || visitanteDescenso) && localNecesita && visitanteNecesita) score += 45;
-      if ((localNecesita && visitanteCerrado) || (visitanteNecesita && localCerrado)) score += 35;
+      if (dueloNecesidades) score += 95;
+      if ((localDescenso || visitanteDescenso) && dueloNecesidades) score += 60;
+      if (necesitadoVsCerrado) {
+        score -= 55;
+        if (tercera >= 22 && margenProbabilidadBoleto(partido) <= 10) score += 25;
+      }
+      if (ambosCerrados) score -= 35;
       return score;
     }
 
@@ -3473,9 +3485,20 @@
       const top = signoTopProbabilidad(partido.probabilidades || {});
       let score = prioridadCoberturaAnalisis(partido);
 
+      const localComp = partido.contexto_competitivo_local;
+      const visitanteComp = partido.contexto_competitivo_visitante;
+      const localNecesita = equipoNecesidadVivaBoleto(localComp);
+      const visitanteNecesita = equipoNecesidadVivaBoleto(visitanteComp);
+      const localCerrado = equipoObjetivoCerradoBoleto(localComp);
+      const visitanteCerrado = equipoObjetivoCerradoBoleto(visitanteComp);
+      const dueloNecesidades = localNecesita && visitanteNecesita;
+      const necesitadoVsCerrado = (localNecesita && visitanteCerrado) || (visitanteNecesita && localCerrado);
+
       if (tercera < 10) score += 45;
       else if (tercera >= 22) score -= 50;
       if (margen < 12) score += 30;
+      if (necesitadoVsCerrado) score += 55;
+      if (dueloNecesidades && margen < 14) score += 25;
       if (top === "X") score += 8;
       return score;
     }

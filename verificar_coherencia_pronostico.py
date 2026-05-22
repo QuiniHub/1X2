@@ -14,6 +14,8 @@ REGLAS_INDEX = {
     "riesgo_real_no_bonus_crudo": "riesgo_necesidad: riesgoNecesidad",
     "prioridad_cobertura_base_web": "function prioridadCoberturaAnalisis",
     "prioridad_triples_web": "prioridadTripleAnalisis(b) - prioridadTripleAnalisis(a)",
+    "duelo_necesidades_web": "dueloNecesidades",
+    "necesitado_vs_cerrado_web": "necesitadoVsCerrado",
     "prioridad_dobles_web": "prioridadDobleAnalisis(b) - prioridadDobleAnalisis(a)",
     "riesgo_fijo_legible_web": "function riesgoFijoLegible",
 }
@@ -21,6 +23,8 @@ REGLAS_INDEX = {
 REGLAS_MOTOR = {
     "prioridad_cobertura_motor": "def prioridad_cobertura",
     "prioridad_triples_motor": "def prioridad_triple",
+    "duelo_necesidades_motor": "duelo_necesidades",
+    "necesitado_vs_cerrado_motor": "necesitado_vs_cerrado",
     "prioridad_dobles_motor": "def prioridad_doble",
     "riesgo_real_motor": "def riesgo_necesidad_real",
     "choque_necesidades": "Choque de necesidades vivas",

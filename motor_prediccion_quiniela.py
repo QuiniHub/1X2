@@ -632,14 +632,23 @@ def prioridad_triple(partido):
     else:
         score -= 35
 
+    duelo_necesidades = local_necesita and visitante_necesita
+    necesitado_vs_cerrado = (local_necesita and visitante_cerrado) or (visitante_necesita and local_cerrado)
+    ambos_cerrados = local_cerrado and visitante_cerrado
+    margen = valores[0] - valores[1] if len(valores) > 1 else 0
+
     if top == "X" and tercera >= 18:
         score += 25
-    if local_necesita and visitante_necesita:
-        score += 70
-    if (local_descenso or visitante_descenso) and local_necesita and visitante_necesita:
-        score += 45
-    if (local_necesita and visitante_cerrado) or (visitante_necesita and local_cerrado):
-        score += 35
+    if duelo_necesidades:
+        score += 95
+    if (local_descenso or visitante_descenso) and duelo_necesidades:
+        score += 60
+    if necesitado_vs_cerrado:
+        score -= 55
+        if tercera >= 22 and margen <= 10:
+            score += 25
+    if ambos_cerrados:
+        score -= 35
     return score
 
 
@@ -651,12 +660,25 @@ def prioridad_doble(partido):
     top = signo_top(probs)
     score = prioridad_cobertura(partido)
 
+    local_comp = partido.get("contexto_competitivo_local")
+    visitante_comp = partido.get("contexto_competitivo_visitante")
+    local_necesita = necesidad_viva_motor(local_comp)
+    visitante_necesita = necesidad_viva_motor(visitante_comp)
+    local_cerrado = objetivo_cerrado_motor(local_comp)
+    visitante_cerrado = objetivo_cerrado_motor(visitante_comp)
+    duelo_necesidades = local_necesita and visitante_necesita
+    necesitado_vs_cerrado = (local_necesita and visitante_cerrado) or (visitante_necesita and local_cerrado)
+
     if tercera < 10:
         score += 45
     elif tercera >= 22:
         score -= 50
     if margen < 12:
         score += 30
+    if necesitado_vs_cerrado:
+        score += 55
+    if duelo_necesidades and margen < 14:
+        score += 25
     if top == "X":
         score += 8
     return score
