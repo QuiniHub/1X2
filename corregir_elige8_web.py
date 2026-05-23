@@ -97,6 +97,8 @@ BLOQUE_GENERAR_NUEVO = r'''      const elige8Set = new Set();
 
 LECTURA_ANTIGUA = "porque concentra la proteccion en los partidos cubiertos y en los fijos mas limpios."
 LECTURA_NUEVA = "porque marca los 8 partidos con mayor probabilidad cubierta por la jugada final: triples primero si existen, luego dobles fuertes y despues fijos fiables."
+COSTE_ELIGE8_ANTIGUO = "const importeElige8 = elige8 ? 0.50 : 0;"
+COSTE_ELIGE8_NUEVO = "const importeElige8 = elige8 ? apuestas * 0.50 : 0;"
 
 
 def reemplazar_funciones(html):
@@ -132,12 +134,13 @@ def main():
         raise SystemExit("No encuentro ni el bloque viejo ni el bloque nuevo de Elige 8 en generarBoletoIA")
 
     html = html.replace(LECTURA_ANTIGUA, LECTURA_NUEVA)
+    html = html.replace(COSTE_ELIGE8_ANTIGUO, COSTE_ELIGE8_NUEVO)
 
     if html != original:
         INDEX.write_text(html, encoding="utf-8")
-        print("Elige 8 web corregido por probabilidad cubierta.")
+        print("Elige 8 web corregido por probabilidad cubierta y coste por apuesta.")
     else:
-        print("Elige 8 web ya estaba corregido por probabilidad cubierta.")
+        print("Elige 8 web ya estaba corregido por probabilidad cubierta y coste por apuesta.")
 
 
 if __name__ == "__main__":
