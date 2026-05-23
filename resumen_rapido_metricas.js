@@ -172,7 +172,44 @@
     `;
   }
 
+  function activarMejoraXCercana() {
+    if (window.__mejoraXCercanaActiva || typeof window.prioridadDobleAnalisis !== "function") return;
+    window.__mejoraXCercanaActiva = true;
+    const prioridadOriginal = window.prioridadDobleAnalisis;
+
+    function ordenProbabilidades(probs) {
+      return Object.entries(probs || {})
+        .map(([signo, valor]) => [signo, Number(valor || 0)])
+        .sort((a, b) => b[1] - a[1]);
+    }
+
+    function objetivoVivo(datos) {
+      if (!datos) return false;
+      const texto = JSON.stringify(datos).toLowerCase();
+      return texto.includes("descenso") || texto.includes("permanencia") || texto.includes("playoff") || texto.includes("ascenso") || texto.includes("defiende") || texto.includes("aspira") || texto.includes("europa") || texto.includes("conference");
+    }
+
+    function mejoraXCercana(partido) {
+      const orden = ordenProbabilidades(partido?.probabilidades || {});
+      if (orden.length < 2) return 0;
+      const [primero, segundo] = orden;
+      const margen = primero[1] - segundo[1];
+      const xCerca = segundo[0] === "X" && margen <= 12 && primero[1] < 58;
+      const necesidad = Boolean(partido?.riesgo_necesidad || partido?.riesgo_necesidad_real) || objetivoVivo(partido?.contexto_competitivo_local) || objetivoVivo(partido?.contexto_competitivo_visitante);
+      if (!xCerca || !necesidad) return 0;
+      let bonus = 180;
+      if (margen <= 8) bonus += 80;
+      if (Number(partido?.probabilidad_sorpresa || 0) >= 60 || Number(partido?.incertidumbre || 0) >= 180) bonus += 60;
+      return bonus;
+    }
+
+    window.prioridadDobleAnalisis = function prioridadDobleAnalisisConXCercana(partido) {
+      return prioridadOriginal(partido) + mejoraXCercana(partido);
+    };
+  }
+
   async function initResumenRapidoMetricas() {
+    activarMejoraXCercana();
     const contenedor = document.getElementById("prediccion-resumen");
     if (!contenedor || document.getElementById("resumen-rapido-metricas")) return;
 
