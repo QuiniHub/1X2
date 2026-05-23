@@ -1,5 +1,6 @@
 (function () {
   const CACHE = "?v=" + Date.now();
+  const PRECIO_ELIGE8 = 0.50;
 
   function euros(valor) {
     const n = Number(valor || 0);
@@ -38,8 +39,39 @@
       return total * Math.max(limpios.length || 1, 1);
     }, 1);
     const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
-    const importeElige8 = elige8 ? 0.50 : 0;
+    const importeElige8 = elige8 ? PRECIO_ELIGE8 : 0;
     return { apuestas, importe: importeQuiniela + importeElige8 };
+  }
+
+  function costePrediccionActual(prediccion) {
+    const coste = prediccion.coste || {};
+    const config = prediccion.configuracion || {};
+    const importeQuiniela = Number.isFinite(Number(coste.importe_quiniela))
+      ? Number(coste.importe_quiniela)
+      : Math.max(Number(coste.apuestas || 1) * 0.75, 1.50);
+    const importeElige8Actual = Number.isFinite(Number(coste.importe_elige8))
+      ? Number(coste.importe_elige8)
+      : (config.elige8 ? PRECIO_ELIGE8 : 0);
+    const totalActual = Number.isFinite(Number(coste.importe_total))
+      ? Number(coste.importe_total)
+      : importeQuiniela + importeElige8Actual;
+    const totalConElige8 = config.elige8 ? totalActual : importeQuiniela + PRECIO_ELIGE8;
+
+    return {
+      importeQuiniela,
+      importeElige8Actual,
+      totalActual,
+      totalConElige8,
+      elige8Activado: Boolean(config.elige8)
+    };
+  }
+
+  function textoCostePrediccion(prediccion) {
+    const coste = costePrediccionActual(prediccion);
+    if (coste.elige8Activado) {
+      return `Coste quiniela: ${euros(coste.importeQuiniela)} · Elige 8: ${euros(coste.importeElige8Actual || PRECIO_ELIGE8)} · Total: ${euros(coste.totalActual)}.`;
+    }
+    return `Coste quiniela: ${euros(coste.importeQuiniela)} · Si añades Elige 8: +${euros(PRECIO_ELIGE8)} · Total con Elige 8: ${euros(coste.totalConElige8)}.`;
   }
 
   function calcularMetricas(historial) {
@@ -113,19 +145,19 @@
 
   function renderMetricas(prediccion, metricas) {
     const signos = signosPrediccion(prediccion);
-    const coste = prediccion.coste || {};
     const config = prediccion.configuracion || {};
     const porTipo = metricas.porTipo;
     const ultimas = metricas.evolucion.slice(-5).map(x => `J${x.jornada}: ${x.aciertos}/14`).join(" · ") || "sin histórico validado";
     const razones = razonesClave(prediccion);
     const precisionGlobal = pct(metricas.aciertos, metricas.partidos);
     const roiTecnico = metricas.jornadas ? `Coste simulado validado: ${euros(metricas.coste)}. Premios/ROI real: pendiente de integrar escrutinio oficial.` : "Sin coste histórico validado todavía.";
+    const costeTexto = textoCostePrediccion(prediccion);
 
     return `
       <div class="boleto-resumen" id="resumen-rapido-metricas">
         <h3>Resumen rápido</h3>
         <p><strong>¿Qué jugar ahora?</strong><br>
-          Jornada ${prediccion.jornada || "-"}: ${signos.join(" ") || "sin signos"}. ${config.dobles || 0} dobles · ${config.triples || 0} triples${config.elige8 ? " · Elige 8" : ""}. Coste: ${euros(coste.importe_total || 1.5)}.
+          Jornada ${prediccion.jornada || "-"}: ${signos.join(" ") || "sin signos"}. ${config.dobles || 0} dobles · ${config.triples || 0} triples${config.elige8 ? " · Elige 8" : ""}. ${costeTexto}
         </p>
         <p><strong>¿Por qué lo recomienda?</strong><br>
           ${(razones.length ? razones : ["El modelo combina probabilidad, forma, casa/fuera, contexto competitivo y riesgo de sorpresa."]).join("<br>")}
