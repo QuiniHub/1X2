@@ -1,6 +1,7 @@
 (function () {
   const CACHE = "?v=" + Date.now();
-  const PRECIO_ELIGE8 = 0.50;
+  const PRECIO_APUESTA_QUINIELA = 0.75;
+  const PRECIO_ELIGE8_POR_APUESTA = 0.50;
 
   function euros(valor) {
     const n = Number(valor || 0);
@@ -33,34 +34,34 @@
     return "";
   }
 
-  function costeJugada(signos, elige8) {
-    const apuestas = signos.reduce((total, signo) => {
+  function apuestasDesdeSignos(signos) {
+    return signos.reduce((total, signo) => {
       const limpios = String(signo || "").replace(/[^1X2]/g, "");
       return total * Math.max(limpios.length || 1, 1);
     }, 1);
-    const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
-    const importeElige8 = elige8 ? PRECIO_ELIGE8 : 0;
+  }
+
+  function costeJugada(signos, elige8) {
+    const apuestas = apuestasDesdeSignos(signos);
+    const importeQuiniela = Math.max(apuestas * PRECIO_APUESTA_QUINIELA, 1.50);
+    const importeElige8 = elige8 ? apuestas * PRECIO_ELIGE8_POR_APUESTA : 0;
     return { apuestas, importe: importeQuiniela + importeElige8 };
   }
 
   function costePrediccionActual(prediccion) {
     const coste = prediccion.coste || {};
     const config = prediccion.configuracion || {};
-    const importeQuiniela = Number.isFinite(Number(coste.importe_quiniela))
-      ? Number(coste.importe_quiniela)
-      : Math.max(Number(coste.apuestas || 1) * 0.75, 1.50);
-    const importeElige8Actual = Number.isFinite(Number(coste.importe_elige8))
-      ? Number(coste.importe_elige8)
-      : (config.elige8 ? PRECIO_ELIGE8 : 0);
-    const totalActual = Number.isFinite(Number(coste.importe_total))
-      ? Number(coste.importe_total)
-      : importeQuiniela + importeElige8Actual;
-    const totalConElige8 = config.elige8 ? totalActual : importeQuiniela + PRECIO_ELIGE8;
+    const apuestas = Number(coste.apuestas || apuestasDesdeSignos(signosPrediccion(prediccion)) || 1);
+    const importeQuiniela = Math.max(apuestas * PRECIO_APUESTA_QUINIELA, 1.50);
+    const importeElige8Correcto = apuestas * PRECIO_ELIGE8_POR_APUESTA;
+    const totalConElige8 = importeQuiniela + importeElige8Correcto;
+    const totalSinElige8 = importeQuiniela;
 
     return {
+      apuestas,
       importeQuiniela,
-      importeElige8Actual,
-      totalActual,
+      importeElige8Correcto,
+      totalActual: config.elige8 ? totalConElige8 : totalSinElige8,
       totalConElige8,
       elige8Activado: Boolean(config.elige8)
     };
@@ -69,9 +70,9 @@
   function textoCostePrediccion(prediccion) {
     const coste = costePrediccionActual(prediccion);
     if (coste.elige8Activado) {
-      return `Coste quiniela: ${euros(coste.importeQuiniela)} · Elige 8: ${euros(coste.importeElige8Actual || PRECIO_ELIGE8)} · Total: ${euros(coste.totalActual)}.`;
+      return `Coste quiniela: ${euros(coste.importeQuiniela)} · Elige 8 (${coste.apuestas} apuestas x 0,50 €): ${euros(coste.importeElige8Correcto)} · Total: ${euros(coste.totalActual)}.`;
     }
-    return `Coste quiniela: ${euros(coste.importeQuiniela)} · Si añades Elige 8: +${euros(PRECIO_ELIGE8)} · Total con Elige 8: ${euros(coste.totalConElige8)}.`;
+    return `Coste quiniela: ${euros(coste.importeQuiniela)} · Si añades Elige 8 (${coste.apuestas} apuestas x 0,50 €): +${euros(coste.importeElige8Correcto)} · Total con Elige 8: ${euros(coste.totalConElige8)}.`;
   }
 
   function calcularMetricas(historial) {
