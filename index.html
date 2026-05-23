@@ -2047,7 +2047,7 @@
     function importeEstrategiaApuesta(dobles, triples, elige8) {
       const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
       const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
-      const importeElige8 = elige8 ? 0.50 : 0;
+      const importeElige8 = elige8 ? apuestas * 0.50 : 0;
       return { apuestas, importeQuiniela, importeElige8, importeTotal: importeQuiniela + importeElige8 };
     }
 
@@ -2173,6 +2173,8 @@
       if (vv > vl) return `Ajuste competitivo: pesa mas la necesidad de ${partido.visitante}. ${visitante?.objetivo_principal?.lectura || visitante?.lectura_resumen || ""}`.trim();
       return "Ajuste competitivo: motivacion parecida o sin diferencia clara.";
     }
+
+
 
 
 
@@ -3025,7 +3027,7 @@
 
       const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
       const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
-      const importeElige8 = elige8 ? 0.50 : 0;
+      const importeElige8 = elige8 ? apuestas * 0.50 : 0;
       const importeTotal = importeQuiniela + importeElige8;
 
       document.getElementById("num-sencillos").value = 14 - dobles - triples;
@@ -3455,6 +3457,7 @@
 
 
 
+
     function normalizarCompetitivoTextoBoleto(texto) {
       return norm(String(texto || "").replaceAll("_", " "));
     }
@@ -3546,6 +3549,7 @@
 
       return Math.min(bonus, 110);
     }
+
 
 
 
