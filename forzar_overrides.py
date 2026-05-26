@@ -1,57 +1,82 @@
 import json
+import re
+import unicodedata
 from pathlib import Path
 
-ROOT=Path(__file__).resolve().parent
-MEM=ROOT/'data'/'memoria_ia'
-CTX=MEM/'contexto_competitivo.json'
-OVR=MEM/'objetivos_jornada_actual.json'
 
-def load(p):
-    return json.loads(p.read_text(encoding='utf-8'))
+ROOT = Path(__file__).resolve().parent
+MEM = ROOT / "data" / "memoria_ia"
+CTX = MEM / "contexto_competitivo.json"
+OVR = MEM / "objetivos_jornada_actual.json"
 
-def save(p,x):
-    p.write_text(json.dumps(x,ensure_ascii=False,indent=2),encoding='utf-8')
 
-def key(s):
-    s=(s or '').lower()
-    for a,b in [('á','a'),('é','e'),('í','i'),('ó','o'),('ú','u'),('ü','u'),('ñ','n')]:
-        s=s.replace(a,b)
-    for t in [' real ',' club ',' fc ',' cf ',' cd ',' sd ',' ud ',' rc ',' de ',' del ',' la ',' el ']:
-        s=s.replace(t,' ')
-    return ''.join(c for c in s if c.isalnum())
+def load(path):
+    return json.loads(path.read_text(encoding="utf-8"))
 
-def find(name,ovs):
-    if name in ovs:
-        return ovs[name]
-    k=key(name)
-    for n,o in ovs.items():
-        if key(n)==k:
-            return o
+
+def save(path, data):
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def key(value):
+    text = unicodedata.normalize("NFD", str(value or "").lower())
+    text = "".join(c for c in text if unicodedata.category(c) != "Mn")
+    tokens = re.findall(r"[a-z0-9]+", text)
+    noise = {"real", "club", "fc", "cf", "cd", "sd", "ud", "rc", "de", "del", "la", "el"}
+    return "".join(token for token in tokens if token not in noise)
+
+
+def find(name, overrides):
+    if name in overrides:
+        return overrides[name]
+    name_key = key(name)
+    for override_name, override in overrides.items():
+        if key(override_name) == name_key:
+            return override
     return None
 
-def obj(o):
-    r={'objetivo':o.get('objetivo_principal','situacion_final'),'estado':o.get('estado','situacion_final'),'vivo':bool(o.get('vivo',False)),'terminal':bool(o.get('terminal',not o.get('vivo',False))),'override_oficial_jornada':True,'lectura':o.get('lectura','Objetivo oficial aplicado.')}
-    for c in ['puntos_necesarios_para_asegurar','puntos_necesarios_para_entrar','puntos_necesarios_para_salvarse','depende_de_rivales']:
-        if c in o:
-            r[c]=o[c]
-    return r
 
-ctx=load(CTX)
-ovs=load(OVR).get('equipos',{})
-for liga in ['primera','segunda']:
-    for e in ctx.get(liga,{}).get('equipos',[]):
-        o=find(e.get('equipo'),ovs)
-        if not o:
-            continue
-        r=obj(o)
-        e['objetivos']=[r]
-        e['objetivo_principal']=r
-        e['objetivos_vivos']=[r] if r.get('vivo') else []
-        e['motivacion_competitiva']=o.get('motivacion_competitiva','baja')
-        e['motivacion']=e['motivacion_competitiva']
-        e['situacion_competitiva']=o.get('situacion_competitiva',r.get('estado'))
-        e['lectura_resumen']=r['lectura']
-        e['override_oficial_jornada']=True
-ctx['version']='1.4'
-save(CTX,ctx)
-print('ok')
+def obj(override):
+    result = {
+        "objetivo": override.get("objetivo_principal", "situacion_final"),
+        "estado": override.get("estado", "situacion_final"),
+        "vivo": bool(override.get("vivo", False)),
+        "terminal": bool(override.get("terminal", not override.get("vivo", False))),
+        "override_oficial_jornada": True,
+        "lectura": override.get("lectura", "Objetivo oficial aplicado."),
+    }
+    for field in [
+        "puntos_necesarios_para_asegurar",
+        "puntos_necesarios_para_entrar",
+        "puntos_necesarios_para_salvarse",
+        "depende_de_rivales",
+    ]:
+        if field in override:
+            result[field] = override[field]
+    return result
+
+
+def main():
+    ctx = load(CTX)
+    overrides = load(OVR).get("equipos", {})
+    for liga in ["primera", "segunda"]:
+        for equipo in ctx.get(liga, {}).get("equipos", []):
+            override = find(equipo.get("equipo"), overrides)
+            if not override:
+                continue
+            objetivo = obj(override)
+            equipo["objetivos"] = [objetivo]
+            equipo["objetivo_principal"] = objetivo
+            equipo["objetivos_vivos"] = [objetivo] if objetivo.get("vivo") else []
+            equipo["motivacion_competitiva"] = override.get("motivacion_competitiva", "baja")
+            equipo["motivacion"] = equipo["motivacion_competitiva"]
+            equipo["situacion_competitiva"] = override.get("situacion_competitiva", objetivo.get("estado"))
+            equipo["lectura_resumen"] = objetivo["lectura"]
+            equipo["override_oficial_jornada"] = True
+    ctx["version"] = "1.4"
+    save(CTX, ctx)
+    print("ok")
+
+
+if __name__ == "__main__":
+    main()
