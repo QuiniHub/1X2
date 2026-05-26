@@ -1,4 +1,6 @@
 import json
+import re
+import unicodedata
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -51,9 +53,18 @@ def equipos(ctx):
             yield equipo
 
 
+def clave_equipo(nombre):
+    texto = unicodedata.normalize("NFD", str(nombre or "").lower())
+    texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
+    tokens = re.findall(r"[a-z0-9]+", texto)
+    ruido = {"fc", "cf", "cd", "sd", "ud", "rc", "real", "club", "de", "del", "la", "el"}
+    return "".join(token for token in tokens if token not in ruido)
+
+
 def buscar(ctx, nombre):
+    clave = clave_equipo(nombre)
     for equipo in equipos(ctx):
-        if equipo.get("equipo") == nombre:
+        if equipo.get("equipo") == nombre or clave_equipo(equipo.get("equipo")) == clave:
             return equipo
     return None
 
