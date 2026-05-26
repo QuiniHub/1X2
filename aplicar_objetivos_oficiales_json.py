@@ -1,4 +1,5 @@
 import json
+import re
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
@@ -25,9 +26,9 @@ def guardar(path, data):
 def norm(texto):
     texto = unicodedata.normalize("NFD", str(texto or "").lower())
     texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
-    for token in ("fc", "cf", "cd", "sd", "ud", "rc", "real", "club", "de", "del", "la", "el"):
-        texto = texto.replace(f" {token} ", " ")
-    return "".join(ch for ch in texto if ch.isalnum())
+    tokens = re.findall(r"[a-z0-9]+", texto)
+    ruido = {"fc", "cf", "cd", "sd", "ud", "rc", "real", "club", "de", "del", "la", "el"}
+    return "".join(token for token in tokens if token not in ruido)
 
 
 def encontrar_override(nombre, overrides):
