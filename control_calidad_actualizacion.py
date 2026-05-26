@@ -44,6 +44,25 @@ def buscar(tabla, nombre):
     return None
 
 
+def parse_resultado(valor):
+    match = re.match(r"^\s*(\d+)\s*-\s*(\d+)\s*$", str(valor or ""))
+    return bool(match)
+
+
+def partidos_jugados_calendario(path):
+    calendario = cargar_json(path, {})
+    conteo = {}
+    for jornada in calendario.get("jornadas", []):
+        for partido in jornada.get("partidos", []):
+            if not parse_resultado(partido.get("resultado")):
+                continue
+            for lado in ("local", "visitante"):
+                equipo = normalizar(partido.get(lado))
+                if equipo:
+                    conteo[equipo] = conteo.get(equipo, 0) + 1
+    return conteo
+
+
 def signo_valido(valor):
     return str(valor or "").strip().upper() in {"1", "X", "2"}
 
@@ -103,6 +122,24 @@ def diagnosticar_clasificacion(alertas):
                 alertas.append({"nivel": "alta", "titulo": f"Clasificación {liga} desordenada", "detalle": f"{equipo.get('equipo')} aparece con más puntos que el equipo anterior."})
                 break
             puntos_previos = puntos
+
+    calendarios = {
+        "primera": partidos_jugados_calendario(DATA / "calendario_primera.json"),
+        "segunda": partidos_jugados_calendario(DATA / "calendario_segunda.json"),
+    }
+    for liga, equipos in (("primera", primera), ("segunda", segunda)):
+        calendario = calendarios.get(liga, {})
+        for equipo in equipos:
+            nombre = normalizar(equipo.get("equipo"))
+            pj_tabla = int(equipo.get("pj", 0) or 0)
+            pj_calendario = calendario.get(nombre, 0)
+            if pj_calendario > pj_tabla:
+                alertas.append({
+                    "nivel": "critica",
+                    "titulo": f"Clasificacion {liga} congelada",
+                    "detalle": f"{equipo.get('equipo')} tiene {pj_tabla} PJ en tabla, pero el calendario ya tiene {pj_calendario} resultados.",
+                })
+                break
 
     ahora = datetime.now(timezone.utc)
     if datetime(2026, 5, 18, tzinfo=timezone.utc) <= ahora <= datetime(2026, 7, 1, tzinfo=timezone.utc):

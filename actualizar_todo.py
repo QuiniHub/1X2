@@ -13,6 +13,7 @@ SCRIPTS_ACTIVOS = [
     "aplicar_correcciones_resultados.py",
     "actualizar_clasificaciones_oficiales.py",
     "corregir_clasificacion_segunda.py",
+    "actualizar_ligas_football_data.py",
     "recalcular_dinamicas_calendario.py",
     "actualizar_contexto_equipos.py",
     "actualizar_analisis_ia.py",
