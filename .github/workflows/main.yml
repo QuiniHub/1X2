@@ -53,8 +53,6 @@ jobs:
           git config user.email "github-actions@github.com"
           git add index.html motor_prediccion_quiniela.py data/memoria_ia/contexto_competitivo.json data/memoria_ia/verificacion_pronostico_analisis.json data/memoria_ia/estado_vivo.json .github/workflows/main.yml verificar_coherencia_pronostico.py
           git diff --cached --quiet && echo "Alineacion ya aplicada" || git commit -m "Alinear pronostico y analisis en web"
-          git push
-          git pull --rebase origin main
 
       - name: Actualizar datos
         run: |
@@ -71,4 +69,4 @@ jobs:
           git config user.email "github-actions@github.com"
           git add .
           git diff --cached --quiet && echo "Sin cambios" || git commit -m "Actualizacion automatica completa"
-          git push
+          git push || (sleep 10 && git pull --rebase origin main && git push)
