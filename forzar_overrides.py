@@ -23,7 +23,11 @@ def key(value):
     text = "".join(c for c in text if unicodedata.category(c) != "Mn")
     tokens = re.findall(r"[a-z0-9]+", text)
     noise = {"real", "club", "fc", "cf", "cd", "sd", "ud", "rc", "de", "del", "la", "el"}
-    return "".join(token for token in tokens if token not in noise)
+    result = "".join(token for token in tokens if token not in noise)
+    aliases = {
+        "santander": "racingsantander",
+    }
+    return aliases.get(result, result)
 
 
 def find(name, overrides):
