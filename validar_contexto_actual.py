@@ -58,7 +58,11 @@ def clave_equipo(nombre):
     texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
     tokens = re.findall(r"[a-z0-9]+", texto)
     ruido = {"fc", "cf", "cd", "sd", "ud", "rc", "real", "club", "de", "del", "la", "el"}
-    return "".join(token for token in tokens if token not in ruido)
+    clave = "".join(token for token in tokens if token not in ruido)
+    alias = {
+        "santander": "racingsantander",
+    }
+    return alias.get(clave, clave)
 
 
 def buscar(ctx, nombre):
