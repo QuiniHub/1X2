@@ -2556,19 +2556,29 @@
       return signos.sort((a, b) => Number(probs[b] || 0) - Number(probs[a] || 0))[0] || "";
     }
 
+    function probabilidadObjetivoElige8Web(item) {
+      const partido = item?.partido || item || {};
+      const probs = partido.probabilidades || {};
+      const signo = signoObjetivoElige8Web(item);
+      return Number(probs[signo] || 0);
+    }
+
     function puntuacionElige8CobroWeb(item) {
       const partido = item?.partido || item || {};
       const probCubierta = probabilidadCubiertaElige8Web(item);
       const signos = signosElige8Web(item);
+      const signoObjetivo = signoObjetivoElige8Web(item);
+      const probObjetivo = probabilidadObjetivoElige8Web(item);
       const incertidumbre = Number(partido.incertidumbre || item?.riesgo || 0);
       const sorpresa = Number(partido.probabilidad_sorpresa || 0);
-      let score = probCubierta * 4 - incertidumbre * 0.05 - sorpresa * 0.08;
+      let score = probObjetivo * 3.6 + Math.min(probCubierta, 75) * 0.45 - incertidumbre * 0.16 - sorpresa * 0.24;
 
-      if (signos.length === 3) score += 30;
-      else if (signos.length === 2) score += 12;
-      else if (signos[0] === "X" && probCubierta < 55) score -= 20;
+      if (signos.length > 1) score -= 6 * (signos.length - 1);
+      if (signoObjetivo === "X" && probObjetivo < 55) score -= 22;
+      if (probObjetivo < 55) score -= 10;
+      if (probObjetivo >= 60 && signos.length === 1) score += 14;
 
-      if (partido.riesgo_necesidad_real || partido.riesgo_necesidad) score -= 1;
+      if (partido.riesgo_necesidad_real || partido.riesgo_necesidad) score -= 2;
       return score;
     }
 
@@ -2578,7 +2588,7 @@
           const scoreA = puntuacionElige8CobroWeb(a);
           const scoreB = puntuacionElige8CobroWeb(b);
           if (scoreA !== scoreB) return scoreB - scoreA;
-          return probabilidadCubiertaElige8Web(b) - probabilidadCubiertaElige8Web(a);
+          return probabilidadObjetivoElige8Web(b) - probabilidadObjetivoElige8Web(a);
         })
         .slice(0, 8);
     }
@@ -3114,11 +3124,11 @@
       if (!contenedor) return;
 
       contenedor.innerHTML = "";
-      for (let j = 1; j <= 64; j++) {
+      for (let j = 1; j <= 65; j++) {
         contenedor.innerHTML += botonJornadaQuiniela(j);
       }
 
-      abrirQuinielaIA(64);
+      abrirQuinielaIA(65);
     }
 
     function botonJornadaQuiniela(jornada) {

@@ -6,16 +6,28 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 PREDICCIONES = DATA / "predicciones"
-JUGADAS = DATA / "quinielas_jugadas"
+JUGADAS_ARCHIVO = DATA / "quinielas_jugadas.json"
 JORNADAS = DATA / "jornadas"
 MEMORIA_ELIGE8 = DATA / "memoria_ia" / "aprendizaje_elige8.json"
 
 
+PREMIOS_CONOCIDOS = {
+    63: {
+        "premio_cobrado": 5.72,
+        "premio_que_se_escapo": 572.0,
+        "nota": "Jornada 63: 10 aciertos totales y Elige 8 de 7/8.",
+    }
+}
+
 REGLA_BASE = (
-    "Elige 8 no se elige por partido interesante ni por cobertura: se eligen los 8 partidos "
-    "donde el signo base tiene mejor probabilidad real de acierto, penalizando incertidumbre, "
-    "riesgo de sorpresa y empates por debajo de zona claramente fiable."
+    "Elige 8 no se elige por partido interesante ni por cobertura: se eligen los 8 signos "
+    "con mejor probabilidad real de cobro, penalizando empates poco fiables, sorpresas y "
+    "partidos donde la cobertura tapa una lectura insegura."
 )
+
+
+def ahora():
+    return datetime.now(timezone.utc).isoformat()
 
 
 def cargar_json(path, defecto=None):
@@ -32,6 +44,11 @@ def cargar_json(path, defecto=None):
 def guardar_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def normalizar_signos(valor):
+    signos = "".join(ch for ch in str(valor or "").upper() if ch in "1X2")
+    return "".join(dict.fromkeys(signos))
 
 
 def prob_signo(partido, signo):
@@ -51,30 +68,34 @@ def prob_signo(partido, signo):
 
 
 def signo_base(partido):
-    signo = str(partido.get("signo_base") or "").strip()
-    if signo in {"1", "X", "2"}:
+    signo = normalizar_signos(partido.get("signo_base") or partido.get("signo_final"))
+    if len(signo) == 1:
         return signo
     probs = partido.get("probabilidades") or {}
     if not probs:
-        return ""
+        return signo[:1]
     return max(("1", "X", "2"), key=lambda s: prob_signo(partido, s))
 
 
 def puntuacion_elige8(partido):
     signo = signo_base(partido)
     prob = prob_signo(partido, signo)
+    signos_finales = normalizar_signos(partido.get("signo_final") or signo)
     incertidumbre = float(partido.get("incertidumbre") or 0)
     sorpresa = float(partido.get("probabilidad_sorpresa") or 0)
 
-    score = prob * 2.4 - incertidumbre * 0.22 - sorpresa * 0.30
+    score = prob * 3.2 - incertidumbre * 0.20 - sorpresa * 0.30
 
+    if len(signos_finales) > 1:
+        score -= 6 * (len(signos_finales) - 1)
     if signo == "X" and prob < 55:
-        score -= 12
-    elif signo == "X" and prob < 60:
-        score -= 5
-
-    if partido.get("riesgo_necesidad_real"):
-        score -= 3
+        score -= 22
+    if prob < 55:
+        score -= 10
+    if prob >= 60 and len(signos_finales) == 1:
+        score += 14
+    if partido.get("riesgo_necesidad_real") or partido.get("riesgo_necesidad"):
+        score -= 2
 
     return round(score, 3)
 
@@ -83,8 +104,8 @@ def explicar_entrada_elige8(partido):
     signo = signo_base(partido)
     prob = prob_signo(partido, signo)
     return (
-        f"Entra en Elige 8 por confianza de cobro: signo {signo} con {prob:.1f}% "
-        f"y puntuacion Elige 8 {puntuacion_elige8(partido):.1f}."
+        f"Entra en Elige 8 por probabilidad real de cobro: signo {signo} con {prob:.1f}% "
+        f"y puntuacion de cobro {puntuacion_elige8(partido):.1f}."
     )
 
 
@@ -93,7 +114,8 @@ def recalcular_elige8(prediccion):
     if not partidos:
         return False
 
-    tenia_elige8 = bool((prediccion.get("configuracion") or {}).get("elige8")) or any(p.get("elige8") for p in partidos)
+    config = prediccion.get("configuracion") or {}
+    tenia_elige8 = bool(config.get("elige8")) or any(p.get("elige8") for p in partidos)
     if not tenia_elige8:
         return False
 
@@ -130,10 +152,10 @@ def recalcular_elige8(prediccion):
         })
 
     prediccion["elige8_aprendizaje"] = {
-        "version": "1.0",
-        "generado_en": datetime.now(timezone.utc).isoformat(),
+        "version": "2.0",
+        "generado_en": ahora(),
         "regla_activa": REGLA_BASE,
-        "criterio": "ranking_por_probabilidad_de_cobro",
+        "criterio": "ranking_por_probabilidad_real_de_cobro",
         "ranking": ranking,
     }
     resumen = prediccion.setdefault("resumen", {})
@@ -144,38 +166,51 @@ def recalcular_elige8(prediccion):
 def signos_oficiales_jornada(jornada):
     data = cargar_json(JORNADAS / f"jornada_{jornada}.json", {})
     signos = {}
+    partidos = {}
     for partido in data.get("partidos", []):
         num = int(partido.get("num", 0) or 0)
-        signo = str(partido.get("signo_oficial") or partido.get("resultado_1x2") or "").strip().upper()
+        signo = normalizar_signos(partido.get("signo_oficial") or partido.get("resultado_1x2"))
+        if num:
+            partidos[num] = partido
         if num and signo in {"1", "X", "2"}:
             signos[num] = signo
-    return signos
+    return signos, partidos
 
 
-def actualizar_memoria(prediccion):
-    jornada = prediccion.get("jornada")
-    partidos = [p for p in prediccion.get("partidos", []) if int(p.get("num", 0) or 0) <= 14]
-    if not jornada or not partidos:
-        return
+def evaluar_jugada(jugada):
+    jornada = jugada.get("jornada")
+    oficiales, partidos = signos_oficiales_jornada(jornada)
+    signos = list(jugada.get("signos") or [])
+    seleccionados_elige8 = [int(n) for n in jugada.get("elige8", []) if str(n).isdigit()]
 
-    oficiales = signos_oficiales_jornada(jornada)
-    if not oficiales:
-        return
-
+    fallos = []
+    pendientes = []
     aciertos_totales = 0
     aciertos_elige8 = 0
-    seleccionados = []
     partido_rompio = None
 
-    for partido in partidos:
-        num = int(partido.get("num", 0) or 0)
+    for num in range(1, 15):
+        jugado = normalizar_signos(signos[num - 1] if num - 1 < len(signos) else "")
         oficial = oficiales.get(num)
-        signo = signo_base(partido)
-        acierto = bool(oficial and signo == oficial)
+        partido = partidos.get(num, {})
+
+        if not oficial:
+            pendientes.append(num)
+            continue
+
+        acierto = bool(jugado and oficial in jugado)
         if acierto:
             aciertos_totales += 1
-        if partido.get("elige8"):
-            seleccionados.append(num)
+        else:
+            fallos.append({
+                "num": num,
+                "local": partido.get("local"),
+                "visitante": partido.get("visitante"),
+                "jugado": jugado,
+                "oficial": oficial,
+            })
+
+        if num in seleccionados_elige8:
             if acierto:
                 aciertos_elige8 += 1
             elif partido_rompio is None:
@@ -183,59 +218,106 @@ def actualizar_memoria(prediccion):
                     "num": num,
                     "local": partido.get("local"),
                     "visitante": partido.get("visitante"),
-                    "pronostico": signo,
+                    "jugado": jugado,
                     "oficial": oficial,
-                    "probabilidad_pronostico": prob_signo(partido, signo),
                 }
 
-    memoria = cargar_json(MEMORIA_ELIGE8, {"version": "1.0", "jornadas": []})
-    jornadas = [j for j in memoria.get("jornadas", []) if j.get("jornada") != jornada]
-    premio_cobrado = 0.0
-    premio_escapado = 0.0
-    if aciertos_elige8 == 8:
-        regla = "La seleccion fue cobrable: mantener prioridad por probabilidad alta y baja incertidumbre."
+    cerrada = len(oficiales) == 14
+    premios = PREMIOS_CONOCIDOS.get(jornada, {})
+    if pendientes:
+        regla = "Jornada parcial: esperar resultados oficiales antes de aprender reglas fuertes."
+    elif partido_rompio:
+        regla = (
+            f"Elige 8 se rompio en el partido {partido_rompio['num']}; bajar prioridad a perfiles "
+            "similares si el signo elegido no es el mas fiable del boleto."
+        )
+    elif seleccionados_elige8:
+        regla = "Elige 8 completo: mantener prioridad por signos de mayor probabilidad real."
     else:
-        regla = "Si Elige 8 falla, revisar el primer fallo y bajar peso de perfiles parecidos aunque sean atractivos para cobertura."
+        regla = "Jornada sin Elige 8: aprender aciertos y fallos del boleto, sin regla especifica de Elige 8."
 
-    jornadas.append({
+    return {
         "jornada": jornada,
-        "generado_en": datetime.now(timezone.utc).isoformat(),
+        "estado": "cerrada" if cerrada else "parcial",
+        "validado_en": jugada.get("validado_en"),
+        "evaluado_en": ahora(),
+        "signos_jugados": signos,
+        "elige8": seleccionados_elige8,
         "aciertos_totales": aciertos_totales,
-        "aciertos_elige8": aciertos_elige8,
-        "seleccionados_elige8": seleccionados,
+        "fallos_totales": len(fallos),
+        "aciertos_elige8": aciertos_elige8 if seleccionados_elige8 else None,
+        "seleccionados_elige8": seleccionados_elige8,
         "partido_que_rompio_elige8": partido_rompio,
-        "premio_cobrado": premio_cobrado,
-        "premio_que_se_escapo": premio_escapado,
+        "fallos": fallos,
+        "partidos_pendientes": pendientes,
+        "premio_cobrado": premios.get("premio_cobrado", 0.0),
+        "premio_que_se_escapo": premios.get("premio_que_se_escapo", 0.0),
+        "nota_premio": premios.get("nota", ""),
         "regla_aprendida": regla,
-    })
-    memoria["jornadas"] = sorted(jornadas, key=lambda j: j.get("jornada") or 0)
-    memoria["ultima_regla_aprendida"] = regla
-    memoria["actualizado_en"] = datetime.now(timezone.utc).isoformat()
+    }
+
+
+def construir_memoria_desde_jugadas():
+    data = cargar_json(JUGADAS_ARCHIVO, {"jugadas": []})
+    jugadas = sorted(data.get("jugadas", []), key=lambda j: j.get("jornada") or 0)
+    evaluadas = [evaluar_jugada(j) for j in jugadas if j.get("jornada")]
+
+    cerradas = [j for j in evaluadas if j["estado"] == "cerrada"]
+    con_elige8 = [j for j in cerradas if j.get("seleccionados_elige8")]
+    resumen = {
+        "jugadas_evaluadas": len(evaluadas),
+        "jornadas_cerradas": len(cerradas),
+        "aciertos_totales": sum(j["aciertos_totales"] for j in cerradas),
+        "fallos_totales": sum(j["fallos_totales"] for j in cerradas),
+        "elige8_evaluados": len(con_elige8),
+        "aciertos_elige8": sum(j.get("aciertos_elige8") or 0 for j in con_elige8),
+        "selecciones_elige8": sum(len(j.get("seleccionados_elige8") or []) for j in con_elige8),
+        "premio_cobrado": round(sum(float(j.get("premio_cobrado") or 0) for j in evaluadas), 2),
+        "premio_que_se_escapo": round(sum(float(j.get("premio_que_se_escapo") or 0) for j in evaluadas), 2),
+    }
+    if resumen["selecciones_elige8"]:
+        resumen["precision_elige8"] = round(
+            resumen["aciertos_elige8"] / resumen["selecciones_elige8"] * 100,
+            2,
+        )
+    else:
+        resumen["precision_elige8"] = 0.0
+
+    memoria = {
+        "version": "2.0",
+        "actualizado_en": ahora(),
+        "regla_activa": REGLA_BASE,
+        "resumen": resumen,
+        "jornadas": evaluadas,
+        "reglas_aprendidas": [j["regla_aprendida"] for j in evaluadas if j.get("regla_aprendida")],
+    }
     guardar_json(MEMORIA_ELIGE8, memoria)
+    return memoria
 
 
-def procesar_archivo(path):
+def procesar_prediccion(path):
     prediccion = cargar_json(path, {})
     if not recalcular_elige8(prediccion):
         return False
-    actualizar_memoria(prediccion)
     guardar_json(path, prediccion)
     return True
 
 
 def main():
     tocados = []
-    for carpeta in (PREDICCIONES, JUGADAS):
-        if not carpeta.exists():
-            continue
-        for path in sorted(carpeta.glob("*.json")):
-            if procesar_archivo(path):
+    memoria = construir_memoria_desde_jugadas()
+    tocados.append(str(MEMORIA_ELIGE8.relative_to(ROOT)))
+
+    if PREDICCIONES.exists():
+        for path in sorted(PREDICCIONES.glob("*.json")):
+            if procesar_prediccion(path):
                 tocados.append(str(path.relative_to(ROOT)))
 
     print(json.dumps({
         "estado": "ok",
         "script": "ajustar_aprendizaje_elige8.py",
         "archivos_actualizados": tocados,
+        "resumen_aprendizaje": memoria.get("resumen", {}),
         "regla_activa": REGLA_BASE,
     }, ensure_ascii=False, indent=2))
 

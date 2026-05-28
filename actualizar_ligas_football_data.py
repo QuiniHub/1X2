@@ -118,6 +118,7 @@ ALIAS = {
     "malaga cf": "Malaga CF",
     "mirandes": "CD Mirandes",
     "cd mirandes": "CD Mirandes",
+    "santander": "Real Racing Club de Santander",
     "racing santander": "Real Racing Club de Santander",
     "real racing club de santander": "Real Racing Club de Santander",
     "racing club santander": "Real Racing Club de Santander",
