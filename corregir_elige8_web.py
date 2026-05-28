@@ -11,13 +11,17 @@ FUNCIONES = r'''
       const signos = String(item?.signos || partido.signo_final || partido.signo_base || "")
         .replace(/[^1X2]/g, "")
         .split("");
-      return signos.length ? Array.from(new Set(signos)) : ["1", "X", "2"];
+      if (signos.length) return Array.from(new Set(signos));
+      const probs = partido.probabilidades || {};
+      const objetivo = ["1", "X", "2"].sort((a, b) => Number(probs[b] || 0) - Number(probs[a] || 0))[0] || "1";
+      return [objetivo];
     }
 
     function probabilidadCubiertaElige8Web(item) {
       const partido = item?.partido || item || {};
       const probs = partido.probabilidades || {};
       const signos = signosElige8Web(item);
+      if (signos.length === 3 && !Object.keys(probs).length) return 100;
       return Math.min(100, signos.reduce((total, signo) => total + Number(probs[signo] || 0), 0));
     }
 
@@ -39,19 +43,14 @@ FUNCIONES = r'''
       const partido = item?.partido || item || {};
       const probCubierta = probabilidadCubiertaElige8Web(item);
       const signos = signosElige8Web(item);
-      const signoObjetivo = signoObjetivoElige8Web(item);
       const probObjetivo = probabilidadObjetivoElige8Web(item);
       const incertidumbre = Number(partido.incertidumbre || item?.riesgo || 0);
       const sorpresa = Number(partido.probabilidad_sorpresa || 0);
-      let score = probObjetivo * 3.6 + Math.min(probCubierta, 75) * 0.45 - incertidumbre * 0.16 - sorpresa * 0.24;
+      const riesgoNecesidad = Number(partido.riesgo_necesidad_real || partido.riesgo_necesidad || 0);
+      const prioridadCobertura = signos.length === 3 ? 30000 : signos.length === 2 ? 20000 : 10000;
+      const penalizacion = Math.min(25, incertidumbre * 0.05) + Math.min(15, sorpresa * 0.05) + (riesgoNecesidad ? 1 : 0);
 
-      if (signos.length > 1) score -= 6 * (signos.length - 1);
-      if (signoObjetivo === "X" && probObjetivo < 55) score -= 22;
-      if (probObjetivo < 55) score -= 10;
-      if (probObjetivo >= 60 && signos.length === 1) score += 14;
-
-      if (partido.riesgo_necesidad_real || partido.riesgo_necesidad) score -= 2;
-      return score;
+      return prioridadCobertura + probCubierta * 3 + probObjetivo * 0.2 - penalizacion;
     }
 
     function candidatosElige8CobroWeb(detalle) {
@@ -60,6 +59,12 @@ FUNCIONES = r'''
           const scoreA = puntuacionElige8CobroWeb(a);
           const scoreB = puntuacionElige8CobroWeb(b);
           if (scoreA !== scoreB) return scoreB - scoreA;
+          const signosA = signosElige8Web(a).length;
+          const signosB = signosElige8Web(b).length;
+          if (signosA !== signosB) return signosB - signosA;
+          const cubiertaA = probabilidadCubiertaElige8Web(a);
+          const cubiertaB = probabilidadCubiertaElige8Web(b);
+          if (cubiertaA !== cubiertaB) return cubiertaB - cubiertaA;
           return probabilidadObjetivoElige8Web(b) - probabilidadObjetivoElige8Web(a);
         })
         .slice(0, 8);
@@ -106,7 +111,7 @@ BLOQUE_GENERAR_NUEVO = r'''      const elige8Set = new Set();
       }'''
 
 LECTURA_ANTIGUA = "porque concentra la proteccion en los partidos cubiertos y en los fijos mas limpios."
-LECTURA_NUEVA = "porque marca los 8 signos con mejor probabilidad real de cobro; no premia triples ni partidos interesantes si el signo no es fiable."
+LECTURA_NUEVA = "porque marca los 8 partidos con mayor cobertura real del boleto: triples primero, dobles despues y fijos fiables al final."
 COSTE_ELIGE8_ANTIGUO = "const importeElige8 = elige8 ? 0.50 : 0;"
 COSTE_ELIGE8_NUEVO = "const importeElige8 = elige8 ? apuestas * 0.50 : 0;"
 
