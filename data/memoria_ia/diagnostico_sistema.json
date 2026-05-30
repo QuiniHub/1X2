@@ -1,33 +1,33 @@
 {
   "version": "1.0",
-  "generado_en": "2026-05-30T20:35:09.948465+00:00",
-  "estado": "requiere_revision_datos",
-  "score_salud": 70,
+  "generado_en": "2026-05-30T23:46:37.786570+00:00",
+  "estado": "critico_actualizacion",
+  "score_salud": 45,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 65,
     "jornada_actual": {
-      "jornada": 64,
-      "fecha": "Domingo, 24 de mayo de 2026",
+      "jornada": 65,
+      "fecha": "2026-05-31",
       "estado": "en_juego",
       "partidos": 14,
-      "cerrados": 13,
-      "pendientes": 1,
-      "pendientes_totales_con_pleno15": 1,
-      "pleno15_cerrado": true,
-      "ultima_actualizacion_partido": "2026-05-24T19:56:48Z",
-      "path": "data/jornadas/jornada_64.json"
+      "cerrados": 7,
+      "pendientes": 7,
+      "pendientes_totales_con_pleno15": 8,
+      "pleno15_cerrado": false,
+      "ultima_actualizacion_partido": "2026-05-30T23:46:18Z",
+      "path": "data/jornadas/jornada_65.json"
     },
     "proxima_jornada": {
       "jornada": 65,
       "fecha": "2026-05-31",
-      "estado": "abierta",
+      "estado": "en_juego",
       "partidos": 14,
-      "cerrados": 0,
-      "pendientes": 14,
-      "pendientes_totales_con_pleno15": 15,
+      "cerrados": 7,
+      "pendientes": 7,
+      "pendientes_totales_con_pleno15": 8,
       "pleno15_cerrado": false,
-      "ultima_actualizacion_partido": "",
+      "ultima_actualizacion_partido": "2026-05-30T23:46:18Z",
       "path": "data/jornadas/jornada_65.json"
     },
     "ultimas": [
@@ -82,13 +82,13 @@
       {
         "jornada": 65,
         "fecha": "2026-05-31",
-        "estado": "abierta",
+        "estado": "en_juego",
         "partidos": 14,
-        "cerrados": 0,
-        "pendientes": 14,
-        "pendientes_totales_con_pleno15": 15,
+        "cerrados": 7,
+        "pendientes": 7,
+        "pendientes_totales_con_pleno15": 8,
         "pleno15_cerrado": false,
-        "ultima_actualizacion_partido": "",
+        "ultima_actualizacion_partido": "2026-05-30T23:46:18Z",
         "path": "data/jornadas/jornada_65.json"
       }
     ]
@@ -109,7 +109,7 @@
   },
   "prediccion": {
     "jornada": 65,
-    "generado_en": "2026-05-30T20:35:09.224795+00:00",
+    "generado_en": "2026-05-30T23:46:37.218216+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 14,
@@ -169,7 +169,7 @@
   "fuentes": {
     "memoria_horas": 0.0,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 3.97,
+    "contexto_equipos_horas": 0.0,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -203,6 +203,11 @@
   },
   "alertas": [
     {
+      "nivel": "critica",
+      "titulo": "Clasificacion segunda congelada",
+      "detalle": "UD Almeria tiene 41 PJ en tabla, pero el calendario ya tiene 42 resultados."
+    },
+    {
       "nivel": "alta",
       "titulo": "Lectura del Deportivo dudosa",
       "detalle": "Deportivo debe aparecer con 74 puntos y lectura de ascenso directo aún por cerrar."
@@ -217,10 +222,15 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-05-30T20:35:09.948465+00:00",
-    "estado": "revisar",
-    "score": 65,
+    "generado_en": "2026-05-30T23:46:37.786570+00:00",
+    "estado": "critico",
+    "score": 0,
     "alertas": [
+      {
+        "nivel": "critica",
+        "titulo": "Clasificacion segunda congelada",
+        "detalle": "UD Almeria tiene 41 PJ en tabla, pero el calendario ya tiene 42 resultados."
+      },
       {
         "nivel": "alta",
         "titulo": "Lectura del Deportivo dudosa",
@@ -233,16 +243,16 @@
         "jornada": 65,
         "fecha": "2026-05-31",
         "partidos": 14,
-        "cerrados": 0,
-        "pendientes": 14,
+        "cerrados": 7,
+        "pendientes": 7,
         "path": "data/jornadas/jornada_65.json"
       },
       "ultima": {
         "jornada": 65,
         "fecha": "2026-05-31",
         "partidos": 14,
-        "cerrados": 0,
-        "pendientes": 14,
+        "cerrados": 7,
+        "pendientes": 7,
         "path": "data/jornadas/jornada_65.json"
       },
       "ultimas_5": [
@@ -282,8 +292,8 @@
           "jornada": 65,
           "fecha": "2026-05-31",
           "partidos": 14,
-          "cerrados": 0,
-          "pendientes": 14,
+          "cerrados": 7,
+          "pendientes": 7,
           "path": "data/jornadas/jornada_65.json"
         }
       ]
@@ -306,10 +316,10 @@
           "pts": 79,
           "racha_actual": {
             "victorias": 0,
-            "empates": 1,
+            "empates": 2,
             "derrotas": 0,
-            "sin_ganar": 1,
-            "sin_perder": 7
+            "sin_ganar": 2,
+            "sin_perder": 8
           },
           "tendencias": {
             "puntos_por_partido": 1.927,
@@ -317,7 +327,7 @@
             "goles_contra_por_partido": 1.463,
             "empates_pct": 17.07,
             "forma_5_pts": 11,
-            "forma_10_pts": 20
+            "forma_10_pts": 21
           }
         },
         "deportivo": {
@@ -333,19 +343,19 @@
           "puntos": 77,
           "pts": 77,
           "racha_actual": {
-            "victorias": 4,
+            "victorias": 0,
             "empates": 0,
-            "derrotas": 0,
-            "sin_ganar": 0,
-            "sin_perder": 12
+            "derrotas": 1,
+            "sin_ganar": 1,
+            "sin_perder": 0
           },
           "tendencias": {
             "puntos_por_partido": 1.878,
             "goles_favor_por_partido": 1.561,
             "goles_contra_por_partido": 1.024,
             "empates_pct": 26.83,
-            "forma_5_pts": 13,
-            "forma_10_pts": 22
+            "forma_5_pts": 12,
+            "forma_10_pts": 21
           }
         },
         "leganes": {
@@ -407,7 +417,7 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-05-30T20:35:08.732313+00:00",
+      "generado_en": "2026-05-30T23:46:36.832304+00:00",
       "oviedo": {
         "clave": "oviedo",
         "equipo": "Real Oviedo",
@@ -522,10 +532,10 @@
         "dg": 26,
         "racha_actual": {
           "victorias": 0,
-          "empates": 1,
+          "empates": 2,
           "derrotas": 0,
-          "sin_ganar": 1,
-          "sin_perder": 7
+          "sin_ganar": 2,
+          "sin_perder": 8
         },
         "tendencias": {
           "puntos_por_partido": 1.927,
@@ -533,7 +543,7 @@
           "goles_contra_por_partido": 1.463,
           "empates_pct": 17.07,
           "forma_5_pts": 11,
-          "forma_10_pts": 20
+          "forma_10_pts": 21
         },
         "objetivos": [
           {
@@ -573,19 +583,19 @@
         "maximo_puntos": 80,
         "dg": 22,
         "racha_actual": {
-          "victorias": 4,
+          "victorias": 0,
           "empates": 0,
-          "derrotas": 0,
-          "sin_ganar": 0,
-          "sin_perder": 12
+          "derrotas": 1,
+          "sin_ganar": 1,
+          "sin_perder": 0
         },
         "tendencias": {
           "puntos_por_partido": 1.878,
           "goles_favor_por_partido": 1.561,
           "goles_contra_por_partido": 1.024,
           "empates_pct": 26.83,
-          "forma_5_pts": 13,
-          "forma_10_pts": 22
+          "forma_5_pts": 12,
+          "forma_10_pts": 21
         },
         "objetivos": [
           {
@@ -821,7 +831,7 @@
     },
     "prediccion": {
       "jornada": 65,
-      "generado_en": "2026-05-30T20:35:09.224795+00:00",
+      "generado_en": "2026-05-30T23:46:37.218216+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 14,
@@ -838,16 +848,16 @@
       "jornada": 65,
       "fecha": "2026-05-31",
       "partidos": 14,
-      "cerrados": 0,
-      "pendientes": 14,
+      "cerrados": 7,
+      "pendientes": 7,
       "path": "data/jornadas/jornada_65.json"
     },
     "ultima": {
       "jornada": 65,
       "fecha": "2026-05-31",
       "partidos": 14,
-      "cerrados": 0,
-      "pendientes": 14,
+      "cerrados": 7,
+      "pendientes": 7,
       "path": "data/jornadas/jornada_65.json"
     },
     "ultimas_5": [
@@ -887,8 +897,8 @@
         "jornada": 65,
         "fecha": "2026-05-31",
         "partidos": 14,
-        "cerrados": 0,
-        "pendientes": 14,
+        "cerrados": 7,
+        "pendientes": 7,
         "path": "data/jornadas/jornada_65.json"
       }
     ]
@@ -911,10 +921,10 @@
         "pts": 79,
         "racha_actual": {
           "victorias": 0,
-          "empates": 1,
+          "empates": 2,
           "derrotas": 0,
-          "sin_ganar": 1,
-          "sin_perder": 7
+          "sin_ganar": 2,
+          "sin_perder": 8
         },
         "tendencias": {
           "puntos_por_partido": 1.927,
@@ -922,7 +932,7 @@
           "goles_contra_por_partido": 1.463,
           "empates_pct": 17.07,
           "forma_5_pts": 11,
-          "forma_10_pts": 20
+          "forma_10_pts": 21
         }
       },
       "deportivo": {
@@ -938,19 +948,19 @@
         "puntos": 77,
         "pts": 77,
         "racha_actual": {
-          "victorias": 4,
+          "victorias": 0,
           "empates": 0,
-          "derrotas": 0,
-          "sin_ganar": 0,
-          "sin_perder": 12
+          "derrotas": 1,
+          "sin_ganar": 1,
+          "sin_perder": 0
         },
         "tendencias": {
           "puntos_por_partido": 1.878,
           "goles_favor_por_partido": 1.561,
           "goles_contra_por_partido": 1.024,
           "empates_pct": 26.83,
-          "forma_5_pts": 13,
-          "forma_10_pts": 22
+          "forma_5_pts": 12,
+          "forma_10_pts": 21
         }
       },
       "leganes": {
@@ -1012,7 +1022,7 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-05-30T20:35:08.732313+00:00",
+    "generado_en": "2026-05-30T23:46:36.832304+00:00",
     "oviedo": {
       "clave": "oviedo",
       "equipo": "Real Oviedo",
@@ -1127,10 +1137,10 @@
       "dg": 26,
       "racha_actual": {
         "victorias": 0,
-        "empates": 1,
+        "empates": 2,
         "derrotas": 0,
-        "sin_ganar": 1,
-        "sin_perder": 7
+        "sin_ganar": 2,
+        "sin_perder": 8
       },
       "tendencias": {
         "puntos_por_partido": 1.927,
@@ -1138,7 +1148,7 @@
         "goles_contra_por_partido": 1.463,
         "empates_pct": 17.07,
         "forma_5_pts": 11,
-        "forma_10_pts": 20
+        "forma_10_pts": 21
       },
       "objetivos": [
         {
@@ -1178,19 +1188,19 @@
       "maximo_puntos": 80,
       "dg": 22,
       "racha_actual": {
-        "victorias": 4,
+        "victorias": 0,
         "empates": 0,
-        "derrotas": 0,
-        "sin_ganar": 0,
-        "sin_perder": 12
+        "derrotas": 1,
+        "sin_ganar": 1,
+        "sin_perder": 0
       },
       "tendencias": {
         "puntos_por_partido": 1.878,
         "goles_favor_por_partido": 1.561,
         "goles_contra_por_partido": 1.024,
         "empates_pct": 26.83,
-        "forma_5_pts": 13,
-        "forma_10_pts": 22
+        "forma_5_pts": 12,
+        "forma_10_pts": 21
       },
       "objetivos": [
         {
