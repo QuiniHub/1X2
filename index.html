@@ -2620,6 +2620,8 @@
 
 
 
+
+
     function signosElige8Web(item) {
       const partido = item?.partido || item || {};
       const signos = String(item?.signos || partido.signo_final || partido.signo_base || "")
@@ -3881,6 +3883,7 @@
 
 
 
+
     function normalizarCompetitivoTextoBoleto(texto) {
       return norm(String(texto || "").replaceAll("_", " "));
     }
@@ -3972,6 +3975,7 @@
 
       return Math.min(bonus, 110);
     }
+
 
 
 
