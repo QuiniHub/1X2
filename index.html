@@ -2666,6 +2666,8 @@
 
 
 
+
+
     function signosElige8Web(item) {
       const partido = item?.partido || item || {};
       const signos = String(item?.signos || partido.signo_final || partido.signo_base || "")
@@ -3261,11 +3263,11 @@
       if (!contenedor) return;
 
       contenedor.innerHTML = "";
-      for (let j = 1; j <= 65; j++) {
+      for (let j = 1; j <= 66; j++) {
         contenedor.innerHTML += botonJornadaQuiniela(j);
       }
 
-      abrirQuinielaIA(65);
+      abrirQuinielaIA(66);
     }
 
     function botonJornadaQuiniela(jornada) {
@@ -3961,6 +3963,8 @@
 
 
 
+
+
     function normalizarCompetitivoTextoBoleto(texto) {
       return norm(String(texto || "").replaceAll("_", " "));
     }
@@ -4052,6 +4056,8 @@
 
       return Math.min(bonus, 110);
     }
+
+
 
 
 
