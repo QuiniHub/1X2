@@ -83,6 +83,18 @@ def jornada_numero(path, data):
     return int(m.group(1)) if m else 0
 
 
+def ultima_prediccion():
+    pred = cargar_json(DATA / "predicciones" / "ultima_prediccion.json", {})
+    if pred:
+        return pred
+    candidatas = []
+    for path in (DATA / "predicciones").glob("jornada_*.json"):
+        data = cargar_json(path, {})
+        if isinstance(data.get("jornada"), int):
+            candidatas.append(data)
+    return max(candidatas, key=lambda item: item.get("jornada", 0), default={})
+
+
 def resumen_jornada(path):
     data = cargar_json(path, {})
     partidos = data.get("partidos", [])
@@ -105,13 +117,15 @@ def resumen_jornada(path):
     }
 
 
-def diagnosticar_jornadas(alertas):
+def diagnosticar_jornadas(alertas, jornada_objetivo=None):
     res = []
     for path in sorted(JORNADAS.glob("jornada_*.json"), key=lambda p: int(re.search(r"(\d+)", p.stem).group(1))):
         res.append(resumen_jornada(path))
     abiertas = [j for j in res if j["pendientes"] > 0]
     en_juego = [j for j in abiertas if j["cerrados"] > 0]
-    jornada_actual = max(en_juego, key=lambda j: (j["jornada"], j["cerrados"]), default=None)
+    jornada_actual = next((j for j in res if j["jornada"] == jornada_objetivo), None)
+    if not jornada_actual:
+        jornada_actual = max(en_juego, key=lambda j: (j["jornada"], j["cerrados"]), default=None)
     if not jornada_actual:
         jornada_actual = max(abiertas, key=lambda j: j["jornada"], default=None)
     proxima = max(abiertas, key=lambda j: j["jornada"], default=None)
@@ -190,9 +204,7 @@ def margen(partido):
 
 
 def diagnosticar_prediccion(alertas):
-    pred = cargar_json(DATA / "predicciones" / "jornada_63.json", {})
-    if not pred:
-        pred = cargar_json(DATA / "predicciones" / "ultima_prediccion.json", {})
+    pred = ultima_prediccion()
     partidos = pred.get("partidos", [])
     resumen = pred.get("resumen") or {}
     fijos = resumen.get("fijos", 0)
@@ -359,7 +371,8 @@ def puntuar(alertas):
 
 def main():
     alertas = []
-    jornadas = diagnosticar_jornadas(alertas)
+    prediccion_actual = ultima_prediccion()
+    jornadas = diagnosticar_jornadas(alertas, prediccion_actual.get("jornada"))
     memoria = diagnosticar_memoria(alertas)
     prediccion = diagnosticar_prediccion(alertas)
     clasificaciones = diagnosticar_clasificaciones(alertas)

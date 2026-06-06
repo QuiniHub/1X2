@@ -102,7 +102,12 @@ def margen_probabilidad(partido):
     return round(probs[0] - probs[1], 2)
 
 
-def leer_jornada_actual():
+def leer_jornada_actual(jornada_objetivo=None):
+    if isinstance(jornada_objetivo, int):
+        objetivo = cargar_json(JORNADAS / f"jornada_{jornada_objetivo}.json", {})
+        if objetivo.get("jornada") == jornada_objetivo:
+            return objetivo
+
     candidatas = []
     for path in JORNADAS.glob("jornada_*.json"):
         data = cargar_json(path, {})
@@ -474,10 +479,10 @@ def errores_a_evitar(prediccion):
 def main():
     memoria = cargar_json(MEMORIA / "aprendizaje_global.json", {})
     contexto_competitivo = cargar_json(MEMORIA / "contexto_competitivo.json", {})
-    prediccion = cargar_json(PREDICCIONES / "jornada_63.json", {})
+    prediccion = cargar_json(PREDICCIONES / "ultima_prediccion.json", {})
     if not prediccion:
-        prediccion = cargar_json(PREDICCIONES / "ultima_prediccion.json", {})
-    jornada = leer_jornada_actual()
+        prediccion = cargar_json(PREDICCIONES / "jornada_63.json", {})
+    jornada = leer_jornada_actual(prediccion.get("jornada"))
     indice_competitivo = crear_indice_competitivo(contexto_competitivo or {})
     estado_jornada = cambios_jornada_actual(jornada, indice_competitivo)
     estado_prediccion = analizar_prediccion(prediccion, contexto_competitivo)

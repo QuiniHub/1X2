@@ -37,7 +37,7 @@ def main():
     memoria = cargar_json(MEMORIA / "aprendizaje_global.json", {})
     contexto_competitivo = cargar_json(MEMORIA / "contexto_competitivo.json", {})
     prediccion = ultima_prediccion_disponible()
-    jornada = leer_jornada_actual()
+    jornada = leer_jornada_actual(prediccion.get("jornada"))
     indice_competitivo = crear_indice_competitivo(contexto_competitivo or {})
     estado_jornada = cambios_jornada_actual(jornada, indice_competitivo)
     estado_prediccion = analizar_prediccion(prediccion, contexto_competitivo)
