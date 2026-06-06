@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 JORNADAS = DATA / "jornadas"
 MEMORIA = DATA / "memoria_ia"
+BACKTEST_PRE_CIERRE = DATA / "backtesting" / "resumen_pre_cierre.json"
 
 
 def cargar_json(path, defecto=None):
@@ -356,6 +357,44 @@ def diagnosticar_fuentes(alertas):
     }
 
 
+def diagnosticar_backtesting_pre_cierre(alertas):
+    backtest = cargar_json(BACKTEST_PRE_CIERRE, {})
+    resumen = backtest.get("resumen") or {}
+    jornadas = int(resumen.get("jornadas_snapshot") or 0)
+    partidos = int(resumen.get("partidos_cerrados") or 0)
+
+    if jornadas == 0:
+        alertas.append({
+            "nivel": "media",
+            "titulo": "Backtesting pre-cierre sin muestras",
+            "detalle": "Todavia no hay snapshots de prediccion guardados antes del cierre de una jornada.",
+            "accion": "Dejar que el workflow guarde snapshots pre-cierre y comparar solo esos contra resultados reales.",
+        })
+        estado = "pendiente_muestras"
+    elif partidos == 0:
+        estado = "pendiente_resultados"
+    elif partidos < 42:
+        alertas.append({
+            "nivel": "baja",
+            "titulo": "Backtesting pre-cierre con muestra pequena",
+            "detalle": f"Hay {partidos} partidos cerrados desde snapshots pre-cierre.",
+            "accion": "Acumular varias jornadas antes de usar la precision como metrica fuerte.",
+        })
+        estado = "muestra_pequena"
+    else:
+        estado = "operativo"
+
+    return {
+        "estado": estado,
+        "jornadas_snapshot": jornadas,
+        "partidos_cerrados": partidos,
+        "aciertos": resumen.get("aciertos"),
+        "precision": resumen.get("precision"),
+        "generado_en": backtest.get("generado_en"),
+        "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales.",
+    }
+
+
 def puntuar(alertas):
     penalizacion = {"critica": 25, "alta": 14, "media": 7, "baja": 3}
     score = 100 - sum(penalizacion.get(a.get("nivel"), 5) for a in alertas)
@@ -377,6 +416,7 @@ def main():
     prediccion = diagnosticar_prediccion(alertas)
     clasificaciones = diagnosticar_clasificaciones(alertas)
     fuentes = diagnosticar_fuentes(alertas)
+    backtesting = diagnosticar_backtesting_pre_cierre(alertas)
     score, estado = puntuar(alertas)
 
     salida = {
@@ -393,6 +433,7 @@ def main():
         "prediccion": prediccion,
         "clasificaciones": clasificaciones,
         "fuentes": fuentes,
+        "backtesting_pre_cierre": backtesting,
         "alertas": alertas,
         "acciones_prioritarias": [
             "Persistir quinielas jugadas nuestras en data/quinielas_jugadas.json o data/historial_quinielas.json.",

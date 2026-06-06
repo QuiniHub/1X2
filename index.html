@@ -5226,10 +5226,36 @@
       };
     }
 
+    function riesgoTextoBackend(partido) {
+      const inc = Number(partido.incertidumbre || 0);
+      const sorpresa = Number(partido.probabilidad_sorpresa || 0);
+      if (inc >= 115 || sorpresa >= 55) return "Alto";
+      if (inc >= 90 || sorpresa >= 40) return "Medio";
+      return "Bajo";
+    }
+
+    function partidoDesdePrediccionBackend(partido) {
+      return {
+        ...partido,
+        tipo_apuesta: partido.tipo || "FIJO",
+        explicacion: partido.razonamiento || "",
+        confianza: partido.confianza || "IA",
+        riesgo: partido.riesgo || riesgoTextoBackend(partido),
+        riesgo_necesidad: Boolean(partido.riesgo_necesidad_real)
+      };
+    }
+
     async function generarBoletoIA() {
-      const dobles = parseInt(document.getElementById("num-dobles").value || "0");
-      const triples = parseInt(document.getElementById("num-triples").value || "0");
-      const activarElige8 = document.getElementById("activar-elige8")?.checked;
+      let dobles = parseInt(document.getElementById("num-dobles").value || "0");
+      let triples = parseInt(document.getElementById("num-triples").value || "0");
+      let activarElige8 = document.getElementById("activar-elige8")?.checked;
+      const prediccionBackend = await fetchJSON("data/predicciones/ultima_prediccion.json", null);
+      const usarPrediccionBackend = prediccionBackend
+        && Number(prediccionBackend.jornada) === Number(jornadaActualIA)
+        && dobles === 0
+        && triples === 0
+        && !activarElige8
+        && prediccionBackend.configuracion?.cobertura_auto;
 
       const ia = await fetchJSON("data/analisis_ia.json", {});
       const clasif = await fetchJSON("clasificaciones.json", {});
@@ -5279,27 +5305,39 @@
           };
         });
 
-      const porTriple = [...partidos].sort((a, b) => prioridadTripleAnalisis(b) - prioridadTripleAnalisis(a));
-      const triplesSet = new Set(porTriple.slice(0, triples).map(p => p.num));
-      const porDoble = [...partidos]
-        .filter(p => !triplesSet.has(p.num))
-        .sort((a, b) => prioridadDobleAnalisis(b) - prioridadDobleAnalisis(a));
-      const doblesSet = new Set(porDoble.slice(0, dobles).map(p => p.num));
+      if (usarPrediccionBackend) {
+        dobles = Number(prediccionBackend.resumen?.dobles ?? prediccionBackend.configuracion?.dobles ?? 0);
+        triples = Number(prediccionBackend.resumen?.triples ?? prediccionBackend.configuracion?.triples ?? 0);
+        activarElige8 = Boolean(prediccionBackend.configuracion?.elige8);
+        document.getElementById("num-dobles").value = dobles;
+        document.getElementById("num-triples").value = triples;
+        const elige8Input = document.getElementById("activar-elige8");
+        if (elige8Input) elige8Input.checked = activarElige8;
+        calcularImporteIA();
+        partidos = (prediccionBackend.partidos || []).map(partidoDesdePrediccionBackend);
+      } else {
+        const porTriple = [...partidos].sort((a, b) => prioridadTripleAnalisis(b) - prioridadTripleAnalisis(a));
+        const triplesSet = new Set(porTriple.slice(0, triples).map(p => p.num));
+        const porDoble = [...partidos]
+          .filter(p => !triplesSet.has(p.num))
+          .sort((a, b) => prioridadDobleAnalisis(b) - prioridadDobleAnalisis(a));
+        const doblesSet = new Set(porDoble.slice(0, dobles).map(p => p.num));
 
-      partidos = partidos.map(p => {
-        let signo = p.signo_base;
+        partidos = partidos.map(p => {
+          let signo = p.signo_base;
 
-        if (triplesSet.has(p.num)) signo = "1X2";
-        else if (doblesSet.has(p.num)) signo = dobleMasProbable(p.probabilidades);
+          if (triplesSet.has(p.num)) signo = "1X2";
+          else if (doblesSet.has(p.num)) signo = dobleMasProbable(p.probabilidades);
 
-        const tipoApuesta = triplesSet.has(p.num) ? "TRIPLE" : doblesSet.has(p.num) ? "DOBLE" : "FIJO";
-        return {
-          ...p,
-          signo_final: signo,
-          tipo_apuesta: tipoApuesta,
-          explicacion: generarRazonamientoPartido(p, signo, tipoApuesta)
-        };
-      });
+          const tipoApuesta = triplesSet.has(p.num) ? "TRIPLE" : doblesSet.has(p.num) ? "DOBLE" : "FIJO";
+          return {
+            ...p,
+            signo_final: signo,
+            tipo_apuesta: tipoApuesta,
+            explicacion: generarRazonamientoPartido(p, signo, tipoApuesta)
+          };
+        });
+      }
 
       const elige8Set = new Set();
       if (activarElige8) {

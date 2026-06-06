@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   importar:
-    if: contains(github.event.issue.title, 'Memoria Quiniela IA')
+    if: contains(github.event.issue.title, 'Memoria Quiniela IA') && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)
     runs-on: ubuntu-latest
 
     steps:
@@ -37,9 +37,13 @@ jobs:
               raise SystemExit("No se encontro bloque JSON en el issue.")
 
           payload = json.loads(match.group(1))
+          if payload.get("tipo") != "memoria_quinielas_jugadas":
+              raise SystemExit("Payload rechazado: tipo de memoria no reconocido.")
           jugadas = payload.get("jugadas") or []
           if not isinstance(jugadas, list):
               raise SystemExit("El campo jugadas debe ser una lista.")
+          if len(jugadas) > 20:
+              raise SystemExit("Demasiadas jugadas en una sola importacion.")
 
           path = Path("data/quinielas_jugadas.json")
           if path.exists():
@@ -76,15 +80,23 @@ jobs:
                   jornada = int(jugada.get("jornada"))
               except Exception:
                   continue
+              if jornada < 1 or jornada > 90:
+                  continue
               signos = limpiar_signos(jugada.get("signos") or [])
               if len(signos) < 14:
                   continue
+              elige8 = []
+              for x in jugada.get("elige8") or []:
+                  if str(x).isdigit():
+                      num = int(x)
+                      if 1 <= num <= 14 and num not in elige8:
+                          elige8.append(num)
               nueva = {
                   **por_jornada.get(jornada, {}),
                   "jornada": jornada,
                   "signos": signos[:14],
-                  "elige8": [int(x) for x in (jugada.get("elige8") or []) if str(x).isdigit()][:8],
-                  "pleno15": str(jugada.get("pleno15") or "").strip(),
+                  "elige8": elige8[:8],
+                  "pleno15": str(jugada.get("pleno15") or "").strip()[:12],
                   "validado_en": jugada.get("validado_en") or datetime.now(timezone.utc).isoformat(),
                   "origen": "issue_memoria_sin_token",
               }

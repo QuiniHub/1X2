@@ -684,10 +684,90 @@ def prioridad_doble(partido):
     return score
 
 
+def margen_probabilidades(probs):
+    valores = sorted([float(v) for v in (probs or {}).values()], reverse=True)
+    if len(valores) < 2:
+        return 0.0
+    return round(valores[0] - valores[1], 2)
+
+
+def probabilidad_top(probs):
+    valores = [float(v) for v in (probs or {}).values()]
+    return round(max(valores), 2) if valores else 0.0
+
+
+def tercera_probabilidad_valor(probs):
+    valores = sorted([float(v) for v in (probs or {}).values()], reverse=True)
+    return round(valores[2], 2) if len(valores) > 2 else 0.0
+
+
+def perfil_riesgo_boleto(evaluados):
+    riesgos = []
+    for partido in evaluados:
+        probs = partido.get("probabilidades", {})
+        margen = margen_probabilidades(probs)
+        top = probabilidad_top(probs)
+        tercera = tercera_probabilidad_valor(probs)
+        inc = float(partido.get("incertidumbre") or 0)
+        sorpresa = float(partido.get("probabilidad_sorpresa") or 0)
+        x_prob = float(probs.get("X") or 0)
+        if inc >= 115 or sorpresa >= 55 or margen < 8 or top < 45 or x_prob >= 33:
+            riesgos.append({
+                "num": partido.get("num"),
+                "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
+                "incertidumbre": round(inc, 2),
+                "probabilidad_sorpresa": round(sorpresa, 2),
+                "probabilidad_top": top,
+                "margen": margen,
+                "tercera_probabilidad": tercera,
+                "prioridad_cobertura": round(prioridad_cobertura(partido), 2),
+            })
+    return sorted(riesgos, key=lambda p: (p["incertidumbre"], p["probabilidad_sorpresa"]), reverse=True)
+
+
+def cobertura_automatica(evaluados):
+    riesgos = perfil_riesgo_boleto(evaluados)
+    muy_abiertos = [
+        p for p in evaluados
+        if tercera_probabilidad_valor(p.get("probabilidades", {})) >= 20
+        and (float(p.get("incertidumbre") or 0) >= 118 or margen_probabilidades(p.get("probabilidades", {})) < 6)
+    ]
+    if not riesgos:
+        return 0, 0, "Sin riesgos claros: se conserva boleto sencillo."
+
+    triples = 0
+    if muy_abiertos and len(riesgos) >= 4:
+        triples = 1
+    if len(muy_abiertos) >= 5 and len(riesgos) >= 8:
+        triples = 2
+
+    if len(riesgos) >= 9:
+        dobles = 5
+    elif len(riesgos) >= 6:
+        dobles = 4
+    elif len(riesgos) >= 3:
+        dobles = 3
+    else:
+        dobles = min(2, len(riesgos))
+
+    # Mantiene una propuesta jugable por defecto y evita que la IA publique 14 fijos
+    # cuando su propio perfil de riesgo detecta una jornada abierta.
+    dobles = min(dobles, 5)
+    triples = min(triples, 2)
+    if triples and dobles + triples > 6:
+        dobles = 6 - triples
+
+    detalle = (
+        f"Cobertura automatica: {len(riesgos)} partidos de riesgo detectados; "
+        f"se recomiendan {dobles} dobles y {triples} triples."
+    )
+    return dobles, triples, detalle
+
+
 def coste(dobles, triples, elige8):
     apuestas = 2 ** dobles * 3 ** triples
     importe_quiniela = max(apuestas * PRECIO_APUESTA, IMPORTE_MINIMO)
-    importe_elige8 = PRECIO_ELIGE8 if elige8 else 0.0
+    importe_elige8 = apuestas * PRECIO_ELIGE8 if elige8 else 0.0
     return {
         "apuestas": apuestas,
         "importe_quiniela": round(importe_quiniela, 2),
@@ -696,7 +776,7 @@ def coste(dobles, triples, elige8):
     }
 
 
-def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
+def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=False):
     memoria = cargar_json(MEMORIA, {})
     contexto = cargar_json(CONTEXTO_EQUIPOS, {})
     contexto_competitivo = cargar_json(CONTEXTO_COMPETITIVO, {})
@@ -740,6 +820,14 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
             "_diff": diff,
         })
 
+    cobertura_auto = dobles is None and triples is None
+    criterio_cobertura = "Cobertura indicada manualmente."
+    if cobertura_auto:
+        dobles, triples, criterio_cobertura = cobertura_automatica(evaluados)
+    else:
+        dobles = int(dobles or 0)
+        triples = int(triples or 0)
+
     por_triple = sorted(evaluados, key=prioridad_triple, reverse=True)
     triples_set = {p["num"] for p in por_triple[:triples]}
     por_doble = sorted(
@@ -775,6 +863,10 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
             "tipo": tipo,
             "incertidumbre": partido["incertidumbre"],
             "probabilidad_sorpresa": partido["probabilidad_sorpresa"],
+            "probabilidad_top": probabilidad_top(partido["probabilidades"]),
+            "margen_probabilidad": margen_probabilidades(partido["probabilidades"]),
+            "tercera_probabilidad": tercera_probabilidad_valor(partido["probabilidades"]),
+            "riesgo_necesidad_real": partido["riesgo_necesidad_real"],
             "elige8": partido["num"] in elige8_set,
             "razonamiento": explicar(
                 partido,
@@ -804,9 +896,12 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
             "dobles": dobles,
             "triples": triples,
             "elige8": elige8,
+            "cobertura_auto": cobertura_auto,
         },
         "coste": coste(dobles, triples, elige8),
         "partidos": partidos,
+        "criterio_cobertura": criterio_cobertura,
+        "riesgos_detectados": perfil_riesgo_boleto(evaluados)[:8],
         "contexto_equipos": {
             "generado_en": contexto.get("generado_en"),
             "fuentes": contexto.get("fuentes", []),
@@ -836,8 +931,8 @@ def predecir(jornada=None, dobles=0, triples=0, elige8=False, validar=False):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--jornada", type=int, default=None)
-    parser.add_argument("--dobles", type=int, default=0)
-    parser.add_argument("--triples", type=int, default=0)
+    parser.add_argument("--dobles", type=int, default=None)
+    parser.add_argument("--triples", type=int, default=None)
     parser.add_argument("--elige8", action="store_true")
     parser.add_argument("--validar", action="store_true")
     args = parser.parse_args()

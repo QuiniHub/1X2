@@ -63,6 +63,8 @@ SCRIPTS_ACTIVOS = [
     "verificar_coherencia_pronostico.py",
     "validar_contexto_actual.py",
     "construir_fuente_verdad_competitiva.py",
+    "guardar_snapshot_prediccion.py",
+    "backtesting_pre_cierre.py",
     "diagnostico_sistema.py",
     "control_calidad_actualizacion.py",
     "normalizar_diagnostico_control.py",

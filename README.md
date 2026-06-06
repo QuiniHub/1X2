@@ -14,6 +14,14 @@ Ese workflow ejecuta:
 
 `actualizar_todo.py` solo llama a scripts activos y falla si uno de ellos falla. Asi se evitan actualizaciones silenciosas con datos incompletos.
 
+Las dependencias Python estan fijadas en:
+
+`requirements.txt`
+
+Antes de actualizar datos en GitHub Actions se ejecuta:
+
+`python -m unittest discover -s tests`
+
 ## Scripts activos
 
 - `actualizar_jornadas_detalle.py`
@@ -28,7 +36,17 @@ Ese workflow ejecuta:
 - `generar_contexto_competitivo.py`
 - `motor_prediccion_quiniela.py`
 - `generar_estado_vivo_ia.py`
+- `guardar_snapshot_prediccion.py`
+- `backtesting_pre_cierre.py`
 - `diagnostico_sistema.py`
+
+## Prediccion y backtesting
+
+Cuando no se pasan dobles/triples manuales, `motor_prediccion_quiniela.py` aplica cobertura automatica segun incertidumbre, margen de probabilidad, empate alto, sorpresa y necesidad competitiva. Esto evita publicar por defecto 14 fijos en jornadas abiertas.
+
+`guardar_snapshot_prediccion.py` guarda una foto pre-cierre de la prediccion solo si la jornada aun no tiene resultados oficiales. No sobrescribe snapshots existentes.
+
+`backtesting_pre_cierre.py` compara solo esas fotos pre-cierre contra resultados reales, para no mezclar predicciones regeneradas despues de jugarse la jornada.
 
 ## Memoria de quinielas jugadas
 
