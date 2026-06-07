@@ -118,7 +118,8 @@ def replace_block(text, old, new, label):
         return text.replace(old, new), True
     if new in text:
         return text, False
-    raise SystemExit(f"No encuentro bloque {label}")
+    print(f"Bloque {label} no coincide con la plantilla legacy; se deja sin cambios.")
+    return text, False
 
 
 def patch_file(path, replacements):
