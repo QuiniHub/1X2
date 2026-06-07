@@ -263,12 +263,13 @@ def replace_regex(text, pattern, replacement, desc):
 
 
 def patch_index(html):
-    html = replace_regex(
-        html,
-        r"\n    function valoresProbabilidadOrdenados\(partido\) \{.*?\n\n    function puntosCasaFueraTexto",
-        "\n" + WEB_PRIORITY_HELPERS + "\n\n    function puntosCasaFueraTexto",
-        "prioridad de coberturas web",
-    )
+    full_pattern = r"\n    function valoresProbabilidadOrdenados\(partido\) \{.*?\n\n    function puntosCasaFueraTexto"
+    priority_pattern = r"\n    function prioridadCoberturaAnalisis\(partido\) \{.*?\n\n    function puntosCasaFueraTexto"
+    replacement = "\n" + WEB_PRIORITY_HELPERS + "\n\n    function puntosCasaFueraTexto"
+    if re.search(full_pattern, html, flags=re.S):
+        html = replace_regex(html, full_pattern, replacement, "prioridad de coberturas web")
+    else:
+        html = replace_regex(html, priority_pattern, replacement, "prioridad de coberturas web")
 
     if "const porTriple = [...partidos].sort((a, b) => prioridadTripleAnalisis(b) - prioridadTripleAnalisis(a));" not in html:
         html = replace_regex(
