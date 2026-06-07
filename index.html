@@ -5070,6 +5070,8 @@
     }
 
 
+
+
     function valoresProbabilidadOrdenados(partido) {
       return Object.values(partido.probabilidades || {}).sort((a, b) => b - a);
     }
@@ -5084,6 +5086,72 @@
       return valores.length > 2 ? valores[2] : 0;
     }
 
+    function limitarIndiceSorpresaBoleto(valor) {
+      return Math.max(0, Math.min(Number(valor || 0), 100));
+    }
+
+    function detalleIndiceSorpresaQuinielisticaWeb(partido) {
+      const existente = Number(partido?.indice_sorpresa_quinielistica || 0);
+      const probs = partido.probabilidades || {};
+      const orden = Object.entries(probs).sort((a, b) => Number(b[1] || 0) - Number(a[1] || 0));
+      if (!orden.length) {
+        return { indice: existente, favorito: null, favorito_atacable: false, cobertura_sugerida: "FIJO" };
+      }
+
+      const top = orden[0][0];
+      const topProb = Number(orden[0][1] || 0);
+      const segundo = orden[1] || ["", 0];
+      const segundoProb = Number(segundo[1] || 0);
+      const tercera = Number((orden[2] || ["", 0])[1] || 0);
+      const margen = topProb - segundoProb;
+      const xProb = Number(probs.X || 0);
+      const sorpresa = Number(partido.probabilidad_sorpresa || 0);
+      const inc = Number(partido.incertidumbre || 0);
+      const localComp = partido.contexto_competitivo_local;
+      const visitanteComp = partido.contexto_competitivo_visitante;
+      const localNecesita = equipoNecesidadVivaBoleto(localComp);
+      const visitanteNecesita = equipoNecesidadVivaBoleto(visitanteComp);
+      const localCerrado = equipoObjetivoCerradoBoleto(localComp);
+      const visitanteCerrado = equipoObjetivoCerradoBoleto(visitanteComp);
+      const localDescenso = contieneDescensoVivoBoleto(localComp);
+      const visitanteDescenso = contieneDescensoVivoBoleto(visitanteComp);
+      const favorito = ["1", "2"].includes(top) ? top : null;
+
+      let score = existente || 0;
+      if (!score) {
+        score += limitarIndiceSorpresaBoleto((inc - 85) * 0.45);
+        score += limitarIndiceSorpresaBoleto((sorpresa - 35) * 0.55);
+        if (margen <= 4) score += 20;
+        else if (margen <= 8) score += 16;
+        else if (margen <= 12) score += 11;
+        else if (margen <= 18) score += 6;
+        if (topProb < 45) score += 16;
+        else if (topProb < 50) score += 10;
+        else if (topProb < 55) score += 5;
+        if (xProb >= 33) score += 10;
+        else if (xProb >= 29) score += 5;
+        if (tercera >= 23) score += 14;
+        else if (tercera >= 18) score += 8;
+        if (!favorito) score += 10;
+        if (favorito === "1" && visitanteNecesita && localCerrado) score += 30;
+        if (favorito === "2" && localNecesita && visitanteCerrado) score += 30;
+        if ((favorito === "1" && visitanteDescenso) || (favorito === "2" && localDescenso)) score += 26;
+        if ((favorito === "1" && visitanteNecesita && !localNecesita) || (favorito === "2" && localNecesita && !visitanteNecesita)) score += 12;
+        score += Math.min(25, Number(partido.bonus_competitivo || 0) * 0.18);
+      }
+
+      score = Math.round(limitarIndiceSorpresaBoleto(score) * 10) / 10;
+      const cobertura = score >= 76 && tercera >= 18 && (margen <= 10 || xProb >= 30 || !favorito)
+        ? "TRIPLE"
+        : score >= 55 || margen <= 8 || sorpresa >= 60 ? "DOBLE" : "FIJO";
+      return {
+        indice: score,
+        favorito,
+        favorito_atacable: Boolean(favorito && score >= 60),
+        cobertura_sugerida: cobertura
+      };
+    }
+
     function prioridadCoberturaAnalisis(partido) {
       const localComp = partido.contexto_competitivo_local;
       const visitanteComp = partido.contexto_competitivo_visitante;
@@ -5096,6 +5164,9 @@
       const top = signoTopProbabilidad(partido.probabilidades || {});
       const margen = margenProbabilidadBoleto(partido);
       let score = Number(partido.incertidumbre || 0) + Number(partido.bonus_competitivo || 0);
+      const detalleSorpresa = detalleIndiceSorpresaQuinielisticaWeb(partido);
+      score += detalleSorpresa.indice * 1.25;
+      if (detalleSorpresa.favorito_atacable) score += 35;
 
       if (partido.riesgo_necesidad) score += 25;
       if (localDescenso || visitanteDescenso) score += 70;
@@ -5123,6 +5194,7 @@
       const top = signoTopProbabilidad(partido.probabilidades || {});
       const tercera = terceraProbabilidadBoleto(partido);
       let score = prioridadCoberturaAnalisis(partido);
+      const detalleSorpresa = detalleIndiceSorpresaQuinielisticaWeb(partido);
 
       if (tercera >= 18) score += 85;
       else if (tercera >= 14) score += 40;
@@ -5131,16 +5203,13 @@
 
       const dueloNecesidades = localNecesita && visitanteNecesita;
       const necesitadoVsCerrado = (localNecesita && visitanteCerrado) || (visitanteNecesita && localCerrado);
-      const ambosCerrados = localCerrado && visitanteCerrado;
 
       if (top === "X" && tercera >= 18) score += 25;
-      if (dueloNecesidades) score += 95;
-      if ((localDescenso || visitanteDescenso) && dueloNecesidades) score += 60;
-      if (necesitadoVsCerrado) {
-        score -= 55;
-        if (tercera >= 22 && margenProbabilidadBoleto(partido) <= 10) score += 25;
-      }
-      if (ambosCerrados) score -= 35;
+      if (detalleSorpresa.cobertura_sugerida === "TRIPLE") score += 95 + detalleSorpresa.indice * 0.55;
+      else if (detalleSorpresa.cobertura_sugerida === "DOBLE") score -= 20;
+      if (dueloNecesidades) score += 70;
+      if ((localDescenso || visitanteDescenso) && dueloNecesidades) score += 45;
+      if (necesitadoVsCerrado) score += 35;
       return score;
     }
 
@@ -5149,21 +5218,13 @@
       const margen = margenProbabilidadBoleto(partido);
       const top = signoTopProbabilidad(partido.probabilidades || {});
       let score = prioridadCoberturaAnalisis(partido);
-
-      const localComp = partido.contexto_competitivo_local;
-      const visitanteComp = partido.contexto_competitivo_visitante;
-      const localNecesita = equipoNecesidadVivaBoleto(localComp);
-      const visitanteNecesita = equipoNecesidadVivaBoleto(visitanteComp);
-      const localCerrado = equipoObjetivoCerradoBoleto(localComp);
-      const visitanteCerrado = equipoObjetivoCerradoBoleto(visitanteComp);
-      const dueloNecesidades = localNecesita && visitanteNecesita;
-      const necesitadoVsCerrado = (localNecesita && visitanteCerrado) || (visitanteNecesita && localCerrado);
+      const detalleSorpresa = detalleIndiceSorpresaQuinielisticaWeb(partido);
 
       if (tercera < 10) score += 45;
       else if (tercera >= 22) score -= 50;
+      if (detalleSorpresa.cobertura_sugerida === "DOBLE") score += 80 + detalleSorpresa.indice * 0.45;
+      else if (detalleSorpresa.cobertura_sugerida === "TRIPLE") score -= 30;
       if (margen < 12) score += 30;
-      if (necesitadoVsCerrado) score += 55;
-      if (dueloNecesidades && margen < 14) score += 25;
       if (top === "X") score += 8;
       return score;
     }
