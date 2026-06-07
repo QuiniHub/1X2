@@ -5,8 +5,15 @@ from datetime import datetime, time, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-import requests
-from bs4 import BeautifulSoup
+try:
+    import requests
+except ImportError:
+    requests = None
+
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None
 
 
 ROOT = Path(__file__).resolve().parent
@@ -92,6 +99,9 @@ def contiene_equipo(texto, equipo):
 
 def descargar_fuentes():
     textos = []
+    if requests is None or BeautifulSoup is None:
+        print("No estan disponibles requests/BeautifulSoup; no se consultan fuentes directas.")
+        return ""
     for url in FUENTES_DIRECTO:
         try:
             response = requests.get(url, headers=HEADERS, timeout=25)
@@ -136,8 +146,20 @@ def inicio_partido(partido):
 
     hora_txt = str(partido.get("hora") or "").strip()
     m = re.match(r"^(\d{1,2}):(\d{2})$", hora_txt)
-    hora = time(int(m.group(1)), int(m.group(2))) if m else time(0, 0)
+    if not m:
+        return None
+    hora = time(int(m.group(1)), int(m.group(2)))
     return datetime.combine(fecha, hora, TZ_COMPETICION)
+
+
+def fecha_partido(partido):
+    fecha_txt = str(partido.get("fecha") or "").strip()
+    if not fecha_txt:
+        return None
+    try:
+        return datetime.fromisoformat(fecha_txt).date()
+    except ValueError:
+        return None
 
 
 def partido_ya_deberia_tener_resultado(partido):
@@ -192,6 +214,13 @@ def partido_esta_programado_en_futuro(partido):
     inicio = inicio_partido(partido)
     if inicio:
         return inicio + MARGEN_RESULTADO_FINAL > ahora
+
+    # Sin hora fiable no se acepta scraping de resultados el mismo dia ni en el futuro.
+    # Evita cerrar partidos con marcadores encontrados en paginas agregadas pero no
+    # vinculados a un partido ya finalizado.
+    fecha = fecha_partido(partido)
+    if fecha and fecha >= ahora.date():
+        return True
 
     for p_cal in buscar_partidos_en_calendario(partido):
         try:
