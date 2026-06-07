@@ -509,6 +509,7 @@ def explicar(
     visitante_comp=None,
     lecturas_motivacion=None,
     prob_sorpresa=None,
+    indice_sorpresa=None,
 ):
     razones = []
     razones.append(f"Probabilidades IA: 1={probs['1']}%, X={probs['X']}%, 2={probs['2']}%.")
@@ -549,6 +550,14 @@ def explicar(
         )
     if prob_sorpresa is not None:
         razones.append(f"Riesgo de azar/sorpresa estimado: {prob_sorpresa}%.")
+    if indice_sorpresa:
+        cobertura = indice_sorpresa.get("cobertura_sugerida", "FIJO")
+        motivos = ", ".join(indice_sorpresa.get("motivos", [])[:3])
+        favorito = indice_sorpresa.get("favorito_nombre") or "sin favorito claro"
+        razones.append(
+            f"Indice de sorpresa quinielistica: {indice_sorpresa.get('indice', 0)}/100; "
+            f"favorito a vigilar: {favorito}; cobertura sugerida por sorpresa: {cobertura}. {motivos}."
+        )
     razones.append(f"Decision final: {signo}.")
     return " ".join(razones)
 
@@ -569,6 +578,245 @@ def riesgo_necesidad_real(local_comp, visitante_comp):
     )
 
 
+def racha_valor(equipo, clave):
+    try:
+        return float((equipo or {}).get("racha_actual", {}).get(clave) or 0)
+    except Exception:
+        return 0.0
+
+
+def tendencia_valor(equipo, clave):
+    try:
+        return float((equipo or {}).get("tendencias", {}).get(clave) or 0)
+    except Exception:
+        return 0.0
+
+
+def goles_por_partido(equipo, clave):
+    try:
+        tendencias = (equipo or {}).get("tendencias", {})
+        if clave in tendencias:
+            return float(tendencias.get(clave) or 0)
+        pj = max(float((equipo or {}).get("pj") or 1), 1.0)
+        campo = "gf" if "favor" in clave else "gc"
+        return float((equipo or {}).get(campo) or 0) / pj
+    except Exception:
+        return 0.0
+
+
+def signos_ordenados(probs):
+    return sorted(
+        ((signo, float((probs or {}).get(signo) or 0)) for signo in ("1", "X", "2")),
+        key=lambda item: item[1],
+        reverse=True,
+    )
+
+
+def equipo_memoria_por_signo(partido, signo):
+    if signo == "1":
+        return partido.get("_local")
+    if signo == "2":
+        return partido.get("_visitante")
+    return None
+
+
+def contexto_competitivo_por_signo(partido, signo):
+    if signo == "1":
+        return partido.get("contexto_competitivo_local")
+    if signo == "2":
+        return partido.get("contexto_competitivo_visitante")
+    return None
+
+
+def nombre_por_signo(partido, signo):
+    if signo == "1":
+        return partido.get("local", "")
+    if signo == "2":
+        return partido.get("visitante", "")
+    return "Empate"
+
+
+def clamp(valor, minimo=0.0, maximo=100.0):
+    return max(min(float(valor), maximo), minimo)
+
+
+def indice_sorpresa_quinielistica(partido, patrones=None):
+    probs = partido.get("probabilidades", {})
+    orden = signos_ordenados(probs)
+    if not orden:
+        return {
+            "indice": 0.0,
+            "categoria": "sin_datos",
+            "favorito": None,
+            "favorito_nombre": "",
+            "favorito_atacable": False,
+            "signo_sorpresa_principal": "",
+            "signos_contra_favorito": [],
+            "cobertura_sugerida": "FIJO",
+            "motivos": ["Sin probabilidades suficientes para medir sorpresa."],
+        }
+
+    top, top_prob = orden[0]
+    segundo, segundo_prob = orden[1] if len(orden) > 1 else ("", 0.0)
+    tercero, tercera_prob = orden[2] if len(orden) > 2 else ("", 0.0)
+    margen = top_prob - segundo_prob
+    inc = float(partido.get("incertidumbre") or 0)
+    sorpresa = float(partido.get("probabilidad_sorpresa") or 0)
+    x_prob = float(probs.get("X") or 0)
+    patrones = patrones or {}
+
+    local_comp = partido.get("contexto_competitivo_local")
+    visitante_comp = partido.get("contexto_competitivo_visitante")
+    local_necesita = necesidad_viva_motor(local_comp)
+    visitante_necesita = necesidad_viva_motor(visitante_comp)
+    local_cerrado = objetivo_cerrado_motor(local_comp)
+    visitante_cerrado = objetivo_cerrado_motor(visitante_comp)
+    local_descenso = descenso_vivo_motor(local_comp)
+    visitante_descenso = descenso_vivo_motor(visitante_comp)
+
+    favorito_signo = top if top in {"1", "2"} else None
+    favorito_comp = contexto_competitivo_por_signo(partido, favorito_signo)
+    rival_signo = "2" if favorito_signo == "1" else "1" if favorito_signo == "2" else None
+    rival_comp = contexto_competitivo_por_signo(partido, rival_signo)
+    favorito_memoria = equipo_memoria_por_signo(partido, favorito_signo)
+    rival_memoria = equipo_memoria_por_signo(partido, rival_signo)
+
+    favorito_necesita = necesidad_viva_motor(favorito_comp)
+    rival_necesita = necesidad_viva_motor(rival_comp)
+    favorito_cerrado = objetivo_cerrado_motor(favorito_comp)
+    rival_descenso = descenso_vivo_motor(rival_comp)
+
+    score = 0.0
+    motivos = []
+
+    score += clamp((inc - 85) * 0.45, 0, 42)
+    score += clamp((sorpresa - 35) * 0.55, 0, 24)
+
+    if margen <= 4:
+        score += 20
+        motivos.append("margen minimo entre primer y segundo signo")
+    elif margen <= 8:
+        score += 16
+        motivos.append("margen corto entre favorito y alternativa")
+    elif margen <= 12:
+        score += 11
+        motivos.append("favorito con ventaja moderada, no dominante")
+    elif margen <= 18:
+        score += 6
+
+    if top_prob < 45:
+        score += 16
+        motivos.append("ningun signo supera claramente el 45%")
+    elif top_prob < 50:
+        score += 10
+        motivos.append("favorito por debajo del 50%")
+    elif top_prob < 55:
+        score += 5
+
+    if x_prob >= 33:
+        score += 10
+        motivos.append("empate con peso alto")
+    elif x_prob >= 29:
+        score += 5
+
+    if tercera_prob >= 23:
+        score += 14
+        motivos.append("tercer signo vivo: partido candidato a triple")
+    elif tercera_prob >= 18:
+        score += 8
+
+    if favorito_signo is None:
+        score += 10
+        motivos.append("el signo base es X: no hay favorito limpio")
+
+    if favorito_cerrado and rival_necesita:
+        score += 30
+        motivos.append("favorito con objetivo cerrado ante rival que necesita puntuar")
+    if rival_descenso:
+        score += 26
+        motivos.append("rival del favorito con urgencia de descenso/permanencia")
+    if rival_necesita and not favorito_necesita:
+        score += 12
+        motivos.append("la necesidad competitiva esta mas del lado del no favorito")
+    if favorito_necesita and rival_necesita and margen <= 12:
+        score += 10
+        motivos.append("ambos tienen necesidad viva y el margen es estrecho")
+
+    if favorito_signo == "1":
+        if visitante_descenso:
+            tasa = tasa_patron(patrones, "visitante_descenso_vs_local_favorito")
+            score += tasa * 0.28
+        if visitante_necesita and local_cerrado:
+            tasa = tasa_patron(patrones, "visitante_necesitado_vs_local_objetivo_cerrado")
+            score += tasa * 0.22
+            score += tasa_patron(patrones, "equipo_necesitado_vs_equipo_sin_objetivo") * 0.14
+    elif favorito_signo == "2":
+        if local_descenso:
+            tasa = tasa_patron(patrones, "local_descenso_vs_visitante_favorito")
+            score += tasa * 0.28
+        if local_necesita and visitante_cerrado:
+            tasa = tasa_patron(patrones, "necesitado_local_vs_visitante_objetivo_cerrado")
+            score += tasa * 0.22
+            score += tasa_patron(patrones, "equipo_necesitado_vs_equipo_sin_objetivo") * 0.14
+
+    if racha_valor(favorito_memoria, "sin_ganar") >= 3:
+        score += 10
+        motivos.append("favorito con racha reciente sin ganar")
+    if racha_valor(rival_memoria, "sin_perder") >= 3:
+        score += 8
+        motivos.append("rival del favorito llega sin perder")
+    if goles_por_partido(favorito_memoria, "goles_contra_por_partido") >= 1.35:
+        score += 6
+        motivos.append("favorito encaja demasiado para ser fijo limpio")
+    if goles_por_partido(rival_memoria, "goles_favor_por_partido") >= 1.30:
+        score += 5
+    if tendencia_valor(rival_memoria, "forma_5_pts") - tendencia_valor(favorito_memoria, "forma_5_pts") >= 3:
+        score += 9
+        motivos.append("el no favorito llega con mejor forma reciente")
+
+    indice = round(clamp(score), 1)
+    if indice >= 75:
+        categoria = "favorito_muy_atacable" if favorito_signo else "partido_muy_abierto"
+    elif indice >= 60:
+        categoria = "favorito_atacable" if favorito_signo else "partido_abierto"
+    elif indice >= 45:
+        categoria = "sorpresa_vigilada"
+    else:
+        categoria = "riesgo_controlado"
+
+    cobertura = "FIJO"
+    if indice >= 76 and tercera_prob >= 18 and (margen <= 10 or x_prob >= 30 or favorito_signo is None):
+        cobertura = "TRIPLE"
+    elif indice >= 55 or margen <= 8 or sorpresa >= 60:
+        cobertura = "DOBLE"
+
+    signos_contra = [signo for signo, _ in orden if signo != top]
+    if tercero and tercero not in signos_contra:
+        signos_contra.append(tercero)
+
+    if not motivos:
+        motivos.append("sin senales fuertes de ruptura del favorito")
+
+    return {
+        "indice": indice,
+        "categoria": categoria,
+        "favorito": favorito_signo,
+        "favorito_nombre": nombre_por_signo(partido, favorito_signo),
+        "favorito_atacable": bool(favorito_signo and indice >= 60),
+        "signo_sorpresa_principal": segundo,
+        "signos_contra_favorito": signos_contra[:2],
+        "cobertura_sugerida": cobertura,
+        "motivos": motivos[:6],
+    }
+
+
+def indice_sorpresa_partido(partido):
+    datos = partido.get("_indice_sorpresa_quinielistica") or partido.get("indice_sorpresa_detalle")
+    if isinstance(datos, dict):
+        return float(datos.get("indice") or 0)
+    return float(partido.get("indice_sorpresa_quinielistica") or 0)
+
+
 def prioridad_cobertura(partido):
     probs = partido.get("probabilidades", {})
     valores = sorted(probs.values(), reverse=True)
@@ -583,6 +831,11 @@ def prioridad_cobertura(partido):
     visitante_descenso = descenso_vivo_motor(visitante_comp)
     top = signo_top(probs)
     score = float(partido.get("incertidumbre", 0))
+    indice = indice_sorpresa_partido(partido)
+    score += indice * 1.25
+    detalle_indice = partido.get("_indice_sorpresa_quinielistica") or {}
+    if detalle_indice.get("favorito_atacable"):
+        score += 35
 
     if partido.get("riesgo_necesidad_real"):
         score += 25
@@ -622,6 +875,8 @@ def prioridad_triple(partido):
     visitante_descenso = descenso_vivo_motor(visitante_comp)
     top = signo_top(probs)
     score = prioridad_cobertura(partido)
+    detalle_indice = partido.get("_indice_sorpresa_quinielistica") or {}
+    indice = indice_sorpresa_partido(partido)
 
     if tercera >= 18:
         score += 85
@@ -639,6 +894,10 @@ def prioridad_triple(partido):
 
     if top == "X" and tercera >= 18:
         score += 25
+    if detalle_indice.get("cobertura_sugerida") == "TRIPLE":
+        score += 95 + indice * 0.55
+    elif detalle_indice.get("cobertura_sugerida") == "DOBLE":
+        score -= 20
     if duelo_necesidades:
         score += 95
     if (local_descenso or visitante_descenso) and duelo_necesidades:
@@ -659,6 +918,8 @@ def prioridad_doble(partido):
     tercera = valores[2] if len(valores) > 2 else 0
     top = signo_top(probs)
     score = prioridad_cobertura(partido)
+    detalle_indice = partido.get("_indice_sorpresa_quinielistica") or {}
+    indice = indice_sorpresa_partido(partido)
 
     local_comp = partido.get("contexto_competitivo_local")
     visitante_comp = partido.get("contexto_competitivo_visitante")
@@ -673,6 +934,10 @@ def prioridad_doble(partido):
         score += 45
     elif tercera >= 22:
         score -= 50
+    if detalle_indice.get("cobertura_sugerida") == "DOBLE":
+        score += 80 + indice * 0.45
+    elif detalle_indice.get("cobertura_sugerida") == "TRIPLE":
+        score -= 30
     if margen < 12:
         score += 30
     if necesitado_vs_cerrado:
@@ -711,7 +976,17 @@ def perfil_riesgo_boleto(evaluados):
         inc = float(partido.get("incertidumbre") or 0)
         sorpresa = float(partido.get("probabilidad_sorpresa") or 0)
         x_prob = float(probs.get("X") or 0)
-        if inc >= 115 or sorpresa >= 55 or margen < 8 or top < 45 or x_prob >= 33:
+        indice = partido.get("_indice_sorpresa_quinielistica") or indice_sorpresa_quinielistica(partido)
+        indice_valor = float(indice.get("indice") or 0)
+        if (
+            inc >= 115
+            or sorpresa >= 55
+            or margen < 8
+            or top < 45
+            or x_prob >= 33
+            or indice_valor >= 45
+            or indice.get("cobertura_sugerida") != "FIJO"
+        ):
             riesgos.append({
                 "num": partido.get("num"),
                 "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
@@ -721,16 +996,39 @@ def perfil_riesgo_boleto(evaluados):
                 "margen": margen,
                 "tercera_probabilidad": tercera,
                 "prioridad_cobertura": round(prioridad_cobertura(partido), 2),
+                "indice_sorpresa_quinielistica": indice_valor,
+                "categoria_sorpresa": indice.get("categoria"),
+                "favorito": indice.get("favorito"),
+                "favorito_nombre": indice.get("favorito_nombre"),
+                "favorito_atacable": bool(indice.get("favorito_atacable")),
+                "signos_contra_favorito": indice.get("signos_contra_favorito", []),
+                "cobertura_sorpresa_sugerida": indice.get("cobertura_sugerida"),
+                "motivo_sorpresa": "; ".join(indice.get("motivos", [])[:3]),
             })
-    return sorted(riesgos, key=lambda p: (p["incertidumbre"], p["probabilidad_sorpresa"]), reverse=True)
+    return sorted(
+        riesgos,
+        key=lambda p: (
+            p["indice_sorpresa_quinielistica"],
+            p["prioridad_cobertura"],
+            p["incertidumbre"],
+        ),
+        reverse=True,
+    )
 
 
 def cobertura_automatica(evaluados):
     riesgos = perfil_riesgo_boleto(evaluados)
     muy_abiertos = [
         p for p in evaluados
-        if tercera_probabilidad_valor(p.get("probabilidades", {})) >= 20
-        and (float(p.get("incertidumbre") or 0) >= 118 or margen_probabilidades(p.get("probabilidades", {})) < 6)
+        if (
+            tercera_probabilidad_valor(p.get("probabilidades", {})) >= 20
+            and (float(p.get("incertidumbre") or 0) >= 118 or margen_probabilidades(p.get("probabilidades", {})) < 6)
+        )
+        or (p.get("_indice_sorpresa_quinielistica") or {}).get("cobertura_sugerida") == "TRIPLE"
+    ]
+    ataques_favorito = [
+        p for p in evaluados
+        if (p.get("_indice_sorpresa_quinielistica") or {}).get("favorito_atacable")
     ]
     if not riesgos:
         return 0, 0, "Sin riesgos claros: se conserva boleto sencillo."
@@ -741,14 +1039,15 @@ def cobertura_automatica(evaluados):
     if len(muy_abiertos) >= 5 and len(riesgos) >= 8:
         triples = 2
 
-    if len(riesgos) >= 9:
+    base_dobles = max(len(riesgos), len(ataques_favorito))
+    if base_dobles >= 9:
         dobles = 5
-    elif len(riesgos) >= 6:
+    elif base_dobles >= 6:
         dobles = 4
-    elif len(riesgos) >= 3:
+    elif base_dobles >= 3:
         dobles = 3
     else:
-        dobles = min(2, len(riesgos))
+        dobles = min(2, base_dobles)
 
     # Mantiene una propuesta jugable por defecto y evita que la IA publique 14 fijos
     # cuando su propio perfil de riesgo detecta una jornada abierta.
@@ -759,6 +1058,7 @@ def cobertura_automatica(evaluados):
 
     detalle = (
         f"Cobertura automatica: {len(riesgos)} partidos de riesgo detectados; "
+        f"{len(ataques_favorito)} favoritos atacables por indice de sorpresa; "
         f"se recomiendan {dobles} dobles y {triples} triples."
     )
     return dobles, triples, detalle
@@ -802,7 +1102,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         lecturas_motivacion.extend(lecturas_patrones)
         inc = incertidumbre(probs, local, visitante, diff, riesgo_contexto + riesgo_motivacion + riesgo_patrones)
         sorpresa = probabilidad_sorpresa(probs, inc)
-        evaluados.append({
+        evaluado = {
             **partido,
             "probabilidades": probs,
             "signo_base": signo_top(probs),
@@ -818,7 +1118,13 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "_local": local,
             "_visitante": visitante,
             "_diff": diff,
-        })
+        }
+        indice_sorpresa = indice_sorpresa_quinielistica(evaluado, patrones_competitivos)
+        evaluado["_indice_sorpresa_quinielistica"] = indice_sorpresa
+        evaluado["indice_sorpresa_quinielistica"] = indice_sorpresa["indice"]
+        evaluado["categoria_sorpresa"] = indice_sorpresa["categoria"]
+        evaluado["favorito_atacable"] = indice_sorpresa["favorito_atacable"]
+        evaluados.append(evaluado)
 
     cobertura_auto = dobles is None and triples is None
     criterio_cobertura = "Cobertura indicada manualmente."
@@ -867,6 +1173,15 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "margen_probabilidad": margen_probabilidades(partido["probabilidades"]),
             "tercera_probabilidad": tercera_probabilidad_valor(partido["probabilidades"]),
             "riesgo_necesidad_real": partido["riesgo_necesidad_real"],
+            "indice_sorpresa_quinielistica": partido["indice_sorpresa_quinielistica"],
+            "categoria_sorpresa": partido["categoria_sorpresa"],
+            "favorito_atacable": partido["favorito_atacable"],
+            "favorito": partido["_indice_sorpresa_quinielistica"].get("favorito"),
+            "favorito_nombre": partido["_indice_sorpresa_quinielistica"].get("favorito_nombre"),
+            "signo_sorpresa_principal": partido["_indice_sorpresa_quinielistica"].get("signo_sorpresa_principal"),
+            "signos_contra_favorito": partido["_indice_sorpresa_quinielistica"].get("signos_contra_favorito", []),
+            "cobertura_sorpresa_sugerida": partido["_indice_sorpresa_quinielistica"].get("cobertura_sugerida"),
+            "motivos_sorpresa": partido["_indice_sorpresa_quinielistica"].get("motivos", []),
             "elige8": partido["num"] in elige8_set,
             "razonamiento": explicar(
                 partido,
@@ -883,11 +1198,30 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
                 partido.get("contexto_competitivo_visitante"),
                 partido.get("lecturas_motivacion"),
                 partido.get("probabilidad_sorpresa"),
+                partido.get("_indice_sorpresa_quinielistica"),
             ),
         })
 
+    ataques_favorito_prioritarios = [
+        {
+            "num": p["num"],
+            "partido": f"{p['local']} - {p['visitante']}",
+            "favorito": p["favorito"],
+            "favorito_nombre": p["favorito_nombre"],
+            "indice_sorpresa_quinielistica": p["indice_sorpresa_quinielistica"],
+            "signo_sorpresa_principal": p["signo_sorpresa_principal"],
+            "signos_contra_favorito": p["signos_contra_favorito"],
+            "cobertura_sorpresa_sugerida": p["cobertura_sorpresa_sugerida"],
+            "tipo_final": p["tipo"],
+            "signo_final": p["signo_final"],
+            "motivo_sorpresa": "; ".join(p["motivos_sorpresa"][:3]),
+        }
+        for p in sorted(partidos, key=lambda item: item["indice_sorpresa_quinielistica"], reverse=True)
+        if p["favorito_atacable"]
+    ][:8]
+
     salida = {
-        "version": "1.0",
+        "version": "1.1",
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "jornada": jornada,
         "temporada_base": memoria.get("temporada", "2025/2026"),
@@ -901,6 +1235,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         "coste": coste(dobles, triples, elige8),
         "partidos": partidos,
         "criterio_cobertura": criterio_cobertura,
+        "ataques_favorito_prioritarios": ataques_favorito_prioritarios,
         "riesgos_detectados": perfil_riesgo_boleto(evaluados)[:8],
         "contexto_equipos": {
             "generado_en": contexto.get("generado_en"),
@@ -916,6 +1251,8 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "dobles": sum(1 for p in partidos if p["tipo"] == "DOBLE"),
             "triples": sum(1 for p in partidos if p["tipo"] == "TRIPLE"),
             "elige8_seleccionados": sum(1 for p in partidos if p["elige8"]),
+            "favoritos_atacables": sum(1 for p in partidos if p["favorito_atacable"]),
+            "indice_sorpresa_max": max((p["indice_sorpresa_quinielistica"] for p in partidos), default=0),
         },
     }
 
