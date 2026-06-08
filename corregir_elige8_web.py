@@ -117,6 +117,7 @@ COSTE_ELIGE8_NUEVO = "const importeElige8 = elige8 ? apuestas * 0.50 : 0;"
 
 
 def reemplazar_funciones(html):
+    funciones = FUNCIONES.strip("\n")
     inicio = html.find("    function probabilidadSignoElige8Web(item) {")
     if inicio == -1:
         inicio = html.find("    function signosElige8Web(item) {")
@@ -124,12 +125,12 @@ def reemplazar_funciones(html):
         fin = html.find("    function evaluarConfiguracionEstrategia(partidosBase, dobles, triples, elige8 = false) {", inicio)
         if fin == -1:
             raise SystemExit("No encuentro final del bloque de funciones Elige 8")
-        return html[:inicio] + FUNCIONES + "\n" + html[fin:]
+        return html[:inicio].rstrip("\n") + "\n\n" + funciones + "\n\n" + html[fin:].lstrip("\n")
 
     marcador = "    function evaluarConfiguracionEstrategia(partidosBase, dobles, triples, elige8 = false) {"
     if marcador not in html:
         raise SystemExit("No encuentro donde insertar funciones de Elige 8")
-    return html.replace(marcador, FUNCIONES + "\n" + marcador)
+    return html.replace(marcador, funciones + "\n\n" + marcador)
 
 
 def main():

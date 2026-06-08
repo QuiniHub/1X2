@@ -74,12 +74,13 @@ HELPERS = r'''
 
 def main():
     html = INDEX.read_text(encoding="utf-8")
+    original = html
 
     if "function ajustarPorPatronesAprendidosWeb" not in html:
-        marker = "\n\n    function puntosCasaFueraTexto(equipo, condicion) {"
+        marker = "    function puntosCasaFueraTexto(equipo, condicion) {"
         if marker not in html:
             raise SystemExit("No encuentro puntosCasaFueraTexto.")
-        html = html.replace(marker, "\n" + HELPERS + marker, 1)
+        html = html.replace(marker, HELPERS.strip("\n") + "\n\n" + marker, 1)
 
     if "patronesCompetitivos = await fetchJSON" not in html:
         html = html.replace(
@@ -113,8 +114,11 @@ def main():
     if "bonusPatronesAprendidosWeb" in html and old_bonus in html:
         html = html.replace(old_bonus, new_bonus, 1)
 
-    INDEX.write_text(html, encoding="utf-8")
-    print("Web reforzada con patrones competitivos aprendidos.")
+    if html != original:
+        INDEX.write_text(html, encoding="utf-8")
+        print("Web reforzada con patrones competitivos aprendidos.")
+    else:
+        print("Web ya estaba reforzada con patrones competitivos aprendidos.")
 
 
 if __name__ == "__main__":

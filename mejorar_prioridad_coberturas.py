@@ -265,7 +265,7 @@ def replace_regex(text, pattern, replacement, desc):
 def patch_index(html):
     full_pattern = r"\n    function valoresProbabilidadOrdenados\(partido\) \{.*?\n\n    function puntosCasaFueraTexto"
     priority_pattern = r"\n    function prioridadCoberturaAnalisis\(partido\) \{.*?\n\n    function puntosCasaFueraTexto"
-    replacement = "\n" + WEB_PRIORITY_HELPERS + "\n\n    function puntosCasaFueraTexto"
+    replacement = "\n" + WEB_PRIORITY_HELPERS.strip("\n") + "\n\n    function puntosCasaFueraTexto"
     if re.search(full_pattern, html, flags=re.S):
         html = replace_regex(html, full_pattern, replacement, "prioridad de coberturas web")
     else:
