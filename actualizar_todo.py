@@ -68,6 +68,7 @@ SCRIPTS_ACTIVOS = [
     "diagnostico_sistema.py",
     "control_calidad_actualizacion.py",
     "normalizar_diagnostico_control.py",
+    "normalizar_textos_generados.py",
 ]
 
 
