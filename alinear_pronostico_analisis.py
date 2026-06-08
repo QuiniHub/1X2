@@ -187,8 +187,21 @@ def replace_regex(text, pattern, new, desc):
     return updated
 
 
+def pattern_helpers(preservar_prioridad):
+    helpers = PATTERN_HELPERS.strip("\n")
+    if preservar_prioridad:
+        helpers = re.sub(
+            r"\n\n    function prioridadCoberturaAnalisis\(partido\) \{.*?\n    \}",
+            "",
+            helpers,
+            count=1,
+            flags=re.S,
+        )
+    return helpers
+
+
 def patch_index(html):
-    core_new = "\n" + CORE_HELPERS + "\n\n    function bonusRiesgoCompetitivo(localComp, visitanteComp, probs) {"
+    core_new = "\n" + CORE_HELPERS.strip("\n") + "\n\n    function bonusRiesgoCompetitivo(localComp, visitanteComp, probs) {"
     if "function normalizarCompetitivoTextoBoleto" in html:
         html = replace_regex(
             html,
@@ -204,13 +217,22 @@ def patch_index(html):
             "helpers competitivos web",
         )
 
-    pattern_new = "\n" + PATTERN_HELPERS + "\n\n    function puntosCasaFueraTexto(equipo, condicion) {"
-    html = replace_regex(
-        html,
-        r"\n    function tasaPatronCompetitivo\(patrones, clave\) \{.*?\n\n    function puntosCasaFueraTexto\(equipo, condicion\) \{",
-        pattern_new,
-        "patrones y prioridad web",
-    )
+    if "function valoresProbabilidadOrdenados(partido)" in html:
+        pattern_new = "\n" + pattern_helpers(preservar_prioridad=True) + "\n\n    function valoresProbabilidadOrdenados(partido) {"
+        html = replace_regex(
+            html,
+            r"\n    function tasaPatronCompetitivo\(patrones, clave\) \{.*?\n\n    function valoresProbabilidadOrdenados\(partido\) \{",
+            pattern_new,
+            "patrones web",
+        )
+    else:
+        pattern_new = "\n" + pattern_helpers(preservar_prioridad=False) + "\n\n    function puntosCasaFueraTexto(equipo, condicion) {"
+        html = replace_regex(
+            html,
+            r"\n    function tasaPatronCompetitivo\(patrones, clave\) \{.*?\n\n    function puntosCasaFueraTexto\(equipo, condicion\) \{",
+            pattern_new,
+            "patrones web",
+        )
 
     call = "probs = ajustarPorPatronesAprendidosWeb(probs, contextoCompetitivoLocal, contextoCompetitivoVisitante, patronesCompetitivos);"
     if call not in html:
