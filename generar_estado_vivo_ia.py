@@ -116,14 +116,10 @@ def leer_jornada_actual(jornada_objetivo=None):
             continue
         cerrados = sum(1 for p in data.get("partidos", []) if str(p.get("signo_oficial", "")).upper() in ("1", "X", "2"))
         pendientes = sum(1 for p in data.get("partidos", []) if str(p.get("signo_oficial", "")).lower() == "pendiente")
-        if pendientes:
-            candidatas.append((numero, cerrados, data))
+        candidatas.append((numero, cerrados, pendientes, data))
     if not candidatas:
         return cargar_json(JORNADAS / "jornada_62.json", {})
-    en_juego = [c for c in candidatas if c[1] > 0]
-    if en_juego:
-        return sorted(en_juego, key=lambda x: (x[0], x[1]), reverse=True)[0][2]
-    return sorted(candidatas, key=lambda x: (x[0], x[1]), reverse=True)[0][2]
+    return sorted(candidatas, key=lambda x: (x[0], x[1]), reverse=True)[0][3]
 
 
 def cambios_jornada_actual(jornada, indice_competitivo=None):
@@ -163,6 +159,11 @@ def cambios_jornada_actual(jornada, indice_competitivo=None):
         "distribucion_signos": {k: signos[k] for k in ("1", "X", "2")},
         "resultados_nuevos_o_vigentes": cambios[-8:],
     }
+
+
+def estado_publicacion_jornada(estado_jornada):
+    pendientes = estado_jornada.get("pendientes_totales_con_pleno15", estado_jornada.get("pendientes", 0))
+    return "vivo_en_desarrollo" if pendientes else "jornada_cerrada_analizada"
 
 
 def objetivo_principal(equipo):
@@ -486,22 +487,23 @@ def main():
     indice_competitivo = crear_indice_competitivo(contexto_competitivo or {})
     estado_jornada = cambios_jornada_actual(jornada, indice_competitivo)
     estado_prediccion = analizar_prediccion(prediccion, contexto_competitivo)
+    ajustes_siguiente_lectura = [
+        "Reordenar confianza segun resultados nuevos de la jornada actual.",
+        "Subir vigilancia de empates o visitantes si la jornada actual los confirma.",
+        "Priorizar dobles/triples en partidos con incertidumbre mas alta.",
+        "Cruzar cada signo con la necesidad real de puntos: titulo, Europa, ascenso, playoff y descenso.",
+    ]
 
     salida = {
         "version": "1.0",
         "generado_en": datetime.now(timezone.utc).isoformat(),
-        "estado": "vivo_en_desarrollo",
+        "estado": estado_publicacion_jornada(estado_jornada),
         "jornada_actual": estado_jornada,
         "prediccion_objetivo": estado_prediccion,
         "contexto_competitivo": resumir_contexto_competitivo(contexto_competitivo),
         "que_ha_cambiado": estado_jornada["resultados_nuevos_o_vigentes"],
         "que_aprende": aprendizajes(estado_jornada) + aprendizajes_contexto(contexto_competitivo),
-        "que_modifica_para_jornada_63": [
-            "Reordenar confianza segun resultados nuevos de la jornada actual.",
-            "Subir vigilancia de empates o visitantes si la jornada actual los confirma.",
-            "Priorizar dobles/triples en partidos con incertidumbre mas alta.",
-            "Cruzar cada signo con la necesidad real de puntos: titulo, Europa, ascenso, playoff y descenso.",
-        ],
+        "que_modifica_para_siguiente_lectura": ajustes_siguiente_lectura,
         "partidos_mas_seguros": estado_prediccion["partidos_mas_seguros"],
         "partidos_trampa_o_sorpresa": estado_prediccion["partidos_trampa_o_sorpresa"],
         "dudas_abiertas": estado_prediccion["dudas_abiertas"],

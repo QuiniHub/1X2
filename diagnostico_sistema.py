@@ -123,13 +123,14 @@ def diagnosticar_jornadas(alertas, jornada_objetivo=None):
     for path in sorted(JORNADAS.glob("jornada_*.json"), key=lambda p: int(re.search(r"(\d+)", p.stem).group(1))):
         res.append(resumen_jornada(path))
     abiertas = [j for j in res if j["pendientes"] > 0]
-    en_juego = [j for j in abiertas if j["cerrados"] > 0]
     jornada_actual = next((j for j in res if j["jornada"] == jornada_objetivo), None)
     if not jornada_actual:
-        jornada_actual = max(en_juego, key=lambda j: (j["jornada"], j["cerrados"]), default=None)
-    if not jornada_actual:
-        jornada_actual = max(abiertas, key=lambda j: j["jornada"], default=None)
-    proxima = max(abiertas, key=lambda j: j["jornada"], default=None)
+        jornada_actual = max(res, key=lambda j: j["jornada"], default=None)
+    proxima = max(
+        [j for j in abiertas if jornada_actual and j["jornada"] > jornada_actual["jornada"]],
+        key=lambda j: j["jornada"],
+        default=None,
+    )
 
     if jornada_actual and jornada_actual["pendientes"] > 0:
         pleno_txt = " y el Pleno al 15 pendiente" if not jornada_actual.get("pleno15_cerrado") else ""

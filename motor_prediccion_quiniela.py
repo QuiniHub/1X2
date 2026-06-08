@@ -55,19 +55,15 @@ def normalizar(texto):
 
 
 def detectar_jornada_activa():
-    candidatas = []
+    jornadas = []
     for path in JORNADAS.glob("jornada_*.json"):
         data = cargar_json(path, {})
         numero = data.get("jornada")
         if not isinstance(numero, int):
             m = re.search(r"(\d+)", path.stem)
             numero = int(m.group(1)) if m else 0
-        pendientes = sum(1 for p in data.get("partidos", []) if str(p.get("signo_oficial", "")).lower() == "pendiente")
-        if pendientes:
-            candidatas.append(numero)
-    if candidatas:
-        return max(candidatas)
-    jornadas = [int(re.search(r"(\d+)", p.stem).group(1)) for p in JORNADAS.glob("jornada_*.json")]
+        if numero:
+            jornadas.append(numero)
     return max(jornadas) if jornadas else 61
 
 

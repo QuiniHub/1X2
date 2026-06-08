@@ -14,6 +14,7 @@ from generar_estado_vivo_ia import (
     cambios_jornada_actual,
     crear_indice_competitivo,
     errores_a_evitar,
+    estado_publicacion_jornada,
     guardar_json,
     leer_jornada_actual,
     resumir_contexto_competitivo,
@@ -46,7 +47,7 @@ def main():
     salida = {
         "version": "1.1",
         "generado_en": datetime.now(timezone.utc).isoformat(),
-        "estado": "vivo_en_desarrollo",
+        "estado": estado_publicacion_jornada(estado_jornada),
         "jornada_actual": estado_jornada,
         "prediccion_objetivo": estado_prediccion,
         "contexto_competitivo": resumir_contexto_competitivo(contexto_competitivo),

@@ -86,8 +86,7 @@ def jornadas_estado():
     resumenes = []
     for path in sorted(JORNADAS.glob("jornada_*.json"), key=lambda p: int(re.search(r"(\d+)", p.stem).group(1))):
         resumenes.append(resumen_jornada(path))
-    abiertas = [j for j in resumenes if j["pendientes"] > 0]
-    actual = max(abiertas, key=lambda j: j["jornada"], default=None)
+    actual = resumenes[-1] if resumenes else None
     ultima = resumenes[-1] if resumenes else None
     return resumenes, actual, ultima
 
