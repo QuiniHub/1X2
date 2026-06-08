@@ -3700,6 +3700,7 @@
 
 
 
+
     function normalizarCompetitivoTextoBoleto(texto) {
       return norm(String(texto || "").replaceAll("_", " "));
     }
@@ -4431,6 +4432,7 @@
 
 
 
+
     function tasaPatronCompetitivo(patrones, clave) {
       return Number(patrones?.patrones?.[clave]?.tasa_sorpresa || 0);
     }
@@ -4502,7 +4504,6 @@
         || contieneDescensoVivoBoleto(localComp)
         || contieneDescensoVivoBoleto(visitanteComp);
     }
-
 
     function valoresProbabilidadOrdenados(partido) {
       return Object.values(partido.probabilidades || {}).sort((a, b) => b - a);
