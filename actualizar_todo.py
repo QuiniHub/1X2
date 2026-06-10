@@ -41,6 +41,7 @@ SCRIPTS_ACTIVOS = [
     "mejorar_prioridad_coberturas.py",
     "validar_contexto_actual.py",
     "motor_prediccion_quiniela.py",
+    "alinear_boleto_con_analisis.py",
     "generar_estado_vivo_ia.py",
     "regenerar_estado_vivo_actual.py",
     "ajustar_estado_vivo_motivacion.py",
