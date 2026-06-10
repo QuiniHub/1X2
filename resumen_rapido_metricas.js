@@ -178,9 +178,7 @@
     const prioridadOriginal = window.prioridadDobleAnalisis;
 
     function ordenProbabilidades(probs) {
-      return Object.entries(probs || {})
-        .map(([signo, valor]) => [signo, Number(valor || 0)])
-        .sort((a, b) => b[1] - a[1]);
+      return Object.entries(probs || {}).map(([signo, valor]) => [signo, Number(valor || 0)]).sort((a, b) => b[1] - a[1]);
     }
 
     function objetivoVivo(datos) {
@@ -217,17 +215,111 @@
       const base = evaluarOriginal(partidosBase, dobles, triples, false);
       if (!elige8) return base;
       const conElige8 = evaluarOriginal(partidosBase, dobles, triples, true);
-      return {
-        ...base,
-        elige8: true,
-        coste: conElige8.coste,
-        elige8Candidatos: conElige8.elige8Candidatos,
-        valor: base.valor + 0.01,
-        detalle: base.detalle,
-        coberturaMedia: base.coberturaMedia,
-        fijosPeligrosos: base.fijosPeligrosos,
-        trampasCubiertas: base.trampasCubiertas
-      };
+      return { ...base, elige8: true, coste: conElige8.coste, elige8Candidatos: conElige8.elige8Candidatos, valor: base.valor + 0.01 };
+    };
+  }
+
+  function instalarGeneradorBoletoEstable() {
+    if (window.__generadorBoletoElige8Estable || typeof window.generarBoletoIA !== "function") return;
+    window.__generadorBoletoElige8Estable = true;
+    const generarOriginal = window.generarBoletoIA;
+
+    window.generarBoletoIA = async function generarBoletoIAEstable() {
+      const doblesInput = document.getElementById("num-dobles");
+      const triplesInput = document.getElementById("num-triples");
+      const elige8Input = document.getElementById("activar-elige8");
+      const doblesSolicitados = parseInt(doblesInput?.value || "0", 10);
+      const triplesSolicitados = parseInt(triplesInput?.value || "0", 10);
+      const activarElige8 = Boolean(elige8Input?.checked);
+      const prediccionBackend = await fetchJSON("data/predicciones/ultima_prediccion.json", null);
+      const jornada = typeof jornadaActualIA !== "undefined" ? jornadaActualIA : prediccionBackend?.jornada;
+      const backendDobles = Number(prediccionBackend?.resumen?.dobles ?? prediccionBackend?.configuracion?.dobles ?? 0);
+      const backendTriples = Number(prediccionBackend?.resumen?.triples ?? prediccionBackend?.configuracion?.triples ?? 0);
+      const coincideConfig = (doblesSolicitados === 0 && triplesSolicitados === 0) || (doblesSolicitados === backendDobles && triplesSolicitados === backendTriples);
+      const usarBackend = prediccionBackend
+        && Number(prediccionBackend.jornada) === Number(jornada)
+        && prediccionBackend.configuracion?.cobertura_auto
+        && coincideConfig;
+
+      if (!usarBackend) return generarOriginal.apply(this, arguments);
+
+      if (doblesInput) doblesInput.value = backendDobles;
+      if (triplesInput) triplesInput.value = backendTriples;
+      if (elige8Input) elige8Input.checked = activarElige8;
+      if (typeof calcularImporteIA === "function") calcularImporteIA();
+
+      const partidos = (prediccionBackend.partidos || [])
+        .filter(p => Number(p.num) <= 14)
+        .map(p => ({
+          ...p,
+          num: Number(p.num),
+          tipo_apuesta: p.tipo || "FIJO",
+          signo_final: p.signo_final || p.signo_base || "1",
+          explicacion: p.razonamiento || "",
+          confianza: p.confianza || "IA",
+          riesgo: p.riesgo || (Number(p.incertidumbre || 0) >= 115 || Number(p.probabilidad_sorpresa || 0) >= 55 ? "Alto" : "Medio")
+        }))
+        .sort((a, b) => a.num - b.num);
+
+      const elige8Set = new Set();
+      if (activarElige8 && typeof candidatosElige8CobroWeb === "function") {
+        candidatosElige8CobroWeb(partidos.map(p => ({ partido: p, num: p.num, tipo: p.tipo_apuesta, signos: p.signo_final, riesgo: p.incertidumbre })))
+          .forEach(item => elige8Set.add(Number(item.num)));
+      }
+
+      const pleno = prediccionBackend.pleno15 || (typeof pleno15JornadaIA !== "undefined" ? pleno15JornadaIA : null);
+      const plenoIA = pleno ? {
+        local: pleno.local || "",
+        visitante: pleno.visitante || "",
+        pronostico: pleno.pronostico || pleno.signo_nuestro || pleno.resultado || "1-1",
+        explicacion: pleno.explicacion || "Pronóstico orientativo del Pleno al 15 basado en la predicción activa."
+      } : null;
+
+      const contenedor = document.getElementById("boleto-ia");
+      if (!contenedor) return;
+      const importe = document.getElementById("importe-quiniela")?.textContent || "";
+
+      contenedor.innerHTML = `
+        <div class="boleto-resumen">
+          <strong>Jornada ${jornada}</strong> ·
+          ${14 - backendDobles - backendTriples} sencillos · ${backendDobles} dobles · ${backendTriples} triples ·
+          ${activarElige8 ? "Elige 8 activado" : "Elige 8 no activado"} ·
+          ${importe}
+        </div>
+
+        ${partidos.map(p => `
+          <div class="fila-boleto ${elige8Set.has(p.num) ? "elige8-activo" : ""}">
+            <div>${p.num}</div>
+            <div>
+              <strong>${p.local} - ${p.visitante}</strong><br>
+              <small>1: ${p.probabilidades?.["1"] ?? "-"}% · X: ${p.probabilidades?.["X"] ?? "-"}% · 2: ${p.probabilidades?.["2"] ?? "-"}%</small><br>
+              <small>Confianza: ${p.confianza} · Riesgo: ${p.riesgo}</small>
+              ${elige8Set.has(p.num) ? `<br><span class="elige8-badge">Elige 8</span>` : ""}
+            </div>
+            <div class="signos-ia">${String(p.signo_final).split("").map(s => `<span>${s}</span>`).join("")}</div>
+          </div>
+        `).join("")}
+
+        ${plenoIA ? `
+          <div class="fila-boleto pleno15">
+            <div>15</div>
+            <div><strong>Pleno al 15</strong><br><small>${plenoIA.local} - ${plenoIA.visitante}</small><br><small>${plenoIA.explicacion}</small></div>
+            <div class="signos-ia"><span>${plenoIA.pronostico}</span></div>
+          </div>
+        ` : ""}
+
+        <div class="card" style="margin-top:20px;">
+          <h3>Análisis IA del boleto</h3>
+          ${partidos.map(p => `
+            <p>
+              <strong>${p.num}. ${p.local} - ${p.visitante}</strong><br>
+              Signo recomendado: <strong>${p.signo_final}</strong><br>
+              ${elige8Set.has(p.num) ? "<strong>Marcado para Elige 8.</strong><br>" : ""}
+              ${p.explicacion}
+            </p>
+          `).join("")}
+        </div>
+      `;
     };
   }
 
@@ -235,11 +327,15 @@
     setTimeout(estabilizarElige8SobreBoletoBase, 200);
     setTimeout(estabilizarElige8SobreBoletoBase, 1200);
     setTimeout(estabilizarElige8SobreBoletoBase, 3000);
+    setTimeout(instalarGeneradorBoletoEstable, 200);
+    setTimeout(instalarGeneradorBoletoEstable, 1200);
+    setTimeout(instalarGeneradorBoletoEstable, 3000);
   }
 
   async function initResumenRapidoMetricas() {
     activarMejoraXCercana();
     estabilizarElige8SobreBoletoBase();
+    instalarGeneradorBoletoEstable();
     const contenedor = document.getElementById("prediccion-resumen");
     if (!contenedor || document.getElementById("resumen-rapido-metricas")) return;
 
