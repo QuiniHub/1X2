@@ -208,8 +208,38 @@
     };
   }
 
+  function estabilizarElige8SobreBoletoBase() {
+    if (window.__elige8EstableActiva || typeof window.evaluarConfiguracionEstrategia !== "function") return;
+    window.__elige8EstableActiva = true;
+    const evaluarOriginal = window.evaluarConfiguracionEstrategia;
+
+    window.evaluarConfiguracionEstrategia = function evaluarConfiguracionEstrategiaElige8Estable(partidosBase, dobles, triples, elige8 = false) {
+      const base = evaluarOriginal(partidosBase, dobles, triples, false);
+      if (!elige8) return base;
+      const conElige8 = evaluarOriginal(partidosBase, dobles, triples, true);
+      return {
+        ...base,
+        elige8: true,
+        coste: conElige8.coste,
+        elige8Candidatos: conElige8.elige8Candidatos,
+        valor: base.valor + 0.01,
+        detalle: base.detalle,
+        coberturaMedia: base.coberturaMedia,
+        fijosPeligrosos: base.fijosPeligrosos,
+        trampasCubiertas: base.trampasCubiertas
+      };
+    };
+  }
+
+  function programarEstabilidadElige8() {
+    setTimeout(estabilizarElige8SobreBoletoBase, 200);
+    setTimeout(estabilizarElige8SobreBoletoBase, 1200);
+    setTimeout(estabilizarElige8SobreBoletoBase, 3000);
+  }
+
   async function initResumenRapidoMetricas() {
     activarMejoraXCercana();
+    estabilizarElige8SobreBoletoBase();
     const contenedor = document.getElementById("prediccion-resumen");
     if (!contenedor || document.getElementById("resumen-rapido-metricas")) return;
 
@@ -224,6 +254,7 @@
   }
 
   function programarResumenRapidoMetricas() {
+    programarEstabilidadElige8();
     setTimeout(initResumenRapidoMetricas, 1200);
     setTimeout(initResumenRapidoMetricas, 3000);
   }
