@@ -46,10 +46,40 @@ def jornadas_existentes():
     return sorted(set(numeros))
 
 
+def cobertura_sugerida(partido):
+    return str(partido.get("cobertura_sorpresa_sugerida") or "FIJO").upper()
+
+
+def score_triple(partido):
+    sugerida = cobertura_sugerida(partido)
+    return (
+        100000 if sugerida == "TRIPLE" else 0,
+        numero(partido.get("indice_sorpresa_quinielistica")),
+        numero(partido.get("tercera_probabilidad")),
+        numero(partido.get("probabilidad_sorpresa")),
+        numero(partido.get("incertidumbre")),
+        -numero(partido.get("margen_probabilidad"), 99),
+        -int(partido.get("num") or 0),
+    )
+
+
+def score_cobertura(partido):
+    sugerida = cobertura_sugerida(partido)
+    return (
+        100000 if sugerida in {"TRIPLE", "DOBLE"} else 0,
+        numero(partido.get("indice_sorpresa_quinielistica")),
+        numero(partido.get("probabilidad_sorpresa")),
+        numero(partido.get("incertidumbre")),
+        -numero(partido.get("margen_probabilidad"), 99),
+        numero((partido.get("probabilidades") or {}).get("X")),
+        -int(partido.get("num") or 0),
+    )
+
+
 def validar_prediccion(pred):
     errores = []
     avisos = []
-    partidos = pred.get("partidos", [])
+    partidos = pred.get("partidos", [])[:14]
     jornada = pred.get("jornada")
 
     if not jornada:
@@ -58,25 +88,10 @@ def validar_prediccion(pred):
         errores.append("La prediccion no contiene 14 partidos.")
 
     tipos = {"FIJO": 0, "DOBLE": 0, "TRIPLE": 0}
-    for partido in partidos[:14]:
+    for partido in partidos:
         tipo = str(partido.get("tipo") or "").upper()
         tipos[tipo] = tipos.get(tipo, 0) + 1
-        cobertura = str(partido.get("cobertura_sorpresa_sugerida") or "FIJO").upper()
-        indice = numero(partido.get("indice_sorpresa_quinielistica"))
-        margen = numero(partido.get("margen_probabilidad"), 99)
-        tercera = numero(partido.get("tercera_probabilidad"))
         signo_final = str(partido.get("signo_final") or "")
-
-        if tipo == "FIJO" and cobertura == "TRIPLE" and indice >= 90 and tercera >= 25:
-            errores.append(
-                f"Partido {partido.get('num')} pide TRIPLE por analisis "
-                f"(indice {indice}, tercera {tercera}) pero esta publicado como FIJO."
-            )
-        if tipo == "FIJO" and indice >= 95 and margen <= 3 and tercera >= 28:
-            errores.append(
-                f"Partido {partido.get('num')} es muy abierto "
-                f"(indice {indice}, margen {margen}, tercera {tercera}) pero esta publicado como FIJO."
-            )
         if tipo == "DOBLE" and len(signo_final) < 2:
             errores.append(f"Partido {partido.get('num')} es DOBLE pero signo_final no tiene dos signos.")
         if tipo == "TRIPLE" and signo_final != "1X2":
@@ -89,6 +104,22 @@ def validar_prediccion(pred):
         errores.append(f"Dobles publicados ({tipos.get('DOBLE', 0)}) no coinciden con configuracion ({dobles_config}).")
     if tipos.get("TRIPLE", 0) != triples_config:
         errores.append(f"Triples publicados ({tipos.get('TRIPLE', 0)}) no coinciden con configuracion ({triples_config}).")
+
+    triples_esperados = {p.get("num") for p in sorted(partidos, key=score_triple, reverse=True)[:triples_config]}
+    triples_publicados = {p.get("num") for p in partidos if str(p.get("tipo") or "").upper() == "TRIPLE"}
+    if triples_publicados != triples_esperados:
+        errores.append(
+            "Los triples publicados no coinciden con los partidos de mayor prioridad por analisis. "
+            f"Esperados {sorted(triples_esperados)}, publicados {sorted(triples_publicados)}."
+        )
+
+    cubiertos_esperados = {p.get("num") for p in sorted(partidos, key=score_cobertura, reverse=True)[:dobles_config + triples_config]}
+    cubiertos_publicados = {p.get("num") for p in partidos if str(p.get("tipo") or "").upper() in {"DOBLE", "TRIPLE"}}
+    if cubiertos_publicados != cubiertos_esperados:
+        errores.append(
+            "Los dobles/triples no estan colocados en los partidos de mayor riesgo. "
+            f"Esperados {sorted(cubiertos_esperados)}, publicados {sorted(cubiertos_publicados)}."
+        )
 
     if jornada:
         jornada_path = JORNADAS / f"jornada_{jornada}.json"
