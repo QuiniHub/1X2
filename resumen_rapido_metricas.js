@@ -56,45 +56,22 @@
     const importeElige8Correcto = apuestas * PRECIO_ELIGE8_POR_APUESTA;
     const totalConElige8 = importeQuiniela + importeElige8Correcto;
     const totalSinElige8 = importeQuiniela;
-
-    return {
-      apuestas,
-      importeQuiniela,
-      importeElige8Correcto,
-      totalActual: config.elige8 ? totalConElige8 : totalSinElige8,
-      totalConElige8,
-      elige8Activado: Boolean(config.elige8)
-    };
+    return { apuestas, importeQuiniela, importeElige8Correcto, totalActual: config.elige8 ? totalConElige8 : totalSinElige8, totalConElige8, elige8Activado: Boolean(config.elige8) };
   }
 
   function textoCostePrediccion(prediccion) {
     const coste = costePrediccionActual(prediccion);
-    if (coste.elige8Activado) {
-      return `Coste quiniela: ${euros(coste.importeQuiniela)} · Elige 8 (${coste.apuestas} apuestas x 0,50 €): ${euros(coste.importeElige8Correcto)} · Total: ${euros(coste.totalActual)}.`;
-    }
+    if (coste.elige8Activado) return `Coste quiniela: ${euros(coste.importeQuiniela)} · Elige 8 (${coste.apuestas} apuestas x 0,50 €): ${euros(coste.importeElige8Correcto)} · Total: ${euros(coste.totalActual)}.`;
     return `Coste quiniela: ${euros(coste.importeQuiniela)} · Si añades Elige 8 (${coste.apuestas} apuestas x 0,50 €): +${euros(coste.importeElige8Correcto)} · Total con Elige 8: ${euros(coste.totalConElige8)}.`;
   }
 
   function calcularMetricas(historial) {
     const jornadas = (historial.jornadas || []).filter(j => normalizarSignos(j.nuestra_quiniela || j.signos).length >= 14);
-    const acumulado = {
-      jornadas: 0,
-      partidos: 0,
-      aciertos: 0,
-      coste: 0,
-      porTipo: {
-        FIJO: { total: 0, aciertos: 0 },
-        DOBLE: { total: 0, aciertos: 0 },
-        TRIPLE: { total: 0, aciertos: 0 }
-      },
-      evolucion: []
-    };
-
+    const acumulado = { jornadas: 0, partidos: 0, aciertos: 0, coste: 0, porTipo: { FIJO: { total: 0, aciertos: 0 }, DOBLE: { total: 0, aciertos: 0 }, TRIPLE: { total: 0, aciertos: 0 } }, evolucion: [] };
     jornadas.forEach(jornada => {
       const signos = normalizarSignos(jornada.nuestra_quiniela || jornada.signos);
       const oficial = normalizarSignos(jornada.resultado_oficial || jornada.signos_oficiales);
       if (signos.length < 14 || oficial.length < 14) return;
-
       let aciertosJornada = 0;
       signos.slice(0, 14).forEach((jugado, idx) => {
         const real = oficial[idx] || signoOficialDesdeItem((jornada.partidos || [])[idx] || {});
@@ -110,13 +87,11 @@
           aciertosJornada += 1;
         }
       });
-
       const coste = costeJugada(signos, Array.isArray(jornada.elige8) && jornada.elige8.length > 0);
       acumulado.coste += coste.importe;
       acumulado.jornadas += 1;
       acumulado.evolucion.push({ jornada: jornada.jornada, aciertos: aciertosJornada });
     });
-
     return acumulado;
   }
 
@@ -126,22 +101,16 @@
   }
 
   function signosPrediccion(prediccion) {
-    return (prediccion.partidos || [])
-      .filter(p => Number(p.num) <= 14)
-      .sort((a, b) => Number(a.num) - Number(b.num))
-      .map(p => p.signo_final || p.signo_base || "?");
+    return (prediccion.partidos || []).filter(p => Number(p.num) <= 14).sort((a, b) => Number(a.num) - Number(b.num)).map(p => p.signo_final || p.signo_base || "?");
   }
 
   function razonesClave(prediccion) {
     const partidos = (prediccion.partidos || []).filter(p => Number(p.num) <= 14);
-    return [...partidos]
-      .sort((a, b) => Number(b.incertidumbre || b.probabilidad_sorpresa || 0) - Number(a.incertidumbre || a.probabilidad_sorpresa || 0))
-      .slice(0, 3)
-      .map(p => {
-        const probs = p.probabilidades || {};
-        const riesgo = p.probabilidad_sorpresa !== undefined ? `sorpresa ${p.probabilidad_sorpresa}%` : `incertidumbre ${Math.round(Number(p.incertidumbre || 0))}`;
-        return `${p.num}. ${p.local} - ${p.visitante}: ${p.signo_final || p.signo_base || "?"} (${riesgo}; 1=${probs["1"] ?? "-"}%, X=${probs["X"] ?? "-"}%, 2=${probs["2"] ?? "-"}%).`;
-      });
+    return [...partidos].sort((a, b) => Number(b.incertidumbre || b.probabilidad_sorpresa || 0) - Number(a.incertidumbre || a.probabilidad_sorpresa || 0)).slice(0, 3).map(p => {
+      const probs = p.probabilidades || {};
+      const riesgo = p.probabilidad_sorpresa !== undefined ? `sorpresa ${p.probabilidad_sorpresa}%` : `incertidumbre ${Math.round(Number(p.incertidumbre || 0))}`;
+      return `${p.num}. ${p.local} - ${p.visitante}: ${p.signo_final || p.signo_base || "?"} (${riesgo}; 1=${probs["1"] ?? "-"}%, X=${probs["X"] ?? "-"}%, 2=${probs["2"] ?? "-"}%).`;
+    });
   }
 
   function renderMetricas(prediccion, metricas) {
@@ -153,40 +122,15 @@
     const precisionGlobal = pct(metricas.aciertos, metricas.partidos);
     const roiTecnico = metricas.jornadas ? `Coste simulado validado: ${euros(metricas.coste)}. Premios/ROI real: pendiente de integrar escrutinio oficial.` : "Sin coste histórico validado todavía.";
     const costeTexto = textoCostePrediccion(prediccion);
-
-    return `
-      <div class="boleto-resumen" id="resumen-rapido-metricas">
-        <h3>Resumen rápido</h3>
-        <p><strong>¿Qué jugar ahora?</strong><br>
-          Jornada ${prediccion.jornada || "-"}: ${signos.join(" ") || "sin signos"}. ${config.dobles || 0} dobles · ${config.triples || 0} triples${config.elige8 ? " · Elige 8" : ""}. ${costeTexto}
-        </p>
-        <p><strong>¿Por qué lo recomienda?</strong><br>
-          ${(razones.length ? razones : ["El modelo combina probabilidad, forma, casa/fuera, contexto competitivo y riesgo de sorpresa."]).join("<br>")}
-        </p>
-        <p><strong>¿Qué tal ha funcionado antes?</strong><br>
-          Precisión global: ${precisionGlobal} (${metricas.aciertos}/${metricas.partidos} signos revisados). Fijos: ${pct(porTipo.FIJO.aciertos, porTipo.FIJO.total)} · Dobles: ${pct(porTipo.DOBLE.aciertos, porTipo.DOBLE.total)} · Triples: ${pct(porTipo.TRIPLE.aciertos, porTipo.TRIPLE.total)}.<br>
-          Evolución reciente: ${ultimas}.<br>
-          ${roiTecnico}
-        </p>
-      </div>
-    `;
+    return `<div class="boleto-resumen" id="resumen-rapido-metricas"><h3>Resumen rápido</h3><p><strong>¿Qué jugar ahora?</strong><br>Jornada ${prediccion.jornada || "-"}: ${signos.join(" ") || "sin signos"}. ${config.dobles || 0} dobles · ${config.triples || 0} triples${config.elige8 ? " · Elige 8" : ""}. ${costeTexto}</p><p><strong>¿Por qué lo recomienda?</strong><br>${(razones.length ? razones : ["El modelo combina probabilidad, forma, casa/fuera, contexto competitivo y riesgo de sorpresa."]).join("<br>")}</p><p><strong>¿Qué tal ha funcionado antes?</strong><br>Precisión global: ${precisionGlobal} (${metricas.aciertos}/${metricas.partidos} signos revisados). Fijos: ${pct(porTipo.FIJO.aciertos, porTipo.FIJO.total)} · Dobles: ${pct(porTipo.DOBLE.aciertos, porTipo.DOBLE.total)} · Triples: ${pct(porTipo.TRIPLE.aciertos, porTipo.TRIPLE.total)}.<br>Evolución reciente: ${ultimas}.<br>${roiTecnico}</p></div>`;
   }
 
   function activarMejoraXCercana() {
     if (window.__mejoraXCercanaActiva || typeof window.prioridadDobleAnalisis !== "function") return;
     window.__mejoraXCercanaActiva = true;
     const prioridadOriginal = window.prioridadDobleAnalisis;
-
-    function ordenProbabilidades(probs) {
-      return Object.entries(probs || {}).map(([signo, valor]) => [signo, Number(valor || 0)]).sort((a, b) => b[1] - a[1]);
-    }
-
-    function objetivoVivo(datos) {
-      if (!datos) return false;
-      const texto = JSON.stringify(datos).toLowerCase();
-      return texto.includes("descenso") || texto.includes("permanencia") || texto.includes("playoff") || texto.includes("ascenso") || texto.includes("defiende") || texto.includes("aspira") || texto.includes("europa") || texto.includes("conference");
-    }
-
+    function ordenProbabilidades(probs) { return Object.entries(probs || {}).map(([signo, valor]) => [signo, Number(valor || 0)]).sort((a, b) => b[1] - a[1]); }
+    function objetivoVivo(datos) { if (!datos) return false; const texto = JSON.stringify(datos).toLowerCase(); return texto.includes("descenso") || texto.includes("permanencia") || texto.includes("playoff") || texto.includes("ascenso") || texto.includes("defiende") || texto.includes("aspira") || texto.includes("europa") || texto.includes("conference"); }
     function mejoraXCercana(partido) {
       const orden = ordenProbabilidades(partido?.probabilidades || {});
       if (orden.length < 2) return 0;
@@ -200,17 +144,13 @@
       if (Number(partido?.probabilidad_sorpresa || 0) >= 60 || Number(partido?.incertidumbre || 0) >= 180) bonus += 60;
       return bonus;
     }
-
-    window.prioridadDobleAnalisis = function prioridadDobleAnalisisConXCercana(partido) {
-      return prioridadOriginal(partido) + mejoraXCercana(partido);
-    };
+    window.prioridadDobleAnalisis = function prioridadDobleAnalisisConXCercana(partido) { return prioridadOriginal(partido) + mejoraXCercana(partido); };
   }
 
   function estabilizarElige8SobreBoletoBase() {
     if (window.__elige8EstableActiva || typeof window.evaluarConfiguracionEstrategia !== "function") return;
     window.__elige8EstableActiva = true;
     const evaluarOriginal = window.evaluarConfiguracionEstrategia;
-
     window.evaluarConfiguracionEstrategia = function evaluarConfiguracionEstrategiaElige8Estable(partidosBase, dobles, triples, elige8 = false) {
       const base = evaluarOriginal(partidosBase, dobles, triples, false);
       if (!elige8) return base;
@@ -219,11 +159,32 @@
     };
   }
 
+  function pronosticoValidoPleno(valor) {
+    const texto = String(valor || "").trim();
+    if (!texto) return "";
+    const bajo = texto.toLowerCase();
+    if (bajo === "pendiente" || bajo === "no jugada" || bajo === "no validada") return "";
+    return texto;
+  }
+
+  function plenoCalculado(pleno, partidos) {
+    if (!pleno) return null;
+    if (typeof pronosticarPleno15 === "function") {
+      const calculado = pronosticarPleno15(pleno, partidos);
+      if (calculado?.pronostico) return calculado;
+    }
+    return {
+      local: pleno.local || "",
+      visitante: pleno.visitante || "",
+      pronostico: pronosticoValidoPleno(pleno.pronostico) || pronosticoValidoPleno(pleno.signo_nuestro) || pronosticoValidoPleno(pleno.resultado) || "1-1",
+      explicacion: pleno.explicacion || "Pronóstico orientativo del Pleno al 15 basado en la predicción activa."
+    };
+  }
+
   function instalarGeneradorBoletoEstable() {
     if (window.__generadorBoletoElige8Estable || typeof window.generarBoletoIA !== "function") return;
     window.__generadorBoletoElige8Estable = true;
     const generarOriginal = window.generarBoletoIA;
-
     window.generarBoletoIA = async function generarBoletoIAEstable() {
       const doblesInput = document.getElementById("num-dobles");
       const triplesInput = document.getElementById("num-triples");
@@ -236,90 +197,21 @@
       const backendDobles = Number(prediccionBackend?.resumen?.dobles ?? prediccionBackend?.configuracion?.dobles ?? 0);
       const backendTriples = Number(prediccionBackend?.resumen?.triples ?? prediccionBackend?.configuracion?.triples ?? 0);
       const coincideConfig = (doblesSolicitados === 0 && triplesSolicitados === 0) || (doblesSolicitados === backendDobles && triplesSolicitados === backendTriples);
-      const usarBackend = prediccionBackend
-        && Number(prediccionBackend.jornada) === Number(jornada)
-        && prediccionBackend.configuracion?.cobertura_auto
-        && coincideConfig;
-
+      const usarBackend = prediccionBackend && Number(prediccionBackend.jornada) === Number(jornada) && prediccionBackend.configuracion?.cobertura_auto && coincideConfig;
       if (!usarBackend) return generarOriginal.apply(this, arguments);
-
       if (doblesInput) doblesInput.value = backendDobles;
       if (triplesInput) triplesInput.value = backendTriples;
       if (elige8Input) elige8Input.checked = activarElige8;
       if (typeof calcularImporteIA === "function") calcularImporteIA();
-
-      const partidos = (prediccionBackend.partidos || [])
-        .filter(p => Number(p.num) <= 14)
-        .map(p => ({
-          ...p,
-          num: Number(p.num),
-          tipo_apuesta: p.tipo || "FIJO",
-          signo_final: p.signo_final || p.signo_base || "1",
-          explicacion: p.razonamiento || "",
-          confianza: p.confianza || "IA",
-          riesgo: p.riesgo || (Number(p.incertidumbre || 0) >= 115 || Number(p.probabilidad_sorpresa || 0) >= 55 ? "Alto" : "Medio")
-        }))
-        .sort((a, b) => a.num - b.num);
-
+      const partidos = (prediccionBackend.partidos || []).filter(p => Number(p.num) <= 14).map(p => ({ ...p, num: Number(p.num), tipo_apuesta: p.tipo || "FIJO", signo_final: p.signo_final || p.signo_base || "1", explicacion: p.razonamiento || "", confianza: p.confianza || "IA", riesgo: p.riesgo || (Number(p.incertidumbre || 0) >= 115 || Number(p.probabilidad_sorpresa || 0) >= 55 ? "Alto" : "Medio") })).sort((a, b) => a.num - b.num);
       const elige8Set = new Set();
-      if (activarElige8 && typeof candidatosElige8CobroWeb === "function") {
-        candidatosElige8CobroWeb(partidos.map(p => ({ partido: p, num: p.num, tipo: p.tipo_apuesta, signos: p.signo_final, riesgo: p.incertidumbre })))
-          .forEach(item => elige8Set.add(Number(item.num)));
-      }
-
-      const pleno = prediccionBackend.pleno15 || (typeof pleno15JornadaIA !== "undefined" ? pleno15JornadaIA : null);
-      const plenoIA = pleno ? {
-        local: pleno.local || "",
-        visitante: pleno.visitante || "",
-        pronostico: pleno.pronostico || pleno.signo_nuestro || pleno.resultado || "1-1",
-        explicacion: pleno.explicacion || "Pronóstico orientativo del Pleno al 15 basado en la predicción activa."
-      } : null;
-
+      if (activarElige8 && typeof candidatosElige8CobroWeb === "function") candidatosElige8CobroWeb(partidos.map(p => ({ partido: p, num: p.num, tipo: p.tipo_apuesta, signos: p.signo_final, riesgo: p.incertidumbre }))).forEach(item => elige8Set.add(Number(item.num)));
+      const plenoBase = (typeof pleno15JornadaIA !== "undefined" && pleno15JornadaIA) || prediccionBackend.pleno15 || null;
+      const plenoIA = plenoCalculado(plenoBase, partidos);
       const contenedor = document.getElementById("boleto-ia");
       if (!contenedor) return;
       const importe = document.getElementById("importe-quiniela")?.textContent || "";
-
-      contenedor.innerHTML = `
-        <div class="boleto-resumen">
-          <strong>Jornada ${jornada}</strong> ·
-          ${14 - backendDobles - backendTriples} sencillos · ${backendDobles} dobles · ${backendTriples} triples ·
-          ${activarElige8 ? "Elige 8 activado" : "Elige 8 no activado"} ·
-          ${importe}
-        </div>
-
-        ${partidos.map(p => `
-          <div class="fila-boleto ${elige8Set.has(p.num) ? "elige8-activo" : ""}">
-            <div>${p.num}</div>
-            <div>
-              <strong>${p.local} - ${p.visitante}</strong><br>
-              <small>1: ${p.probabilidades?.["1"] ?? "-"}% · X: ${p.probabilidades?.["X"] ?? "-"}% · 2: ${p.probabilidades?.["2"] ?? "-"}%</small><br>
-              <small>Confianza: ${p.confianza} · Riesgo: ${p.riesgo}</small>
-              ${elige8Set.has(p.num) ? `<br><span class="elige8-badge">Elige 8</span>` : ""}
-            </div>
-            <div class="signos-ia">${String(p.signo_final).split("").map(s => `<span>${s}</span>`).join("")}</div>
-          </div>
-        `).join("")}
-
-        ${plenoIA ? `
-          <div class="fila-boleto pleno15">
-            <div>15</div>
-            <div><strong>Pleno al 15</strong><br><small>${plenoIA.local} - ${plenoIA.visitante}</small><br><small>${plenoIA.explicacion}</small></div>
-            <div class="signos-ia"><span>${plenoIA.pronostico}</span></div>
-          </div>
-        ` : ""}
-
-        <div class="card" style="margin-top:20px;">
-          <h3>Análisis IA del boleto</h3>
-          ${partidos.map(p => `
-            <p>
-              <strong>${p.num}. ${p.local} - ${p.visitante}</strong><br>
-              Signo recomendado: <strong>${p.signo_final}</strong><br>
-              ${elige8Set.has(p.num) ? "<strong>Marcado para Elige 8.</strong><br>" : ""}
-              ${p.explicacion}
-            </p>
-          `).join("")}
-        </div>
-      `;
+      contenedor.innerHTML = `<div class="boleto-resumen"><strong>Jornada ${jornada}</strong> · ${14 - backendDobles - backendTriples} sencillos · ${backendDobles} dobles · ${backendTriples} triples · ${activarElige8 ? "Elige 8 activado" : "Elige 8 no activado"} · ${importe}</div>${partidos.map(p => `<div class="fila-boleto ${elige8Set.has(p.num) ? "elige8-activo" : ""}"><div>${p.num}</div><div><strong>${p.local} - ${p.visitante}</strong><br><small>1: ${p.probabilidades?.["1"] ?? "-"}% · X: ${p.probabilidades?.["X"] ?? "-"}% · 2: ${p.probabilidades?.["2"] ?? "-"}%</small><br><small>Confianza: ${p.confianza} · Riesgo: ${p.riesgo}</small>${elige8Set.has(p.num) ? `<br><span class="elige8-badge">Elige 8</span>` : ""}</div><div class="signos-ia">${String(p.signo_final).split("").map(s => `<span>${s}</span>`).join("")}</div></div>`).join("")}${plenoIA ? `<div class="fila-boleto pleno15"><div>15</div><div><strong>Pleno al 15</strong><br><small>${plenoIA.local} - ${plenoIA.visitante}</small><br><small>${plenoIA.explicacion}</small></div><div class="signos-ia"><span>${plenoIA.pronostico}</span></div></div>` : ""}<div class="card" style="margin-top:20px;"><h3>Análisis IA del boleto</h3>${partidos.map(p => `<p><strong>${p.num}. ${p.local} - ${p.visitante}</strong><br>Signo recomendado: <strong>${p.signo_final}</strong><br>${elige8Set.has(p.num) ? "<strong>Marcado para Elige 8.</strong><br>" : ""}${p.explicacion}</p>`).join("")}</div>`;
     };
   }
 
@@ -338,12 +230,7 @@
     instalarGeneradorBoletoEstable();
     const contenedor = document.getElementById("prediccion-resumen");
     if (!contenedor || document.getElementById("resumen-rapido-metricas")) return;
-
-    const [prediccion, historial] = await Promise.all([
-      fetchJSON("data/predicciones/ultima_prediccion.json", null),
-      fetchJSON("data/historial_quinielas.json", { jornadas: [] })
-    ]);
-
+    const [prediccion, historial] = await Promise.all([fetchJSON("data/predicciones/ultima_prediccion.json", null), fetchJSON("data/historial_quinielas.json", { jornadas: [] })]);
     if (!prediccion) return;
     const metricas = calcularMetricas(historial || { jornadas: [] });
     contenedor.insertAdjacentHTML("beforeend", renderMetricas(prediccion, metricas));
@@ -355,9 +242,6 @@
     setTimeout(initResumenRapidoMetricas, 3000);
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", programarResumenRapidoMetricas);
-  } else {
-    programarResumenRapidoMetricas();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", programarResumenRapidoMetricas);
+  else programarResumenRapidoMetricas();
 })();
