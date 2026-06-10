@@ -4990,8 +4990,7 @@
       const prediccionBackend = await fetchJSON("data/predicciones/ultima_prediccion.json", null);
       const usarPrediccionBackend = prediccionBackend
         && Number(prediccionBackend.jornada) === Number(jornadaActualIA)
-        && dobles === 0
-        && triples === 0
+        && ((dobles === 0 && triples === 0) || (dobles === Number(prediccionBackend.resumen?.dobles ?? prediccionBackend.configuracion?.dobles ?? 0) && triples === Number(prediccionBackend.resumen?.triples ?? prediccionBackend.configuracion?.triples ?? 0)))
         && prediccionBackend.configuracion?.cobertura_auto;
 
       const ia = await fetchJSON("data/analisis_ia.json", {});
