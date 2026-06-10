@@ -68,9 +68,13 @@ def forzar_index_elige8_estable():
     original = texto
     texto = texto.replace("\n        && !activarElige8", "")
     texto = texto.replace("\n        && !activarElige8\n", "\n")
+    texto = texto.replace(
+        "        && dobles === 0\n        && triples === 0\n        && prediccionBackend.configuracion?.cobertura_auto;",
+        "        && ((dobles === 0 && triples === 0) || (dobles === Number(prediccionBackend.resumen?.dobles ?? prediccionBackend.configuracion?.dobles ?? 0) && triples === Number(prediccionBackend.resumen?.triples ?? prediccionBackend.configuracion?.triples ?? 0)))\n        && prediccionBackend.configuracion?.cobertura_auto;"
+    )
     if texto != original:
         INDEX.write_text(texto, encoding="utf-8")
-        print("Index corregido: Elige 8 ya no fuerza recalculo del boleto base.")
+        print("Index corregido: Elige 8 mantiene el boleto base con configuracion oficial.")
 
 
 def main():
