@@ -25,9 +25,7 @@ def key(value):
     tokens = re.findall(r"[a-z0-9]+", text)
     noise = {"real", "club", "fc", "cf", "cd", "sd", "ud", "rc", "de", "del", "la", "el"}
     result = "".join(token for token in tokens if token not in noise)
-    aliases = {
-        "santander": "racingsantander",
-    }
+    aliases = {"santander": "racingsantander"}
     return aliases.get(result, result)
 
 
@@ -72,9 +70,21 @@ def forzar_index_elige8_estable():
         "        && dobles === 0\n        && triples === 0\n        && prediccionBackend.configuracion?.cobertura_auto;",
         "        && ((dobles === 0 && triples === 0) || (dobles === Number(prediccionBackend.resumen?.dobles ?? prediccionBackend.configuracion?.dobles ?? 0) && triples === Number(prediccionBackend.resumen?.triples ?? prediccionBackend.configuracion?.triples ?? 0)))\n        && prediccionBackend.configuracion?.cobertura_auto;"
     )
+    texto = texto.replace(
+        "<script src=\"resumen_rapido_metricas.js\"></script>",
+        "<script src=\"resumen_rapido_metricas.js?v=20260610-pleno-fix\"></script>"
+    )
+    texto = texto.replace(
+        "<script src=\"resumen_rapido_metricas.js?v=20260610-pleno-fix\"></script>",
+        "<script src=\"resumen_rapido_metricas.js?v=20260610-pleno-fix\"></script>"
+    )
+    texto = texto.replace(
+        "pronostico: pleno.pronostico || pleno.signo_nuestro || pleno.resultado || \"1-1\",",
+        "pronostico: (pleno.pronostico && ![\"Pendiente\", \"No jugada\", \"No validada\"].includes(pleno.pronostico)) ? pleno.pronostico : \"1-1\","
+    )
     if texto != original:
         INDEX.write_text(texto, encoding="utf-8")
-        print("Index corregido: Elige 8 mantiene el boleto base con configuracion oficial.")
+        print("Index corregido: Elige 8 estable, JS versionado y Pleno blindado.")
 
 
 def main():
@@ -96,9 +106,7 @@ def main():
             equipo["override_oficial_jornada"] = True
     ctx["version"] = "1.4"
     save(CTX, ctx)
-
     forzar_index_elige8_estable()
-
     try:
         from alinear_boleto_con_analisis import main as alinear_boleto
         from validar_publicacion_autonoma import main as validar_publicacion
@@ -106,7 +114,6 @@ def main():
         validar_publicacion()
     except ImportError:
         print("Validadores finales no disponibles en este ciclo.")
-
     print("ok")
 
 
