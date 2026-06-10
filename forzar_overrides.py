@@ -79,6 +79,15 @@ def main():
             equipo["override_oficial_jornada"] = True
     ctx["version"] = "1.4"
     save(CTX, ctx)
+
+    try:
+        from alinear_boleto_con_analisis import main as alinear_boleto
+        from validar_publicacion_autonoma import main as validar_publicacion
+        alinear_boleto()
+        validar_publicacion()
+    except ImportError:
+        print("Validadores finales no disponibles en este ciclo.")
+
     print("ok")
 
 
