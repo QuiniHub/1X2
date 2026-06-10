@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parent
 MEM = ROOT / "data" / "memoria_ia"
 CTX = MEM / "contexto_competitivo.json"
 OVR = MEM / "objetivos_jornada_actual.json"
+INDEX = ROOT / "index.html"
 
 
 def load(path):
@@ -60,6 +61,18 @@ def obj(override):
     return result
 
 
+def forzar_index_elige8_estable():
+    if not INDEX.exists():
+        return
+    texto = INDEX.read_text(encoding="utf-8")
+    original = texto
+    texto = texto.replace("\n        && !activarElige8", "")
+    texto = texto.replace("\n        && !activarElige8\n", "\n")
+    if texto != original:
+        INDEX.write_text(texto, encoding="utf-8")
+        print("Index corregido: Elige 8 ya no fuerza recalculo del boleto base.")
+
+
 def main():
     ctx = load(CTX)
     overrides = load(OVR).get("equipos", {})
@@ -79,6 +92,8 @@ def main():
             equipo["override_oficial_jornada"] = True
     ctx["version"] = "1.4"
     save(CTX, ctx)
+
+    forzar_index_elige8_estable()
 
     try:
         from alinear_boleto_con_analisis import main as alinear_boleto
