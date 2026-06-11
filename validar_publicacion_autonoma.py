@@ -1,4 +1,6 @@
 import json
+import re
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -27,6 +29,12 @@ def numero(valor, defecto=0.0):
         return float(valor)
     except (TypeError, ValueError):
         return defecto
+
+
+def normalizar(texto):
+    texto = unicodedata.normalize("NFD", str(texto or "").lower())
+    texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
+    return re.sub(r"\s+", " ", texto).strip()
 
 
 def jornada_cerrada(data):
@@ -76,6 +84,36 @@ def score_cobertura(partido):
     )
 
 
+def validar_razonamiento(partido):
+    tipo = str(partido.get("tipo") or "").upper()
+    texto = normalizar(partido.get("razonamiento"))
+    errores = []
+    num = partido.get("num")
+    if not texto:
+        errores.append(f"Partido {num} no tiene razonamiento.")
+        return errores
+    if "decision final:" not in texto:
+        errores.append(f"Partido {num} no incluye Decision final en el razonamiento.")
+    if tipo == "FIJO":
+        if "doble" in texto or "triple" in texto or "se cubre" in texto or "se abre" in texto:
+            errores.append(f"Partido {num} es FIJO pero el razonamiento habla de doble/triple/cobertura.")
+        if "se mantiene como fijo" not in texto:
+            errores.append(f"Partido {num} es FIJO pero el razonamiento no confirma FIJO.")
+    elif tipo == "DOBLE":
+        if "triple" in texto and "sugerencia=triple" not in texto:
+            errores.append(f"Partido {num} es DOBLE pero el razonamiento habla de abrir triple.")
+        if "se mantiene como fijo" in texto or "se deja como fijo" in texto:
+            errores.append(f"Partido {num} es DOBLE pero el razonamiento habla de fijo.")
+        if "se cubre con doble" not in texto:
+            errores.append(f"Partido {num} es DOBLE pero el razonamiento no confirma DOBLE.")
+    elif tipo == "TRIPLE":
+        if "se mantiene como fijo" in texto or "se deja como fijo" in texto or "se cubre con doble" in texto:
+            errores.append(f"Partido {num} es TRIPLE pero el razonamiento habla de fijo/doble.")
+        if "se abre triple" not in texto:
+            errores.append(f"Partido {num} es TRIPLE pero el razonamiento no confirma TRIPLE.")
+    return errores
+
+
 def validar_prediccion(pred):
     errores = []
     avisos = []
@@ -96,6 +134,7 @@ def validar_prediccion(pred):
             errores.append(f"Partido {partido.get('num')} es DOBLE pero signo_final no tiene dos signos.")
         if tipo == "TRIPLE" and signo_final != "1X2":
             errores.append(f"Partido {partido.get('num')} es TRIPLE pero signo_final no es 1X2.")
+        errores.extend(validar_razonamiento(partido))
 
     config = pred.get("configuracion", {})
     dobles_config = int(config.get("dobles") or 0)
