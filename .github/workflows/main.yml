@@ -43,29 +43,9 @@ jobs:
         run: |
           git pull --rebase origin main
 
-      - name: Aplicar alineacion critica pronostico analisis
-        run: |
-          python generar_contexto_competitivo.py
-          python aplicar_objetivos_oficiales_json.py
-          python forzar_overrides.py
-          python alinear_pronostico_analisis.py
-          python mejorar_prioridad_coberturas.py
-          python corregir_elige8_web.py
-          python ajustar_coberturas_contexto_global.py
-          python verificar_coherencia_pronostico.py
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add index.html motor_prediccion_quiniela.py data/memoria_ia/contexto_competitivo.json data/memoria_ia/verificacion_pronostico_analisis.json data/memoria_ia/estado_vivo.json .github/workflows/main.yml verificar_coherencia_pronostico.py
-          git diff --cached --quiet && echo "Alineacion ya aplicada" || git commit -m "Alinear pronostico y analisis en web"
-
-      - name: Actualizar datos
+      - name: Actualizar datos y validar publicacion
         run: |
           python actualizar_todo.py
-          python ajustar_aprendizaje_elige8.py
-          python corregir_elige8_web.py
-          python ajustar_coberturas_contexto_global.py
-          python aplicar_objetivos_oficiales_json.py
-          python forzar_overrides.py
 
       - name: Guardar cambios
         run: |
