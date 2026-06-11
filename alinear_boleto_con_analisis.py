@@ -38,14 +38,11 @@ def probabilidad(partido, signo):
 
 
 def top_dos_signos(partido):
-    probs = partido.get("probabilidades") or {}
-    signos = sorted(("1", "X", "2"), key=lambda s: (probabilidad(partido, s), -ORDEN_SIGNOS[s]), reverse=True)
-    return signos[:2]
+    return sorted(("1", "X", "2"), key=lambda s: (probabilidad(partido, s), -ORDEN_SIGNOS[s]), reverse=True)[:2]
 
 
 def signo_doble(partido):
-    signos = sorted(top_dos_signos(partido), key=lambda s: ORDEN_SIGNOS[s])
-    return "".join(signos)
+    return "".join(sorted(top_dos_signos(partido), key=lambda s: ORDEN_SIGNOS[s]))
 
 
 def puntuacion_triple(partido):
@@ -87,6 +84,51 @@ def recalcular_coste(dobles, triples, elige8):
     }
 
 
+def texto_probabilidades(partido):
+    probs = partido.get("probabilidades") or {}
+    return f"1={probs.get('1', '-')}%, X={probs.get('X', '-')}%, 2={probs.get('2', '-')}%"
+
+
+def frase_tipo(partido):
+    tipo = str(partido.get("tipo") or "FIJO").upper()
+    signo = partido.get("signo_final") or partido.get("signo_base") or "1"
+    sugerida = cobertura_sugerida(partido)
+    indice = numero(partido.get("indice_sorpresa_quinielistica"))
+    sorpresa = numero(partido.get("probabilidad_sorpresa"))
+    incertidumbre = numero(partido.get("incertidumbre"))
+    margen = numero(partido.get("margen_probabilidad"), 99)
+    if tipo == "TRIPLE":
+        return (
+            "Se abre TRIPLE porque el partido aparece entre las máximas prioridades de cobertura: "
+            f"sugerencia={sugerida}, índice de sorpresa={indice:.1f}/100, sorpresa={sorpresa:.1f}%, "
+            f"incertidumbre={incertidumbre:.1f} y margen={margen:.1f}."
+        )
+    if tipo == "DOBLE":
+        return (
+            f"Se cubre con DOBLE ({signo}) porque entra entre las siguientes prioridades de riesgo: "
+            f"sugerencia={sugerida}, índice de sorpresa={indice:.1f}/100, sorpresa={sorpresa:.1f}%, "
+            f"incertidumbre={incertidumbre:.1f} y margen={margen:.1f}."
+        )
+    return (
+        f"Se mantiene como FIJO ({signo}) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. "
+        f"Aun así, se vigila su riesgo: sugerencia={sugerida}, índice de sorpresa={indice:.1f}/100, sorpresa={sorpresa:.1f}%."
+    )
+
+
+def reescribir_razonamiento(partido):
+    motivos = "; ".join((partido.get("motivos_sorpresa") or [])[:3])
+    partes = [
+        f"Probabilidades IA: {texto_probabilidades(partido)}.",
+        frase_tipo(partido),
+    ]
+    if partido.get("favorito_nombre"):
+        partes.append(f"Favorito o signo de referencia: {partido.get('favorito_nombre')}.")
+    if motivos:
+        partes.append(f"Motivos principales: {motivos}.")
+    partes.append(f"Decisión final: {partido.get('signo_final')}.")
+    return " ".join(partes)
+
+
 def alinear_prediccion(data):
     partidos = list(data.get("partidos") or [])
     if not partidos:
@@ -115,12 +157,7 @@ def alinear_prediccion(data):
         else:
             partido["tipo"] = "FIJO"
             partido["signo_final"] = partido.get("signo_base") or top_dos_signos(partido)[0]
-
-        razon = str(partido.get("razonamiento") or "")
-        corte = razon.rfind("Decision final:")
-        if corte >= 0:
-            razon = razon[:corte].rstrip()
-        partido["razonamiento"] = f"{razon} Decision final: {partido['signo_final']}.".strip()
+        partido["razonamiento"] = reescribir_razonamiento(partido)
 
     data["partidos"] = sorted(partidos, key=lambda p: int(p.get("num") or 0))
     data["coste"] = recalcular_coste(dobles, triples, elige8)
@@ -137,7 +174,6 @@ def alinear_prediccion(data):
         "favoritos_atacables": sum(1 for p in data["partidos"] if p.get("favorito_atacable")),
         "indice_sorpresa_max": max((numero(p.get("indice_sorpresa_quinielistica")) for p in data["partidos"]), default=0),
     }
-
     data["ataques_favorito_prioritarios"] = [
         {
             "num": p.get("num"),
