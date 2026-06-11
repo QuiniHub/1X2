@@ -8,7 +8,6 @@ ROOT = Path(__file__).resolve().parent
 MEM = ROOT / "data" / "memoria_ia"
 CTX = MEM / "contexto_competitivo.json"
 OVR = MEM / "objetivos_jornada_actual.json"
-INDEX = ROOT / "index.html"
 
 
 def load(path):
@@ -59,34 +58,6 @@ def obj(override):
     return result
 
 
-def forzar_index_elige8_estable():
-    if not INDEX.exists():
-        return
-    texto = INDEX.read_text(encoding="utf-8")
-    original = texto
-    texto = texto.replace("\n        && !activarElige8", "")
-    texto = texto.replace("\n        && !activarElige8\n", "\n")
-    texto = texto.replace(
-        "        && dobles === 0\n        && triples === 0\n        && prediccionBackend.configuracion?.cobertura_auto;",
-        "        && ((dobles === 0 && triples === 0) || (dobles === Number(prediccionBackend.resumen?.dobles ?? prediccionBackend.configuracion?.dobles ?? 0) && triples === Number(prediccionBackend.resumen?.triples ?? prediccionBackend.configuracion?.triples ?? 0)))\n        && prediccionBackend.configuracion?.cobertura_auto;"
-    )
-    texto = texto.replace(
-        "<script src=\"resumen_rapido_metricas.js\"></script>",
-        "<script src=\"resumen_rapido_metricas.js?v=20260610-pleno-fix\"></script>"
-    )
-    texto = texto.replace(
-        "<script src=\"resumen_rapido_metricas.js?v=20260610-pleno-fix\"></script>",
-        "<script src=\"resumen_rapido_metricas.js?v=20260610-pleno-fix\"></script>"
-    )
-    texto = texto.replace(
-        "pronostico: pleno.pronostico || pleno.signo_nuestro || pleno.resultado || \"1-1\",",
-        "pronostico: (pleno.pronostico && ![\"Pendiente\", \"No jugada\", \"No validada\"].includes(pleno.pronostico)) ? pleno.pronostico : \"1-1\","
-    )
-    if texto != original:
-        INDEX.write_text(texto, encoding="utf-8")
-        print("Index corregido: Elige 8 estable, JS versionado y Pleno blindado.")
-
-
 def main():
     ctx = load(CTX)
     overrides = load(OVR).get("equipos", {})
@@ -106,15 +77,7 @@ def main():
             equipo["override_oficial_jornada"] = True
     ctx["version"] = "1.4"
     save(CTX, ctx)
-    forzar_index_elige8_estable()
-    try:
-        from alinear_boleto_con_analisis import main as alinear_boleto
-        from validar_publicacion_autonoma import main as validar_publicacion
-        alinear_boleto()
-        validar_publicacion()
-    except ImportError:
-        print("Validadores finales no disponibles en este ciclo.")
-    print("ok")
+    print("Overrides competitivos aplicados.")
 
 
 if __name__ == "__main__":
