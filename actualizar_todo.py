@@ -21,7 +21,6 @@ SCRIPTS_ACTIVOS = [
     "construir_historial_quinielas.py",
     "actualizar_aprendizaje_ia.py",
     "construir_memoria_ia.py",
-    "recalcular_dinamicas_calendario.py",
     "sincronizar_dinamicas_memoria.py",
 
     # Fuente unica de verdad competitiva. Todo lo posterior debe leer esto.
@@ -39,13 +38,11 @@ SCRIPTS_ACTIVOS = [
     "mejorar_motor_dinamica_10.py",
     "alinear_pronostico_analisis.py",
     "mejorar_prioridad_coberturas.py",
-    "validar_contexto_actual.py",
     "motor_prediccion_quiniela.py",
     "alinear_boleto_con_analisis.py",
     "generar_estado_vivo_ia.py",
     "regenerar_estado_vivo_actual.py",
     "ajustar_estado_vivo_motivacion.py",
-    "mejorar_prioridad_coberturas.py",
     "mejorar_asistente_ia.py",
     "corregir_asistente_objeciones.py",
     "corregir_puntos_asistente.py",
@@ -71,6 +68,11 @@ SCRIPTS_ACTIVOS = [
     "control_calidad_actualizacion.py",
     "normalizar_diagnostico_control.py",
     "normalizar_textos_generados.py",
+
+    # Cierre final: web y publicacion.
+    "alinear_boleto_con_analisis.py",
+    "estabilizar_web.py",
+    "validar_publicacion_autonoma.py",
 ]
 
 
