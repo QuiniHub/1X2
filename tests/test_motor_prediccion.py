@@ -10,6 +10,7 @@ from motor_prediccion_quiniela import (
     cobertura_automatica,
     coste,
     indice_sorpresa_quinielistica,
+    prioridad_elige8,
     prioridad_doble,
 )
 
@@ -115,6 +116,35 @@ class MotorPrediccionTests(unittest.TestCase):
         abierto_generico["_indice_sorpresa_quinielistica"] = indice_sorpresa_quinielistica(abierto_generico)
 
         self.assertGreater(prioridad_doble(favorito_atacable), prioridad_doble(abierto_generico))
+
+    def test_elige8_prioriza_cobertura_real_y_no_orden(self):
+        fijos = [
+            {
+                **partido(i, {"1": 54.0, "X": 26.0, "2": 20.0}, incertidumbre=95, sorpresa=35),
+                "signo_base": "1",
+                "signo_final": "1",
+            }
+            for i in range(1, 9)
+        ]
+        triple_tardio = {
+            **partido(10, {"1": 35.0, "X": 33.0, "2": 32.0}, incertidumbre=120, sorpresa=70),
+            "signo_base": "1",
+            "signo_final": "1X2",
+        }
+        doble_tardio = {
+            **partido(11, {"1": 50.0, "X": 31.0, "2": 19.0}, incertidumbre=110, sorpresa=55),
+            "signo_base": "1",
+            "signo_final": "1X",
+        }
+
+        seleccionados = {
+            p["num"]
+            for p in sorted([*fijos, triple_tardio, doble_tardio], key=prioridad_elige8, reverse=True)[:8]
+        }
+
+        self.assertIn(10, seleccionados)
+        self.assertIn(11, seleccionados)
+        self.assertNotEqual(seleccionados, set(range(1, 9)))
 
 
 if __name__ == "__main__":

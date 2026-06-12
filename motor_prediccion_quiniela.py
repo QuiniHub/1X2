@@ -476,6 +476,42 @@ def doble_top(probs):
     return "".join(s for s in ("1", "X", "2") if s in signos)
 
 
+def signos_jugados(partido):
+    texto = str(partido.get("signo_final") or partido.get("signo_base") or "")
+    signos = "".join(s for s in ("1", "X", "2") if s in texto)
+    if signos:
+        return signos
+    probs = partido.get("probabilidades") or {}
+    return signo_top(probs) if probs else "1"
+
+
+def probabilidad_signo(partido, signo):
+    try:
+        return float((partido.get("probabilidades") or {}).get(signo) or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def probabilidad_cubierta(partido):
+    signos = signos_jugados(partido)
+    return min(100.0, sum(probabilidad_signo(partido, signo) for signo in signos))
+
+
+def prioridad_elige8(partido):
+    signos = signos_jugados(partido)
+    prioridad_cobertura = 30000 if len(signos) == 3 else 20000 if len(signos) == 2 else 10000
+    incertidumbre_partido = float(partido.get("incertidumbre") or 0)
+    sorpresa = float(partido.get("probabilidad_sorpresa") or 0)
+    riesgo_necesidad = 1 if partido.get("riesgo_necesidad_real") or partido.get("riesgo_necesidad") else 0
+    penalizacion = min(25, incertidumbre_partido * 0.05) + min(15, sorpresa * 0.05) + riesgo_necesidad
+    return (
+        prioridad_cobertura
+        + probabilidad_cubierta(partido) * 3
+        + probabilidad_signo(partido, partido.get("signo_base") or signos[0]) * 0.2
+        - penalizacion
+    )
+
+
 def incertidumbre(probs, local, visitante, diff, riesgo_contexto=0):
     orden = sorted(probs.values(), reverse=True)
     margen = orden[0] - orden[1]
@@ -1139,10 +1175,6 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     )
     dobles_set = {p["num"] for p in por_doble[:dobles]}
 
-    elige8_set = set()
-    if elige8:
-        elige8_set = {p["num"] for p in sorted(evaluados, key=lambda p: p["incertidumbre"])[:8]}
-
     partidos = []
     for partido in sorted(evaluados, key=lambda p: p["num"]):
         if partido["num"] in triples_set:
@@ -1178,7 +1210,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "signos_contra_favorito": partido["_indice_sorpresa_quinielistica"].get("signos_contra_favorito", []),
             "cobertura_sorpresa_sugerida": partido["_indice_sorpresa_quinielistica"].get("cobertura_sugerida"),
             "motivos_sorpresa": partido["_indice_sorpresa_quinielistica"].get("motivos", []),
-            "elige8": partido["num"] in elige8_set,
+            "elige8": False,
             "razonamiento": explicar(
                 partido,
                 partido["probabilidades"],
@@ -1197,6 +1229,11 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
                 partido.get("_indice_sorpresa_quinielistica"),
             ),
         })
+
+    if elige8:
+        elige8_set = {p["num"] for p in sorted(partidos, key=prioridad_elige8, reverse=True)[:8]}
+        for partido in partidos:
+            partido["elige8"] = partido["num"] in elige8_set
 
     ataques_favorito_prioritarios = [
         {
