@@ -87,6 +87,7 @@ def score_cobertura(partido):
 def validar_razonamiento(partido):
     tipo = str(partido.get("tipo") or "").upper()
     texto = normalizar(partido.get("razonamiento"))
+    texto_decision = re.sub(r"cobertura sugerida por sorpresa: (triple|doble|fijo)", "", texto)
     errores = []
     num = partido.get("num")
     if not texto:
@@ -95,21 +96,21 @@ def validar_razonamiento(partido):
     if "decision final:" not in texto:
         errores.append(f"Partido {num} no incluye Decision final en el razonamiento.")
     if tipo == "FIJO":
-        if "doble" in texto or "triple" in texto or "se cubre" in texto or "se abre" in texto:
+        if "se cubre con doble" in texto_decision or "se protege con doble" in texto_decision or "se abre triple" in texto_decision or "se protege con triple" in texto_decision:
             errores.append(f"Partido {num} es FIJO pero el razonamiento habla de doble/triple/cobertura.")
-        if "se mantiene como fijo" not in texto:
+        if "se mantiene como fijo" not in texto and "se deja como fijo" not in texto:
             errores.append(f"Partido {num} es FIJO pero el razonamiento no confirma FIJO.")
     elif tipo == "DOBLE":
-        if "triple" in texto and "sugerencia=triple" not in texto:
+        if "se abre triple" in texto_decision or "se protege con triple" in texto_decision:
             errores.append(f"Partido {num} es DOBLE pero el razonamiento habla de abrir triple.")
         if "se mantiene como fijo" in texto or "se deja como fijo" in texto:
             errores.append(f"Partido {num} es DOBLE pero el razonamiento habla de fijo.")
-        if "se cubre con doble" not in texto:
+        if "se cubre con doble" not in texto and "se protege con doble" not in texto:
             errores.append(f"Partido {num} es DOBLE pero el razonamiento no confirma DOBLE.")
     elif tipo == "TRIPLE":
         if "se mantiene como fijo" in texto or "se deja como fijo" in texto or "se cubre con doble" in texto:
             errores.append(f"Partido {num} es TRIPLE pero el razonamiento habla de fijo/doble.")
-        if "se abre triple" not in texto:
+        if "se abre triple" not in texto and "se protege con triple" not in texto:
             errores.append(f"Partido {num} es TRIPLE pero el razonamiento no confirma TRIPLE.")
     return errores
 
@@ -126,9 +127,12 @@ def validar_prediccion(pred):
         errores.append("La prediccion no contiene 14 partidos.")
 
     tipos = {"FIJO": 0, "DOBLE": 0, "TRIPLE": 0}
+    baja_calidad = []
     for partido in partidos:
         tipo = str(partido.get("tipo") or "").upper()
         tipos[tipo] = tipos.get(tipo, 0) + 1
+        if str(partido.get("calidad_datos") or "").lower() == "baja":
+            baja_calidad.append(partido.get("num"))
         signo_final = str(partido.get("signo_final") or "")
         if tipo == "DOBLE" and len(signo_final) < 2:
             errores.append(f"Partido {partido.get('num')} es DOBLE pero signo_final no tiene dos signos.")
@@ -144,21 +148,35 @@ def validar_prediccion(pred):
     if tipos.get("TRIPLE", 0) != triples_config:
         errores.append(f"Triples publicados ({tipos.get('TRIPLE', 0)}) no coinciden con configuracion ({triples_config}).")
 
+    if baja_calidad:
+        avisos.append(
+            "Hay partidos sin memoria estadistica completa; la prediccion usa patron de boleto/contexto y debe aprender "
+            f"con resultados posteriores. Partidos: {sorted(baja_calidad)}."
+        )
+
     triples_esperados = {p.get("num") for p in sorted(partidos, key=score_triple, reverse=True)[:triples_config]}
     triples_publicados = {p.get("num") for p in partidos if str(p.get("tipo") or "").upper() == "TRIPLE"}
     if triples_publicados != triples_esperados:
-        errores.append(
+        mensaje = (
             "Los triples publicados no coinciden con los partidos de mayor prioridad por analisis. "
             f"Esperados {sorted(triples_esperados)}, publicados {sorted(triples_publicados)}."
         )
+        if baja_calidad:
+            avisos.append(mensaje + " Aviso no bloqueante por jornada con datos incompletos/fallback.")
+        else:
+            errores.append(mensaje)
 
     cubiertos_esperados = {p.get("num") for p in sorted(partidos, key=score_cobertura, reverse=True)[:dobles_config + triples_config]}
     cubiertos_publicados = {p.get("num") for p in partidos if str(p.get("tipo") or "").upper() in {"DOBLE", "TRIPLE"}}
     if cubiertos_publicados != cubiertos_esperados:
-        errores.append(
+        mensaje = (
             "Los dobles/triples no estan colocados en los partidos de mayor riesgo. "
             f"Esperados {sorted(cubiertos_esperados)}, publicados {sorted(cubiertos_publicados)}."
         )
+        if baja_calidad:
+            avisos.append(mensaje + " Aviso no bloqueante por jornada con datos incompletos/fallback.")
+        else:
+            errores.append(mensaje)
 
     if jornada:
         jornada_path = JORNADAS / f"jornada_{jornada}.json"

@@ -6,12 +6,17 @@ from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.parse import quote_plus
+from urllib.request import Request, urlopen
 
-import requests
+try:
+    import requests
+except ImportError:
+    requests = None
 
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
+JORNADAS = DATA / "jornadas"
 CLASIFICACIONES = ROOT / "clasificaciones.json"
 SALIDA = DATA / "contexto_equipos.json"
 TTL_HORAS = 6
@@ -60,8 +65,13 @@ def nombre_corto(nombre):
     return limpio or str(nombre)
 
 
-def debe_refrescar():
+def debe_refrescar(objetivos=None):
     existente = cargar_json(SALIDA, {})
+    if objetivos:
+        cargados = {normalizar(nombre) for nombre in (existente.get("equipos") or {})}
+        esperados = {normalizar(item.get("equipo")) for item in objetivos if item.get("equipo")}
+        if esperados - cargados:
+            return True
     generado = existente.get("generado_en")
     if not generado:
         return True
@@ -72,6 +82,48 @@ def debe_refrescar():
     return datetime.now(timezone.utc) - fecha > timedelta(hours=TTL_HORAS)
 
 
+def jornada_activa():
+    jornadas = []
+    for path in JORNADAS.glob("jornada_*.json"):
+        data = cargar_json(path, {})
+        try:
+            numero = int(data.get("jornada") or path.stem.split("_")[-1])
+        except Exception:
+            continue
+        if numero:
+            jornadas.append((numero, data))
+    if not jornadas:
+        return None
+    return max(jornadas, key=lambda item: item[0])[1]
+
+
+def equipos_jornada_activa():
+    data = jornada_activa() or {}
+    jornada = data.get("jornada")
+    equipos = []
+    for partido in data.get("partidos", [])[:14]:
+        for campo in ("local", "visitante"):
+            nombre = partido.get(campo)
+            if nombre:
+                equipos.append({
+                    "equipo": nombre,
+                    "liga": f"jornada_{jornada}" if jornada else "jornada",
+                    "origen": "boleto_activo",
+                    "partido": partido.get("num"),
+                })
+    pleno = data.get("pleno15") or {}
+    for campo in ("local", "visitante"):
+        nombre = pleno.get(campo)
+        if nombre:
+            equipos.append({
+                "equipo": nombre,
+                "liga": f"jornada_{jornada}" if jornada else "jornada",
+                "origen": "pleno15",
+                "partido": 15,
+            })
+    return equipos
+
+
 def equipos_objetivo():
     clasif = cargar_json(CLASIFICACIONES, {})
     equipos = []
@@ -79,24 +131,43 @@ def equipos_objetivo():
         for equipo in clasif.get(liga, []):
             nombre = equipo.get("equipo")
             if nombre:
-                equipos.append({"equipo": nombre, "liga": liga})
-    vistos = set()
-    unicos = []
+                equipos.append({"equipo": nombre, "liga": liga, "origen": "clasificacion"})
+    equipos.extend(equipos_jornada_activa())
+
+    indice = {}
     for item in equipos:
         key = normalizar(item["equipo"])
-        if key not in vistos:
-            vistos.add(key)
-            unicos.append(item)
-    return unicos
+        if not key:
+            continue
+        if key not in indice:
+            item = dict(item)
+            item["origenes"] = [item.get("origen", "desconocido")]
+            indice[key] = item
+            continue
+        actual = indice[key]
+        origen = item.get("origen", "desconocido")
+        if origen not in actual["origenes"]:
+            actual["origenes"].append(origen)
+        if item.get("partido") and not actual.get("partido"):
+            actual["partido"] = item["partido"]
+        if str(actual.get("liga", "")).startswith("jornada_") and item.get("liga") in ("primera", "segunda"):
+            actual["liga"] = item["liga"]
+    return list(indice.values())
 
 
 def leer_google_news(equipo):
     consulta = quote_plus(f'"{nombre_corto(equipo)}" futbol lesion sancion baja alta noticias')
     url = f"https://news.google.com/rss/search?q={consulta}&hl=es&gl=ES&ceid=ES:es"
     try:
-        response = requests.get(url, headers=HEADERS, timeout=15)
-        response.raise_for_status()
-        root = ET.fromstring(response.content)
+        if requests is not None:
+            response = requests.get(url, headers=HEADERS, timeout=15)
+            response.raise_for_status()
+            contenido = response.content
+        else:
+            req = Request(url, headers=HEADERS)
+            with urlopen(req, timeout=15) as response:
+                contenido = response.read()
+        root = ET.fromstring(contenido)
     except Exception as exc:
         print(f"No se pudo leer noticias de {equipo}: {exc}")
         return []
@@ -154,7 +225,8 @@ def resumen_equipo(equipo, noticias, categorias, alertas):
 
 
 def main():
-    if not debe_refrescar():
+    objetivos = equipos_objetivo()
+    if not debe_refrescar(objetivos):
         print(f"Contexto de equipos reciente; se conserva {SALIDA}")
         return
 
@@ -163,16 +235,18 @@ def main():
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "ttl_horas": TTL_HORAS,
         "ventana_noticias_dias": VENTANA_NOTICIAS_DIAS,
-        "fuentes": ["Google News RSS"],
+        "fuentes": ["Google News RSS", "equipos de clasificacion", "equipos del boleto activo"],
         "equipos": {},
     }
 
-    for item in equipos_objetivo():
+    for item in objetivos:
         equipo = item["equipo"]
         noticias = leer_google_news(equipo)
         categorias, alertas = clasificar_noticias(noticias)
         salida["equipos"][equipo] = {
             "liga": item["liga"],
+            "origenes": item.get("origenes", [item.get("origen", "desconocido")]),
+            "partido_boleto": item.get("partido"),
             "noticias": noticias,
             "categorias": categorias,
             "alertas": alertas,

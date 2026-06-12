@@ -12,6 +12,7 @@ from motor_prediccion_quiniela import (
     indice_sorpresa_quinielistica,
     prioridad_elige8,
     prioridad_doble,
+    trazabilidad_datos_partido,
 )
 
 
@@ -145,6 +146,35 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertIn(10, seleccionados)
         self.assertIn(11, seleccionados)
         self.assertNotEqual(seleccionados, set(range(1, 9)))
+
+    def test_trazabilidad_marca_fallback_sin_memoria_de_equipos(self):
+        trazabilidad = trazabilidad_datos_partido(
+            local=None,
+            visitante=None,
+            contexto_local=None,
+            contexto_visitante=None,
+            local_comp=None,
+            visitante_comp=None,
+        )
+
+        self.assertEqual(trazabilidad["origen_probabilidades"], "fallback_posicion")
+        self.assertEqual(trazabilidad["calidad_datos"], "baja")
+        self.assertFalse(trazabilidad["memoria_estadistica"]["local"])
+        self.assertFalse(trazabilidad["memoria_estadistica"]["visitante"])
+
+    def test_trazabilidad_distingue_contexto_parcial(self):
+        trazabilidad = trazabilidad_datos_partido(
+            local=None,
+            visitante=None,
+            contexto_local={"noticias": [{"titulo": "Parte medico"}]},
+            contexto_visitante=None,
+            local_comp=None,
+            visitante_comp=None,
+        )
+
+        self.assertEqual(trazabilidad["origen_probabilidades"], "fallback_posicion_con_contexto")
+        self.assertEqual(trazabilidad["calidad_datos"], "media_baja")
+        self.assertTrue(trazabilidad["noticias_recientes"]["local"])
 
 
 if __name__ == "__main__":

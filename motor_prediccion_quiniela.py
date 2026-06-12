@@ -559,8 +559,25 @@ def explicar(
             f"{dinamica_texto(visitante)} y "
             f"{t.get('goles_contra_por_partido', 0)} goles encajados por partido."
         )
+    if not local or not visitante:
+        faltan = []
+        if not local:
+            faltan.append(partido.get("local"))
+        if not visitante:
+            faltan.append(partido.get("visitante"))
+        razones.append(
+            "Aviso de datos: no hay estadistica historica completa para "
+            f"{', '.join(str(x) for x in faltan if x)}; los porcentajes se apoyan en "
+            "patron general del boleto, posicion quinielistica y contexto/noticias disponibles."
+        )
     if abs(diff) < 8:
-        razones.append("El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa.")
+        if local and visitante:
+            razones.append("El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa.")
+        else:
+            razones.append(
+                "Al no existir diferencial estadistico fiable entre ambos equipos, el partido se trata como abierto "
+                "y sube el peso de empate o sorpresa."
+            )
     if tipo == "TRIPLE":
         razones.append("Se protege con triple porque es de los partidos con mas incertidumbre del boleto.")
     elif tipo == "DOBLE":
@@ -608,6 +625,42 @@ def riesgo_necesidad_real(local_comp, visitante_comp):
         or descenso_vivo_motor(local_comp)
         or descenso_vivo_motor(visitante_comp)
     )
+
+
+def trazabilidad_datos_partido(local, visitante, contexto_local, contexto_visitante, local_comp, visitante_comp):
+    memoria_local = bool(local)
+    memoria_visitante = bool(visitante)
+    noticias_local = bool((contexto_local or {}).get("noticias"))
+    noticias_visitante = bool((contexto_visitante or {}).get("noticias"))
+    competitivo_local = bool(local_comp)
+    competitivo_visitante = bool(visitante_comp)
+
+    if memoria_local and memoria_visitante:
+        origen = "estadistica_equipos"
+        calidad = "alta"
+    elif noticias_local or noticias_visitante or competitivo_local or competitivo_visitante:
+        origen = "fallback_posicion_con_contexto"
+        calidad = "media_baja"
+    else:
+        origen = "fallback_posicion"
+        calidad = "baja"
+
+    return {
+        "origen_probabilidades": origen,
+        "calidad_datos": calidad,
+        "memoria_estadistica": {
+            "local": memoria_local,
+            "visitante": memoria_visitante,
+        },
+        "noticias_recientes": {
+            "local": noticias_local,
+            "visitante": noticias_visitante,
+        },
+        "contexto_competitivo": {
+            "local": competitivo_local,
+            "visitante": competitivo_visitante,
+        },
+    }
 
 
 def racha_valor(equipo, clave):
@@ -1134,6 +1187,14 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         lecturas_motivacion.extend(lecturas_patrones)
         inc = incertidumbre(probs, local, visitante, diff, riesgo_contexto + riesgo_motivacion + riesgo_patrones)
         sorpresa = probabilidad_sorpresa(probs, inc)
+        trazabilidad = trazabilidad_datos_partido(
+            local,
+            visitante,
+            contexto_local,
+            contexto_visitante,
+            local_comp,
+            visitante_comp,
+        )
         evaluado = {
             **partido,
             "probabilidades": probs,
@@ -1147,6 +1208,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "contexto_competitivo_local": local_comp,
             "contexto_competitivo_visitante": visitante_comp,
             "lecturas_motivacion": lecturas_motivacion,
+            "trazabilidad_datos": trazabilidad,
             "_local": local,
             "_visitante": visitante,
             "_diff": diff,
@@ -1210,6 +1272,9 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "signos_contra_favorito": partido["_indice_sorpresa_quinielistica"].get("signos_contra_favorito", []),
             "cobertura_sorpresa_sugerida": partido["_indice_sorpresa_quinielistica"].get("cobertura_sugerida"),
             "motivos_sorpresa": partido["_indice_sorpresa_quinielistica"].get("motivos", []),
+            "origen_probabilidades": partido["trazabilidad_datos"]["origen_probabilidades"],
+            "calidad_datos": partido["trazabilidad_datos"]["calidad_datos"],
+            "trazabilidad_datos": partido["trazabilidad_datos"],
             "elige8": False,
             "razonamiento": explicar(
                 partido,
@@ -1286,6 +1351,16 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "elige8_seleccionados": sum(1 for p in partidos if p["elige8"]),
             "favoritos_atacables": sum(1 for p in partidos if p["favorito_atacable"]),
             "indice_sorpresa_max": max((p["indice_sorpresa_quinielistica"] for p in partidos), default=0),
+            "calidad_datos": {
+                "alta": sum(1 for p in partidos if p.get("calidad_datos") == "alta"),
+                "media_baja": sum(1 for p in partidos if p.get("calidad_datos") == "media_baja"),
+                "baja": sum(1 for p in partidos if p.get("calidad_datos") == "baja"),
+            },
+            "partidos_sin_memoria_estadistica": sum(
+                1
+                for p in partidos
+                if not all((p.get("trazabilidad_datos") or {}).get("memoria_estadistica", {}).values())
+            ),
         },
     }
 
