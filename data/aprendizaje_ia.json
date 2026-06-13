@@ -1,9 +1,9 @@
 {
   "version": "1.1",
-  "precision": 61.06,
+  "precision": 61.4,
   "jornadas_revisadas": 9,
-  "partidos_revisados": 113,
-  "aciertos": 69,
+  "partidos_revisados": 114,
+  "aciertos": 70,
   "fallos": 44,
   "fallos_por_tipo": {
     "Doble insuficiente": 8,
@@ -28,10 +28,10 @@
       "precision": 60.0
     },
     "FIJO": {
-      "total": 71,
-      "aciertos": 35,
+      "total": 72,
+      "aciertos": 36,
       "fallos": 36,
-      "precision": 49.3
+      "precision": 50.0
     },
     "TRIPLE": {
       "total": 22,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 51,
-      "aciertos": 37,
+      "total": 52,
+      "aciertos": 38,
       "fallos": 14,
-      "precision": 72.55
+      "precision": 73.08
     },
     "2": {
       "total": 35,
@@ -1416,6 +1416,18 @@
       "signo_omitido": "X",
       "acierto": false,
       "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 67,
+      "partido": "Brasil - Marruecos",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "4-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "origen": "issue_memoria_sin_token"
     }
   ],
   "ajustes_recomendados": [
@@ -1428,19 +1440,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 113,
+    "partidos_base": 114,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 38.94,
+      "fallos_total_pct": 38.6,
       "no_cubrio_empate_sobre_fallos_pct": 27.27,
-      "no_cubrio_empate_sobre_total_pct": 10.62,
+      "no_cubrio_empate_sobre_total_pct": 10.53,
       "fijo_fallado_sobre_fallos_pct": 54.55,
-      "fijo_fallado_sobre_total_pct": 21.24,
-      "doble_insuficiente_sobre_total_pct": 7.08
+      "fijo_fallado_sobre_total_pct": 21.05,
+      "doble_insuficiente_sobre_total_pct": 7.02
     },
-    "boost_empate_zona_riesgo": 4.46,
-    "riesgo_extra_fijo_fragil": 11.3,
-    "riesgo_extra_triple_insuficiente": 2.77,
+    "boost_empate_zona_riesgo": 4.42,
+    "riesgo_extra_fijo_fragil": 11.15,
+    "riesgo_extra_triple_insuficiente": 2.72,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
