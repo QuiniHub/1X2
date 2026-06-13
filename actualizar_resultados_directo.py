@@ -65,7 +65,8 @@ def normalizar(texto):
     texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
     texto = re.sub(r"\b(fc|cf|cd|sd|ud|rcd|rc|club|real|de|del|la|el|balompie|futbol)\b", " ", texto)
     texto = re.sub(r"[^a-z0-9]+", " ", texto)
-    return " ".join(texto.split()).strip()
+    texto = " ".join(texto.split()).strip()
+    return texto.replace("ee uu", "eeuu")
 
 
 def candidatos_equipo(nombre):
@@ -74,6 +75,8 @@ def candidatos_equipo(nombre):
     candidatos = {n}
     candidatos.update(partes)
     alias = {
+        "eeuu": ["ee uu", "estados unidos", "usa", "united states"],
+        "estados unidos": ["eeuu", "ee uu", "usa", "united states"],
         "atletico madrid": ["at madrid", "atletico"],
         "athletic bilbao": ["athletic", "ath club"],
         "athletic": ["ath club"],
@@ -85,6 +88,11 @@ def candidatos_equipo(nombre):
         "sporting gijon": ["sporting"],
         "celtic glasgow": ["celtic"],
         "glasgow rangers": ["rangers"],
+        "paises bajos": ["holanda"],
+        "holanda": ["paises bajos"],
+        "curazao": ["curacao", "curaçao"],
+        "curacao": ["curazao", "curaçao"],
+        "costa marfil": ["costa de marfil"],
     }
     for key, vals in alias.items():
         if key in n:

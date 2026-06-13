@@ -175,10 +175,27 @@ def canonico(nombre):
     return str(nombre or "").strip()
 
 
-def temporada_codigo(fecha=None):
+def temporada_inicio(fecha=None):
     fecha = fecha or datetime.now()
-    inicio = fecha.year if fecha.month >= 8 else fecha.year - 1
+    return fecha.year if fecha.month >= 8 else fecha.year - 1
+
+
+def temporada_codigo_desde_inicio(inicio):
     return f"{inicio % 100:02d}{(inicio + 1) % 100:02d}"
+
+
+def temporada_codigo(fecha=None):
+    return temporada_codigo_desde_inicio(temporada_inicio(fecha))
+
+
+def codigos_temporada_candidatos(fecha=None):
+    fecha = fecha or datetime.now()
+    inicio = temporada_inicio(fecha)
+    candidatos = []
+    if fecha.month >= 6:
+        candidatos.append(inicio + 1)
+    candidatos.append(inicio)
+    return [temporada_codigo_desde_inicio(i) for i in dict.fromkeys(candidatos)]
 
 
 def fecha_iso(valor):
@@ -194,41 +211,51 @@ def fecha_iso(valor):
 
 
 def descargar_partidos_csv(liga):
-    codigo = temporada_codigo()
-    url = f"https://www.football-data.co.uk/mmz4281/{codigo}/{LIGAS[liga]['csv']}"
-    if requests is not None:
-        respuesta = requests.get(url, timeout=25)
-        respuesta.raise_for_status()
-        contenido = respuesta.content.decode("utf-8-sig", errors="replace")
-    else:
-        peticion = Request(url, headers={"User-Agent": "QuinielaIAPro/1.0"})
-        with urlopen(peticion, timeout=25) as respuesta:
-            contenido = respuesta.read().decode("utf-8-sig", errors="replace")
-    filas = []
-    for fila in csv.DictReader(io.StringIO(contenido)):
-        local = canonico(fila.get("HomeTeam"))
-        visitante = canonico(fila.get("AwayTeam"))
-        gl = fila.get("FTHG")
-        gv = fila.get("FTAG")
-        if not local or not visitante or gl in (None, "") or gv in (None, ""):
-            continue
+    errores = []
+    for codigo in codigos_temporada_candidatos():
+        url = f"https://www.football-data.co.uk/mmz4281/{codigo}/{LIGAS[liga]['csv']}"
         try:
-            gl_int = int(float(gl))
-            gv_int = int(float(gv))
-        except ValueError:
+            if requests is not None:
+                respuesta = requests.get(url, timeout=25)
+                respuesta.raise_for_status()
+                contenido = respuesta.content.decode("utf-8-sig", errors="replace")
+            else:
+                peticion = Request(url, headers={"User-Agent": "QuinielaIAPro/1.0"})
+                with urlopen(peticion, timeout=25) as respuesta:
+                    contenido = respuesta.read().decode("utf-8-sig", errors="replace")
+        except Exception as exc:
+            errores.append(f"{codigo}: {exc}")
             continue
-        filas.append(
-            {
-                "fecha": fecha_iso(fila.get("Date")),
-                "local": local,
-                "visitante": visitante,
-                "resultado": f"{gl_int}-{gv_int}",
-                "gl": gl_int,
-                "gv": gv_int,
-                "fuente": url,
-            }
-        )
-    return url, filas
+
+        filas = []
+        for fila in csv.DictReader(io.StringIO(contenido)):
+            local = canonico(fila.get("HomeTeam"))
+            visitante = canonico(fila.get("AwayTeam"))
+            gl = fila.get("FTHG")
+            gv = fila.get("FTAG")
+            if not local or not visitante or gl in (None, "") or gv in (None, ""):
+                continue
+            try:
+                gl_int = int(float(gl))
+                gv_int = int(float(gv))
+            except ValueError:
+                continue
+            filas.append(
+                {
+                    "fecha": fecha_iso(fila.get("Date")),
+                    "local": local,
+                    "visitante": visitante,
+                    "resultado": f"{gl_int}-{gv_int}",
+                    "gl": gl_int,
+                    "gv": gv_int,
+                    "fuente": url,
+                    "temporada_codigo": codigo,
+                }
+            )
+        if filas:
+            return url, filas
+
+    raise RuntimeError("; ".join(errores) or "sin resultados publicados")
 
 
 def clave_partido(local, visitante):

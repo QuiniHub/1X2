@@ -7,7 +7,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from actualizar_resultados_directo import TZ_COMPETICION, partido_esta_programado_en_futuro
+from actualizar_resultados_directo import (
+    TZ_COMPETICION,
+    buscar_resultado_final,
+    partido_esta_programado_en_futuro,
+)
 
 
 class ResultadosDirectoTests(unittest.TestCase):
@@ -30,6 +34,14 @@ class ResultadosDirectoTests(unittest.TestCase):
             "fecha": manana,
             "hora": "",
         }))
+
+    def test_alias_eeuu_detecta_resultado_con_puntos(self):
+        texto = "Resultados quiniela jornada 67 EE.UU. - Paraguay 4 - 1 signo 1 final"
+
+        self.assertEqual(
+            buscar_resultado_final(texto, {"local": "EEUU", "visitante": "Paraguay"}),
+            "4-1",
+        )
 
 
 if __name__ == "__main__":

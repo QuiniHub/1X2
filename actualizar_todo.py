@@ -8,10 +8,12 @@ ROOT = Path(__file__).resolve().parent
 
 SCRIPTS_ACTIVOS = [
     "actualizar_jornadas_detalle.py",
+    "actualizar_boleto_vivo.py",
     "asegurar_proxima_jornada.py",
     "actualizar_selector_jornadas_web.py",
     "actualizar_resultados_directo.py",
     "aplicar_correcciones_resultados.py",
+    "actualizar_monitor_temporadas.py",
     "actualizar_clasificaciones_oficiales.py",
     "corregir_clasificacion_segunda.py",
     "actualizar_ligas_football_data.py",

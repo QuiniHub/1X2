@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-13T12:28:21.656569+00:00",
+  "generado_en": "2026-06-13T12:34:16.098283+00:00",
   "estado": "operativo_con_avisos",
   "score_salud": 76,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
@@ -9,13 +9,13 @@
     "jornada_actual": {
       "jornada": 67,
       "fecha": "Domingo, 14 de junio de 2026",
-      "estado": "abierta",
+      "estado": "en_juego",
       "partidos": 14,
-      "cerrados": 0,
-      "pendientes": 14,
-      "pendientes_totales_con_pleno15": 15,
+      "cerrados": 1,
+      "pendientes": 13,
+      "pendientes_totales_con_pleno15": 14,
       "pleno15_cerrado": false,
-      "ultima_actualizacion_partido": "",
+      "ultima_actualizacion_partido": "2026-06-13T12:19:14Z",
       "path": "data/jornadas/jornada_67.json"
     },
     "proxima_jornada": null,
@@ -71,13 +71,13 @@
       {
         "jornada": 67,
         "fecha": "Domingo, 14 de junio de 2026",
-        "estado": "abierta",
+        "estado": "en_juego",
         "partidos": 14,
-        "cerrados": 0,
-        "pendientes": 14,
-        "pendientes_totales_con_pleno15": 15,
+        "cerrados": 1,
+        "pendientes": 13,
+        "pendientes_totales_con_pleno15": 14,
         "pleno15_cerrado": false,
-        "ultima_actualizacion_partido": "",
+        "ultima_actualizacion_partido": "2026-06-13T12:19:14Z",
         "path": "data/jornadas/jornada_67.json"
       }
     ]
@@ -98,7 +98,7 @@
   },
   "prediccion": {
     "jornada": 67,
-    "generado_en": "2026-06-13T12:28:20.934594+00:00",
+    "generado_en": "2026-06-13T12:30:47.446357+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 8,
@@ -106,7 +106,14 @@
       "triples": 2,
       "elige8_seleccionados": 0,
       "favoritos_atacables": 10,
-      "indice_sorpresa_max": 100.0
+      "indice_sorpresa_max": 100.0,
+      "riesgos_no_cubiertos_por_presupuesto": 8,
+      "calidad_datos": {
+        "alta": 1,
+        "media_baja": 2,
+        "baja": 11
+      },
+      "partidos_sin_memoria_estadistica": 13
     }
   },
   "clasificaciones": {
@@ -158,9 +165,9 @@
     }
   },
   "fuentes": {
-    "memoria_horas": 0.0,
+    "memoria_horas": 0.1,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.01,
+    "contexto_equipos_horas": 0.1,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -205,7 +212,7 @@
     {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
-      "detalle": "La jornada 67 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "detalle": "La jornada 67 tiene 1 partidos cerrados, 13 partidos normales pendientes y el Pleno al 15 pendiente.",
       "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
     },
     {
@@ -236,7 +243,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-06-13T12:28:21.656569+00:00",
+    "generado_en": "2026-06-13T12:34:16.098283+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
@@ -246,16 +253,16 @@
         "jornada": 67,
         "fecha": "Domingo, 14 de junio de 2026",
         "partidos": 14,
-        "cerrados": 0,
-        "pendientes": 14,
+        "cerrados": 1,
+        "pendientes": 13,
         "path": "data/jornadas/jornada_67.json"
       },
       "ultima": {
         "jornada": 67,
         "fecha": "Domingo, 14 de junio de 2026",
         "partidos": 14,
-        "cerrados": 0,
-        "pendientes": 14,
+        "cerrados": 1,
+        "pendientes": 13,
         "path": "data/jornadas/jornada_67.json"
       },
       "ultimas_5": [
@@ -295,8 +302,8 @@
           "jornada": 67,
           "fecha": "Domingo, 14 de junio de 2026",
           "partidos": 14,
-          "cerrados": 0,
-          "pendientes": 14,
+          "cerrados": 1,
+          "pendientes": 13,
           "path": "data/jornadas/jornada_67.json"
         }
       ]
@@ -821,7 +828,7 @@
     },
     "prediccion": {
       "jornada": 67,
-      "generado_en": "2026-06-13T12:28:20.934594+00:00",
+      "generado_en": "2026-06-13T12:30:47.446357+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 8,
@@ -829,7 +836,14 @@
         "triples": 2,
         "elige8_seleccionados": 0,
         "favoritos_atacables": 10,
-        "indice_sorpresa_max": 100.0
+        "indice_sorpresa_max": 100.0,
+        "riesgos_no_cubiertos_por_presupuesto": 8,
+        "calidad_datos": {
+          "alta": 1,
+          "media_baja": 2,
+          "baja": 11
+        },
+        "partidos_sin_memoria_estadistica": 13
       }
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
@@ -840,16 +854,16 @@
       "jornada": 67,
       "fecha": "Domingo, 14 de junio de 2026",
       "partidos": 14,
-      "cerrados": 0,
-      "pendientes": 14,
+      "cerrados": 1,
+      "pendientes": 13,
       "path": "data/jornadas/jornada_67.json"
     },
     "ultima": {
       "jornada": 67,
       "fecha": "Domingo, 14 de junio de 2026",
       "partidos": 14,
-      "cerrados": 0,
-      "pendientes": 14,
+      "cerrados": 1,
+      "pendientes": 13,
       "path": "data/jornadas/jornada_67.json"
     },
     "ultimas_5": [
@@ -889,8 +903,8 @@
         "jornada": 67,
         "fecha": "Domingo, 14 de junio de 2026",
         "partidos": 14,
-        "cerrados": 0,
-        "pendientes": 14,
+        "cerrados": 1,
+        "pendientes": 13,
         "path": "data/jornadas/jornada_67.json"
       }
     ]

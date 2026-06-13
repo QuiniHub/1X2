@@ -1398,6 +1398,8 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "num": partido["num"],
             "local": partido.get("local"),
             "visitante": partido.get("visitante"),
+            "resultado": partido.get("resultado"),
+            "signo_oficial": partido.get("signo_oficial"),
             "probabilidades": partido["probabilidades"],
             "signo_base": partido["signo_base"],
             "signo_final": signo,

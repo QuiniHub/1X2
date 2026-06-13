@@ -133,12 +133,24 @@ CANONICOS = {
     "granada cf": "Granada CF",
     "albacete": "Albacete Balompie",
     "albacete balompie": "Albacete Balompie",
+    "ee uu": "EEUU",
+    "eeuu": "EEUU",
+    "estados unidos": "EEUU",
+    "usa": "EEUU",
+    "united states": "EEUU",
     "mexico": "Mexico",
     "australia": "Australia",
     "japon": "Japon",
     "islandia": "Islandia",
     "alemania": "Alemania",
     "finlandia": "Finlandia",
+    "holanda": "Países Bajos",
+    "paises bajos": "Países Bajos",
+    "curaçao": "Curazao",
+    "curacao": "Curazao",
+    "curazao": "Curazao",
+    "costa de marfil": "Costa Marfil",
+    "costa marfil": "Costa Marfil",
     "paris saint germain": "Paris Saint-Germain",
     "psg": "Paris Saint-Germain",
     "arsenal": "Arsenal",
@@ -443,6 +455,17 @@ def parsear_partido(linea):
     }
 
 
+def es_placeholder_equipo(nombre):
+    texto = normalizar(nombre)
+    return (
+        not texto
+        or texto == "pendiente"
+        or "hypermotion" in texto
+        or re.search(r"\bf[12]\b", texto) is not None
+        or "por determinar" in texto
+    )
+
+
 def extraer_jornadas():
     lineas = descargar_lineas()
     jornadas = []
@@ -486,6 +509,12 @@ def fusionar_con_existente(nuevo, existente):
     for partido in nuevo.get("partidos", []):
         anterior = existentes_por_num.get(int(partido.get("num", 0)), {})
         fusionado = dict(partido)
+        if es_placeholder_equipo(fusionado.get("local")) and not es_placeholder_equipo(anterior.get("local")):
+            fusionado["local"] = anterior.get("local")
+            fusionado["fuente_equipos"] = anterior.get("fuente_equipos", fusionado.get("fuente_equipos", "jornada_previa_resuelta"))
+        if es_placeholder_equipo(fusionado.get("visitante")) and not es_placeholder_equipo(anterior.get("visitante")):
+            fusionado["visitante"] = anterior.get("visitante")
+            fusionado["fuente_equipos"] = anterior.get("fuente_equipos", fusionado.get("fuente_equipos", "jornada_previa_resuelta"))
         for campo in ("resultado", "signo_oficial", "signo_nuestro", "actualizado_en"):
             valor = anterior.get(campo)
             if valor and str(valor).lower() not in {"pendiente", "no jugada"}:
@@ -495,6 +524,12 @@ def fusionar_con_existente(nuevo, existente):
 
     pleno_anterior = existente.get("pleno15") or {}
     pleno = dict(nuevo.get("pleno15") or {})
+    if es_placeholder_equipo(pleno.get("local")) and not es_placeholder_equipo(pleno_anterior.get("local")):
+        pleno["local"] = pleno_anterior.get("local")
+        pleno["fuente_equipos"] = pleno_anterior.get("fuente_equipos", pleno.get("fuente_equipos", "jornada_previa_resuelta"))
+    if es_placeholder_equipo(pleno.get("visitante")) and not es_placeholder_equipo(pleno_anterior.get("visitante")):
+        pleno["visitante"] = pleno_anterior.get("visitante")
+        pleno["fuente_equipos"] = pleno_anterior.get("fuente_equipos", pleno.get("fuente_equipos", "jornada_previa_resuelta"))
     for campo in ("resultado", "signo_oficial", "signo_nuestro", "actualizado_en"):
         valor = pleno_anterior.get(campo)
         if valor and str(valor).lower() not in {"pendiente", "no jugada"}:
