@@ -1,24 +1,24 @@
 {
   "version": "1.1",
-  "precision": 61.61,
+  "precision": 61.06,
   "jornadas_revisadas": 9,
-  "partidos_revisados": 112,
+  "partidos_revisados": 113,
   "aciertos": 69,
-  "fallos": 43,
+  "fallos": 44,
   "fallos_por_tipo": {
     "Doble insuficiente": 8,
     "Fijo fallado": 24,
-    "No cubrio empate": 11
+    "No cubrio empate": 12
   },
   "fallos_por_signo_real": {
     "1": 14,
     "2": 18,
-    "X": 11
+    "X": 12
   },
   "signos_omitidos_en_fallo": {
     "1": 14,
     "2": 18,
-    "X": 11
+    "X": 12
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,10 +28,10 @@
       "precision": 60.0
     },
     "FIJO": {
-      "total": 70,
+      "total": 71,
       "aciertos": 35,
-      "fallos": 35,
-      "precision": 50.0
+      "fallos": 36,
+      "precision": 49.3
     },
     "TRIPLE": {
       "total": 22,
@@ -54,10 +54,10 @@
       "precision": 48.57
     },
     "X": {
-      "total": 26,
+      "total": 27,
       "aciertos": 15,
-      "fallos": 11,
-      "precision": 57.69
+      "fallos": 12,
+      "precision": 55.56
     }
   },
   "detalle": [
@@ -1404,6 +1404,18 @@
       "signo_omitido": "1",
       "acierto": false,
       "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 67,
+      "partido": "Qatar - Suiza",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "origen": "issue_memoria_sin_token"
     }
   ],
   "ajustes_recomendados": [
@@ -1416,19 +1428,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 112,
+    "partidos_base": 113,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 38.39,
-      "no_cubrio_empate_sobre_fallos_pct": 25.58,
-      "no_cubrio_empate_sobre_total_pct": 9.82,
-      "fijo_fallado_sobre_fallos_pct": 55.81,
-      "fijo_fallado_sobre_total_pct": 21.43,
-      "doble_insuficiente_sobre_total_pct": 7.14
+      "fallos_total_pct": 38.94,
+      "no_cubrio_empate_sobre_fallos_pct": 27.27,
+      "no_cubrio_empate_sobre_total_pct": 10.62,
+      "fijo_fallado_sobre_fallos_pct": 54.55,
+      "fijo_fallado_sobre_total_pct": 21.24,
+      "doble_insuficiente_sobre_total_pct": 7.08
     },
-    "boost_empate_zona_riesgo": 3.83,
-    "riesgo_extra_fijo_fragil": 11.71,
-    "riesgo_extra_triple_insuficiente": 2.83,
+    "boost_empate_zona_riesgo": 4.46,
+    "riesgo_extra_fijo_fragil": 11.3,
+    "riesgo_extra_triple_insuficiente": 2.77,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
