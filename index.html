@@ -4658,7 +4658,6 @@
       if (dueloNecesidades) score += 70;
       if ((localDescenso || visitanteDescenso) && dueloNecesidades) score += 45;
       if (necesitadoVsCerrado) score += 35;
-      if (String(partido.tipo_apuesta || partido.tipo || "").toUpperCase() === "TRIPLE") score += 100000;
       return score;
     }
 
@@ -4675,7 +4674,6 @@
       else if (detalleSorpresa.cobertura_sugerida === "TRIPLE") score -= 30;
       if (margen < 12) score += 30;
       if (top === "X") score += 8;
-      if (String(partido.tipo_apuesta || partido.tipo || "").toUpperCase() === "DOBLE") score += 100000;
       return score;
     }
 
