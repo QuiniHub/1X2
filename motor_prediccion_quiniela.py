@@ -9,6 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 MEMORIA = DATA / "memoria_ia" / "aprendizaje_global.json"
+APRENDIZAJE_PROPIO = DATA / "aprendizaje_ia.json"
 CONTEXTO_EQUIPOS = DATA / "contexto_equipos.json"
 CONTEXTO_COMPETITIVO = DATA / "memoria_ia" / "contexto_competitivo.json"
 PATRONES_COMPETITIVOS = DATA / "memoria_ia" / "patrones_competitivos.json"
@@ -468,6 +469,84 @@ def ajustar_por_patrones_aprendidos(probs, patrones, local_comp, visitante_comp)
 
 def signo_top(probs):
     return sorted(probs.items(), key=lambda x: x[1], reverse=True)[0][0]
+
+
+def ajuste_motor_aprendizaje(aprendizaje):
+    ajuste = aprendizaje.get("ajuste_motor") if isinstance(aprendizaje, dict) else {}
+    return ajuste if isinstance(ajuste, dict) else {}
+
+
+def aprendizaje_propio_activo(aprendizaje):
+    ajuste = ajuste_motor_aprendizaje(aprendizaje)
+    try:
+        partidos_base = int(ajuste.get("partidos_base") or aprendizaje.get("partidos_revisados") or 0)
+    except Exception:
+        partidos_base = 0
+    return partidos_base >= 28 and str(ajuste.get("muestra") or "").lower() != "baja"
+
+
+def valor_ajuste(ajuste, clave, defecto=0.0):
+    try:
+        return float(ajuste.get(clave, defecto) or defecto)
+    except (TypeError, ValueError):
+        return defecto
+
+
+def tendencia_empate_media(local, visitante):
+    valores = []
+    for equipo in (local, visitante):
+        try:
+            valores.append(float((equipo or {}).get("tendencias", {}).get("empates_pct") or 0))
+        except (TypeError, ValueError):
+            continue
+    return sum(valores) / len(valores) if valores else 0.0
+
+
+def ajustar_por_aprendizaje_propio(probs, local, visitante, aprendizaje):
+    if not aprendizaje_propio_activo(aprendizaje):
+        return probs, 0.0, []
+
+    ajuste = ajuste_motor_aprendizaje(aprendizaje)
+    probs = dict(probs)
+    orden = sorted(probs.values(), reverse=True)
+    margen = orden[0] - orden[1] if len(orden) > 1 else 0.0
+    top_prob = orden[0] if orden else 0.0
+    tercera = orden[2] if len(orden) > 2 else 0.0
+    empate_medio = tendencia_empate_media(local, visitante)
+    hay_memoria_estadistica = bool(local or visitante)
+    riesgo_extra = 0.0
+    lecturas = []
+
+    boost_empate = valor_ajuste(ajuste, "boost_empate_zona_riesgo")
+    if boost_empate and hay_memoria_estadistica and (probs.get("X", 0) >= 24 or margen <= 14 or empate_medio >= 26):
+        incremento = min(boost_empate, 6.0)
+        probs["X"] = probs.get("X", 0) + incremento
+        riesgo_extra += incremento * 1.2
+        lecturas.append(
+            "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo."
+        )
+    elif boost_empate and not hay_memoria_estadistica:
+        riesgo_extra += min(boost_empate, 6.0)
+        lecturas.append(
+            "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo."
+        )
+
+    umbral_fijo = valor_ajuste(ajuste, "umbral_fijo_seguro", 54.0)
+    riesgo_fijo = valor_ajuste(ajuste, "riesgo_extra_fijo_fragil")
+    if riesgo_fijo and (top_prob < umbral_fijo or margen < 14):
+        riesgo_extra += riesgo_fijo
+        lecturas.append(
+            f"Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de {umbral_fijo:.0f}%."
+        )
+
+    riesgo_triple = valor_ajuste(ajuste, "riesgo_extra_triple_insuficiente")
+    if riesgo_triple and tercera >= 17:
+        riesgo_extra += riesgo_triple
+        lecturas.append(
+            "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        )
+
+    return normalizar_probs(probs), round(riesgo_extra, 2), lecturas
 
 
 def doble_top(probs):
@@ -1101,7 +1180,42 @@ def perfil_riesgo_boleto(evaluados):
     )
 
 
-def cobertura_automatica(evaluados):
+def riesgos_no_cubiertos_por_presupuesto(partidos):
+    riesgos = []
+    for partido in partidos:
+        tipo = str(partido.get("tipo") or "").upper()
+        if tipo != "FIJO":
+            continue
+        indice = float(partido.get("indice_sorpresa_quinielistica") or 0)
+        sugerida = str(partido.get("cobertura_sorpresa_sugerida") or "FIJO").upper()
+        calidad = str(partido.get("calidad_datos") or "").lower()
+        tercera = float(partido.get("tercera_probabilidad") or 0)
+        if sugerida == "FIJO" and indice < 60 and not (calidad == "baja" and tercera >= 18):
+            continue
+        riesgos.append({
+            "num": partido.get("num"),
+            "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
+            "tipo_final": tipo,
+            "signo_final": partido.get("signo_final"),
+            "cobertura_sorpresa_sugerida": sugerida,
+            "indice_sorpresa_quinielistica": indice,
+            "tercera_probabilidad": tercera,
+            "probabilidad_sorpresa": partido.get("probabilidad_sorpresa"),
+            "calidad_datos": partido.get("calidad_datos"),
+            "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto.",
+        })
+    return sorted(
+        riesgos,
+        key=lambda item: (
+            item["indice_sorpresa_quinielistica"],
+            float(item.get("probabilidad_sorpresa") or 0),
+            item["tercera_probabilidad"],
+        ),
+        reverse=True,
+    )
+
+
+def cobertura_automatica(evaluados, aprendizaje=None):
     riesgos = perfil_riesgo_boleto(evaluados)
     muy_abiertos = [
         p for p in evaluados
@@ -1134,6 +1248,21 @@ def cobertura_automatica(evaluados):
     else:
         dobles = min(2, base_dobles)
 
+    detalle_aprendizaje = ""
+    if aprendizaje_propio_activo(aprendizaje or {}):
+        ajuste = ajuste_motor_aprendizaje(aprendizaje or {})
+        min_dobles = int(ajuste.get("min_dobles_auto") or 0)
+        min_triples = int(ajuste.get("min_triples_auto") or 0)
+        if min_dobles and len(riesgos) >= min_dobles:
+            dobles = max(dobles, min_dobles)
+        if min_triples and muy_abiertos:
+            triples = max(triples, min_triples)
+        if min_dobles or min_triples:
+            detalle_aprendizaje = (
+                f" Aprendizaje propio aplicado: minimo {min_dobles} dobles y "
+                f"{min_triples} triples por errores historicos."
+            )
+
     # Mantiene una propuesta jugable por defecto y evita que la IA publique 14 fijos
     # cuando su propio perfil de riesgo detecta una jornada abierta.
     dobles = min(dobles, 5)
@@ -1144,7 +1273,7 @@ def cobertura_automatica(evaluados):
     detalle = (
         f"Cobertura automatica: {len(riesgos)} partidos de riesgo detectados; "
         f"{len(ataques_favorito)} favoritos atacables por indice de sorpresa; "
-        f"se recomiendan {dobles} dobles y {triples} triples."
+        f"se recomiendan {dobles} dobles y {triples} triples.{detalle_aprendizaje}"
     )
     return dobles, triples, detalle
 
@@ -1163,6 +1292,7 @@ def coste(dobles, triples, elige8):
 
 def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=False):
     memoria = cargar_json(MEMORIA, {})
+    aprendizaje = cargar_json(APRENDIZAJE_PROPIO, {})
     contexto = cargar_json(CONTEXTO_EQUIPOS, {})
     contexto_competitivo = cargar_json(CONTEXTO_COMPETITIVO, {})
     patrones_competitivos = cargar_json(PATRONES_COMPETITIVOS, {})
@@ -1185,7 +1315,17 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             probs, patrones_competitivos, local_comp, visitante_comp
         )
         lecturas_motivacion.extend(lecturas_patrones)
-        inc = incertidumbre(probs, local, visitante, diff, riesgo_contexto + riesgo_motivacion + riesgo_patrones)
+        probs, riesgo_aprendizaje, lecturas_aprendizaje = ajustar_por_aprendizaje_propio(
+            probs, local, visitante, aprendizaje
+        )
+        lecturas_motivacion.extend(lecturas_aprendizaje)
+        inc = incertidumbre(
+            probs,
+            local,
+            visitante,
+            diff,
+            riesgo_contexto + riesgo_motivacion + riesgo_patrones + riesgo_aprendizaje,
+        )
         sorpresa = probabilidad_sorpresa(probs, inc)
         trazabilidad = trazabilidad_datos_partido(
             local,
@@ -1208,6 +1348,11 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "contexto_competitivo_local": local_comp,
             "contexto_competitivo_visitante": visitante_comp,
             "lecturas_motivacion": lecturas_motivacion,
+            "ajuste_aprendizaje": {
+                "activo": bool(lecturas_aprendizaje),
+                "riesgo_extra": riesgo_aprendizaje,
+                "lecturas": lecturas_aprendizaje,
+            },
             "trazabilidad_datos": trazabilidad,
             "_local": local,
             "_visitante": visitante,
@@ -1223,7 +1368,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     cobertura_auto = dobles is None and triples is None
     criterio_cobertura = "Cobertura indicada manualmente."
     if cobertura_auto:
-        dobles, triples, criterio_cobertura = cobertura_automatica(evaluados)
+        dobles, triples, criterio_cobertura = cobertura_automatica(evaluados, aprendizaje)
     else:
         dobles = int(dobles or 0)
         triples = int(triples or 0)
@@ -1275,6 +1420,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "origen_probabilidades": partido["trazabilidad_datos"]["origen_probabilidades"],
             "calidad_datos": partido["trazabilidad_datos"]["calidad_datos"],
             "trazabilidad_datos": partido["trazabilidad_datos"],
+            "ajuste_aprendizaje": partido["ajuste_aprendizaje"],
             "elige8": False,
             "razonamiento": explicar(
                 partido,
@@ -1300,6 +1446,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         for partido in partidos:
             partido["elige8"] = partido["num"] in elige8_set
 
+    riesgos_sin_cubrir = riesgos_no_cubiertos_por_presupuesto(partidos)
     ataques_favorito_prioritarios = [
         {
             "num": p["num"],
@@ -1335,6 +1482,17 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         "criterio_cobertura": criterio_cobertura,
         "ataques_favorito_prioritarios": ataques_favorito_prioritarios,
         "riesgos_detectados": perfil_riesgo_boleto(evaluados)[:8],
+        "riesgos_no_cubiertos_por_presupuesto": riesgos_sin_cubrir[:8],
+        "alertas_boleto": [
+            {
+                "nivel": "media",
+                "titulo": "Riesgos no cubiertos por presupuesto",
+                "detalle": (
+                    f"{len(riesgos_sin_cubrir)} partidos quedan como FIJO pese a tener senales de sorpresa "
+                    "o datos insuficientes para tratarlos como seguros."
+                ),
+            }
+        ] if riesgos_sin_cubrir else [],
         "contexto_equipos": {
             "generado_en": contexto.get("generado_en"),
             "fuentes": contexto.get("fuentes", []),
@@ -1342,6 +1500,13 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         "contexto_competitivo": {
             "generado_en": contexto_competitivo.get("generado_en"),
             "reglas": contexto_competitivo.get("reglas", {}),
+        },
+        "aprendizaje_motor": {
+            "activo": aprendizaje_propio_activo(aprendizaje),
+            "precision": aprendizaje.get("precision"),
+            "partidos_revisados": aprendizaje.get("partidos_revisados"),
+            "fallos_por_tipo": aprendizaje.get("fallos_por_tipo", {}),
+            "ajuste_motor": ajuste_motor_aprendizaje(aprendizaje),
         },
         "pleno15": data.get("pleno15"),
         "resumen": {
@@ -1351,6 +1516,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "elige8_seleccionados": sum(1 for p in partidos if p["elige8"]),
             "favoritos_atacables": sum(1 for p in partidos if p["favorito_atacable"]),
             "indice_sorpresa_max": max((p["indice_sorpresa_quinielistica"] for p in partidos), default=0),
+            "riesgos_no_cubiertos_por_presupuesto": len(riesgos_sin_cubrir),
             "calidad_datos": {
                 "alta": sum(1 for p in partidos if p.get("calidad_datos") == "alta"),
                 "media_baja": sum(1 for p in partidos if p.get("calidad_datos") == "media_baja"),

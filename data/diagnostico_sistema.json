@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-11T18:13:04.605362+00:00",
-  "estado": "operativo",
-  "score_salud": 100,
+  "generado_en": "2026-06-12T18:18:02.005584+00:00",
+  "estado": "operativo_con_avisos",
+  "score_salud": 76,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 67,
@@ -98,7 +98,7 @@
   },
   "prediccion": {
     "jornada": 67,
-    "generado_en": "2026-06-11T18:13:03.805715+00:00",
+    "generado_en": "2026-06-12T18:17:35.585900+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 8,
@@ -106,7 +106,14 @@
       "triples": 2,
       "elige8_seleccionados": 0,
       "favoritos_atacables": 10,
-      "indice_sorpresa_max": 100.0
+      "indice_sorpresa_max": 100.0,
+      "riesgos_no_cubiertos_por_presupuesto": 8,
+      "calidad_datos": {
+        "alta": 0,
+        "media_baja": 3,
+        "baja": 11
+      },
+      "partidos_sin_memoria_estadistica": 14
     }
   },
   "clasificaciones": {
@@ -158,9 +165,9 @@
     }
   },
   "fuentes": {
-    "memoria_horas": 0.0,
-    "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 5.77,
+    "memoria_horas": 24.08,
+    "estado_vivo_horas": 24.08,
+    "contexto_equipos_horas": 6.34,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -201,7 +208,32 @@
     "generado_en": "2026-06-11T18:13:04.517448+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
-  "alertas": [],
+  "alertas": [
+    {
+      "nivel": "media",
+      "titulo": "Jornada actual incompleta",
+      "detalle": "La jornada 67 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
+    },
+    {
+      "nivel": "media",
+      "titulo": "Jornada con azar alto",
+      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
+      "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
+    },
+    {
+      "nivel": "media",
+      "titulo": "Fuentes deportivas incompletas",
+      "detalle": "Cuotas, xG, alineaciones, sanciones oficiales, arbitros y porcentajes apostados aun no son datos vivos completos.",
+      "accion": "Conectar APIs o datasets autorizados para subir calidad predictiva."
+    },
+    {
+      "nivel": "baja",
+      "titulo": "Backtesting pre-cierre con muestra pequena",
+      "detalle": "Hay 14 partidos cerrados desde snapshots pre-cierre.",
+      "accion": "Acumular varias jornadas antes de usar la precision como metrica fuerte."
+    }
+  ],
   "acciones_prioritarias": [
     "Persistir quinielas jugadas nuestras en data/quinielas_jugadas.json o data/historial_quinielas.json.",
     "No validar 14 fijos si el diagnostico detecta varios partidos trampa.",
@@ -211,7 +243,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-06-11T18:13:04.605362+00:00",
+    "generado_en": "2026-06-12T18:18:02.005584+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
@@ -796,7 +828,7 @@
     },
     "prediccion": {
       "jornada": 67,
-      "generado_en": "2026-06-11T18:13:03.805715+00:00",
+      "generado_en": "2026-06-12T18:17:35.585900+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 8,
@@ -804,7 +836,14 @@
         "triples": 2,
         "elige8_seleccionados": 0,
         "favoritos_atacables": 10,
-        "indice_sorpresa_max": 100.0
+        "indice_sorpresa_max": 100.0,
+        "riesgos_no_cubiertos_por_presupuesto": 8,
+        "calidad_datos": {
+          "alta": 0,
+          "media_baja": 3,
+          "baja": 11
+        },
+        "partidos_sin_memoria_estadistica": 14
       }
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."

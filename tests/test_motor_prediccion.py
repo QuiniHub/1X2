@@ -7,11 +7,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from motor_prediccion_quiniela import (
+    ajustar_por_aprendizaje_propio,
     cobertura_automatica,
     coste,
     indice_sorpresa_quinielistica,
     prioridad_elige8,
     prioridad_doble,
+    riesgos_no_cubiertos_por_presupuesto,
     trazabilidad_datos_partido,
 )
 
@@ -68,6 +70,102 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertEqual(dobles, 0)
         self.assertEqual(triples, 0)
         self.assertIn("boleto sencillo", detalle)
+
+    def test_aprendizaje_propio_refuerza_empate_y_riesgo_fragil(self):
+        aprendizaje = {
+            "ajuste_motor": {
+                "partidos_base": 111,
+                "muestra": "suficiente",
+                "boost_empate_zona_riesgo": 4.0,
+                "riesgo_extra_fijo_fragil": 9.0,
+                "riesgo_extra_triple_insuficiente": 3.0,
+                "umbral_fijo_seguro": 58,
+            }
+        }
+        local = {"tendencias": {"empates_pct": 30}}
+        visitante = {"tendencias": {"empates_pct": 28}}
+
+        probs, riesgo, lecturas = ajustar_por_aprendizaje_propio(
+            {"1": 48.0, "X": 27.0, "2": 25.0},
+            local,
+            visitante,
+            aprendizaje,
+        )
+
+        self.assertGreater(probs["X"], 27.0)
+        self.assertGreaterEqual(riesgo, 10.0)
+        self.assertTrue(any("Aprendizaje propio" in lectura for lectura in lecturas))
+
+    def test_aprendizaje_no_inventa_porcentaje_empate_sin_memoria(self):
+        aprendizaje = {
+            "ajuste_motor": {
+                "partidos_base": 111,
+                "muestra": "suficiente",
+                "boost_empate_zona_riesgo": 4.0,
+                "riesgo_extra_fijo_fragil": 0.0,
+                "riesgo_extra_triple_insuficiente": 0.0,
+            }
+        }
+
+        probs, riesgo, lecturas = ajustar_por_aprendizaje_propio(
+            {"1": 36.0, "X": 34.0, "2": 30.0},
+            None,
+            None,
+            aprendizaje,
+        )
+
+        self.assertEqual(probs["X"], 34.0)
+        self.assertGreater(riesgo, 0)
+        self.assertTrue(any("no se altera el porcentaje" in lectura for lectura in lecturas))
+
+    def test_cobertura_automatica_aplica_minimo_triple_aprendido(self):
+        evaluados = [
+            partido(1, {"1": 34.0, "X": 33.0, "2": 33.0}, incertidumbre=120, sorpresa=65),
+            *[
+                partido(i, {"1": 72.0, "X": 18.0, "2": 10.0}, incertidumbre=45, sorpresa=20)
+                for i in range(2, 15)
+            ],
+        ]
+        aprendizaje = {
+            "ajuste_motor": {
+                "partidos_base": 111,
+                "muestra": "suficiente",
+                "min_triples_auto": 1,
+                "min_dobles_auto": 0,
+            }
+        }
+
+        _, triples, detalle = cobertura_automatica(evaluados, aprendizaje)
+
+        self.assertEqual(triples, 1)
+        self.assertIn("Aprendizaje propio aplicado", detalle)
+
+    def test_riesgos_no_cubiertos_por_presupuesto_detecta_fijo_peligroso(self):
+        partidos = [
+            {
+                **partido(1, {"1": 40.0, "X": 32.0, "2": 28.0}, incertidumbre=120, sorpresa=65),
+                "tipo": "FIJO",
+                "signo_final": "1",
+                "indice_sorpresa_quinielistica": 82,
+                "cobertura_sorpresa_sugerida": "TRIPLE",
+                "tercera_probabilidad": 28.0,
+                "calidad_datos": "baja",
+            },
+            {
+                **partido(2, {"1": 70.0, "X": 20.0, "2": 10.0}, incertidumbre=50, sorpresa=20),
+                "tipo": "DOBLE",
+                "signo_final": "1X",
+                "indice_sorpresa_quinielistica": 20,
+                "cobertura_sorpresa_sugerida": "FIJO",
+                "tercera_probabilidad": 10.0,
+                "calidad_datos": "alta",
+            },
+        ]
+
+        riesgos = riesgos_no_cubiertos_por_presupuesto(partidos)
+
+        self.assertEqual([r["num"] for r in riesgos], [1])
+        self.assertIn("no cubierto", riesgos[0]["motivo"])
 
     def test_indice_sorpresa_detecta_favorito_atacable(self):
         evaluado = partido(1, {"1": 56.0, "X": 24.0, "2": 20.0}, incertidumbre=104, sorpresa=48)

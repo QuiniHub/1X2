@@ -34,6 +34,57 @@ def estado_desde_control(control):
     return "operativo", 100
 
 
+def combinar_alertas(*listas_alertas):
+    combinadas = []
+    vistas = set()
+    for alertas in listas_alertas:
+        for alerta in alertas or []:
+            clave = (
+                str(alerta.get("nivel", "")),
+                str(alerta.get("titulo", "")),
+                str(alerta.get("detalle", "")),
+            )
+            if clave in vistas:
+                continue
+            vistas.add(clave)
+            combinadas.append(alerta)
+    return combinadas
+
+
+def estado_desde_alertas(alertas):
+    niveles = {str(alerta.get("nivel", "")).lower() for alerta in alertas or []}
+    if "critica" in niveles:
+        return "critico_actualizacion", 45
+    if "alta" in niveles:
+        return "requiere_revision_datos", 70
+    if "media" in niveles:
+        return "operativo_con_avisos", 82
+    if "baja" in niveles:
+        return "operativo_con_avisos", 92
+    return "operativo", 100
+
+
+def estado_final(control, diagnostico):
+    alertas = combinar_alertas(control.get("alertas", []), diagnostico.get("alertas", []))
+    estado_control, score_control = estado_desde_control(control)
+    estado_alertas, score_alertas = estado_desde_alertas(alertas)
+    try:
+        score_diagnostico = int(diagnostico.get("score_salud", score_control) or score_control)
+    except (TypeError, ValueError):
+        score_diagnostico = score_control
+
+    score = min(score_control, score_alertas, score_diagnostico)
+    if score <= 45 or estado_control == "critico_actualizacion" or estado_alertas == "critico_actualizacion":
+        estado = "critico_actualizacion"
+    elif score <= 70 or estado_control == "requiere_revision_datos" or estado_alertas == "requiere_revision_datos":
+        estado = "requiere_revision_datos"
+    elif score < 100 or alertas:
+        estado = "operativo_con_avisos"
+    else:
+        estado = "operativo"
+    return estado, score, alertas
+
+
 def main():
     control = cargar_json(DATA / "control_calidad_actualizacion.json", {})
     if not control:
@@ -41,7 +92,7 @@ def main():
         return
 
     diagnostico = cargar_json(DATA / "diagnostico_sistema.json", {})
-    estado, score = estado_desde_control(control)
+    estado, score, alertas = estado_final(control, diagnostico)
     diagnostico["estado"] = estado
     diagnostico["score_salud"] = score
     diagnostico["generado_en"] = control.get("generado_en")
@@ -50,7 +101,7 @@ def main():
     diagnostico["jornadas_control"] = control.get("jornadas", {})
     diagnostico["clasificacion_control"] = control.get("clasificacion", {})
     diagnostico["contexto_competitivo_control"] = control.get("contexto_competitivo", {})
-    diagnostico["alertas"] = control.get("alertas", [])
+    diagnostico["alertas"] = alertas
 
     guardar_json(DATA / "diagnostico_sistema.json", diagnostico)
     guardar_json(MEMORIA / "diagnostico_sistema.json", diagnostico)

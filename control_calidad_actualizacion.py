@@ -245,6 +245,9 @@ def actualizar_diagnostico(control):
     elif control["estado"] == "revisar":
         diagnostico["estado"] = "requiere_revision_datos"
         diagnostico["score_salud"] = min(int(diagnostico.get("score_salud", 100) or 100), 70)
+    elif control["estado"] == "operativo_con_avisos":
+        diagnostico["estado"] = "operativo_con_avisos"
+        diagnostico["score_salud"] = min(int(diagnostico.get("score_salud", 100) or 100), 82)
     diagnostico["generado_en"] = control["generado_en"]
     diagnostico.setdefault("alertas", [])
     diagnostico["alertas"] = control["alertas"] + diagnostico["alertas"]
