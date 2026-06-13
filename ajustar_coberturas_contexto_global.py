@@ -142,7 +142,11 @@ def patch_workflow():
     insertion = "          python ajustar_coberturas_contexto_global.py\n"
     if insertion not in text:
         if marker not in text:
-            raise SystemExit("No encuentro donde insertar ajustar_coberturas_contexto_global.py en workflow")
+            if "python actualizar_todo.py" in text:
+                print("Workflow ya delega en actualizar_todo.py; no hace falta insertar el script individual.")
+                return []
+            print("No encuentro donde insertar ajustar_coberturas_contexto_global.py en workflow; se deja sin cambios.")
+            return []
         text = text.replace(marker, marker + insertion)
     if text != original:
         WORKFLOW.write_text(text, encoding="utf-8")
