@@ -703,6 +703,7 @@
     let jornadaActualIA = null;
     let partidosJornadaIA = [];
     let pleno15JornadaIA = null;
+    let ultimoBoletoIAGenerado = null;
     let detalleJornadaActual = null;
     let quinielasJugadasPersistentes = {};
     let contextoCompetitivoGlobal = {};
@@ -2938,6 +2939,28 @@
       await cargarAnalisisIA();
     }
 
+    async function validarBoletoIAGenerado(jornada) {
+      const boleto = ultimoBoletoIAGenerado;
+      if (!boleto || Number(boleto.jornada) !== Number(jornada)) {
+        alert("Primero genera la quiniela IA de esta jornada.");
+        return;
+      }
+      const validacion = {
+        jornada,
+        signos: boleto.signos,
+        elige8: boleto.elige8,
+        pleno15: boleto.pleno15 || "",
+        validado_en: new Date().toLocaleString("es-ES"),
+        origen: "quiniela_ia_validada_web",
+      };
+      localStorage.setItem(`quiniela_validada_${jornada}`, JSON.stringify(validacion));
+      guardarPendientePersistencia(validacion);
+      actualizarBotonJornadaQuiniela(jornada);
+      await abrirQuinielaIA(jornada);
+      await cargarHistorial();
+      await cargarAnalisisIA();
+    }
+
     function pintarBoletoValidadoEnQuinielas(data, validacion) {
       const contenedor = document.getElementById("boleto-ia");
       const partidos14 = (data.partidos || []).filter(p => Number(p.num) <= 14);
@@ -5120,6 +5143,12 @@
 
       partidos.sort((a, b) => a.num - b.num);
       const plenoIA = pronosticarPleno15(pleno15JornadaIA, partidos);
+      ultimoBoletoIAGenerado = {
+        jornada: jornadaActualIA,
+        signos: partidos.map(p => p.signo_final || p.signo_base || "1"),
+        elige8: Array.from(elige8Set).slice(0, 8),
+        pleno15: plenoIA?.pronostico || "",
+      };
 
       document.getElementById("boleto-ia").innerHTML = `
         <div class="boleto-resumen">
@@ -5127,6 +5156,11 @@
           ${14 - dobles - triples} sencillos · ${dobles} dobles · ${triples} triples ·
           ${activarElige8 ? "Elige 8 activado" : "Elige 8 no activado"} ·
           ${document.getElementById("importe-quiniela").textContent}
+        </div>
+
+        <div class="manual-form">
+          <button onclick="validarBoletoIAGenerado(${jornadaActualIA})">Validar esta Quiniela IA</button>
+          <button onclick="generarFormularioValidacionQuinielas(${jornadaActualIA})">Introducir manual y validar</button>
         </div>
 
         ${partidos.map(p => `
