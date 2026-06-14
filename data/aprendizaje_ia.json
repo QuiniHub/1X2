@@ -1,24 +1,24 @@
 {
   "version": "1.1",
-  "precision": 61.4,
+  "precision": 60.0,
   "jornadas_revisadas": 9,
-  "partidos_revisados": 114,
-  "aciertos": 70,
-  "fallos": 44,
+  "partidos_revisados": 115,
+  "aciertos": 69,
+  "fallos": 46,
   "fallos_por_tipo": {
     "Doble insuficiente": 8,
-    "Fijo fallado": 24,
-    "No cubrio empate": 12
+    "Fijo fallado": 25,
+    "No cubrio empate": 13
   },
   "fallos_por_signo_real": {
     "1": 14,
-    "2": 18,
-    "X": 12
+    "2": 19,
+    "X": 13
   },
   "signos_omitidos_en_fallo": {
     "1": 14,
-    "2": 18,
-    "X": 12
+    "2": 19,
+    "X": 13
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,10 +28,10 @@
       "precision": 60.0
     },
     "FIJO": {
-      "total": 72,
-      "aciertos": 36,
-      "fallos": 36,
-      "precision": 50.0
+      "total": 73,
+      "aciertos": 35,
+      "fallos": 38,
+      "precision": 47.95
     },
     "TRIPLE": {
       "total": 22,
@@ -42,22 +42,22 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 52,
-      "aciertos": 38,
+      "total": 51,
+      "aciertos": 37,
       "fallos": 14,
-      "precision": 73.08
+      "precision": 72.55
     },
     "2": {
-      "total": 35,
+      "total": 36,
       "aciertos": 17,
-      "fallos": 18,
-      "precision": 48.57
+      "fallos": 19,
+      "precision": 47.22
     },
     "X": {
-      "total": 27,
+      "total": 28,
       "aciertos": 15,
-      "fallos": 12,
-      "precision": 55.56
+      "fallos": 13,
+      "precision": 53.57
     }
   },
   "detalle": [
@@ -1422,11 +1422,23 @@
       "partido": "Brasil - Marruecos",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
-      "resultado": "4-1",
-      "signo_real": "1",
+      "resultado": "1-1",
+      "signo_real": "X",
       "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
+      "signo_omitido": "X",
+      "acierto": false,
+      "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 67,
+      "partido": "Haití - Escocia",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-1",
+      "signo_real": "2",
+      "signos_cubiertos": "1",
+      "signo_omitido": "2",
+      "acierto": false,
       "origen": "issue_memoria_sin_token"
     }
   ],
@@ -1440,19 +1452,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 114,
+    "partidos_base": 115,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 38.6,
-      "no_cubrio_empate_sobre_fallos_pct": 27.27,
-      "no_cubrio_empate_sobre_total_pct": 10.53,
-      "fijo_fallado_sobre_fallos_pct": 54.55,
-      "fijo_fallado_sobre_total_pct": 21.05,
-      "doble_insuficiente_sobre_total_pct": 7.02
+      "fallos_total_pct": 40.0,
+      "no_cubrio_empate_sobre_fallos_pct": 28.26,
+      "no_cubrio_empate_sobre_total_pct": 11.3,
+      "fijo_fallado_sobre_fallos_pct": 54.35,
+      "fijo_fallado_sobre_total_pct": 21.74,
+      "doble_insuficiente_sobre_total_pct": 6.96
     },
-    "boost_empate_zona_riesgo": 4.42,
-    "riesgo_extra_fijo_fragil": 11.15,
-    "riesgo_extra_triple_insuficiente": 2.72,
+    "boost_empate_zona_riesgo": 4.91,
+    "riesgo_extra_fijo_fragil": 11.66,
+    "riesgo_extra_triple_insuficiente": 2.66,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
