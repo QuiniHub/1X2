@@ -1,24 +1,24 @@
 {
   "version": "1.1",
-  "precision": 60.17,
+  "precision": 59.66,
   "jornadas_revisadas": 9,
-  "partidos_revisados": 118,
+  "partidos_revisados": 119,
   "aciertos": 71,
-  "fallos": 47,
+  "fallos": 48,
   "fallos_por_tipo": {
     "Doble insuficiente": 8,
     "Fijo fallado": 26,
-    "No cubrio empate": 13
+    "No cubrio empate": 14
   },
   "fallos_por_signo_real": {
     "1": 15,
     "2": 19,
-    "X": 13
+    "X": 14
   },
   "signos_omitidos_en_fallo": {
     "1": 15,
     "2": 19,
-    "X": 13
+    "X": 14
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,10 +28,10 @@
       "precision": 61.9
     },
     "FIJO": {
-      "total": 75,
+      "total": 76,
       "aciertos": 36,
-      "fallos": 39,
-      "precision": 48.0
+      "fallos": 40,
+      "precision": 47.37
     },
     "TRIPLE": {
       "total": 22,
@@ -54,10 +54,10 @@
       "precision": 47.22
     },
     "X": {
-      "total": 29,
+      "total": 30,
       "aciertos": 16,
-      "fallos": 13,
-      "precision": 55.17
+      "fallos": 14,
+      "precision": 53.33
     }
   },
   "detalle": [
@@ -1467,6 +1467,18 @@
     },
     {
       "jornada": 67,
+      "partido": "Países Bajos - Japón",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-2",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 67,
       "partido": "Malaga CF - UD Almeria",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
@@ -1488,19 +1500,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 118,
+    "partidos_base": 119,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 39.83,
-      "no_cubrio_empate_sobre_fallos_pct": 27.66,
-      "no_cubrio_empate_sobre_total_pct": 11.02,
-      "fijo_fallado_sobre_fallos_pct": 55.32,
-      "fijo_fallado_sobre_total_pct": 22.03,
-      "doble_insuficiente_sobre_total_pct": 6.78
+      "fallos_total_pct": 40.34,
+      "no_cubrio_empate_sobre_fallos_pct": 29.17,
+      "no_cubrio_empate_sobre_total_pct": 11.76,
+      "fijo_fallado_sobre_fallos_pct": 54.17,
+      "fijo_fallado_sobre_total_pct": 21.85,
+      "doble_insuficiente_sobre_total_pct": 6.72
     },
-    "boost_empate_zona_riesgo": 4.69,
-    "riesgo_extra_fijo_fragil": 12.09,
-    "riesgo_extra_triple_insuficiente": 2.5,
+    "boost_empate_zona_riesgo": 5.25,
+    "riesgo_extra_fijo_fragil": 11.71,
+    "riesgo_extra_triple_insuficiente": 2.45,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
