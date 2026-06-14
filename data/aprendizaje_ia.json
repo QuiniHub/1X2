@@ -1,22 +1,22 @@
 {
   "version": "1.1",
-  "precision": 60.0,
+  "precision": 59.48,
   "jornadas_revisadas": 9,
-  "partidos_revisados": 115,
+  "partidos_revisados": 116,
   "aciertos": 69,
-  "fallos": 46,
+  "fallos": 47,
   "fallos_por_tipo": {
     "Doble insuficiente": 8,
-    "Fijo fallado": 25,
+    "Fijo fallado": 26,
     "No cubrio empate": 13
   },
   "fallos_por_signo_real": {
-    "1": 14,
+    "1": 15,
     "2": 19,
     "X": 13
   },
   "signos_omitidos_en_fallo": {
-    "1": 14,
+    "1": 15,
     "2": 19,
     "X": 13
   },
@@ -28,10 +28,10 @@
       "precision": 60.0
     },
     "FIJO": {
-      "total": 73,
+      "total": 74,
       "aciertos": 35,
-      "fallos": 38,
-      "precision": 47.95
+      "fallos": 39,
+      "precision": 47.3
     },
     "TRIPLE": {
       "total": 22,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 51,
+      "total": 52,
       "aciertos": 37,
-      "fallos": 14,
-      "precision": 72.55
+      "fallos": 15,
+      "precision": 71.15
     },
     "2": {
       "total": 36,
@@ -1440,6 +1440,18 @@
       "signo_omitido": "2",
       "acierto": false,
       "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 67,
+      "partido": "Australia - Turquía",
+      "pronostico": "X",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-0",
+      "signo_real": "1",
+      "signos_cubiertos": "X",
+      "signo_omitido": "1",
+      "acierto": false,
+      "origen": "issue_memoria_sin_token"
     }
   ],
   "ajustes_recomendados": [
@@ -1452,19 +1464,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 115,
+    "partidos_base": 116,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 40.0,
-      "no_cubrio_empate_sobre_fallos_pct": 28.26,
-      "no_cubrio_empate_sobre_total_pct": 11.3,
-      "fijo_fallado_sobre_fallos_pct": 54.35,
-      "fijo_fallado_sobre_total_pct": 21.74,
-      "doble_insuficiente_sobre_total_pct": 6.96
+      "fallos_total_pct": 40.52,
+      "no_cubrio_empate_sobre_fallos_pct": 27.66,
+      "no_cubrio_empate_sobre_total_pct": 11.21,
+      "fijo_fallado_sobre_fallos_pct": 55.32,
+      "fijo_fallado_sobre_total_pct": 22.41,
+      "doble_insuficiente_sobre_total_pct": 6.9
     },
-    "boost_empate_zona_riesgo": 4.91,
-    "riesgo_extra_fijo_fragil": 11.66,
-    "riesgo_extra_triple_insuficiente": 2.66,
+    "boost_empate_zona_riesgo": 4.76,
+    "riesgo_extra_fijo_fragil": 12.39,
+    "riesgo_extra_triple_insuficiente": 2.61,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
