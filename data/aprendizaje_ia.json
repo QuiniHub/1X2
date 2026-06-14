@@ -1,9 +1,9 @@
 {
   "version": "1.1",
-  "precision": 59.48,
+  "precision": 59.83,
   "jornadas_revisadas": 9,
-  "partidos_revisados": 116,
-  "aciertos": 69,
+  "partidos_revisados": 117,
+  "aciertos": 70,
   "fallos": 47,
   "fallos_por_tipo": {
     "Doble insuficiente": 8,
@@ -28,10 +28,10 @@
       "precision": 60.0
     },
     "FIJO": {
-      "total": 74,
-      "aciertos": 35,
+      "total": 75,
+      "aciertos": 36,
       "fallos": 39,
-      "precision": 47.3
+      "precision": 48.0
     },
     "TRIPLE": {
       "total": 22,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 52,
-      "aciertos": 37,
+      "total": 53,
+      "aciertos": 38,
       "fallos": 15,
-      "precision": 71.15
+      "precision": 71.7
     },
     "2": {
       "total": 36,
@@ -1452,6 +1452,18 @@
       "signo_omitido": "1",
       "acierto": false,
       "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 67,
+      "partido": "Alemania - Curazao",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "7-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "origen": "issue_memoria_sin_token"
     }
   ],
   "ajustes_recomendados": [
@@ -1464,19 +1476,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 116,
+    "partidos_base": 117,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 40.52,
+      "fallos_total_pct": 40.17,
       "no_cubrio_empate_sobre_fallos_pct": 27.66,
-      "no_cubrio_empate_sobre_total_pct": 11.21,
+      "no_cubrio_empate_sobre_total_pct": 11.11,
       "fijo_fallado_sobre_fallos_pct": 55.32,
-      "fijo_fallado_sobre_total_pct": 22.41,
-      "doble_insuficiente_sobre_total_pct": 6.9
+      "fijo_fallado_sobre_total_pct": 22.22,
+      "doble_insuficiente_sobre_total_pct": 6.84
     },
-    "boost_empate_zona_riesgo": 4.76,
-    "riesgo_extra_fijo_fragil": 12.39,
-    "riesgo_extra_triple_insuficiente": 2.61,
+    "boost_empate_zona_riesgo": 4.72,
+    "riesgo_extra_fijo_fragil": 12.24,
+    "riesgo_extra_triple_insuficiente": 2.56,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
