@@ -1,9 +1,9 @@
 {
   "version": "1.1",
-  "precision": 60.66,
+  "precision": 60.98,
   "jornadas_revisadas": 9,
-  "partidos_revisados": 122,
-  "aciertos": 74,
+  "partidos_revisados": 123,
+  "aciertos": 75,
   "fallos": 48,
   "fallos_por_tipo": {
     "Doble insuficiente": 8,
@@ -34,8 +34,8 @@
       "precision": 48.05
     },
     "TRIPLE": {
-      "total": 23,
-      "aciertos": 23,
+      "total": 24,
+      "aciertos": 24,
       "fallos": 0,
       "precision": 100.0
     }
@@ -54,10 +54,10 @@
       "precision": 47.22
     },
     "X": {
-      "total": 31,
-      "aciertos": 17,
+      "total": 32,
+      "aciertos": 18,
       "fallos": 14,
-      "precision": 54.84
+      "precision": 56.25
     }
   },
   "detalle": [
@@ -1515,6 +1515,18 @@
     },
     {
       "jornada": 67,
+      "partido": "Arabia Saudí - Uruguay",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 67,
       "partido": "Malaga CF - UD Almeria",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
@@ -1536,19 +1548,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 122,
+    "partidos_base": 123,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 39.34,
+      "fallos_total_pct": 39.02,
       "no_cubrio_empate_sobre_fallos_pct": 29.17,
-      "no_cubrio_empate_sobre_total_pct": 11.48,
+      "no_cubrio_empate_sobre_total_pct": 11.38,
       "fijo_fallado_sobre_fallos_pct": 54.17,
-      "fijo_fallado_sobre_total_pct": 21.31,
-      "doble_insuficiente_sobre_total_pct": 6.56
+      "fijo_fallado_sobre_total_pct": 21.14,
+      "doble_insuficiente_sobre_total_pct": 6.5
     },
-    "boost_empate_zona_riesgo": 5.14,
-    "riesgo_extra_fijo_fragil": 11.28,
-    "riesgo_extra_triple_insuficiente": 2.3,
+    "boost_empate_zona_riesgo": 5.1,
+    "riesgo_extra_fijo_fragil": 11.15,
+    "riesgo_extra_triple_insuficiente": 2.25,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
