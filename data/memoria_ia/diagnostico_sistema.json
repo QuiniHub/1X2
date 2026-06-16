@@ -1,14 +1,14 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-16T00:12:33.947619+00:00",
+  "generado_en": "2026-06-16T05:37:19.722699+00:00",
   "estado": "operativo_con_avisos",
   "score_salud": 76,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
-    "total_jornadas": 68,
+    "total_jornadas": 69,
     "jornada_actual": {
-      "jornada": 68,
-      "fecha": "2026-06-21",
+      "jornada": 70,
+      "fecha": "2026-06-28",
       "estado": "abierta",
       "partidos": 14,
       "cerrados": 0,
@@ -16,22 +16,10 @@
       "pendientes_totales_con_pleno15": 15,
       "pleno15_cerrado": false,
       "ultima_actualizacion_partido": "",
-      "path": "data/jornadas/jornada_68.json"
+      "path": "data/jornadas/jornada_70.json"
     },
     "proxima_jornada": null,
     "ultimas": [
-      {
-        "jornada": 64,
-        "fecha": "Domingo, 24 de mayo de 2026",
-        "estado": "en_juego",
-        "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
-        "pendientes_totales_con_pleno15": 1,
-        "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "2026-05-24T19:56:48Z",
-        "path": "data/jornadas/jornada_64.json"
-      },
       {
         "jornada": 65,
         "fecha": "2026-05-31",
@@ -61,11 +49,11 @@
         "fecha": "Domingo, 14 de junio de 2026",
         "estado": "en_juego",
         "partidos": 14,
-        "cerrados": 12,
-        "pendientes": 2,
-        "pendientes_totales_con_pleno15": 2,
+        "cerrados": 13,
+        "pendientes": 1,
+        "pendientes_totales_con_pleno15": 1,
         "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "2026-06-16T00:12:21Z",
+        "ultima_actualizacion_partido": "2026-06-16T05:36:48Z",
         "path": "data/jornadas/jornada_67.json"
       },
       {
@@ -79,6 +67,18 @@
         "pleno15_cerrado": false,
         "ultima_actualizacion_partido": "",
         "path": "data/jornadas/jornada_68.json"
+      },
+      {
+        "jornada": 70,
+        "fecha": "2026-06-28",
+        "estado": "abierta",
+        "partidos": 14,
+        "cerrados": 0,
+        "pendientes": 14,
+        "pendientes_totales_con_pleno15": 15,
+        "pleno15_cerrado": false,
+        "ultima_actualizacion_partido": "",
+        "path": "data/jornadas/jornada_70.json"
       }
     ]
   },
@@ -97,8 +97,8 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 68,
-    "generado_en": "2026-06-16T00:12:33.153299+00:00",
+    "jornada": 70,
+    "generado_en": "2026-06-16T05:37:19.013762+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 8,
@@ -160,7 +160,7 @@
   "fuentes": {
     "memoria_horas": 0.0,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 4.26,
+    "contexto_equipos_horas": 0.01,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -194,18 +194,18 @@
   },
   "backtesting_pre_cierre": {
     "estado": "muestra_pequena",
-    "jornadas_snapshot": 3,
-    "partidos_cerrados": 26,
-    "aciertos": 18,
-    "precision": 69.23,
-    "generado_en": "2026-06-16T00:12:33.856574+00:00",
+    "jornadas_snapshot": 4,
+    "partidos_cerrados": 27,
+    "aciertos": 19,
+    "precision": 70.37,
+    "generado_en": "2026-06-16T05:37:19.637184+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
     {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
-      "detalle": "La jornada 68 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "detalle": "La jornada 70 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
       "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
     },
     {
@@ -223,7 +223,7 @@
     {
       "nivel": "baja",
       "titulo": "Backtesting pre-cierre con muestra pequena",
-      "detalle": "Hay 26 partidos cerrados desde snapshots pre-cierre.",
+      "detalle": "Hay 27 partidos cerrados desde snapshots pre-cierre.",
       "accion": "Acumular varias jornadas antes de usar la precision como metrica fuerte."
     }
   ],
@@ -236,37 +236,29 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-06-16T00:12:33.947619+00:00",
+    "generado_en": "2026-06-16T05:37:19.722699+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
     "jornadas": {
-      "total": 68,
+      "total": 69,
       "actual": {
-        "jornada": 68,
-        "fecha": "2026-06-21",
+        "jornada": 70,
+        "fecha": "2026-06-28",
         "partidos": 14,
         "cerrados": 0,
         "pendientes": 14,
-        "path": "data/jornadas/jornada_68.json"
+        "path": "data/jornadas/jornada_70.json"
       },
       "ultima": {
-        "jornada": 68,
-        "fecha": "2026-06-21",
+        "jornada": 70,
+        "fecha": "2026-06-28",
         "partidos": 14,
         "cerrados": 0,
         "pendientes": 14,
-        "path": "data/jornadas/jornada_68.json"
+        "path": "data/jornadas/jornada_70.json"
       },
       "ultimas_5": [
-        {
-          "jornada": 64,
-          "fecha": "Domingo, 24 de mayo de 2026",
-          "partidos": 14,
-          "cerrados": 13,
-          "pendientes": 1,
-          "path": "data/jornadas/jornada_64.json"
-        },
         {
           "jornada": 65,
           "fecha": "2026-05-31",
@@ -287,8 +279,8 @@
           "jornada": 67,
           "fecha": "Domingo, 14 de junio de 2026",
           "partidos": 14,
-          "cerrados": 12,
-          "pendientes": 2,
+          "cerrados": 13,
+          "pendientes": 1,
           "path": "data/jornadas/jornada_67.json"
         },
         {
@@ -298,6 +290,14 @@
           "cerrados": 0,
           "pendientes": 14,
           "path": "data/jornadas/jornada_68.json"
+        },
+        {
+          "jornada": 70,
+          "fecha": "2026-06-28",
+          "partidos": 14,
+          "cerrados": 0,
+          "pendientes": 14,
+          "path": "data/jornadas/jornada_70.json"
         }
       ]
     },
@@ -420,7 +420,7 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-06-16T00:12:32.671067+00:00",
+      "generado_en": "2026-06-16T05:37:18.573831+00:00",
       "oviedo": {
         "clave": "oviedo",
         "equipo": "Real Oviedo",
@@ -820,8 +820,8 @@
       }
     },
     "prediccion": {
-      "jornada": 68,
-      "generado_en": "2026-06-16T00:12:33.153299+00:00",
+      "jornada": 70,
+      "generado_en": "2026-06-16T05:37:19.013762+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 8,
@@ -835,32 +835,24 @@
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
   "jornadas_control": {
-    "total": 68,
+    "total": 69,
     "actual": {
-      "jornada": 68,
-      "fecha": "2026-06-21",
+      "jornada": 70,
+      "fecha": "2026-06-28",
       "partidos": 14,
       "cerrados": 0,
       "pendientes": 14,
-      "path": "data/jornadas/jornada_68.json"
+      "path": "data/jornadas/jornada_70.json"
     },
     "ultima": {
-      "jornada": 68,
-      "fecha": "2026-06-21",
+      "jornada": 70,
+      "fecha": "2026-06-28",
       "partidos": 14,
       "cerrados": 0,
       "pendientes": 14,
-      "path": "data/jornadas/jornada_68.json"
+      "path": "data/jornadas/jornada_70.json"
     },
     "ultimas_5": [
-      {
-        "jornada": 64,
-        "fecha": "Domingo, 24 de mayo de 2026",
-        "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
-        "path": "data/jornadas/jornada_64.json"
-      },
       {
         "jornada": 65,
         "fecha": "2026-05-31",
@@ -881,8 +873,8 @@
         "jornada": 67,
         "fecha": "Domingo, 14 de junio de 2026",
         "partidos": 14,
-        "cerrados": 12,
-        "pendientes": 2,
+        "cerrados": 13,
+        "pendientes": 1,
         "path": "data/jornadas/jornada_67.json"
       },
       {
@@ -892,6 +884,14 @@
         "cerrados": 0,
         "pendientes": 14,
         "path": "data/jornadas/jornada_68.json"
+      },
+      {
+        "jornada": 70,
+        "fecha": "2026-06-28",
+        "partidos": 14,
+        "cerrados": 0,
+        "pendientes": 14,
+        "path": "data/jornadas/jornada_70.json"
       }
     ]
   },
@@ -1014,7 +1014,7 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-06-16T00:12:32.671067+00:00",
+    "generado_en": "2026-06-16T05:37:18.573831+00:00",
     "oviedo": {
       "clave": "oviedo",
       "equipo": "Real Oviedo",
