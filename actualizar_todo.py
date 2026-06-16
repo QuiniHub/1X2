@@ -40,7 +40,7 @@ SCRIPTS_ACTIVOS = [
     "mejorar_motor_dinamica_10.py",
     "alinear_pronostico_analisis.py",
     "mejorar_prioridad_coberturas.py",
-    "motor_prediccion_quiniela.py",
+    "motor_prediccion_objetivo.py",
     "alinear_boleto_con_analisis.py",
     "generar_estado_vivo_ia.py",
     "regenerar_estado_vivo_actual.py",
