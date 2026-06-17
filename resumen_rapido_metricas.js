@@ -2,6 +2,7 @@
   const CACHE = "?v=" + Date.now();
   const PRECIO_APUESTA_QUINIELA = 0.75;
   const PRECIO_ELIGE8_POR_APUESTA = 0.50;
+  let estadoJornadaObjetivoCache = null;
 
   function euros(valor) {
     const n = Number(valor || 0);
@@ -26,6 +27,98 @@
     } catch (e) {
       return fallback;
     }
+  }
+
+  async function cargarEstadoJornadaObjetivo() {
+    if (estadoJornadaObjetivoCache) return estadoJornadaObjetivoCache;
+    estadoJornadaObjetivoCache = await fetchJSON("data/estado_jornada_objetivo.json", {});
+    return estadoJornadaObjetivoCache || {};
+  }
+
+  function jornadaObjetivoDesdeEstado(estado) {
+    return Number(estado?.jornada_objetivo || 0);
+  }
+
+  function jornadaSeleccionadaWeb() {
+    const activo = document.querySelector("#lista-jornadas-quiniela button.active");
+    const match = String(activo?.id || activo?.textContent || "").match(/(\d+)/);
+    return match ? Number(match[1]) : 0;
+  }
+
+  function prediccionEsJornadaObjetivo(prediccion, estado) {
+    const objetivo = jornadaObjetivoDesdeEstado(estado);
+    if (!objetivo) return true;
+    return Number(prediccion?.jornada || 0) === objetivo;
+  }
+
+  function listaJornadasTexto(jornadas) {
+    return (jornadas || []).length ? jornadas.join(", ") : "ninguna";
+  }
+
+  function renderAvisoPrediccionDesfasada(prediccion, estado) {
+    const objetivo = jornadaObjetivoDesdeEstado(estado) || "-";
+    const cargada = estado?.jornada_objetivo_cargada;
+    const futuras = listaJornadasTexto(estado?.jornadas_futuras_cargadas);
+    const faltantes = listaJornadasTexto(estado?.jornadas_intermedias_faltantes);
+    const accion = cargada
+      ? `Abre la Jornada ${objetivo} y genera la predicción desde esa jornada.`
+      : `Esperando a que se cargue el boleto oficial de la Jornada ${objetivo}.`;
+    return `<div class="boleto-resumen" id="aviso-prediccion-desfasada"><h3>Predicción bloqueada por jornada objetivo</h3><p><strong>La última predicción guardada es Jornada ${prediccion?.jornada || "-"}, pero la jornada que toca predecir es Jornada ${objetivo}.</strong></p><p>Última jornada aprendida: ${estado?.ultima_jornada_aprendida || "-"}. Jornadas futuras cargadas solo para calendario: ${futuras}. Jornadas intermedias faltantes o incompletas: ${faltantes}.</p><p>${accion} La IA no debe saltar a jornadas futuras hasta aprender la jornada anterior.</p></div>`;
+  }
+
+  async function marcarEstadoJornadaObjetivo(estado) {
+    const objetivo = jornadaObjetivoDesdeEstado(estado);
+    if (!objetivo) return;
+    const futuras = new Set((estado?.jornadas_futuras_cargadas || []).map(Number));
+    const faltantes = new Set((estado?.jornadas_intermedias_faltantes || []).map(Number));
+    document.querySelectorAll("#lista-jornadas-quiniela button").forEach(boton => {
+      const match = String(boton.id || boton.textContent || "").match(/(\d+)/);
+      const jornada = match ? Number(match[1]) : 0;
+      if (!jornada) return;
+      if (jornada === objetivo) {
+        boton.title = "Jornada objetivo de predicción: siguiente tras la última aprendida.";
+        boton.dataset.estadoObjetivo = "objetivo";
+      } else if (futuras.has(jornada)) {
+        boton.title = "Jornada futura cargada: visible en calendario, pero no debe predecirse todavía.";
+        boton.dataset.estadoObjetivo = "futura";
+      } else if (faltantes.has(jornada)) {
+        boton.title = "Jornada intermedia faltante o incompleta: debe revisarse antes de avanzar.";
+        boton.dataset.estadoObjetivo = "faltante";
+      }
+    });
+
+    const contenedor = document.getElementById("lista-jornadas-quiniela");
+    if (!contenedor || document.getElementById("aviso-jornada-objetivo-web")) return;
+    contenedor.insertAdjacentHTML("afterend", `<p id="aviso-jornada-objetivo-web" class="small-muted">Jornada objetivo de predicción: <strong>${objetivo}</strong>. Las jornadas futuras cargadas no se predicen hasta validar y aprender la anterior.</p>`);
+  }
+
+  async function abrirJornadaObjetivoEnWeb() {
+    const estado = await cargarEstadoJornadaObjetivo();
+    const objetivo = jornadaObjetivoDesdeEstado(estado);
+    if (!objetivo) return;
+    await marcarEstadoJornadaObjetivo(estado);
+    const seleccionada = jornadaSeleccionadaWeb();
+    if (seleccionada === objetivo) return;
+    if (typeof window.abrirQuinielaIA === "function") {
+      await window.abrirQuinielaIA(objetivo);
+      await marcarEstadoJornadaObjetivo(estado);
+    }
+  }
+
+  function instalarBloqueoPrediccionFutura() {
+    if (window.__bloqueoJornadaObjetivoActiva || typeof window.generarBoletoIA !== "function") return;
+    window.__bloqueoJornadaObjetivoActiva = true;
+    const generarOriginal = window.generarBoletoIA;
+    window.generarBoletoIA = async function generarBoletoIASoloJornadaObjetivo() {
+      const estado = await cargarEstadoJornadaObjetivo();
+      const objetivo = jornadaObjetivoDesdeEstado(estado);
+      const seleccionada = jornadaSeleccionadaWeb();
+      if (objetivo && seleccionada && seleccionada !== objetivo) {
+        alert(`La predicción activa debe ser la Jornada ${objetivo}. La Jornada ${seleccionada} puede estar cargada, pero no debe predecirse hasta aprender las jornadas anteriores.`);
+        return;
+      }
+      return generarOriginal.apply(this, arguments);
+    };
   }
 
   function signoOficialDesdeItem(item) {
@@ -193,7 +286,13 @@
       const triplesSolicitados = parseInt(triplesInput?.value || "0", 10);
       const activarElige8 = Boolean(elige8Input?.checked);
       const prediccionBackend = await fetchJSON("data/predicciones/ultima_prediccion.json", null);
+      const estado = await cargarEstadoJornadaObjetivo();
+      const objetivo = jornadaObjetivoDesdeEstado(estado);
       const jornada = typeof jornadaActualIA !== "undefined" ? jornadaActualIA : prediccionBackend?.jornada;
+      if (objetivo && Number(jornada) !== objetivo) {
+        alert(`La predicción activa debe ser la Jornada ${objetivo}. La Jornada ${jornada || "seleccionada"} puede estar cargada, pero no debe predecirse todavía.`);
+        return;
+      }
       const backendDobles = Number(prediccionBackend?.resumen?.dobles ?? prediccionBackend?.configuracion?.dobles ?? 0);
       const backendTriples = Number(prediccionBackend?.resumen?.triples ?? prediccionBackend?.configuracion?.triples ?? 0);
       const coincideConfig = (doblesSolicitados === 0 && triplesSolicitados === 0) || (doblesSolicitados === backendDobles && triplesSolicitados === backendTriples);
@@ -222,22 +321,37 @@
     setTimeout(instalarGeneradorBoletoEstable, 200);
     setTimeout(instalarGeneradorBoletoEstable, 1200);
     setTimeout(instalarGeneradorBoletoEstable, 3000);
+    setTimeout(instalarBloqueoPrediccionFutura, 350);
+    setTimeout(instalarBloqueoPrediccionFutura, 1400);
+    setTimeout(instalarBloqueoPrediccionFutura, 3200);
   }
 
   async function initResumenRapidoMetricas() {
     activarMejoraXCercana();
     estabilizarElige8SobreBoletoBase();
     instalarGeneradorBoletoEstable();
+    instalarBloqueoPrediccionFutura();
+    await abrirJornadaObjetivoEnWeb();
     const contenedor = document.getElementById("prediccion-resumen");
-    if (!contenedor || document.getElementById("resumen-rapido-metricas")) return;
-    const [prediccion, historial] = await Promise.all([fetchJSON("data/predicciones/ultima_prediccion.json", null), fetchJSON("data/historial_quinielas.json", { jornadas: [] })]);
+    if (!contenedor || document.getElementById("resumen-rapido-metricas") || document.getElementById("aviso-prediccion-desfasada")) return;
+    const [prediccion, historial, estado] = await Promise.all([
+      fetchJSON("data/predicciones/ultima_prediccion.json", null),
+      fetchJSON("data/historial_quinielas.json", { jornadas: [] }),
+      cargarEstadoJornadaObjetivo()
+    ]);
     if (!prediccion) return;
+    if (!prediccionEsJornadaObjetivo(prediccion, estado)) {
+      contenedor.innerHTML = renderAvisoPrediccionDesfasada(prediccion, estado);
+      return;
+    }
     const metricas = calcularMetricas(historial || { jornadas: [] });
     contenedor.insertAdjacentHTML("beforeend", renderMetricas(prediccion, metricas));
   }
 
   function programarResumenRapidoMetricas() {
     programarEstabilidadElige8();
+    setTimeout(abrirJornadaObjetivoEnWeb, 700);
+    setTimeout(abrirJornadaObjetivoEnWeb, 2000);
     setTimeout(initResumenRapidoMetricas, 1200);
     setTimeout(initResumenRapidoMetricas, 3000);
   }
