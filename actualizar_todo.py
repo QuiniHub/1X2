@@ -32,6 +32,9 @@ SCRIPTS_ACTIVOS = [
     "validar_contexto_actual.py",
     "construir_fuente_verdad_competitiva.py",
 
+    # Memoria especifica de competiciones internacionales.
+    "generar_memoria_mundial_2026.py",
+
     # Motor y salidas.
     "aprender_patrones_competitivos.py",
     "aplicar_patrones_motor.py",
@@ -41,6 +44,7 @@ SCRIPTS_ACTIVOS = [
     "alinear_pronostico_analisis.py",
     "mejorar_prioridad_coberturas.py",
     "motor_prediccion_objetivo.py",
+    "aplicar_memoria_mundial_prediccion.py",
     "alinear_boleto_con_analisis.py",
     "generar_estado_vivo_ia.py",
     "regenerar_estado_vivo_actual.py",
