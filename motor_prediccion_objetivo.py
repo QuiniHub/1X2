@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timezone
 
 from jornada_objetivo_quiniela import resumen_jornada_objetivo
@@ -15,21 +16,20 @@ def main():
     guardar_json(ESTADO_OBJETIVO, estado)
 
     if not objetivo:
-        raise SystemExit("No hay jornada objetivo para predecir.")
+        print("No hay jornada objetivo para predecir. Se conserva la prediccion existente.")
+        return
 
     if not estado.get("jornada_objetivo_cargada"):
-        raise SystemExit(
+        print(
             f"La jornada objetivo {objetivo} aun no esta cargada. "
-            "Se espera a que el boleto oficial este publicado."
+            "Se espera a que el boleto oficial este publicado y se conserva la prediccion existente."
         )
+        return
 
     predecir(jornada=objetivo)
 
     prediccion = PREDICCIONES / "ultima_prediccion.json"
-    data = {}
     if prediccion.exists():
-        import json
-
         data = json.loads(prediccion.read_text(encoding="utf-8"))
         data["estado_jornada_objetivo"] = estado
         guardar_json(prediccion, data)
