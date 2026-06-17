@@ -1,12 +1,24 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-17T14:45:52.417115+00:00",
-  "estado": "operativo_con_avisos",
-  "score_salud": 76,
+  "generado_en": "2026-06-17T15:12:11.039962+00:00",
+  "estado": "requiere_revision_datos",
+  "score_salud": 70,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 69,
     "jornada_actual": {
+      "jornada": 68,
+      "fecha": "2026-06-21",
+      "estado": "abierta",
+      "partidos": 14,
+      "cerrados": 0,
+      "pendientes": 14,
+      "pendientes_totales_con_pleno15": 15,
+      "pleno15_cerrado": false,
+      "ultima_actualizacion_partido": "",
+      "path": "data/jornadas/jornada_68.json"
+    },
+    "proxima_jornada": {
       "jornada": 70,
       "fecha": "2026-06-28",
       "estado": "abierta",
@@ -18,7 +30,6 @@
       "ultima_actualizacion_partido": "",
       "path": "data/jornadas/jornada_70.json"
     },
-    "proxima_jornada": null,
     "ultimas": [
       {
         "jornada": 65,
@@ -97,8 +108,8 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 70,
-    "generado_en": "2026-06-17T14:45:51.677294+00:00",
+    "jornada": 68,
+    "generado_en": "2026-06-17T15:12:10.311534+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 8,
@@ -160,7 +171,7 @@
   "fuentes": {
     "memoria_horas": 0.0,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.01,
+    "contexto_equipos_horas": 0.45,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -198,14 +209,19 @@
     "partidos_cerrados": 28,
     "aciertos": 20,
     "precision": 71.43,
-    "generado_en": "2026-06-17T14:45:52.329565+00:00",
+    "generado_en": "2026-06-17T15:12:10.952143+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
     {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 70 pero la última predicción dice 68."
+    },
+    {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
-      "detalle": "La jornada 70 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "detalle": "La jornada 68 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
       "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
     },
     {
@@ -236,10 +252,16 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-06-17T14:45:52.417115+00:00",
-    "estado": "operativo",
-    "score": 100,
-    "alertas": [],
+    "generado_en": "2026-06-17T15:12:11.039962+00:00",
+    "estado": "revisar",
+    "score": 65,
+    "alertas": [
+      {
+        "nivel": "alta",
+        "titulo": "Predicción de jornada antigua",
+        "detalle": "La jornada activa es 70 pero la última predicción dice 68."
+      }
+    ],
     "jornadas": {
       "total": 69,
       "actual": {
@@ -420,7 +442,7 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-06-17T14:45:51.220905+00:00",
+      "generado_en": "2026-06-17T15:12:09.853873+00:00",
       "oviedo": {
         "clave": "oviedo",
         "equipo": "Real Oviedo",
@@ -820,8 +842,8 @@
       }
     },
     "prediccion": {
-      "jornada": 70,
-      "generado_en": "2026-06-17T14:45:51.677294+00:00",
+      "jornada": 68,
+      "generado_en": "2026-06-17T15:12:10.311534+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 8,
@@ -1014,7 +1036,7 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-06-17T14:45:51.220905+00:00",
+    "generado_en": "2026-06-17T15:12:09.853873+00:00",
     "oviedo": {
       "clave": "oviedo",
       "equipo": "Real Oviedo",
