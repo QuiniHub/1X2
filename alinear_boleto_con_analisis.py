@@ -99,33 +99,55 @@ def frase_tipo(partido):
     margen = numero(partido.get("margen_probabilidad"), 99)
     if tipo == "TRIPLE":
         return (
-            "Se abre TRIPLE porque el partido aparece entre las máximas prioridades de cobertura: "
-            f"sugerencia={sugerida}, índice de sorpresa={indice:.1f}/100, sorpresa={sorpresa:.1f}%, "
+            "Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: "
+            f"sugerencia={sugerida}, indice de sorpresa={indice:.1f}/100, sorpresa={sorpresa:.1f}%, "
             f"incertidumbre={incertidumbre:.1f} y margen={margen:.1f}."
         )
     if tipo == "DOBLE":
         return (
             f"Se cubre con DOBLE ({signo}) porque entra entre las siguientes prioridades de riesgo: "
-            f"sugerencia={sugerida}, índice de sorpresa={indice:.1f}/100, sorpresa={sorpresa:.1f}%, "
+            f"sugerencia={sugerida}, indice de sorpresa={indice:.1f}/100, sorpresa={sorpresa:.1f}%, "
             f"incertidumbre={incertidumbre:.1f} y margen={margen:.1f}."
         )
     return (
-        f"Se mantiene como FIJO ({signo}) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. "
-        f"Aun así, se vigila su riesgo: sugerencia={sugerida}, índice de sorpresa={indice:.1f}/100, sorpresa={sorpresa:.1f}%."
+        f"Se mantiene como FIJO ({signo}) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. "
+        f"No es un fijo limpio si la sugerencia es {sugerida}, indice={indice:.1f}/100 o sorpresa={sorpresa:.1f}%."
     )
+
+
+def frase_calidad_datos(partido):
+    mundial = partido.get("memoria_mundial_2026") or {}
+    origen = str(partido.get("origen_probabilidades") or "")
+    calidad = partido.get("calidad_datos") or "sin_calidad"
+    if mundial.get("aplicado"):
+        local = mundial.get("local") or {}
+        visitante = mundial.get("visitante") or {}
+        return (
+            "Calidad de datos: "
+            f"{calidad}. Historial Mundial 2026 incorporado con muestra minima {mundial.get('muestra_minima')} partido(s): "
+            f"{partido.get('local')} {local.get('pts', 0)} pts, GF {local.get('gf', 0)}, GC {local.get('gc', 0)}; "
+            f"{partido.get('visitante')} {visitante.get('pts', 0)} pts, GF {visitante.get('gf', 0)}, GC {visitante.get('gc', 0)}."
+        )
+    if origen.startswith("fallback"):
+        return (
+            "ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. "
+            "Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada."
+        )
+    return f"Calidad de datos: {calidad}; origen={origen or 'no especificado'}."
 
 
 def reescribir_razonamiento(partido):
     motivos = "; ".join((partido.get("motivos_sorpresa") or [])[:3])
     partes = [
         f"Probabilidades IA: {texto_probabilidades(partido)}.",
+        frase_calidad_datos(partido),
         frase_tipo(partido),
     ]
     if partido.get("favorito_nombre"):
         partes.append(f"Favorito o signo de referencia: {partido.get('favorito_nombre')}.")
     if motivos:
         partes.append(f"Motivos principales: {motivos}.")
-    partes.append(f"Decisión final: {partido.get('signo_final')}.")
+    partes.append(f"Decision final: {partido.get('signo_final')}.")
     return " ".join(partes)
 
 
@@ -162,9 +184,8 @@ def alinear_prediccion(data):
     data["partidos"] = sorted(partidos, key=lambda p: int(p.get("num") or 0))
     data["coste"] = recalcular_coste(dobles, triples, elige8)
     data["criterio_cobertura"] = (
-        "Boleto alineado con el analisis: triples para los mayores indices de sorpresa "
-        "y coberturas TRIPLE sugeridas; dobles para las siguientes prioridades por sorpresa, "
-        "empate, margen bajo e incertidumbre."
+        "Boleto alineado con analisis critico: triples para maxima incertidumbre, dobles para riesgos siguientes, "
+        "y aviso explicito cuando un fijo queda sin cobertura por presupuesto."
     )
     data["resumen"] = {
         "fijos": sum(1 for p in data["partidos"] if p.get("tipo") == "FIJO"),
@@ -173,6 +194,12 @@ def alinear_prediccion(data):
         "elige8_seleccionados": sum(1 for p in data["partidos"] if p.get("elige8")),
         "favoritos_atacables": sum(1 for p in data["partidos"] if p.get("favorito_atacable")),
         "indice_sorpresa_max": max((numero(p.get("indice_sorpresa_quinielistica")) for p in data["partidos"]), default=0),
+        "calidad_datos": {
+            "alta": sum(1 for p in data["partidos"] if p.get("calidad_datos") == "alta"),
+            "media": sum(1 for p in data["partidos"] if p.get("calidad_datos") == "media"),
+            "media_baja": sum(1 for p in data["partidos"] if p.get("calidad_datos") == "media_baja"),
+            "baja": sum(1 for p in data["partidos"] if p.get("calidad_datos") == "baja"),
+        },
     }
     data["ataques_favorito_prioritarios"] = [
         {
