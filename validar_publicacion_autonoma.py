@@ -115,6 +115,21 @@ def validar_razonamiento(partido):
     return errores
 
 
+def muestra_mundial_limitada(partido):
+    mundial = partido.get("memoria_mundial_2026") or {}
+    if not mundial.get("aplicado"):
+        return False
+    try:
+        return int(mundial.get("muestra_minima") or 0) < 3
+    except Exception:
+        return True
+
+
+def datos_limitados(partido):
+    calidad = str(partido.get("calidad_datos") or "").lower()
+    return calidad in {"baja", "media_baja", "media"} or muestra_mundial_limitada(partido)
+
+
 def validar_prediccion(pred):
     errores = []
     avisos = []
@@ -127,12 +142,12 @@ def validar_prediccion(pred):
         errores.append("La prediccion no contiene 14 partidos.")
 
     tipos = {"FIJO": 0, "DOBLE": 0, "TRIPLE": 0}
-    baja_calidad = []
+    partidos_datos_limitados = []
     for partido in partidos:
         tipo = str(partido.get("tipo") or "").upper()
         tipos[tipo] = tipos.get(tipo, 0) + 1
-        if str(partido.get("calidad_datos") or "").lower() == "baja":
-            baja_calidad.append(partido.get("num"))
+        if datos_limitados(partido):
+            partidos_datos_limitados.append(partido.get("num"))
         signo_final = str(partido.get("signo_final") or "")
         if tipo == "DOBLE" and len(signo_final) < 2:
             errores.append(f"Partido {partido.get('num')} es DOBLE pero signo_final no tiene dos signos.")
@@ -148,10 +163,10 @@ def validar_prediccion(pred):
     if tipos.get("TRIPLE", 0) != triples_config:
         errores.append(f"Triples publicados ({tipos.get('TRIPLE', 0)}) no coinciden con configuracion ({triples_config}).")
 
-    if baja_calidad:
+    if partidos_datos_limitados:
         avisos.append(
-            "Hay partidos sin memoria estadistica completa; la prediccion usa patron de boleto/contexto y debe aprender "
-            f"con resultados posteriores. Partidos: {sorted(baja_calidad)}."
+            "Hay partidos con muestra limitada o sin memoria estadistica completa; se permite variacion de coberturas "
+            f"si el boleto explica la calidad del dato. Partidos: {sorted(partidos_datos_limitados)}."
         )
 
     triples_esperados = {p.get("num") for p in sorted(partidos, key=score_triple, reverse=True)[:triples_config]}
@@ -161,8 +176,8 @@ def validar_prediccion(pred):
             "Los triples publicados no coinciden con los partidos de mayor prioridad por analisis. "
             f"Esperados {sorted(triples_esperados)}, publicados {sorted(triples_publicados)}."
         )
-        if baja_calidad:
-            avisos.append(mensaje + " Aviso no bloqueante por jornada con datos incompletos/fallback.")
+        if partidos_datos_limitados:
+            avisos.append(mensaje + " Aviso no bloqueante por muestra limitada del Mundial/fallback.")
         else:
             errores.append(mensaje)
 
@@ -173,8 +188,8 @@ def validar_prediccion(pred):
             "Los dobles/triples no estan colocados en los partidos de mayor riesgo. "
             f"Esperados {sorted(cubiertos_esperados)}, publicados {sorted(cubiertos_publicados)}."
         )
-        if baja_calidad:
-            avisos.append(mensaje + " Aviso no bloqueante por jornada con datos incompletos/fallback.")
+        if partidos_datos_limitados:
+            avisos.append(mensaje + " Aviso no bloqueante por muestra limitada del Mundial/fallback.")
         else:
             errores.append(mensaje)
 
