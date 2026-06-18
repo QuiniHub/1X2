@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-18T16:13:35.999918+00:00",
+  "generado_en": "2026-06-18T17:03:53.239604+00:00",
   "temporada": "2025/2026",
   "estado": "base_real_en_construccion",
   "ligas": {
@@ -14816,27 +14816,808 @@
       "partidos_validados": 125,
       "aciertos": 76,
       "fallos": 49,
+      "fallos_fijo": 41,
+      "fallos_doble": 8,
+      "fallos_triple": 0,
+      "por_tipo": {
+        "FIJO": {
+          "total": 79,
+          "aciertos": 38,
+          "fallos": 41
+        },
+        "DOBLE": {
+          "total": 22,
+          "aciertos": 14,
+          "fallos": 8
+        },
+        "TRIPLE": {
+          "total": 24,
+          "aciertos": 24,
+          "fallos": 0
+        }
+      },
+      "fallos_por_categoria": {
+        "doble_insuficiente": 6,
+        "fallo_fijo": 12,
+        "empate_no_cubierto": 15,
+        "sorpresa_no_cubierta": 16
+      },
+      "fallos_por_signo_real": {
+        "1": 15,
+        "2": 19,
+        "X": 15
+      },
       "precision": 60.8,
       "elige8": {
         "selecciones": 48,
         "aciertos": 40,
+        "fallos": 8,
         "precision": 83.33
       },
       "pleno15": {
         "jugados": 8,
         "aciertos": 0,
+        "fallos": 8,
         "precision": 0.0
       },
+      "partidos_sorpresa": [
+        {
+          "num": 3,
+          "partido": "Atlético de Madrid - Celta",
+          "signo_real": "2",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": null,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 61
+        },
+        {
+          "num": 6,
+          "partido": "Athletic de Bilbao - Valencia",
+          "signo_real": "2",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": null,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 61
+        },
+        {
+          "num": 9,
+          "partido": "Ceuta - Castellón",
+          "signo_real": "X",
+          "pronostico_jugado": "2",
+          "acierto": false,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": null,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 61
+        },
+        {
+          "num": 1,
+          "partido": "Athletic de Bilbao - Celta",
+          "signo_real": "X",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8.",
+          "jornada": 63
+        },
+        {
+          "num": 4,
+          "partido": "Elche - Getafe",
+          "signo_real": "1",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 66.7,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8.",
+          "jornada": 63
+        },
+        {
+          "num": 6,
+          "partido": "Rayo Vallecano - Villarreal",
+          "signo_real": "1",
+          "pronostico_jugado": "X",
+          "acierto": false,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 56.5,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 63
+        },
+        {
+          "num": 7,
+          "partido": "Real Sociedad - Valencia",
+          "signo_real": "2",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 2 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8.",
+          "jornada": 63
+        },
+        {
+          "num": 8,
+          "partido": "Oviedo - Alavés",
+          "signo_real": "2",
+          "pronostico_jugado": "2",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 59.8,
+          "lectura": "El signo real 2 estaba cubierto por el pronostico 2.",
+          "jornada": 63
+        },
+        {
+          "num": 9,
+          "partido": "Osasuna - Espanyol",
+          "signo_real": "2",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 65.2,
+          "lectura": "El signo real 2 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8.",
+          "jornada": 63
+        },
+        {
+          "num": 10,
+          "partido": "Ceuta - Málaga",
+          "signo_real": "2",
+          "pronostico_jugado": "2",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 62.4,
+          "lectura": "El signo real 2 estaba cubierto por el pronostico 2.",
+          "jornada": 63
+        },
+        {
+          "num": 12,
+          "partido": "Almería - Las Palmas",
+          "signo_real": "2",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 61.5,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 63
+        },
+        {
+          "num": 13,
+          "partido": "Castellón - Cádiz",
+          "signo_real": "X",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 42.3,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 63
+        },
+        {
+          "num": 14,
+          "partido": "Leganés - Huesca",
+          "signo_real": "X",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 59.4,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 63
+        },
+        {
+          "num": 1,
+          "partido": "Deportivo Alaves - Rayo Vallecano",
+          "signo_real": "2",
+          "pronostico_jugado": "X2",
+          "acierto": true,
+          "indice_sorpresa": 75.3,
+          "probabilidad_sorpresa": 57.4,
+          "lectura": "El signo real 2 estaba cubierto por el pronostico X2.",
+          "jornada": 64
+        },
+        {
+          "num": 2,
+          "partido": "Real Betis Balompie - Levante UD",
+          "signo_real": "1",
+          "pronostico_jugado": "X2",
+          "acierto": false,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 68.2,
+          "lectura": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real.",
+          "jornada": 64
+        },
+        {
+          "num": 3,
+          "partido": "RC Celta de Vigo - Sevilla FC",
+          "signo_real": "1",
+          "pronostico_jugado": "1",
+          "acierto": true,
+          "indice_sorpresa": 60.2,
+          "probabilidad_sorpresa": 50.0,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1.",
+          "jornada": 64
+        },
+        {
+          "num": 4,
+          "partido": "RCD Espanyol - Real Sociedad de Futbol",
+          "signo_real": "X",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": 63.8,
+          "probabilidad_sorpresa": 56.9,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 64
+        },
+        {
+          "num": 5,
+          "partido": "Getafe CF - CA Osasuna",
+          "signo_real": "1",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 67.5,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8.",
+          "jornada": 64
+        },
+        {
+          "num": 8,
+          "partido": "Valencia CF - FC Barcelona",
+          "signo_real": "1",
+          "pronostico_jugado": "X2",
+          "acierto": false,
+          "indice_sorpresa": 39.5,
+          "probabilidad_sorpresa": 51.6,
+          "lectura": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real.",
+          "jornada": 64
+        },
+        {
+          "num": 9,
+          "partido": "Girona FC - Elche CF",
+          "signo_real": "X",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8.",
+          "jornada": 64
+        },
+        {
+          "num": 10,
+          "partido": "Malaga CF - Real Racing Club de Santander",
+          "signo_real": "X",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 62.8,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 64
+        },
+        {
+          "num": 11,
+          "partido": "FC Andorra - AD Ceuta FC",
+          "signo_real": "2",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": 90.8,
+          "probabilidad_sorpresa": 67.3,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 64
+        },
+        {
+          "num": 13,
+          "partido": "SD Eibar - Cordoba CF",
+          "signo_real": "1",
+          "pronostico_jugado": "1X",
+          "acierto": true,
+          "indice_sorpresa": 66.5,
+          "probabilidad_sorpresa": 52.3,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1X y estaba protegido por Elige 8.",
+          "jornada": 64
+        },
+        {
+          "num": 14,
+          "partido": "Real Sporting de Gijon - UD Almeria",
+          "signo_real": "1",
+          "pronostico_jugado": "2",
+          "acierto": false,
+          "indice_sorpresa": 90.5,
+          "probabilidad_sorpresa": 65.9,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 64
+        },
+        {
+          "num": 1,
+          "partido": "CD Castellon - SD Eibar",
+          "signo_real": "1",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8.",
+          "jornada": 65
+        },
+        {
+          "num": 2,
+          "partido": "Cordoba CF - SD Huesca",
+          "signo_real": "X",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 39.6,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 65
+        },
+        {
+          "num": 3,
+          "partido": "RC Deportivo de La Coruna - UD Las Palmas",
+          "signo_real": "2",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 2 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8.",
+          "jornada": 65
+        },
+        {
+          "num": 5,
+          "partido": "CD Leganes - CD Mirandes",
+          "signo_real": "1",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 65.4,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8.",
+          "jornada": 65
+        },
+        {
+          "num": 7,
+          "partido": "AD Ceuta FC - Albacete Balompie",
+          "signo_real": "1",
+          "pronostico_jugado": "2",
+          "acierto": false,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 57.1,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 65
+        },
+        {
+          "num": 8,
+          "partido": "Real Racing Club de Santander - Cadiz CF",
+          "signo_real": "1",
+          "pronostico_jugado": "1",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 66.4,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1.",
+          "jornada": 65
+        },
+        {
+          "num": 9,
+          "partido": "Real Sociedad B - Cultural Leonesa",
+          "signo_real": "X",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 56.5,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 65
+        },
+        {
+          "num": 12,
+          "partido": "Mexico - Australia",
+          "signo_real": "1",
+          "pronostico_jugado": "1X",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1X y estaba protegido por Elige 8.",
+          "jornada": 65
+        },
+        {
+          "num": 13,
+          "partido": "Japon - Islandia",
+          "signo_real": "1",
+          "pronostico_jugado": "1",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8.",
+          "jornada": 65
+        },
+        {
+          "num": 14,
+          "partido": "Alemania - Finlandia",
+          "signo_real": "1",
+          "pronostico_jugado": "1",
+          "acierto": true,
+          "indice_sorpresa": null,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8.",
+          "jornada": 65
+        },
+        {
+          "num": 1,
+          "partido": "CD Castellon - UD Almeria",
+          "signo_real": "X",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": 68.1,
+          "probabilidad_sorpresa": 55.1,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 66
+        },
+        {
+          "num": 2,
+          "partido": "UD Las Palmas - Malaga CF",
+          "signo_real": "2",
+          "pronostico_jugado": "2",
+          "acierto": true,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 67.8,
+          "lectura": "El signo real 2 estaba cubierto por el pronostico 2.",
+          "jornada": 66
+        },
+        {
+          "num": 3,
+          "partido": "BÃ©lgica - TÃºnez",
+          "signo_real": "1",
+          "pronostico_jugado": "1",
+          "acierto": true,
+          "indice_sorpresa": 94.1,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8.",
+          "jornada": 66
+        },
+        {
+          "num": 4,
+          "partido": "Lituania - Letonia",
+          "signo_real": "X",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": 93.7,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8.",
+          "jornada": 66
+        },
+        {
+          "num": 5,
+          "partido": "Estonia - Islas Feroe",
+          "signo_real": "1",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8.",
+          "jornada": 66
+        },
+        {
+          "num": 6,
+          "partido": "Portugal - Chile",
+          "signo_real": "1",
+          "pronostico_jugado": "1",
+          "acierto": true,
+          "indice_sorpresa": 93.9,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8.",
+          "jornada": 66
+        },
+        {
+          "num": 7,
+          "partido": "RumanÃ­a - Gales",
+          "signo_real": "1",
+          "pronostico_jugado": "X",
+          "acierto": false,
+          "indice_sorpresa": 94.3,
+          "probabilidad_sorpresa": 70,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 66
+        },
+        {
+          "num": 8,
+          "partido": "Inglaterra - Nueva Zelanda",
+          "signo_real": "1",
+          "pronostico_jugado": "1",
+          "acierto": true,
+          "indice_sorpresa": 93.9,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8.",
+          "jornada": 66
+        },
+        {
+          "num": 9,
+          "partido": "Suiza - Australia",
+          "signo_real": "X",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": 94.8,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 66
+        },
+        {
+          "num": 10,
+          "partido": "Bolivia - Escocia",
+          "signo_real": "2",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 66
+        },
+        {
+          "num": 11,
+          "partido": "Liechtenstein - Chipre",
+          "signo_real": "2",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 66
+        },
+        {
+          "num": 12,
+          "partido": "Dinamarca - Ucrania",
+          "signo_real": "1",
+          "pronostico_jugado": "X",
+          "acierto": false,
+          "indice_sorpresa": 94.5,
+          "probabilidad_sorpresa": 70,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 66
+        },
+        {
+          "num": 13,
+          "partido": "Croacia - Eslovenia",
+          "signo_real": "1",
+          "pronostico_jugado": "1",
+          "acierto": true,
+          "indice_sorpresa": 94.5,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8.",
+          "jornada": 66
+        },
+        {
+          "num": 14,
+          "partido": "Marruecos - Noruega",
+          "signo_real": "X",
+          "pronostico_jugado": "1X",
+          "acierto": true,
+          "indice_sorpresa": 94.6,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real X estaba cubierto por el pronostico 1X y estaba protegido por Elige 8.",
+          "jornada": 66
+        },
+        {
+          "num": 1,
+          "partido": "EEUU - Paraguay",
+          "signo_real": "1",
+          "pronostico_jugado": "X",
+          "acierto": false,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 67
+        },
+        {
+          "num": 2,
+          "partido": "Qatar - Suiza",
+          "signo_real": "X",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 67
+        },
+        {
+          "num": 3,
+          "partido": "Brasil - Marruecos",
+          "signo_real": "X",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 67
+        },
+        {
+          "num": 4,
+          "partido": "Haití - Escocia",
+          "signo_real": "2",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 67
+        },
+        {
+          "num": 5,
+          "partido": "Australia - Turquía",
+          "signo_real": "1",
+          "pronostico_jugado": "X",
+          "acierto": false,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+          "jornada": 67
+        },
+        {
+          "num": 6,
+          "partido": "Alemania - Curazao",
+          "signo_real": "1",
+          "pronostico_jugado": "1",
+          "acierto": true,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1.",
+          "jornada": 67
+        },
+        {
+          "num": 7,
+          "partido": "Países Bajos - Japón",
+          "signo_real": "X",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 67
+        },
+        {
+          "num": 8,
+          "partido": "Costa Marfil - Ecuador",
+          "signo_real": "1",
+          "pronostico_jugado": "1",
+          "acierto": true,
+          "indice_sorpresa": 97.4,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1.",
+          "jornada": 67
+        },
+        {
+          "num": 9,
+          "partido": "Suecia - Túnez",
+          "signo_real": "1",
+          "pronostico_jugado": "1X",
+          "acierto": true,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1X.",
+          "jornada": 67
+        },
+        {
+          "num": 10,
+          "partido": "Bélgica - Egipto",
+          "signo_real": "X",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real X estaba cubierto por el pronostico 1X2.",
+          "jornada": 67
+        },
+        {
+          "num": 11,
+          "partido": "Arabia Saudí - Uruguay",
+          "signo_real": "X",
+          "pronostico_jugado": "1X2",
+          "acierto": true,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real X estaba cubierto por el pronostico 1X2.",
+          "jornada": 67
+        },
+        {
+          "num": 12,
+          "partido": "Irán - Nueva Zelanda",
+          "signo_real": "X",
+          "pronostico_jugado": "1",
+          "acierto": false,
+          "indice_sorpresa": 100.0,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+          "jornada": 67
+        },
+        {
+          "num": 13,
+          "partido": "Francia - Senegal",
+          "signo_real": "1",
+          "pronostico_jugado": "1",
+          "acierto": true,
+          "indice_sorpresa": 97.3,
+          "probabilidad_sorpresa": 70,
+          "lectura": "El signo real 1 estaba cubierto por el pronostico 1.",
+          "jornada": 67
+        },
+        {
+          "num": 14,
+          "partido": "Malaga CF - UD Almeria",
+          "signo_real": "X",
+          "pronostico_jugado": "1X",
+          "acierto": true,
+          "indice_sorpresa": 65.7,
+          "probabilidad_sorpresa": 50.9,
+          "lectura": "El signo real X estaba cubierto por el pronostico 1X.",
+          "jornada": 67
+        }
+      ],
       "resumen": [
         {
           "jornada": 59,
           "origen": "issue_memoria_sin_token",
           "aciertos": 9,
           "fallos": 5,
+          "fallos_fijo": 4,
+          "fallos_doble": 1,
+          "fallos_triple": 0,
+          "por_tipo": {
+            "FIJO": {
+              "total": 9,
+              "aciertos": 5,
+              "fallos": 4
+            },
+            "DOBLE": {
+              "total": 3,
+              "aciertos": 2,
+              "fallos": 1
+            },
+            "TRIPLE": {
+              "total": 2,
+              "aciertos": 2,
+              "fallos": 0
+            }
+          },
+          "elige8": {
+            "selecciones": 8,
+            "aciertos": 6,
+            "fallos": 2
+          },
           "partidos_analizados": 14,
           "pleno15_oficial": "0-0",
           "pleno15_nuestro": "1-0",
           "pleno15_acierto": false,
+          "pleno15_estado": "fallado",
+          "partidos_sorpresa": [],
+          "explicaciones_fallos": [
+            {
+              "num": 4,
+              "partido": "Valencia - Girona",
+              "categoria": "doble_insuficiente",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real.",
+              "ajuste_recomendado": "Subir prioridad de triple cuando el tercer signo siga vivo."
+            },
+            {
+              "num": 5,
+              "partido": "At. Madrid - Ath. Club",
+              "categoria": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Endurecer el umbral de fijo seguro y priorizar doble si el favorito no domina."
+            },
+            {
+              "num": 7,
+              "partido": "R. Oviedo - Elche",
+              "categoria": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Endurecer el umbral de fijo seguro y priorizar doble si el favorito no domina."
+            },
+            {
+              "num": 11,
+              "partido": "Málaga - Castellón",
+              "categoria": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Endurecer el umbral de fijo seguro y priorizar doble si el favorito no domina."
+            },
+            {
+              "num": 14,
+              "partido": "Ceuta - Racing S.",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            }
+          ],
           "detalle": [
             {
               "num": 1,
@@ -14844,7 +15625,11 @@
               "oficial": "X",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 2,
@@ -14852,7 +15637,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             },
             {
               "num": 3,
@@ -14860,7 +15649,11 @@
               "oficial": "2",
               "nuestro": "X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "DOBLE",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico X2 y estaba protegido por Elige 8."
             },
             {
               "num": 4,
@@ -14868,7 +15661,11 @@
               "oficial": "1",
               "nuestro": "X2",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "DOBLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "doble_insuficiente",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real."
             },
             {
               "num": 5,
@@ -14876,7 +15673,11 @@
               "oficial": "1",
               "nuestro": "X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 6,
@@ -14884,7 +15685,11 @@
               "oficial": "X",
               "nuestro": "X",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico X."
             },
             {
               "num": 7,
@@ -14892,7 +15697,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 8,
@@ -14900,7 +15709,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1."
             },
             {
               "num": 9,
@@ -14908,7 +15721,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             },
             {
               "num": 10,
@@ -14916,7 +15733,11 @@
               "oficial": "X",
               "nuestro": "X",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico X."
             },
             {
               "num": 11,
@@ -14924,7 +15745,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 12,
@@ -14932,7 +15757,11 @@
               "oficial": "2",
               "nuestro": "X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "DOBLE",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico X2 y estaba protegido por Elige 8."
             },
             {
               "num": 13,
@@ -14940,7 +15769,11 @@
               "oficial": "1",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 14,
@@ -14948,7 +15781,11 @@
               "oficial": "X",
               "nuestro": "2",
               "acierto": false,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             }
           ]
         },
@@ -14957,10 +15794,81 @@
           "origen": "issue_memoria_sin_token",
           "aciertos": 8,
           "fallos": 6,
+          "fallos_fijo": 2,
+          "fallos_doble": 4,
+          "fallos_triple": 0,
+          "por_tipo": {
+            "FIJO": {
+              "total": 7,
+              "aciertos": 5,
+              "fallos": 2
+            },
+            "DOBLE": {
+              "total": 6,
+              "aciertos": 2,
+              "fallos": 4
+            },
+            "TRIPLE": {
+              "total": 1,
+              "aciertos": 1,
+              "fallos": 0
+            }
+          },
+          "elige8": {
+            "selecciones": 0,
+            "aciertos": 0,
+            "fallos": 0
+          },
           "partidos_analizados": 14,
           "pleno15_oficial": "1-0",
           "pleno15_nuestro": "2- M",
           "pleno15_acierto": false,
+          "pleno15_estado": "fallado",
+          "partidos_sorpresa": [],
+          "explicaciones_fallos": [
+            {
+              "num": 2,
+              "partido": "Valencia - At. Madrid",
+              "categoria": "doble_insuficiente",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real.",
+              "ajuste_recomendado": "Subir prioridad de triple cuando el tercer signo siga vivo."
+            },
+            {
+              "num": 3,
+              "partido": "Alavés - Ath. Club",
+              "categoria": "doble_insuficiente",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real.",
+              "ajuste_recomendado": "Subir prioridad de triple cuando el tercer signo siga vivo."
+            },
+            {
+              "num": 6,
+              "partido": "Getafe - Rayo",
+              "categoria": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Endurecer el umbral de fijo seguro y priorizar doble si el favorito no domina."
+            },
+            {
+              "num": 10,
+              "partido": "Castellón - Córdoba",
+              "categoria": "doble_insuficiente",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real.",
+              "ajuste_recomendado": "Subir prioridad de triple cuando el tercer signo siga vivo."
+            },
+            {
+              "num": 11,
+              "partido": "Eibar - Málaga",
+              "categoria": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Endurecer el umbral de fijo seguro y priorizar doble si el favorito no domina."
+            },
+            {
+              "num": 13,
+              "partido": "Sporting - Ceuta",
+              "categoria": "doble_insuficiente",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real.",
+              "ajuste_recomendado": "Subir prioridad de triple cuando el tercer signo siga vivo."
+            }
+          ],
           "detalle": [
             {
               "num": 1,
@@ -14968,7 +15876,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1."
             },
             {
               "num": 2,
@@ -14976,7 +15888,11 @@
               "oficial": "2",
               "nuestro": "1X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "DOBLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "doble_insuficiente",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real."
             },
             {
               "num": 3,
@@ -14984,7 +15900,11 @@
               "oficial": "2",
               "nuestro": "1X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "DOBLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "doble_insuficiente",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real."
             },
             {
               "num": 4,
@@ -14992,7 +15912,11 @@
               "oficial": "2",
               "nuestro": "2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico 2."
             },
             {
               "num": 5,
@@ -15000,7 +15924,11 @@
               "oficial": "1",
               "nuestro": "1X",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "DOBLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X."
             },
             {
               "num": 6,
@@ -15008,7 +15936,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 7,
@@ -15016,7 +15948,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1."
             },
             {
               "num": 8,
@@ -15024,7 +15960,11 @@
               "oficial": "2",
               "nuestro": "X2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "DOBLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico X2."
             },
             {
               "num": 9,
@@ -15032,7 +15972,11 @@
               "oficial": "X",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "TRIPLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X2."
             },
             {
               "num": 10,
@@ -15040,7 +15984,11 @@
               "oficial": "2",
               "nuestro": "1X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "DOBLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "doble_insuficiente",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real."
             },
             {
               "num": 11,
@@ -15048,7 +15996,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 12,
@@ -15056,7 +16008,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1."
             },
             {
               "num": 13,
@@ -15064,7 +16020,11 @@
               "oficial": "2",
               "nuestro": "1X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "DOBLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "doble_insuficiente",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real."
             },
             {
               "num": 14,
@@ -15072,7 +16032,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1."
             }
           ]
         },
@@ -15081,10 +16045,105 @@
           "origen": "issue_memoria_sin_token",
           "aciertos": 9,
           "fallos": 5,
+          "fallos_fijo": 5,
+          "fallos_doble": 0,
+          "fallos_triple": 0,
+          "por_tipo": {
+            "FIJO": {
+              "total": 9,
+              "aciertos": 4,
+              "fallos": 5
+            },
+            "DOBLE": {
+              "total": 2,
+              "aciertos": 2,
+              "fallos": 0
+            },
+            "TRIPLE": {
+              "total": 3,
+              "aciertos": 3,
+              "fallos": 0
+            }
+          },
+          "elige8": {
+            "selecciones": 8,
+            "aciertos": 7,
+            "fallos": 1
+          },
           "partidos_analizados": 14,
           "pleno15_oficial": "2-0",
           "pleno15_nuestro": "2 -1",
           "pleno15_acierto": false,
+          "pleno15_estado": "fallado",
+          "partidos_sorpresa": [
+            {
+              "num": 3,
+              "partido": "Atlético de Madrid - Celta",
+              "signo_real": "2",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": null,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 6,
+              "partido": "Athletic de Bilbao - Valencia",
+              "signo_real": "2",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": null,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 9,
+              "partido": "Ceuta - Castellón",
+              "signo_real": "X",
+              "pronostico_jugado": "2",
+              "acierto": false,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": null,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            }
+          ],
+          "explicaciones_fallos": [
+            {
+              "num": 2,
+              "partido": "Sevilla - Espanyol",
+              "categoria": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Endurecer el umbral de fijo seguro y priorizar doble si el favorito no domina."
+            },
+            {
+              "num": 3,
+              "partido": "Atlético de Madrid - Celta",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 6,
+              "partido": "Athletic de Bilbao - Valencia",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 9,
+              "partido": "Ceuta - Castellón",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            },
+            {
+              "num": 12,
+              "partido": "Andorra - Las Palmas",
+              "categoria": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Endurecer el umbral de fijo seguro y priorizar doble si el favorito no domina."
+            }
+          ],
           "detalle": [
             {
               "num": 1,
@@ -15092,7 +16151,11 @@
               "oficial": "X",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 2,
@@ -15100,7 +16163,11 @@
               "oficial": "1",
               "nuestro": "X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 3,
@@ -15108,7 +16175,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 4,
@@ -15116,7 +16187,11 @@
               "oficial": "X",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 5,
@@ -15124,7 +16199,11 @@
               "oficial": "X",
               "nuestro": "1X",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "DOBLE",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X y estaba protegido por Elige 8."
             },
             {
               "num": 6,
@@ -15132,7 +16211,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 7,
@@ -15140,7 +16223,11 @@
               "oficial": "X",
               "nuestro": "X",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico X."
             },
             {
               "num": 8,
@@ -15148,7 +16235,11 @@
               "oficial": "X",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 9,
@@ -15156,7 +16247,11 @@
               "oficial": "X",
               "nuestro": "2",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 10,
@@ -15164,7 +16259,11 @@
               "oficial": "X",
               "nuestro": "X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "DOBLE",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico X2 y estaba protegido por Elige 8."
             },
             {
               "num": 11,
@@ -15172,7 +16271,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             },
             {
               "num": 12,
@@ -15180,7 +16283,11 @@
               "oficial": "1",
               "nuestro": "X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 13,
@@ -15188,7 +16295,11 @@
               "oficial": "2",
               "nuestro": "2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico 2."
             },
             {
               "num": 14,
@@ -15196,7 +16307,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             }
           ]
         },
@@ -15205,10 +16320,88 @@
           "origen": "issue_memoria_sin_token",
           "aciertos": 7,
           "fallos": 7,
+          "fallos_fijo": 6,
+          "fallos_doble": 1,
+          "fallos_triple": 0,
+          "por_tipo": {
+            "FIJO": {
+              "total": 9,
+              "aciertos": 3,
+              "fallos": 6
+            },
+            "DOBLE": {
+              "total": 1,
+              "aciertos": 0,
+              "fallos": 1
+            },
+            "TRIPLE": {
+              "total": 4,
+              "aciertos": 4,
+              "fallos": 0
+            }
+          },
+          "elige8": {
+            "selecciones": 0,
+            "aciertos": 0,
+            "fallos": 0
+          },
           "partidos_analizados": 14,
           "pleno15_oficial": "2-0",
           "pleno15_nuestro": "4-0",
           "pleno15_acierto": false,
+          "pleno15_estado": "fallado",
+          "partidos_sorpresa": [],
+          "explicaciones_fallos": [
+            {
+              "num": 1,
+              "partido": "Celta - Levante",
+              "categoria": "doble_insuficiente",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real.",
+              "ajuste_recomendado": "Subir prioridad de triple cuando el tercer signo siga vivo."
+            },
+            {
+              "num": 3,
+              "partido": "Osasuna - Atlético de Madrid",
+              "categoria": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Endurecer el umbral de fijo seguro y priorizar doble si el favorito no domina."
+            },
+            {
+              "num": 6,
+              "partido": "Alavés - Barcelona",
+              "categoria": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Endurecer el umbral de fijo seguro y priorizar doble si el favorito no domina."
+            },
+            {
+              "num": 9,
+              "partido": "Girona - Real Sociedad",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            },
+            {
+              "num": 10,
+              "partido": "Kilmarnock - Dundee",
+              "categoria": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Endurecer el umbral de fijo seguro y priorizar doble si el favorito no domina."
+            },
+            {
+              "num": 11,
+              "partido": "Aberdeen - St. Mirren",
+              "categoria": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Endurecer el umbral de fijo seguro y priorizar doble si el favorito no domina."
+            },
+            {
+              "num": 14,
+              "partido": "Glasgow Rangers - Hibernian",
+              "categoria": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Endurecer el umbral de fijo seguro y priorizar doble si el favorito no domina."
+            }
+          ],
           "detalle": [
             {
               "num": 1,
@@ -15216,7 +16409,11 @@
               "oficial": "2",
               "nuestro": "1X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "DOBLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "doble_insuficiente",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real."
             },
             {
               "num": 2,
@@ -15224,7 +16421,11 @@
               "oficial": "1",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "TRIPLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X2."
             },
             {
               "num": 3,
@@ -15232,7 +16433,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 4,
@@ -15240,7 +16445,11 @@
               "oficial": "1",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "TRIPLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X2."
             },
             {
               "num": 5,
@@ -15248,7 +16457,11 @@
               "oficial": "2",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "TRIPLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico 1X2."
             },
             {
               "num": 6,
@@ -15256,7 +16469,11 @@
               "oficial": "1",
               "nuestro": "2",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 7,
@@ -15264,7 +16481,11 @@
               "oficial": "1",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "TRIPLE",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X2."
             },
             {
               "num": 8,
@@ -15272,7 +16493,11 @@
               "oficial": "X",
               "nuestro": "X",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico X."
             },
             {
               "num": 9,
@@ -15280,7 +16505,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 10,
@@ -15288,7 +16517,11 @@
               "oficial": "1",
               "nuestro": "2",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 11,
@@ -15296,7 +16529,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 12,
@@ -15304,7 +16541,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1."
             },
             {
               "num": 13,
@@ -15312,7 +16553,11 @@
               "oficial": "2",
               "nuestro": "2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico 2."
             },
             {
               "num": 14,
@@ -15320,7 +16565,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "fallo_fijo",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             }
           ]
         },
@@ -15329,10 +16578,168 @@
           "origen": "issue_memoria_sin_token",
           "aciertos": 10,
           "fallos": 4,
+          "fallos_fijo": 4,
+          "fallos_doble": 0,
+          "fallos_triple": 0,
+          "por_tipo": {
+            "FIJO": {
+              "total": 9,
+              "aciertos": 5,
+              "fallos": 4
+            },
+            "DOBLE": {
+              "total": 0,
+              "aciertos": 0,
+              "fallos": 0
+            },
+            "TRIPLE": {
+              "total": 5,
+              "aciertos": 5,
+              "fallos": 0
+            }
+          },
+          "elige8": {
+            "selecciones": 8,
+            "aciertos": 7,
+            "fallos": 1
+          },
           "partidos_analizados": 14,
           "pleno15_oficial": "0-1",
           "pleno15_nuestro": "2-1",
           "pleno15_acierto": false,
+          "pleno15_estado": "fallado",
+          "partidos_sorpresa": [
+            {
+              "num": 1,
+              "partido": "Athletic de Bilbao - Celta",
+              "signo_real": "X",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 4,
+              "partido": "Elche - Getafe",
+              "signo_real": "1",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 66.7,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 6,
+              "partido": "Rayo Vallecano - Villarreal",
+              "signo_real": "1",
+              "pronostico_jugado": "X",
+              "acierto": false,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 56.5,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 7,
+              "partido": "Real Sociedad - Valencia",
+              "signo_real": "2",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 2 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 8,
+              "partido": "Oviedo - Alavés",
+              "signo_real": "2",
+              "pronostico_jugado": "2",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 59.8,
+              "lectura": "El signo real 2 estaba cubierto por el pronostico 2."
+            },
+            {
+              "num": 9,
+              "partido": "Osasuna - Espanyol",
+              "signo_real": "2",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 65.2,
+              "lectura": "El signo real 2 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 10,
+              "partido": "Ceuta - Málaga",
+              "signo_real": "2",
+              "pronostico_jugado": "2",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 62.4,
+              "lectura": "El signo real 2 estaba cubierto por el pronostico 2."
+            },
+            {
+              "num": 12,
+              "partido": "Almería - Las Palmas",
+              "signo_real": "2",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 61.5,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 13,
+              "partido": "Castellón - Cádiz",
+              "signo_real": "X",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 42.3,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            },
+            {
+              "num": 14,
+              "partido": "Leganés - Huesca",
+              "signo_real": "X",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 59.4,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            }
+          ],
+          "explicaciones_fallos": [
+            {
+              "num": 6,
+              "partido": "Rayo Vallecano - Villarreal",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 12,
+              "partido": "Almería - Las Palmas",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 13,
+              "partido": "Castellón - Cádiz",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            },
+            {
+              "num": 14,
+              "partido": "Leganés - Huesca",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            }
+          ],
           "detalle": [
             {
               "num": 1,
@@ -15340,7 +16747,11 @@
               "oficial": "X",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 2,
@@ -15348,7 +16759,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1."
             },
             {
               "num": 3,
@@ -15356,7 +16771,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             },
             {
               "num": 4,
@@ -15364,7 +16783,11 @@
               "oficial": "1",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 5,
@@ -15372,7 +16795,11 @@
               "oficial": "1",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 6,
@@ -15380,7 +16807,11 @@
               "oficial": "1",
               "nuestro": "X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 7,
@@ -15388,7 +16819,11 @@
               "oficial": "2",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 8,
@@ -15396,7 +16831,11 @@
               "oficial": "2",
               "nuestro": "2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico 2."
             },
             {
               "num": 9,
@@ -15404,7 +16843,11 @@
               "oficial": "2",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 10,
@@ -15412,7 +16855,11 @@
               "oficial": "2",
               "nuestro": "2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico 2."
             },
             {
               "num": 11,
@@ -15420,7 +16867,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             },
             {
               "num": 12,
@@ -15428,7 +16879,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 13,
@@ -15436,7 +16891,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 14,
@@ -15444,7 +16903,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             }
           ]
         },
@@ -15453,10 +16916,192 @@
           "origen": "issue_memoria_sin_token",
           "aciertos": 7,
           "fallos": 6,
+          "fallos_fijo": 4,
+          "fallos_doble": 2,
+          "fallos_triple": 0,
+          "por_tipo": {
+            "FIJO": {
+              "total": 6,
+              "aciertos": 2,
+              "fallos": 4
+            },
+            "DOBLE": {
+              "total": 5,
+              "aciertos": 3,
+              "fallos": 2
+            },
+            "TRIPLE": {
+              "total": 2,
+              "aciertos": 2,
+              "fallos": 0
+            }
+          },
+          "elige8": {
+            "selecciones": 8,
+            "aciertos": 5,
+            "fallos": 3
+          },
           "partidos_analizados": 13,
           "pleno15_oficial": "4-2",
           "pleno15_nuestro": "2-1",
           "pleno15_acierto": false,
+          "pleno15_estado": "fallado",
+          "partidos_sorpresa": [
+            {
+              "num": 1,
+              "partido": "Deportivo Alaves - Rayo Vallecano",
+              "signo_real": "2",
+              "pronostico_jugado": "X2",
+              "acierto": true,
+              "indice_sorpresa": 75.3,
+              "probabilidad_sorpresa": 57.4,
+              "lectura": "El signo real 2 estaba cubierto por el pronostico X2."
+            },
+            {
+              "num": 2,
+              "partido": "Real Betis Balompie - Levante UD",
+              "signo_real": "1",
+              "pronostico_jugado": "X2",
+              "acierto": false,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 68.2,
+              "lectura": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real."
+            },
+            {
+              "num": 3,
+              "partido": "RC Celta de Vigo - Sevilla FC",
+              "signo_real": "1",
+              "pronostico_jugado": "1",
+              "acierto": true,
+              "indice_sorpresa": 60.2,
+              "probabilidad_sorpresa": 50.0,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1."
+            },
+            {
+              "num": 4,
+              "partido": "RCD Espanyol - Real Sociedad de Futbol",
+              "signo_real": "X",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": 63.8,
+              "probabilidad_sorpresa": 56.9,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            },
+            {
+              "num": 5,
+              "partido": "Getafe CF - CA Osasuna",
+              "signo_real": "1",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 67.5,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 8,
+              "partido": "Valencia CF - FC Barcelona",
+              "signo_real": "1",
+              "pronostico_jugado": "X2",
+              "acierto": false,
+              "indice_sorpresa": 39.5,
+              "probabilidad_sorpresa": 51.6,
+              "lectura": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real."
+            },
+            {
+              "num": 9,
+              "partido": "Girona FC - Elche CF",
+              "signo_real": "X",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 10,
+              "partido": "Malaga CF - Real Racing Club de Santander",
+              "signo_real": "X",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 62.8,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            },
+            {
+              "num": 11,
+              "partido": "FC Andorra - AD Ceuta FC",
+              "signo_real": "2",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": 90.8,
+              "probabilidad_sorpresa": 67.3,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 13,
+              "partido": "SD Eibar - Cordoba CF",
+              "signo_real": "1",
+              "pronostico_jugado": "1X",
+              "acierto": true,
+              "indice_sorpresa": 66.5,
+              "probabilidad_sorpresa": 52.3,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1X y estaba protegido por Elige 8."
+            },
+            {
+              "num": 14,
+              "partido": "Real Sporting de Gijon - UD Almeria",
+              "signo_real": "1",
+              "pronostico_jugado": "2",
+              "acierto": false,
+              "indice_sorpresa": 90.5,
+              "probabilidad_sorpresa": 65.9,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            }
+          ],
+          "explicaciones_fallos": [
+            {
+              "num": 2,
+              "partido": "Real Betis Balompie - Levante UD",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 4,
+              "partido": "RCD Espanyol - Real Sociedad de Futbol",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            },
+            {
+              "num": 8,
+              "partido": "Valencia CF - FC Barcelona",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 10,
+              "partido": "Malaga CF - Real Racing Club de Santander",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            },
+            {
+              "num": 11,
+              "partido": "FC Andorra - AD Ceuta FC",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 14,
+              "partido": "Real Sporting de Gijon - UD Almeria",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            }
+          ],
           "detalle": [
             {
               "num": 1,
@@ -15464,7 +17109,11 @@
               "oficial": "2",
               "nuestro": "X2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "DOBLE",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico X2."
             },
             {
               "num": 2,
@@ -15472,7 +17121,11 @@
               "oficial": "1",
               "nuestro": "X2",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "DOBLE",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real."
             },
             {
               "num": 3,
@@ -15480,7 +17133,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1."
             },
             {
               "num": 4,
@@ -15488,7 +17145,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 5,
@@ -15496,7 +17157,11 @@
               "oficial": "1",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 6,
@@ -15504,7 +17169,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             },
             {
               "num": 8,
@@ -15512,7 +17181,11 @@
               "oficial": "1",
               "nuestro": "X2",
               "acierto": false,
-              "elige8": true
+              "tipo_apuesta": "DOBLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Doble insuficiente: el tercer signo que quedo fuera termino siendo el resultado real."
             },
             {
               "num": 9,
@@ -15520,7 +17193,11 @@
               "oficial": "X",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 10,
@@ -15528,7 +17205,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 11,
@@ -15536,7 +17217,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 12,
@@ -15544,7 +17229,11 @@
               "oficial": "2",
               "nuestro": "X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "DOBLE",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico X2 y estaba protegido por Elige 8."
             },
             {
               "num": 13,
@@ -15552,7 +17241,11 @@
               "oficial": "1",
               "nuestro": "1X",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "DOBLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X y estaba protegido por Elige 8."
             },
             {
               "num": 14,
@@ -15560,7 +17253,11 @@
               "oficial": "1",
               "nuestro": "2",
               "acierto": false,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             }
           ]
         },
@@ -15569,10 +17266,161 @@
           "origen": "issue_memoria_sin_token",
           "aciertos": 11,
           "fallos": 3,
+          "fallos_fijo": 3,
+          "fallos_doble": 0,
+          "fallos_triple": 0,
+          "por_tipo": {
+            "FIJO": {
+              "total": 9,
+              "aciertos": 6,
+              "fallos": 3
+            },
+            "DOBLE": {
+              "total": 2,
+              "aciertos": 2,
+              "fallos": 0
+            },
+            "TRIPLE": {
+              "total": 3,
+              "aciertos": 3,
+              "fallos": 0
+            }
+          },
+          "elige8": {
+            "selecciones": 8,
+            "aciertos": 8,
+            "fallos": 0
+          },
           "partidos_analizados": 14,
           "pleno15_oficial": "Pendiente",
           "pleno15_nuestro": "M-2",
           "pleno15_acierto": null,
+          "pleno15_estado": "pendiente",
+          "partidos_sorpresa": [
+            {
+              "num": 1,
+              "partido": "CD Castellon - SD Eibar",
+              "signo_real": "1",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 2,
+              "partido": "Cordoba CF - SD Huesca",
+              "signo_real": "X",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 39.6,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            },
+            {
+              "num": 3,
+              "partido": "RC Deportivo de La Coruna - UD Las Palmas",
+              "signo_real": "2",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 2 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 5,
+              "partido": "CD Leganes - CD Mirandes",
+              "signo_real": "1",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 65.4,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 7,
+              "partido": "AD Ceuta FC - Albacete Balompie",
+              "signo_real": "1",
+              "pronostico_jugado": "2",
+              "acierto": false,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 57.1,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 8,
+              "partido": "Real Racing Club de Santander - Cadiz CF",
+              "signo_real": "1",
+              "pronostico_jugado": "1",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 66.4,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1."
+            },
+            {
+              "num": 9,
+              "partido": "Real Sociedad B - Cultural Leonesa",
+              "signo_real": "X",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 56.5,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            },
+            {
+              "num": 12,
+              "partido": "Mexico - Australia",
+              "signo_real": "1",
+              "pronostico_jugado": "1X",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1X y estaba protegido por Elige 8."
+            },
+            {
+              "num": 13,
+              "partido": "Japon - Islandia",
+              "signo_real": "1",
+              "pronostico_jugado": "1",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 14,
+              "partido": "Alemania - Finlandia",
+              "signo_real": "1",
+              "pronostico_jugado": "1",
+              "acierto": true,
+              "indice_sorpresa": null,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
+            }
+          ],
+          "explicaciones_fallos": [
+            {
+              "num": 2,
+              "partido": "Cordoba CF - SD Huesca",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            },
+            {
+              "num": 7,
+              "partido": "AD Ceuta FC - Albacete Balompie",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 9,
+              "partido": "Real Sociedad B - Cultural Leonesa",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            }
+          ],
           "detalle": [
             {
               "num": 1,
@@ -15580,7 +17428,11 @@
               "oficial": "1",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 2,
@@ -15588,7 +17440,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 3,
@@ -15596,7 +17452,11 @@
               "oficial": "2",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 4,
@@ -15604,7 +17464,11 @@
               "oficial": "2",
               "nuestro": "2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico 2."
             },
             {
               "num": 5,
@@ -15612,7 +17476,11 @@
               "oficial": "1",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 6,
@@ -15620,7 +17488,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             },
             {
               "num": 7,
@@ -15628,7 +17500,11 @@
               "oficial": "1",
               "nuestro": "2",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 8,
@@ -15636,7 +17512,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1."
             },
             {
               "num": 9,
@@ -15644,7 +17524,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 10,
@@ -15652,7 +17536,11 @@
               "oficial": "2",
               "nuestro": "2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico 2."
             },
             {
               "num": 11,
@@ -15660,7 +17548,11 @@
               "oficial": "1",
               "nuestro": "1X",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "DOBLE",
+              "elige8": true,
+              "partido_sorpresa": false,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X y estaba protegido por Elige 8."
             },
             {
               "num": 12,
@@ -15668,7 +17560,11 @@
               "oficial": "1",
               "nuestro": "1X",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "DOBLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X y estaba protegido por Elige 8."
             },
             {
               "num": 13,
@@ -15676,7 +17572,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             },
             {
               "num": 14,
@@ -15684,7 +17584,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             }
           ]
         },
@@ -15693,10 +17597,222 @@
           "origen": "issue_memoria_sin_token",
           "aciertos": 8,
           "fallos": 6,
+          "fallos_fijo": 6,
+          "fallos_doble": 0,
+          "fallos_triple": 0,
+          "por_tipo": {
+            "FIJO": {
+              "total": 11,
+              "aciertos": 5,
+              "fallos": 6
+            },
+            "DOBLE": {
+              "total": 1,
+              "aciertos": 1,
+              "fallos": 0
+            },
+            "TRIPLE": {
+              "total": 2,
+              "aciertos": 2,
+              "fallos": 0
+            }
+          },
+          "elige8": {
+            "selecciones": 8,
+            "aciertos": 7,
+            "fallos": 1
+          },
           "partidos_analizados": 14,
           "pleno15_oficial": "0-1",
           "pleno15_nuestro": "1-1",
           "pleno15_acierto": false,
+          "pleno15_estado": "fallado",
+          "partidos_sorpresa": [
+            {
+              "num": 1,
+              "partido": "CD Castellon - UD Almeria",
+              "signo_real": "X",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": 68.1,
+              "probabilidad_sorpresa": 55.1,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            },
+            {
+              "num": 2,
+              "partido": "UD Las Palmas - Malaga CF",
+              "signo_real": "2",
+              "pronostico_jugado": "2",
+              "acierto": true,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 67.8,
+              "lectura": "El signo real 2 estaba cubierto por el pronostico 2."
+            },
+            {
+              "num": 3,
+              "partido": "BÃ©lgica - TÃºnez",
+              "signo_real": "1",
+              "pronostico_jugado": "1",
+              "acierto": true,
+              "indice_sorpresa": 94.1,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 4,
+              "partido": "Lituania - Letonia",
+              "signo_real": "X",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": 93.7,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 5,
+              "partido": "Estonia - Islas Feroe",
+              "signo_real": "1",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 6,
+              "partido": "Portugal - Chile",
+              "signo_real": "1",
+              "pronostico_jugado": "1",
+              "acierto": true,
+              "indice_sorpresa": 93.9,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 7,
+              "partido": "RumanÃ­a - Gales",
+              "signo_real": "1",
+              "pronostico_jugado": "X",
+              "acierto": false,
+              "indice_sorpresa": 94.3,
+              "probabilidad_sorpresa": 70,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 8,
+              "partido": "Inglaterra - Nueva Zelanda",
+              "signo_real": "1",
+              "pronostico_jugado": "1",
+              "acierto": true,
+              "indice_sorpresa": 93.9,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 9,
+              "partido": "Suiza - Australia",
+              "signo_real": "X",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": 94.8,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            },
+            {
+              "num": 10,
+              "partido": "Bolivia - Escocia",
+              "signo_real": "2",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 11,
+              "partido": "Liechtenstein - Chipre",
+              "signo_real": "2",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 12,
+              "partido": "Dinamarca - Ucrania",
+              "signo_real": "1",
+              "pronostico_jugado": "X",
+              "acierto": false,
+              "indice_sorpresa": 94.5,
+              "probabilidad_sorpresa": 70,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 13,
+              "partido": "Croacia - Eslovenia",
+              "signo_real": "1",
+              "pronostico_jugado": "1",
+              "acierto": true,
+              "indice_sorpresa": 94.5,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
+            },
+            {
+              "num": 14,
+              "partido": "Marruecos - Noruega",
+              "signo_real": "X",
+              "pronostico_jugado": "1X",
+              "acierto": true,
+              "indice_sorpresa": 94.6,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real X estaba cubierto por el pronostico 1X y estaba protegido por Elige 8."
+            }
+          ],
+          "explicaciones_fallos": [
+            {
+              "num": 1,
+              "partido": "CD Castellon - UD Almeria",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            },
+            {
+              "num": 7,
+              "partido": "RumanÃ­a - Gales",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 9,
+              "partido": "Suiza - Australia",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            },
+            {
+              "num": 10,
+              "partido": "Bolivia - Escocia",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 11,
+              "partido": "Liechtenstein - Chipre",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 12,
+              "partido": "Dinamarca - Ucrania",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            }
+          ],
           "detalle": [
             {
               "num": 1,
@@ -15704,7 +17820,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 2,
@@ -15712,7 +17832,11 @@
               "oficial": "2",
               "nuestro": "2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 2 estaba cubierto por el pronostico 2."
             },
             {
               "num": 3,
@@ -15720,7 +17844,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             },
             {
               "num": 4,
@@ -15728,7 +17856,11 @@
               "oficial": "X",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 5,
@@ -15736,7 +17868,11 @@
               "oficial": "1",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "TRIPLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X2 y estaba protegido por Elige 8."
             },
             {
               "num": 6,
@@ -15744,7 +17880,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             },
             {
               "num": 7,
@@ -15752,7 +17892,11 @@
               "oficial": "1",
               "nuestro": "X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 8,
@@ -15760,7 +17904,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             },
             {
               "num": 9,
@@ -15768,7 +17916,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 10,
@@ -15776,7 +17928,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 11,
@@ -15784,7 +17940,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 12,
@@ -15792,7 +17952,11 @@
               "oficial": "1",
               "nuestro": "X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 13,
@@ -15800,7 +17964,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "FIJO",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1 y estaba protegido por Elige 8."
             },
             {
               "num": 14,
@@ -15808,7 +17976,11 @@
               "oficial": "X",
               "nuestro": "1X",
               "acierto": true,
-              "elige8": true
+              "tipo_apuesta": "DOBLE",
+              "elige8": true,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X y estaba protegido por Elige 8."
             }
           ]
         },
@@ -15817,10 +17989,229 @@
           "origen": "issue_memoria_sin_token",
           "aciertos": 7,
           "fallos": 7,
+          "fallos_fijo": 7,
+          "fallos_doble": 0,
+          "fallos_triple": 0,
+          "por_tipo": {
+            "FIJO": {
+              "total": 10,
+              "aciertos": 3,
+              "fallos": 7
+            },
+            "DOBLE": {
+              "total": 2,
+              "aciertos": 2,
+              "fallos": 0
+            },
+            "TRIPLE": {
+              "total": 2,
+              "aciertos": 2,
+              "fallos": 0
+            }
+          },
+          "elige8": {
+            "selecciones": 0,
+            "aciertos": 0,
+            "fallos": 0
+          },
           "partidos_analizados": 14,
           "pleno15_oficial": "0-0",
           "pleno15_nuestro": "1-1",
           "pleno15_acierto": false,
+          "pleno15_estado": "fallado",
+          "partidos_sorpresa": [
+            {
+              "num": 1,
+              "partido": "EEUU - Paraguay",
+              "signo_real": "1",
+              "pronostico_jugado": "X",
+              "acierto": false,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 2,
+              "partido": "Qatar - Suiza",
+              "signo_real": "X",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            },
+            {
+              "num": 3,
+              "partido": "Brasil - Marruecos",
+              "signo_real": "X",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            },
+            {
+              "num": 4,
+              "partido": "Haití - Escocia",
+              "signo_real": "2",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 5,
+              "partido": "Australia - Turquía",
+              "signo_real": "1",
+              "pronostico_jugado": "X",
+              "acierto": false,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
+            },
+            {
+              "num": 6,
+              "partido": "Alemania - Curazao",
+              "signo_real": "1",
+              "pronostico_jugado": "1",
+              "acierto": true,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1."
+            },
+            {
+              "num": 7,
+              "partido": "Países Bajos - Japón",
+              "signo_real": "X",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            },
+            {
+              "num": 8,
+              "partido": "Costa Marfil - Ecuador",
+              "signo_real": "1",
+              "pronostico_jugado": "1",
+              "acierto": true,
+              "indice_sorpresa": 97.4,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1."
+            },
+            {
+              "num": 9,
+              "partido": "Suecia - Túnez",
+              "signo_real": "1",
+              "pronostico_jugado": "1X",
+              "acierto": true,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1X."
+            },
+            {
+              "num": 10,
+              "partido": "Bélgica - Egipto",
+              "signo_real": "X",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real X estaba cubierto por el pronostico 1X2."
+            },
+            {
+              "num": 11,
+              "partido": "Arabia Saudí - Uruguay",
+              "signo_real": "X",
+              "pronostico_jugado": "1X2",
+              "acierto": true,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real X estaba cubierto por el pronostico 1X2."
+            },
+            {
+              "num": 12,
+              "partido": "Irán - Nueva Zelanda",
+              "signo_real": "X",
+              "pronostico_jugado": "1",
+              "acierto": false,
+              "indice_sorpresa": 100.0,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
+            },
+            {
+              "num": 13,
+              "partido": "Francia - Senegal",
+              "signo_real": "1",
+              "pronostico_jugado": "1",
+              "acierto": true,
+              "indice_sorpresa": 97.3,
+              "probabilidad_sorpresa": 70,
+              "lectura": "El signo real 1 estaba cubierto por el pronostico 1."
+            },
+            {
+              "num": 14,
+              "partido": "Malaga CF - UD Almeria",
+              "signo_real": "X",
+              "pronostico_jugado": "1X",
+              "acierto": true,
+              "indice_sorpresa": 65.7,
+              "probabilidad_sorpresa": 50.9,
+              "lectura": "El signo real X estaba cubierto por el pronostico 1X."
+            }
+          ],
+          "explicaciones_fallos": [
+            {
+              "num": 1,
+              "partido": "EEUU - Paraguay",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 2,
+              "partido": "Qatar - Suiza",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            },
+            {
+              "num": 3,
+              "partido": "Brasil - Marruecos",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            },
+            {
+              "num": 4,
+              "partido": "Haití - Escocia",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 5,
+              "partido": "Australia - Turquía",
+              "categoria": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional.",
+              "ajuste_recomendado": "Aumentar peso de sorpresa y revisar favorito atacable antes de dejar fijo."
+            },
+            {
+              "num": 7,
+              "partido": "Países Bajos - Japón",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            },
+            {
+              "num": 12,
+              "partido": "Irán - Nueva Zelanda",
+              "categoria": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo.",
+              "ajuste_recomendado": "Subir gradualmente el peso del empate en partidos de margen corto o necesidad compartida."
+            }
+          ],
           "detalle": [
             {
               "num": 1,
@@ -15828,7 +18219,11 @@
               "oficial": "1",
               "nuestro": "X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 2,
@@ -15836,7 +18231,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 3,
@@ -15844,7 +18243,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 4,
@@ -15852,7 +18255,11 @@
               "oficial": "2",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 5,
@@ -15860,7 +18267,11 @@
               "oficial": "1",
               "nuestro": "X",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "sorpresa_no_cubierta",
+              "explicacion": "Fijo fallado: el partido no tenia margen suficiente para quedar sin cobertura adicional."
             },
             {
               "num": 6,
@@ -15868,7 +18279,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1."
             },
             {
               "num": 7,
@@ -15876,7 +18291,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 8,
@@ -15884,7 +18303,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1."
             },
             {
               "num": 9,
@@ -15892,7 +18315,11 @@
               "oficial": "1",
               "nuestro": "1X",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "DOBLE",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1X."
             },
             {
               "num": 10,
@@ -15900,7 +18327,11 @@
               "oficial": "X",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "TRIPLE",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X2."
             },
             {
               "num": 11,
@@ -15908,7 +18339,11 @@
               "oficial": "X",
               "nuestro": "1X2",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "TRIPLE",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X2."
             },
             {
               "num": 12,
@@ -15916,7 +18351,11 @@
               "oficial": "X",
               "nuestro": "1",
               "acierto": false,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "empate_no_cubierto",
+              "explicacion": "El fallo probable fue no cubrir el empate en un partido que debia tratarse como zona de riesgo."
             },
             {
               "num": 13,
@@ -15924,7 +18363,11 @@
               "oficial": "1",
               "nuestro": "1",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "FIJO",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real 1 estaba cubierto por el pronostico 1."
             },
             {
               "num": 14,
@@ -15932,7 +18375,11 @@
               "oficial": "X",
               "nuestro": "1X",
               "acierto": true,
-              "elige8": false
+              "tipo_apuesta": "DOBLE",
+              "elige8": false,
+              "partido_sorpresa": true,
+              "categoria_fallo": "acierto",
+              "explicacion": "El signo real X estaba cubierto por el pronostico 1X."
             }
           ]
         }
@@ -15957,6 +18404,32 @@
     "partidos_propios_validados": 125,
     "precision_propia": 60.8,
     "ajustes_por_nuestras_quinielas": []
+  },
+  "pesos_dinamicos": {
+    "archivo": "data/memoria_ia/pesos_dinamicos.json",
+    "generado_en": "2026-06-18T17:03:53.239604+00:00",
+    "muestra": {
+      "partidos_validados": 125,
+      "fallos": 49,
+      "jornadas_validadas": 9,
+      "elige8_precision": 83.33
+    },
+    "pesos": {
+      "forma_reciente": 0.19,
+      "casa_fuera": 0.144,
+      "clasificacion": 0.146,
+      "goles": 0.126,
+      "empate": 0.116,
+      "sorpresa": 0.11,
+      "motivacion_competitiva": 0.07,
+      "necesidad_descenso_ascenso_europa": 0.07,
+      "fatiga": 0.02,
+      "bajas": 0.02
+    }
+  },
+  "diario_aprendizaje": {
+    "archivo": "data/memoria_ia/diario_aprendizaje.json",
+    "entradas": 125
   },
   "preparacion_2026_2027": {
     "estado": "preparada_para_reiniciar_con_equipos_actualizados",

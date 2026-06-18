@@ -755,7 +755,8 @@
         signos: signos.map(s => String(s).trim().toUpperCase()).slice(0, 14),
         elige8: (jugada.elige8 || []).map(Number),
         pleno15: String(jugada.pleno15 || jugada.pleno15_nuestro || "").trim(),
-        validado_en: jugada.validado_en || jugada.fecha_validacion || "Memoria persistente",
+        fecha: jugada.fecha || jugada.validado_en || jugada.fecha_validacion || "",
+        validado_en: jugada.validado_en || jugada.fecha || jugada.fecha_validacion || "Memoria persistente",
         origen: jugada.origen || "data/quinielas_jugadas.json",
         persistente: true,
       };
@@ -1266,6 +1267,7 @@
       try {
         const local = JSON.parse(localStorage.getItem(`quiniela_validada_${jornada}`) || "null");
         if (local) {
+          if (!local.fecha && local.validado_en) local.fecha = local.validado_en;
           if (!persistente) return local;
           const signosLocal = JSON.stringify((local.signos || []).map(String));
           const signosPersistente = JSON.stringify((persistente.signos || []).map(String));
@@ -1579,19 +1581,26 @@
         .map(p => p.num)
         .slice(0, 8);
       const pleno15 = document.getElementById("manual-pleno15")?.value || "";
+      const fecha = new Date();
       const validacion = {
         jornada,
         signos,
         elige8,
         pleno15,
-        validado_en: new Date().toLocaleString("es-ES"),
+        fecha: fecha.toISOString(),
+        validado_en: fecha.toLocaleString("es-ES"),
         origen: "navegador_pendiente_de_sincronizar",
       };
-      localStorage.setItem(`quiniela_validada_${jornada}`, JSON.stringify(validacion));
-      guardarPendientePersistencia(validacion);
-      actualizarBotonJornadaQuiniela(jornada);
+      guardarValidacionPendiente(validacion);
       await abrirJornada(jornada);
       await cargarHistorial();
+    }
+
+    function guardarValidacionPendiente(validacion) {
+      if (!validacion?.jornada) return;
+      localStorage.setItem(`quiniela_validada_${validacion.jornada}`, JSON.stringify(validacion));
+      guardarPendientePersistencia(validacion);
+      actualizarBotonJornadaQuiniela(validacion.jornada);
     }
 
     function guardarPendientePersistencia(validacion) {
@@ -1613,8 +1622,9 @@
         signos: validacion.signos || [],
         elige8: (validacion.elige8 || []).map(Number),
         pleno15: validacion.pleno15 || "",
+        fecha: validacion.fecha || validacion.validado_en || "",
         validado_en: validacion.validado_en || "",
-        origen: "validacion_manual_web",
+        origen: validacion.origen || "validacion_manual_web",
       };
     }
 
@@ -2923,20 +2933,44 @@
         .filter((p, idx) => document.getElementById(`ia-manual-elige8-${idx}`)?.checked)
         .map(p => p.num)
         .slice(0, 8);
+      const fecha = new Date();
       const validacion = {
         jornada,
         signos,
         elige8,
         pleno15: document.getElementById("ia-manual-pleno15")?.value || "",
-        validado_en: new Date().toLocaleString("es-ES"),
+        fecha: fecha.toISOString(),
+        validado_en: fecha.toLocaleString("es-ES"),
         origen: "navegador_pendiente_de_sincronizar",
       };
-      localStorage.setItem(`quiniela_validada_${jornada}`, JSON.stringify(validacion));
-      guardarPendientePersistencia(validacion);
-      actualizarBotonJornadaQuiniela(jornada);
+      guardarValidacionPendiente(validacion);
       await abrirQuinielaIA(jornada);
       await cargarHistorial();
       await cargarAnalisisIA();
+    }
+
+    function validacionDesdeBoletoIA(boleto, jornada) {
+      const fecha = new Date();
+      return {
+        jornada: Number(jornada || boleto?.jornada),
+        signos: (boleto?.signos || []).map(s => String(s || "").trim().toUpperCase()).slice(0, 14),
+        elige8: (boleto?.elige8 || []).map(Number).filter(Boolean).slice(0, 8),
+        pleno15: boleto?.pleno15 || "",
+        fecha: fecha.toISOString(),
+        validado_en: fecha.toLocaleString("es-ES"),
+        origen: "quiniela_ia_validada_web",
+      };
+    }
+
+    async function registrarQuinielaIAGenerada(boleto) {
+      const jornada = Number(boleto?.jornada || jornadaActualIA);
+      if (!jornada || !boleto?.signos?.length) return null;
+      ultimoBoletoIAGenerado = boleto;
+      const validacion = validacionDesdeBoletoIA(boleto, jornada);
+      guardarValidacionPendiente(validacion);
+      await cargarHistorial();
+      await cargarAnalisisIA();
+      return validacion;
     }
 
     async function validarBoletoIAGenerado(jornada) {
@@ -2945,17 +2979,7 @@
         alert("Primero genera la quiniela IA de esta jornada.");
         return;
       }
-      const validacion = {
-        jornada,
-        signos: boleto.signos,
-        elige8: boleto.elige8,
-        pleno15: boleto.pleno15 || "",
-        validado_en: new Date().toLocaleString("es-ES"),
-        origen: "quiniela_ia_validada_web",
-      };
-      localStorage.setItem(`quiniela_validada_${jornada}`, JSON.stringify(validacion));
-      guardarPendientePersistencia(validacion);
-      actualizarBotonJornadaQuiniela(jornada);
+      guardarValidacionPendiente(validacionDesdeBoletoIA(boleto, jornada));
       await abrirQuinielaIA(jornada);
       await cargarHistorial();
       await cargarAnalisisIA();
@@ -4834,6 +4858,45 @@
       };
     }
 
+    function pesoDinamicoWeb(pesos, clave, referencia) {
+      const valor = Number(pesos?.pesos?.[clave]);
+      return Number.isFinite(valor) ? valor : referencia;
+    }
+
+    function aplicarPesosDinamicosWeb(probs, pesos, compLocal, compVisitante, contextoLocal, contextoVisitante) {
+      if (!pesos?.pesos) return probs;
+      const base = pesos.referencia || {};
+      const p = { ...probs };
+      const deltaEmpate = pesoDinamicoWeb(pesos, "empate", base.empate ?? 0.10) - (base.empate ?? 0.10);
+      const deltaSorpresa = pesoDinamicoWeb(pesos, "sorpresa", base.sorpresa ?? 0.08) - (base.sorpresa ?? 0.08);
+      const deltaClasificacion = pesoDinamicoWeb(pesos, "clasificacion", base.clasificacion ?? 0.18) - (base.clasificacion ?? 0.18);
+      const deltaMotivacion = pesoDinamicoWeb(pesos, "motivacion_competitiva", base.motivacion_competitiva ?? 0.08) - (base.motivacion_competitiva ?? 0.08);
+      const deltaNecesidad = pesoDinamicoWeb(pesos, "necesidad_descenso_ascenso_europa", base.necesidad_descenso_ascenso_europa ?? 0.08) - (base.necesidad_descenso_ascenso_europa ?? 0.08);
+      const deltaBajas = pesoDinamicoWeb(pesos, "bajas", base.bajas ?? 0.04) - (base.bajas ?? 0.04);
+      const top = signoMasProbable(p);
+
+      if (deltaEmpate > 0) p["X"] += Math.min(deltaEmpate * 38, 1.8);
+      if (deltaSorpresa > 0) {
+        p[top] -= Math.min(deltaSorpresa * 42, 2.0);
+        ["1", "X", "2"].filter(s => s !== top).forEach(s => { p[s] += Math.min(deltaSorpresa * 21, 1.0); });
+      }
+      if (deltaClasificacion < 0 && ["1", "2"].includes(top)) {
+        p[top] -= Math.min(Math.abs(deltaClasificacion) * 30, 1.2);
+        p["X"] += Math.min(Math.abs(deltaClasificacion) * 14, 0.7);
+      }
+      if ((deltaMotivacion > 0 || deltaNecesidad > 0) && riesgoNecesidadRealBoleto(compLocal, compVisitante)) {
+        const ajuste = Math.min((deltaMotivacion + deltaNecesidad) * 22, 1.6);
+        if (equipoNecesidadVivaBoleto(compLocal)) p["1"] += ajuste;
+        if (equipoNecesidadVivaBoleto(compVisitante)) p["2"] += ajuste;
+        p["X"] += ajuste * 0.5;
+      }
+      if (deltaBajas > 0) {
+        if ((contextoLocal?.alertas || []).some(a => ["lesiones", "sanciones", "dudas"].includes(a))) p["1"] -= Math.min(deltaBajas * 22, 0.8);
+        if ((contextoVisitante?.alertas || []).some(a => ["lesiones", "sanciones", "dudas"].includes(a))) p["2"] -= Math.min(deltaBajas * 22, 0.8);
+      }
+      return normalizarProbabilidades(p);
+    }
+
     function ajustarProbabilidades(probs, local, visitante, clasif, contextoCompetitivo) {
       let p = { ...probs };
 
@@ -5064,6 +5127,7 @@
       const contextoEquipos = await fetchJSON("data/contexto_equipos.json", {});
       const contextoCompetitivo = await fetchJSON("data/memoria_ia/contexto_competitivo.json", {});
       const patronesCompetitivos = await fetchJSON("data/memoria_ia/patrones_competitivos.json", {});
+      const pesosDinamicos = await fetchJSON("data/memoria_ia/pesos_dinamicos.json", {});
       contextoCompetitivoGlobal = contextoCompetitivo;
 
       let partidos = partidosJornadaIA
@@ -5080,6 +5144,7 @@
           let probs = analisis?.probabilidades || { "1": 37, "X": 31, "2": 32 };
           probs = ajustarProbabilidades(probs, p.local, p.visitante, clasif, contextoCompetitivo);
           probs = ajustarPorPatronesAprendidosWeb(probs, contextoCompetitivoLocal, contextoCompetitivoVisitante, patronesCompetitivos);
+          probs = aplicarPesosDinamicosWeb(probs, pesosDinamicos, contextoCompetitivoLocal, contextoCompetitivoVisitante, contextoLocal, contextoVisitante);
 
           const riesgo = analisis?.riesgo_sorpresa || "Alto";
           const signoBase = signoMasProbable(probs);
@@ -5219,6 +5284,7 @@
           ` : ""}
         </div>
       `;
+      await registrarQuinielaIAGenerada(ultimoBoletoIAGenerado);
     }
 
     async function iniciarAplicacion() {

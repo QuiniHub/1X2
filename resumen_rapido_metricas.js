@@ -314,6 +314,43 @@
     };
   }
 
+  function instalarRegistroQuinielaIAGenerada() {
+    if (window.__registroQuinielaIAGeneradaActiva || typeof window.generarBoletoIA !== "function") return;
+    window.__registroQuinielaIAGeneradaActiva = true;
+    const generarOriginal = window.generarBoletoIA;
+    window.generarBoletoIA = async function generarBoletoIAConRegistroPendiente() {
+      const resultado = await generarOriginal.apply(this, arguments);
+      const botonValidacionVisible = document.querySelector("#boleto-ia button[onclick^='validarBoletoIAGenerado']");
+      const jornada = typeof jornadaActualIA !== "undefined" ? Number(jornadaActualIA) : 0;
+      if (botonValidacionVisible || !jornada || typeof window.registrarQuinielaIAGenerada !== "function") return resultado;
+
+      const prediccionBackend = await fetchJSON("data/predicciones/ultima_prediccion.json", null);
+      if (!prediccionBackend || Number(prediccionBackend.jornada) !== jornada) return resultado;
+      const partidos = (prediccionBackend.partidos || [])
+        .filter(p => Number(p.num) <= 14)
+        .sort((a, b) => Number(a.num) - Number(b.num));
+      if (!partidos.length) return resultado;
+      let elige8 = partidos.filter(p => p.elige8).map(p => Number(p.num)).slice(0, 8);
+      if (document.getElementById("activar-elige8")?.checked && typeof candidatosElige8CobroWeb === "function") {
+        elige8 = candidatosElige8CobroWeb(partidos.map(p => ({
+          partido: p,
+          num: Number(p.num),
+          tipo: p.tipo_apuesta || p.tipo,
+          signos: p.signo_final,
+          riesgo: p.incertidumbre
+        }))).map(item => Number(item.num)).slice(0, 8);
+      }
+      const pleno = plenoCalculado(prediccionBackend.pleno15, partidos);
+      await window.registrarQuinielaIAGenerada({
+        jornada,
+        signos: partidos.map(p => p.signo_final || p.signo_base || "1"),
+        elige8,
+        pleno15: pleno?.pronostico || ""
+      });
+      return resultado;
+    };
+  }
+
   function programarEstabilidadElige8() {
     setTimeout(estabilizarElige8SobreBoletoBase, 200);
     setTimeout(estabilizarElige8SobreBoletoBase, 1200);
@@ -321,6 +358,9 @@
     setTimeout(instalarGeneradorBoletoEstable, 200);
     setTimeout(instalarGeneradorBoletoEstable, 1200);
     setTimeout(instalarGeneradorBoletoEstable, 3000);
+    setTimeout(instalarRegistroQuinielaIAGenerada, 250);
+    setTimeout(instalarRegistroQuinielaIAGenerada, 1300);
+    setTimeout(instalarRegistroQuinielaIAGenerada, 3100);
     setTimeout(instalarBloqueoPrediccionFutura, 350);
     setTimeout(instalarBloqueoPrediccionFutura, 1400);
     setTimeout(instalarBloqueoPrediccionFutura, 3200);

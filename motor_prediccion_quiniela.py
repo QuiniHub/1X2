@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 MEMORIA = DATA / "memoria_ia" / "aprendizaje_global.json"
 APRENDIZAJE_PROPIO = DATA / "aprendizaje_ia.json"
+PESOS_DINAMICOS = DATA / "memoria_ia" / "pesos_dinamicos.json"
 CONTEXTO_EQUIPOS = DATA / "contexto_equipos.json"
 CONTEXTO_COMPETITIVO = DATA / "memoria_ia" / "contexto_competitivo.json"
 PATRONES_COMPETITIVOS = DATA / "memoria_ia" / "patrones_competitivos.json"
@@ -234,6 +235,100 @@ def normalizar_probs(probs):
     probs = {k: max(float(probs.get(k, 1)), 1.0) for k in ("1", "X", "2")}
     total = sum(probs.values()) or 1
     return {k: round(v / total * 100, 1) for k, v in probs.items()}
+
+
+PESOS_DINAMICOS_REFERENCIA = {
+    "forma_reciente": 0.20,
+    "casa_fuera": 0.15,
+    "clasificacion": 0.16,
+    "goles": 0.12,
+    "empate": 0.10,
+    "sorpresa": 0.09,
+    "motivacion_competitiva": 0.07,
+    "necesidad_descenso_ascenso_europa": 0.07,
+    "fatiga": 0.02,
+    "bajas": 0.02,
+}
+
+
+def peso_dinamico(pesos, clave):
+    try:
+        return float((pesos.get("pesos") or {}).get(clave, PESOS_DINAMICOS_REFERENCIA[clave]))
+    except (TypeError, ValueError, KeyError):
+        return PESOS_DINAMICOS_REFERENCIA.get(clave, 0.0)
+
+
+def delta_peso(pesos, clave):
+    referencia = (pesos.get("referencia") or PESOS_DINAMICOS_REFERENCIA).get(clave, PESOS_DINAMICOS_REFERENCIA.get(clave, 0.0))
+    return peso_dinamico(pesos, clave) - float(referencia or 0.0)
+
+
+def alertas_contexto(datos):
+    return {str(alerta).lower() for alerta in (datos or {}).get("alertas", [])}
+
+
+def ajustar_por_pesos_dinamicos(probs, pesos, local_comp, visitante_comp, contexto_local, contexto_visitante):
+    if not pesos or not isinstance(pesos.get("pesos"), dict):
+        return probs, 0.0, []
+
+    p = dict(probs)
+    riesgo_extra = 0.0
+    lecturas = []
+    top = signo_top(p)
+
+    d_empate = delta_peso(pesos, "empate")
+    if d_empate > 0:
+        ajuste = min(d_empate * 38, 1.8)
+        p["X"] += ajuste
+        riesgo_extra += ajuste * 1.4
+        lecturas.append("Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.")
+
+    d_sorpresa = delta_peso(pesos, "sorpresa")
+    if d_sorpresa > 0:
+        ajuste_top = min(d_sorpresa * 42, 2.0)
+        p[top] -= ajuste_top
+        for signo in ("1", "X", "2"):
+            if signo != top:
+                p[signo] += ajuste_top / 2
+        riesgo_extra += d_sorpresa * 120
+        lecturas.append("Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.")
+
+    d_clasificacion = delta_peso(pesos, "clasificacion")
+    if d_clasificacion < 0 and top in {"1", "2"}:
+        ajuste = min(abs(d_clasificacion) * 30, 1.2)
+        p[top] -= ajuste
+        p["X"] += ajuste * 0.55
+        riesgo_extra += ajuste
+        lecturas.append("Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.")
+
+    d_motivacion = max(delta_peso(pesos, "motivacion_competitiva"), 0.0)
+    d_necesidad = max(delta_peso(pesos, "necesidad_descenso_ascenso_europa"), 0.0)
+    if (d_motivacion or d_necesidad) and (necesidad_viva_motor(local_comp) or necesidad_viva_motor(visitante_comp)):
+        ajuste = min((d_motivacion + d_necesidad) * 22, 1.6)
+        if necesidad_viva_motor(local_comp):
+            p["1"] += ajuste
+        if necesidad_viva_motor(visitante_comp):
+            p["2"] += ajuste
+        p["X"] += ajuste * 0.5
+        riesgo_extra += ajuste * 2.0
+        lecturas.append("Pesos dinamicos: la necesidad competitiva viva tiene mas peso acumulado.")
+
+    d_bajas = max(delta_peso(pesos, "bajas"), 0.0)
+    if d_bajas:
+        alertas_local = alertas_contexto(contexto_local)
+        alertas_visitante = alertas_contexto(contexto_visitante)
+        alertas_riesgo = {"lesiones", "sanciones", "dudas"}
+        ajuste = min(d_bajas * 22, 0.8)
+        if alertas_local & alertas_riesgo:
+            p["1"] -= ajuste
+            p["X"] += ajuste * 0.5
+            riesgo_extra += ajuste
+        if alertas_visitante & alertas_riesgo:
+            p["2"] -= ajuste
+            p["X"] += ajuste * 0.5
+            riesgo_extra += ajuste
+
+    return normalizar_probs(p), round(riesgo_extra, 2), lecturas
 
 
 def aplicar_patron_posicion(probs, memoria, posicion):
@@ -1293,6 +1388,7 @@ def coste(dobles, triples, elige8):
 def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=False):
     memoria = cargar_json(MEMORIA, {})
     aprendizaje = cargar_json(APRENDIZAJE_PROPIO, {})
+    pesos_dinamicos = cargar_json(PESOS_DINAMICOS, {})
     contexto = cargar_json(CONTEXTO_EQUIPOS, {})
     contexto_competitivo = cargar_json(CONTEXTO_COMPETITIVO, {})
     patrones_competitivos = cargar_json(PATRONES_COMPETITIVOS, {})
@@ -1319,12 +1415,16 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             probs, local, visitante, aprendizaje
         )
         lecturas_motivacion.extend(lecturas_aprendizaje)
+        probs, riesgo_pesos_dinamicos, lecturas_pesos_dinamicos = ajustar_por_pesos_dinamicos(
+            probs, pesos_dinamicos, local_comp, visitante_comp, contexto_local, contexto_visitante
+        )
+        lecturas_motivacion.extend(lecturas_pesos_dinamicos)
         inc = incertidumbre(
             probs,
             local,
             visitante,
             diff,
-            riesgo_contexto + riesgo_motivacion + riesgo_patrones + riesgo_aprendizaje,
+            riesgo_contexto + riesgo_motivacion + riesgo_patrones + riesgo_aprendizaje + riesgo_pesos_dinamicos,
         )
         sorpresa = probabilidad_sorpresa(probs, inc)
         trazabilidad = trazabilidad_datos_partido(
@@ -1352,6 +1452,11 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
                 "activo": bool(lecturas_aprendizaje),
                 "riesgo_extra": riesgo_aprendizaje,
                 "lecturas": lecturas_aprendizaje,
+            },
+            "ajuste_pesos_dinamicos": {
+                "activo": bool(lecturas_pesos_dinamicos),
+                "riesgo_extra": riesgo_pesos_dinamicos,
+                "lecturas": lecturas_pesos_dinamicos,
             },
             "trazabilidad_datos": trazabilidad,
             "_local": local,
@@ -1423,6 +1528,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "calidad_datos": partido["trazabilidad_datos"]["calidad_datos"],
             "trazabilidad_datos": partido["trazabilidad_datos"],
             "ajuste_aprendizaje": partido["ajuste_aprendizaje"],
+            "ajuste_pesos_dinamicos": partido["ajuste_pesos_dinamicos"],
             "elige8": False,
             "razonamiento": explicar(
                 partido,
@@ -1509,6 +1615,11 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "partidos_revisados": aprendizaje.get("partidos_revisados"),
             "fallos_por_tipo": aprendizaje.get("fallos_por_tipo", {}),
             "ajuste_motor": ajuste_motor_aprendizaje(aprendizaje),
+            "pesos_dinamicos": {
+                "generado_en": pesos_dinamicos.get("generado_en"),
+                "pesos": pesos_dinamicos.get("pesos", {}),
+                "ajustes": pesos_dinamicos.get("ajustes", []),
+            },
         },
         "pleno15": data.get("pleno15"),
         "resumen": {
