@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-19T20:09:43.129795+00:00",
+  "generado_en": "2026-06-19T21:35:21.922260+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 4,
-    "partidos_cerrados": 28,
+    "partidos_cerrados": 29,
     "aciertos": 20,
-    "precision": 71.43
+    "precision": 68.97
   },
   "jornadas": [
     {
@@ -510,10 +510,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_68.json",
       "creado_en": "2026-06-15T10:30:13.991355+00:00",
       "prediccion_generada_en": "2026-06-15T10:30:13.377667+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 1,
       "aciertos": 0,
-      "precision": null,
+      "precision": 0.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -528,7 +528,7 @@
       },
       "por_tipo": {
         "FIJO": {
-          "total": 0,
+          "total": 1,
           "aciertos": 0
         },
         "DOBLE": {
@@ -540,7 +540,23 @@
           "aciertos": 0
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 1,
+          "partido": "EEUU - Australia",
+          "jugado": "X",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": false,
+          "probabilidades": {
+            "1": 33.7,
+            "X": 35.4,
+            "2": 30.9
+          },
+          "incertidumbre": 137.65,
+          "probabilidad_sorpresa": 70
+        }
+      ]
     },
     {
       "jornada": 70,
