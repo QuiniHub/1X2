@@ -43,9 +43,30 @@ class MotorPrediccionTests(unittest.TestCase):
         resultado = coste(dobles=2, triples=1, elige8=True)
 
         self.assertEqual(resultado["apuestas"], 12)
-        self.assertEqual(resultado["importe_quiniela"], 9.0)
+        self.assertEqual(resultado["apuestas_elige8"], 12)
+        self.assertEqual(resultado["importe_quiniela"], 18.0)
         self.assertEqual(resultado["importe_elige8"], 6.0)
-        self.assertEqual(resultado["importe_total"], 15.0)
+        self.assertEqual(resultado["importe_total"], 24.0)
+
+    def test_coste_elige8_usa_solo_partidos_marcados(self):
+        partidos = [
+            {"num": 1, "signo_final": "1X2", "elige8": True},
+            {"num": 2, "signo_final": "1X2", "elige8": True},
+            {"num": 3, "signo_final": "1X", "elige8": True},
+            {"num": 4, "signo_final": "1", "elige8": True},
+            {"num": 5, "signo_final": "1", "elige8": True},
+            {"num": 6, "signo_final": "X", "elige8": True},
+            {"num": 7, "signo_final": "2", "elige8": True},
+            {"num": 8, "signo_final": "1", "elige8": True},
+        ]
+
+        resultado = coste(dobles=2, triples=2, elige8=True, partidos=partidos)
+
+        self.assertEqual(resultado["apuestas"], 36)
+        self.assertEqual(resultado["apuestas_elige8"], 18)
+        self.assertEqual(resultado["importe_quiniela"], 54.0)
+        self.assertEqual(resultado["importe_elige8"], 9.0)
+        self.assertEqual(resultado["importe_total"], 63.0)
 
     def test_cobertura_automatica_evitar_14_fijos_en_jornada_abierta(self):
         evaluados = [
