@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "generado_en": "2026-06-19T05:25:43.862742+00:00",
+  "generado_en": "2026-06-19T06:46:23.215762+00:00",
   "metodo": "ajustes pequenos y acumulativos; maximo 0.02 por peso y ejecucion",
   "referencia": {
     "forma_reciente": 0.2,
@@ -15,12 +15,12 @@
     "bajas": 0.02
   },
   "pesos": {
-    "forma_reciente": 0.12,
-    "casa_fuera": 0.102,
-    "clasificacion": 0.048,
-    "goles": 0.168,
-    "empate": 0.228,
-    "sorpresa": 0.25,
+    "forma_reciente": 0.11,
+    "casa_fuera": 0.096,
+    "clasificacion": 0.034,
+    "goles": 0.174,
+    "empate": 0.244,
+    "sorpresa": 0.27,
     "motivacion_competitiva": 0.07,
     "necesidad_descenso_ascenso_europa": 0.07,
     "fatiga": 0.02,
@@ -29,64 +29,64 @@
   "muestra": {
     "partidos_validados": 125,
     "fallos": 49,
-    "jornadas_validadas": 9,
+    "jornadas_validadas": 10,
     "elige8_precision": 83.33
   },
   "ajustes": [
     {
       "peso": "sorpresa",
       "delta": 0.014,
-      "antes": 0.23,
-      "despues": 0.244,
+      "antes": 0.25,
+      "despues": 0.264,
       "motivo": "Demasiados fallos de fijo: subir cautela de sorpresa."
     },
     {
       "peso": "forma_reciente",
       "delta": -0.01,
-      "antes": 0.13,
-      "despues": 0.12,
+      "antes": 0.12,
+      "despues": 0.11,
       "motivo": "Los fijos fallados aconsejan no sobreponderar forma reciente."
     },
     {
       "peso": "clasificacion",
       "delta": -0.008,
-      "antes": 0.062,
-      "despues": 0.054,
+      "antes": 0.048,
+      "despues": 0.04,
       "motivo": "Reducir confianza ciega en clasificacion cuando falla el fijo."
     },
     {
       "peso": "sorpresa",
       "delta": 0.006,
-      "antes": 0.244,
-      "despues": 0.25,
+      "antes": 0.264,
+      "despues": 0.27,
       "motivo": "Dobles insuficientes: el tercer signo necesita mas peso."
     },
     {
       "peso": "goles",
       "delta": 0.006,
-      "antes": 0.162,
-      "despues": 0.168,
+      "antes": 0.168,
+      "despues": 0.174,
       "motivo": "Los dobles fallados suelen exigir revisar lectura de goles."
     },
     {
       "peso": "empate",
       "delta": 0.016,
-      "antes": 0.212,
-      "despues": 0.228,
+      "antes": 0.228,
+      "despues": 0.244,
       "motivo": "Empates no cubiertos por encima del umbral."
     },
     {
       "peso": "casa_fuera",
       "delta": -0.006,
-      "antes": 0.108,
-      "despues": 0.102,
+      "antes": 0.102,
+      "despues": 0.096,
       "motivo": "Bajar ligeramente sesgo local/visitante cuando falta la X."
     },
     {
       "peso": "clasificacion",
       "delta": -0.006,
-      "antes": 0.054,
-      "despues": 0.048,
+      "antes": 0.04,
+      "despues": 0.034,
       "motivo": "Las sorpresas recomiendan suavizar clasificacion pura."
     }
   ]
