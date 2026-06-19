@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "generado_en": "2026-06-19T16:25:35.627310+00:00",
+  "generado_en": "2026-06-19T18:18:13.836282+00:00",
   "metodo": "ajustes pequenos y acumulativos; maximo 0.02 por peso y ejecucion",
   "referencia": {
     "forma_reciente": 0.2,
@@ -15,11 +15,11 @@
     "bajas": 0.02
   },
   "pesos": {
-    "forma_reciente": 0.07,
-    "casa_fuera": 0.072,
+    "forma_reciente": 0.06,
+    "casa_fuera": 0.066,
     "clasificacion": 0.01,
-    "goles": 0.198,
-    "empate": 0.308,
+    "goles": 0.204,
+    "empate": 0.324,
     "sorpresa": 0.35,
     "motivacion_competitiva": 0.07,
     "necesidad_descenso_ascenso_europa": 0.07,
@@ -35,16 +35,16 @@
   "ajustes": [
     {
       "peso": "sorpresa",
-      "delta": 0.014,
-      "antes": 0.33,
-      "despues": 0.344,
+      "delta": 0.0,
+      "antes": 0.35,
+      "despues": 0.35,
       "motivo": "Demasiados fallos de fijo: subir cautela de sorpresa."
     },
     {
       "peso": "forma_reciente",
       "delta": -0.01,
-      "antes": 0.08,
-      "despues": 0.07,
+      "antes": 0.07,
+      "despues": 0.06,
       "motivo": "Los fijos fallados aconsejan no sobreponderar forma reciente."
     },
     {
@@ -56,31 +56,38 @@
     },
     {
       "peso": "sorpresa",
-      "delta": 0.006,
-      "antes": 0.344,
+      "delta": 0.0,
+      "antes": 0.35,
       "despues": 0.35,
       "motivo": "Dobles insuficientes: el tercer signo necesita mas peso."
     },
     {
       "peso": "goles",
       "delta": 0.006,
-      "antes": 0.192,
-      "despues": 0.198,
+      "antes": 0.198,
+      "despues": 0.204,
       "motivo": "Los dobles fallados suelen exigir revisar lectura de goles."
     },
     {
       "peso": "empate",
       "delta": 0.016,
-      "antes": 0.292,
-      "despues": 0.308,
+      "antes": 0.308,
+      "despues": 0.324,
       "motivo": "Empates no cubiertos por encima del umbral."
     },
     {
       "peso": "casa_fuera",
       "delta": -0.006,
-      "antes": 0.078,
-      "despues": 0.072,
+      "antes": 0.072,
+      "despues": 0.066,
       "motivo": "Bajar ligeramente sesgo local/visitante cuando falta la X."
+    },
+    {
+      "peso": "sorpresa",
+      "delta": 0.0,
+      "antes": 0.35,
+      "despues": 0.35,
+      "motivo": "Partidos sorpresa sin cubrir: aumentar cautela acumulada."
     },
     {
       "peso": "clasificacion",
