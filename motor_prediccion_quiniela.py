@@ -18,7 +18,7 @@ JORNADAS = DATA / "jornadas"
 PREDICCIONES = DATA / "predicciones"
 JUGADAS = DATA / "quinielas_jugadas"
 
-PRECIO_APUESTA = 0.75
+PRECIO_APUESTA = 1.50
 IMPORTE_MINIMO = 1.50
 PRECIO_ELIGE8 = 0.50
 
@@ -1373,12 +1373,33 @@ def cobertura_automatica(evaluados, aprendizaje=None):
     return dobles, triples, detalle
 
 
-def coste(dobles, triples, elige8):
+def multiplicador_signos(signos):
+    total = 1
+    for signo in signos or []:
+        limpios = "".join(s for s in ("1", "X", "2") if s in str(signo or "").upper())
+        total *= max(len(limpios), 1)
+    return total
+
+
+def apuestas_elige8_partidos(partidos):
+    signos = [
+        partido.get("signo_final") or partido.get("signo_base") or "1"
+        for partido in (partidos or [])
+        if partido.get("elige8")
+    ]
+    return multiplicador_signos(signos) if signos else 0
+
+
+def coste(dobles, triples, elige8, partidos=None):
     apuestas = 2 ** dobles * 3 ** triples
     importe_quiniela = max(apuestas * PRECIO_APUESTA, IMPORTE_MINIMO)
-    importe_elige8 = apuestas * PRECIO_ELIGE8 if elige8 else 0.0
+    apuestas_elige8 = apuestas_elige8_partidos(partidos) if elige8 else 0
+    if elige8 and not apuestas_elige8:
+        apuestas_elige8 = apuestas
+    importe_elige8 = apuestas_elige8 * PRECIO_ELIGE8 if elige8 else 0.0
     return {
         "apuestas": apuestas,
+        "apuestas_elige8": apuestas_elige8,
         "importe_quiniela": round(importe_quiniela, 2),
         "importe_elige8": round(importe_elige8, 2),
         "importe_total": round(importe_quiniela + importe_elige8, 2),
@@ -1585,7 +1606,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "elige8": elige8,
             "cobertura_auto": cobertura_auto,
         },
-        "coste": coste(dobles, triples, elige8),
+        "coste": coste(dobles, triples, elige8, partidos),
         "partidos": partidos,
         "criterio_cobertura": criterio_cobertura,
         "ataques_favorito_prioritarios": ataques_favorito_prioritarios,

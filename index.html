@@ -707,6 +707,8 @@
     let detalleJornadaActual = null;
     let quinielasJugadasPersistentes = {};
     let contextoCompetitivoGlobal = {};
+    const PRECIO_APUESTA_QUINIELA = 1.50;
+    const PRECIO_APUESTA_ELIGE8 = 0.50;
 
     function showTab(id, btn) {
       document.querySelectorAll("main section").forEach(s => s.classList.remove("active"));
@@ -725,6 +727,42 @@
       } catch (e) {
         return fallback;
       }
+    }
+
+    function signosLimpiosCoste(signos) {
+      return String(signos || "").toUpperCase().replace(/[^1X2]/g, "");
+    }
+
+    function apuestasDesdeSignosCoste(signos) {
+      return (signos || []).reduce((total, signo) => total * Math.max(signosLimpiosCoste(signo).length || 1, 1), 1);
+    }
+
+    function costeQuinielaDesdeSignos(signos, elige8Numeros = []) {
+      const apuestas = apuestasDesdeSignosCoste(signos);
+      const elige8Set = new Set((elige8Numeros || []).map(Number));
+      const signosElige8 = (signos || []).filter((_, idx) => elige8Set.has(idx + 1));
+      const apuestasElige8 = signosElige8.length ? apuestasDesdeSignosCoste(signosElige8) : 0;
+      const importeQuiniela = Math.max(apuestas * PRECIO_APUESTA_QUINIELA, PRECIO_APUESTA_QUINIELA);
+      const importeElige8 = apuestasElige8 * PRECIO_APUESTA_ELIGE8;
+      return {
+        apuestas,
+        apuestasElige8,
+        importeQuiniela,
+        importeElige8,
+        importeTotal: importeQuiniela + importeElige8
+      };
+    }
+
+    function costeQuinielaDesdePartidos(partidos, elige8Set = new Set()) {
+      const ordenados = (partidos || []).filter(p => Number(p.num) <= 14).sort((a, b) => Number(a.num) - Number(b.num));
+      const signos = ordenados.map(p => p.signo_final || p.signo_base || "1");
+      return costeQuinielaDesdeSignos(signos, Array.from(elige8Set).map(Number));
+    }
+
+    function pintarCosteQuiniela(coste) {
+      document.getElementById("total-apuestas").textContent = coste.apuestas;
+      document.getElementById("importe-quiniela").textContent =
+        coste.importeTotal.toFixed(2).replace(".", ",") + " €";
     }
 
     async function cargarQuinielasJugadasPersistentes() {
@@ -2055,11 +2093,12 @@
       return hablaDeFormato && hablaDeBoleto && compara;
     }
 
-    function importeEstrategiaApuesta(dobles, triples, elige8) {
+    function importeEstrategiaApuesta(dobles, triples, signosElige8 = []) {
       const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
-      const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
-      const importeElige8 = elige8 ? apuestas * 0.50 : 0;
-      return { apuestas, importeQuiniela, importeElige8, importeTotal: importeQuiniela + importeElige8 };
+      const apuestasElige8 = (signosElige8 || []).length ? apuestasDesdeSignosCoste(signosElige8) : 0;
+      const importeQuiniela = Math.max(apuestas * PRECIO_APUESTA_QUINIELA, PRECIO_APUESTA_QUINIELA);
+      const importeElige8 = apuestasElige8 * PRECIO_APUESTA_ELIGE8;
+      return { apuestas, apuestasElige8, importeQuiniela, importeElige8, importeTotal: importeQuiniela + importeElige8 };
     }
 
     function eurosEstrategia(valor) {
@@ -2272,8 +2311,12 @@
       const coberturaMedia = detalle.length ? detalle.reduce((s, x) => s + x.probCubierta, 0) / detalle.length : 0;
       const fijosPeligrosos = detalle.filter(x => x.tipo === "FIJO" && x.peligroso);
       const trampasCubiertas = detalle.filter(x => x.tipo !== "FIJO" && x.peligroso);
-      const coste = importeEstrategiaApuesta(dobles, triples, elige8);
       const elige8Candidatos = candidatosElige8CobroWeb(detalle);
+      const coste = importeEstrategiaApuesta(
+        dobles,
+        triples,
+        elige8 ? elige8Candidatos.map(x => x.signos) : []
+      );
 
       const valor = coberturaMedia
         + trampasCubiertas.length * 2.8
@@ -2388,7 +2431,7 @@
         "",
         mejor.elige8
           ? `Elige 8: lo activaria y marcaria ${mejor.elige8Candidatos.map(x => x.num).join(", ")}, porque prioriza la cobertura real del boleto: triples primero, dobles despues y fijos fiables al final.`
-          : `Elige 8: lo valoraria si vas a validar un boleto serio; por solo 0,50 EUR mas, mis candidatos serian ${evaluarConfiguracionEstrategia(partidos, mejor.dobles, mejor.triples, true).elige8Candidatos.map(x => x.num).join(", ")}.`,
+          : `Elige 8: lo valoraria si vas a validar un boleto serio; mis candidatos serian ${evaluarConfiguracionEstrategia(partidos, mejor.dobles, mejor.triples, true).elige8Candidatos.map(x => x.num).join(", ")}.`,
         fijosPeligrosos.length ? `Ojo: aun quedarian fijos peligrosos en ${fijosPeligrosos.map(x => nombrePartidoEstrategia(x.partido)).join("; ")}.` : "Con esa configuracion no quedan fijos peligrosos fuertes segun la memoria actual.",
         "",
         "Conclusion practica: si quieres gastar menos, los triples concentran mejor el dinero en partidos locos; si quieres sobrevivir a mas desviaciones pequenas, los dobles reparten mejor la cobertura. Para esta jornada, no validaria sin cubrir al menos el bloque de partidos trampa."
@@ -2846,8 +2889,19 @@
       triplesInput.value = triples;
 
       const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
-      const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
-      const importeElige8 = elige8 ? apuestas * 0.50 : 0;
+      const elige8Numeros = elige8 && ultimoBoletoIAGenerado?.signos?.length && Number(ultimoBoletoIAGenerado.jornada) === Number(jornadaActualIA)
+        ? ultimoBoletoIAGenerado.elige8 || []
+        : [];
+      const coste = elige8Numeros.length
+        ? costeQuinielaDesdeSignos(ultimoBoletoIAGenerado.signos, elige8Numeros)
+        : {
+            apuestas,
+            importeQuiniela: Math.max(apuestas * PRECIO_APUESTA_QUINIELA, PRECIO_APUESTA_QUINIELA),
+            importeElige8: 0,
+            importeTotal: Math.max(apuestas * PRECIO_APUESTA_QUINIELA, PRECIO_APUESTA_QUINIELA)
+          };
+      const importeQuiniela = coste.importeQuiniela;
+      const importeElige8 = coste.importeElige8;
       const importeTotal = importeQuiniela + importeElige8;
 
       document.getElementById("num-sencillos").value = 14 - dobles - triples;
@@ -5208,11 +5262,14 @@
 
       partidos.sort((a, b) => a.num - b.num);
       const plenoIA = pronosticarPleno15(pleno15JornadaIA, partidos);
+      const costeBoleto = costeQuinielaDesdePartidos(partidos, elige8Set);
+      pintarCosteQuiniela(costeBoleto);
       ultimoBoletoIAGenerado = {
         jornada: jornadaActualIA,
         signos: partidos.map(p => p.signo_final || p.signo_base || "1"),
         elige8: Array.from(elige8Set).slice(0, 8),
         pleno15: plenoIA?.pronostico || "",
+        coste: costeBoleto,
       };
 
       document.getElementById("boleto-ia").innerHTML = `
