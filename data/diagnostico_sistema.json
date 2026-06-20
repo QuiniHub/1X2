@@ -1,24 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-20T06:28:37.663525+00:00",
-  "estado": "requiere_revision_datos",
-  "score_salud": 70,
+  "generado_en": "2026-06-20T08:20:43.995921+00:00",
+  "estado": "operativo_con_avisos",
+  "score_salud": 76,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 69,
     "jornada_actual": {
-      "jornada": 68,
-      "fecha": "2026-06-21",
-      "estado": "en_juego",
-      "partidos": 14,
-      "cerrados": 4,
-      "pendientes": 10,
-      "pendientes_totales_con_pleno15": 11,
-      "pleno15_cerrado": false,
-      "ultima_actualizacion_partido": "2026-06-20T06:28:02Z",
-      "path": "data/jornadas/jornada_68.json"
-    },
-    "proxima_jornada": {
       "jornada": 70,
       "fecha": "2026-06-28",
       "estado": "abierta",
@@ -30,6 +18,7 @@
       "ultima_actualizacion_partido": "",
       "path": "data/jornadas/jornada_70.json"
     },
+    "proxima_jornada": null,
     "ultimas": [
       {
         "jornada": 65,
@@ -108,21 +97,21 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 68,
-    "generado_en": "2026-06-19T05:25:44.497821+00:00",
+    "jornada": 70,
+    "generado_en": "2026-06-20T08:20:43.355833+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 8,
       "dobles": 4,
       "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 3,
+      "favoritos_atacables": 9,
       "indice_sorpresa_max": 100.0,
       "calidad_datos": {
-        "alta": 1,
-        "media": 13,
+        "alta": 0,
+        "media": 11,
         "media_baja": 0,
-        "baja": 0
+        "baja": 3
       }
     }
   },
@@ -177,7 +166,7 @@
   "fuentes": {
     "memoria_horas": 0.0,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.01,
+    "contexto_equipos_horas": 1.87,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -215,25 +204,20 @@
     "partidos_cerrados": 32,
     "aciertos": 21,
     "precision": 65.62,
-    "generado_en": "2026-06-20T06:28:37.574567+00:00",
+    "generado_en": "2026-06-20T08:20:43.925655+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
     {
-      "nivel": "alta",
-      "titulo": "Predicción de jornada antigua",
-      "detalle": "La jornada activa es 70 pero la última predicción dice 68."
-    },
-    {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
-      "detalle": "La jornada 68 tiene 4 partidos cerrados, 10 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "detalle": "La jornada 70 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
       "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
     },
     {
       "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 7 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -258,16 +242,10 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-06-20T06:28:37.663525+00:00",
-    "estado": "revisar",
-    "score": 65,
-    "alertas": [
-      {
-        "nivel": "alta",
-        "titulo": "Predicción de jornada antigua",
-        "detalle": "La jornada activa es 70 pero la última predicción dice 68."
-      }
-    ],
+    "generado_en": "2026-06-20T08:20:43.995921+00:00",
+    "estado": "operativo",
+    "score": 100,
+    "alertas": [],
     "jornadas": {
       "total": 69,
       "actual": {
@@ -448,7 +426,7 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-06-20T06:28:36.448631+00:00",
+      "generado_en": "2026-06-20T08:20:42.959987+00:00",
       "oviedo": {
         "clave": "oviedo",
         "equipo": "Real Oviedo",
@@ -848,21 +826,21 @@
       }
     },
     "prediccion": {
-      "jornada": 68,
-      "generado_en": "2026-06-19T05:25:44.497821+00:00",
+      "jornada": 70,
+      "generado_en": "2026-06-20T08:20:43.355833+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 8,
         "dobles": 4,
         "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 3,
+        "favoritos_atacables": 9,
         "indice_sorpresa_max": 100.0,
         "calidad_datos": {
-          "alta": 1,
-          "media": 13,
+          "alta": 0,
+          "media": 11,
           "media_baja": 0,
-          "baja": 0
+          "baja": 3
         }
       }
     },
@@ -1048,7 +1026,7 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-06-20T06:28:36.448631+00:00",
+    "generado_en": "2026-06-20T08:20:42.959987+00:00",
     "oviedo": {
       "clave": "oviedo",
       "equipo": "Real Oviedo",
