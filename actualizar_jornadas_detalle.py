@@ -455,32 +455,89 @@ def parsear_partido(linea):
     }
 
 
+def parsear_partido_fragmentado(lineas, indice):
+    if indice + 5 >= len(lineas):
+        return None, indice + 1
+    if not re.fullmatch(r"\d{1,2}", lineas[indice] or ""):
+        return None, indice + 1
+    if lineas[indice + 2].strip() != "-":
+        return None, indice + 1
+    if not re.fullmatch(r"\d{2}/\d{2}/\d{4}", lineas[indice + 4] or ""):
+        return None, indice + 1
+    if not re.fullmatch(r"\d{1,2}:\d{2}", lineas[indice + 5] or ""):
+        return None, indice + 1
+
+    return {
+        "num": int(lineas[indice]),
+        "local": canonico(lineas[indice + 1]),
+        "visitante": canonico(lineas[indice + 3]),
+        "fecha": fecha_iso(lineas[indice + 4]),
+        "hora": lineas[indice + 5],
+        "resultado": "Pendiente",
+        "signo_oficial": "Pendiente",
+        "signo_nuestro": "No jugada",
+    }, indice + 6
+
+
+def parsear_cabecera_jornada(linea):
+    return re.search(r"^JORNADA[^0-9]{0,30}(\d{1,3})(?:\s+(.+))?$", linea, re.I)
+
+
 def es_placeholder_equipo(nombre):
     texto = normalizar(nombre)
     return (
         not texto
         or texto == "pendiente"
         or "hypermotion" in texto
+        or ("final" in texto and "playoff" in texto)
         or re.search(r"\bf[12]\b", texto) is not None
         or "por determinar" in texto
     )
 
 
+def signo_valido(valor):
+    return str(valor or "").strip().upper() in {"1", "X", "2"}
+
+
+def recalcular_estado_jornada(data):
+    partidos = data.get("partidos", [])
+    cerrados = sum(1 for p in partidos if signo_valido(p.get("signo_oficial")))
+    if partidos and cerrados == len(partidos):
+        data["estado"] = "cerrada"
+    elif cerrados:
+        data["estado"] = "en_juego"
+    else:
+        data["estado"] = data.get("estado") or "abierta"
+
+
 def extraer_jornadas():
     lineas = descargar_lineas()
+    return extraer_jornadas_desde_lineas(lineas)
+
+
+def extraer_jornadas_desde_lineas(lineas):
     jornadas = []
     actual = None
+    i = 0
 
-    for linea in lineas:
-        cabecera = re.search(r"JORNADA[^0-9]{0,30}(\d{1,3})\s+(.+)$", linea, re.I)
+    while i < len(lineas):
+        linea = lineas[i]
+        cabecera = parsear_cabecera_jornada(linea)
         if cabecera:
             if actual and len(actual["items"]) >= 15:
                 jornadas.append(actual)
+            fecha_texto = (cabecera.group(2) or "").strip()
+            if not fecha_texto and i + 1 < len(lineas):
+                siguiente = lineas[i + 1].strip()
+                if siguiente and not parsear_cabecera_jornada(siguiente) and siguiente.lower() not in {"p.", "equipos", "fecha", "hora"}:
+                    fecha_texto = siguiente
+                    i += 1
             actual = {
                 "jornada": int(cabecera.group(1)),
-                "fecha_texto": cabecera.group(2).strip(),
+                "fecha_texto": fecha_texto,
                 "items": [],
             }
+            i += 1
             continue
 
         if actual:
@@ -490,6 +547,19 @@ def extraer_jornadas():
                 if len(actual["items"]) >= 15:
                     jornadas.append(actual)
                     actual = None
+                i += 1
+                continue
+
+            partido, siguiente_indice = parsear_partido_fragmentado(lineas, i)
+            if partido:
+                actual["items"].append(partido)
+                if len(actual["items"]) >= 15:
+                    jornadas.append(actual)
+                    actual = None
+                i = siguiente_indice
+                continue
+
+        i += 1
 
     if actual and len(actual["items"]) >= 15:
         jornadas.append(actual)
@@ -515,7 +585,7 @@ def fusionar_con_existente(nuevo, existente):
         if es_placeholder_equipo(fusionado.get("visitante")) and not es_placeholder_equipo(anterior.get("visitante")):
             fusionado["visitante"] = anterior.get("visitante")
             fusionado["fuente_equipos"] = anterior.get("fuente_equipos", fusionado.get("fuente_equipos", "jornada_previa_resuelta"))
-        for campo in ("resultado", "signo_oficial", "signo_nuestro", "actualizado_en"):
+        for campo in ("resultado", "signo_oficial", "signo_nuestro", "actualizado_en", "fuente_resultado"):
             valor = anterior.get(campo)
             if valor and str(valor).lower() not in {"pendiente", "no jugada"}:
                 fusionado[campo] = valor
@@ -530,11 +600,15 @@ def fusionar_con_existente(nuevo, existente):
     if es_placeholder_equipo(pleno.get("visitante")) and not es_placeholder_equipo(pleno_anterior.get("visitante")):
         pleno["visitante"] = pleno_anterior.get("visitante")
         pleno["fuente_equipos"] = pleno_anterior.get("fuente_equipos", pleno.get("fuente_equipos", "jornada_previa_resuelta"))
-    for campo in ("resultado", "signo_oficial", "signo_nuestro", "actualizado_en"):
+    for campo in ("resultado", "signo_oficial", "signo_nuestro", "actualizado_en", "fuente_resultado"):
         valor = pleno_anterior.get(campo)
         if valor and str(valor).lower() not in {"pendiente", "no jugada"}:
             pleno[campo] = valor
     nuevo["pleno15"] = pleno
+    for campo in ("fuente_boleto_vivo", "boleto_vivo_actualizado_en"):
+        if existente.get(campo):
+            nuevo[campo] = existente[campo]
+    recalcular_estado_jornada(nuevo)
     return nuevo
 
 

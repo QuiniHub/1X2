@@ -127,12 +127,22 @@ class ActualizarBoletoVivoTests(unittest.TestCase):
     def test_fusion_jornada_no_regresa_a_placeholder(self):
         nuevo = {
             "partidos": [
-                {"num": 14, "local": "F1 Hypermotion", "visitante": "F2 Hypermotion"},
+                {"num": 1, "local": "Local 1", "visitante": "Visitante 1"},
+                {"num": 14, "local": "Final.2 Playoff", "visitante": "Final.1 Playoff"},
             ],
             "pleno15": {},
         }
         existente = {
+            "estado": "en_juego",
             "partidos": [
+                {
+                    "num": 1,
+                    "local": "Local 1",
+                    "visitante": "Visitante 1",
+                    "resultado": "1-0",
+                    "signo_oficial": "1",
+                    "fuente_resultado": "quiniela15_resultados",
+                },
                 {
                     "num": 14,
                     "local": "Malaga CF",
@@ -145,8 +155,30 @@ class ActualizarBoletoVivoTests(unittest.TestCase):
 
         fusionada = actualizar_jornadas_detalle.fusionar_con_existente(nuevo, existente)
 
-        self.assertEqual(fusionada["partidos"][0]["local"], "Malaga CF")
-        self.assertEqual(fusionada["partidos"][0]["visitante"], "UD Almeria")
+        self.assertEqual(fusionada["estado"], "en_juego")
+        self.assertEqual(fusionada["partidos"][0]["fuente_resultado"], "quiniela15_resultados")
+        self.assertEqual(fusionada["partidos"][1]["local"], "Malaga CF")
+        self.assertEqual(fusionada["partidos"][1]["visitante"], "UD Almeria")
+
+    def test_boleto_vivo_recupera_fuente_si_resultado_ya_coincide(self):
+        destino = {
+            "local": "EEUU",
+            "visitante": "Paraguay",
+            "resultado": "4-1",
+            "signo_oficial": "1",
+        }
+        origen = actualizar_boleto_vivo.CasillaViva(
+            num=1,
+            local="EEUU",
+            visitante="Paraguay",
+            resultado="4-1",
+            fuente="quiniela15_resultados",
+        )
+
+        cambios = actualizar_boleto_vivo.aplicar_casilla(destino, origen)
+
+        self.assertEqual(cambios, ["fuente_resultado"])
+        self.assertEqual(destino["fuente_resultado"], "quiniela15_resultados")
 
 
 if __name__ == "__main__":

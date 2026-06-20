@@ -318,11 +318,16 @@ def aplicar_casilla(destino, origen, pleno=False):
 
     if origen.resultado:
         signo = origen.resultado if pleno else signo_resultado(origen.resultado)
-        if destino.get("resultado") != origen.resultado or destino.get("signo_oficial") != signo:
+        if (
+            destino.get("resultado") != origen.resultado
+            or destino.get("signo_oficial") != signo
+            or destino.get("fuente_resultado") != origen.fuente
+        ):
+            mismos_valores = destino.get("resultado") == origen.resultado and destino.get("signo_oficial") == signo
             destino["resultado"] = origen.resultado
             destino["signo_oficial"] = signo
             destino["fuente_resultado"] = origen.fuente
-            cambios.append("resultado")
+            cambios.append("fuente_resultado" if mismos_valores else "resultado")
     elif pleno and destino.get("fuente_resultado") == origen.fuente:
         if destino.get("resultado") != "Pendiente" or destino.get("signo_oficial") != "Pendiente":
             destino["resultado"] = "Pendiente"
