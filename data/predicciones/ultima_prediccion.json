@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "generado_en": "2026-06-20T11:53:05.154789+00:00",
+  "generado_en": "2026-06-20T13:57:12.553535+00:00",
   "jornada": 70,
   "temporada_base": "2025/2026",
   "estado": "prediccion_no_validada",
@@ -790,8 +790,8 @@
         "2": 30.7
       },
       "signo_base": "X",
-      "signo_final": "X",
-      "tipo": "FIJO",
+      "signo_final": "1X2",
+      "tipo": "TRIPLE",
       "incertidumbre": 127.88,
       "probabilidad_sorpresa": 70,
       "probabilidad_top": 38.5,
@@ -852,7 +852,7 @@
         ]
       },
       "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=30.9%, X=38.5%, 2=30.7%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Cabo Verde 1 pts, GF 0, GC 0; Arabia Saudí 1 pts, GF 1, GC 1. Se mantiene como FIJO (X) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 7.6 puntos. Decision final: X.",
+      "razonamiento": "Probabilidades IA: 1=30.9%, X=38.5%, 2=30.7%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Cabo Verde 1 pts, GF 0, GC 0; Arabia Saudí 1 pts, GF 1, GC 1. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=127.9 y margen=7.6. Favorito o signo de referencia: Empate. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 7.6 puntos. Decision final: 1X2.",
       "memoria_mundial_2026": {
         "aplicado": true,
         "calidad": "media",
@@ -1251,48 +1251,49 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 34.5,
-        "X": 33.5,
-        "2": 32.0
+        "1": 32.6,
+        "X": 38.2,
+        "2": 29.2
       },
-      "signo_base": "1",
-      "signo_final": "1X2",
-      "tipo": "TRIPLE",
-      "incertidumbre": 170.71,
+      "signo_base": "X",
+      "signo_final": "X",
+      "tipo": "FIJO",
+      "incertidumbre": 173.96,
       "probabilidad_sorpresa": 70,
-      "probabilidad_top": 34.5,
-      "margen_probabilidad": 1.0,
-      "tercera_probabilidad": 32.0,
+      "probabilidad_top": 38.2,
+      "margen_probabilidad": 5.6,
+      "tercera_probabilidad": 29.2,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
-      "categoria_sorpresa": "favorito_muy_atacable",
-      "favorito_atacable": true,
-      "favorito": "1",
-      "favorito_nombre": "Croacia",
-      "signo_sorpresa_principal": "X",
+      "categoria_sorpresa": "partido_muy_abierto",
+      "favorito_atacable": false,
+      "favorito": null,
+      "favorito_nombre": "Empate",
+      "signo_sorpresa_principal": "1",
       "signos_contra_favorito": [
-        "X",
+        "1",
         "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivos_sorpresa": [
-        "margen minimo entre primer y segundo signo",
+        "margen corto entre favorito y alternativa",
         "ningun signo supera claramente el 45%",
         "empate con peso alto",
-        "tercer signo vivo: partido candidato a triple"
+        "tercer signo vivo: partido candidato a triple",
+        "el signo base es X: no hay favorito limpio"
       ],
-      "origen_probabilidades": "fallback_posicion",
+      "origen_probabilidades": "fallback_posicion_con_contexto",
       "calidad_datos": "baja",
       "trazabilidad_datos": {
-        "origen_probabilidades": "fallback_posicion",
-        "calidad_datos": "baja",
+        "origen_probabilidades": "fallback_posicion_con_contexto",
+        "calidad_datos": "media_baja",
         "memoria_estadistica": {
           "local": false,
           "visitante": false
         },
         "noticias_recientes": {
           "local": false,
-          "visitante": false
+          "visitante": true
         },
         "contexto_competitivo": {
           "local": false,
@@ -1310,14 +1311,15 @@
       },
       "ajuste_pesos_dinamicos": {
         "activo": true,
-        "riesgo_extra": 33.72,
+        "riesgo_extra": 34.92,
         "lecturas": [
           "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
         ]
       },
       "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=34.5%, X=33.5%, 2=32.0%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=170.7 y margen=1.0. Favorito o signo de referencia: Croacia. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X2.",
+      "razonamiento": "Probabilidades IA: 1=32.6%, X=38.2%, 2=29.2%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (X) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto. Decision final: X.",
       "diagnostico_calidad": {
         "mundial_2026": {
           "aplicado": false,
@@ -1712,8 +1714,8 @@
         "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
-      "tipo_final": "FIJO",
-      "signo_final": "X",
+      "tipo_final": "TRIPLE",
+      "signo_final": "1X2",
       "motivo_sorpresa": "historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 7.6 puntos"
     },
     {
@@ -1767,18 +1769,18 @@
     {
       "num": 11,
       "partido": "Croacia - Ghana",
-      "favorito": "1",
-      "favorito_nombre": "Croacia",
+      "favorito": null,
+      "favorito_nombre": "Empate",
       "indice_sorpresa_quinielistica": 100.0,
-      "signo_sorpresa_principal": "X",
+      "signo_sorpresa_principal": "1",
       "signos_contra_favorito": [
-        "X",
+        "1",
         "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
-      "tipo_final": "TRIPLE",
-      "signo_final": "1X2",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
+      "tipo_final": "FIJO",
+      "signo_final": "X",
+      "motivo_sorpresa": "margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto"
     },
     {
       "num": 12,
@@ -1815,27 +1817,6 @@
       "signos_contra_favorito": [
         "X",
         "1"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
-    },
-    {
-      "num": 11,
-      "partido": "Croacia - Ghana",
-      "incertidumbre": 170.71,
-      "probabilidad_sorpresa": 70.0,
-      "probabilidad_top": 34.5,
-      "margen": 1.0,
-      "tercera_probabilidad": 32.0,
-      "prioridad_cobertura": 358.71,
-      "indice_sorpresa_quinielistica": 100.0,
-      "categoria_sorpresa": "favorito_muy_atacable",
-      "favorito": "1",
-      "favorito_nombre": "Croacia",
-      "favorito_atacable": true,
-      "signos_contra_favorito": [
-        "X",
-        "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
@@ -1885,6 +1866,27 @@
     {
       "num": 10,
       "partido": "Panamá - Inglaterra",
+      "incertidumbre": 173.96,
+      "probabilidad_sorpresa": 70.0,
+      "probabilidad_top": 38.2,
+      "margen": 5.6,
+      "tercera_probabilidad": 29.2,
+      "prioridad_cobertura": 326.96,
+      "indice_sorpresa_quinielistica": 100.0,
+      "categoria_sorpresa": "partido_muy_abierto",
+      "favorito": null,
+      "favorito_nombre": "Empate",
+      "favorito_atacable": false,
+      "signos_contra_favorito": [
+        "1",
+        "2"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "motivo_sorpresa": "margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto"
+    },
+    {
+      "num": 11,
+      "partido": "Croacia - Ghana",
       "incertidumbre": 173.96,
       "probabilidad_sorpresa": 70.0,
       "probabilidad_top": 38.2,
@@ -2073,7 +2075,7 @@
     }
   ],
   "contexto_equipos": {
-    "generado_en": "2026-06-20T06:28:15.816000+00:00",
+    "generado_en": "2026-06-20T13:56:49.458706+00:00",
     "fuentes": [
       "Google News RSS",
       "equipos de clasificacion",
@@ -2081,7 +2083,7 @@
     ]
   },
   "contexto_competitivo": {
-    "generado_en": "2026-06-20T11:53:04.658490+00:00",
+    "generado_en": "2026-06-20T13:57:12.039407+00:00",
     "reglas": {
       "primera": {
         "nombre": "LALIGA EA SPORTS",
@@ -2136,12 +2138,12 @@
       ]
     },
     "pesos_dinamicos": {
-      "generado_en": "2026-06-20T11:53:04.516279+00:00",
+      "generado_en": "2026-06-20T13:57:11.887567+00:00",
       "pesos": {
         "forma_reciente": 0.01,
         "casa_fuera": 0.01,
         "clasificacion": 0.01,
-        "goles": 0.264,
+        "goles": 0.27,
         "empate": 0.35,
         "sorpresa": 0.35,
         "motivacion_competitiva": 0.07,
@@ -2181,8 +2183,8 @@
         {
           "peso": "goles",
           "delta": 0.006,
-          "antes": 0.258,
-          "despues": 0.264,
+          "antes": 0.264,
+          "despues": 0.27,
           "motivo": "Los dobles fallados suelen exigir revisar lectura de goles."
         },
         {
@@ -2194,8 +2196,8 @@
         },
         {
           "peso": "casa_fuera",
-          "delta": -0.002,
-          "antes": 0.012,
+          "delta": 0.0,
+          "antes": 0.01,
           "despues": 0.01,
           "motivo": "Bajar ligeramente sesgo local/visitante cuando falta la X."
         },
@@ -2231,7 +2233,7 @@
     "dobles": 4,
     "triples": 2,
     "elige8_seleccionados": 0,
-    "favoritos_atacables": 9,
+    "favoritos_atacables": 8,
     "indice_sorpresa_max": 100.0,
     "calidad_datos": {
       "alta": 0,
@@ -2320,13 +2322,13 @@
     "jornadas_intermedias_faltantes": [
       69
     ],
-    "generado_en": "2026-06-20T11:53:05.109836+00:00"
+    "generado_en": "2026-06-20T13:57:12.512263+00:00"
   },
   "memoria_mundial_2026": {
     "aplicada": 11,
     "pendientes_sin_historial_completo": 3,
     "total_equipos_memoria": 32,
-    "generado_en": "2026-06-20T11:53:04.811960+00:00",
+    "generado_en": "2026-06-20T13:57:12.203219+00:00",
     "criterio_critico": "Los porcentajes de selecciones solo se consideran estudiados si memoria_mundial_2026.aplicado es true."
   }
 }
