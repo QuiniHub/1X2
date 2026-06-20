@@ -1,23 +1,23 @@
 {
   "version": "1.1",
-  "precision": 61.42,
+  "precision": 61.24,
   "jornadas_revisadas": 10,
-  "partidos_revisados": 127,
-  "aciertos": 78,
-  "fallos": 49,
+  "partidos_revisados": 129,
+  "aciertos": 79,
+  "fallos": 50,
   "fallos_por_tipo": {
     "Doble insuficiente": 8,
-    "Fijo fallado": 26,
+    "Fijo fallado": 27,
     "No cubrio empate": 15
   },
   "fallos_por_signo_real": {
     "1": 15,
-    "2": 19,
+    "2": 20,
     "X": 15
   },
   "signos_omitidos_en_fallo": {
     "1": 15,
-    "2": 19,
+    "2": 20,
     "X": 15
   },
   "precision_por_tipo": {
@@ -28,10 +28,10 @@
       "precision": 65.22
     },
     "FIJO": {
-      "total": 79,
-      "aciertos": 38,
-      "fallos": 41,
-      "precision": 48.1
+      "total": 81,
+      "aciertos": 39,
+      "fallos": 42,
+      "precision": 48.15
     },
     "TRIPLE": {
       "total": 25,
@@ -42,16 +42,16 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 57,
-      "aciertos": 42,
+      "total": 58,
+      "aciertos": 43,
       "fallos": 15,
-      "precision": 73.68
+      "precision": 74.14
     },
     "2": {
-      "total": 37,
+      "total": 38,
       "aciertos": 18,
-      "fallos": 19,
-      "precision": 48.65
+      "fallos": 20,
+      "precision": 47.37
     },
     "X": {
       "total": 33,
@@ -1584,6 +1584,30 @@
       "signo_omitido": "",
       "acierto": true,
       "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 68,
+      "partido": "Brasil - Haití",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "3-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 68,
+      "partido": "Turquía - Paraguay",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-1",
+      "signo_real": "2",
+      "signos_cubiertos": "1",
+      "signo_omitido": "2",
+      "acierto": false,
+      "origen": "issue_memoria_sin_token"
     }
   ],
   "ajustes_recomendados": [
@@ -1596,19 +1620,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 127,
+    "partidos_base": 129,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 38.58,
-      "no_cubrio_empate_sobre_fallos_pct": 30.61,
-      "no_cubrio_empate_sobre_total_pct": 11.81,
-      "fijo_fallado_sobre_fallos_pct": 53.06,
-      "fijo_fallado_sobre_total_pct": 20.47,
-      "doble_insuficiente_sobre_total_pct": 6.3
+      "fallos_total_pct": 38.76,
+      "no_cubrio_empate_sobre_fallos_pct": 30.0,
+      "no_cubrio_empate_sobre_total_pct": 11.63,
+      "fijo_fallado_sobre_fallos_pct": 54.0,
+      "fijo_fallado_sobre_total_pct": 20.93,
+      "doble_insuficiente_sobre_total_pct": 6.2
     },
-    "boost_empate_zona_riesgo": 5.53,
-    "riesgo_extra_fijo_fragil": 10.39,
-    "riesgo_extra_triple_insuficiente": 2.07,
+    "boost_empate_zona_riesgo": 5.35,
+    "riesgo_extra_fijo_fragil": 10.94,
+    "riesgo_extra_triple_insuficiente": 1.98,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
