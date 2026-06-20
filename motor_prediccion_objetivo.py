@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timezone
 
+from compuerta_jornada import estado_compuerta
 from jornada_objetivo_quiniela import resumen_jornada_objetivo
 from motor_prediccion_quiniela import DATA, PREDICCIONES, guardar_json, predecir
 
@@ -8,10 +9,37 @@ from motor_prediccion_quiniela import DATA, PREDICCIONES, guardar_json, predecir
 ESTADO_OBJETIVO = DATA / "estado_jornada_objetivo.json"
 
 
+def escribir_prediccion_en_espera(objetivo, estado):
+    salida = {
+        "version": "1.1",
+        "generado_en": datetime.now(timezone.utc).isoformat(),
+        "jornada": objetivo,
+        "temporada_base": "2025/2026",
+        "temporada": "2025/2026",
+        "competicion": "quiniela",
+        "estado": "pendiente_cierre_anterior",
+        "partidos": [],
+        "configuracion": {"dobles": 0, "triples": 0, "elige8": False, "cobertura_auto": False},
+        "coste": {"apuestas": 0, "importe_quiniela": 0, "importe_elige8": 0, "importe_total": 0.01},
+        "mensaje": estado.get("motivo") or "Jornada pendiente de cierre anterior.",
+        "motivo_bloqueo": estado.get("motivo") or "Jornada pendiente de cierre anterior.",
+        "estado_jornada_objetivo": estado,
+        "resumen": {"fijos": 0, "dobles": 0, "triples": 0, "elige8_seleccionados": 0},
+    }
+    guardar_json(PREDICCIONES / "ultima_prediccion.json", salida)
+    guardar_json(PREDICCIONES / f"jornada_{objetivo}.json", salida)
+
+
 def main():
     estado = resumen_jornada_objetivo()
     objetivo = int(estado.get("jornada_objetivo") or 0)
     estado["generado_en"] = datetime.now(timezone.utc).isoformat()
+
+    if objetivo:
+        compuerta = estado_compuerta(objetivo)
+        estado.update(compuerta)
+        estado["bloqueada"] = bool(compuerta.get("en_espera"))
+        estado["motivo_bloqueo"] = compuerta.get("motivo", "")
 
     guardar_json(ESTADO_OBJETIVO, estado)
 
@@ -24,6 +52,11 @@ def main():
             f"La jornada objetivo {objetivo} aun no esta cargada. "
             "Se espera a que el boleto oficial este publicado y se conserva la prediccion existente."
         )
+        return
+
+    if estado.get("en_espera"):
+        escribir_prediccion_en_espera(objetivo, estado)
+        print(f"Jornada {objetivo} en espera. {estado.get('motivo')}")
         return
 
     predecir(jornada=objetivo)
@@ -39,7 +72,7 @@ def main():
         f"Jornada objetivo de prediccion: {objetivo}. "
         f"Ultima aprendida: {estado.get('ultima_jornada_aprendida')}. "
         f"Futuras cargadas: {estado.get('jornadas_futuras_cargadas')}. "
-        f"Faltantes intermedias: {estado.get('jornadas_intermedias_faltantes')}."
+        f"Faltantes intermedias: {estado.get('jornadas_intermedias_faltantes')}"
     )
 
 
