@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+from bloqueo_jornada import estado_bloqueo_jornada
+
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -29,6 +31,28 @@ def main():
     avisos = []
 
     prediccion = cargar(DATA / "predicciones" / "ultima_prediccion.json")
+    estado_objetivo = cargar(DATA / "estado_jornada_objetivo.json") or {}
+    objetivo_estado = int(estado_objetivo.get("jornada_objetivo") or 0)
+    bloqueo = estado_bloqueo_jornada(objetivo_estado) if objetivo_estado else None
+
+    if bloqueo and bloqueo.get("bloqueada"):
+        print("COMPROBACION_CICLO_APRENDIZAJE")
+        print(f"prediccion_jornada={objetivo_estado}")
+        print(f"estado_prediccion_actual={bloqueo.get('estado_prediccion_actual')}")
+        print(f"motivo_bloqueo={bloqueo.get('motivo_bloqueo')}")
+        if prediccion and int(prediccion.get("jornada") or 0) == objetivo_estado:
+            estado_pred = str(prediccion.get("estado") or "")
+            if estado_pred not in {"bloqueada_pendiente_cierre_anterior", "provisional_pendiente_cierre_anterior"}:
+                errores.append(
+                    "La prediccion objetivo existe pero no esta marcada como bloqueada/provisional "
+                    "pese a faltar cierre o aprendizaje anterior."
+                )
+        for error in errores:
+            print(f"ERROR_CICLO: {error}")
+        if errores:
+            raise SystemExit(1)
+        return
+
     if not prediccion:
         errores.append("No existe data/predicciones/ultima_prediccion.json")
     else:
@@ -51,7 +75,7 @@ def main():
 
     persistidas = cargar(DATA / "quinielas_generadas_ia.json")
     if not persistidas or not persistidas.get("jugadas"):
-        errores.append("No hay quinielas IA persistidas en data/quinielas_generadas_ia.json")
+        errores.append("No hay predicciones IA persistidas en data/quinielas_generadas_ia.json")
 
     checks = {
         "memoria": DATA / "memoria_ia" / "aprendizaje_global.json",
@@ -68,13 +92,13 @@ def main():
 
     metricas = cargar(checks["metricas"]) or {}
     if int(metricas.get("partidos_evaluados") or 0) == 0:
-        avisos.append("Metricas probabilisticas sin partidos evaluados; falta cerrar resultados o persistir jugadas.")
+        avisos.append("Metricas probabilisticas sin partidos evaluados; falta cerrar resultados o persistir predicciones.")
 
     print("COMPROBACION_CICLO_APRENDIZAJE")
     print(f"prediccion_jornada={jornada_num}")
     print(f"partidos_prediccion={len((prediccion or {}).get('partidos') or [])}")
     print(f"partidos_resultado_jornada={contar_partidos_con_resultado(jornada)}")
-    print(f"quinielas_ia_persistidas={len((persistidas or {}).get('jugadas') or [])}")
+    print(f"predicciones_ia_persistidas={len((persistidas or {}).get('jugadas') or [])}")
     print(f"metricas_partidos_evaluados={metricas.get('partidos_evaluados', 0)}")
     for aviso in avisos:
         print(f"AVISO_CICLO: {aviso}")
