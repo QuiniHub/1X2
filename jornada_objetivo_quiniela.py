@@ -121,10 +121,13 @@ def jornada_objetivo_prediccion(
     quinielas_path=QUINIELAS_JUGADAS,
 ):
     ultima_aprendida = ultima_jornada_aprendida(historial_path, quinielas_path)
+    cargadas = jornadas_cargadas(jornadas_dir)
     if ultima_aprendida:
+        siguientes_cargadas = [j for j in cargadas if j > ultima_aprendida]
+        if siguientes_cargadas:
+            return min(siguientes_cargadas)
         return ultima_aprendida + 1
 
-    cargadas = jornadas_cargadas(jornadas_dir)
     return max(cargadas) if cargadas else 0
 
 
@@ -139,10 +142,11 @@ def resumen_jornada_objetivo(
     max_cargada = max(cargadas) if cargadas else 0
     futuras_cargadas = [j for j in cargadas if objetivo and j > objetivo]
     cargadas_set = set(cargadas)
+    primera_pendiente = (ultima_aprendida + 1) if ultima_aprendida else objetivo
     faltantes_intermedias = [
         j
-        for j in range(objetivo, max_cargada + 1)
-        if objetivo and j not in cargadas_set
+        for j in range(primera_pendiente, max_cargada + 1)
+        if primera_pendiente and j not in cargadas_set
     ]
 
     return {

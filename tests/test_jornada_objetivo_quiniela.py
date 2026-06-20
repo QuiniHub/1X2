@@ -100,6 +100,33 @@ class JornadaObjetivoQuinielaTests(unittest.TestCase):
             self.assertEqual(resumen["jornada_objetivo"], 70)
             self.assertTrue(resumen["jornada_objetivo_cargada"])
 
+    def test_objetivo_salta_hueco_si_hay_siguiente_cargada(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp = Path(tmp_dir)
+            jornadas = tmp / "data" / "jornadas"
+            escribir_jornada(jornadas, 70)
+            historial = tmp / "data" / "historial_quinielas.json"
+            escribir_json(
+                historial,
+                {
+                    "jornadas": [
+                        {
+                            "jornada": 68,
+                            "signos": ["1"] * 14,
+                            "validada": True,
+                        }
+                    ]
+                },
+            )
+            quinielas = tmp / "data" / "quinielas_jugadas.json"
+            escribir_json(quinielas, {"jugadas": []})
+
+            resumen = objetivo.resumen_jornada_objetivo(jornadas, historial, quinielas)
+            self.assertEqual(resumen["ultima_jornada_aprendida"], 68)
+            self.assertEqual(resumen["jornada_objetivo"], 70)
+            self.assertTrue(resumen["jornada_objetivo_cargada"])
+            self.assertEqual(resumen["jornadas_intermedias_faltantes"], [69])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -707,6 +707,7 @@
     let detalleJornadaActual = null;
     let quinielasJugadasPersistentes = {};
     let contextoCompetitivoGlobal = {};
+    let jornadasQuinielaIACargadas = [];
     const PRECIO_APUESTA_QUINIELA = 1.50;
     const PRECIO_APUESTA_ELIGE8 = 0.50;
 
@@ -2823,11 +2824,36 @@
       if (!contenedor) return;
 
       contenedor.innerHTML = "";
-      for (let j = 1; j <= 70; j++) {
+      const estado = await fetchJSON("data/estado_jornada_objetivo.json", {});
+      jornadasQuinielaIACargadas = jornadasCargadasQuinielaIA(estado);
+      for (const j of jornadasQuinielaIACargadas) {
         contenedor.innerHTML += botonJornadaQuiniela(j);
       }
 
-      abrirQuinielaIA(70);
+      abrirQuinielaIA(jornadaInicialQuinielaIA(estado));
+    }
+
+    function jornadasCargadasQuinielaIA(estado = {}) {
+      const cargadas = Array.isArray(estado.jornadas_cargadas) ? estado.jornadas_cargadas : [];
+      const numeros = [...new Set(cargadas.map(Number).filter(j => Number.isInteger(j) && j > 0))]
+        .sort((a, b) => a - b);
+      if (numeros.length) return numeros;
+      return Array.from({ length: 70 }, (_, idx) => idx + 1);
+    }
+
+    function jornadaInicialQuinielaIA(estado = {}) {
+      const objetivo = Number(estado.jornada_objetivo_cargada ? estado.jornada_objetivo : 0);
+      if (jornadasQuinielaIACargadas.includes(objetivo)) return objetivo;
+      const ultima = Number(estado.ultima_jornada_cargada || 0);
+      if (jornadasQuinielaIACargadas.includes(ultima)) return ultima;
+      return jornadasQuinielaIACargadas[jornadasQuinielaIACargadas.length - 1] || 70;
+    }
+
+    function jornadaAlternativaQuinielaIA(jornada) {
+      const solicitada = Number(jornada);
+      return jornadasQuinielaIACargadas.find(j => j > solicitada)
+        || [...jornadasQuinielaIACargadas].reverse().find(j => j < solicitada)
+        || null;
     }
 
     function botonJornadaQuiniela(jornada) {
@@ -2852,6 +2878,11 @@
 
       const data = await fetchJSON(`data/jornadas/jornada_${jornada}.json`, null);
       if (!data) {
+        const alternativa = jornadaAlternativaQuinielaIA(jornada);
+        if (alternativa && alternativa !== Number(jornada)) {
+          await abrirQuinielaIA(alternativa);
+          return;
+        }
         document.getElementById("boleto-ia").innerHTML = "No se pudo cargar esta jornada.";
         return;
       }
