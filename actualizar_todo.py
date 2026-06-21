@@ -37,6 +37,10 @@ SCRIPTS_ACTIVOS = [
     "auditar_fuentes_profesionales.py",
     "resolver_competiciones_profesionales.py",
 
+    # Capa predictiva entrenable auditable: dataset temporal, Elo/Poisson,
+    # backtesting rolling, Brier Score, Log Loss y calibracion.
+    "modelo_metricas_1x2.py",
+
     # Motor y salidas.
     "aprender_patrones_competitivos.py",
     "aplicar_patrones_motor.py",
