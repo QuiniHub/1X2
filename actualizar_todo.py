@@ -78,6 +78,7 @@ SCRIPTS_ACTIVOS = [
     # Cierre final: web y publicacion.
     "alinear_boleto_con_analisis.py",
     "aplicar_elige8_seguro.py",
+    "limpiar_prediccion_bloqueada.py",
     "estabilizar_web.py",
     "validar_publicacion_autonoma.py",
 ]
