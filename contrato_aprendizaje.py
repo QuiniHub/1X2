@@ -205,7 +205,12 @@ def contrato_partido_prediccion(prediccion, partido):
         "favorito": favorito,
         "favorito_nombre": partido.get("favorito_nombre"),
         "favorito_acertado": favorito == signo_real if favorito in SIGNOS and signo_real in SIGNOS else None,
-        "timestamp_generacion": prediccion.get("generado_en") or partido.get("generado_en"),
+        "timestamp_generacion": (
+            prediccion.get("generado_en")
+            or partido.get("generado_en")
+            or partido.get("timestamp_generacion")
+            or utcnow_iso()
+        ),
     }
 
 

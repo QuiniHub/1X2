@@ -22,12 +22,12 @@ from motor_prediccion_quiniela import (
 )
 
 
-def prediccion_jornada():
+def prediccion_jornada(jornada=99, local_base="Local"):
     partidos = []
     for num in range(1, 15):
         partidos.append({
             "num": num,
-            "local": f"Local {num}",
+            "local": f"{local_base} {num}",
             "visitante": f"Visitante {num}",
             "probabilidades": {"1": 62.0, "X": 23.0, "2": 15.0},
             "signo_base": "1",
@@ -40,11 +40,55 @@ def prediccion_jornada():
             "elige8": num <= 8,
         })
     return {
-        "jornada": 99,
+        "jornada": jornada,
         "temporada": "2025/2026",
         "competicion": "quiniela",
         "generado_en": "2026-06-20T10:00:00+00:00",
         "partidos": partidos,
+    }
+
+
+def prediccion_memoria(jornada):
+    prediccion = prediccion_jornada(jornada=jornada, local_base="Equipo Memoria")
+    prediccion["generado_en"] = f"2026-06-20T10:{jornada % 60:02d}:00+00:00"
+    for partido in prediccion["partidos"]:
+        num = int(partido["num"])
+        partido.update({
+            "local": "Equipo Memoria",
+            "visitante": f"Rival {jornada}-{num}",
+            "probabilidades": {"1": 64.0, "X": 22.0, "2": 14.0},
+            "signo_base": "1",
+            "signo_final": "1",
+            "tipo": "FIJO",
+            "incertidumbre": 52,
+            "categoria_sorpresa": "alta" if num <= 10 else "baja",
+            "indice_sorpresa_quinielistica": 72 if num <= 10 else 20,
+            "probabilidad_sorpresa": 64 if num <= 10 else 20,
+            "favorito": "1",
+            "favorito_nombre": "Equipo Memoria",
+            "favorito_atacable": num <= 10,
+            "elige8": num <= 8,
+        })
+    return prediccion
+
+
+def jornada_resultados_desde_prediccion(prediccion):
+    partidos = []
+    for partido in prediccion["partidos"]:
+        num = int(partido["num"])
+        fallo = num <= 10
+        partidos.append({
+            "num": num,
+            "local": partido["local"],
+            "visitante": partido["visitante"],
+            "resultado": "0-1" if fallo else "2-0",
+            "signo_oficial": "2" if fallo else "1",
+        })
+    return {
+        "jornada": prediccion["jornada"],
+        "fecha": "2026-06-20",
+        "partidos": partidos,
+        "pleno15": {"resultado": "1"},
     }
 
 
@@ -241,6 +285,108 @@ class CicloAprendizajeFase2Tests(unittest.TestCase):
         self.assertGreater(probs_diario["X"], 25.0)
         self.assertGreater(riesgo_diario, 0)
         self.assertTrue(lecturas_diario)
+
+    def test_flujo_end_to_end_tempdir_predice_persiste_aprende_y_reusa_memoria(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            data = base / "data"
+            jornadas = data / "jornadas"
+            predicciones = data / "predicciones"
+            memoria = data / "memoria_ia"
+            jornadas.mkdir(parents=True)
+            predicciones.mkdir(parents=True)
+            memoria.mkdir(parents=True)
+
+            generadas = data / "quinielas_generadas_ia.json"
+            (data / "quinielas_jugadas.json").write_text(json.dumps({"jugadas": []}), encoding="utf-8")
+            (data / "historial_quinielas.json").write_text(json.dumps({"jornadas": []}), encoding="utf-8")
+
+            for jornada in (201, 202):
+                prediccion = prediccion_memoria(jornada)
+                upsert_validacion_generada(prediccion, generadas)
+                (predicciones / f"jornada_{jornada}.json").write_text(
+                    json.dumps(prediccion, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+                (jornadas / f"jornada_{jornada}.json").write_text(
+                    json.dumps(jornada_resultados_desde_prediccion(prediccion), ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+
+            anteriores = {
+                "JORNADAS_QUINIELA": construir_memoria_ia.JORNADAS_QUINIELA,
+                "QUINIELAS_JUGADAS": construir_memoria_ia.QUINIELAS_JUGADAS,
+                "QUINIELAS_GENERADAS_IA": construir_memoria_ia.QUINIELAS_GENERADAS_IA,
+                "HISTORIAL_QUINIELAS_JSON": construir_memoria_ia.HISTORIAL_QUINIELAS_JSON,
+                "PREDICCIONES": construir_memoria_ia.PREDICCIONES,
+                "PESOS_DINAMICOS": construir_memoria_ia.PESOS_DINAMICOS,
+            }
+            try:
+                construir_memoria_ia.JORNADAS_QUINIELA = jornadas
+                construir_memoria_ia.QUINIELAS_JUGADAS = data / "quinielas_jugadas.json"
+                construir_memoria_ia.QUINIELAS_GENERADAS_IA = generadas
+                construir_memoria_ia.HISTORIAL_QUINIELAS_JSON = data / "historial_quinielas.json"
+                construir_memoria_ia.PREDICCIONES = predicciones
+                construir_memoria_ia.PESOS_DINAMICOS = memoria / "pesos_dinamicos.json"
+
+                resumen = construir_memoria_ia.analizar_nuestras_quinielas()
+                diario = resumen.pop("_diario_aprendizaje")
+                revisiones = resumen.pop("_revisiones_contrato")
+                metricas = metricas_probabilisticas(revisiones)
+                pesos = construir_memoria_ia.construir_pesos_dinamicos({"nuestras_quinielas": resumen}, diario)
+                fiabilidad = fiabilidad_equipos(revisiones)
+            finally:
+                for nombre, valor in anteriores.items():
+                    setattr(construir_memoria_ia, nombre, valor)
+
+            (memoria / "diario_aprendizaje.json").write_text(
+                json.dumps({"version": "1.0", "generado_en": "test", "total_entradas": len(diario), "entradas": diario}, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            (memoria / "metricas_probabilisticas.json").write_text(json.dumps(metricas, ensure_ascii=False, indent=2), encoding="utf-8")
+            (memoria / "pesos_dinamicos.json").write_text(json.dumps(pesos, ensure_ascii=False, indent=2), encoding="utf-8")
+            (memoria / "fiabilidad_equipos.json").write_text(json.dumps(fiabilidad, ensure_ascii=False, indent=2), encoding="utf-8")
+
+            self.assertEqual(len(revisiones), 28)
+            self.assertEqual(metricas["partidos_evaluados"], 28)
+            self.assertEqual(pesos["muestra"]["partidos_validados"], 28)
+            self.assertIn("Equipo Memoria", fiabilidad["equipos"])
+            self.assertLess(fiabilidad["equipos"]["Equipo Memoria"]["accuracy_global"], 45)
+
+            fiabilidad_leida = json.loads((memoria / "fiabilidad_equipos.json").read_text(encoding="utf-8"))
+            diario_leido = json.loads((memoria / "diario_aprendizaje.json").read_text(encoding="utf-8"))
+            pesos_leidos = json.loads((memoria / "pesos_dinamicos.json").read_text(encoding="utf-8"))
+
+            probs_base = {"1": 58.0, "X": 25.0, "2": 17.0}
+            probs_fiabilidad, riesgo_fiabilidad, lecturas_fiabilidad = ajustar_por_fiabilidad_equipos(
+                probs_base,
+                fiabilidad_leida,
+                "Equipo Memoria",
+                "Rival 203-1",
+            )
+            probs_diario, riesgo_diario, lecturas_diario = ajustar_por_diario_aprendizaje(
+                probs_fiabilidad,
+                diario_leido,
+                "Equipo Memoria",
+                "Rival 203-1",
+            )
+            probs_final, riesgo_pesos, lecturas_pesos, aplicaciones = ajustar_por_pesos_dinamicos(
+                probs_diario,
+                pesos_leidos,
+                {},
+                {},
+                {},
+                {},
+                {"pj": 20, "gf": 18, "gc": 26, "posicion": 14, "local": {"pj": 10, "pts": 10}, "tendencias": {"forma_5_pts": 3, "forma_10_pts": 10}},
+                {"pj": 20, "gf": 24, "gc": 18, "posicion": 7, "visitante": {"pj": 10, "pts": 16}, "tendencias": {"forma_5_pts": 9, "forma_10_pts": 16}},
+            )
+
+            self.assertLess(probs_fiabilidad["1"], probs_base["1"])
+            self.assertNotEqual(probs_final, probs_base)
+            self.assertGreater(riesgo_fiabilidad + riesgo_diario + riesgo_pesos, 0)
+            self.assertTrue(lecturas_fiabilidad)
+            self.assertTrue(lecturas_diario or lecturas_pesos)
+            self.assertTrue(aplicaciones)
 
 
 if __name__ == "__main__":

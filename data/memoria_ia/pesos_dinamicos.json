@@ -1,6 +1,6 @@
 {
-  "version": "1.1",
-  "generado_en": "2026-06-20T20:20:17.399461+00:00",
+  "version": "1.2",
+  "generado_en": "2026-06-21T06:57:41.282083+00:00",
   "metodo": "ajustes pequenos y acumulativos; maximo 0.02 por peso y ejecucion",
   "referencia": {
     "forma_reciente": 0.2,
@@ -14,11 +14,23 @@
     "fatiga": 0.02,
     "bajas": 0.02
   },
+  "explicaciones": {
+    "forma_reciente": "Ajusta el peso de la forma de ultimos partidos; si falla, se reduce para no perseguir rachas falsas.",
+    "casa_fuera": "Ajusta el diferencial local/visitante cuando la memoria detecta sesgos de campo.",
+    "clasificacion": "Refuerza o suaviza favoritos por posicion y puntos segun errores previos.",
+    "goles": "Corrige la lectura de goles a favor/en contra cuando dobles o fijos fallan.",
+    "empate": "Sube o baja la X tras empates no cubiertos o sobrecubiertos.",
+    "sorpresa": "Suaviza favoritos cuando el diario acumula sorpresas no cubiertas.",
+    "motivacion_competitiva": "Aumenta la influencia de urgencia competitiva cuando produce errores.",
+    "necesidad_descenso_ascenso_europa": "Ajusta partidos condicionados por permanencia, ascenso o Europa.",
+    "fatiga": "Penaliza alertas de calendario, rotaciones o cansancio si aparecen en contexto.",
+    "bajas": "Penaliza lesiones, sanciones o dudas detectadas en contexto."
+  },
   "pesos": {
     "forma_reciente": 0.01,
     "casa_fuera": 0.01,
     "clasificacion": 0.01,
-    "goles": 0.312,
+    "goles": 0.318,
     "empate": 0.35,
     "sorpresa": 0.35,
     "motivacion_competitiva": 0.07,
@@ -64,8 +76,8 @@
     {
       "peso": "goles",
       "delta": 0.006,
-      "antes": 0.306,
-      "despues": 0.312,
+      "antes": 0.312,
+      "despues": 0.318,
       "motivo": "Los dobles fallados suelen exigir revisar lectura de goles."
     },
     {

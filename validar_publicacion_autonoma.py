@@ -9,6 +9,11 @@ DATA = ROOT / "data"
 PREDICCIONES = DATA / "predicciones"
 JORNADAS = DATA / "jornadas"
 DIAGNOSTICO = DATA / "diagnostico_publicacion.json"
+ESTADOS_PREDICCION_BLOQUEADA = {
+    "pendiente_cierre_anterior",
+    "bloqueada_pendiente_cierre_anterior",
+    "provisional_pendiente_cierre_anterior",
+}
 
 
 def cargar_json(path, defecto=None):
@@ -135,6 +140,17 @@ def validar_prediccion(pred):
     avisos = []
     partidos = pred.get("partidos", [])[:14]
     jornada = pred.get("jornada")
+    estado = str(pred.get("estado") or "")
+
+    if estado in ESTADOS_PREDICCION_BLOQUEADA:
+        if not jornada:
+            errores.append("La prediccion bloqueada no indica jornada.")
+        if not (pred.get("motivo_bloqueo") or pred.get("mensaje")):
+            errores.append("La prediccion bloqueada no explica motivo_bloqueo/mensaje.")
+        avisos.append(
+            "Prediccion bloqueada de forma controlada: no se exige boleto de 14 partidos hasta cerrar/aprender la jornada anterior."
+        )
+        return errores, avisos, {"FIJO": 0, "DOBLE": 0, "TRIPLE": 0}
 
     if not jornada:
         errores.append("La prediccion no indica jornada.")
