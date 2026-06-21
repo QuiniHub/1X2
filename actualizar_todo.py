@@ -32,8 +32,10 @@ SCRIPTS_ACTIVOS = [
     "validar_contexto_actual.py",
     "construir_fuente_verdad_competitiva.py",
 
-    # Memoria especifica de competiciones internacionales.
+    # Memoria especifica de competiciones internacionales y capa de datos profesionales.
     "generar_memoria_mundial_2026.py",
+    "auditar_fuentes_profesionales.py",
+    "resolver_competiciones_profesionales.py",
 
     # Motor y salidas.
     "aprender_patrones_competitivos.py",
@@ -45,6 +47,7 @@ SCRIPTS_ACTIVOS = [
     "mejorar_prioridad_coberturas.py",
     "motor_prediccion_objetivo.py",
     "aplicar_memoria_mundial_prediccion.py",
+    "resolver_competiciones_profesionales.py",
     "alinear_boleto_con_analisis.py",
     "generar_estado_vivo_ia.py",
     "regenerar_estado_vivo_actual.py",
@@ -70,6 +73,7 @@ SCRIPTS_ACTIVOS = [
     "construir_fuente_verdad_competitiva.py",
     "guardar_snapshot_prediccion.py",
     "backtesting_pre_cierre.py",
+    "calibrar_probabilidades.py",
     "diagnostico_sistema.py",
     "control_calidad_actualizacion.py",
     "normalizar_diagnostico_control.py",
