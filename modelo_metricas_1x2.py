@@ -1,3 +1,10 @@
+"""Metricas profesionales para predicciones 1X2.
+
+Incluye Brier Score, Log Loss, accuracy top1, curva de calibracion
+por confianza y metricas agrupadas. Este modulo es independiente del
+motor actual para que pueda usarse en backtesting y en modelos futuros.
+"""
+
 import math
 
 LABELS = ("1", "X", "2")
