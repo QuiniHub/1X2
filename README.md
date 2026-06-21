@@ -34,11 +34,25 @@ Antes de actualizar datos en GitHub Actions se ejecuta:
 - `construir_historial_quinielas.py`
 - `construir_memoria_ia.py`
 - `generar_contexto_competitivo.py`
+- `modelo_metricas_1x2.py`
 - `motor_prediccion_quiniela.py`
 - `generar_estado_vivo_ia.py`
 - `guardar_snapshot_prediccion.py`
 - `backtesting_pre_cierre.py`
 - `diagnostico_sistema.py`
+
+## Capa predictiva entrenable
+
+`modelo_metricas_1x2.py` aporta una primera capa profesional y auditable de prediccion 1X2:
+
+- construye un dataset temporal desde jornadas cerradas;
+- calcula un baseline Elo/Poisson;
+- entrena un modelo 1X2 si `scikit-learn` esta disponible y la muestra es suficiente;
+- ejecuta backtesting rolling sin mirar el futuro;
+- publica Brier Score, Log Loss, curva de calibracion, acierto top1 y metricas por competicion/signo;
+- versiona salidas en `data/modelo_predictivo/`.
+
+Si `scikit-learn` no esta instalado, el pipeline no rompe la actualizacion: degrada a baseline Elo/Poisson y deja constancia en `metricas_modelo.json`.
 
 ## Prediccion y backtesting
 
