@@ -5,18 +5,30 @@ import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
+from contrato_aprendizaje import (
+    brier_score as contrato_brier_score,
+    partido_id as contrato_partido_id,
+    probabilidad_signo as contrato_probabilidad_signo,
+    ranking_signo as contrato_ranking_signo,
+    signos_top2 as contrato_signos_top2,
+    upsert_validacion_generada,
+)
+
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 MEMORIA = DATA / "memoria_ia" / "aprendizaje_global.json"
 APRENDIZAJE_PROPIO = DATA / "aprendizaje_ia.json"
 PESOS_DINAMICOS = DATA / "memoria_ia" / "pesos_dinamicos.json"
+FIABILIDAD_EQUIPOS = DATA / "memoria_ia" / "fiabilidad_equipos.json"
+DIARIO_APRENDIZAJE = DATA / "memoria_ia" / "diario_aprendizaje.json"
 CONTEXTO_EQUIPOS = DATA / "contexto_equipos.json"
 CONTEXTO_COMPETITIVO = DATA / "memoria_ia" / "contexto_competitivo.json"
 PATRONES_COMPETITIVOS = DATA / "memoria_ia" / "patrones_competitivos.json"
 JORNADAS = DATA / "jornadas"
 PREDICCIONES = DATA / "predicciones"
 JUGADAS = DATA / "quinielas_jugadas"
+QUINIELAS_GENERADAS_IA = DATA / "quinielas_generadas_ia.json"
 
 PRECIO_APUESTA = 1.50
 IMPORTE_MINIMO = 1.50
@@ -267,39 +279,163 @@ def alertas_contexto(datos):
     return {str(alerta).lower() for alerta in (datos or {}).get("alertas", [])}
 
 
-def ajustar_por_pesos_dinamicos(probs, pesos, local_comp, visitante_comp, contexto_local, contexto_visitante):
+def valor_float(diccionario, *claves):
+    actual = diccionario or {}
+    for clave in claves:
+        if not isinstance(actual, dict):
+            return 0.0
+        actual = actual.get(clave)
+    try:
+        return float(actual or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def forma_reciente_equipo(equipo):
+    return valor_float(equipo, "tendencias", "forma_5_pts") - valor_float(equipo, "tendencias", "forma_10_pts") / 2.0
+
+
+def fuerza_casa_fuera(equipo, condicion):
+    cond = (equipo or {}).get(condicion) or {}
+    pj = max(float(cond.get("pj") or 0), 1.0)
+    return float(cond.get("pts") or 0) / pj
+
+
+def balance_goles(equipo):
+    pj = max(float((equipo or {}).get("pj") or 0), 1.0)
+    gf = float((equipo or {}).get("gf") or 0) / pj
+    gc = float((equipo or {}).get("gc") or 0) / pj
+    return gf - gc
+
+
+def posicion_equipo(equipo):
+    try:
+        return int((equipo or {}).get("posicion") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def registrar_aplicacion_peso(aplicaciones, lecturas, peso, delta, cambios, motivo):
+    cambios = {signo: round(float(valor or 0), 3) for signo, valor in cambios.items() if abs(float(valor or 0)) >= 0.001}
+    if not cambios:
+        return
+    aplicaciones.append({
+        "peso": peso,
+        "delta_peso": round(float(delta or 0), 4),
+        "cambios_probabilidad": cambios,
+        "motivo": motivo,
+    })
+    lecturas.append(f"Pesos dinamicos ({peso}): {motivo}")
+
+
+def aplicar_cambio(p, cambios):
+    for signo, delta in cambios.items():
+        p[signo] = p.get(signo, 0.0) + float(delta or 0.0)
+
+
+def ajustar_por_pesos_dinamicos(
+    probs,
+    pesos,
+    local_comp,
+    visitante_comp,
+    contexto_local,
+    contexto_visitante,
+    local_stats=None,
+    visitante_stats=None,
+):
     if not pesos or not isinstance(pesos.get("pesos"), dict):
-        return probs, 0.0, []
+        return probs, 0.0, [], []
 
     p = dict(probs)
     riesgo_extra = 0.0
     lecturas = []
+    aplicaciones = []
     top = signo_top(p)
 
+    d_forma = delta_peso(pesos, "forma_reciente")
+    forma_local = forma_reciente_equipo(local_stats)
+    forma_visitante = forma_reciente_equipo(visitante_stats)
+    if d_forma and (forma_local or forma_visitante):
+        ventaja = max(min((forma_local - forma_visitante) * abs(d_forma) * 0.22, 1.2), -1.2)
+        if d_forma > 0:
+            cambios = {"1": ventaja, "2": -ventaja}
+            motivo = "se premia suavemente al equipo con mejor forma reciente."
+        else:
+            cambios = {"1": -ventaja * 0.55, "2": ventaja * 0.55, "X": abs(ventaja) * 0.35}
+            motivo = "se reduce el impacto de la forma reciente por errores acumulados."
+        aplicar_cambio(p, cambios)
+        riesgo_extra += abs(ventaja) * 0.8
+        registrar_aplicacion_peso(aplicaciones, lecturas, "forma_reciente", d_forma, cambios, motivo)
+
+    d_casa = delta_peso(pesos, "casa_fuera")
+    casa_local = fuerza_casa_fuera(local_stats, "local")
+    fuera_visitante = fuerza_casa_fuera(visitante_stats, "visitante")
+    if d_casa and (casa_local or fuera_visitante):
+        ventaja = max(min((casa_local - fuera_visitante) * abs(d_casa) * 3.0, 1.0), -1.0)
+        if d_casa > 0:
+            cambios = {"1": ventaja, "2": -ventaja}
+            motivo = "se aplica el diferencial casa/fuera aprendido."
+        else:
+            cambios = {"1": -ventaja * 0.5, "2": ventaja * 0.5, "X": abs(ventaja) * 0.4}
+            motivo = "se suaviza el sesgo casa/fuera tras fallos historicos."
+        aplicar_cambio(p, cambios)
+        riesgo_extra += abs(ventaja) * 0.7
+        registrar_aplicacion_peso(aplicaciones, lecturas, "casa_fuera", d_casa, cambios, motivo)
+
     d_empate = delta_peso(pesos, "empate")
-    if d_empate > 0:
-        ajuste = min(d_empate * 38, 1.8)
-        p["X"] += ajuste
-        riesgo_extra += ajuste * 1.4
-        lecturas.append("Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.")
+    if d_empate:
+        ajuste = max(min(d_empate * 38, 1.8), -1.2)
+        cambios = {"X": ajuste}
+        if top != "X":
+            cambios[top] = -ajuste * 0.45
+        aplicar_cambio(p, cambios)
+        riesgo_extra += max(ajuste, 0) * 1.4
+        motivo = "se refuerza la X por fallos historicos de empate." if ajuste > 0 else "se baja la X al no sostenerse como sesgo acumulado."
+        registrar_aplicacion_peso(aplicaciones, lecturas, "empate", d_empate, cambios, motivo)
 
     d_sorpresa = delta_peso(pesos, "sorpresa")
-    if d_sorpresa > 0:
-        ajuste_top = min(d_sorpresa * 42, 2.0)
+    if d_sorpresa:
+        ajuste_top = max(min(d_sorpresa * 42, 2.0), -1.4)
         p[top] -= ajuste_top
+        cambios = {top: -ajuste_top}
         for signo in ("1", "X", "2"):
             if signo != top:
                 p[signo] += ajuste_top / 2
-        riesgo_extra += d_sorpresa * 120
-        lecturas.append("Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.")
+                cambios[signo] = ajuste_top / 2
+        riesgo_extra += max(d_sorpresa, 0) * 120
+        motivo = "se suaviza el favorito por memoria de sorpresas no cubiertas." if d_sorpresa > 0 else "se permite algo mas de peso al favorito cuando baja la senal de sorpresa."
+        registrar_aplicacion_peso(aplicaciones, lecturas, "sorpresa", d_sorpresa, cambios, motivo)
 
     d_clasificacion = delta_peso(pesos, "clasificacion")
-    if d_clasificacion < 0 and top in {"1", "2"}:
+    pos_local = posicion_equipo(local_stats)
+    pos_visitante = posicion_equipo(visitante_stats)
+    if d_clasificacion and pos_local and pos_visitante and top in {"1", "2"}:
+        mejor_top = (top == "1" and pos_local < pos_visitante) or (top == "2" and pos_visitante < pos_local)
         ajuste = min(abs(d_clasificacion) * 30, 1.2)
-        p[top] -= ajuste
-        p["X"] += ajuste * 0.55
-        riesgo_extra += ajuste
-        lecturas.append("Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.")
+        if d_clasificacion > 0 and mejor_top:
+            cambios = {top: ajuste, "X": -ajuste * 0.35}
+            motivo = "se refuerza el favorito cuando la clasificacion acompana."
+        else:
+            cambios = {top: -ajuste, "X": ajuste * 0.55}
+            riesgo_extra += ajuste
+            motivo = "la clasificacion pesa menos antes de dejar fijo."
+        aplicar_cambio(p, cambios)
+        registrar_aplicacion_peso(aplicaciones, lecturas, "clasificacion", d_clasificacion, cambios, motivo)
+
+    d_goles = delta_peso(pesos, "goles")
+    goles_local = balance_goles(local_stats)
+    goles_visitante = balance_goles(visitante_stats)
+    if d_goles and (goles_local or goles_visitante):
+        ventaja = max(min((goles_local - goles_visitante) * abs(d_goles) * 1.8, 1.1), -1.1)
+        if d_goles > 0:
+            cambios = {"1": ventaja, "2": -ventaja}
+            motivo = "se usa el diferencial de goles para ajustar el lado fuerte."
+        else:
+            cambios = {"1": -ventaja * 0.45, "2": ventaja * 0.45, "X": abs(ventaja) * 0.35}
+            motivo = "se baja la confianza en goles cuando el diario los penaliza."
+        aplicar_cambio(p, cambios)
+        riesgo_extra += abs(ventaja) * 0.6
+        registrar_aplicacion_peso(aplicaciones, lecturas, "goles", d_goles, cambios, motivo)
 
     d_motivacion = max(delta_peso(pesos, "motivacion_competitiva"), 0.0)
     d_necesidad = max(delta_peso(pesos, "necesidad_descenso_ascenso_europa"), 0.0)
@@ -311,7 +447,34 @@ def ajustar_por_pesos_dinamicos(probs, pesos, local_comp, visitante_comp, contex
             p["2"] += ajuste
         p["X"] += ajuste * 0.5
         riesgo_extra += ajuste * 2.0
-        lecturas.append("Pesos dinamicos: la necesidad competitiva viva tiene mas peso acumulado.")
+        registrar_aplicacion_peso(
+            aplicaciones,
+            lecturas,
+            "motivacion_competitiva/necesidad_descenso_ascenso_europa",
+            d_motivacion + d_necesidad,
+            {
+                "1": ajuste if necesidad_viva_motor(local_comp) else 0,
+                "2": ajuste if necesidad_viva_motor(visitante_comp) else 0,
+                "X": ajuste * 0.5,
+            },
+            "la necesidad competitiva viva tiene mas peso acumulado.",
+        )
+
+    d_fatiga = max(delta_peso(pesos, "fatiga"), 0.0)
+    if d_fatiga:
+        alertas_local = alertas_contexto(contexto_local)
+        alertas_visitante = alertas_contexto(contexto_visitante)
+        alertas_fatiga = {"fatiga", "rotaciones", "calendario", "cansancio"}
+        ajuste = min(d_fatiga * 24, 0.8)
+        cambios = {}
+        if alertas_local & alertas_fatiga:
+            cambios.update({"1": -ajuste, "X": cambios.get("X", 0) + ajuste * 0.5})
+            riesgo_extra += ajuste
+        if alertas_visitante & alertas_fatiga:
+            cambios.update({"2": -ajuste, "X": cambios.get("X", 0) + ajuste * 0.5})
+            riesgo_extra += ajuste
+        aplicar_cambio(p, cambios)
+        registrar_aplicacion_peso(aplicaciones, lecturas, "fatiga", d_fatiga, cambios, "se penalizan equipos con alertas de calendario o rotacion.")
 
     d_bajas = max(delta_peso(pesos, "bajas"), 0.0)
     if d_bajas:
@@ -319,16 +482,17 @@ def ajustar_por_pesos_dinamicos(probs, pesos, local_comp, visitante_comp, contex
         alertas_visitante = alertas_contexto(contexto_visitante)
         alertas_riesgo = {"lesiones", "sanciones", "dudas"}
         ajuste = min(d_bajas * 22, 0.8)
+        cambios = {}
         if alertas_local & alertas_riesgo:
-            p["1"] -= ajuste
-            p["X"] += ajuste * 0.5
+            cambios.update({"1": -ajuste, "X": cambios.get("X", 0) + ajuste * 0.5})
             riesgo_extra += ajuste
         if alertas_visitante & alertas_riesgo:
-            p["2"] -= ajuste
-            p["X"] += ajuste * 0.5
+            cambios.update({"2": -ajuste, "X": cambios.get("X", 0) + ajuste * 0.5})
             riesgo_extra += ajuste
+        aplicar_cambio(p, cambios)
+        registrar_aplicacion_peso(aplicaciones, lecturas, "bajas", d_bajas, cambios, "se penalizan equipos con lesiones, sanciones o dudas.")
 
-    return normalizar_probs(p), round(riesgo_extra, 2), lecturas
+    return normalizar_probs(p), round(riesgo_extra, 2), lecturas, aplicaciones
 
 
 def aplicar_patron_posicion(probs, memoria, posicion):
@@ -642,6 +806,114 @@ def ajustar_por_aprendizaje_propio(probs, local, visitante, aprendizaje):
         )
 
     return normalizar_probs(probs), round(riesgo_extra, 2), lecturas
+
+
+def buscar_fiabilidad_equipo(fiabilidad, nombre):
+    equipos = [
+        {"equipo": equipo, "datos": datos}
+        for equipo, datos in (fiabilidad.get("equipos") or {}).items()
+    ]
+    mejor = mejor_coincidencia_equipo(equipos, nombre, lambda item: item.get("equipo", ""))
+    return mejor.get("datos") if mejor else None
+
+
+def riesgo_fiabilidad(datos):
+    if not datos:
+        return 0.0
+    total = int(datos.get("partidos_evaluados") or 0)
+    accuracy = float(datos.get("accuracy_global") or 0)
+    nivel = str(datos.get("nivel_fiabilidad_motor") or "").lower()
+    if total < 4:
+        return 0.0
+    if nivel == "baja" or accuracy < 45:
+        return 1.4
+    if nivel == "media" and accuracy < 55:
+        return 0.7
+    if nivel == "alta" and accuracy >= 68:
+        return -0.4
+    return 0.0
+
+
+def ajustar_por_fiabilidad_equipos(probs, fiabilidad, local_nombre, visitante_nombre):
+    if not isinstance(fiabilidad, dict) or not fiabilidad.get("equipos"):
+        return probs, 0.0, []
+
+    p = dict(probs)
+    lecturas = []
+    riesgo_extra = 0.0
+    top = signo_top(p)
+    local = buscar_fiabilidad_equipo(fiabilidad, local_nombre)
+    visitante = buscar_fiabilidad_equipo(fiabilidad, visitante_nombre)
+    riesgo_local = riesgo_fiabilidad(local)
+    riesgo_visitante = riesgo_fiabilidad(visitante)
+
+    if top == "1" and riesgo_local > 0:
+        p["1"] -= riesgo_local
+        p["X"] += riesgo_local * 0.55
+        p["2"] += riesgo_local * 0.45
+        riesgo_extra += riesgo_local * 2.0
+        lecturas.append("Fiabilidad equipos: el motor fallo demasiado con el local; se suaviza el 1.")
+    elif top == "2" and riesgo_visitante > 0:
+        p["2"] -= riesgo_visitante
+        p["X"] += riesgo_visitante * 0.55
+        p["1"] += riesgo_visitante * 0.45
+        riesgo_extra += riesgo_visitante * 2.0
+        lecturas.append("Fiabilidad equipos: el motor fallo demasiado con el visitante; se suaviza el 2.")
+    elif top == "1" and riesgo_local < 0:
+        p["1"] += abs(riesgo_local)
+        lecturas.append("Fiabilidad equipos: buena fiabilidad reciente con el local, se conserva el 1.")
+    elif top == "2" and riesgo_visitante < 0:
+        p["2"] += abs(riesgo_visitante)
+        lecturas.append("Fiabilidad equipos: buena fiabilidad reciente con el visitante, se conserva el 2.")
+
+    if riesgo_local > 0 and riesgo_visitante > 0:
+        p["X"] += 0.6
+        riesgo_extra += 1.0
+        lecturas.append("Fiabilidad equipos: ambos equipos tienen baja fiabilidad predictiva; sube la X como cobertura.")
+
+    return normalizar_probs(p), round(riesgo_extra, 2), lecturas
+
+
+def entrada_diario_relacionada(entrada, local_nombre, visitante_nombre):
+    texto = normalizar(" ".join([
+        str(entrada.get("partido") or ""),
+        str(entrada.get("local") or ""),
+        str(entrada.get("visitante") or ""),
+    ]))
+    return normalizar(local_nombre) in texto or normalizar(visitante_nombre) in texto
+
+
+def ajustar_por_diario_aprendizaje(probs, diario, local_nombre, visitante_nombre):
+    entradas = (diario.get("entradas") or [])[-80:] if isinstance(diario, dict) else []
+    relacionadas = [e for e in entradas if entrada_diario_relacionada(e, local_nombre, visitante_nombre)]
+    if not relacionadas:
+        return probs, 0.0, []
+
+    p = dict(probs)
+    lecturas = []
+    riesgo_extra = 0.0
+    fallos_empate = sum(1 for e in relacionadas if not e.get("acierto") and e.get("categoria_fallo") == "empate_no_cubierto")
+    fallos_sorpresa = sum(1 for e in relacionadas if not e.get("acierto") and e.get("categoria_fallo") == "sorpresa_no_cubierta")
+    top = signo_top(p)
+
+    if fallos_empate:
+        ajuste = min(0.4 * fallos_empate, 1.2)
+        p["X"] += ajuste
+        if top != "X":
+            p[top] -= ajuste * 0.35
+        riesgo_extra += ajuste * 1.3
+        lecturas.append("Diario aprendizaje: fallos recientes similares dejaron empates fuera; sube la X.")
+
+    if fallos_sorpresa:
+        ajuste = min(0.45 * fallos_sorpresa, 1.4)
+        p[top] -= ajuste
+        for signo in ("1", "X", "2"):
+            if signo != top:
+                p[signo] += ajuste / 2.0
+        riesgo_extra += ajuste * 1.6
+        lecturas.append("Diario aprendizaje: fallos recientes por sorpresa suavizan el favorito.")
+
+    return normalizar_probs(p), round(riesgo_extra, 2), lecturas
 
 
 def doble_top(probs):
@@ -1410,6 +1682,8 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     memoria = cargar_json(MEMORIA, {})
     aprendizaje = cargar_json(APRENDIZAJE_PROPIO, {})
     pesos_dinamicos = cargar_json(PESOS_DINAMICOS, {})
+    fiabilidad_equipos = cargar_json(FIABILIDAD_EQUIPOS, {})
+    diario_aprendizaje = cargar_json(DIARIO_APRENDIZAJE, {})
     contexto = cargar_json(CONTEXTO_EQUIPOS, {})
     contexto_competitivo = cargar_json(CONTEXTO_COMPETITIVO, {})
     patrones_competitivos = cargar_json(PATRONES_COMPETITIVOS, {})
@@ -1436,8 +1710,23 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             probs, local, visitante, aprendizaje
         )
         lecturas_motivacion.extend(lecturas_aprendizaje)
-        probs, riesgo_pesos_dinamicos, lecturas_pesos_dinamicos = ajustar_por_pesos_dinamicos(
-            probs, pesos_dinamicos, local_comp, visitante_comp, contexto_local, contexto_visitante
+        probs, riesgo_fiabilidad, lecturas_fiabilidad = ajustar_por_fiabilidad_equipos(
+            probs, fiabilidad_equipos, partido.get("local", ""), partido.get("visitante", "")
+        )
+        lecturas_motivacion.extend(lecturas_fiabilidad)
+        probs, riesgo_diario, lecturas_diario = ajustar_por_diario_aprendizaje(
+            probs, diario_aprendizaje, partido.get("local", ""), partido.get("visitante", "")
+        )
+        lecturas_motivacion.extend(lecturas_diario)
+        probs, riesgo_pesos_dinamicos, lecturas_pesos_dinamicos, aplicaciones_pesos_dinamicos = ajustar_por_pesos_dinamicos(
+            probs,
+            pesos_dinamicos,
+            local_comp,
+            visitante_comp,
+            contexto_local,
+            contexto_visitante,
+            local,
+            visitante,
         )
         lecturas_motivacion.extend(lecturas_pesos_dinamicos)
         inc = incertidumbre(
@@ -1445,7 +1734,13 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             local,
             visitante,
             diff,
-            riesgo_contexto + riesgo_motivacion + riesgo_patrones + riesgo_aprendizaje + riesgo_pesos_dinamicos,
+            riesgo_contexto
+            + riesgo_motivacion
+            + riesgo_patrones
+            + riesgo_aprendizaje
+            + riesgo_fiabilidad
+            + riesgo_diario
+            + riesgo_pesos_dinamicos,
         )
         sorpresa = probabilidad_sorpresa(probs, inc)
         trazabilidad = trazabilidad_datos_partido(
@@ -1474,10 +1769,21 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
                 "riesgo_extra": riesgo_aprendizaje,
                 "lecturas": lecturas_aprendizaje,
             },
+            "ajuste_fiabilidad_equipos": {
+                "activo": bool(lecturas_fiabilidad),
+                "riesgo_extra": riesgo_fiabilidad,
+                "lecturas": lecturas_fiabilidad,
+            },
+            "ajuste_diario_aprendizaje": {
+                "activo": bool(lecturas_diario),
+                "riesgo_extra": riesgo_diario,
+                "lecturas": lecturas_diario,
+            },
             "ajuste_pesos_dinamicos": {
                 "activo": bool(lecturas_pesos_dinamicos),
                 "riesgo_extra": riesgo_pesos_dinamicos,
                 "lecturas": lecturas_pesos_dinamicos,
+                "aplicaciones": aplicaciones_pesos_dinamicos,
             },
             "trazabilidad_datos": trazabilidad,
             "_local": local,
@@ -1508,6 +1814,9 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     )
     dobles_set = {p["num"] for p in por_doble[:dobles]}
 
+    timestamp_generacion = datetime.now(timezone.utc).isoformat()
+    temporada_prediccion = memoria.get("temporada", "2025/2026")
+    competicion_prediccion = "quiniela"
     partidos = []
     for partido in sorted(evaluados, key=lambda p: p["num"]):
         if partido["num"] in triples_set:
@@ -1520,8 +1829,23 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             signo = partido["signo_base"]
             tipo = "FIJO"
 
+        signo_real = partido.get("signo_oficial")
+        if signo_real not in {"1", "X", "2"}:
+            signo_real = None
+        prob_real = contrato_probabilidad_signo(partido["probabilidades"], signo_real) if signo_real else None
+        nivel_confianza = "alta" if probabilidad_top(partido["probabilidades"]) >= 60 else "media" if probabilidad_top(partido["probabilidades"]) >= 45 else "baja"
         partidos.append({
             "num": partido["num"],
+            "partido_id": contrato_partido_id(
+                jornada,
+                partido["num"],
+                partido.get("local"),
+                partido.get("visitante"),
+                temporada_prediccion,
+                competicion_prediccion,
+            ),
+            "temporada": temporada_prediccion,
+            "competicion": competicion_prediccion,
             "local": partido.get("local"),
             "visitante": partido.get("visitante"),
             "resultado": partido.get("resultado"),
@@ -1529,7 +1853,20 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "probabilidades": partido["probabilidades"],
             "signo_base": partido["signo_base"],
             "signo_final": signo,
+            "signo_predicho": signo,
+            "signo_real": signo_real,
+            "probabilidad_signo_real": prob_real,
+            "ranking_signo_real": contrato_ranking_signo(partido["probabilidades"], signo_real) if signo_real else None,
+            "acierto": signo_real in signos_jugados({"signo_final": signo}) if signo_real else None,
+            "error_probabilistico": round(1.0 - (prob_real / 100.0), 6) if prob_real is not None else None,
+            "brier_score": contrato_brier_score(partido["probabilidades"], signo_real) if signo_real else None,
+            "top1_acierto": partido["signo_base"] == signo_real if signo_real else None,
+            "top2_acierto": signo_real in contrato_signos_top2(partido["probabilidades"]) if signo_real else None,
             "tipo": tipo,
+            "tipo_apuesta": tipo,
+            "nivel_confianza": nivel_confianza,
+            "riesgo": partido["incertidumbre"],
+            "timestamp_generacion": timestamp_generacion,
             "incertidumbre": partido["incertidumbre"],
             "probabilidad_sorpresa": partido["probabilidad_sorpresa"],
             "probabilidad_top": probabilidad_top(partido["probabilidades"]),
@@ -1549,6 +1886,8 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "calidad_datos": partido["trazabilidad_datos"]["calidad_datos"],
             "trazabilidad_datos": partido["trazabilidad_datos"],
             "ajuste_aprendizaje": partido["ajuste_aprendizaje"],
+            "ajuste_fiabilidad_equipos": partido["ajuste_fiabilidad_equipos"],
+            "ajuste_diario_aprendizaje": partido["ajuste_diario_aprendizaje"],
             "ajuste_pesos_dinamicos": partido["ajuste_pesos_dinamicos"],
             "elige8": False,
             "razonamiento": explicar(
@@ -1596,9 +1935,11 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
 
     salida = {
         "version": "1.1",
-        "generado_en": datetime.now(timezone.utc).isoformat(),
+        "generado_en": timestamp_generacion,
         "jornada": jornada,
-        "temporada_base": memoria.get("temporada", "2025/2026"),
+        "temporada_base": temporada_prediccion,
+        "temporada": temporada_prediccion,
+        "competicion": competicion_prediccion,
         "estado": "validada" if validar else "prediccion_no_validada",
         "configuracion": {
             "dobles": dobles,
@@ -1636,10 +1977,26 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "partidos_revisados": aprendizaje.get("partidos_revisados"),
             "fallos_por_tipo": aprendizaje.get("fallos_por_tipo", {}),
             "ajuste_motor": ajuste_motor_aprendizaje(aprendizaje),
+            "aprendizaje_global": {
+                "archivo": "data/memoria_ia/aprendizaje_global.json",
+                "temporada": memoria.get("temporada"),
+                "estado": memoria.get("estado"),
+            },
+            "fiabilidad_equipos": {
+                "archivo": "data/memoria_ia/fiabilidad_equipos.json",
+                "equipos": len((fiabilidad_equipos.get("equipos") or {})),
+                "generado_en": fiabilidad_equipos.get("generado_en"),
+            },
+            "diario_aprendizaje": {
+                "archivo": "data/memoria_ia/diario_aprendizaje.json",
+                "entradas": diario_aprendizaje.get("total_entradas"),
+                "generado_en": diario_aprendizaje.get("generado_en"),
+            },
             "pesos_dinamicos": {
                 "generado_en": pesos_dinamicos.get("generado_en"),
                 "pesos": pesos_dinamicos.get("pesos", {}),
                 "ajustes": pesos_dinamicos.get("ajustes", []),
+                "explicaciones": pesos_dinamicos.get("explicaciones", {}),
             },
         },
         "pleno15": data.get("pleno15"),
@@ -1670,6 +2027,8 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         guardar_json(JUGADAS / "ultima_validada.json", salida)
     else:
         guardar_json(PREDICCIONES / "ultima_prediccion.json", salida)
+        actualizada, motivo = upsert_validacion_generada(salida, QUINIELAS_GENERADAS_IA)
+        print(f"Persistencia IA generada: {motivo} ({QUINIELAS_GENERADAS_IA})")
     print(destino)
 
 

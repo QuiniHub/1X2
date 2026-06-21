@@ -8,6 +8,7 @@ DATA = Path("data")
 JORNADAS = DATA / "jornadas"
 OUT = DATA / "aprendizaje_ia.json"
 QUINIELAS_JUGADAS = DATA / "quinielas_jugadas.json"
+QUINIELAS_GENERADAS_IA = DATA / "quinielas_generadas_ia.json"
 HISTORIAL_QUINIELAS = DATA / "historial_quinielas.json"
 
 
@@ -89,10 +90,15 @@ def normalizar_jugada(jugada, origen):
 def cargar_jugadas_validadas():
     jugadas = {}
     memoria = cargar_json(QUINIELAS_JUGADAS, {"jugadas": []})
+    generadas_ia = cargar_json(QUINIELAS_GENERADAS_IA, {"jugadas": []})
     historial = cargar_json(HISTORIAL_QUINIELAS, {"jornadas": []})
     for jugada in memoria.get("jugadas", []):
         jornada, normalizada = normalizar_jugada(jugada, "data/quinielas_jugadas.json")
         if normalizada:
+            jugadas[jornada] = normalizada
+    for jugada in generadas_ia.get("jugadas", []):
+        jornada, normalizada = normalizar_jugada(jugada, "data/quinielas_generadas_ia.json")
+        if normalizada and jornada not in jugadas:
             jugadas[jornada] = normalizada
     for jugada in historial.get("jornadas", []):
         jornada, normalizada = normalizar_jugada(jugada, "data/historial_quinielas.json")

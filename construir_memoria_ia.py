@@ -6,6 +6,13 @@ from collections import Counter, defaultdict, deque
 from datetime import datetime, timezone
 from pathlib import Path
 
+from contrato_aprendizaje import (
+    contrato_documentado,
+    fiabilidad_equipos as construir_fiabilidad_equipos,
+    metricas_probabilisticas,
+    revisar_partido,
+)
+
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -20,6 +27,7 @@ CLASIFICACIONES_OFICIALES = DATA / "clasificaciones_oficiales.json"
 
 JORNADAS_QUINIELA = DATA / "jornadas"
 QUINIELAS_JUGADAS = DATA / "quinielas_jugadas.json"
+QUINIELAS_GENERADAS_IA = DATA / "quinielas_generadas_ia.json"
 HISTORIAL_QUINIELAS_JSON = DATA / "historial_quinielas.json"
 PREDICCIONES = DATA / "predicciones"
 HISTORICO_QUINIELAS = ROOT / "historico_quinielas.csv"
@@ -27,6 +35,10 @@ OUT_TEMPORADA = DATA / "temporadas" / TEMPORADA
 OUT_MEMORIA = DATA / "memoria_ia"
 DIARIO_APRENDIZAJE = OUT_MEMORIA / "diario_aprendizaje.json"
 PESOS_DINAMICOS = OUT_MEMORIA / "pesos_dinamicos.json"
+METRICAS_PROBABILISTICAS = OUT_MEMORIA / "metricas_probabilisticas.json"
+FIABILIDAD_EQUIPOS = OUT_MEMORIA / "fiabilidad_equipos.json"
+REVISIONES_CONTRATO = OUT_MEMORIA / "revisiones_prediccion_resultado.json"
+CONTRATO_APRENDIZAJE = OUT_MEMORIA / "contrato_aprendizaje.json"
 
 
 def cargar_json(path, defecto=None):
@@ -470,7 +482,11 @@ def cargar_prediccion_jornada(jornada):
     partidos = {}
     for partido in data.get("partidos", []):
         try:
-            partidos[int(partido.get("num"))] = partido
+            item = dict(partido)
+            item["_generado_en"] = data.get("generado_en")
+            item["_temporada"] = data.get("temporada") or data.get("temporada_base") or TEMPORADA_LABEL
+            item["_competicion"] = data.get("competicion") or "quiniela"
+            partidos[int(partido.get("num"))] = item
         except (TypeError, ValueError):
             continue
     return partidos
@@ -537,12 +553,18 @@ def ajuste_recomendado(categoria, tipo, es_elige8, prediccion):
 
 def cargar_quinielas_jugadas():
     memoria = cargar_json(QUINIELAS_JUGADAS, {"jugadas": []})
+    generadas_ia = cargar_json(QUINIELAS_GENERADAS_IA, {"jugadas": []})
     historial = cargar_json(HISTORIAL_QUINIELAS_JSON, {"jornadas": []})
     jugadas = {}
 
     for jugada in memoria.get("jugadas", []):
         jornada, normalizada = normalizar_jugada(jugada, "data/quinielas_jugadas.json")
         if normalizada:
+            jugadas[jornada] = normalizada
+
+    for jugada in generadas_ia.get("jugadas", []):
+        jornada, normalizada = normalizar_jugada(jugada, "data/quinielas_generadas_ia.json")
+        if normalizada and jornada not in jugadas:
             jugadas[jornada] = normalizada
 
     for jugada in historial.get("jornadas", []):
@@ -558,6 +580,7 @@ def analizar_nuestras_quinielas():
     fuentes = Counter(jugada.get("origen") or "desconocido" for jugada in jugadas.values())
     resumen = []
     diario = []
+    revisiones_contrato = []
     por_tipo = {
         "FIJO": {"total": 0, "aciertos": 0, "fallos": 0},
         "DOBLE": {"total": 0, "aciertos": 0, "fallos": 0},
@@ -605,6 +628,16 @@ def analizar_nuestras_quinielas():
             categoria = categoria_fallo(nuestro, oficial, tipo, prediccion, acierto)
             explicacion = explicar_revision(nuestro, oficial, tipo, acierto, es_elige8, prediccion)
             ajuste = ajuste_recomendado(categoria, tipo, es_elige8, prediccion)
+            origen_revision = jugada.get("origen") or "desconocido"
+            revision = revisar_partido(
+                jornada,
+                partido,
+                prediccion or {},
+                pronostico=nuestro,
+                es_elige8=es_elige8,
+                origen=origen_revision,
+            )
+            revisiones_contrato.append(revision)
             total_partidos += 1
             if tipo in por_tipo:
                 por_tipo[tipo]["total"] += 1
@@ -654,6 +687,10 @@ def analizar_nuestras_quinielas():
                 partidos_sorpresa_global.append({**sorpresa_item, "jornada": jornada})
             diario.append({
                 "jornada": jornada,
+                "partido_id": revision.get("partido_id"),
+                "num": partido.get("num"),
+                "local": partido.get("local", ""),
+                "visitante": partido.get("visitante", ""),
                 "partido": f"{partido.get('num')}. {partido.get('local', '')} - {partido.get('visitante', '')}",
                 "pronostico_jugado": nuestro,
                 "signo_real": oficial,
@@ -662,12 +699,18 @@ def analizar_nuestras_quinielas():
                 "tipo_apuesta": tipo,
                 "es_elige8": es_elige8,
                 "partido_sorpresa": sorpresa,
+                "probabilidad_signo_real": revision.get("probabilidad_signo_real"),
+                "ranking_signo_real": revision.get("ranking_signo_real"),
+                "error_probabilistico": revision.get("error_probabilistico"),
+                "brier_score": revision.get("brier_score"),
+                "top1_acierto": revision.get("top1_acierto"),
+                "top2_acierto": revision.get("top2_acierto"),
                 "riesgo_necesidad": bool((prediccion or {}).get("riesgo_necesidad_real")),
                 "calidad_datos": (prediccion or {}).get("calidad_datos", ""),
                 "explicacion": explicacion,
                 "categoria_fallo": categoria,
                 "ajuste_recomendado": ajuste,
-                "origen": jugada.get("origen") or "desconocido",
+                "origen": origen_revision,
             })
             detalle.append({
                 "num": partido.get("num"),
@@ -745,6 +788,7 @@ def analizar_nuestras_quinielas():
         "partidos_sorpresa": partidos_sorpresa_global[-100:],
         "resumen": resumen,
         "_diario_aprendizaje": diario,
+        "_revisiones_contrato": revisiones_contrato,
     }
 
 
@@ -809,6 +853,19 @@ PESOS_DINAMICOS_REFERENCIA = {
     "bajas": 0.02,
 }
 
+PESOS_DINAMICOS_EXPLICACIONES = {
+    "forma_reciente": "Ajusta el peso de la forma de ultimos partidos; si falla, se reduce para no perseguir rachas falsas.",
+    "casa_fuera": "Ajusta el diferencial local/visitante cuando la memoria detecta sesgos de campo.",
+    "clasificacion": "Refuerza o suaviza favoritos por posicion y puntos segun errores previos.",
+    "goles": "Corrige la lectura de goles a favor/en contra cuando dobles o fijos fallan.",
+    "empate": "Sube o baja la X tras empates no cubiertos o sobrecubiertos.",
+    "sorpresa": "Suaviza favoritos cuando el diario acumula sorpresas no cubiertas.",
+    "motivacion_competitiva": "Aumenta la influencia de urgencia competitiva cuando produce errores.",
+    "necesidad_descenso_ascenso_europa": "Ajusta partidos condicionados por permanencia, ascenso o Europa.",
+    "fatiga": "Penaliza alertas de calendario, rotaciones o cansancio si aparecen en contexto.",
+    "bajas": "Penaliza lesiones, sanciones o dudas detectadas en contexto.",
+}
+
 
 def porcentaje_seguro(parte, total):
     return round(float(parte or 0) / max(float(total or 0), 1.0) * 100, 2)
@@ -838,7 +895,7 @@ def aplicar_delta_peso(pesos, ajustes, clave, delta, motivo, max_paso=0.02):
 def construir_pesos_dinamicos(quiniela, diario):
     previos = cargar_json(PESOS_DINAMICOS, {})
     pesos = dict(PESOS_DINAMICOS_REFERENCIA)
-    if previos.get("version") == "1.1":
+    if str(previos.get("version") or "") in {"1.1", "1.2"}:
         pesos.update({
             clave: float(valor)
             for clave, valor in (previos.get("pesos") or {}).items()
@@ -897,10 +954,11 @@ def construir_pesos_dinamicos(quiniela, diario):
         })
 
     return {
-        "version": "1.1",
+        "version": "1.2",
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "metodo": "ajustes pequenos y acumulativos; maximo 0.02 por peso y ejecucion",
         "referencia": PESOS_DINAMICOS_REFERENCIA,
+        "explicaciones": PESOS_DINAMICOS_EXPLICACIONES,
         "pesos": pesos,
         "muestra": {
             "partidos_validados": partidos,
@@ -1000,12 +1058,15 @@ def main():
     ligas = aplicar_clasificaciones_oficiales(ligas)
     nuestras_quinielas = analizar_nuestras_quinielas()
     diario = nuestras_quinielas.pop("_diario_aprendizaje", [])
+    revisiones_contrato = nuestras_quinielas.pop("_revisiones_contrato", [])
     quiniela = {
         "historico_csv": analizar_historico_quiniela(),
         "jornadas_oficiales": analizar_jornadas_oficiales(),
         "nuestras_quinielas": nuestras_quinielas,
     }
     pesos_dinamicos = construir_pesos_dinamicos(quiniela, diario)
+    metricas = metricas_probabilisticas(revisiones_contrato)
+    fiabilidad = construir_fiabilidad_equipos(revisiones_contrato)
 
     memoria = {
         "version": "1.0",
@@ -1020,6 +1081,17 @@ def main():
             "generado_en": pesos_dinamicos.get("generado_en"),
             "muestra": pesos_dinamicos.get("muestra"),
             "pesos": pesos_dinamicos.get("pesos"),
+        },
+        "metricas_probabilisticas": {
+            "archivo": "data/memoria_ia/metricas_probabilisticas.json",
+            "partidos_evaluados": metricas.get("partidos_evaluados"),
+            "accuracy_top1": metricas.get("accuracy_top1"),
+            "accuracy_top2": metricas.get("accuracy_top2"),
+            "brier_score_medio": metricas.get("brier_score_medio"),
+        },
+        "fiabilidad_equipos": {
+            "archivo": "data/memoria_ia/fiabilidad_equipos.json",
+            "equipos": len((fiabilidad.get("equipos") or {})),
         },
         "diario_aprendizaje": {
             "archivo": "data/memoria_ia/diario_aprendizaje.json",
@@ -1040,9 +1112,19 @@ def main():
         "version": "1.0",
         "generado_en": memoria["generado_en"],
         "total_entradas": len(diario),
+        "ajustes_pesos_dinamicos": pesos_dinamicos.get("ajustes", []),
         "entradas": diario,
     })
     guardar_json(PESOS_DINAMICOS, pesos_dinamicos)
+    guardar_json(METRICAS_PROBABILISTICAS, metricas)
+    guardar_json(FIABILIDAD_EQUIPOS, fiabilidad)
+    guardar_json(REVISIONES_CONTRATO, {
+        "version": "1.0",
+        "generado_en": memoria["generado_en"],
+        "total_revisiones": len(revisiones_contrato),
+        "revisiones": revisiones_contrato,
+    })
+    guardar_json(CONTRATO_APRENDIZAJE, contrato_documentado())
     guardar_json(OUT_TEMPORADA / "resumen_temporada.json", memoria)
     guardar_json(OUT_MEMORIA / "aprendizaje_global.json", memoria)
     guardar_json(ROOT / "clasificaciones.json", construir_clasificaciones(ligas))

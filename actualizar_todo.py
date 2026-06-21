@@ -1,10 +1,20 @@
 import subprocess
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
+
+SCRIPTS_CON_REINTENTO = {
+    "actualizar_jornadas_detalle.py",
+    "actualizar_boleto_vivo.py",
+    "actualizar_resultados_directo.py",
+    "actualizar_clasificaciones_oficiales.py",
+    "actualizar_ligas_football_data.py",
+    "actualizar_contexto_equipos.py",
+}
 
 SCRIPTS_ACTIVOS = [
     "actualizar_jornadas_detalle.py",
@@ -74,11 +84,13 @@ SCRIPTS_ACTIVOS = [
     "control_calidad_actualizacion.py",
     "normalizar_diagnostico_control.py",
     "normalizar_textos_generados.py",
+    "validar_json_data.py",
 
     # Cierre final: web y publicacion.
     "alinear_boleto_con_analisis.py",
     "estabilizar_web.py",
     "validar_publicacion_autonoma.py",
+    "verificar_ciclo_aprendizaje.py",
 ]
 
 
@@ -93,8 +105,18 @@ def ejecutar_script(nombre):
     ruta = ROOT / nombre
     if not ruta.exists():
         raise SystemExit(f"Falta script activo: {nombre}")
-    print(f"\n=== Ejecutando {nombre} ===")
-    subprocess.run([sys.executable, str(ruta)], cwd=ROOT, check=True)
+    intentos = 3 if nombre in SCRIPTS_CON_REINTENTO else 1
+    for intento in range(1, intentos + 1):
+        print(f"\n=== Ejecutando {nombre} ({datetime.now().isoformat(timespec='seconds')}) intento {intento}/{intentos} ===")
+        try:
+            subprocess.run([sys.executable, str(ruta)], cwd=ROOT, check=True)
+            print(f"OK_SCRIPT: {nombre}")
+            return
+        except subprocess.CalledProcessError as exc:
+            print(f"ERROR_SCRIPT: {nombre} intento {intento}/{intentos} codigo={exc.returncode}")
+            if intento == intentos:
+                raise
+            time.sleep(5)
 
 
 def ejecutar_sistema():

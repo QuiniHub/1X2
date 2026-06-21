@@ -36,7 +36,9 @@ jobs:
 
       - name: Ejecutar pruebas
         run: |
+          echo "::group::Pruebas unitarias"
           python -m unittest discover -s tests
+          echo "::endgroup::"
 
       - name: Integrar cambios remotos
         run: |
@@ -44,7 +46,21 @@ jobs:
 
       - name: Actualizar datos y validar publicacion
         run: |
+          echo "::group::Actualizacion completa"
           python actualizar_todo.py
+          echo "::endgroup::"
+
+      - name: Validar JSON generado
+        run: |
+          echo "::group::Validacion JSON"
+          python validar_json_data.py
+          echo "::endgroup::"
+
+      - name: Comprobar ciclo de aprendizaje
+        run: |
+          echo "::group::Ciclo aprendizaje"
+          python verificar_ciclo_aprendizaje.py
+          echo "::endgroup::"
 
       - name: Guardar cambios
         run: |
