@@ -1,37 +1,37 @@
 {
   "version": "1.1",
-  "precision": 60.77,
+  "precision": 61.19,
   "jornadas_revisadas": 10,
-  "partidos_revisados": 130,
-  "aciertos": 79,
-  "fallos": 51,
+  "partidos_revisados": 134,
+  "aciertos": 82,
+  "fallos": 52,
   "fallos_por_tipo": {
     "Doble insuficiente": 8,
     "Fijo fallado": 28,
-    "No cubrio empate": 15
+    "No cubrio empate": 16
   },
   "fallos_por_signo_real": {
     "1": 16,
     "2": 20,
-    "X": 15
+    "X": 16
   },
   "signos_omitidos_en_fallo": {
     "1": 16,
     "2": 20,
-    "X": 15
+    "X": 16
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 23,
-      "aciertos": 15,
+      "total": 24,
+      "aciertos": 16,
       "fallos": 8,
-      "precision": 65.22
+      "precision": 66.67
     },
     "FIJO": {
-      "total": 82,
-      "aciertos": 39,
-      "fallos": 43,
-      "precision": 47.56
+      "total": 85,
+      "aciertos": 41,
+      "fallos": 44,
+      "precision": 48.24
     },
     "TRIPLE": {
       "total": 25,
@@ -42,22 +42,22 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 59,
-      "aciertos": 43,
+      "total": 60,
+      "aciertos": 44,
       "fallos": 16,
-      "precision": 72.88
+      "precision": 73.33
     },
     "2": {
-      "total": 38,
-      "aciertos": 18,
+      "total": 40,
+      "aciertos": 20,
       "fallos": 20,
-      "precision": 47.37
+      "precision": 50.0
     },
     "X": {
-      "total": 33,
+      "total": 34,
       "aciertos": 18,
-      "fallos": 15,
-      "precision": 54.55
+      "fallos": 16,
+      "precision": 52.94
     }
   },
   "detalle": [
@@ -1620,6 +1620,54 @@
       "signo_omitido": "1",
       "acierto": false,
       "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 68,
+      "partido": "Alemania - Costa Marfil",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 68,
+      "partido": "Ecuador - Curazao",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-0",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 68,
+      "partido": "Túnez - Japon",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-4",
+      "signo_real": "2",
+      "signos_cubiertos": "2",
+      "signo_omitido": "",
+      "acierto": true,
+      "origen": "issue_memoria_sin_token"
+    },
+    {
+      "jornada": 68,
+      "partido": "UD Almeria - Malaga CF",
+      "pronostico": "X2",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "1-2",
+      "signo_real": "2",
+      "signos_cubiertos": "X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "origen": "issue_memoria_sin_token"
     }
   ],
   "ajustes_recomendados": [
@@ -1632,21 +1680,21 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 130,
+    "partidos_base": 134,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 39.23,
-      "no_cubrio_empate_sobre_fallos_pct": 29.41,
-      "no_cubrio_empate_sobre_total_pct": 11.54,
-      "fijo_fallado_sobre_fallos_pct": 54.9,
-      "fijo_fallado_sobre_total_pct": 21.54,
-      "doble_insuficiente_sobre_total_pct": 6.15
+      "fallos_total_pct": 38.81,
+      "no_cubrio_empate_sobre_fallos_pct": 30.77,
+      "no_cubrio_empate_sobre_total_pct": 11.94,
+      "fijo_fallado_sobre_fallos_pct": 53.85,
+      "fijo_fallado_sobre_total_pct": 20.9,
+      "doble_insuficiente_sobre_total_pct": 5.97
     },
-    "boost_empate_zona_riesgo": 5.21,
-    "riesgo_extra_fijo_fragil": 11.61,
-    "riesgo_extra_triple_insuficiente": 1.94,
+    "boost_empate_zona_riesgo": 5.61,
+    "riesgo_extra_fijo_fragil": 10.89,
+    "riesgo_extra_triple_insuficiente": 1.77,
     "min_dobles_auto": 3,
-    "min_triples_auto": 1,
+    "min_triples_auto": 0,
     "umbral_fijo_seguro": 58,
     "reglas": [
       "Subir X en partidos de margen corto o tendencia de empate porque el historial propio dejo empates sin cubrir.",
