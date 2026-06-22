@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from motor_prediccion_quiniela import (
+    ajustar_por_datos_profesionales,
     ajustar_por_aprendizaje_propio,
     cobertura_automatica,
     coste,
@@ -295,6 +296,61 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertEqual(trazabilidad["origen_probabilidades"], "fallback_posicion_con_contexto")
         self.assertEqual(trazabilidad["calidad_datos"], "media_baja")
         self.assertTrue(trazabilidad["noticias_recientes"]["local"])
+
+    def test_datos_profesionales_mezclan_cuotas_y_penalizan_bajas(self):
+        datos_partido = {
+            "cuotas": {
+                "probabilidades_implicitas": {"1": 31.0, "X": 27.0, "2": 42.0},
+                "overround": 6.0,
+            },
+            "bajas": {
+                "local": {"impacto_total": 3.0, "titulares_afectados": 1, "lesiones": [{}], "sanciones": [], "dudas": []},
+                "visitante": {"impacto_total": 0.0, "titulares_afectados": 0, "lesiones": [], "sanciones": [], "dudas": []},
+            },
+            "alineaciones": {
+                "local": {"titulares_probables": [f"L{i}" for i in range(11)], "confianza": 0.9, "dudas": []},
+                "visitante": {"titulares_probables": [f"V{i}" for i in range(9)], "confianza": 0.62, "dudas": ["V9"]},
+            },
+            "capas_disponibles": {
+                "cuotas": True,
+                "bajas_estructuradas": True,
+                "alineaciones_probables": True,
+            },
+        }
+
+        probs, riesgo, lecturas, resumen = ajustar_por_datos_profesionales(
+            {"1": 46.0, "X": 29.0, "2": 25.0},
+            datos_partido,
+        )
+
+        self.assertLess(probs["1"], 46.0)
+        self.assertGreater(probs["2"], 25.0)
+        self.assertGreater(riesgo, 0)
+        self.assertTrue(resumen["activo"])
+        self.assertTrue(any("Cuotas mercado" in lectura for lectura in lecturas))
+        self.assertTrue(any("Bajas local" in lectura for lectura in lecturas))
+
+    def test_trazabilidad_sube_calidad_con_datos_profesionales(self):
+        trazabilidad = trazabilidad_datos_partido(
+            local={"equipo": "Local"},
+            visitante={"equipo": "Visitante"},
+            contexto_local=None,
+            contexto_visitante=None,
+            local_comp=None,
+            visitante_comp=None,
+            datos_profesionales={
+                "capas_disponibles": {
+                    "cuotas": True,
+                    "bajas_estructuradas": False,
+                    "alineaciones_probables": False,
+                    "clasificacion_oficial": False,
+                }
+            },
+        )
+
+        self.assertEqual(trazabilidad["calidad_datos"], "profesional")
+        self.assertEqual(trazabilidad["origen_probabilidades"], "estadistica_equipos+datos_profesionales")
+        self.assertTrue(trazabilidad["datos_profesionales"]["cuotas"])
 
     def test_pesos_dinamicos_no_quedan_saturados(self):
         pesos = normalizar_pesos_dinamicos({

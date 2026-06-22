@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-22T18:20:38.265373+00:00",
+  "generado_en": "2026-06-22T18:39:53.106626+00:00",
   "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
   "estado_global": "en_construccion",
   "fuentes": {
@@ -11,7 +11,7 @@
       "siguiente_paso": "comparar fuente actual contra segunda fuente o API oficial/licenciada"
     },
     "cuotas_mercado": {
-      "estado": "pendiente_api",
+      "estado": "pendiente_secret",
       "prioridad": "critica",
       "uso": "transformar mercado en probabilidad base y detectar favoritos mal valorados",
       "siguiente_paso": "conectar proveedor de cuotas 1X2 con snapshots antes del cierre"
@@ -29,16 +29,22 @@
       "siguiente_paso": "cargar xG/xGA por equipo, condicion local/visitante y ultimos partidos"
     },
     "lesiones_sanciones": {
-      "estado": "parcial_no_estructurado",
+      "estado": "pendiente_secret",
       "prioridad": "critica",
       "uso": "evitar fijos debiles por bajas clave o sanciones",
       "siguiente_paso": "estructurar parte medico y sanciones por jugador e impacto"
     },
     "alineaciones_probables": {
-      "estado": "pendiente_fuente",
+      "estado": "pendiente_secret",
       "prioridad": "alta",
       "uso": "detectar rotaciones y titulares dudosos",
       "siguiente_paso": "cargar once probable y probabilidad de titularidad"
+    },
+    "calendario_oficial_2026_2027": {
+      "estado": "pendiente_publicacion_o_api",
+      "prioridad": "critica",
+      "uso": "memorizar calendario nuevo de Primera/Segunda cuando este publicado oficialmente",
+      "siguiente_paso": "inyectar calendario oficial 2026/2027 por QUINIHUB_PRO_DATA_URL o proveedor autorizado"
     },
     "ranking_elo": {
       "estado": "pendiente_dataset",
@@ -83,20 +89,47 @@
       "siguiente_paso": "guardar distribucion publica 1/X/2 por casilla si la fuente existe"
     }
   },
+  "datos_profesionales": {
+    "estado_global": "pendiente_secrets",
+    "temporada_objetivo": "2026/2027",
+    "generado_en": "2026-06-22T18:38:15Z",
+    "resumen": {
+      "partidos_enriquecidos": 0,
+      "cuotas": 0,
+      "bajas_estructuradas": 0,
+      "alineaciones_probables": 0,
+      "calendario_oficial": 0,
+      "clasificacion_oficial": 0
+    },
+    "configuracion": {
+      "secrets_soportados": [
+        "QUINIHUB_PRO_DATA_URL",
+        "QUINIHUB_PRO_DATA_TOKEN",
+        "QUINIHUB_PRO_DATA_FILE"
+      ],
+      "url_configurada": false,
+      "token_configurado": false,
+      "archivo_local_configurado": false,
+      "formato": "JSON normalizado con partidos, cuotas 1X2, bajas, alineaciones, calendario y clasificacion."
+    }
+  },
   "resumen": {
-    "total": 13,
+    "total": 14,
     "estados": {
       "conectado_fragil": 1,
-      "pendiente_api": 2,
-      "pendiente_fuente": 4,
-      "parcial_no_estructurado": 1,
+      "pendiente_secret": 3,
+      "pendiente_api": 1,
+      "pendiente_fuente": 3,
+      "pendiente_publicacion_o_api": 1,
       "pendiente_dataset": 1,
       "pendiente_modelado": 2,
       "conectado_parcial": 1,
       "parcial": 1
     },
     "criticas_pendientes": [
-      "cuotas_mercado"
+      "cuotas_mercado",
+      "lesiones_sanciones",
+      "calendario_oficial_2026_2027"
     ],
     "lectura": "Mientras existan fuentes criticas pendientes, las probabilidades deben marcarse como no plenamente calibradas."
   }

@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from compuerta_jornada import estado_compuerta
+from datos_profesionales import buscar_partido as buscar_datos_profesionales_partido
 from guardar_snapshot_prediccion import crear_snapshot_prediccion
 from memoria_autonoma_quiniela import confianza_signos as niveles_confianza_signos
 
@@ -29,6 +30,7 @@ MEMORIA = DATA / "memoria_ia" / "aprendizaje_global.json"
 APRENDIZAJE_PROPIO = DATA / "aprendizaje_ia.json"
 PESOS_DINAMICOS = DATA / "memoria_ia" / "pesos_dinamicos.json"
 CONTEXTO_EQUIPOS = DATA / "contexto_equipos.json"
+DATOS_PROFESIONALES = DATA / "datos_profesionales.json"
 CONTEXTO_COMPETITIVO = DATA / "memoria_ia" / "contexto_competitivo.json"
 PATRONES_COMPETITIVOS = DATA / "memoria_ia" / "patrones_competitivos.json"
 PERFILES_EQUIPOS = DATA / "memoria_ia" / "perfiles_equipos.json"
@@ -798,6 +800,122 @@ def signo_top(probs):
     return sorted(probs.items(), key=lambda x: x[1], reverse=True)[0][0]
 
 
+def capas_profesionales_relevantes(datos_partido):
+    capas = (datos_partido or {}).get("capas_disponibles") or {}
+    return {
+        "cuotas": bool(capas.get("cuotas")),
+        "bajas_estructuradas": bool(capas.get("bajas_estructuradas")),
+        "alineaciones_probables": bool(capas.get("alineaciones_probables")),
+        "calendario_oficial": bool(capas.get("calendario_oficial")),
+        "clasificacion_oficial": bool(capas.get("clasificacion_oficial")),
+    }
+
+
+def resumen_datos_profesionales_partido(datos_partido):
+    if not datos_partido:
+        return {"activo": False}
+    cuotas = datos_partido.get("cuotas") or {}
+    bajas = datos_partido.get("bajas") or {}
+    alineaciones = datos_partido.get("alineaciones") or {}
+    capas = capas_profesionales_relevantes(datos_partido)
+    return {
+        "activo": any(capas.values()),
+        "capas": capas,
+        "cuotas": {
+            "disponibles": capas["cuotas"],
+            "probabilidades_implicitas": cuotas.get("probabilidades_implicitas", {}),
+            "overround": cuotas.get("overround"),
+            "fuente": cuotas.get("fuente") or cuotas.get("proveedor"),
+            "actualizado_en": cuotas.get("actualizado_en"),
+        },
+        "bajas": {
+            lado: {
+                "impacto_total": (bajas.get(lado) or {}).get("impacto_total", 0),
+                "titulares_afectados": (bajas.get(lado) or {}).get("titulares_afectados", 0),
+                "lesiones": len((bajas.get(lado) or {}).get("lesiones", [])),
+                "sanciones": len((bajas.get(lado) or {}).get("sanciones", [])),
+                "dudas": len((bajas.get(lado) or {}).get("dudas", [])),
+            }
+            for lado in ("local", "visitante")
+        },
+        "alineaciones": {
+            lado: {
+                "confirmada": (alineaciones.get(lado) or {}).get("confirmada", False),
+                "confianza": (alineaciones.get(lado) or {}).get("confianza", 0),
+                "titulares_probables": len((alineaciones.get(lado) or {}).get("titulares_probables", [])),
+                "dudas": len((alineaciones.get(lado) or {}).get("dudas", [])),
+            }
+            for lado in ("local", "visitante")
+        },
+    }
+
+
+def ajustar_por_datos_profesionales(probs, datos_partido):
+    if not datos_partido:
+        return probs, 0.0, [], resumen_datos_profesionales_partido(None)
+
+    p = dict(probs)
+    riesgo_extra = 0.0
+    lecturas = []
+    cuotas = datos_partido.get("cuotas") or {}
+    mercado = cuotas.get("probabilidades_implicitas") or {}
+    if all(signo in mercado for signo in ("1", "X", "2")):
+        try:
+            overround = float(cuotas.get("overround") or 0)
+        except (TypeError, ValueError):
+            overround = 0.0
+        peso = 0.30 if overround <= 8 else 0.22 if overround <= 14 else 0.14
+        top_motor = signo_top(p)
+        top_mercado = signo_top(mercado)
+        p = {
+            signo: float(p.get(signo, 0)) * (1 - peso) + float(mercado.get(signo, 0)) * peso
+            for signo in ("1", "X", "2")
+        }
+        if top_motor != top_mercado:
+            riesgo_extra += 9.0
+            lecturas.append(
+                f"Cuotas mercado: el favorito de mercado ({top_mercado}) no coincide con el motor ({top_motor})."
+            )
+        lecturas.append(f"Cuotas mercado: probabilidades 1X2 integradas con peso {peso:.2f}.")
+
+    bajas = datos_partido.get("bajas") or {}
+    impacto_local = float((bajas.get("local") or {}).get("impacto_total") or 0)
+    impacto_visitante = float((bajas.get("visitante") or {}).get("impacto_total") or 0)
+    if impacto_local:
+        ajuste = min(impacto_local * 0.85, 5.0)
+        p["1"] -= ajuste
+        p["X"] += ajuste * 0.45
+        p["2"] += ajuste * 0.55
+        riesgo_extra += min(impacto_local * 1.5, 10.0)
+        lecturas.append(f"Bajas local: impacto estructurado {impacto_local:.1f}; baja la confianza en el 1.")
+    if impacto_visitante:
+        ajuste = min(impacto_visitante * 0.85, 5.0)
+        p["2"] -= ajuste
+        p["X"] += ajuste * 0.45
+        p["1"] += ajuste * 0.55
+        riesgo_extra += min(impacto_visitante * 1.5, 10.0)
+        lecturas.append(f"Bajas visitante: impacto estructurado {impacto_visitante:.1f}; baja la confianza en el 2.")
+
+    alineaciones = datos_partido.get("alineaciones") or {}
+    for lado, signo in (("local", "1"), ("visitante", "2")):
+        alineacion = alineaciones.get(lado) or {}
+        dudas = len(alineacion.get("dudas") or [])
+        titulares = len(alineacion.get("titulares_probables") or [])
+        confianza = float(alineacion.get("confianza") or 0)
+        if dudas or (titulares and titulares < 10) or (confianza and confianza < 0.70):
+            ajuste = 1.4 + min(dudas * 0.35, 1.2)
+            rival = "2" if signo == "1" else "1"
+            p[signo] -= ajuste
+            p["X"] += ajuste * 0.55
+            p[rival] += ajuste * 0.45
+            riesgo_extra += 3.5 + dudas
+            lecturas.append(
+                f"Alineacion {lado}: once probable con dudas o baja confianza; sube la cobertura."
+            )
+
+    return normalizar_probs(p), round(riesgo_extra, 2), lecturas, resumen_datos_profesionales_partido(datos_partido)
+
+
 def ajuste_motor_aprendizaje(aprendizaje):
     ajuste = aprendizaje.get("ajuste_motor") if isinstance(aprendizaje, dict) else {}
     return ajuste if isinstance(ajuste, dict) else {}
@@ -1033,17 +1151,36 @@ def riesgo_necesidad_real(local_comp, visitante_comp):
     )
 
 
-def trazabilidad_datos_partido(local, visitante, contexto_local, contexto_visitante, local_comp, visitante_comp):
+def trazabilidad_datos_partido(
+    local,
+    visitante,
+    contexto_local,
+    contexto_visitante,
+    local_comp,
+    visitante_comp,
+    datos_profesionales=None,
+):
     memoria_local = bool(local)
     memoria_visitante = bool(visitante)
     noticias_local = bool((contexto_local or {}).get("noticias"))
     noticias_visitante = bool((contexto_visitante or {}).get("noticias"))
     competitivo_local = bool(local_comp)
     competitivo_visitante = bool(visitante_comp)
+    capas_profesionales = capas_profesionales_relevantes(datos_profesionales)
+    profesional_predictivo = any(
+        capas_profesionales.get(clave)
+        for clave in ("cuotas", "bajas_estructuradas", "alineaciones_probables", "clasificacion_oficial")
+    )
 
-    if memoria_local and memoria_visitante:
+    if profesional_predictivo and memoria_local and memoria_visitante:
+        origen = "estadistica_equipos+datos_profesionales"
+        calidad = "profesional"
+    elif memoria_local and memoria_visitante:
         origen = "estadistica_equipos"
         calidad = "alta"
+    elif profesional_predictivo:
+        origen = "datos_profesionales_con_fallback"
+        calidad = "media"
     elif noticias_local or noticias_visitante or competitivo_local or competitivo_visitante:
         origen = "fallback_posicion_con_contexto"
         calidad = "media_baja"
@@ -1066,6 +1203,7 @@ def trazabilidad_datos_partido(local, visitante, contexto_local, contexto_visita
             "local": competitivo_local,
             "visitante": competitivo_visitante,
         },
+        "datos_profesionales": capas_profesionales,
     }
 
 
@@ -1763,6 +1901,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     aprendizaje = cargar_json(APRENDIZAJE_PROPIO, {})
     pesos_dinamicos = normalizar_pesos_dinamicos(cargar_json(PESOS_DINAMICOS, {}))
     contexto = cargar_json(CONTEXTO_EQUIPOS, {})
+    datos_profesionales = cargar_json(DATOS_PROFESIONALES, {})
     contexto_competitivo = cargar_json(CONTEXTO_COMPETITIVO, {})
     patrones_competitivos = cargar_json(PATRONES_COMPETITIVOS, {})
     perfiles_autonomos = cargar_json(PERFILES_EQUIPOS, {})
@@ -1803,12 +1942,24 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             probs, pesos_dinamicos, local_comp, visitante_comp, contexto_local, contexto_visitante
         )
         lecturas_motivacion.extend(lecturas_pesos_dinamicos)
+        datos_profesionales_partido = buscar_datos_profesionales_partido(datos_profesionales, jornada, partido)
+        probs, riesgo_datos_profesionales, lecturas_datos_profesionales, resumen_profesional = ajustar_por_datos_profesionales(
+            probs,
+            datos_profesionales_partido,
+        )
+        lecturas_motivacion.extend(lecturas_datos_profesionales)
         inc = incertidumbre(
             probs,
             local,
             visitante,
             diff,
-            riesgo_contexto + riesgo_perfiles + riesgo_motivacion + riesgo_patrones + riesgo_aprendizaje + riesgo_pesos_dinamicos,
+            riesgo_contexto
+            + riesgo_perfiles
+            + riesgo_motivacion
+            + riesgo_patrones
+            + riesgo_aprendizaje
+            + riesgo_pesos_dinamicos
+            + riesgo_datos_profesionales,
         )
         sorpresa = probabilidad_sorpresa(probs, inc)
         trazabilidad = trazabilidad_datos_partido(
@@ -1818,6 +1969,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             contexto_visitante,
             local_comp,
             visitante_comp,
+            datos_profesionales_partido,
         )
         trazabilidad["modelo_entrenado"] = ajuste_modelo_entrenado
         if ajuste_modelo_entrenado.get("activo"):
@@ -1852,6 +2004,12 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
                 "activo": bool(lecturas_pesos_dinamicos),
                 "riesgo_extra": riesgo_pesos_dinamicos,
                 "lecturas": lecturas_pesos_dinamicos,
+            },
+            "datos_profesionales": resumen_profesional,
+            "ajuste_datos_profesionales": {
+                "activo": bool(lecturas_datos_profesionales),
+                "riesgo_extra": riesgo_datos_profesionales,
+                "lecturas": lecturas_datos_profesionales,
             },
             "trazabilidad_datos": trazabilidad,
             "_local": local,
@@ -1948,6 +2106,8 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "ajuste_modelo_entrenado": partido["ajuste_modelo_entrenado"],
             "ajuste_aprendizaje": partido["ajuste_aprendizaje"],
             "ajuste_pesos_dinamicos": partido["ajuste_pesos_dinamicos"],
+            "datos_profesionales": partido["datos_profesionales"],
+            "ajuste_datos_profesionales": partido["ajuste_datos_profesionales"],
             "elige8": False,
             "razonamiento": razonamiento,
             "explicabilidad_ia": explicacion,
@@ -2013,6 +2173,30 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         }
         for p in sorted(partidos, key=prioridad_elige8, reverse=True)
     ][:8]
+    resumen_profesional_boleto = {
+        "estado_global": datos_profesionales.get("estado_global"),
+        "temporada_objetivo": datos_profesionales.get("temporada_objetivo"),
+        "generado_en": datos_profesionales.get("generado_en"),
+        "resumen_fuente": datos_profesionales.get("resumen", {}),
+        "partidos_con_cuotas": sum(
+            1 for p in partidos if ((p.get("datos_profesionales") or {}).get("capas") or {}).get("cuotas")
+        ),
+        "partidos_con_bajas_estructuradas": sum(
+            1
+            for p in partidos
+            if ((p.get("datos_profesionales") or {}).get("capas") or {}).get("bajas_estructuradas")
+        ),
+        "partidos_con_alineaciones": sum(
+            1
+            for p in partidos
+            if ((p.get("datos_profesionales") or {}).get("capas") or {}).get("alineaciones_probables")
+        ),
+        "partidos_con_clasificacion_oficial": sum(
+            1
+            for p in partidos
+            if ((p.get("datos_profesionales") or {}).get("capas") or {}).get("clasificacion_oficial")
+        ),
+    }
 
     salida = {
         "version": "1.4",
@@ -2076,6 +2260,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "motivo": modelo_runtime.get("motivo"),
             "manifest": modelo_runtime.get("manifest", {}),
         },
+        "datos_profesionales": resumen_profesional_boleto,
         "pleno15": data.get("pleno15"),
         "resumen": {
             "fijos": sum(1 for p in partidos if p["tipo"] == "FIJO"),

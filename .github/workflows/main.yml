@@ -21,6 +21,9 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+    env:
+      QUINIHUB_PRO_DATA_URL: ${{ secrets.QUINIHUB_PRO_DATA_URL }}
+      QUINIHUB_PRO_DATA_TOKEN: ${{ secrets.QUINIHUB_PRO_DATA_TOKEN }}
 
     steps:
       - name: Descargar repositorio

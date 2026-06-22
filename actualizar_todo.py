@@ -57,6 +57,7 @@ SCRIPTS_ACTIVOS = [
 
     # Memoria especifica de competiciones internacionales y capa de datos profesionales.
     "generar_memoria_mundial_2026.py",
+    "actualizar_datos_profesionales.py",
     "auditar_fuentes_profesionales.py",
     "resolver_competiciones_profesionales.py",
 

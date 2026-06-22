@@ -54,6 +54,39 @@ Antes de actualizar datos en GitHub Actions se ejecuta:
 
 Si `scikit-learn` no esta instalado, el pipeline no rompe la actualizacion: degrada a baseline Elo/Poisson y deja constancia en `metricas_modelo.json`.
 
+## Datos profesionales vivos
+
+`actualizar_datos_profesionales.py` crea y mantiene `data/datos_profesionales.json`.
+
+La capa acepta un JSON normalizado desde GitHub Secrets:
+
+- `QUINIHUB_PRO_DATA_URL`: endpoint autorizado con cuotas 1X2, bajas/sanciones, alineaciones probables, calendario y clasificaciones.
+- `QUINIHUB_PRO_DATA_TOKEN`: token bearer opcional para ese endpoint.
+
+Si esos secretos no existen, el workflow no falla: conserva un esqueleto auditable y marca las fuentes como pendientes. Cuando el endpoint este configurado, `motor_prediccion_quiniela.py` mezcla las cuotas de mercado con su probabilidad propia, penaliza bajas/sanciones estructuradas, sube riesgo si el once probable es dudoso y deja trazabilidad por partido.
+
+El formato esperado por partido es:
+
+```json
+{
+  "jornada": 1,
+  "num": 1,
+  "local": "Equipo Local",
+  "visitante": "Equipo Visitante",
+  "cuotas": {"1": 1.8, "X": 3.4, "2": 4.8, "fuente": "proveedor"},
+  "bajas": {
+    "local": {"lesiones": [{"jugador": "Nombre", "impacto": 2.0, "titular": true}], "sanciones": [], "dudas": []},
+    "visitante": {"lesiones": [], "sanciones": [], "dudas": []}
+  },
+  "alineaciones": {
+    "local": {"titulares_probables": ["Jugador 1"], "confianza": 0.8},
+    "visitante": {"titulares_probables": ["Jugador 1"], "confianza": 0.8}
+  },
+  "calendario": {"fecha": "2026-08-16", "hora": "21:00", "temporada": "2026/2027", "fuente": "oficial"},
+  "clasificacion": {"temporada": "2026/2027", "local": {"posicion": 4, "puntos": 18}, "visitante": {"posicion": 14, "puntos": 9}}
+}
+```
+
 ## Prediccion y backtesting
 
 Cuando no se pasan dobles/triples manuales, `motor_prediccion_quiniela.py` aplica cobertura automatica segun incertidumbre, margen de probabilidad, empate alto, sorpresa y necesidad competitiva. Esto evita publicar por defecto 14 fijos en jornadas abiertas.

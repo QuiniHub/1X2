@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-22T18:20:56.247447+00:00",
+  "generado_en": "2026-06-22T18:40:00.200742+00:00",
   "estado": "operativo_con_avisos",
   "score_salud": 76,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
@@ -109,7 +109,7 @@
   },
   "prediccion": {
     "jornada": 69,
-    "generado_en": "2026-06-22T18:20:55.079595+00:00",
+    "generado_en": "2026-06-22T18:38:53.572974+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 0,
@@ -173,9 +173,9 @@
     }
   },
   "fuentes": {
-    "memoria_horas": 0.01,
-    "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 5.0,
+    "memoria_horas": 0.03,
+    "estado_vivo_horas": 0.02,
+    "contexto_equipos_horas": 5.32,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -186,8 +186,8 @@
         "detalle": "Google News RSS por titulares; util para alertas, no garantiza partes medicos oficiales."
       },
       "cuotas": {
-        "estado": "pendiente_api",
-        "detalle": "No hay cuotas reales integradas en el motor activo."
+        "estado": "pendiente_secret",
+        "detalle": "No hay cuotas reales integradas; falta QUINIHUB_PRO_DATA_URL/TOKEN."
       },
       "xg": {
         "estado": "pendiente_fuente",
@@ -195,7 +195,15 @@
       },
       "lesiones_sanciones_alineaciones": {
         "estado": "parcial",
-        "detalle": "Se infiere por noticias; falta API o fuente oficial estructurada."
+        "detalle": "Bajas estructuradas en 0 partidos; alineaciones en 0."
+      },
+      "calendario_2026_2027": {
+        "estado": "pendiente_publicacion_o_api",
+        "detalle": "0 partidos con calendario oficial normalizado."
+      },
+      "clasificaciones_2026_2027": {
+        "estado": "conectado_parcial",
+        "detalle": "0 partidos con clasificacion oficial cruzada."
       },
       "arbitros_clima": {
         "estado": "pendiente",
@@ -205,6 +213,30 @@
         "estado": "pendiente",
         "detalle": "No hay consenso de apostantes integrado."
       }
+    },
+    "datos_profesionales": {
+      "estado_global": "pendiente_secrets",
+      "temporada_objetivo": "2026/2027",
+      "generado_en": "2026-06-22T18:39:53Z",
+      "resumen": {
+        "partidos_enriquecidos": 0,
+        "cuotas": 0,
+        "bajas_estructuradas": 0,
+        "alineaciones_probables": 0,
+        "calendario_oficial": 0,
+        "clasificacion_oficial": 0
+      },
+      "configuracion": {
+        "secrets_soportados": [
+          "QUINIHUB_PRO_DATA_URL",
+          "QUINIHUB_PRO_DATA_TOKEN",
+          "QUINIHUB_PRO_DATA_FILE"
+        ],
+        "url_configurada": false,
+        "token_configurado": false,
+        "archivo_local_configurado": false,
+        "formato": "JSON normalizado con partidos, cuotas 1X2, bajas, alineaciones, calendario y clasificacion."
+      }
     }
   },
   "backtesting_pre_cierre": {
@@ -213,7 +245,7 @@
     "partidos_cerrados": 40,
     "aciertos": 27,
     "precision": 67.5,
-    "generado_en": "2026-06-22T18:20:55.649755+00:00",
+    "generado_en": "2026-06-22T18:38:56.120054+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -232,8 +264,8 @@
     {
       "nivel": "media",
       "titulo": "Fuentes deportivas incompletas",
-      "detalle": "Cuotas, xG, alineaciones, sanciones oficiales, arbitros y porcentajes apostados aun no son datos vivos completos.",
-      "accion": "Conectar APIs o datasets autorizados para subir calidad predictiva."
+      "detalle": "Faltan datos profesionales estructurados: cuotas, bajas/sanciones, alineaciones, calendario 2026/2027, clasificaciones 2026/2027.",
+      "accion": "Configurar QUINIHUB_PRO_DATA_URL/TOKEN con un proveedor autorizado."
     },
     {
       "nivel": "baja",
@@ -251,7 +283,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-06-22T18:20:56.247447+00:00",
+    "generado_en": "2026-06-22T18:40:00.200742+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
@@ -435,7 +467,7 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-06-22T18:20:38.089103+00:00",
+      "generado_en": "2026-06-22T18:38:14.231274+00:00",
       "oviedo": {
         "clave": "oviedo",
         "equipo": "Real Oviedo",
@@ -836,7 +868,7 @@
     },
     "prediccion": {
       "jornada": 69,
-      "generado_en": "2026-06-22T18:20:55.079595+00:00",
+      "generado_en": "2026-06-22T18:38:53.572974+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 0,
@@ -1033,7 +1065,7 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-06-22T18:20:38.089103+00:00",
+    "generado_en": "2026-06-22T18:38:14.231274+00:00",
     "oviedo": {
       "clave": "oviedo",
       "equipo": "Real Oviedo",

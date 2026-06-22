@@ -312,9 +312,14 @@ def diagnosticar_fuentes(alertas):
     memoria = cargar_json(MEMORIA / "aprendizaje_global.json", {})
     estado = cargar_json(MEMORIA / "estado_vivo.json", {})
     contexto = cargar_json(DATA / "contexto_equipos.json", {})
+    datos_profesionales = cargar_json(DATA / "datos_profesionales.json", {})
     edad_memoria = edad_horas(memoria.get("generado_en"))
     edad_estado = edad_horas(estado.get("generado_en"))
     edad_contexto = edad_horas(contexto.get("generado_en"))
+    resumen_profesional = datos_profesionales.get("resumen") or {}
+
+    def estado_conector(clave, pendiente="pendiente_secret"):
+        return "conectado_estructurado" if int(resumen_profesional.get(clave) or 0) > 0 else pendiente
 
     if edad_contexto is not None and edad_contexto > float(contexto.get("ttl_horas") or 6) + 1:
         alertas.append({
@@ -323,6 +328,12 @@ def diagnosticar_fuentes(alertas):
             "detalle": f"El contexto de equipos tiene {edad_contexto} horas.",
             "accion": "Refrescar noticias antes de valorar bajas, sanciones o altas.",
         })
+
+    cuotas_estado = estado_conector("cuotas")
+    bajas_estado = estado_conector("bajas_estructuradas")
+    alineaciones_estado = estado_conector("alineaciones_probables")
+    calendario_estado = estado_conector("calendario_oficial", "pendiente_publicacion_o_api")
+    clasificacion_estado = estado_conector("clasificacion_oficial", "conectado_parcial")
 
     modulos = {
         "resultados_directo": {
@@ -333,28 +344,65 @@ def diagnosticar_fuentes(alertas):
             "estado": "conectado_rss",
             "detalle": "Google News RSS por titulares; util para alertas, no garantiza partes medicos oficiales.",
         },
-        "cuotas": {"estado": "pendiente_api", "detalle": "No hay cuotas reales integradas en el motor activo."},
+        "cuotas": {
+            "estado": cuotas_estado,
+            "detalle": (
+                f"{resumen_profesional.get('cuotas', 0)} partidos con cuotas 1X2 estructuradas."
+                if cuotas_estado.startswith("conectado")
+                else "No hay cuotas reales integradas; falta QUINIHUB_PRO_DATA_URL/TOKEN."
+            ),
+        },
         "xg": {"estado": "pendiente_fuente", "detalle": "El archivo xG es plantilla, no dato vivo."},
         "lesiones_sanciones_alineaciones": {
-            "estado": "parcial",
-            "detalle": "Se infiere por noticias; falta API o fuente oficial estructurada.",
+            "estado": "conectado_estructurado" if bajas_estado.startswith("conectado") or alineaciones_estado.startswith("conectado") else "parcial",
+            "detalle": (
+                f"Bajas estructuradas en {resumen_profesional.get('bajas_estructuradas', 0)} partidos; "
+                f"alineaciones en {resumen_profesional.get('alineaciones_probables', 0)}."
+            ),
+        },
+        "calendario_2026_2027": {
+            "estado": calendario_estado,
+            "detalle": f"{resumen_profesional.get('calendario_oficial', 0)} partidos con calendario oficial normalizado.",
+        },
+        "clasificaciones_2026_2027": {
+            "estado": clasificacion_estado,
+            "detalle": f"{resumen_profesional.get('clasificacion_oficial', 0)} partidos con clasificacion oficial cruzada.",
         },
         "arbitros_clima": {"estado": "pendiente", "detalle": "No influye todavia en probabilidades reales."},
         "porcentajes_apostados": {"estado": "pendiente", "detalle": "No hay consenso de apostantes integrado."},
     }
 
-    alertas.append({
-        "nivel": "media",
-        "titulo": "Fuentes deportivas incompletas",
-        "detalle": "Cuotas, xG, alineaciones, sanciones oficiales, arbitros y porcentajes apostados aun no son datos vivos completos.",
-        "accion": "Conectar APIs o datasets autorizados para subir calidad predictiva.",
-    })
+    faltantes = [
+        nombre
+        for nombre, clave in (
+            ("cuotas", "cuotas"),
+            ("bajas/sanciones", "bajas_estructuradas"),
+            ("alineaciones", "alineaciones_probables"),
+            ("calendario 2026/2027", "calendario_oficial"),
+            ("clasificaciones 2026/2027", "clasificacion_oficial"),
+        )
+        if int(resumen_profesional.get(clave) or 0) == 0
+    ]
+    if faltantes:
+        alertas.append({
+            "nivel": "media",
+            "titulo": "Fuentes deportivas incompletas",
+            "detalle": "Faltan datos profesionales estructurados: " + ", ".join(faltantes) + ".",
+            "accion": "Configurar QUINIHUB_PRO_DATA_URL/TOKEN con un proveedor autorizado.",
+        })
 
     return {
         "memoria_horas": edad_memoria,
         "estado_vivo_horas": edad_estado,
         "contexto_equipos_horas": edad_contexto,
         "modulos": modulos,
+        "datos_profesionales": {
+            "estado_global": datos_profesionales.get("estado_global"),
+            "temporada_objetivo": datos_profesionales.get("temporada_objetivo"),
+            "generado_en": datos_profesionales.get("generado_en"),
+            "resumen": resumen_profesional,
+            "configuracion": datos_profesionales.get("configuracion", {}),
+        },
     }
 
 
