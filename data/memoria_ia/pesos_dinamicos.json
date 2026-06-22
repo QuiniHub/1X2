@@ -1,6 +1,6 @@
 {
   "version": "1.2",
-  "generado_en": "2026-06-22T07:03:58.095953+00:00",
+  "generado_en": "2026-06-22T07:05:01.898821+00:00",
   "metodo": "ajustes pequenos, limites por variable, normalizacion y decay temporal",
   "referencia": {
     "forma_reciente": 0.2,
@@ -26,14 +26,14 @@
   },
   "decay_temporal": 0.92,
   "pesos": {
-    "forma_reciente": 0.102,
-    "casa_fuera": 0.0826,
+    "forma_reciente": 0.1015,
+    "casa_fuera": 0.0831,
     "clasificacion": 0.0797,
-    "goles": 0.2102,
-    "empate": 0.1751,
-    "sorpresa": 0.1558,
-    "motivacion_competitiva": 0.0756,
-    "necesidad_descenso_ascenso_europa": 0.0756,
+    "goles": 0.21,
+    "empate": 0.175,
+    "sorpresa": 0.1557,
+    "motivacion_competitiva": 0.0758,
+    "necesidad_descenso_ascenso_europa": 0.0758,
     "fatiga": 0.0217,
     "bajas": 0.0217
   },
@@ -46,22 +46,22 @@
   "ajustes": [
     {
       "peso": "sorpresa",
-      "delta": 0.0041,
-      "antes": 0.1559,
+      "delta": 0.0042,
+      "antes": 0.1558,
       "despues": 0.16,
       "motivo": "Demasiados fallos de fijo: subir cautela de sorpresa."
     },
     {
       "peso": "forma_reciente",
       "delta": -0.01,
-      "antes": 0.1025,
-      "despues": 0.0925,
+      "antes": 0.102,
+      "despues": 0.092,
       "motivo": "Los fijos fallados aconsejan no sobreponderar forma reciente."
     },
     {
       "peso": "clasificacion",
-      "delta": -0.0078,
-      "antes": 0.0798,
+      "delta": -0.0077,
+      "antes": 0.0797,
       "despues": 0.072,
       "motivo": "Reducir confianza ciega en clasificacion cuando falla el fijo."
     },
@@ -74,23 +74,23 @@
     },
     {
       "peso": "goles",
-      "delta": 0.0056,
-      "antes": 0.2104,
+      "delta": 0.0058,
+      "antes": 0.2102,
       "despues": 0.216,
       "motivo": "Los dobles fallados suelen exigir revisar lectura de goles."
     },
     {
       "peso": "empate",
-      "delta": 0.0047,
-      "antes": 0.1753,
+      "delta": 0.0049,
+      "antes": 0.1751,
       "despues": 0.18,
       "motivo": "Empates no cubiertos por encima del umbral."
     },
     {
       "peso": "casa_fuera",
       "delta": -0.006,
-      "antes": 0.0819,
-      "despues": 0.0759,
+      "antes": 0.0826,
+      "despues": 0.0766,
       "motivo": "Bajar ligeramente sesgo local/visitante cuando falta la X."
     },
     {
