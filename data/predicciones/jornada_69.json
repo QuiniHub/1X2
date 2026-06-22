@@ -1,6 +1,6 @@
 {
   "version": "1.2",
-  "generado_en": "2026-06-22T21:12:37.894926+00:00",
+  "generado_en": "2026-06-22T22:57:15.761373+00:00",
   "jornada": 69,
   "fecha": "Miércoles, 24 de junio de 2026",
   "fuente": "https://www.quinielafutbol.info/proximas-jornadas-de-la-quiniela.html",
@@ -575,7 +575,7 @@
     "importe_total": 0
   },
   "mensaje": "Jornada cargada con 14 partidos y Pleno al 15. Prediccion bloqueada hasta cerrar y aprender la jornada anterior.",
-  "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 68 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 69 hasta cerrar y aprender la 68.",
+  "motivo_bloqueo": "Aprendizaje pendiente de la jornada anterior: faltan revisiones_prediccion_resultado, metricas_probabilisticas, fiabilidad_equipos.",
   "estado_jornada_objetivo": {
     "ultima_jornada_aprendida": 68,
     "jornada_objetivo": 69,
@@ -657,29 +657,37 @@
       70
     ],
     "jornadas_intermedias_faltantes": [],
-    "generado_en": "2026-06-22T21:12:37.894125+00:00",
+    "generado_en": "2026-06-22T22:57:15.742082+00:00",
     "jornada_anterior": 68,
     "prediccion_permitida": false,
-    "motivo": "Cierre pendiente de la jornada anterior: la jornada 68 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 69 hasta cerrar y aprender la 68.",
+    "motivo": "Aprendizaje pendiente de la jornada anterior: faltan revisiones_prediccion_resultado, metricas_probabilisticas, fiabilidad_equipos.",
     "publicar_solo_boleto": true,
     "publicar_prediccion": false,
-    "estado": "bloqueada",
-    "estado_prediccion_actual": "bloqueada",
+    "estado": "aprendiendo",
+    "estado_prediccion_actual": "aprendiendo",
     "en_espera": true,
-    "resultados_completos_anterior": false,
+    "resultados_completos_anterior": true,
     "aprendizaje_aplicado_anterior": false,
-    "actualizado_en": "2026-06-22T21:12:37.894415+00:00",
+    "actualizado_en": "2026-06-22T22:57:15.760843+00:00",
     "detalle_cierre_anterior": {
-      "ok": false,
+      "ok": true,
       "total": 14,
-      "cerrados": 13,
-      "faltan": [
-        13
-      ]
+      "cerrados": 14,
+      "faltan": []
     },
-    "estado_jornada_anterior": "pendiente",
+    "estado_jornada_anterior": "cerrada",
+    "detalle_aprendizaje_anterior": {
+      "ok": false,
+      "faltan": [
+        "revisiones_prediccion_resultado",
+        "metricas_probabilisticas",
+        "fiabilidad_equipos"
+      ],
+      "revisiones": 0,
+      "diario": 14
+    },
     "bloqueada": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 68 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 69 hasta cerrar y aprender la 68."
+    "motivo_bloqueo": "Aprendizaje pendiente de la jornada anterior: faltan revisiones_prediccion_resultado, metricas_probabilisticas, fiabilidad_equipos."
   },
   "resumen": {
     "fijos": 0,
@@ -692,7 +700,7 @@
     "prediccion": "BLOQUEADA_POR_APRENDIZAJE_PENDIENTE"
   },
   "resolucion_competiciones": {
-    "generado_en": "2026-06-22T21:12:38.186129+00:00",
+    "generado_en": "2026-06-22T22:57:16.095012+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
       "mundial_2026": 6,
@@ -702,12 +710,12 @@
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
   },
   "calibracion_probabilidades": {
-    "generado_en": "2026-06-22T21:12:38.539849+00:00",
+    "generado_en": "2026-06-22T22:57:16.446118+00:00",
     "estado": "muestra_baja",
     "muestra": "baja",
-    "partidos_evaluados": 41,
-    "brier_medio": 0.6506,
-    "logloss_medio": 1.0681,
+    "partidos_evaluados": 42,
+    "brier_medio": 0.6516,
+    "logloss_medio": 1.0698,
     "criterio": "No presentar porcentajes como plenamente fiables si la muestra es baja."
   },
   "prediccion_permitida": false,
