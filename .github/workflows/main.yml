@@ -5,7 +5,9 @@ on:
   push:
     branches:
       - main
-  page_build:
+  # GitHub Pages despliega la web tras cada push a main. No se debe escuchar
+  # page_build aqui: provocaria una segunda actualizacion automatica despues
+  # del despliegue y encadenaria commits de datos innecesarios.
   schedule:
     - cron: "*/5 * * * *"
 
