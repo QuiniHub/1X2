@@ -1,7 +1,7 @@
 {
-  "version": "1.1",
-  "generado_en": "2026-06-21T08:44:02.758450+00:00",
-  "metodo": "ajustes pequenos y acumulativos; maximo 0.02 por peso y ejecucion",
+  "version": "1.2",
+  "generado_en": "2026-06-22T07:00:17.787166+00:00",
+  "metodo": "ajustes pequenos, limites por variable, normalizacion y decay temporal",
   "referencia": {
     "forma_reciente": 0.2,
     "casa_fuera": 0.15,
@@ -14,87 +14,114 @@
     "fatiga": 0.02,
     "bajas": 0.02
   },
+  "limites": {
+    "empate": [
+      0.06,
+      0.18
+    ],
+    "sorpresa": [
+      0.05,
+      0.16
+    ]
+  },
+  "decay_temporal": 0.92,
   "pesos": {
-    "forma_reciente": 0.01,
-    "casa_fuera": 0.01,
-    "clasificacion": 0.01,
-    "goles": 0.348,
-    "empate": 0.35,
-    "sorpresa": 0.35,
-    "motivacion_competitiva": 0.07,
-    "necesidad_descenso_ascenso_europa": 0.07,
-    "fatiga": 0.02,
-    "bajas": 0.02
+    "forma_reciente": 0.1025,
+    "casa_fuera": 0.0819,
+    "clasificacion": 0.0798,
+    "goles": 0.2104,
+    "empate": 0.1753,
+    "sorpresa": 0.1559,
+    "motivacion_competitiva": 0.0754,
+    "necesidad_descenso_ascenso_europa": 0.0754,
+    "fatiga": 0.0216,
+    "bajas": 0.0216
   },
   "muestra": {
-    "partidos_validados": 134,
+    "partidos_validados": 137,
     "fallos": 52,
     "jornadas_validadas": 10,
-    "elige8_precision": 82.69
+    "elige8_precision": 83.33
   },
   "ajustes": [
     {
       "peso": "sorpresa",
-      "delta": 0.0,
-      "antes": 0.35,
-      "despues": 0.35,
+      "delta": 0.0037,
+      "antes": 0.1563,
+      "despues": 0.16,
       "motivo": "Demasiados fallos de fijo: subir cautela de sorpresa."
     },
     {
       "peso": "forma_reciente",
-      "delta": 0.0,
-      "antes": 0.01,
-      "despues": 0.01,
+      "delta": -0.01,
+      "antes": 0.1029,
+      "despues": 0.0929,
       "motivo": "Los fijos fallados aconsejan no sobreponderar forma reciente."
     },
     {
       "peso": "clasificacion",
-      "delta": 0.0,
-      "antes": 0.01,
-      "despues": 0.01,
+      "delta": -0.008,
+      "antes": 0.08,
+      "despues": 0.072,
       "motivo": "Reducir confianza ciega en clasificacion cuando falla el fijo."
     },
     {
       "peso": "sorpresa",
       "delta": 0.0,
-      "antes": 0.35,
-      "despues": 0.35,
+      "antes": 0.16,
+      "despues": 0.16,
       "motivo": "Dobles insuficientes: el tercer signo necesita mas peso."
     },
     {
       "peso": "goles",
-      "delta": 0.006,
-      "antes": 0.342,
-      "despues": 0.348,
+      "delta": 0.0051,
+      "antes": 0.2109,
+      "despues": 0.216,
       "motivo": "Los dobles fallados suelen exigir revisar lectura de goles."
     },
     {
       "peso": "empate",
-      "delta": 0.0,
-      "antes": 0.35,
-      "despues": 0.35,
+      "delta": 0.0043,
+      "antes": 0.1757,
+      "despues": 0.18,
       "motivo": "Empates no cubiertos por encima del umbral."
     },
     {
       "peso": "casa_fuera",
-      "delta": 0.0,
-      "antes": 0.01,
-      "despues": 0.01,
+      "delta": -0.006,
+      "antes": 0.0811,
+      "despues": 0.0751,
       "motivo": "Bajar ligeramente sesgo local/visitante cuando falta la X."
     },
     {
       "peso": "sorpresa",
       "delta": 0.0,
-      "antes": 0.35,
-      "despues": 0.35,
+      "antes": 0.16,
+      "despues": 0.16,
       "motivo": "Partidos sorpresa sin cubrir: aumentar cautela acumulada."
     },
     {
       "peso": "clasificacion",
       "delta": 0.0,
-      "antes": 0.01,
-      "despues": 0.01,
+      "antes": 0.072,
+      "despues": 0.072,
       "motivo": "Las sorpresas recomiendan suavizar clasificacion pura."
+    },
+    {
+      "peso": "todos",
+      "delta": 0,
+      "motivo": "Normalizacion automatica con limites y decay temporal para evitar saturacion de pesos.",
+      "decay": 0.92,
+      "limites": {
+        "empate": [
+          0.06,
+          0.18
+        ],
+        "sorpresa": [
+          0.05,
+          0.16
+        ]
+      }
     }
   ]
 }

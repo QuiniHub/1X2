@@ -5159,11 +5159,53 @@
       };
     }
 
-    function prediccionBackendActiva(prediccionBackend) {
+    function prediccionBackendMismaJornada(prediccionBackend) {
       return prediccionBackend
         && Number(prediccionBackend.jornada) === Number(jornadaActualIA)
         && Array.isArray(prediccionBackend.partidos)
         && prediccionBackend.partidos.length;
+    }
+
+    function prediccionBackendBloqueada(prediccionBackend) {
+      if (!prediccionBackendMismaJornada(prediccionBackend)) return false;
+      const estado = String(prediccionBackend.estado || "").toLowerCase();
+      return prediccionBackend.prediccion_disponible === false
+        || prediccionBackend.publicar_prediccion === false
+        || prediccionBackend.prediccion_permitida === false
+        || estado.includes("bloqueada")
+        || estado.includes("aprendiendo")
+        || estado.includes("pendiente");
+    }
+
+    function prediccionBackendActiva(prediccionBackend) {
+      return prediccionBackendMismaJornada(prediccionBackend)
+        && !prediccionBackendBloqueada(prediccionBackend)
+        && prediccionBackend.prediccion_disponible !== false
+        && prediccionBackend.publicar_prediccion !== false
+        && prediccionBackend.prediccion_permitida !== false
+        && prediccionBackend.partidos.some(p => p.probabilidades && Object.keys(p.probabilidades).length);
+    }
+
+    function mensajePrediccionNoAutorizada(prediccionBackend) {
+      return prediccionBackend?.motivo_bloqueo
+        || prediccionBackend?.mensaje
+        || prediccionBackend?.compuerta_maestra?.motivo
+        || "Prediccion retenida por la compuerta maestra hasta cerrar y aprender la jornada anterior.";
+    }
+
+    function mostrarPrediccionNoAutorizada(prediccionBackend) {
+      const contenedor = document.getElementById("boleto-ia");
+      if (!contenedor) return;
+      ultimoBoletoIAGenerado = null;
+      pintarCosteQuiniela({ apuestas: 0, importeTotal: 0 });
+      contenedor.innerHTML = `
+        <div class="boleto-resumen">
+          <strong>Jornada ${jornadaActualIA || prediccionBackend?.jornada || "-"}</strong> · Prediccion IA bloqueada
+        </div>
+        <div class="manual-form">
+          <p class="small-muted">${mensajePrediccionNoAutorizada(prediccionBackend)}</p>
+        </div>
+      `;
     }
 
     function aplicarCoberturaBoletoIA(partidos, dobles, triples) {
@@ -5201,6 +5243,10 @@
       let activarElige8 = document.getElementById("activar-elige8")?.checked;
       const prediccionBackend = await fetchJSON("data/predicciones/ultima_prediccion.json", null);
       const hayPrediccionBackend = prediccionBackendActiva(prediccionBackend);
+      if (!hayPrediccionBackend) {
+        mostrarPrediccionNoAutorizada(prediccionBackend);
+        return;
+      }
       const doblesBackend = Number(prediccionBackend?.resumen?.dobles ?? prediccionBackend?.configuracion?.dobles ?? 0);
       const triplesBackend = Number(prediccionBackend?.resumen?.triples ?? prediccionBackend?.configuracion?.triples ?? 0);
       const usarPrediccionBackend = hayPrediccionBackend

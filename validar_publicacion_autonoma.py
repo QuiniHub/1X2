@@ -4,6 +4,8 @@ import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
+from compuerta_jornada import normalizar_estado_publicacion
+
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 PREDICCIONES = DATA / "predicciones"
@@ -133,6 +135,12 @@ def datos_limitados(partido):
 def validar_prediccion(pred):
     errores = []
     avisos = []
+    pred = normalizar_estado_publicacion(pred)
+    tipos = {"FIJO": 0, "DOBLE": 0, "TRIPLE": 0}
+    if pred.get("prediccion_disponible") is False or not pred.get("publicar_prediccion", True):
+        avisos.append(pred.get("motivo_bloqueo") or pred.get("mensaje") or "Prediccion no disponible por compuerta maestra.")
+        return errores, avisos, tipos
+
     partidos = pred.get("partidos", [])[:14]
     jornada = pred.get("jornada")
 
@@ -141,7 +149,6 @@ def validar_prediccion(pred):
     if len(partidos) < 14:
         errores.append("La prediccion no contiene 14 partidos.")
 
-    tipos = {"FIJO": 0, "DOBLE": 0, "TRIPLE": 0}
     partidos_datos_limitados = []
     for partido in partidos:
         tipo = str(partido.get("tipo") or "").upper()
@@ -211,10 +218,14 @@ def validar_prediccion(pred):
 def main():
     pred = cargar_json(PREDICCIONES / "ultima_prediccion.json", {})
     errores, avisos, tipos = validar_prediccion(pred)
+    pred = normalizar_estado_publicacion(pred)
     diagnostico = {
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "jornada_publicada": pred.get("jornada"),
-        "estado": "bloqueada" if errores else "lista",
+        "estado": "bloqueada" if errores else pred.get("estado", "lista_para_publicar"),
+        "prediccion_disponible": pred.get("prediccion_disponible") is not False,
+        "publicar_solo_boleto": pred.get("publicar_solo_boleto", False),
+        "publicar_prediccion": pred.get("publicar_prediccion", True),
         "errores": errores,
         "avisos": avisos,
         "resumen_boleto": tipos,

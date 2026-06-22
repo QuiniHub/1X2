@@ -9,6 +9,9 @@ JORNADAS = DATA / "jornadas"
 OUT = DATA / "aprendizaje_ia.json"
 QUINIELAS_JUGADAS = DATA / "quinielas_jugadas.json"
 HISTORIAL_QUINIELAS = DATA / "historial_quinielas.json"
+PREDICCIONES = DATA / "predicciones"
+SNAPSHOTS = DATA / "backtesting" / "pre_cierre"
+PESOS_DINAMICOS = DATA / "memoria_ia" / "pesos_dinamicos.json"
 
 
 def cargar_json(path, default=None):
@@ -99,6 +102,91 @@ def cargar_jugadas_validadas():
         if normalizada and jornada not in jugadas:
             jugadas[jornada] = normalizada
     return jugadas
+
+
+def indexar_partidos_prediccion(prediccion):
+    return {
+        int(partido.get("num") or 0): partido
+        for partido in (prediccion or {}).get("partidos", [])
+        if str(partido.get("num") or "").isdigit()
+    }
+
+
+def cargar_predicciones_por_jornada():
+    predicciones = {}
+    if PREDICCIONES.exists():
+        for path in sorted(PREDICCIONES.glob("jornada_*.json")):
+            data = cargar_json(path, {})
+            jornada = data.get("jornada")
+            if str(jornada or "").isdigit() and data.get("prediccion_disponible") is not False:
+                predicciones[int(jornada)] = indexar_partidos_prediccion(data)
+    if SNAPSHOTS.exists():
+        for path in sorted(SNAPSHOTS.glob("jornada_*.json")):
+            snap = cargar_json(path, {})
+            pred = snap.get("prediccion") or snap
+            jornada = snap.get("jornada") or pred.get("jornada")
+            if str(jornada or "").isdigit():
+                predicciones[int(jornada)] = indexar_partidos_prediccion(pred)
+    return predicciones
+
+
+def fuentes_utilizadas(prediccion):
+    fuentes = []
+    if not prediccion:
+        return fuentes
+    origen = prediccion.get("origen_probabilidades")
+    if origen:
+        fuentes.append(origen)
+    trazabilidad = prediccion.get("trazabilidad_datos") or {}
+    memoria = trazabilidad.get("memoria_estadistica") or {}
+    fuente_memoria = memoria.get("fuente")
+    if fuente_memoria:
+        fuentes.append(fuente_memoria)
+    if trazabilidad.get("noticias_recientes", {}).get("local") or trazabilidad.get("noticias_recientes", {}).get("visitante"):
+        fuentes.append("contexto_equipos")
+    if trazabilidad.get("contexto_competitivo", {}).get("local") or trazabilidad.get("contexto_competitivo", {}).get("visitante"):
+        fuentes.append("contexto_competitivo")
+    return sorted(dict.fromkeys(str(f) for f in fuentes if f))
+
+
+def extraer_clasificacion(prediccion, partido):
+    return {
+        "local": {
+            "equipo": partido.get("local"),
+            "posicion": prediccion.get("posicion_local") or partido.get("posicion_local"),
+            "puntos": prediccion.get("puntos_local") or partido.get("puntos_local"),
+        },
+        "visitante": {
+            "equipo": partido.get("visitante"),
+            "posicion": prediccion.get("posicion_visitante") or partido.get("posicion_visitante"),
+            "puntos": prediccion.get("puntos_visitante") or partido.get("puntos_visitante"),
+        },
+    }
+
+
+def extraer_forma_reciente(prediccion, partido):
+    contexto_local = prediccion.get("contexto_local") or {}
+    contexto_visitante = prediccion.get("contexto_visitante") or {}
+    return {
+        "local": contexto_local.get("forma_reciente") or partido.get("forma_local") or contexto_local.get("racha") or {},
+        "visitante": contexto_visitante.get("forma_reciente") or partido.get("forma_visitante") or contexto_visitante.get("racha") or {},
+    }
+
+
+def detalle_modelo(prediccion):
+    if not prediccion:
+        return {}
+    return {
+        "probabilidades_usadas": prediccion.get("probabilidades") or {},
+        "fuentes_utilizadas": fuentes_utilizadas(prediccion),
+        "cuotas": prediccion.get("cuotas") or {},
+        "explicacion_modelo": prediccion.get("explicabilidad_ia") or prediccion.get("razonamiento") or "",
+        "ajuste_aprendizaje": prediccion.get("ajuste_aprendizaje") or {},
+        "ajuste_pesos_dinamicos": prediccion.get("ajuste_pesos_dinamicos") or {},
+        "ajuste_perfiles_autonomos": prediccion.get("ajuste_perfiles_autonomos") or {},
+        "perfil_autonomo_local": prediccion.get("perfil_autonomo_local") or {},
+        "perfil_autonomo_visitante": prediccion.get("perfil_autonomo_visitante") or {},
+    }
 
 
 def clasificar_fallo(pron, real):
@@ -229,10 +317,11 @@ def resumen_vacio():
     }
 
 
-def registrar_revision(resumen, jornada_num, partido, pron, real, origen):
+def registrar_revision(resumen, jornada_num, partido, pron, real, origen, prediccion=None, pesos_modelo=None):
     ok = acierta(pron, real)
     tipo = tipo_pronostico(pron)
     signos = signos_pronostico(pron)
+    motivo_error = "" if ok else clasificar_fallo(pron, real)
     resumen["partidos_revisados"] += 1
     resumen["totales_por_tipo"][tipo] += 1
     resumen["totales_por_signo_real"][real] += 1
@@ -243,22 +332,37 @@ def registrar_revision(resumen, jornada_num, partido, pron, real, origen):
         resumen["aciertos_por_signo_real"][real] += 1
     else:
         resumen["fallos"] += 1
-        resumen["fallos_por_tipo"][clasificar_fallo(pron, real)] += 1
+        resumen["fallos_por_tipo"][motivo_error] += 1
         resumen["fallos_por_signo_real"][real] += 1
         if real not in signos:
             resumen["signos_omitidos_en_fallo"][real] += 1
 
+    modelo = detalle_modelo(prediccion or {})
     resumen["detalle"].append({
         "jornada": jornada_num,
         "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
         "pronostico": pron,
         "tipo_pronostico": tipo,
         "resultado": partido.get("resultado"),
+        "resultado_final": partido.get("resultado"),
         "signo_real": real,
         "signos_cubiertos": "".join(signo for signo in ("1", "X", "2") if signo in signos),
         "signo_omitido": real if real not in signos else "",
         "acierto": ok,
+        "motivo_error": motivo_error,
         "origen": origen,
+        "probabilidades_usadas": modelo.get("probabilidades_usadas", {}),
+        "pesos_modelo": (pesos_modelo or {}).get("pesos", pesos_modelo or {}),
+        "fuentes_utilizadas": modelo.get("fuentes_utilizadas", []),
+        "clasificacion": extraer_clasificacion(prediccion or {}, partido),
+        "forma_reciente": extraer_forma_reciente(prediccion or {}, partido),
+        "cuotas": modelo.get("cuotas", {}),
+        "explicacion_modelo": modelo.get("explicacion_modelo", ""),
+        "ajuste_aprendizaje": modelo.get("ajuste_aprendizaje", {}),
+        "ajuste_pesos_dinamicos": modelo.get("ajuste_pesos_dinamicos", {}),
+        "ajuste_perfiles_autonomos": modelo.get("ajuste_perfiles_autonomos", {}),
+        "perfil_autonomo_local": modelo.get("perfil_autonomo_local", {}),
+        "perfil_autonomo_visitante": modelo.get("perfil_autonomo_visitante", {}),
     })
 
 
@@ -294,6 +398,8 @@ def construir_salida(resumen, fuentes_jugadas):
 def main():
     resumen = resumen_vacio()
     jugadas = cargar_jugadas_validadas()
+    predicciones = cargar_predicciones_por_jornada()
+    pesos_modelo = cargar_json(PESOS_DINAMICOS, {})
     fuentes_jugadas = Counter(jugada.get("origen") or "desconocido" for jugada in jugadas.values())
     for path in sorted(JORNADAS.glob("jornada_*.json"), key=numero_jornada):
         data = cargar_json(path, {})
@@ -310,7 +416,8 @@ def main():
                 origen = "partido"
             if not real or not pronostico_valido(pron):
                 continue
-            registrar_revision(resumen, jornada_num, partido, pron, real, origen)
+            prediccion = predicciones.get(int(data.get("jornada") or 0), {}).get(idx + 1, {})
+            registrar_revision(resumen, jornada_num, partido, pron, real, origen, prediccion, pesos_modelo)
             revisados_jornada += 1
         if revisados_jornada:
             resumen["jornadas_revisadas"] += 1

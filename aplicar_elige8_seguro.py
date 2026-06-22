@@ -57,7 +57,7 @@ def prediccion_bloqueada(prediccion):
     if prediccion.get("prediccion_disponible") is False:
         return True
     estado = str(prediccion.get("estado") or "").lower()
-    return "bloqueada" in estado or "pendiente_cierre" in estado
+    return "bloqueada" in estado or "aprendiendo" in estado or "pendiente_cierre" in estado
 
 
 def limpiar_elige8_bloqueado(prediccion):
@@ -83,9 +83,15 @@ def limpiar_elige8_bloqueado(prediccion):
     prediccion.pop("elige8_seguro", None)
     prediccion["prediccion_disponible"] = False
     prediccion["aprendizaje_pendiente"] = True
+    prediccion["prediccion_permitida"] = False
+    estado_actual = str(prediccion.get("estado") or "").lower()
+    prediccion["estado"] = estado_actual if estado_actual in {"bloqueada", "aprendiendo"} else "bloqueada"
+    prediccion["publicar_solo_boleto"] = True
+    prediccion["publicar_prediccion"] = False
     config = prediccion.setdefault("configuracion", {})
     config["elige8"] = False
     config["elige8_modo"] = "bloqueado"
+    config["elige8_modos_disponibles"] = ["conservador", "rentable"]
     config["elige8_recomendado"] = False
     prediccion["coste"] = {
         "apuestas": 0,
@@ -218,6 +224,21 @@ def evaluar_seguridad_elige8(partido):
     if tercera >= 22:
         score -= 10
         motivos.append("tercer signo vivo")
+    penalizacion_calidad = 18.0 if calidad == "baja" else 8.0 if calidad in {"media_baja", "media"} else 0.0
+    confianza_real = max(
+        min(
+            cubierta * 0.92
+            + top_prob * 0.10
+            + margen * 0.25
+            - sorpresa * 0.22
+            - indice * 0.18
+            - max(0.0, incertidumbre - 70.0) * 0.12
+            - penalizacion_calidad
+            - (16.0 if favorito_atacable else 0.0),
+            100.0,
+        ),
+        0.0,
+    )
 
     return {
         "num": int(partido.get("num", 0) or 0),
@@ -235,6 +256,7 @@ def evaluar_seguridad_elige8(partido):
         "favorito_atacable": favorito_atacable,
         "cobertura_sorpresa_sugerida": cobertura_sugerida,
         "score_seguridad": round(score, 3),
+        "confianza_real": round(confianza_real, 3),
         "cumple_umbral_seguro": not bloqueos,
         "motivos": motivos[:6],
         "bloqueos": bloqueos[:8],
@@ -262,6 +284,76 @@ def recalcular_coste(prediccion, partidos):
     }
 
 
+def score_rentable(evaluacion):
+    cobertura = 24 if len(signo_limpio(evaluacion.get("signo_final"))) == 2 else 38 if len(signo_limpio(evaluacion.get("signo_final"))) == 3 else 0
+    return round(
+        evaluacion.get("probabilidad_cubierta", 0) * 0.95
+        + evaluacion.get("margen", 0) * 0.25
+        + min(evaluacion.get("indice_sorpresa_quinielistica", 0), 70) * 0.22
+        + cobertura
+        - max(0.0, evaluacion.get("probabilidad_sorpresa", 0) - 62) * 0.45,
+        3,
+    )
+
+
+def metricas_historicas_modos():
+    memoria = cargar_json(MEMORIA / "aprendizaje_elige8.json", {})
+    resumen = memoria.get("resumen") or {}
+    precision = resumen.get("precision_elige8")
+    return {
+        "conservador": {
+            "selecciones_evaluadas": resumen.get("selecciones_elige8", 0),
+            "aciertos": resumen.get("aciertos_elige8", 0),
+            "precision": precision,
+            "fuente": "data/memoria_ia/aprendizaje_elige8.json",
+        },
+        "rentable": {
+            "selecciones_evaluadas": 0,
+            "aciertos": 0,
+            "precision": None,
+            "fuente": "pendiente_de_historial_con_modo_rentable",
+        },
+    }
+
+
+def construir_modos_elige8(ranking_conservador):
+    rentable = sorted(
+        [dict(item, score_rentable=score_rentable(item)) for item in ranking_conservador],
+        key=lambda item: (
+            item["score_rentable"],
+            item.get("probabilidad_cubierta", 0),
+            -item.get("probabilidad_sorpresa", 0),
+        ),
+        reverse=True,
+    )
+    conservador_nums = {item["num"] for item in ranking_conservador[:UMBRAL_PARTIDOS_SEGUROS]}
+    rentable_nums = {item["num"] for item in rentable[:UMBRAL_PARTIDOS_SEGUROS]}
+    return {
+        "version": "1.0",
+        "generado_en": ahora(),
+        "modo_activo": "conservador",
+        "modos": {
+            "conservador": {
+                "objetivo": "maximizar fiabilidad y evitar partidos con bloqueos fuertes",
+                "seleccionados": sorted(conservador_nums),
+                "ranking": [
+                    dict(item, posicion=idx, seleccionado=item["num"] in conservador_nums)
+                    for idx, item in enumerate(ranking_conservador, start=1)
+                ],
+            },
+            "rentable": {
+                "objetivo": "maximizar valor esperado con cobertura real y riesgo controlado",
+                "seleccionados": sorted(rentable_nums),
+                "ranking": [
+                    dict(item, posicion=idx, seleccionado=item["num"] in rentable_nums)
+                    for idx, item in enumerate(rentable, start=1)
+                ],
+            },
+        },
+        "rendimiento": metricas_historicas_modos(),
+    }
+
+
 def aplicar_elige8_seguro(prediccion):
     if prediccion_bloqueada(prediccion):
         return limpiar_elige8_bloqueado(prediccion)
@@ -272,7 +364,7 @@ def aplicar_elige8_seguro(prediccion):
 
     ranking = sorted(
         [evaluar_seguridad_elige8(p) for p in partidos],
-        key=lambda item: (item["cumple_umbral_seguro"], item["score_seguridad"], item["probabilidad_top"], item["margen"]),
+        key=lambda item: (item["cumple_umbral_seguro"], item["confianza_real"], item["score_seguridad"], item["margen"]),
         reverse=True,
     )
     fuertes = [item for item in ranking if item["cumple_umbral_seguro"]]
@@ -289,6 +381,7 @@ def aplicar_elige8_seguro(prediccion):
         partido["elige8"] = elegido
         partido["elige8_modo"] = "seguro"
         partido["elige8_seguro_score"] = evaluacion.get("score_seguridad")
+        partido["elige8_confianza_real"] = evaluacion.get("confianza_real")
         partido["elige8_seguro_posicion"] = posicion_por_num.get(num)
         partido["elige8_seguro_cumple_umbral"] = evaluacion.get("cumple_umbral_seguro", False)
         partido["elige8_seguro_probabilidad_top"] = evaluacion.get("probabilidad_top")
@@ -308,9 +401,11 @@ def aplicar_elige8_seguro(prediccion):
         "partidos_que_pasan_filtro_fuerte": len(fuertes),
         "ranking": [dict(item, posicion=idx, seleccionado=item["num"] in seleccionados_nums) for idx, item in enumerate(ranking, start=1)],
     }
+    prediccion["elige8_modos"] = construir_modos_elige8(ranking)
     config = prediccion.setdefault("configuracion", {})
     config["elige8"] = True
-    config["elige8_modo"] = "seguro"
+    config["elige8_modo"] = "conservador"
+    config["elige8_modos_disponibles"] = ["conservador", "rentable"]
     config["elige8_recomendado"] = recomendado
     resumen = prediccion.setdefault("resumen", {})
     resumen["elige8_seleccionados"] = UMBRAL_PARTIDOS_SEGUROS

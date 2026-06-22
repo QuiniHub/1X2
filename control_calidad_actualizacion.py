@@ -103,6 +103,21 @@ def ultima_prediccion():
     return max(candidatas, key=lambda p: int(p.get("jornada", 0)), default={})
 
 
+def prediccion_retenida_por_compuerta(pred):
+    if not pred:
+        return False
+    estado = str(pred.get("estado") or "").lower()
+    estado_objetivo = pred.get("estado_jornada_objetivo") or {}
+    return (
+        pred.get("prediccion_disponible") is False
+        or pred.get("publicar_prediccion") is False
+        or pred.get("prediccion_permitida") is False
+        or estado_objetivo.get("en_espera") is True
+        or "bloqueada" in estado
+        or "aprendiendo" in estado
+    )
+
+
 def diagnosticar_clasificacion(alertas):
     clasif = cargar_json(ROOT / "clasificaciones.json", {})
     primera = clasif.get("primera", [])
@@ -195,7 +210,8 @@ def diagnosticar_contexto(alertas):
 
 def diagnosticar_prediccion(alertas, jornada_actual):
     pred = ultima_prediccion()
-    if jornada_actual and int(pred.get("jornada", 0) or 0) != int(jornada_actual.get("jornada", 0)):
+    retenida = prediccion_retenida_por_compuerta(pred)
+    if jornada_actual and int(pred.get("jornada", 0) or 0) != int(jornada_actual.get("jornada", 0)) and not retenida:
         alertas.append({
             "nivel": "alta",
             "titulo": "Predicción de jornada antigua",
@@ -208,6 +224,8 @@ def diagnosticar_prediccion(alertas, jornada_actual):
         "generado_en": pred.get("generado_en"),
         "partidos": len(pred.get("partidos", [])),
         "resumen": pred.get("resumen", {}),
+        "retenida_por_compuerta": retenida,
+        "motivo_bloqueo": pred.get("motivo_bloqueo") or pred.get("mensaje"),
     }
 
 

@@ -11,6 +11,7 @@ from motor_prediccion_quiniela import (
     cobertura_automatica,
     coste,
     indice_sorpresa_quinielistica,
+    normalizar_pesos_dinamicos,
     prioridad_elige8,
     prioridad_doble,
     riesgos_no_cubiertos_por_presupuesto,
@@ -294,6 +295,27 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertEqual(trazabilidad["origen_probabilidades"], "fallback_posicion_con_contexto")
         self.assertEqual(trazabilidad["calidad_datos"], "media_baja")
         self.assertTrue(trazabilidad["noticias_recientes"]["local"])
+
+    def test_pesos_dinamicos_no_quedan_saturados(self):
+        pesos = normalizar_pesos_dinamicos({
+            "pesos": {
+                "forma_reciente": 0.01,
+                "casa_fuera": 0.01,
+                "clasificacion": 0.01,
+                "goles": 0.35,
+                "empate": 0.35,
+                "sorpresa": 0.35,
+                "motivacion_competitiva": 0.07,
+                "necesidad_descenso_ascenso_europa": 0.07,
+                "fatiga": 0.02,
+                "bajas": 0.02,
+            }
+        })
+
+        self.assertLessEqual(pesos["pesos"]["empate"], 0.18)
+        self.assertLessEqual(pesos["pesos"]["sorpresa"], 0.16)
+        self.assertAlmostEqual(sum(pesos["pesos"].values()), 1.0, places=3)
+        self.assertTrue(pesos["normalizacion_runtime"]["aplicada"])
 
 
 if __name__ == "__main__":

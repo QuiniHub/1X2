@@ -6,6 +6,28 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
+SCRIPTS_VISUALES_DESACTIVADOS = {
+    "actualizar_selector_jornadas_web.py",
+    "aplicar_coherencia_pro_boleto.py",
+    "alinear_pronostico_analisis.py",
+    "mejorar_prioridad_coberturas.py",
+    "aplicar_patrones_web.py",
+    "ajustar_coberturas_contexto_global.py",
+    "mejorar_asistente_ia.py",
+    "corregir_asistente_objeciones.py",
+    "corregir_puntos_asistente.py",
+    "mejorar_asistente_estrategia_apuesta.py",
+    "corregir_comparacion_estrategia.py",
+    "corregir_recomendacion_estrategia.py",
+    "ajustar_estrategia_motivacion.py",
+    "mejorar_lectura_competitiva_global.py",
+    "mejorar_coberturas_necesidad.py",
+    "corregir_ajuste_necesidad_boleto.py",
+    "reforzar_coberturas_descenso.py",
+    "corregir_elige8_web.py",
+    "estabilizar_web.py",
+}
+
 SCRIPTS_ACTIVOS = [
     "actualizar_jornadas_detalle.py",
     "actualizar_boleto_vivo.py",
@@ -23,6 +45,7 @@ SCRIPTS_ACTIVOS = [
     "construir_historial_quinielas.py",
     "actualizar_aprendizaje_ia.py",
     "construir_memoria_ia.py",
+    "memoria_autonoma_quiniela.py",
     "sincronizar_dinamicas_memoria.py",
 
     # Fuente unica de verdad competitiva. Todo lo posterior debe leer esto.
@@ -87,6 +110,9 @@ SCRIPTS_ACTIVOS = [
     "alinear_boleto_con_analisis.py",
     "aplicar_elige8_seguro.py",
     "limpiar_prediccion_bloqueada.py",
+    "diagnostico_sistema.py",
+    "control_calidad_actualizacion.py",
+    "normalizar_diagnostico_control.py",
     "estabilizar_web.py",
     "validar_publicacion_autonoma.py",
 ]
@@ -110,6 +136,9 @@ def ejecutar_script(nombre):
 def ejecutar_sistema():
     gestionar_mercado_y_temporada()
     for script in SCRIPTS_ACTIVOS:
+        if script in SCRIPTS_VISUALES_DESACTIVADOS:
+            print(f"\n=== Omitiendo {script}: bloqueo de cambios visuales activo ===")
+            continue
         ejecutar_script(script)
     print("\nActualizacion completa sin errores ocultos.")
 

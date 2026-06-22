@@ -15,10 +15,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 try:
+    import joblib
+    import numpy as np
+    from sklearn.calibration import CalibratedClassifierCV
     from sklearn.linear_model import LogisticRegression
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import StandardScaler
 except Exception:
+    joblib = None
+    np = None
+    CalibratedClassifierCV = None
     LogisticRegression = None
     make_pipeline = None
     StandardScaler = None
@@ -360,6 +366,51 @@ def build_dataset(jornadas_dir=JORNADAS):
     return rows
 
 
+def build_prediction_state(jornadas_dir=JORNADAS):
+    states = defaultdict(lambda: defaultdict(team_state))
+    priors = defaultdict(Counter)
+    for match in iter_closed_matches(jornadas_dir):
+        comp = match["competicion"]
+        local_key, away_key = norm(match["local"]), norm(match["visitante"])
+        if not local_key or not away_key:
+            continue
+        local, away = states[comp][local_key], states[comp][away_key]
+        update_state(local, away, match["gl"], match["gv"], is_neutral(comp))
+        priors[comp][match["y"]] += 1
+    return states, priors
+
+
+def feature_row_for_match(match, states=None, priors=None, jornadas_dir=JORNADAS):
+    if states is None or priors is None:
+        states, priors = build_prediction_state(jornadas_dir)
+    comp = comp_of(match)
+    local_key, away_key = norm(match.get("local")), norm(match.get("visitante"))
+    local = states[comp][local_key] if local_key else team_state()
+    away = states[comp][away_key] if away_key else team_state()
+    features, base = make_features(local, away, comp, prior(priors[comp]))
+    return {
+        "jornada": match.get("jornada"),
+        "num": match.get("num"),
+        "fecha_orden": str(match.get("fecha") or match.get("fecha_texto") or ""),
+        "local": match.get("local") or "",
+        "visitante": match.get("visitante") or "",
+        "resultado": match.get("resultado"),
+        "competicion": comp,
+        **{key: round(as_float(value), 8) for key, value in features.items()},
+        "prob_baseline": {key: round(value, 8) for key, value in base.items()},
+    }
+
+
+def load_trained_model(root=ROOT):
+    if joblib is None:
+        return None
+    out = Path(root) / "data" / "modelo_predictivo"
+    for path in (out / "modelo_calibrado.joblib", out / "modelo_entrenado.joblib"):
+        if path.exists():
+            return joblib.load(path)
+    return None
+
+
 def matrix_x(rows):
     return [[as_float(row.get(col)) for col in FEATURES] for row in rows]
 
@@ -376,17 +427,53 @@ def can_train(rows):
 def train_model(rows):
     if LogisticRegression is None or make_pipeline is None or StandardScaler is None or not can_train(rows):
         return None
-    model = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, class_weight="balanced"))
-    model.fit(matrix_x(rows), vector_y(rows))
+    base_model = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, class_weight="balanced"))
+    counts = Counter(vector_y(rows))
+    cv_folds = min(3, min(counts.values())) if counts else 0
+    if CalibratedClassifierCV is not None and cv_folds >= 2:
+        try:
+            model = CalibratedClassifierCV(estimator=base_model, method="sigmoid", cv=cv_folds)
+        except TypeError:
+            model = CalibratedClassifierCV(base_estimator=base_model, method="sigmoid", cv=cv_folds)
+    else:
+        model = base_model
+    x = np.asarray(matrix_x(rows), dtype=float) if np is not None else matrix_x(rows)
+    model.fit(x, vector_y(rows))
     return model
 
 
 def predict_model(model, row):
     if model is None:
         return dict(row.get("prob_baseline") or {"1": 1 / 3, "X": 1 / 3, "2": 1 / 3})
-    raw = model.predict_proba(matrix_x([row]))[0]
-    classes = list(getattr(model[-1], "classes_", []))
+    x = np.asarray(matrix_x([row]), dtype=float) if np is not None else matrix_x([row])
+    raw = model.predict_proba(x)[0]
+    classes = list(getattr(model, "classes_", []))
+    if not classes and hasattr(model, "__getitem__"):
+        classes = list(getattr(model[-1], "classes_", []))
     return normalize_probs({label: raw[classes.index(label)] if label in classes else 0.0 for label in LABELS})
+
+
+def modelo_calibrado(model):
+    return CalibratedClassifierCV is not None and isinstance(model, CalibratedClassifierCV)
+
+
+def guardar_modelo(model, version_id):
+    if model is None or joblib is None:
+        return {"guardado": False, "motivo": "modelo_o_joblib_no_disponible"}
+    rutas = [
+        OUT / "modelo_entrenado.joblib",
+        OUT / "modelo_calibrado.joblib",
+        OUT / "versiones" / version_id / "modelo_entrenado.joblib",
+        OUT / "versiones" / version_id / "modelo_calibrado.joblib",
+    ]
+    for ruta in rutas:
+        ruta.parent.mkdir(parents=True, exist_ok=True)
+        joblib.dump(model, ruta)
+    return {
+        "guardado": True,
+        "calibrado": modelo_calibrado(model),
+        "rutas": [str(ruta.relative_to(ROOT)) for ruta in rutas],
+    }
 
 
 def baseline_items(rows):
@@ -422,6 +509,7 @@ def run(root=ROOT):
     version_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     dataset_hash = stable_hash(rows)
     model = train_model(rows)
+    artefacto_modelo = guardar_modelo(model, version_id)
     in_sample = [{"jornada": r["jornada"], "num": r["num"], "competicion": r["competicion"], "y": r["y"], "probs": predict_model(model, r)} for r in rows]
     backtest = rolling_backtest(rows)
     payload = {
@@ -430,15 +518,27 @@ def run(root=ROOT):
     }
     metrics = {
         "version": "1.0", "generado_en": now_iso(), "version_id": version_id, "dataset_hash": dataset_hash,
-        "estado": "modelo_entrenado" if model is not None else "baseline_sin_modelo_entrenado",
+        "estado": "modelo_calibrado_entrenado" if modelo_calibrado(model) else "modelo_entrenado" if model is not None else "baseline_sin_modelo_entrenado",
         "sklearn_disponible": LogisticRegression is not None,
+        "numpy_disponible": np is not None,
+        "joblib_disponible": joblib is not None,
+        "modelo_calibrado": modelo_calibrado(model),
+        "artefacto_modelo": artefacto_modelo,
         "muestras": len(rows), "muestras_por_competicion": dict(Counter(r["competicion"] for r in rows)),
         "baseline_elo_poisson": evaluate_predictions(baseline_items(rows)),
         "modelo_entrenable_in_sample": evaluate_predictions(in_sample),
         "backtesting_rolling": backtest,
         "nota": "El backtesting rolling es la metrica principal; in_sample solo diagnostica ajuste interno.",
     }
-    manifest = {"version_id": version_id, "dataset_hash": dataset_hash, "generado_en": metrics["generado_en"], "estado": metrics["estado"], "muestras": len(rows)}
+    manifest = {
+        "version_id": version_id,
+        "dataset_hash": dataset_hash,
+        "generado_en": metrics["generado_en"],
+        "estado": metrics["estado"],
+        "muestras": len(rows),
+        "modelo_calibrado": metrics["modelo_calibrado"],
+        "artefacto_modelo": artefacto_modelo,
+    }
     save_json(OUT / "dataset_partidos.json", payload)
     save_json(OUT / "metricas_modelo.json", metrics)
     save_json(OUT / "backtesting_rolling.json", backtest)

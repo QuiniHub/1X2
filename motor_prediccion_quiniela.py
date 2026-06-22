@@ -5,6 +5,23 @@ import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
+from compuerta_jornada import estado_compuerta
+from guardar_snapshot_prediccion import crear_snapshot_prediccion
+from memoria_autonoma_quiniela import confianza_signos as niveles_confianza_signos
+
+try:
+    from modelo_metricas_1x2 import (
+        build_prediction_state,
+        feature_row_for_match,
+        load_trained_model,
+        predict_model as predict_modelo_entrenado,
+    )
+except Exception:
+    build_prediction_state = None
+    feature_row_for_match = None
+    load_trained_model = None
+    predict_modelo_entrenado = None
+
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -14,9 +31,11 @@ PESOS_DINAMICOS = DATA / "memoria_ia" / "pesos_dinamicos.json"
 CONTEXTO_EQUIPOS = DATA / "contexto_equipos.json"
 CONTEXTO_COMPETITIVO = DATA / "memoria_ia" / "contexto_competitivo.json"
 PATRONES_COMPETITIVOS = DATA / "memoria_ia" / "patrones_competitivos.json"
+PERFILES_EQUIPOS = DATA / "memoria_ia" / "perfiles_equipos.json"
 JORNADAS = DATA / "jornadas"
 PREDICCIONES = DATA / "predicciones"
 JUGADAS = DATA / "quinielas_jugadas"
+MODELO_PREDICTIVO = DATA / "modelo_predictivo"
 
 PRECIO_APUESTA = 1.50
 IMPORTE_MINIMO = 1.50
@@ -237,6 +256,65 @@ def normalizar_probs(probs):
     return {k: round(v / total * 100, 1) for k, v in probs.items()}
 
 
+def preparar_modelo_predictivo_runtime(root=ROOT):
+    manifest = cargar_json(Path(root) / "data" / "modelo_predictivo" / "modelo_actual.json", {})
+    runtime = {
+        "activo": False,
+        "manifest": manifest,
+        "motivo": "",
+        "modelo": None,
+        "states": None,
+        "priors": None,
+    }
+    if not all((build_prediction_state, feature_row_for_match, load_trained_model, predict_modelo_entrenado)):
+        runtime["motivo"] = "modulo_modelo_metricas_no_disponible"
+        return runtime
+    try:
+        modelo = load_trained_model(root)
+    except Exception as exc:
+        runtime["motivo"] = f"error_cargando_modelo: {exc}"
+        return runtime
+    if modelo is None:
+        runtime["motivo"] = "artefacto_modelo_no_disponible"
+        return runtime
+    try:
+        states, priors = build_prediction_state(Path(root) / "data" / "jornadas")
+    except Exception as exc:
+        runtime["motivo"] = f"error_preparando_estado_historico: {exc}"
+        return runtime
+    runtime.update({"activo": True, "modelo": modelo, "states": states, "priors": priors, "motivo": "ok"})
+    return runtime
+
+
+def ajustar_por_modelo_entrenado(probs, partido, runtime, peso=0.24):
+    if not runtime or not runtime.get("activo"):
+        return probs, {
+            "activo": False,
+            "motivo": (runtime or {}).get("motivo", "runtime_no_inicializado"),
+            "peso": 0.0,
+        }
+    try:
+        row = feature_row_for_match(partido, runtime["states"], runtime["priors"], JORNADAS)
+        pred = predict_modelo_entrenado(runtime["modelo"], row)
+        probs_modelo = {signo: round(float(pred.get(signo, 0.0)) * 100.0, 1) for signo in ("1", "X", "2")}
+        mezcladas = normalizar_probs({
+            signo: float(probs.get(signo, 0.0)) * (1.0 - peso) + probs_modelo[signo] * peso
+            for signo in ("1", "X", "2")
+        })
+        return mezcladas, {
+            "activo": True,
+            "peso": peso,
+            "probabilidades_modelo": probs_modelo,
+            "probabilidades_previas": {signo: probs.get(signo) for signo in ("1", "X", "2")},
+            "version_id": (runtime.get("manifest") or {}).get("version_id"),
+            "estado_modelo": (runtime.get("manifest") or {}).get("estado"),
+            "competicion": row.get("competicion"),
+            "baseline_modelo": {signo: round(float(row.get("prob_baseline", {}).get(signo, 0.0)) * 100.0, 1) for signo in ("1", "X", "2")},
+        }
+    except Exception as exc:
+        return probs, {"activo": False, "motivo": f"error_inferencia_modelo: {exc}", "peso": 0.0}
+
+
 PESOS_DINAMICOS_REFERENCIA = {
     "forma_reciente": 0.20,
     "casa_fuera": 0.15,
@@ -249,6 +327,160 @@ PESOS_DINAMICOS_REFERENCIA = {
     "fatiga": 0.02,
     "bajas": 0.02,
 }
+
+LIMITES_PESOS_DINAMICOS = {
+    "empate": (0.06, 0.18),
+    "sorpresa": (0.05, 0.16),
+}
+
+
+def limitar(valor, minimo, maximo):
+    return max(min(float(valor), maximo), minimo)
+
+
+def limites_peso(clave, referencia):
+    return LIMITES_PESOS_DINAMICOS.get(clave, (max(referencia * 0.45, 0.01), min(referencia * 1.8, 0.24)))
+
+
+def normalizar_con_limites(valores):
+    actuales = {clave: max(float(valor), 0.0) for clave, valor in valores.items()}
+    for _ in range(8):
+        total = sum(actuales.values()) or 1.0
+        actuales = {clave: valor / total for clave, valor in actuales.items()}
+        fijos = {}
+        libres = {}
+        for clave, valor in actuales.items():
+            minimo, maximo = limites_peso(clave, PESOS_DINAMICOS_REFERENCIA[clave])
+            if valor < minimo:
+                fijos[clave] = minimo
+            elif valor > maximo:
+                fijos[clave] = maximo
+            else:
+                libres[clave] = valor
+        if not fijos:
+            break
+        restante = max(1.0 - sum(fijos.values()), 0.0)
+        suma_libres = sum(libres.values()) or 1.0
+        actuales = {**fijos, **{clave: valor / suma_libres * restante for clave, valor in libres.items()}}
+        if all(limites_peso(clave, PESOS_DINAMICOS_REFERENCIA[clave])[0] <= valor <= limites_peso(clave, PESOS_DINAMICOS_REFERENCIA[clave])[1] for clave, valor in actuales.items()):
+            break
+    total = sum(actuales.values()) or 1.0
+    return {clave: round(valor / total, 4) for clave, valor in actuales.items()}
+
+
+def normalizar_pesos_dinamicos(pesos, decay=0.94):
+    data = dict(pesos or {})
+    valores = data.get("pesos") or {}
+    normalizados = {}
+    for clave, referencia in PESOS_DINAMICOS_REFERENCIA.items():
+        try:
+            valor = float(valores.get(clave, referencia))
+        except (TypeError, ValueError):
+            valor = referencia
+        valor = referencia + (valor - referencia) * decay
+        minimo, maximo = limites_peso(clave, referencia)
+        normalizados[clave] = limitar(valor, minimo, maximo)
+
+    normalizados = normalizar_con_limites(normalizados)
+    data["pesos"] = normalizados
+    data["referencia"] = data.get("referencia") or PESOS_DINAMICOS_REFERENCIA
+    data["normalizacion_runtime"] = {
+        "aplicada": True,
+        "decay": decay,
+        "limites": LIMITES_PESOS_DINAMICOS,
+        "motivo": "Evitar saturacion de pesos dinamicos antes de ajustar probabilidades.",
+    }
+    return data
+
+
+def buscar_perfil_autonomo(perfiles, nombre):
+    equipos = (perfiles or {}).get("equipos") or {}
+    clave = normalizar(nombre)
+    if clave in equipos:
+        return equipos[clave]
+    piezas = set(clave.split())
+    mejor = None
+    mejor_score = 0
+    for key, perfil in equipos.items():
+        candidato = set(str(key).split())
+        score = len(piezas & candidato)
+        if clave and (clave in key or key in clave):
+            score += 3
+        if score > mejor_score:
+            mejor = perfil
+            mejor_score = score
+    return mejor if mejor_score >= 1 else None
+
+
+def valor_perfil(perfil, seccion, clave, defecto=0.0):
+    try:
+        return float(((perfil or {}).get(seccion) or {}).get(clave, defecto) or defecto)
+    except (TypeError, ValueError):
+        return defecto
+
+
+def resumen_perfil_autonomo(perfil):
+    if not perfil:
+        return {}
+    resumen = perfil.get("resumen_ponderado") or {}
+    forma = perfil.get("forma_reciente") or {}
+    return {
+        "equipo": perfil.get("equipo"),
+        "partidos_total": perfil.get("partidos_total"),
+        "puntos_por_partido": resumen.get("puntos_por_partido"),
+        "empates_pct": resumen.get("empates_pct"),
+        "surprise_score_medio": resumen.get("surprise_score_medio"),
+        "forma_5_ppp": forma.get("forma_5_ppp"),
+        "forma_10_ppp": forma.get("forma_10_ppp"),
+        "racha_actual": forma.get("racha_actual"),
+    }
+
+
+def ajustar_por_perfiles_autonomos(probs, perfiles, local_nombre, visitante_nombre):
+    local = buscar_perfil_autonomo(perfiles, local_nombre)
+    visitante = buscar_perfil_autonomo(perfiles, visitante_nombre)
+    if not local or not visitante:
+        return probs, 0.0, [], local, visitante
+
+    p = dict(probs)
+    local_ppp = (
+        valor_perfil(local, "resumen_ponderado", "puntos_por_partido")
+        + valor_perfil(local, "local", "puntos_por_partido")
+        + valor_perfil(local, "forma_reciente", "forma_5_ppp")
+    ) / 3.0
+    visitante_ppp = (
+        valor_perfil(visitante, "resumen_ponderado", "puntos_por_partido")
+        + valor_perfil(visitante, "visitante", "puntos_por_partido")
+        + valor_perfil(visitante, "forma_reciente", "forma_5_ppp")
+    ) / 3.0
+    diff = local_ppp - visitante_ppp
+    ajuste = max(min(diff * 2.4, 4.2), -4.2)
+    p["1"] += ajuste
+    p["2"] -= ajuste
+
+    empate_medio = (
+        valor_perfil(local, "resumen_ponderado", "empates_pct")
+        + valor_perfil(visitante, "resumen_ponderado", "empates_pct")
+    ) / 2.0
+    if empate_medio >= 28:
+        p["X"] += min((empate_medio - 28.0) * 0.22, 3.0)
+    elif empate_medio <= 17:
+        p["X"] -= min((17.0 - empate_medio) * 0.12, 1.2)
+
+    sorpresa_medio = (
+        valor_perfil(local, "resumen_ponderado", "surprise_score_medio")
+        + valor_perfil(visitante, "resumen_ponderado", "surprise_score_medio")
+    ) / 2.0
+    riesgo_extra = max(0.0, min((sorpresa_medio - 45.0) * 0.18, 8.0))
+    lecturas = [
+        "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+        f"Perfil local {local.get('equipo')}: ppp={local_ppp:.2f}; perfil visitante {visitante.get('equipo')}: ppp={visitante_ppp:.2f}.",
+    ]
+    if empate_medio >= 28:
+        lecturas.append(f"Memoria autonoma: tendencia de empate conjunta alta ({empate_medio:.1f}%).")
+    if riesgo_extra:
+        lecturas.append(f"Memoria autonoma: historial de sorpresa medio elevado ({sorpresa_medio:.1f}).")
+    return normalizar_probs(p), round(riesgo_extra, 2), lecturas, local, visitante
 
 
 def peso_dinamico(pesos, clave):
@@ -1406,31 +1638,162 @@ def coste(dobles, triples, elige8, partidos=None):
     }
 
 
+def guardar_salida_prediccion(salida, validar=False):
+    jornada = salida.get("jornada")
+    destino = (JUGADAS if validar else PREDICCIONES) / f"jornada_{jornada}.json"
+    guardar_json(destino, salida)
+    if validar:
+        guardar_json(JUGADAS / "ultima_validada.json", salida)
+    else:
+        guardar_json(PREDICCIONES / "ultima_prediccion.json", salida)
+    return destino
+
+
+def partido_bloqueado(partido):
+    return {
+        "num": partido.get("num"),
+        "local": partido.get("local"),
+        "visitante": partido.get("visitante"),
+        "fecha": partido.get("fecha"),
+        "hora": partido.get("hora"),
+        "resultado": partido.get("resultado", "Pendiente"),
+        "signo_oficial": partido.get("signo_oficial", "Pendiente"),
+        "signo_nuestro": partido.get("signo_nuestro", "No jugada"),
+        "estado_prediccion": "bloqueada_por_compuerta_maestra",
+        "signo_base": "",
+        "signo_final": "",
+        "pronostico_ia": "SIN PREDICCION",
+        "elige8": False,
+        "lectura": "Partido cargado oficialmente. Prediccion retenida por la compuerta maestra.",
+    }
+
+
+def prediccion_bloqueada_por_compuerta(jornada, data, compuerta, validar=False):
+    partidos = [partido_bloqueado(p) for p in data.get("partidos", []) if int(p.get("num", 0) or 0) <= 14]
+    pleno15 = data.get("pleno15")
+    pleno_bloqueado = None
+    if pleno15:
+        pleno_bloqueado = partido_bloqueado(pleno15)
+        pleno_bloqueado["lectura"] = "Pleno al 15 cargado oficialmente. Prediccion retenida por la compuerta maestra."
+    salida = {
+        "version": "1.4",
+        "generado_en": datetime.now(timezone.utc).isoformat(),
+        "jornada": jornada,
+        "fecha": data.get("fecha") or data.get("fecha_texto"),
+        "fuente": data.get("fuente"),
+        "temporada_base": "2025/2026",
+        "temporada": data.get("temporada", "2025/2026"),
+        "competicion": data.get("competicion", "quiniela"),
+        "estado": compuerta.get("estado", "bloqueada"),
+        "prediccion_disponible": False,
+        "aprendizaje_pendiente": compuerta.get("estado") == "aprendiendo" or not compuerta.get("aprendizaje_aplicado_anterior"),
+        "prediccion_permitida": False,
+        "publicar_solo_boleto": True,
+        "publicar_prediccion": False,
+        "compuerta_maestra": compuerta,
+        "partidos": partidos,
+        "pleno15": pleno_bloqueado,
+        "configuracion": {
+            "dobles": 0,
+            "triples": 0,
+            "elige8": False,
+            "elige8_modo": "bloqueado",
+            "elige8_modos_disponibles": ["conservador", "rentable"],
+            "cobertura_auto": False,
+        },
+        "coste": {
+            "apuestas": 0,
+            "apuestas_elige8": 0,
+            "importe_quiniela": 0,
+            "importe_elige8": 0,
+            "importe_total": 0,
+        },
+        "mensaje": compuerta.get("motivo") or "Prediccion bloqueada por compuerta maestra.",
+        "motivo_bloqueo": compuerta.get("motivo") or "Compuerta maestra activa.",
+        "resumen": {
+            "fijos": 0,
+            "dobles": 0,
+            "triples": 0,
+            "elige8_seleccionados": 0,
+            "partidos_cargados": len(partidos),
+            "pleno15_cargado": bool(pleno_bloqueado),
+            "total_casillas": len(partidos) + (1 if pleno_bloqueado else 0),
+            "prediccion": "BLOQUEADA_POR_COMPUERTA_MAESTRA",
+        },
+    }
+    destino = guardar_salida_prediccion(salida, validar=validar)
+    print(destino)
+    return salida
+
+
+def explicabilidad_partido(partido, signo, tipo):
+    probs = partido.get("probabilidades") or {}
+    orden = sorted(("1", "X", "2"), key=lambda s: float(probs.get(s) or 0), reverse=True)
+    principal = orden[0] if orden else signo
+    alternativa = orden[1] if len(orden) > 1 else ""
+    prob_principal = float(probs.get(principal) or 0)
+    prob_alternativa = float(probs.get(alternativa) or 0) if alternativa else 0.0
+    margen = margen_probabilidades(probs)
+    riesgo = partido.get("categoria_sorpresa") or "riesgo_no_clasificado"
+    sorpresa = float(partido.get("probabilidad_sorpresa") or 0)
+    if tipo == "TRIPLE":
+        motivo = "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total."
+    elif tipo == "DOBLE":
+        motivo = "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio."
+    else:
+        motivo = "Fijo por mayor probabilidad relativa dentro del presupuesto disponible."
+    return {
+        "hipotesis_principal": f"{principal} como signo dominante ({prob_principal:.1f}%).",
+        "hipotesis_alternativa": f"{alternativa} como alternativa ({prob_alternativa:.1f}%)." if alternativa else "",
+        "motivo_fijo_doble_triple": motivo,
+        "riesgo_de_sorpresa": {
+            "categoria": riesgo,
+            "probabilidad": sorpresa,
+            "favorito_atacable": bool(partido.get("favorito_atacable")),
+        },
+        "justificacion_final": (
+            f"Decision {tipo} {signo}: margen {margen:.1f} puntos, "
+            f"indice sorpresa {partido.get('indice_sorpresa_quinielistica', 0)}."
+        ),
+    }
+
+
 def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=False):
     memoria = cargar_json(MEMORIA, {})
     aprendizaje = cargar_json(APRENDIZAJE_PROPIO, {})
-    pesos_dinamicos = cargar_json(PESOS_DINAMICOS, {})
+    pesos_dinamicos = normalizar_pesos_dinamicos(cargar_json(PESOS_DINAMICOS, {}))
     contexto = cargar_json(CONTEXTO_EQUIPOS, {})
     contexto_competitivo = cargar_json(CONTEXTO_COMPETITIVO, {})
     patrones_competitivos = cargar_json(PATRONES_COMPETITIVOS, {})
+    perfiles_autonomos = cargar_json(PERFILES_EQUIPOS, {})
+    modelo_runtime = preparar_modelo_predictivo_runtime(ROOT)
     jornada = jornada or detectar_jornada_activa()
     data = cargar_json(JORNADAS / f"jornada_{jornada}.json", {})
     partidos_base = [p for p in data.get("partidos", []) if int(p.get("num", 0)) <= 14]
     if not partidos_base:
         raise SystemExit(f"No hay partidos para jornada {jornada}")
 
+    compuerta = estado_compuerta(jornada, DATA)
+    if not compuerta.get("prediccion_permitida"):
+        return prediccion_bloqueada_por_compuerta(jornada, data, compuerta, validar=validar)
+
     evaluados = []
     for partido in partidos_base:
         probs, local, visitante, diff = calcular_probabilidades(memoria, partido)
+        probs, ajuste_modelo_entrenado = ajustar_por_modelo_entrenado(probs, partido, modelo_runtime)
         contexto_local = buscar_contexto_equipo(contexto, partido.get("local", ""))
         contexto_visitante = buscar_contexto_equipo(contexto, partido.get("visitante", ""))
         probs, riesgo_contexto, lecturas_contexto = ajustar_por_contexto(probs, contexto_local, contexto_visitante)
+        probs, riesgo_perfiles, lecturas_perfiles, perfil_local, perfil_visitante = ajustar_por_perfiles_autonomos(
+            probs, perfiles_autonomos, partido.get("local", ""), partido.get("visitante", "")
+        )
         local_comp = buscar_contexto_competitivo(contexto_competitivo, partido.get("local", ""))
         visitante_comp = buscar_contexto_competitivo(contexto_competitivo, partido.get("visitante", ""))
         probs, riesgo_motivacion, lecturas_motivacion = ajustar_por_motivacion(probs, local_comp, visitante_comp)
         probs, riesgo_patrones, lecturas_patrones = ajustar_por_patrones_aprendidos(
             probs, patrones_competitivos, local_comp, visitante_comp
         )
+        lecturas_motivacion.extend(lecturas_perfiles)
         lecturas_motivacion.extend(lecturas_patrones)
         probs, riesgo_aprendizaje, lecturas_aprendizaje = ajustar_por_aprendizaje_propio(
             probs, local, visitante, aprendizaje
@@ -1445,7 +1808,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             local,
             visitante,
             diff,
-            riesgo_contexto + riesgo_motivacion + riesgo_patrones + riesgo_aprendizaje + riesgo_pesos_dinamicos,
+            riesgo_contexto + riesgo_perfiles + riesgo_motivacion + riesgo_patrones + riesgo_aprendizaje + riesgo_pesos_dinamicos,
         )
         sorpresa = probabilidad_sorpresa(probs, inc)
         trazabilidad = trazabilidad_datos_partido(
@@ -1456,6 +1819,9 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             local_comp,
             visitante_comp,
         )
+        trazabilidad["modelo_entrenado"] = ajuste_modelo_entrenado
+        if ajuste_modelo_entrenado.get("activo"):
+            trazabilidad["origen_probabilidades"] = f"{trazabilidad['origen_probabilidades']}+modelo_entrenado"
         evaluado = {
             **partido,
             "probabilidades": probs,
@@ -1466,9 +1832,17 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "contexto_local": contexto_local,
             "contexto_visitante": contexto_visitante,
             "lecturas_contexto": lecturas_contexto,
+            "perfil_autonomo_local": resumen_perfil_autonomo(perfil_local),
+            "perfil_autonomo_visitante": resumen_perfil_autonomo(perfil_visitante),
+            "ajuste_perfiles_autonomos": {
+                "activo": bool(lecturas_perfiles),
+                "riesgo_extra": riesgo_perfiles,
+                "lecturas": lecturas_perfiles,
+            },
             "contexto_competitivo_local": local_comp,
             "contexto_competitivo_visitante": visitante_comp,
             "lecturas_motivacion": lecturas_motivacion,
+            "ajuste_modelo_entrenado": ajuste_modelo_entrenado,
             "ajuste_aprendizaje": {
                 "activo": bool(lecturas_aprendizaje),
                 "riesgo_extra": riesgo_aprendizaje,
@@ -1520,6 +1894,24 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             signo = partido["signo_base"]
             tipo = "FIJO"
 
+        explicacion = explicabilidad_partido(partido, signo, tipo)
+        razonamiento = explicar(
+            partido,
+            partido["probabilidades"],
+            signo,
+            partido["_local"],
+            partido["_visitante"],
+            partido["_diff"],
+            tipo,
+            partido.get("contexto_local"),
+            partido.get("contexto_visitante"),
+            partido.get("lecturas_contexto"),
+            partido.get("contexto_competitivo_local"),
+            partido.get("contexto_competitivo_visitante"),
+            partido.get("lecturas_motivacion"),
+            partido.get("probabilidad_sorpresa"),
+            partido.get("_indice_sorpresa_quinielistica"),
+        )
         partidos.append({
             "num": partido["num"],
             "local": partido.get("local"),
@@ -1527,6 +1919,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "resultado": partido.get("resultado"),
             "signo_oficial": partido.get("signo_oficial"),
             "probabilidades": partido["probabilidades"],
+            "confianza_signos": niveles_confianza_signos(partido["probabilidades"]),
             "signo_base": partido["signo_base"],
             "signo_final": signo,
             "tipo": tipo,
@@ -1537,6 +1930,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "tercera_probabilidad": tercera_probabilidad_valor(partido["probabilidades"]),
             "riesgo_necesidad_real": partido["riesgo_necesidad_real"],
             "indice_sorpresa_quinielistica": partido["indice_sorpresa_quinielistica"],
+            "surprise_score": partido["indice_sorpresa_quinielistica"],
             "categoria_sorpresa": partido["categoria_sorpresa"],
             "favorito_atacable": partido["favorito_atacable"],
             "favorito": partido["_indice_sorpresa_quinielistica"].get("favorito"),
@@ -1548,26 +1942,20 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "origen_probabilidades": partido["trazabilidad_datos"]["origen_probabilidades"],
             "calidad_datos": partido["trazabilidad_datos"]["calidad_datos"],
             "trazabilidad_datos": partido["trazabilidad_datos"],
+            "perfil_autonomo_local": partido["perfil_autonomo_local"],
+            "perfil_autonomo_visitante": partido["perfil_autonomo_visitante"],
+            "ajuste_perfiles_autonomos": partido["ajuste_perfiles_autonomos"],
+            "ajuste_modelo_entrenado": partido["ajuste_modelo_entrenado"],
             "ajuste_aprendizaje": partido["ajuste_aprendizaje"],
             "ajuste_pesos_dinamicos": partido["ajuste_pesos_dinamicos"],
             "elige8": False,
-            "razonamiento": explicar(
-                partido,
-                partido["probabilidades"],
-                signo,
-                partido["_local"],
-                partido["_visitante"],
-                partido["_diff"],
-                tipo,
-                partido.get("contexto_local"),
-                partido.get("contexto_visitante"),
-                partido.get("lecturas_contexto"),
-                partido.get("contexto_competitivo_local"),
-                partido.get("contexto_competitivo_visitante"),
-                partido.get("lecturas_motivacion"),
-                partido.get("probabilidad_sorpresa"),
-                partido.get("_indice_sorpresa_quinielistica"),
-            ),
+            "razonamiento": razonamiento,
+            "explicabilidad_ia": explicacion,
+            "hipotesis_principal": explicacion["hipotesis_principal"],
+            "hipotesis_alternativa": explicacion["hipotesis_alternativa"],
+            "motivo_fijo_doble_triple": explicacion["motivo_fijo_doble_triple"],
+            "riesgo_de_sorpresa": explicacion["riesgo_de_sorpresa"],
+            "justificacion_final": explicacion["justificacion_final"],
         })
 
     if elige8:
@@ -1593,23 +1981,64 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         for p in sorted(partidos, key=lambda item: item["indice_sorpresa_quinielistica"], reverse=True)
         if p["favorito_atacable"]
     ][:8]
+    ranking_incertidumbre_coberturas = [
+        {
+            "num": p["num"],
+            "partido": f"{p['local']} - {p['visitante']}",
+            "tipo_final": p["tipo"],
+            "incertidumbre": p["incertidumbre"],
+            "probabilidad_sorpresa": p["probabilidad_sorpresa"],
+            "surprise_score": p["surprise_score"],
+            "margen_probabilidad": p["margen_probabilidad"],
+        }
+        for p in sorted(
+            partidos,
+            key=lambda item: (
+                float(item.get("incertidumbre") or 0),
+                float(item.get("surprise_score") or 0),
+                -float(item.get("margen_probabilidad") or 0),
+            ),
+            reverse=True,
+        )
+    ]
+    ranking_elige8_confianza_real = [
+        {
+            "num": p["num"],
+            "partido": f"{p['local']} - {p['visitante']}",
+            "signo_final": p["signo_final"],
+            "probabilidad_top": p["probabilidad_top"],
+            "margen_probabilidad": p["margen_probabilidad"],
+            "surprise_score": p["surprise_score"],
+            "elige8": p["elige8"],
+        }
+        for p in sorted(partidos, key=prioridad_elige8, reverse=True)
+    ][:8]
 
     salida = {
-        "version": "1.1",
+        "version": "1.4",
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "jornada": jornada,
         "temporada_base": memoria.get("temporada", "2025/2026"),
-        "estado": "validada" if validar else "prediccion_no_validada",
+        "estado": "publicada" if validar else "lista_para_publicar",
+        "prediccion_disponible": True,
+        "prediccion_permitida": True,
+        "publicar_solo_boleto": False,
+        "publicar_prediccion": True,
+        "compuerta_maestra": compuerta,
         "configuracion": {
             "dobles": dobles,
             "triples": triples,
             "elige8": elige8,
+            "elige8_modo": "conservador" if elige8 else "desactivado",
+            "elige8_modos_disponibles": ["conservador", "rentable"],
             "cobertura_auto": cobertura_auto,
         },
         "coste": coste(dobles, triples, elige8, partidos),
         "partidos": partidos,
         "criterio_cobertura": criterio_cobertura,
         "ataques_favorito_prioritarios": ataques_favorito_prioritarios,
+        "ranking_incertidumbre_coberturas": ranking_incertidumbre_coberturas[:8],
+        "ranking_elige8_confianza_real": ranking_elige8_confianza_real,
         "riesgos_detectados": perfil_riesgo_boleto(evaluados)[:8],
         "riesgos_no_cubiertos_por_presupuesto": riesgos_sin_cubrir[:8],
         "alertas_boleto": [
@@ -1642,6 +2071,11 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
                 "ajustes": pesos_dinamicos.get("ajustes", []),
             },
         },
+        "modelo_predictivo": {
+            "activo": bool(modelo_runtime.get("activo")),
+            "motivo": modelo_runtime.get("motivo"),
+            "manifest": modelo_runtime.get("manifest", {}),
+        },
         "pleno15": data.get("pleno15"),
         "resumen": {
             "fijos": sum(1 for p in partidos if p["tipo"] == "FIJO"),
@@ -1664,13 +2098,11 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         },
     }
 
-    destino = (JUGADAS if validar else PREDICCIONES) / f"jornada_{jornada}.json"
-    guardar_json(destino, salida)
-    if validar:
-        guardar_json(JUGADAS / "ultima_validada.json", salida)
-    else:
-        guardar_json(PREDICCIONES / "ultima_prediccion.json", salida)
+    snapshot = crear_snapshot_prediccion(salida)
+    salida["snapshot_pre_cierre"] = snapshot
+    destino = guardar_salida_prediccion(salida, validar=validar)
     print(destino)
+    return salida
 
 
 def main():

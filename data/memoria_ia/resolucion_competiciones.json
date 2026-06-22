@@ -1,0 +1,831 @@
+{
+  "version": "1.0",
+  "generado_en": "2026-06-22T07:01:09.425171+00:00",
+  "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
+  "catalogos": {
+    "primera": 20,
+    "segunda": 22,
+    "mundial": 32,
+    "selecciones": 48
+  },
+  "requisitos_por_competicion": {
+    "mundial_2026": {
+      "modelo": "modelo_selecciones_mundial_2026",
+      "lectura": "Usar memoria de selecciones/Mundial, sede neutral, grupo/fase y fuerza internacional.",
+      "datos_minimos": [
+        "resultados",
+        "ranking_elo",
+        "forma_seleccion",
+        "lesiones",
+        "alineaciones",
+        "contexto_grupo"
+      ]
+    },
+    "selecciones": {
+      "modelo": "modelo_selecciones_generico",
+      "lectura": "Usar fuerza internacional y no clasificacion de liga espanola.",
+      "datos_minimos": [
+        "resultados",
+        "ranking_elo",
+        "forma_seleccion",
+        "lesiones",
+        "alineaciones"
+      ]
+    },
+    "primera_division": {
+      "modelo": "modelo_liga_espana_primera",
+      "lectura": "Usar clasificacion de Primera, forma, casa/fuera, objetivos y bajas.",
+      "datos_minimos": [
+        "resultados",
+        "clasificacion",
+        "forma",
+        "casa_fuera",
+        "lesiones",
+        "alineaciones",
+        "xg"
+      ]
+    },
+    "segunda_division": {
+      "modelo": "modelo_liga_espana_segunda",
+      "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+      "datos_minimos": [
+        "resultados",
+        "clasificacion",
+        "forma",
+        "casa_fuera",
+        "lesiones",
+        "alineaciones",
+        "xg"
+      ]
+    },
+    "liga_extranjera": {
+      "modelo": "modelo_liga_extranjera",
+      "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+      "datos_minimos": [
+        "resultados",
+        "clasificacion_liga",
+        "forma",
+        "ranking_elo",
+        "lesiones"
+      ]
+    },
+    "desconocida": {
+      "modelo": "modelo_conservador_baja_calidad",
+      "lectura": "Competicion no resuelta; bajar confianza y pedir fuentes especificas.",
+      "datos_minimos": [
+        "resultados",
+        "fuente_competicion",
+        "ranking_elo"
+      ]
+    }
+  },
+  "jornadas": [
+    {
+      "jornada": 1,
+      "fecha": "La Quiniela Domingo, 17 de agosto de 2025",
+      "path": "data/jornadas/jornada_1.json",
+      "competiciones": {
+        "primera_division": 5,
+        "liga_extranjera": 5,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 10,
+      "fecha": "La Quiniela Miércoles, 1 de octubre de 2025",
+      "path": "data/jornadas/jornada_10.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 11,
+      "fecha": "La Quiniela Domingo, 5 de octubre de 2025",
+      "path": "data/jornadas/jornada_11.json",
+      "competiciones": {
+        "primera_division": 7,
+        "liga_extranjera": 3,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 12,
+      "fecha": "La Quiniela Domingo, 12 de octubre de 2025",
+      "path": "data/jornadas/jornada_12.json",
+      "competiciones": {
+        "segunda_division": 4,
+        "liga_extranjera": 10
+      }
+    },
+    {
+      "jornada": 13,
+      "fecha": "La Quiniela Martes, 14 de octubre de 2025",
+      "path": "data/jornadas/jornada_13.json",
+      "competiciones": {
+        "liga_extranjera": 12,
+        "mundial_2026": 1,
+        "selecciones": 1
+      }
+    },
+    {
+      "jornada": 14,
+      "fecha": "La Quiniela Domingo, 19 de octubre de 2025",
+      "path": "data/jornadas/jornada_14.json",
+      "competiciones": {
+        "primera_division": 6,
+        "liga_extranjera": 5,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 15,
+      "fecha": "La Quiniela Miércoles, 22 de octubre de 2025",
+      "path": "data/jornadas/jornada_15.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 16,
+      "fecha": "La Quiniela Domingo, 26 de octubre de 2025",
+      "path": "data/jornadas/jornada_16.json",
+      "competiciones": {
+        "primera_division": 5,
+        "liga_extranjera": 5,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 17,
+      "fecha": "La Quiniela Domingo, 2 de noviembre de 2025",
+      "path": "data/jornadas/jornada_17.json",
+      "competiciones": {
+        "primera_division": 4,
+        "liga_extranjera": 6,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 18,
+      "fecha": "La Quiniela Miércoles, 5 de noviembre de 2025",
+      "path": "data/jornadas/jornada_18.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 19,
+      "fecha": "La Quiniela Domingo, 9 de noviembre de 2025",
+      "path": "data/jornadas/jornada_19.json",
+      "competiciones": {
+        "liga_extranjera": 6,
+        "primera_division": 4,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 2,
+      "fecha": "La Quiniela Domingo, 24 de agosto de 2025",
+      "path": "data/jornadas/jornada_2.json",
+      "competiciones": {
+        "liga_extranjera": 8,
+        "primera_division": 5,
+        "segunda_division": 1
+      }
+    },
+    {
+      "jornada": 20,
+      "fecha": "La Quiniela Domingo, 16 de noviembre de 2025",
+      "path": "data/jornadas/jornada_20.json",
+      "competiciones": {
+        "liga_extranjera": 13,
+        "selecciones": 1
+      }
+    },
+    {
+      "jornada": 21,
+      "fecha": "La Quiniela Miércoles, 19 de noviembre de 2025",
+      "path": "data/jornadas/jornada_21.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 22,
+      "fecha": "La Quiniela Domingo, 23 de noviembre de 2025",
+      "path": "data/jornadas/jornada_22.json",
+      "competiciones": {
+        "liga_extranjera": 5,
+        "primera_division": 5,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 23,
+      "fecha": "La Quiniela Miércoles, 26 de noviembre de 2025",
+      "path": "data/jornadas/jornada_23.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 24,
+      "fecha": "La Quiniela Domingo, 30 de noviembre de 2025",
+      "path": "data/jornadas/jornada_24.json",
+      "competiciones": {
+        "liga_extranjera": 7,
+        "primera_division": 4,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 25,
+      "fecha": "La Quiniela Miércoles, 3 de diciembre de 2025",
+      "path": "data/jornadas/jornada_25.json",
+      "competiciones": {
+        "liga_extranjera": 11,
+        "segunda_division": 2,
+        "primera_division": 1
+      }
+    },
+    {
+      "jornada": 26,
+      "fecha": "La Quiniela Domingo, 7 de diciembre de 2025",
+      "path": "data/jornadas/jornada_26.json",
+      "competiciones": {
+        "primera_division": 5,
+        "liga_extranjera": 5,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 27,
+      "fecha": "La Quiniela Miércoles, 10 de diciembre de 2025",
+      "path": "data/jornadas/jornada_27.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 28,
+      "fecha": "La Quiniela Domingo, 14 de diciembre de 2025",
+      "path": "data/jornadas/jornada_28.json",
+      "competiciones": {
+        "liga_extranjera": 7,
+        "primera_division": 4,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 29,
+      "fecha": "La Quiniela Jueves, 18 de diciembre de 2025",
+      "path": "data/jornadas/jornada_29.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 3,
+      "fecha": "La Quiniela Domingo, 31 de agosto de 2025",
+      "path": "data/jornadas/jornada_3.json",
+      "competiciones": {
+        "liga_extranjera": 4,
+        "primera_division": 4,
+        "segunda_division": 6
+      }
+    },
+    {
+      "jornada": 30,
+      "fecha": "La Quiniela Domingo, 21 de diciembre de 2025",
+      "path": "data/jornadas/jornada_30.json",
+      "competiciones": {
+        "liga_extranjera": 5,
+        "primera_division": 5,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 31,
+      "fecha": "La Quiniela Domingo, 28 de diciembre de 2025",
+      "path": "data/jornadas/jornada_31.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 32,
+      "fecha": "La Quiniela Domingo, 4 de enero de 2026",
+      "path": "data/jornadas/jornada_32.json",
+      "competiciones": {
+        "liga_extranjera": 6,
+        "primera_division": 5,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 33,
+      "fecha": "La Quiniela Domingo, 11 de enero de 2026",
+      "path": "data/jornadas/jornada_33.json",
+      "competiciones": {
+        "primera_division": 4,
+        "liga_extranjera": 6,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 34,
+      "fecha": "La Quiniela Miércoles, 14 de enero de 2026",
+      "path": "data/jornadas/jornada_34.json",
+      "competiciones": {
+        "liga_extranjera": 13,
+        "primera_division": 1
+      }
+    },
+    {
+      "jornada": 35,
+      "fecha": "La Quiniela Domingo, 18 de enero de 2026",
+      "path": "data/jornadas/jornada_35.json",
+      "competiciones": {
+        "primera_division": 5,
+        "liga_extranjera": 5,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 36,
+      "fecha": "La Quiniela Miércoles, 21 de enero de 2026",
+      "path": "data/jornadas/jornada_36.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 37,
+      "fecha": "La Quiniela Domingo, 25 de enero de 2026",
+      "path": "data/jornadas/jornada_37.json",
+      "competiciones": {
+        "liga_extranjera": 6,
+        "primera_division": 4,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 38,
+      "fecha": "La Quiniela Miércoles, 28 de enero de 2026",
+      "path": "data/jornadas/jornada_38.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 39,
+      "fecha": "La Quiniela Domingo, 1 de febrero de 2026",
+      "path": "data/jornadas/jornada_39.json",
+      "competiciones": {
+        "primera_division": 5,
+        "liga_extranjera": 6,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 4,
+      "fecha": "La Quiniela Domingo, 7 de septiembre de 2025",
+      "path": "data/jornadas/jornada_4.json",
+      "competiciones": {
+        "liga_extranjera": 11,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 40,
+      "fecha": "La Quiniela Domingo, 8 de febrero de 2026",
+      "path": "data/jornadas/jornada_40.json",
+      "competiciones": {
+        "primera_division": 6,
+        "liga_extranjera": 5,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 41,
+      "fecha": "La Quiniela Miércoles, 11 de febrero de 2026",
+      "path": "data/jornadas/jornada_41.json",
+      "competiciones": {
+        "primera_division": 1,
+        "liga_extranjera": 13
+      }
+    },
+    {
+      "jornada": 42,
+      "fecha": "La Quiniela Domingo, 15 de febrero de 2026",
+      "path": "data/jornadas/jornada_42.json",
+      "competiciones": {
+        "liga_extranjera": 5,
+        "primera_division": 6,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 43,
+      "fecha": "La Quiniela Miércoles, 18 de febrero de 2026",
+      "path": "data/jornadas/jornada_43.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 44,
+      "fecha": "La Quiniela Domingo, 22 de febrero de 2026",
+      "path": "data/jornadas/jornada_44.json",
+      "competiciones": {
+        "primera_division": 5,
+        "liga_extranjera": 5,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 45,
+      "fecha": "La Quiniela Domingo, 1 de marzo de 2026",
+      "path": "data/jornadas/jornada_45.json",
+      "competiciones": {
+        "primera_division": 5,
+        "liga_extranjera": 6,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 46,
+      "fecha": "La Quiniela Domingo, 8 de marzo de 2026",
+      "path": "data/jornadas/jornada_46.json",
+      "competiciones": {
+        "primera_division": 5,
+        "liga_extranjera": 5,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 47,
+      "fecha": "La Quiniela Miércoles, 11 de marzo de 2026",
+      "path": "data/jornadas/jornada_47.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 48,
+      "fecha": "La Quiniela Domingo, 15 de marzo de 2026",
+      "path": "data/jornadas/jornada_48.json",
+      "competiciones": {
+        "primera_division": 6,
+        "liga_extranjera": 5,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 49,
+      "fecha": "La Quiniela Miércoles, 18 de marzo de 2026",
+      "path": "data/jornadas/jornada_49.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 5,
+      "fecha": "La Quiniela Domingo, 14 de septiembre de 2025",
+      "path": "data/jornadas/jornada_5.json",
+      "competiciones": {
+        "primera_division": 4,
+        "liga_extranjera": 6,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 50,
+      "fecha": "La Quiniela Domingo, 22 de marzo de 2026",
+      "path": "data/jornadas/jornada_50.json",
+      "competiciones": {
+        "primera_division": 6,
+        "liga_extranjera": 5,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 51,
+      "fecha": "La Quiniela Domingo, 29 de marzo de 2026",
+      "path": "data/jornadas/jornada_51.json",
+      "competiciones": {
+        "liga_extranjera": 9,
+        "segunda_division": 5
+      }
+    },
+    {
+      "jornada": 52,
+      "fecha": "La Quiniela Miércoles, 1 de abril de 2026",
+      "path": "data/jornadas/jornada_52.json",
+      "competiciones": {
+        "segunda_division": 6,
+        "liga_extranjera": 6,
+        "selecciones": 1,
+        "mundial_2026": 1
+      }
+    },
+    {
+      "jornada": 53,
+      "fecha": "La Quiniela Domingo, 5 de abril de 2026",
+      "path": "data/jornadas/jornada_53.json",
+      "competiciones": {
+        "primera_division": 6,
+        "liga_extranjera": 3,
+        "segunda_division": 5
+      }
+    },
+    {
+      "jornada": 54,
+      "fecha": "La Quiniela Miércoles, 8 de abril de 2026",
+      "path": "data/jornadas/jornada_54.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 55,
+      "fecha": "La Quiniela Domingo, 12 de abril de 2026",
+      "path": "data/jornadas/jornada_55.json",
+      "competiciones": {
+        "primera_division": 5,
+        "liga_extranjera": 6,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 56,
+      "fecha": "La Quiniela Miércoles, 15 de abril de 2026",
+      "path": "data/jornadas/jornada_56.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 57,
+      "fecha": "La Quiniela Domingo, 19 de abril de 2026",
+      "path": "data/jornadas/jornada_57.json",
+      "competiciones": {
+        "liga_extranjera": 9,
+        "segunda_division": 5
+      }
+    },
+    {
+      "jornada": 58,
+      "fecha": "La Quiniela Miércoles, 22 de abril de 2026",
+      "path": "data/jornadas/jornada_58.json",
+      "competiciones": {
+        "liga_extranjera": 10,
+        "primera_division": 4
+      }
+    },
+    {
+      "jornada": 59,
+      "fecha": "La Quiniela Domingo, 26 de abril de 2026",
+      "path": "data/jornadas/jornada_59.json",
+      "competiciones": {
+        "primera_division": 4,
+        "liga_extranjera": 8,
+        "segunda_division": 2
+      }
+    },
+    {
+      "jornada": 6,
+      "fecha": "La Quiniela Miércoles, 17 de septiembre de 2025",
+      "path": "data/jornadas/jornada_6.json",
+      "competiciones": {
+        "liga_extranjera": 14
+      }
+    },
+    {
+      "jornada": 60,
+      "fecha": "La Quiniela Domingo, 3 de mayo de 2026",
+      "path": "data/jornadas/jornada_60.json",
+      "competiciones": {
+        "primera_division": 3,
+        "liga_extranjera": 8,
+        "segunda_division": 3
+      }
+    },
+    {
+      "jornada": 61,
+      "fecha": "10/05/2026",
+      "path": "data/jornadas/jornada_61.json",
+      "competiciones": {
+        "liga_extranjera": 4,
+        "primera_division": 5,
+        "segunda_division": 5
+      }
+    },
+    {
+      "jornada": 62,
+      "fecha": "13 de Mayo de 2026",
+      "path": "data/jornadas/jornada_62.json",
+      "competiciones": {
+        "liga_extranjera": 9,
+        "primera_division": 5
+      }
+    },
+    {
+      "jornada": 63,
+      "fecha": "17 de Mayo de 2026",
+      "path": "data/jornadas/jornada_63.json",
+      "competiciones": {
+        "liga_extranjera": 4,
+        "primera_division": 6,
+        "segunda_division": 4
+      }
+    },
+    {
+      "jornada": 64,
+      "fecha": "Domingo, 24 de mayo de 2026",
+      "path": "data/jornadas/jornada_64.json",
+      "competiciones": {
+        "primera_division": 8,
+        "liga_extranjera": 1,
+        "segunda_division": 5
+      }
+    },
+    {
+      "jornada": 65,
+      "fecha": "2026-05-31",
+      "path": "data/jornadas/jornada_65.json",
+      "competiciones": {
+        "segunda_division": 11,
+        "selecciones": 1,
+        "liga_extranjera": 2
+      }
+    },
+    {
+      "jornada": 66,
+      "fecha": "2026-06-07",
+      "path": "data/jornadas/jornada_66.json",
+      "competiciones": {
+        "segunda_division": 2,
+        "liga_extranjera": 9,
+        "selecciones": 2,
+        "mundial_2026": 1
+      }
+    },
+    {
+      "jornada": 67,
+      "fecha": "Domingo, 14 de junio de 2026",
+      "path": "data/jornadas/jornada_67.json",
+      "competiciones": {
+        "liga_extranjera": 1,
+        "selecciones": 1,
+        "mundial_2026": 11,
+        "segunda_division": 1
+      }
+    },
+    {
+      "jornada": 68,
+      "fecha": "Sábado, 20 de junio de 2026",
+      "path": "data/jornadas/jornada_68.json",
+      "competiciones": {
+        "liga_extranjera": 2,
+        "mundial_2026": 11,
+        "segunda_division": 1
+      }
+    },
+    {
+      "jornada": 69,
+      "fecha": "Martes, 23 de junio de 2026",
+      "path": "data/jornadas/jornada_69.json",
+      "competiciones": {
+        "mundial_2026": 6,
+        "selecciones": 6,
+        "liga_extranjera": 2
+      }
+    },
+    {
+      "jornada": 7,
+      "fecha": "La Quiniela Domingo, 21 de septiembre de 2025",
+      "path": "data/jornadas/jornada_7.json",
+      "competiciones": {
+        "liga_extranjera": 7,
+        "primera_division": 5,
+        "segunda_division": 2
+      }
+    },
+    {
+      "jornada": 70,
+      "fecha": "Sábado, 27 de junio de 2026",
+      "path": "data/jornadas/jornada_70.json",
+      "competiciones": {
+        "mundial_2026": 10,
+        "liga_extranjera": 1,
+        "selecciones": 3
+      }
+    },
+    {
+      "jornada": 8,
+      "fecha": "La Quiniela Miércoles, 24 de septiembre de 2025",
+      "path": "data/jornadas/jornada_8.json",
+      "competiciones": {
+        "primera_division": 6,
+        "liga_extranjera": 8
+      }
+    },
+    {
+      "jornada": 9,
+      "fecha": "La Quiniela Domingo, 28 de septiembre de 2025",
+      "path": "data/jornadas/jornada_9.json",
+      "competiciones": {
+        "primera_division": 5,
+        "liga_extranjera": 6,
+        "segunda_division": 3
+      }
+    }
+  ],
+  "archivos_anotados": {
+    "jornadas": [
+      "data/jornadas/jornada_1.json",
+      "data/jornadas/jornada_10.json",
+      "data/jornadas/jornada_11.json",
+      "data/jornadas/jornada_12.json",
+      "data/jornadas/jornada_13.json",
+      "data/jornadas/jornada_14.json",
+      "data/jornadas/jornada_15.json",
+      "data/jornadas/jornada_16.json",
+      "data/jornadas/jornada_17.json",
+      "data/jornadas/jornada_18.json",
+      "data/jornadas/jornada_19.json",
+      "data/jornadas/jornada_2.json",
+      "data/jornadas/jornada_20.json",
+      "data/jornadas/jornada_21.json",
+      "data/jornadas/jornada_22.json",
+      "data/jornadas/jornada_23.json",
+      "data/jornadas/jornada_24.json",
+      "data/jornadas/jornada_25.json",
+      "data/jornadas/jornada_26.json",
+      "data/jornadas/jornada_27.json",
+      "data/jornadas/jornada_28.json",
+      "data/jornadas/jornada_29.json",
+      "data/jornadas/jornada_3.json",
+      "data/jornadas/jornada_30.json",
+      "data/jornadas/jornada_31.json",
+      "data/jornadas/jornada_32.json",
+      "data/jornadas/jornada_33.json",
+      "data/jornadas/jornada_34.json",
+      "data/jornadas/jornada_35.json",
+      "data/jornadas/jornada_36.json",
+      "data/jornadas/jornada_37.json",
+      "data/jornadas/jornada_38.json",
+      "data/jornadas/jornada_39.json",
+      "data/jornadas/jornada_4.json",
+      "data/jornadas/jornada_40.json",
+      "data/jornadas/jornada_41.json",
+      "data/jornadas/jornada_42.json",
+      "data/jornadas/jornada_43.json",
+      "data/jornadas/jornada_44.json",
+      "data/jornadas/jornada_45.json",
+      "data/jornadas/jornada_46.json",
+      "data/jornadas/jornada_47.json",
+      "data/jornadas/jornada_48.json",
+      "data/jornadas/jornada_49.json",
+      "data/jornadas/jornada_5.json",
+      "data/jornadas/jornada_50.json",
+      "data/jornadas/jornada_51.json",
+      "data/jornadas/jornada_52.json",
+      "data/jornadas/jornada_53.json",
+      "data/jornadas/jornada_54.json",
+      "data/jornadas/jornada_55.json",
+      "data/jornadas/jornada_56.json",
+      "data/jornadas/jornada_57.json",
+      "data/jornadas/jornada_58.json",
+      "data/jornadas/jornada_59.json",
+      "data/jornadas/jornada_6.json",
+      "data/jornadas/jornada_60.json",
+      "data/jornadas/jornada_61.json",
+      "data/jornadas/jornada_62.json",
+      "data/jornadas/jornada_63.json",
+      "data/jornadas/jornada_64.json",
+      "data/jornadas/jornada_65.json",
+      "data/jornadas/jornada_66.json",
+      "data/jornadas/jornada_67.json",
+      "data/jornadas/jornada_68.json",
+      "data/jornadas/jornada_69.json",
+      "data/jornadas/jornada_7.json",
+      "data/jornadas/jornada_70.json",
+      "data/jornadas/jornada_8.json",
+      "data/jornadas/jornada_9.json"
+    ],
+    "predicciones": [
+      "data/predicciones/jornada_61.json",
+      "data/predicciones/jornada_63.json",
+      "data/predicciones/jornada_64.json",
+      "data/predicciones/jornada_65.json",
+      "data/predicciones/jornada_66.json",
+      "data/predicciones/jornada_67.json",
+      "data/predicciones/jornada_68.json",
+      "data/predicciones/jornada_69.json",
+      "data/predicciones/jornada_70.json",
+      "data/predicciones/ultima_prediccion.json"
+    ]
+  }
+}

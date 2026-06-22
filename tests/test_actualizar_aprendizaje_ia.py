@@ -35,6 +35,27 @@ class ActualizarAprendizajeIATest(unittest.TestCase):
         self.assertEqual(resumen["signos_omitidos_en_fallo"]["X"], 1)
         self.assertEqual(resumen["detalle"][0]["signo_omitido"], "X")
 
+    def test_registrar_revision_enriquece_detalle_aprendizaje(self):
+        resumen = resumen_vacio()
+        partido = {"local": "A", "visitante": "B", "resultado": "2-0"}
+        prediccion = {
+            "probabilidades": {"1": 55.0, "X": 25.0, "2": 20.0},
+            "origen_probabilidades": "modelo_test",
+            "razonamiento": "Decision final: 1.",
+            "cuotas": {"1": 1.8},
+        }
+        pesos = {"pesos": {"empate": 0.1, "sorpresa": 0.09}}
+
+        registrar_revision(resumen, 1, partido, "X", "1", "test", prediccion, pesos)
+
+        detalle = resumen["detalle"][0]
+        self.assertEqual(detalle["probabilidades_usadas"]["1"], 55.0)
+        self.assertEqual(detalle["pesos_modelo"]["empate"], 0.1)
+        self.assertEqual(detalle["fuentes_utilizadas"], ["modelo_test"])
+        self.assertEqual(detalle["resultado_final"], "2-0")
+        self.assertEqual(detalle["motivo_error"], "Fijo fallado")
+        self.assertEqual(detalle["cuotas"]["1"], 1.8)
+
 
 if __name__ == "__main__":
     unittest.main()

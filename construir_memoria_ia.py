@@ -809,9 +809,46 @@ PESOS_DINAMICOS_REFERENCIA = {
     "bajas": 0.02,
 }
 
+LIMITES_PESOS_DINAMICOS = {
+    "empate": (0.06, 0.18),
+    "sorpresa": (0.05, 0.16),
+}
+DECAY_PESOS_DINAMICOS = 0.92
+
 
 def porcentaje_seguro(parte, total):
     return round(float(parte or 0) / max(float(total or 0), 1.0) * 100, 2)
+
+
+def limites_peso_dinamico(clave):
+    referencia = PESOS_DINAMICOS_REFERENCIA[clave]
+    return LIMITES_PESOS_DINAMICOS.get(clave, (max(referencia * 0.45, 0.01), min(referencia * 1.8, 0.24)))
+
+
+def normalizar_con_limites_pesos(valores):
+    actuales = {clave: max(float(valor), 0.0) for clave, valor in valores.items()}
+    for _ in range(8):
+        total = sum(actuales.values()) or 1.0
+        actuales = {clave: valor / total for clave, valor in actuales.items()}
+        fijos = {}
+        libres = {}
+        for clave, valor in actuales.items():
+            minimo, maximo = limites_peso_dinamico(clave)
+            if valor < minimo:
+                fijos[clave] = minimo
+            elif valor > maximo:
+                fijos[clave] = maximo
+            else:
+                libres[clave] = valor
+        if not fijos:
+            break
+        restante = max(1.0 - sum(fijos.values()), 0.0)
+        suma_libres = sum(libres.values()) or 1.0
+        actuales = {**fijos, **{clave: valor / suma_libres * restante for clave, valor in libres.items()}}
+        if all(limites_peso_dinamico(clave)[0] <= valor <= limites_peso_dinamico(clave)[1] for clave, valor in actuales.items()):
+            break
+    total = sum(actuales.values()) or 1.0
+    return {clave: round(valor / total, 4) for clave, valor in actuales.items()}
 
 
 def aplicar_delta_peso(pesos, ajustes, clave, delta, motivo, max_paso=0.02):
@@ -824,7 +861,8 @@ def aplicar_delta_peso(pesos, ajustes, clave, delta, motivo, max_paso=0.02):
     if abs(delta) < 0.001:
         return
     anterior = float(pesos.get(clave, PESOS_DINAMICOS_REFERENCIA[clave]))
-    nuevo = round(max(min(anterior + delta, 0.35), 0.01), 4)
+    minimo, maximo = limites_peso_dinamico(clave)
+    nuevo = round(max(min(anterior + delta, maximo), minimo), 4)
     pesos[clave] = nuevo
     ajustes.append({
         "peso": clave,
@@ -835,10 +873,29 @@ def aplicar_delta_peso(pesos, ajustes, clave, delta, motivo, max_paso=0.02):
     })
 
 
+def normalizar_pesos_dinamicos(pesos, ajustes):
+    normalizados = {}
+    for clave, referencia in PESOS_DINAMICOS_REFERENCIA.items():
+        valor = float(pesos.get(clave, referencia))
+        valor = referencia + (valor - referencia) * DECAY_PESOS_DINAMICOS
+        minimo, maximo = limites_peso_dinamico(clave)
+        normalizados[clave] = max(min(valor, maximo), minimo)
+    normalizados = normalizar_con_limites_pesos(normalizados)
+    if any(round(float(pesos.get(k, 0)), 4) != v for k, v in normalizados.items()):
+        ajustes.append({
+            "peso": "todos",
+            "delta": 0,
+            "motivo": "Normalizacion automatica con limites y decay temporal para evitar saturacion de pesos.",
+            "decay": DECAY_PESOS_DINAMICOS,
+            "limites": LIMITES_PESOS_DINAMICOS,
+        })
+    return normalizados
+
+
 def construir_pesos_dinamicos(quiniela, diario):
     previos = cargar_json(PESOS_DINAMICOS, {})
     pesos = dict(PESOS_DINAMICOS_REFERENCIA)
-    if previos.get("version") == "1.1":
+    if previos.get("version") in {"1.1", "1.2"}:
         pesos.update({
             clave: float(valor)
             for clave, valor in (previos.get("pesos") or {}).items()
@@ -896,11 +953,15 @@ def construir_pesos_dinamicos(quiniela, diario):
             "motivo": "Muestra inferior a 28 partidos: se conservan pesos previos para evitar reaccionar a un solo partido.",
         })
 
+    pesos = normalizar_pesos_dinamicos(pesos, ajustes)
+
     return {
-        "version": "1.1",
+        "version": "1.2",
         "generado_en": datetime.now(timezone.utc).isoformat(),
-        "metodo": "ajustes pequenos y acumulativos; maximo 0.02 por peso y ejecucion",
+        "metodo": "ajustes pequenos, limites por variable, normalizacion y decay temporal",
         "referencia": PESOS_DINAMICOS_REFERENCIA,
+        "limites": LIMITES_PESOS_DINAMICOS,
+        "decay_temporal": DECAY_PESOS_DINAMICOS,
         "pesos": pesos,
         "muestra": {
             "partidos_validados": partidos,

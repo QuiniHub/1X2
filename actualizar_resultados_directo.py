@@ -153,6 +153,8 @@ def inicio_partido(partido):
         return None
 
     hora_txt = str(partido.get("hora") or "").strip()
+    if hora_txt in {"00:00", "0:00"}:
+        return None
     m = re.match(r"^(\d{1,2}):(\d{2})$", hora_txt)
     if not m:
         return None

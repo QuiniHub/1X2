@@ -34,6 +34,15 @@ ALIAS = {
     "rep checa": "republica checa",
     "rd congo": "rd congo",
     "r d congo": "rd congo",
+    "r vallecano": "rayo vallecano madrid",
+    "rayo vallecano": "rayo vallecano madrid",
+    "r oviedo": "oviedo",
+    "r madrid": "madrid",
+    "r sociedad": "sociedad",
+    "betis": "betis",
+    "espanyol": "espanyol barcelona",
+    "dep coruna": "deportivo coruna",
+    "deportivo la coruna": "deportivo coruna",
 }
 
 REQUISITOS = {
@@ -95,7 +104,7 @@ def normalizar(nombre):
     texto = str(nombre or "").strip().lower()
     texto = unicodedata.normalize("NFD", texto)
     texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
-    texto = re.sub(r"\b(fc|cf|cd|sd|ud|rcd|rc|sad|club|real|de|del|la|el)\b", " ", texto)
+    texto = re.sub(r"\b(fc|cf|cd|sd|ud|rcd|rc|sad|club|real|de|del|la|el|futbol|balompie)\b", " ", texto)
     texto = re.sub(r"[^a-z0-9]+", " ", texto).strip()
     return ALIAS.get(texto, texto)
 

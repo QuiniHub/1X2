@@ -1,15 +1,9 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-21T08:44:04.193044+00:00",
-  "estado": "revisar",
-  "score": 65,
-  "alertas": [
-    {
-      "nivel": "alta",
-      "titulo": "Predicción de jornada antigua",
-      "detalle": "La jornada activa es 70 pero la última predicción dice 69."
-    }
-  ],
+  "generado_en": "2026-06-22T07:01:13.303102+00:00",
+  "estado": "operativo",
+  "score": 100,
+  "alertas": [],
   "jornadas": {
     "total": 70,
     "actual": {
@@ -49,8 +43,8 @@
         "jornada": 68,
         "fecha": "Sábado, 20 de junio de 2026",
         "partidos": 14,
-        "cerrados": 9,
-        "pendientes": 5,
+        "cerrados": 12,
+        "pendientes": 2,
         "path": "data/jornadas/jornada_68.json"
       },
       {
@@ -190,7 +184,7 @@
     }
   },
   "contexto_competitivo": {
-    "generado_en": "2026-06-21T08:44:02.912325+00:00",
+    "generado_en": "2026-06-22T07:00:18.707234+00:00",
     "oviedo": {
       "clave": "oviedo",
       "equipo": "Real Oviedo",
@@ -591,22 +585,20 @@
   },
   "prediccion": {
     "jornada": 69,
-    "generado_en": "2026-06-21T08:44:03.382013+00:00",
+    "generado_en": "2026-06-22T07:01:08.339376+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
+      "fijos": 0,
       "dobles": 0,
       "triples": 0,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 6,
-      "indice_sorpresa_max": 100.0,
-      "calidad_datos": {
-        "alta": 0,
-        "media": 6,
-        "media_baja": 0,
-        "baja": 0
-      }
-    }
+      "partidos_cargados": 14,
+      "pleno15_cargado": true,
+      "total_casillas": 15,
+      "prediccion": "BLOQUEADA_POR_APRENDIZAJE_PENDIENTE"
+    },
+    "retenida_por_compuerta": true,
+    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 68 solo tiene 12 de 14 resultados oficiales. No se genera prediccion para la jornada 69 hasta cerrar y aprender la 68."
   },
   "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
 }

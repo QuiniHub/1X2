@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-21T08:44:04.193044+00:00",
-  "estado": "requiere_revision_datos",
-  "score_salud": 69,
+  "generado_en": "2026-06-22T07:01:13.303102+00:00",
+  "estado": "operativo_con_avisos",
+  "score_salud": 76,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 70,
@@ -60,11 +60,11 @@
         "fecha": "Sábado, 20 de junio de 2026",
         "estado": "en_juego",
         "partidos": 14,
-        "cerrados": 9,
-        "pendientes": 5,
-        "pendientes_totales_con_pleno15": 6,
-        "pleno15_cerrado": false,
-        "ultima_actualizacion_partido": "2026-06-21T08:43:53Z",
+        "cerrados": 12,
+        "pendientes": 2,
+        "pendientes_totales_con_pleno15": 2,
+        "pleno15_cerrado": true,
+        "ultima_actualizacion_partido": "2026-06-22T07:00:09Z",
         "path": "data/jornadas/jornada_68.json"
       },
       {
@@ -109,22 +109,20 @@
   },
   "prediccion": {
     "jornada": 69,
-    "generado_en": "2026-06-21T08:44:03.382013+00:00",
+    "generado_en": "2026-06-22T07:01:08.339376+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
+      "fijos": 0,
       "dobles": 0,
       "triples": 0,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 6,
-      "indice_sorpresa_max": 100.0,
-      "calidad_datos": {
-        "alta": 0,
-        "media": 6,
-        "media_baja": 0,
-        "baja": 0
-      }
-    }
+      "partidos_cargados": 14,
+      "pleno15_cargado": true,
+      "total_casillas": 15,
+      "prediccion": "BLOQUEADA_POR_APRENDIZAJE_PENDIENTE"
+    },
+    "retenida_por_compuerta": true,
+    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 68 solo tiene 12 de 14 resultados oficiales. No se genera prediccion para la jornada 69 hasta cerrar y aprender la 68."
   },
   "clasificaciones": {
     "primera": {
@@ -175,9 +173,9 @@
     }
   },
   "fuentes": {
-    "memoria_horas": 0.0,
+    "memoria_horas": 0.02,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.1,
+    "contexto_equipos_horas": 0.11,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -212,29 +210,18 @@
   "backtesting_pre_cierre": {
     "estado": "muestra_pequena",
     "jornadas_snapshot": 5,
-    "partidos_cerrados": 37,
-    "aciertos": 24,
-    "precision": 64.86,
-    "generado_en": "2026-06-21T08:44:04.102259+00:00",
+    "partidos_cerrados": 40,
+    "aciertos": 27,
+    "precision": 67.5,
+    "generado_en": "2026-06-22T07:01:10.911391+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
-    {
-      "nivel": "alta",
-      "titulo": "Predicción de jornada antigua",
-      "detalle": "La jornada activa es 70 pero la última predicción dice 69."
-    },
     {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
       "detalle": "La jornada 69 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
       "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
-    },
-    {
-      "nivel": "media",
-      "titulo": "Prediccion demasiado rigida",
-      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
-      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
     },
     {
       "nivel": "media",
@@ -251,7 +238,7 @@
     {
       "nivel": "baja",
       "titulo": "Backtesting pre-cierre con muestra pequena",
-      "detalle": "Hay 37 partidos cerrados desde snapshots pre-cierre.",
+      "detalle": "Hay 40 partidos cerrados desde snapshots pre-cierre.",
       "accion": "Acumular varias jornadas antes de usar la precision como metrica fuerte."
     }
   ],
@@ -264,16 +251,10 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-06-21T08:44:04.193044+00:00",
-    "estado": "revisar",
-    "score": 65,
-    "alertas": [
-      {
-        "nivel": "alta",
-        "titulo": "Predicción de jornada antigua",
-        "detalle": "La jornada activa es 70 pero la última predicción dice 69."
-      }
-    ],
+    "generado_en": "2026-06-22T07:01:13.303102+00:00",
+    "estado": "operativo",
+    "score": 100,
+    "alertas": [],
     "jornadas": {
       "total": 70,
       "actual": {
@@ -313,8 +294,8 @@
           "jornada": 68,
           "fecha": "Sábado, 20 de junio de 2026",
           "partidos": 14,
-          "cerrados": 9,
-          "pendientes": 5,
+          "cerrados": 12,
+          "pendientes": 2,
           "path": "data/jornadas/jornada_68.json"
         },
         {
@@ -454,7 +435,7 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-06-21T08:44:02.912325+00:00",
+      "generado_en": "2026-06-22T07:00:18.707234+00:00",
       "oviedo": {
         "clave": "oviedo",
         "equipo": "Real Oviedo",
@@ -855,22 +836,20 @@
     },
     "prediccion": {
       "jornada": 69,
-      "generado_en": "2026-06-21T08:44:03.382013+00:00",
+      "generado_en": "2026-06-22T07:01:08.339376+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 14,
+        "fijos": 0,
         "dobles": 0,
         "triples": 0,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 6,
-        "indice_sorpresa_max": 100.0,
-        "calidad_datos": {
-          "alta": 0,
-          "media": 6,
-          "media_baja": 0,
-          "baja": 0
-        }
-      }
+        "partidos_cargados": 14,
+        "pleno15_cargado": true,
+        "total_casillas": 15,
+        "prediccion": "BLOQUEADA_POR_APRENDIZAJE_PENDIENTE"
+      },
+      "retenida_por_compuerta": true,
+      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 68 solo tiene 12 de 14 resultados oficiales. No se genera prediccion para la jornada 69 hasta cerrar y aprender la 68."
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -913,8 +892,8 @@
         "jornada": 68,
         "fecha": "Sábado, 20 de junio de 2026",
         "partidos": 14,
-        "cerrados": 9,
-        "pendientes": 5,
+        "cerrados": 12,
+        "pendientes": 2,
         "path": "data/jornadas/jornada_68.json"
       },
       {
@@ -1054,7 +1033,7 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-06-21T08:44:02.912325+00:00",
+    "generado_en": "2026-06-22T07:00:18.707234+00:00",
     "oviedo": {
       "clave": "oviedo",
       "equipo": "Real Oviedo",

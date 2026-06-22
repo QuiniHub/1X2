@@ -93,11 +93,17 @@ def limpiar(data):
 
     data["prediccion_disponible"] = False
     data["aprendizaje_pendiente"] = True
+    data["prediccion_permitida"] = False
+    estado_actual = str(data.get("estado") or "").lower()
+    data["estado"] = estado_actual if estado_actual in {"bloqueada", "aprendiendo"} else "bloqueada"
+    data["publicar_solo_boleto"] = True
+    data["publicar_prediccion"] = False
     config = data.setdefault("configuracion", {})
     config["dobles"] = 0
     config["triples"] = 0
     config["elige8"] = False
     config["elige8_modo"] = "bloqueado"
+    config["elige8_modos_disponibles"] = ["conservador", "rentable"]
     config["cobertura_auto"] = False
 
     data["coste"] = {
