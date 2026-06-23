@@ -1,124 +1,185 @@
 # Quiniela IA Pro
 
-Web y motor de analisis para La Quiniela. El flujo activo se centra en datos reales de jornadas, resultados, clasificaciones, memoria de quinielas jugadas, contexto competitivo y prediccion.
+Motor predictivo de quinielas de futbol con aprendizaje autonomo por jornada.
 
-## Flujo activo
+---
 
-El workflow real esta en:
+## Que hace este sistema
 
-`.github/workflows/main.yml`
+Genera una prediccion 1X2 para cada jornada de La Quiniela combinando:
 
-Ese workflow ejecuta:
+- datos reales de resultados, clasificaciones y jornadas
+- contexto competitivo por equipo (necesidad de puntos, dinamica, objetivos)
+- memoria historica de quinielas jugadas y resultados
+- capa predictiva entrenable con baseline Elo/Poisson y modelo scikit-learn
+- datos profesionales opcionales (cuotas, bajas, alineaciones)
+- logica quinielista para fijos, dobles, triples y Elige 8
 
-`python actualizar_todo.py`
+El sistema **no predice la siguiente jornada mientras la actual este en juego**.
+Una vez cerrada la jornada, consolida los resultados, aprende de los errores
+y genera la prediccion para la siguiente.
 
-`actualizar_todo.py` solo llama a scripts activos y falla si uno de ellos falla. Asi se evitan actualizaciones silenciosas con datos incompletos.
+---
 
-Las dependencias Python estan fijadas en:
+## Estructura del flujo
 
-`requirements.txt`
+El workflow de GitHub Actions ejecuta cada 30 minutos:
 
-Antes de actualizar datos en GitHub Actions se ejecuta:
-
-`python -m unittest discover -s tests`
-
-## Scripts activos
-
-- `actualizar_jornadas_detalle.py`
-- `actualizar_resultados_directo.py`
-- `aplicar_correcciones_resultados.py`
-- `actualizar_clasificaciones_oficiales.py`
-- `actualizar_contexto_equipos.py`
-- `actualizar_analisis_ia.py`
-- `actualizar_aprendizaje_ia.py`
-- `construir_historial_quinielas.py`
-- `construir_memoria_ia.py`
-- `generar_contexto_competitivo.py`
-- `modelo_metricas_1x2.py`
-- `motor_prediccion_quiniela.py`
-- `generar_estado_vivo_ia.py`
-- `guardar_snapshot_prediccion.py`
-- `backtesting_pre_cierre.py`
-- `diagnostico_sistema.py`
-
-## Capa predictiva entrenable
-
-`modelo_metricas_1x2.py` aporta una primera capa profesional y auditable de prediccion 1X2:
-
-- construye un dataset temporal desde jornadas cerradas;
-- calcula un baseline Elo/Poisson;
-- entrena un modelo 1X2 si `scikit-learn` esta disponible y la muestra es suficiente;
-- ejecuta backtesting rolling sin mirar el futuro;
-- publica Brier Score, Log Loss, curva de calibracion, acierto top1 y metricas por competicion/signo;
-- versiona salidas en `data/modelo_predictivo/`.
-
-Si `scikit-learn` no esta instalado, el pipeline no rompe la actualizacion: degrada a baseline Elo/Poisson y deja constancia en `metricas_modelo.json`.
-
-## Datos profesionales vivos
-
-`actualizar_datos_profesionales.py` crea y mantiene `data/datos_profesionales.json`.
-
-La capa acepta un JSON normalizado desde GitHub Secrets:
-
-- `QUINIHUB_PRO_DATA_URL`: endpoint autorizado con cuotas 1X2, bajas/sanciones, alineaciones probables, calendario y clasificaciones.
-- `QUINIHUB_PRO_DATA_TOKEN`: token bearer opcional para ese endpoint.
-
-Tambien puede conectarse directamente a API-Football/API-SPORTS:
-
-- `QUINIHUB_PRO_DATA_URL=https://v3.football.api-sports.io`
-- `QUINIHUB_PRO_DATA_TOKEN=<clave API-Football>`
-
-Variables opcionales de GitHub Actions `vars`:
-
-- `QUINIHUB_PRO_DATA_PROVIDER=api_football`
-- `QUINIHUB_PRO_DATA_LEAGUES=140:LaLiga EA Sports,141:LaLiga Hypermotion,1:FIFA World Cup`
-- `QUINIHUB_PRO_DATA_SEASON=2026`
-- `QUINIHUB_PRO_DATA_TIMEZONE=Europe/Madrid`
-- `QUINIHUB_PRO_DATA_BOOKMAKER=<id bookmaker>`
-- `QUINIHUB_PRO_DATA_MAX_JORNADAS=2`
-
-Si esos secretos no existen, el workflow no falla: conserva un esqueleto auditable y marca las fuentes como pendientes. Cuando el endpoint este configurado, `motor_prediccion_quiniela.py` mezcla las cuotas de mercado con su probabilidad propia, penaliza bajas/sanciones estructuradas, sube riesgo si el once probable es dudoso y deja trazabilidad por partido.
-
-El formato esperado por partido es:
-
-```json
-{
-  "jornada": 1,
-  "num": 1,
-  "local": "Equipo Local",
-  "visitante": "Equipo Visitante",
-  "cuotas": {"1": 1.8, "X": 3.4, "2": 4.8, "fuente": "proveedor"},
-  "bajas": {
-    "local": {"lesiones": [{"jugador": "Nombre", "impacto": 2.0, "titular": true}], "sanciones": [], "dudas": []},
-    "visitante": {"lesiones": [], "sanciones": [], "dudas": []}
-  },
-  "alineaciones": {
-    "local": {"titulares_probables": ["Jugador 1"], "confianza": 0.8},
-    "visitante": {"titulares_probables": ["Jugador 1"], "confianza": 0.8}
-  },
-  "calendario": {"fecha": "2026-08-16", "hora": "21:00", "temporada": "2026/2027", "fuente": "oficial"},
-  "clasificacion": {"temporada": "2026/2027", "local": {"posicion": 4, "puntos": 18}, "visitante": {"posicion": 14, "puntos": 9}}
-}
+```
+.github/workflows/main.yml
+  -> python actualizar_todo.py
 ```
 
-## Prediccion y backtesting
+`actualizar_todo.py` ejecuta los scripts activos en orden y falla si uno rompe,
+evitando actualizaciones silenciosas con datos incompletos.
 
-Cuando no se pasan dobles/triples manuales, `motor_prediccion_quiniela.py` aplica cobertura automatica segun incertidumbre, margen de probabilidad, empate alto, sorpresa y necesidad competitiva. Esto evita publicar por defecto 14 fijos en jornadas abiertas.
+Antes de actualizar datos se ejecutan los tests:
 
-`guardar_snapshot_prediccion.py` guarda una foto pre-cierre de la prediccion solo si la jornada aun no tiene resultados oficiales. No sobrescribe snapshots existentes.
+```
+python -m unittest discover -s tests
+```
 
-`backtesting_pre_cierre.py` compara solo esas fotos pre-cierre contra resultados reales, para no mezclar predicciones regeneradas despues de jugarse la jornada.
+---
 
-## Memoria de quinielas jugadas
+## Competiciones activas
 
-La memoria persistente debe estar en:
+| Competicion | Estado |
+|---|---|
+| Mundial 2026 | Activo |
+| Ligas europeas (segun quiniela) | Activo segun jornada |
+| Primera Division 2026/2027 | Pendiente inicio agosto 2026 |
+| Segunda Division 2026/2027 | Pendiente inicio agosto 2026 |
 
-- `data/quinielas_jugadas.json`
-- `data/historial_quinielas.json`
+Cuando empiece la liga 2026/2027, el sistema inicializara automaticamente
+las tablas clasificatorias y el calendario de Primera y Segunda.
 
-Una jugada guardada solo en el navegador no entra en el aprendizaje automatico hasta que quede persistida en esos archivos.
-Las quinielas manuales cargadas en Historial cuentan igual que las generadas en Quinielas cuando `data/historial_quinielas.json` contiene `nuestra_quiniela`.
+---
 
-## Limpieza aplicada
+## Scripts activos principales
 
-Se han retirado demos, duplicados y conectores antiguos que generaban datos inventados, tenian nombres cruzados o podian pisar informacion buena. El motor valido de prediccion es `motor_prediccion_quiniela.py`; `generar_quiniela_ia.py` queda solo como compatibilidad y delega en ese motor.
+### Datos base
+- `actualizar_jornadas_detalle.py` — detalle de jornadas y partidos
+- `actualizar_resultados_directo.py` — resultados oficiales
+- `actualizar_clasificaciones_oficiales.py` — clasificaciones de ligas
+- `actualizar_ligas_football_data.py` — datos de ligas externas
+- `actualizar_contexto_equipos.py` — contexto competitivo por equipo
+- `actualizar_analisis_ia.py` — analisis IA por partido
+- `actualizar_aprendizaje_ia.py` — aprendizaje por jornada
+
+### Memoria e inteligencia
+- `construir_memoria_ia.py` — memoria global de aprendizaje
+- `memoria_autonoma_quiniela.py` — memoria persistente de quinielas
+- `generar_contexto_competitivo.py` — contexto competitivo global
+- `generar_memoria_mundial_2026.py` — memoria especifica Mundial 2026
+- `aprender_patrones_competitivos.py` — patrones aprendidos por competicion
+
+### Motor predictivo
+- `motor_prediccion_quiniela.py` — nucleo de prediccion 1X2 (motor principal)
+- `modelo_metricas_1x2.py` — capa entrenable Elo/Poisson + scikit-learn
+- `alinear_boleto_con_analisis.py` — asignacion de fijos/dobles/triples
+- `aplicar_elige8_seguro.py` — seleccion de Elige 8
+- `generar_estado_vivo_ia.py` — estado vivo para la web
+
+### Datos profesionales (opcionales)
+- `datos_profesionales.py` — cuotas, bajas, alineaciones
+- `actualizar_datos_profesionales.py` — carga desde secrets o esqueleto
+
+Configuracion via GitHub Secrets/Vars:
+- `QUINIHUB_PRO_DATA_URL` — endpoint con datos profesionales
+- `QUINIHUB_PRO_DATA_TOKEN` — token bearer opcional
+- `QUINIHUB_PRO_DATA_PROVIDER` — proveedor (ej: `api_football`)
+- `QUINIHUB_PRO_DATA_LEAGUES` — ligas activas
+- `QUINIHUB_PRO_DATA_SEASON` — temporada
+
+Si los secrets no existen, el workflow no falla: genera un esqueleto auditable.
+
+### Premios
+- `calcular_premios.py` — calcula y persiste premios por jornada cerrada
+  - Salida: `data/premios/historial_premios.json`
+  - Campos: jornada, aciertos, fallos, premio_eur, fuente_premio, boleto
+  - Si no hay dato oficial disponible, premio queda como 0.0 EUR y fuente como `pendiente`
+
+### Control de calidad
+- `guardar_snapshot_prediccion.py` — foto pre-cierre de prediccion
+- `backtesting_pre_cierre.py` — backtesting solo con snapshots validos
+- `calibrar_probabilidades.py` — calibracion de probabilidades
+- `diagnostico_sistema.py` — diagnostico del estado del sistema
+- `control_calidad_actualizacion.py` — control de calidad del pipeline
+- `validar_publicacion_autonoma.py` — valida publicacion antes de subir
+
+---
+
+## Estrategia de boleto
+
+El sistema decide la cobertura de cada partido:
+
+| Tipo | Cuando se usa |
+|---|---|
+| **FIJO** | alta confianza, bajo riesgo de sorpresa |
+| **DOBLE** | riesgo medio, dos signos plausibles |
+| **TRIPLE** | alta incertidumbre, cubre los tres signos |
+
+Los triples garantizan acierto en ese partido para Elige 8.
+El Elige 8 se forma con los 8 partidos de mayor probabilidad de acierto.
+
+---
+
+## Memoria y aprendizaje
+
+El aprendizaje es real y acumulativo. Despues de cada jornada cerrada:
+
+1. Se compara la prediccion (snapshot pre-cierre) con los resultados oficiales
+2. Se detectan errores por tipo: empate infravalorado, sorpresa no detectada, etc.
+3. Se actualiza la memoria con patrones nuevos
+4. Se genera un resumen de aprendizaje de la jornada
+5. Se ajustan pesos dinamicos para la siguiente prediccion
+
+La memoria se divide en:
+- **transferible**: patrones utiles para cualquier equipo o competicion
+- **no transferible**: habitos especificos de equipos o contextos concretos
+
+---
+
+## Tests
+
+Los tests se ejecutan antes de cada actualizacion automatica:
+
+```
+python -m unittest discover -s tests
+```
+
+Cobertura actual: jornadas, resultados, prediccion, boleto, Elige 8,
+datos profesionales, memoria, compuerta, control de calidad y premios.
+
+---
+
+## Dependencias
+
+```
+beautifulsoup4
+lxml
+joblib
+numpy
+pandas
+requests
+scikit-learn
+```
+
+---
+
+## Copia de seguridad
+
+Antes del refactor estructural de junio 2026:
+
+```
+git checkout backup/pre-refactor-auditoria-total
+```
+
+---
+
+## Estado del sistema
+
+- Competicion activa: **Mundial 2026**
+- Proxima transicion: **Liga 2026/2027** (agosto 2026)
+- Workflow: **automatico cada 30 minutos**
+- Premios: **automaticos si hay dato fiable, pendiente si no**
