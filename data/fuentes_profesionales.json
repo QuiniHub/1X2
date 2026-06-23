@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-23T06:56:05.884460+00:00",
+  "generado_en": "2026-06-23T07:37:36.303370+00:00",
   "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
   "estado_global": "en_construccion",
   "fuentes": {
@@ -11,7 +11,7 @@
       "siguiente_paso": "comparar fuente actual contra segunda fuente o API oficial/licenciada"
     },
     "cuotas_mercado": {
-      "estado": "pendiente_secret",
+      "estado": "pendiente_api",
       "prioridad": "critica",
       "uso": "transformar mercado en probabilidad base y detectar favoritos mal valorados",
       "siguiente_paso": "conectar proveedor de cuotas 1X2 con snapshots antes del cierre"
@@ -29,13 +29,13 @@
       "siguiente_paso": "cargar xG/xGA por equipo, condicion local/visitante y ultimos partidos"
     },
     "lesiones_sanciones": {
-      "estado": "pendiente_secret",
+      "estado": "parcial_no_estructurado",
       "prioridad": "critica",
       "uso": "evitar fijos debiles por bajas clave o sanciones",
       "siguiente_paso": "estructurar parte medico y sanciones por jugador e impacto"
     },
     "alineaciones_probables": {
-      "estado": "pendiente_secret",
+      "estado": "pendiente_fuente",
       "prioridad": "alta",
       "uso": "detectar rotaciones y titulares dudosos",
       "siguiente_paso": "cargar once probable y probabilidad de titularidad"
@@ -90,9 +90,9 @@
     }
   },
   "datos_profesionales": {
-    "estado_global": "pendiente_secrets",
+    "estado_global": "sin_datos_profesionales",
     "temporada_objetivo": "2026/2027",
-    "generado_en": "2026-06-23T06:53:48Z",
+    "generado_en": "2026-06-23T07:37:36Z",
     "resumen": {
       "partidos_enriquecidos": 0,
       "cuotas": 0,
@@ -112,7 +112,7 @@
       ],
       "api_football_url_detectada": true,
       "url_configurada": true,
-      "token_configurado": false,
+      "token_configurado": true,
       "archivo_local_configurado": false,
       "formato": "JSON normalizado o API-Football/API-SPORTS con fixtures, odds, injuries, fixtures/lineups y standings."
     }
@@ -121,9 +121,9 @@
     "total": 14,
     "estados": {
       "conectado_fragil": 1,
-      "pendiente_secret": 3,
-      "pendiente_api": 1,
-      "pendiente_fuente": 3,
+      "pendiente_api": 2,
+      "pendiente_fuente": 4,
+      "parcial_no_estructurado": 1,
       "pendiente_publicacion_o_api": 1,
       "pendiente_dataset": 1,
       "pendiente_modelado": 2,
@@ -132,7 +132,6 @@
     },
     "criticas_pendientes": [
       "cuotas_mercado",
-      "lesiones_sanciones",
       "calendario_oficial_2026_2027"
     ],
     "lectura": "Mientras existan fuentes criticas pendientes, las probabilidades deben marcarse como no plenamente calibradas."

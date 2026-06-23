@@ -1,10 +1,43 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-23T06:53:48Z",
+  "generado_en": "2026-06-23T07:37:36Z",
   "temporada_objetivo": "2026/2027",
-  "estado_global": "pendiente_secrets",
-  "origen": "esqueleto_local",
-  "proveedores": {},
+  "estado_global": "sin_datos_profesionales",
+  "origen": "secrets",
+  "proveedores": {
+    "api_football": {
+      "base_url": "https://v3.football.api-sports.io",
+      "ligas": {
+        "140": "LaLiga EA Sports",
+        "141": "LaLiga Hypermotion",
+        "1": "FIFA World Cup"
+      },
+      "season": 2026,
+      "fixtures_emparejados": 0,
+      "errores": [
+        "fixtures Noruega - Senegal: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-23&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Jordania - Argelia: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-23&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Portugal - Uzbekistán: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-23&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Inglaterra - Ghana: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-23&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Panamá - Croacia: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-24&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Colombia - RD Congo: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-24&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Suiza - Canadá: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-24&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Bosnia - Qatar: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-24&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Escocia - Brasil: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-25&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Marruecos - Haití: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-25&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Sudáfrica - Rep. Corea: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-25&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Curazao - Costa Marfil: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-25&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Ecuador - Alemania: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-25&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures IFK Mariehamn - HJK Helsinki: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-23&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Japon - Suecia: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-26&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Túnez - Países Bajos: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-26&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Turquía - EEUU: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-26&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Paraguay - Australia: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-26&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Noruega - Francia: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-26&league=140&season=2026&timezone=Europe%2FMadrid",
+        "fixtures Senegal - Irak: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-06-26&league=140&season=2026&timezone=Europe%2FMadrid"
+      ]
+    }
+  },
   "jornadas": {},
   "resumen": {
     "partidos_enriquecidos": 0,
@@ -25,9 +58,8 @@
     ],
     "api_football_url_detectada": true,
     "url_configurada": true,
-    "token_configurado": false,
+    "token_configurado": true,
     "archivo_local_configurado": false,
     "formato": "JSON normalizado o API-Football/API-SPORTS con fixtures, odds, injuries, fixtures/lineups y standings."
-  },
-  "siguiente_paso": "Configurar QUINIHUB_PRO_DATA_URL y QUINIHUB_PRO_DATA_TOKEN en GitHub Secrets para inyectar cuotas, bajas, alineaciones y datos oficiales 2026/2027."
+  }
 }
