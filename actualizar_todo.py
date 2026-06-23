@@ -94,6 +94,9 @@ SCRIPTS_ACTIVOS = [
     "ajustar_coberturas_contexto_global.py",
     "verificar_coherencia_pronostico.py",
 
+    # --- Premios ---
+    "calcular_premios.py",
+
     # --- Control de calidad ---
     "guardar_snapshot_prediccion.py",
     "backtesting_pre_cierre.py",
