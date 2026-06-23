@@ -1,14 +1,16 @@
 import sys
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from datos_profesionales import buscar_partido, leer_api_football_payload, normalizar_payload
+from datos_profesionales import buscar_partido, leer_api_football_payload, leer_payload_externo, normalizar_payload
 
 
 class FakeResponse:
@@ -222,6 +224,10 @@ class DatosProfesionalesTests(unittest.TestCase):
         self.assertEqual(partido["calendario"]["fuente"], "API-Football oficial")
         self.assertEqual(partido["clasificacion"]["local"]["posicion"], 4)
         self.assertTrue(all(call["headers"]["x-apisports-key"] == "token-test" for call in cliente.calls))
+
+    def test_api_football_url_sin_token_espera_secret(self):
+        with patch.dict(os.environ, {"QUINIHUB_PRO_DATA_URL": "https://v3.football.api-sports.io"}, clear=True):
+            self.assertIsNone(leer_payload_externo())
 
 
 if __name__ == "__main__":

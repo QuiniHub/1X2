@@ -843,6 +843,8 @@ def leer_payload_externo():
         raise RuntimeError("requests no esta disponible para leer QUINIHUB_PRO_DATA_URL")
     token = os.getenv("QUINIHUB_PRO_DATA_TOKEN")
     if url_es_api_football(url):
+        if not token:
+            return None
         return leer_api_football_payload(url, token)
     headers = {"User-Agent": "QuiniHub/1X2 datos-profesionales"}
     if token:
