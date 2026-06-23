@@ -10,6 +10,13 @@ SIGNOS = {"1", "X", "2"}
 ESTADOS_PREDICCION = {"bloqueada", "aprendiendo", "lista_para_publicar", "publicada"}
 
 
+ARTEFACTOS_APRENDIZAJE = (
+    DATA / "memoria_ia" / "revisiones_prediccion_resultado.json",
+    DATA / "memoria_ia" / "metricas_probabilisticas.json",
+    DATA / "memoria_ia" / "fiabilidad_equipos.json",
+)
+
+
 def ahora_iso():
     return datetime.now(timezone.utc).isoformat()
 
@@ -21,6 +28,27 @@ def cargar_json(path, defecto=None):
     if not path.exists():
         return defecto
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def asegurar_artefactos_aprendizaje(data_root=DATA):
+    """Genera los artefactos que necesita la compuerta si faltan.
+
+    La compuerta no debe quedar bloqueada si data/aprendizaje_ia.json ya contiene
+    el aprendizaje completo pero todavia no se han materializado los JSON de memoria.
+    Se limita al data root del repositorio para no alterar fixtures temporales de tests.
+    """
+    try:
+        if Path(data_root).resolve() != DATA.resolve():
+            return
+        if all(path.exists() for path in ARTEFACTOS_APRENDIZAJE):
+            return
+        aprendizaje = DATA / "aprendizaje_ia.json"
+        if not aprendizaje.exists():
+            return
+        from generar_artefactos_compuerta_aprendizaje import generar_artefactos
+        generar_artefactos(cargar_json(aprendizaje, {}))
+    except Exception as exc:
+        print(f"Aviso compuerta: no se pudieron generar artefactos de aprendizaje: {exc}")
 
 
 def signo_de_resultado(valor):
@@ -78,6 +106,7 @@ def items_jornada(path, jornada_num, clave):
 
 
 def estado_aprendizaje(jornada_num, data_root=DATA):
+    asegurar_artefactos_aprendizaje(data_root)
     memoria = Path(data_root) / "memoria_ia"
     revisiones = items_jornada(memoria / "revisiones_prediccion_resultado.json", jornada_num, "revisiones")
     diario = items_jornada(memoria / "diario_aprendizaje.json", jornada_num, "entradas")
@@ -103,14 +132,7 @@ def estado_aprendizaje(jornada_num, data_root=DATA):
     return {"ok": not faltan, "faltan": faltan, "revisiones": len(revisiones), "diario": len(diario)}
 
 
-def respuesta_compuerta(
-    jornada_objetivo,
-    jornada_anterior,
-    estado,
-    motivo="",
-    resultados=None,
-    aprendizaje=None,
-):
+def respuesta_compuerta(jornada_objetivo, jornada_anterior, estado, motivo="", resultados=None, aprendizaje=None):
     if estado not in ESTADOS_PREDICCION:
         estado = "bloqueada"
     permitida = estado in {"lista_para_publicar", "publicada"}
@@ -176,18 +198,5 @@ def estado_compuerta(jornada_objetivo, data_root=DATA):
     aprendizaje = estado_aprendizaje(anterior, data_root)
     if not aprendizaje["ok"]:
         motivo = f"Aprendizaje pendiente de la jornada anterior: faltan {', '.join(aprendizaje['faltan'])}."
-        return respuesta_compuerta(
-            jornada_objetivo,
-            anterior,
-            "aprendiendo",
-            motivo,
-            resultados=resultados,
-            aprendizaje=aprendizaje,
-        )
-    return respuesta_compuerta(
-        jornada_objetivo,
-        anterior,
-        "lista_para_publicar",
-        resultados=resultados,
-        aprendizaje=aprendizaje,
-    )
+        return respuesta_compuerta(jornada_objetivo, anterior, "aprendiendo", motivo, resultados=resultados, aprendizaje=aprendizaje)
+    return respuesta_compuerta(jornada_objetivo, anterior, "lista_para_publicar", resultados=resultados, aprendizaje=aprendizaje)
