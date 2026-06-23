@@ -6,11 +6,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
+# Scripts que existen en el repo pero cuya ejecucion esta temporalmente
+# bloqueada para evitar cambios visuales no controlados.
 SCRIPTS_VISUALES_DESACTIVADOS = {
     "actualizar_selector_jornadas_web.py",
     "aplicar_coherencia_pro_boleto.py",
-    "alinear_pronostico_analisis.py",
-    "mejorar_prioridad_coberturas.py",
     "aplicar_patrones_web.py",
     "ajustar_coberturas_contexto_global.py",
     "mejorar_asistente_ia.py",
@@ -29,6 +29,7 @@ SCRIPTS_VISUALES_DESACTIVADOS = {
 }
 
 SCRIPTS_ACTIVOS = [
+    # --- Datos base ---
     "actualizar_jornadas_detalle.py",
     "actualizar_boleto_vivo.py",
     "asegurar_proxima_jornada.py",
@@ -48,24 +49,23 @@ SCRIPTS_ACTIVOS = [
     "memoria_autonoma_quiniela.py",
     "sincronizar_dinamicas_memoria.py",
 
-    # Fuente unica de verdad competitiva. Todo lo posterior debe leer esto.
+    # --- Fuente unica de verdad competitiva ---
     "generar_contexto_competitivo.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
     "validar_contexto_actual.py",
     "construir_fuente_verdad_competitiva.py",
 
-    # Memoria especifica de competiciones internacionales y capa de datos profesionales.
+    # --- Competiciones internacionales y datos profesionales ---
     "generar_memoria_mundial_2026.py",
     "actualizar_datos_profesionales.py",
     "auditar_fuentes_profesionales.py",
     "resolver_competiciones_profesionales.py",
 
-    # Capa predictiva entrenable auditable: dataset temporal, Elo/Poisson,
-    # backtesting rolling, Brier Score, Log Loss y calibracion.
+    # --- Capa predictiva entrenable ---
     "modelo_metricas_1x2.py",
 
-    # Motor y salidas.
+    # --- Motor predictivo y salidas ---
     "aprender_patrones_competitivos.py",
     "aplicar_patrones_motor.py",
     "reforzar_patrones_motor.py",
@@ -75,7 +75,6 @@ SCRIPTS_ACTIVOS = [
     "mejorar_prioridad_coberturas.py",
     "motor_prediccion_objetivo.py",
     "aplicar_memoria_mundial_prediccion.py",
-    "resolver_competiciones_profesionales.py",
     "alinear_boleto_con_analisis.py",
     "generar_estado_vivo_ia.py",
     "regenerar_estado_vivo_actual.py",
@@ -93,12 +92,10 @@ SCRIPTS_ACTIVOS = [
     "reforzar_coberturas_descenso.py",
     "aplicar_patrones_web.py",
     "corregir_emparejamiento_equipos.py",
-    "alinear_pronostico_analisis.py",
-    "mejorar_prioridad_coberturas.py",
     "ajustar_coberturas_contexto_global.py",
     "verificar_coherencia_pronostico.py",
-    "validar_contexto_actual.py",
-    "construir_fuente_verdad_competitiva.py",
+
+    # --- Control de calidad ---
     "guardar_snapshot_prediccion.py",
     "backtesting_pre_cierre.py",
     "calibrar_probabilidades.py",
@@ -107,13 +104,9 @@ SCRIPTS_ACTIVOS = [
     "normalizar_diagnostico_control.py",
     "normalizar_textos_generados.py",
 
-    # Cierre final: web y publicacion.
-    "alinear_boleto_con_analisis.py",
+    # --- Cierre final: web y publicacion ---
     "aplicar_elige8_seguro.py",
     "limpiar_prediccion_bloqueada.py",
-    "diagnostico_sistema.py",
-    "control_calidad_actualizacion.py",
-    "normalizar_diagnostico_control.py",
     "estabilizar_web.py",
     "validar_publicacion_autonoma.py",
 ]
