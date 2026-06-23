@@ -63,6 +63,20 @@ La capa acepta un JSON normalizado desde GitHub Secrets:
 - `QUINIHUB_PRO_DATA_URL`: endpoint autorizado con cuotas 1X2, bajas/sanciones, alineaciones probables, calendario y clasificaciones.
 - `QUINIHUB_PRO_DATA_TOKEN`: token bearer opcional para ese endpoint.
 
+Tambien puede conectarse directamente a API-Football/API-SPORTS:
+
+- `QUINIHUB_PRO_DATA_URL=https://v3.football.api-sports.io`
+- `QUINIHUB_PRO_DATA_TOKEN=<clave API-Football>`
+
+Variables opcionales de GitHub Actions `vars`:
+
+- `QUINIHUB_PRO_DATA_PROVIDER=api_football`
+- `QUINIHUB_PRO_DATA_LEAGUES=140:LaLiga EA Sports,141:LaLiga Hypermotion,1:FIFA World Cup`
+- `QUINIHUB_PRO_DATA_SEASON=2026`
+- `QUINIHUB_PRO_DATA_TIMEZONE=Europe/Madrid`
+- `QUINIHUB_PRO_DATA_BOOKMAKER=<id bookmaker>`
+- `QUINIHUB_PRO_DATA_MAX_JORNADAS=2`
+
 Si esos secretos no existen, el workflow no falla: conserva un esqueleto auditable y marca las fuentes como pendientes. Cuando el endpoint este configurado, `motor_prediccion_quiniela.py` mezcla las cuotas de mercado con su probabilidad propia, penaliza bajas/sanciones estructuradas, sube riesgo si el once probable es dudoso y deja trazabilidad por partido.
 
 El formato esperado por partido es:

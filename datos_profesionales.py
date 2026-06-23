@@ -22,6 +22,51 @@ SECRETS_SOPORTADOS = [
     "QUINIHUB_PRO_DATA_FILE",
 ]
 
+API_FOOTBALL_LIGAS_DEFECTO = {
+    "140": "LaLiga EA Sports",
+    "141": "LaLiga Hypermotion",
+    "1": "FIFA World Cup",
+}
+
+API_FOOTBALL_ALIAS = {
+    "alemania": "germany",
+    "argelia": "algeria",
+    "argentina": "argentina",
+    "australia": "australia",
+    "belgica": "belgium",
+    "brasil": "brazil",
+    "canada": "canada",
+    "colombia": "colombia",
+    "corea del sur": "south korea",
+    "costa de marfil": "ivory coast",
+    "croacia": "croatia",
+    "ecuador": "ecuador",
+    "escocia": "scotland",
+    "espana": "spain",
+    "eeuu": "united states",
+    "estados unidos": "united states",
+    "francia": "france",
+    "ghana": "ghana",
+    "inglaterra": "england",
+    "japon": "japan",
+    "jordania": "jordan",
+    "marruecos": "morocco",
+    "mexico": "mexico",
+    "noruega": "norway",
+    "paises bajos": "netherlands",
+    "paraguay": "paraguay",
+    "portugal": "portugal",
+    "senegal": "senegal",
+    "suecia": "sweden",
+    "suiza": "switzerland",
+    "tunez": "tunisia",
+    "turquia": "turkey",
+    "uzbekistan": "uzbekistan",
+    "usa": "united states",
+    "united states": "united states",
+    "netherlands": "netherlands",
+}
+
 
 def ahora_iso():
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -31,6 +76,17 @@ def temporada_objetivo(fecha=None):
     fecha = fecha or datetime.now()
     inicio = fecha.year if fecha.month >= 7 else fecha.year
     return f"{inicio}/{inicio + 1}"
+
+
+def temporada_api_football(fecha=None):
+    valor = os.getenv("QUINIHUB_PRO_DATA_SEASON")
+    if valor:
+        try:
+            return int(valor)
+        except ValueError:
+            pass
+    fecha = fecha or datetime.now()
+    return fecha.year if fecha.month >= 6 else fecha.year - 1
 
 
 def cargar_json(path, defecto=None):
@@ -59,8 +115,39 @@ def normalizar(texto):
     return " ".join(texto.split()).strip()
 
 
+def normalizar_api_nombre(texto):
+    clave = normalizar(texto)
+    return API_FOOTBALL_ALIAS.get(clave, clave)
+
+
+def puntuacion_nombre(candidato, objetivo):
+    candidato = normalizar_api_nombre(candidato)
+    objetivo = normalizar_api_nombre(objetivo)
+    if not candidato or not objetivo:
+        return 0
+    if candidato == objetivo:
+        return 1000
+    if candidato in objetivo or objetivo in candidato:
+        return 700
+    tokens_candidato = set(candidato.split())
+    tokens_objetivo = set(objetivo.split())
+    comunes = tokens_candidato & tokens_objetivo
+    if not comunes:
+        return 0
+    cobertura = len(comunes) / max(len(tokens_objetivo), 1)
+    return int(200 + cobertura * 400 + len(comunes) * 40)
+
+
 def clave_partido(local, visitante):
     return f"{normalizar(local)}|{normalizar(visitante)}"
+
+
+def url_es_api_football(url):
+    proveedor = str(os.getenv("QUINIHUB_PRO_DATA_PROVIDER") or "").lower().replace("-", "_")
+    if proveedor in {"api_football", "api_sports", "apisports"}:
+        return True
+    texto = str(url or "").lower()
+    return any(fragmento in texto for fragmento in ("api-football", "api-sports", "football.api-sports.io"))
 
 
 def numero_decimal(valor):
@@ -332,10 +419,15 @@ def normalizar_payload(payload, origen="externo"):
 def configuracion_publica():
     return {
         "secrets_soportados": SECRETS_SOPORTADOS,
+        "proveedores_directos_soportados": ["api_football"],
+        "api_football_url_detectada": url_es_api_football(os.getenv("QUINIHUB_PRO_DATA_URL")),
         "url_configurada": bool(os.getenv("QUINIHUB_PRO_DATA_URL")),
         "token_configurado": bool(os.getenv("QUINIHUB_PRO_DATA_TOKEN")),
         "archivo_local_configurado": bool(os.getenv("QUINIHUB_PRO_DATA_FILE")),
-        "formato": "JSON normalizado con partidos, cuotas 1X2, bajas, alineaciones, calendario y clasificacion.",
+        "formato": (
+            "JSON normalizado o API-Football/API-SPORTS con fixtures, odds, injuries, "
+            "fixtures/lineups y standings."
+        ),
     }
 
 
@@ -380,6 +472,365 @@ def buscar_partido(datos, jornada, partido):
     return None
 
 
+def ligas_api_football():
+    valor = os.getenv("QUINIHUB_PRO_DATA_LEAGUES")
+    if not valor:
+        return API_FOOTBALL_LIGAS_DEFECTO
+    ligas = {}
+    for item in valor.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        if ":" in item:
+            liga_id, nombre = item.split(":", 1)
+            ligas[liga_id.strip()] = nombre.strip() or liga_id.strip()
+        else:
+            ligas[item] = API_FOOTBALL_LIGAS_DEFECTO.get(item, item)
+    return ligas or API_FOOTBALL_LIGAS_DEFECTO
+
+
+def limite_jornadas_profesionales():
+    try:
+        return max(min(int(os.getenv("QUINIHUB_PRO_DATA_MAX_JORNADAS") or 2), 4), 1)
+    except ValueError:
+        return 2
+
+
+def seleccionar_jornadas_objetivo(root=ROOT):
+    data_dir = Path(root) / "data"
+    jornadas_dir = data_dir / "jornadas"
+    numeros = set()
+    estado = cargar_json(data_dir / "estado_jornada_objetivo.json", {})
+    pred = cargar_json(data_dir / "predicciones" / "ultima_prediccion.json", {})
+
+    for valor in (estado.get("jornada_objetivo"), pred.get("jornada")):
+        try:
+            if valor:
+                numeros.add(int(valor))
+        except (TypeError, ValueError):
+            pass
+
+    existentes = []
+    for path in jornadas_dir.glob("jornada_*.json"):
+        data = cargar_json(path, {})
+        try:
+            existentes.append(int(data.get("jornada") or path.stem.split("_")[-1]))
+        except (TypeError, ValueError):
+            continue
+    if existentes:
+        numeros.add(max(existentes))
+
+    seleccion = []
+    for numero in sorted(numeros)[:limite_jornadas_profesionales()]:
+        path = jornadas_dir / f"jornada_{numero}.json"
+        data = cargar_json(path, {})
+        if data.get("partidos"):
+            seleccion.append(data)
+    return seleccion
+
+
+def api_football_get(base_url, token, endpoint, params=None, requester=None):
+    if requests is None and requester is None:
+        raise RuntimeError("requests no esta disponible para consultar API-Football")
+    requester = requester or requests
+    url = f"{str(base_url).rstrip('/')}/{str(endpoint).lstrip('/')}"
+    respuesta = requester.get(
+        url,
+        headers={
+            "User-Agent": "QuiniHub/1X2 datos-profesionales",
+            "Accept": "application/json",
+            "x-apisports-key": token,
+        },
+        params=params or {},
+        timeout=30,
+    )
+    respuesta.raise_for_status()
+    payload = respuesta.json()
+    errores = payload.get("errors")
+    if errores:
+        raise RuntimeError(f"API-Football {endpoint}: {errores}")
+    return payload.get("response") or []
+
+
+def fixture_nombres(fixture):
+    equipos = fixture.get("teams") or {}
+    home = (equipos.get("home") or {}).get("name") or ""
+    away = (equipos.get("away") or {}).get("name") or ""
+    return home, away
+
+
+def puntuacion_fixture(fixture, partido):
+    home, away = fixture_nombres(fixture)
+    directo = puntuacion_nombre(home, partido.get("local")) + puntuacion_nombre(away, partido.get("visitante"))
+    inverso = puntuacion_nombre(home, partido.get("visitante")) + puntuacion_nombre(away, partido.get("local"))
+    return directo - 250 if directo >= inverso else inverso - 500
+
+
+def buscar_fixture_api_football(base_url, token, partido, fixture_cache, requester=None):
+    fecha = str(partido.get("fecha") or "").strip()
+    if not fecha:
+        return None
+    candidatos = []
+    for liga_id in ligas_api_football():
+        cache_key = (fecha, liga_id)
+        if cache_key not in fixture_cache:
+            fixture_cache[cache_key] = api_football_get(
+                base_url,
+                token,
+                "fixtures",
+                {
+                    "date": fecha,
+                    "league": liga_id,
+                    "season": temporada_api_football(),
+                    "timezone": os.getenv("QUINIHUB_PRO_DATA_TIMEZONE") or "Europe/Madrid",
+                },
+                requester=requester,
+            )
+        candidatos.extend(fixture_cache[cache_key])
+    if not candidatos:
+        return None
+    fixture = max(candidatos, key=lambda item: puntuacion_fixture(item, partido))
+    return fixture if puntuacion_fixture(fixture, partido) >= 1100 else None
+
+
+def cuota_valor_api_football(valor):
+    texto = str((valor or {}).get("value") or "").strip().lower()
+    cuota = (valor or {}).get("odd")
+    if texto in {"home", "1", "local"}:
+        return "1", cuota
+    if texto in {"draw", "x", "empate"}:
+        return "X", cuota
+    if texto in {"away", "2", "visitante"}:
+        return "2", cuota
+    return None, None
+
+
+def cuotas_api_football(base_url, token, fixture_id, requester=None):
+    params = {"fixture": fixture_id}
+    bookmaker = os.getenv("QUINIHUB_PRO_DATA_BOOKMAKER")
+    if bookmaker:
+        params["bookmaker"] = bookmaker
+    response = api_football_get(base_url, token, "odds", params, requester=requester)
+    for item in response:
+        for casa in item.get("bookmakers") or []:
+            for bet in casa.get("bets") or []:
+                cuotas = {}
+                for value in bet.get("values") or []:
+                    signo, cuota = cuota_valor_api_football(value)
+                    if signo:
+                        cuotas[signo] = cuota
+                if all(signo in cuotas for signo in ("1", "X", "2")):
+                    cuotas.update({
+                        "fuente": "API-Football",
+                        "proveedor": casa.get("name"),
+                        "mercado": bet.get("name") or "Match Winner",
+                        "actualizado_en": ahora_iso(),
+                    })
+                    return cuotas
+    return {}
+
+
+def clasificar_baja_api_football(item):
+    player = item.get("player") or {}
+    texto = f"{player.get('type', '')} {player.get('reason', '')}".lower()
+    if "suspend" in texto or "ban" in texto or "sanc" in texto:
+        return "sanciones"
+    if "doubt" in texto or "question" in texto:
+        return "dudas"
+    return "lesiones"
+
+
+def bajas_api_football(base_url, token, fixture, requester=None):
+    fixture_id = (fixture.get("fixture") or {}).get("id")
+    home_id = ((fixture.get("teams") or {}).get("home") or {}).get("id")
+    away_id = ((fixture.get("teams") or {}).get("away") or {}).get("id")
+    salida = {"local": {"lesiones": [], "sanciones": [], "dudas": []}, "visitante": {"lesiones": [], "sanciones": [], "dudas": []}}
+    response = api_football_get(base_url, token, "injuries", {"fixture": fixture_id}, requester=requester)
+    for item in response:
+        team_id = ((item.get("team") or {}).get("id"))
+        lado = "local" if team_id == home_id else "visitante" if team_id == away_id else None
+        if not lado:
+            continue
+        player = item.get("player") or {}
+        tipo = clasificar_baja_api_football(item)
+        salida[lado][tipo].append({
+            "jugador": player.get("name"),
+            "estado": player.get("reason") or player.get("type"),
+            "impacto": 1.7 if tipo == "sanciones" else 0.9 if tipo == "dudas" else 1.8,
+            "fuente": "API-Football",
+            "actualizado_en": ahora_iso(),
+        })
+    return salida
+
+
+def alineaciones_api_football(base_url, token, fixture, requester=None):
+    fixture_id = (fixture.get("fixture") or {}).get("id")
+    home_id = ((fixture.get("teams") or {}).get("home") or {}).get("id")
+    away_id = ((fixture.get("teams") or {}).get("away") or {}).get("id")
+    salida = {"local": {}, "visitante": {}}
+    response = api_football_get(base_url, token, "fixtures/lineups", {"fixture": fixture_id}, requester=requester)
+    for item in response:
+        team_id = ((item.get("team") or {}).get("id"))
+        lado = "local" if team_id == home_id else "visitante" if team_id == away_id else None
+        if not lado:
+            continue
+        titulares = [
+            ((registro.get("player") or {}).get("name") or "").strip()
+            for registro in item.get("startXI") or []
+        ]
+        titulares = [nombre for nombre in titulares if nombre]
+        salida[lado] = {
+            "confirmada": bool(titulares),
+            "confianza": 1.0 if titulares else 0.0,
+            "titulares_probables": titulares[:11],
+            "fuente": "API-Football",
+            "actualizado_en": ahora_iso(),
+        }
+    return salida
+
+
+def standings_api_football(base_url, token, fixture, standings_cache, requester=None):
+    league = fixture.get("league") or {}
+    liga_id = league.get("id")
+    season = league.get("season") or temporada_api_football()
+    if not liga_id:
+        return {}
+    cache_key = (liga_id, season)
+    if cache_key not in standings_cache:
+        rows = []
+        response = api_football_get(
+            base_url,
+            token,
+            "standings",
+            {"league": liga_id, "season": season},
+            requester=requester,
+        )
+        for item in response:
+            for grupo in ((item.get("league") or {}).get("standings") or []):
+                rows.extend(grupo)
+        standings_cache[cache_key] = rows
+    return {
+        "temporada": f"{season}/{int(season) + 1}",
+        "competicion": league.get("name"),
+        "fuente": "API-Football",
+        "local": standing_equipo(standings_cache[cache_key], fixture, "home"),
+        "visitante": standing_equipo(standings_cache[cache_key], fixture, "away"),
+        "actualizado_en": ahora_iso(),
+    }
+
+
+def standing_equipo(rows, fixture, lado_fixture):
+    nombre = (((fixture.get("teams") or {}).get(lado_fixture) or {}).get("name") or "")
+    mejor = None
+    mejor_score = 0
+    for row in rows or []:
+        score = puntuacion_nombre(((row.get("team") or {}).get("name") or ""), nombre)
+        if score > mejor_score:
+            mejor = row
+            mejor_score = score
+    if not mejor or mejor_score < 700:
+        return {}
+    all_stats = mejor.get("all") or {}
+    return {
+        "posicion": mejor.get("rank"),
+        "puntos": mejor.get("points"),
+        "pj": all_stats.get("played"),
+        "dg": mejor.get("goalsDiff"),
+        "forma": mejor.get("form"),
+        "fuente": "API-Football",
+    }
+
+
+def consultar_opcional(func, errores, etiqueta):
+    try:
+        return func()
+    except Exception as exc:
+        errores.append(f"{etiqueta}: {exc}")
+        return {}
+
+
+def leer_api_football_payload(base_url, token, root=ROOT, requester=None):
+    if not token:
+        raise RuntimeError("Falta QUINIHUB_PRO_DATA_TOKEN para API-Football.")
+    fixture_cache = {}
+    standings_cache = {}
+    errores = []
+    jornadas = {}
+    fixtures_emparejados = 0
+
+    for jornada_data in seleccionar_jornadas_objetivo(root):
+        jornada = int(jornada_data.get("jornada") or 0)
+        for partido in jornada_data.get("partidos", [])[:14]:
+            fixture = consultar_opcional(
+                lambda partido=partido: buscar_fixture_api_football(base_url, token, partido, fixture_cache, requester=requester),
+                errores,
+                f"fixtures {partido.get('local')} - {partido.get('visitante')}",
+            )
+            if not fixture:
+                continue
+            fixtures_emparejados += 1
+            fixture_id = (fixture.get("fixture") or {}).get("id")
+            home, away = fixture_nombres(fixture)
+            league = fixture.get("league") or {}
+            season_value = int(league.get("season") or temporada_api_football())
+            fixture_info = fixture.get("fixture") or {}
+            raw_partido = {
+                "num": partido.get("num"),
+                "jornada": jornada,
+                "local": partido.get("local") or home,
+                "visitante": partido.get("visitante") or away,
+                "competicion": league.get("name"),
+                "calendario": {
+                    "fecha": str(fixture_info.get("date") or partido.get("fecha") or "")[:10],
+                    "hora": str(fixture_info.get("date") or "")[11:16] or partido.get("hora"),
+                    "temporada": f"{season_value}/{season_value + 1}",
+                    "competicion": league.get("name"),
+                    "jornada_liga": league.get("round"),
+                    "sede": ((fixture_info.get("venue") or {}).get("name") or ""),
+                    "fuente": "API-Football oficial",
+                    "oficial": True,
+                    "actualizado_en": ahora_iso(),
+                },
+                "cuotas": consultar_opcional(
+                    lambda fixture_id=fixture_id: cuotas_api_football(base_url, token, fixture_id, requester=requester),
+                    errores,
+                    f"odds fixture {fixture_id}",
+                ),
+                "bajas": consultar_opcional(
+                    lambda fixture=fixture: bajas_api_football(base_url, token, fixture, requester=requester),
+                    errores,
+                    f"injuries fixture {fixture_id}",
+                ),
+                "alineaciones": consultar_opcional(
+                    lambda fixture=fixture: alineaciones_api_football(base_url, token, fixture, requester=requester),
+                    errores,
+                    f"lineups fixture {fixture_id}",
+                ),
+                "clasificacion": consultar_opcional(
+                    lambda fixture=fixture: standings_api_football(base_url, token, fixture, standings_cache, requester=requester),
+                    errores,
+                    f"standings fixture {fixture_id}",
+                ),
+            }
+            jornadas.setdefault(str(jornada), {"jornada": jornada, "partidos": []})
+            jornadas[str(jornada)]["partidos"].append(raw_partido)
+
+    return {
+        "generado_en": ahora_iso(),
+        "temporada_objetivo": temporada_objetivo(),
+        "proveedores": {
+            "api_football": {
+                "base_url": base_url,
+                "ligas": ligas_api_football(),
+                "season": temporada_api_football(),
+                "fixtures_emparejados": fixtures_emparejados,
+                "errores": errores[:20],
+            }
+        },
+        "jornadas": jornadas,
+    }
+
+
 def leer_payload_externo():
     archivo = os.getenv("QUINIHUB_PRO_DATA_FILE")
     if archivo:
@@ -390,8 +841,10 @@ def leer_payload_externo():
         return None
     if requests is None:
         raise RuntimeError("requests no esta disponible para leer QUINIHUB_PRO_DATA_URL")
-    headers = {"User-Agent": "QuiniHub/1X2 datos-profesionales"}
     token = os.getenv("QUINIHUB_PRO_DATA_TOKEN")
+    if url_es_api_football(url):
+        return leer_api_football_payload(url, token)
+    headers = {"User-Agent": "QuiniHub/1X2 datos-profesionales"}
     if token:
         headers["Authorization"] = f"Bearer {token}"
     respuesta = requests.get(url, headers=headers, timeout=30)
