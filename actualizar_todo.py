@@ -77,7 +77,6 @@ SCRIPTS_ACTIVOS = [
     "aplicar_memoria_mundial_prediccion.py",
     "alinear_boleto_con_analisis.py",
     "generar_estado_vivo_ia.py",
-    "regenerar_estado_vivo_actual.py",
     "ajustar_estado_vivo_motivacion.py",
     "mejorar_asistente_ia.py",
     "corregir_asistente_objeciones.py",
