@@ -30,7 +30,7 @@ def reparar_mojibake(texto):
     texto = str(texto or "")
     try:
         reparado = texto.encode("latin1").decode("utf-8")
-        if "�" not in reparado:
+        if "\ufffd" not in reparado:
             return reparado
     except (UnicodeEncodeError, UnicodeDecodeError):
         pass
@@ -120,6 +120,19 @@ def leer_jornada_actual(jornada_objetivo=None):
     if not candidatas:
         return cargar_json(JORNADAS / "jornada_62.json", {})
     return sorted(candidatas, key=lambda x: (x[0], x[1]), reverse=True)[0][3]
+
+
+def ultima_prediccion_disponible():
+    """Busca la prediccion mas reciente disponible, con fallback a jornadas guardadas."""
+    pred = cargar_json(PREDICCIONES / "ultima_prediccion.json", {})
+    if pred:
+        return pred
+    candidatas = []
+    for path in PREDICCIONES.glob("jornada_*.json"):
+        data = cargar_json(path, {})
+        if isinstance(data.get("jornada"), int):
+            candidatas.append(data)
+    return max(candidatas, key=lambda item: item.get("jornada", 0), default={})
 
 
 def cambios_jornada_actual(jornada, indice_competitivo=None):
@@ -477,25 +490,21 @@ def errores_a_evitar(prediccion):
     return errores
 
 
-def main():
-    memoria = cargar_json(MEMORIA / "aprendizaje_global.json", {})
-    contexto_competitivo = cargar_json(MEMORIA / "contexto_competitivo.json", {})
-    prediccion = cargar_json(PREDICCIONES / "ultima_prediccion.json", {})
-    if not prediccion:
-        prediccion = cargar_json(PREDICCIONES / "jornada_63.json", {})
-    jornada = leer_jornada_actual(prediccion.get("jornada"))
+def _construir_salida(memoria, contexto_competitivo, prediccion, version="1.0", clave_ajustes="que_modifica_para_siguiente_lectura"):
+    """Construye el estado vivo completo. Usado tanto por main() como por regenerar()."""
+    jornada_objetivo = prediccion.get("jornada")
+    jornada = leer_jornada_actual(jornada_objetivo)
     indice_competitivo = crear_indice_competitivo(contexto_competitivo or {})
     estado_jornada = cambios_jornada_actual(jornada, indice_competitivo)
     estado_prediccion = analizar_prediccion(prediccion, contexto_competitivo)
-    ajustes_siguiente_lectura = [
-        "Reordenar confianza segun resultados nuevos de la jornada actual.",
+    ajustes = [
+        f"Reordenar confianza para la jornada {jornada_objetivo} segun resultados nuevos de la jornada actual.",
         "Subir vigilancia de empates o visitantes si la jornada actual los confirma.",
         "Priorizar dobles/triples en partidos con incertidumbre mas alta.",
         "Cruzar cada signo con la necesidad real de puntos: titulo, Europa, ascenso, playoff y descenso.",
     ]
-
-    salida = {
-        "version": "1.0",
+    return {
+        "version": version,
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "estado": estado_publicacion_jornada(estado_jornada),
         "jornada_actual": estado_jornada,
@@ -503,15 +512,27 @@ def main():
         "contexto_competitivo": resumir_contexto_competitivo(contexto_competitivo),
         "que_ha_cambiado": estado_jornada["resultados_nuevos_o_vigentes"],
         "que_aprende": aprendizajes(estado_jornada) + aprendizajes_contexto(contexto_competitivo),
-        "que_modifica_para_siguiente_lectura": ajustes_siguiente_lectura,
+        clave_ajustes: ajustes,
         "partidos_mas_seguros": estado_prediccion["partidos_mas_seguros"],
         "partidos_trampa_o_sorpresa": estado_prediccion["partidos_trampa_o_sorpresa"],
         "dudas_abiertas": estado_prediccion["dudas_abiertas"],
         "autocritica": autocritica(estado_jornada, prediccion, memoria),
         "errores_a_evitar": errores_a_evitar(prediccion),
     }
+
+
+def main():
+    """Genera el estado vivo desde la ultima prediccion disponible."""
+    memoria = cargar_json(MEMORIA / "aprendizaje_global.json", {})
+    contexto_competitivo = cargar_json(MEMORIA / "contexto_competitivo.json", {})
+    prediccion = ultima_prediccion_disponible()
+    salida = _construir_salida(
+        memoria, contexto_competitivo, prediccion,
+        version="1.1",
+        clave_ajustes="que_modifica_para_siguiente_lectura",
+    )
     guardar_json(MEMORIA / "estado_vivo.json", salida)
-    print(MEMORIA / "estado_vivo.json")
+    print(f"Estado vivo generado — jornada {prediccion.get('jornada')}.")
 
 
 if __name__ == "__main__":
