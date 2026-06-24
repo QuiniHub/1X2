@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timezone
 
+from aplicar_memoria_mundial_prediccion import aplicar_clasificacion_mundial_en_archivos
 from compuerta_jornada import estado_compuerta
 from jornada_objetivo_quiniela import resumen_jornada_objetivo
 from motor_prediccion_quiniela import DATA, PREDICCIONES, guardar_json, predecir
@@ -106,6 +107,9 @@ def main():
         return
 
     predecir(jornada=objetivo)
+    cambios_mundial = aplicar_clasificacion_mundial_en_archivos()
+    if cambios_mundial:
+        print("Clasificacion Mundial 2026 aplicada en prediccion: " + ", ".join(cambios_mundial))
 
     prediccion = PREDICCIONES / "ultima_prediccion.json"
     if prediccion.exists():
