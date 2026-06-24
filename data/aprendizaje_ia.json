@@ -1,41 +1,41 @@
 {
-  "version": "1.1",
-  "precision": 60.96,
+  "version": "1.2",
+  "precision": 60.27,
   "jornadas_revisadas": 11,
   "partidos_revisados": 146,
-  "aciertos": 89,
-  "fallos": 57,
+  "aciertos": 88,
+  "fallos": 58,
   "fallos_por_tipo": {
-    "Doble insuficiente": 8,
-    "Fijo fallado": 33,
-    "No cubrio empate": 16
+    "Doble insuficiente": 9,
+    "Fijo fallado": 30,
+    "No cubrio empate": 19
   },
   "fallos_por_signo_real": {
-    "1": 18,
-    "2": 23,
-    "X": 16
+    "1": 13,
+    "2": 26,
+    "X": 19
   },
   "signos_omitidos_en_fallo": {
-    "1": 18,
-    "2": 23,
-    "X": 16
+    "1": 13,
+    "2": 26,
+    "X": 19
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 25,
-      "aciertos": 17,
-      "fallos": 8,
-      "precision": 68.0
+      "total": 27,
+      "aciertos": 18,
+      "fallos": 9,
+      "precision": 66.67
     },
     "FIJO": {
-      "total": 94,
-      "aciertos": 45,
+      "total": 104,
+      "aciertos": 55,
       "fallos": 49,
-      "precision": 47.87
+      "precision": 52.88
     },
     "TRIPLE": {
-      "total": 27,
-      "aciertos": 27,
+      "total": 15,
+      "aciertos": 15,
       "fallos": 0,
       "precision": 100.0
     }
@@ -43,21 +43,21 @@
   "precision_por_signo_real": {
     "1": {
       "total": 65,
-      "aciertos": 47,
-      "fallos": 18,
-      "precision": 72.31
+      "aciertos": 52,
+      "fallos": 13,
+      "precision": 80.0
     },
     "2": {
       "total": 44,
-      "aciertos": 21,
-      "fallos": 23,
-      "precision": 47.73
+      "aciertos": 18,
+      "fallos": 26,
+      "precision": 40.91
     },
     "X": {
       "total": 37,
-      "aciertos": 21,
-      "fallos": 16,
-      "precision": 56.76
+      "aciertos": 18,
+      "fallos": 19,
+      "precision": 48.65
     }
   },
   "detalle": [
@@ -1492,16 +1492,16 @@
     {
       "jornada": 61,
       "partido": "Elche - Alavés",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-1",
       "resultado_final": "1-1",
       "signo_real": "X",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 52.9,
         "X": 30.5,
@@ -1547,16 +1547,16 @@
     {
       "jornada": 61,
       "partido": "Sevilla - Espanyol",
-      "pronostico": "X",
+      "pronostico": "1",
       "tipo_pronostico": "FIJO",
       "resultado": "2-1",
       "resultado_final": "2-1",
       "signo_real": "1",
-      "signos_cubiertos": "X",
-      "signo_omitido": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 57.2,
         "X": 26.8,
@@ -1611,7 +1611,7 @@
       "signo_omitido": "2",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 51.3,
         "X": 29.8,
@@ -1657,16 +1657,16 @@
     {
       "jornada": 61,
       "partido": "Real Sociedad - Betis",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
       "resultado": "2-2",
       "resultado_final": "2-2",
       "signo_real": "X",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "2",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 21.9,
         "X": 31.5,
@@ -1712,16 +1712,16 @@
     {
       "jornada": 61,
       "partido": "Mallorca - Villarreal",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-1",
       "resultado_final": "1-1",
       "signo_real": "X",
-      "signos_cubiertos": "1X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "2",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 18.9,
         "X": 27.7,
@@ -1776,7 +1776,7 @@
       "signo_omitido": "2",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 42.9,
         "X": 30.8,
@@ -1822,16 +1822,16 @@
     {
       "jornada": 61,
       "partido": "Oviedo - Getafe",
-      "pronostico": "X",
+      "pronostico": "2",
       "tipo_pronostico": "FIJO",
       "resultado": "0-0",
       "resultado_final": "0-0",
       "signo_real": "X",
-      "signos_cubiertos": "X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "2",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 26.0,
         "X": 30.7,
@@ -1877,16 +1877,16 @@
     {
       "jornada": 61,
       "partido": "Rayo Vallecano - Girona",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-1",
       "resultado_final": "1-1",
       "signo_real": "X",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 55.4,
         "X": 29.6,
@@ -1941,7 +1941,7 @@
       "signo_omitido": "X",
       "acierto": false,
       "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 31.3,
         "X": 32.7,
@@ -1987,16 +1987,16 @@
     {
       "jornada": 61,
       "partido": "Burgos - Almería",
-      "pronostico": "X2",
-      "tipo_pronostico": "DOBLE",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
       "resultado": "0-0",
       "resultado_final": "0-0",
       "signo_real": "X",
-      "signos_cubiertos": "X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "2",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 27.6,
         "X": 34.0,
@@ -2051,7 +2051,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 56.2,
         "X": 27.6,
@@ -2097,16 +2097,16 @@
     {
       "jornada": 61,
       "partido": "Andorra - Las Palmas",
-      "pronostico": "X",
+      "pronostico": "1",
       "tipo_pronostico": "FIJO",
       "resultado": "5-1",
       "resultado_final": "5-1",
       "signo_real": "1",
-      "signos_cubiertos": "X",
-      "signo_omitido": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 38.2,
         "X": 36.4,
@@ -2161,7 +2161,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 21.0,
         "X": 26.0,
@@ -2216,7 +2216,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_61.json",
       "probabilidades_usadas": {
         "1": 56.1,
         "X": 27.1,
@@ -2976,16 +2976,16 @@
     {
       "jornada": 63,
       "partido": "Athletic de Bilbao - Celta",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-1",
       "resultado_final": "1-1",
       "signo_real": "X",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 34.5,
         "X": 34.1,
@@ -3040,7 +3040,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 51.5,
         "X": 27.9,
@@ -3095,7 +3095,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 52.6,
         "X": 28.3,
@@ -3141,16 +3141,16 @@
     {
       "jornada": 63,
       "partido": "Elche - Getafe",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-0",
       "resultado_final": "1-0",
       "signo_real": "1",
-      "signos_cubiertos": "1X2",
+      "signos_cubiertos": "1",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 38.9,
         "X": 31.4,
@@ -3196,16 +3196,16 @@
     {
       "jornada": 63,
       "partido": "Levante - Mallorca",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
       "resultado": "2-0",
       "resultado_final": "2-0",
       "signo_real": "1",
-      "signos_cubiertos": "1X2",
+      "signos_cubiertos": "1",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 52.3,
         "X": 26.5,
@@ -3251,16 +3251,16 @@
     {
       "jornada": 63,
       "partido": "Rayo Vallecano - Villarreal",
-      "pronostico": "X",
+      "pronostico": "1",
       "tipo_pronostico": "FIJO",
       "resultado": "2-0",
       "resultado_final": "2-0",
       "signo_real": "1",
-      "signos_cubiertos": "X",
-      "signo_omitido": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 46.8,
         "X": 32.5,
@@ -3306,16 +3306,16 @@
     {
       "jornada": 63,
       "partido": "Real Sociedad - Valencia",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "X",
+      "tipo_pronostico": "FIJO",
       "resultado": "3-4",
       "resultado_final": "3-4",
       "signo_real": "2",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "X",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 31.0,
         "X": 38.6,
@@ -3370,7 +3370,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 21.9,
         "X": 31.3,
@@ -3416,16 +3416,16 @@
     {
       "jornada": 63,
       "partido": "Osasuna - Espanyol",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-2",
       "resultado_final": "1-2",
       "signo_real": "2",
-      "signos_cubiertos": "1X2",
+      "signos_cubiertos": "2",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 28.9,
         "X": 31.1,
@@ -3480,7 +3480,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 23.8,
         "X": 32.4,
@@ -3535,7 +3535,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 56.9,
         "X": 26.9,
@@ -3590,7 +3590,7 @@
       "signo_omitido": "2",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 43.7,
         "X": 34.5,
@@ -3645,7 +3645,7 @@
       "signo_omitido": "X",
       "acierto": false,
       "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 57.7,
         "X": 25.2,
@@ -3700,7 +3700,7 @@
       "signo_omitido": "X",
       "acierto": false,
       "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_63.json",
       "probabilidades_usadas": {
         "1": 46.3,
         "X": 32.6,
@@ -3755,7 +3755,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 5.6,
         "X": 39.7,
@@ -3810,7 +3810,7 @@
       "signo_omitido": "1",
       "acierto": false,
       "motivo_error": "Doble insuficiente",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 14.0,
         "X": 43.8,
@@ -3865,7 +3865,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 62.0,
         "X": 35.6,
@@ -3920,7 +3920,7 @@
       "signo_omitido": "X",
       "acierto": false,
       "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 45.1,
         "X": 31.8,
@@ -3975,7 +3975,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 14.0,
         "X": 41.5,
@@ -4021,16 +4021,16 @@
     {
       "jornada": 64,
       "partido": "RCD Mallorca - Real Oviedo",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
       "resultado": "3-0",
       "resultado_final": "3-0",
       "signo_real": "1",
-      "signos_cubiertos": "1",
+      "signos_cubiertos": "1X",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 66.6,
         "X": 32.0,
@@ -4076,16 +4076,16 @@
     {
       "jornada": 64,
       "partido": "Valencia CF - FC Barcelona",
-      "pronostico": "X2",
-      "tipo_pronostico": "DOBLE",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
       "resultado": "3-1",
       "resultado_final": "3-1",
       "signo_real": "1",
-      "signos_cubiertos": "X2",
+      "signos_cubiertos": "2",
       "signo_omitido": "1",
       "acierto": false,
-      "motivo_error": "Doble insuficiente",
-      "origen": "issue_memoria_sin_token",
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 22.7,
         "X": 27.7,
@@ -4131,16 +4131,16 @@
     {
       "jornada": 64,
       "partido": "Girona FC - Elche CF",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-1",
       "resultado_final": "1-1",
       "signo_real": "X",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 35.0,
         "X": 34.5,
@@ -4186,16 +4186,16 @@
     {
       "jornada": 64,
       "partido": "Malaga CF - Real Racing Club de Santander",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
       "resultado": "1-1",
       "resultado_final": "1-1",
       "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 49.2,
         "X": 38.8,
@@ -4241,16 +4241,16 @@
     {
       "jornada": 64,
       "partido": "FC Andorra - AD Ceuta FC",
-      "pronostico": "1",
+      "pronostico": "2",
       "tipo_pronostico": "FIJO",
       "resultado": "0-2",
       "resultado_final": "0-2",
       "signo_real": "2",
-      "signos_cubiertos": "1",
-      "signo_omitido": "2",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 30.5,
         "X": 31.9,
@@ -4296,16 +4296,16 @@
     {
       "jornada": 64,
       "partido": "SD Huesca - CD Castellon",
-      "pronostico": "X2",
-      "tipo_pronostico": "DOBLE",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
       "resultado": "0-1",
       "resultado_final": "0-1",
       "signo_real": "2",
-      "signos_cubiertos": "X2",
+      "signos_cubiertos": "2",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 1.2,
         "X": 35.5,
@@ -4360,7 +4360,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 59.7,
         "X": 35.9,
@@ -4406,16 +4406,16 @@
     {
       "jornada": 64,
       "partido": "Real Sporting de Gijon - UD Almeria",
-      "pronostico": "2",
+      "pronostico": "1",
       "tipo_pronostico": "FIJO",
       "resultado": "3-1",
       "resultado_final": "3-1",
       "signo_real": "1",
-      "signos_cubiertos": "2",
-      "signo_omitido": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_64.json",
       "probabilidades_usadas": {
         "1": 39.8,
         "X": 33.0,
@@ -4461,16 +4461,16 @@
     {
       "jornada": 65,
       "partido": "CD Castellon - SD Eibar",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "X",
+      "tipo_pronostico": "FIJO",
       "resultado": "2-1",
       "resultado_final": "2-1",
       "signo_real": "1",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "X",
+      "signo_omitido": "1",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 34.9,
         "X": 37.9,
@@ -4525,7 +4525,7 @@
       "signo_omitido": "X",
       "acierto": false,
       "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 60.4,
         "X": 28.1,
@@ -4571,16 +4571,16 @@
     {
       "jornada": 65,
       "partido": "RC Deportivo de La Coruna - UD Las Palmas",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "X",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-2",
       "resultado_final": "1-2",
       "signo_real": "2",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "X",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 24.1,
         "X": 39.5,
@@ -4635,7 +4635,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 22.2,
         "X": 29.3,
@@ -4681,16 +4681,16 @@
     {
       "jornada": 65,
       "partido": "CD Leganes - CD Mirandes",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "X",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-0",
       "resultado_final": "1-0",
       "signo_real": "1",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "X",
+      "signo_omitido": "1",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 41.7,
         "X": 46.6,
@@ -4745,7 +4745,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 65.7,
         "X": 32.6,
@@ -4791,16 +4791,16 @@
     {
       "jornada": 65,
       "partido": "AD Ceuta FC - Albacete Balompie",
-      "pronostico": "2",
+      "pronostico": "1",
       "tipo_pronostico": "FIJO",
       "resultado": "1-0",
       "resultado_final": "1-0",
       "signo_real": "1",
-      "signos_cubiertos": "2",
-      "signo_omitido": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 45.3,
         "X": 31.8,
@@ -4846,16 +4846,16 @@
     {
       "jornada": 65,
       "partido": "Real Racing Club de Santander - Cadiz CF",
-      "pronostico": "1",
+      "pronostico": "2",
       "tipo_pronostico": "FIJO",
       "resultado": "4-1",
       "resultado_final": "4-1",
       "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "2",
+      "signo_omitido": "1",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 14.3,
         "X": 40.1,
@@ -4910,7 +4910,7 @@
       "signo_omitido": "X",
       "acierto": false,
       "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 46.4,
         "X": 31.1,
@@ -4965,7 +4965,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 0.8,
         "X": 35.2,
@@ -5011,16 +5011,16 @@
     {
       "jornada": 65,
       "partido": "Burgos CF - FC Andorra",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-0",
       "resultado_final": "1-0",
       "signo_real": "1",
-      "signos_cubiertos": "1X",
+      "signos_cubiertos": "1",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 64.6,
         "X": 33.9,
@@ -5066,16 +5066,16 @@
     {
       "jornada": 65,
       "partido": "Mexico - Australia",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-0",
       "resultado_final": "1-0",
       "signo_real": "1",
-      "signos_cubiertos": "1X",
+      "signos_cubiertos": "1",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 35.9,
         "X": 34.7,
@@ -5130,7 +5130,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 34.1,
         "X": 33.4,
@@ -5185,7 +5185,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_65.json",
       "probabilidades_usadas": {
         "1": 35.5,
         "X": 34.5,
@@ -5231,20 +5231,20 @@
     {
       "jornada": 66,
       "partido": "CD Castellon - UD Almeria",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
       "resultado": "1-1",
       "resultado_final": "1-1",
       "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
-        "1": 56.0,
-        "X": 37.6,
-        "2": 6.4
+        "1": 56.9,
+        "X": 37.3,
+        "2": 5.8
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -5276,7 +5276,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=56.0%, X=37.6%, 2=6.4%. CD Castellon llega con 72 puntos, forma últimos 5/10: 8/21 puntos, dinámica negativa reciente y 1.667 goles a favor por partido. UD Almeria llega con 74 puntos, forma últimos 5/10: 7/16 puntos, dinámica estable y 1.5 goles encajados por partido. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. Sin noticias recientes detectadas en fuentes públicas durante esta actualización. UD Almeria: noticias generales sin alerta deportiva clara. Motivacion: el local compite con mas urgencia (playoff ascenso (defiende plaza), ascenso directo (sin opciones matematicas), situacion final (salvado matematicamente)). Aprendizaje competitivo: cuando el local necesita y el visitante tiene objetivo cerrado, el fijo visitante se rompe con frecuencia (79.6% en la memoria). Patron general aprendido: necesidad contra objetivo cerrado aumenta sorpresa y exige desconfiar del fijo limpio (66.0%). Objetivos: CD Castellon (playoff ascenso (defiende plaza), ascenso directo (sin opciones matematicas), situacion final (salvado matematicamente)) frente a UD Almeria (playoff ascenso (asegurado matematicamente), ascenso directo (sin opciones matematicas), situacion final (salvado matematicamente)). Riesgo de azar/sorpresa estimado: 56.0%. Decision final: 1X.",
+      "explicacion_modelo": "Probabilidades IA: 1=56.9%, X=37.3%, 2=5.8%. CD Castellon llega con 72 puntos, forma últimos 5/10: 8/21 puntos, dinámica negativa reciente y 1.667 goles a favor por partido. UD Almeria llega con 74 puntos, forma últimos 5/10: 7/16 puntos, dinámica estable y 1.5 goles encajados por partido. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. Sin noticias recientes detectadas en fuentes públicas durante esta actualización. UD Almeria: noticias generales sin alerta deportiva clara. Motivacion: el local compite con mas urgencia (playoff ascenso (defiende plaza), ascenso directo (sin opciones matematicas), situacion final (salvado matematicamente)). Aprendizaje competitivo: cuando el local necesita y el visitante tiene objetivo cerrado, el fijo visitante se rompe con frecuencia (79.6% en la memoria). Patron general aprendido: necesidad contra objetivo cerrado aumenta sorpresa y exige desconfiar del fijo limpio (66.0%). Objetivos: CD Castellon (playoff ascenso (defiende plaza), ascenso directo (sin opciones matematicas), situacion final (salvado matematicamente)) frente a UD Almeria (playoff ascenso (asegurado matematicamente), ascenso directo (sin opciones matematicas), situacion final (salvado matematicamente)). Riesgo de azar/sorpresa estimado: 55.1%. Indice de sorpresa quinielistica: 68.1/100; favorito a vigilar: CD Castellon; cobertura sugerida por sorpresa: DOBLE. empate con peso alto. Decision final: 1X.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5286,20 +5286,20 @@
     {
       "jornada": 66,
       "partido": "UD Las Palmas - Malaga CF",
-      "pronostico": "2",
-      "tipo_pronostico": "FIJO",
+      "pronostico": "X2",
+      "tipo_pronostico": "DOBLE",
       "resultado": "0-1",
       "resultado_final": "0-1",
       "signo_real": "2",
-      "signos_cubiertos": "2",
+      "signos_cubiertos": "X2",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
-        "1": 15.5,
-        "X": 39.7,
-        "2": 44.8
+        "1": 16.5,
+        "X": 39.3,
+        "2": 44.2
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -5331,7 +5331,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=15.5%, X=39.7%, 2=44.8%. UD Las Palmas llega con 73 puntos, forma últimos 5/10: 10/22 puntos, dinámica estable y 1.357 goles a favor por partido. Malaga CF llega con 73 puntos, forma últimos 5/10: 13/18 puntos, dinámica positiva reciente y 1.238 goles encajados por partido. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con triple porque es de los partidos con mas incertidumbre del boleto. UD Las Palmas: hay señales de sanciones o riesgo disciplinario. Malaga CF: hay señales de sanciones o riesgo disciplinario. Contexto local: posibles bajas/sanciones detectadas. Contexto visitante: posibles bajas/sanciones detectadas. Motivacion: el visitante compite con mas urgencia (objetivo competitivo (aspira matematicamente)). Aprendizaje competitivo: cuando el visitante necesita y el local tiene objetivo cerrado, el 1 fijo no debe ser tranquilo (52.4% de rupturas en memoria). Patron general aprendido: necesidad contra objetivo cerrado aumenta sorpresa y exige desconfiar del fijo limpio (66.0%). Objetivos: UD Las Palmas (playoff ascenso (asegurado matematicamente), ascenso directo (sin opciones matematicas), situacion final (salvado matematicamente)) frente a Malaga CF (objetivo competitivo (aspira matematicamente)). Riesgo de azar/sorpresa estimado: 67.2%. Decision final: 1X2.",
+      "explicacion_modelo": "Probabilidades IA: 1=16.5%, X=39.3%, 2=44.2%. UD Las Palmas llega con 73 puntos, forma últimos 5/10: 10/22 puntos, dinámica estable y 1.357 goles a favor por partido. Malaga CF llega con 73 puntos, forma últimos 5/10: 13/18 puntos, dinámica positiva reciente y 1.238 goles encajados por partido. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. UD Las Palmas: noticias generales sin alerta deportiva clara. Malaga CF: hay señales de sanciones o riesgo disciplinario. Contexto visitante: posibles bajas/sanciones detectadas. Motivacion: el visitante compite con mas urgencia (objetivo competitivo (aspira matematicamente)). Aprendizaje competitivo: cuando el visitante necesita y el local tiene objetivo cerrado, el 1 fijo no debe ser tranquilo (52.4% de rupturas en memoria). Patron general aprendido: necesidad contra objetivo cerrado aumenta sorpresa y exige desconfiar del fijo limpio (66.0%). Objetivos: UD Las Palmas (playoff ascenso (asegurado matematicamente), ascenso directo (sin opciones matematicas), situacion final (salvado matematicamente)) frente a Malaga CF (objetivo competitivo (aspira matematicamente)). Riesgo de azar/sorpresa estimado: 67.8%. Indice de sorpresa quinielistica: 100.0/100; favorito a vigilar: Malaga CF; cobertura sugerida por sorpresa: DOBLE. margen corto entre favorito y alternativa, ningun signo supera claramente el 45%, empate con peso alto. Decision final: X2.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5350,7 +5350,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
         "1": 35.0,
         "X": 33.4,
@@ -5386,7 +5386,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.0%, X=33.4%, 2=31.6%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=35.0%, X=33.4%, 2=31.6%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.1/100; favorito a vigilar: Bélgica; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5396,16 +5396,16 @@
     {
       "jornada": 66,
       "partido": "Lituania - Letonia",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-1",
       "resultado_final": "1-1",
       "signo_real": "X",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
         "1": 35.7,
         "X": 33.2,
@@ -5441,7 +5441,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.7%, X=33.2%, 2=31.1%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=35.7%, X=33.2%, 2=31.1%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 93.7/100; favorito a vigilar: Lituania; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5460,7 +5460,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
         "1": 34.6,
         "X": 34.7,
@@ -5496,7 +5496,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.6%, X=34.7%, 2=30.7%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con triple porque es de los partidos con mas incertidumbre del boleto. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1X2.",
+      "explicacion_modelo": "Probabilidades IA: 1=34.6%, X=34.7%, 2=30.7%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con triple porque es de los partidos con mas incertidumbre del boleto. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 100.0/100; favorito a vigilar: Empate; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1X2.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5515,7 +5515,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
         "1": 36.1,
         "X": 33.9,
@@ -5551,7 +5551,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=36.1%, X=33.9%, 2=30.0%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=36.1%, X=33.9%, 2=30.0%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 93.9/100; favorito a vigilar: Portugal; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5561,16 +5561,16 @@
     {
       "jornada": 66,
       "partido": "RumanÃ­a - Gales",
-      "pronostico": "X",
+      "pronostico": "1",
       "tipo_pronostico": "FIJO",
       "resultado": "2-1",
       "resultado_final": "2-1",
       "signo_real": "1",
-      "signos_cubiertos": "X",
-      "signo_omitido": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
         "1": 35.5,
         "X": 34.1,
@@ -5606,7 +5606,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.5%, X=34.1%, 2=30.5%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=35.5%, X=34.1%, 2=30.5%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.3/100; favorito a vigilar: Rumanía; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5625,7 +5625,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
         "1": 35.5,
         "X": 33.4,
@@ -5661,7 +5661,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.5%, X=33.4%, 2=31.1%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=35.5%, X=33.4%, 2=31.1%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 93.9/100; favorito a vigilar: Inglaterra; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5671,16 +5671,16 @@
     {
       "jornada": 66,
       "partido": "Suiza - Australia",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
       "resultado": "1-1",
       "resultado_final": "1-1",
       "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
         "1": 34.8,
         "X": 34.3,
@@ -5716,7 +5716,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.8%, X=34.3%, 2=30.9%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1X.",
+      "explicacion_modelo": "Probabilidades IA: 1=34.8%, X=34.3%, 2=30.9%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con triple porque es de los partidos con mas incertidumbre del boleto. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.8/100; favorito a vigilar: Suiza; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1X2.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5726,16 +5726,16 @@
     {
       "jornada": 66,
       "partido": "Bolivia - Escocia",
-      "pronostico": "1",
+      "pronostico": "X",
       "tipo_pronostico": "FIJO",
       "resultado": "0-4",
       "resultado_final": "0-4",
       "signo_real": "2",
-      "signos_cubiertos": "1",
+      "signos_cubiertos": "X",
       "signo_omitido": "2",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
         "1": 34.2,
         "X": 34.3,
@@ -5771,7 +5771,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.2%, X=34.3%, 2=31.6%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1X.",
+      "explicacion_modelo": "Probabilidades IA: 1=34.2%, X=34.3%, 2=31.6%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 100.0/100; favorito a vigilar: Empate; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: X.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5781,16 +5781,16 @@
     {
       "jornada": 66,
       "partido": "Liechtenstein - Chipre",
-      "pronostico": "1",
+      "pronostico": "X",
       "tipo_pronostico": "FIJO",
       "resultado": "0-2",
       "resultado_final": "0-2",
       "signo_real": "2",
-      "signos_cubiertos": "1",
+      "signos_cubiertos": "X",
       "signo_omitido": "2",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
         "1": 34.2,
         "X": 34.3,
@@ -5826,7 +5826,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.2%, X=34.3%, 2=31.6%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1X.",
+      "explicacion_modelo": "Probabilidades IA: 1=34.2%, X=34.3%, 2=31.6%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 100.0/100; favorito a vigilar: Empate; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: X.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5836,16 +5836,16 @@
     {
       "jornada": 66,
       "partido": "Dinamarca - Ucrania",
-      "pronostico": "X",
+      "pronostico": "1",
       "tipo_pronostico": "FIJO",
       "resultado": "2-1",
       "resultado_final": "2-1",
       "signo_real": "1",
-      "signos_cubiertos": "X",
-      "signo_omitido": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
         "1": 35.9,
         "X": 34.7,
@@ -5881,7 +5881,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.9%, X=34.7%, 2=29.4%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=35.9%, X=34.7%, 2=29.4%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.5/100; favorito a vigilar: Dinamarca; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5891,16 +5891,16 @@
     {
       "jornada": 66,
       "partido": "Croacia - Eslovenia",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
       "resultado": "2-1",
       "resultado_final": "2-1",
       "signo_real": "1",
-      "signos_cubiertos": "1",
+      "signos_cubiertos": "1X",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
         "1": 34.1,
         "X": 33.4,
@@ -5936,7 +5936,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.1%, X=33.4%, 2=32.4%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=34.1%, X=33.4%, 2=32.4%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.5/100; favorito a vigilar: Croacia; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1X.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -5955,7 +5955,7 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_66.json",
       "probabilidades_usadas": {
         "1": 35.5,
         "X": 34.5,
@@ -5991,7 +5991,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.5%, X=34.5%, 2=30.0%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=35.5%, X=34.5%, 2=30.0%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.6/100; favorito a vigilar: Marruecos; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1X.",
       "ajuste_aprendizaje": {},
       "ajuste_pesos_dinamicos": {},
       "ajuste_perfiles_autonomos": {},
@@ -6010,777 +6010,7 @@
       "signo_omitido": "1",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 33.7,
-        "X": 35.4,
-        "2": 30.9
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "EEUU",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Paraguay",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=33.7%, X=35.4%, 2=30.9%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 100.0/100; favorito a vigilar: Empate; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: X.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Qatar - Suiza",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 36.8,
-        "X": 33.6,
-        "2": 29.6
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Qatar",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Suiza",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=36.8%, X=33.6%, 2=29.6%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 69.8%. Indice de sorpresa quinielistica: 93.3/100; favorito a vigilar: Qatar; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Brasil - Marruecos",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 35.0,
-        "X": 33.4,
-        "2": 31.6
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Brasil",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Marruecos",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.0%, X=33.4%, 2=31.6%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.1/100; favorito a vigilar: Brasil; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Haití - Escocia",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "0-1",
-      "resultado_final": "0-1",
-      "signo_real": "2",
-      "signos_cubiertos": "1",
-      "signo_omitido": "2",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 35.7,
-        "X": 33.2,
-        "2": 31.1
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Haití",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Escocia",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.7%, X=33.2%, 2=31.1%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 93.7/100; favorito a vigilar: Haití; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Australia - Turquía",
-      "pronostico": "X",
-      "tipo_pronostico": "FIJO",
-      "resultado": "2-0",
-      "resultado_final": "2-0",
-      "signo_real": "1",
-      "signos_cubiertos": "X",
-      "signo_omitido": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 34.6,
-        "X": 34.7,
-        "2": 30.7
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Australia",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Turquía",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.6%, X=34.7%, 2=30.7%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con triple porque es de los partidos con mas incertidumbre del boleto. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 100.0/100; favorito a vigilar: Empate; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1X2.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Alemania - Curazao",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "7-1",
-      "resultado_final": "7-1",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 36.1,
-        "X": 33.9,
-        "2": 30.0
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Alemania",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Curazao",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=36.1%, X=33.9%, 2=30.0%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 93.9/100; favorito a vigilar: Alemania; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Países Bajos - Japón",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "2-2",
-      "resultado_final": "2-2",
-      "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 35.5,
-        "X": 34.1,
-        "2": 30.5
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Países Bajos",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Japón",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.5%, X=34.1%, 2=30.5%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.3/100; favorito a vigilar: Países Bajos; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1X.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Costa Marfil - Ecuador",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-0",
-      "resultado_final": "1-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 35.5,
-        "X": 33.4,
-        "2": 31.1
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Costa Marfil",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Ecuador",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.5%, X=33.4%, 2=31.1%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 93.9/100; favorito a vigilar: Costa Marfil; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Suecia - Túnez",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "5-1",
-      "resultado_final": "5-1",
-      "signo_real": "1",
-      "signos_cubiertos": "1X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 34.8,
-        "X": 34.3,
-        "2": 30.9
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Suecia",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Túnez",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.8%, X=34.3%, 2=30.9%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con triple porque es de los partidos con mas incertidumbre del boleto. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.8/100; favorito a vigilar: Suecia; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1X2.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Bélgica - Egipto",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 34.2,
-        "X": 34.3,
-        "2": 31.6
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Bélgica",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Egipto",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.2%, X=34.3%, 2=31.6%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 100.0/100; favorito a vigilar: Empate; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: X.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Arabia Saudí - Uruguay",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 34.2,
-        "X": 34.3,
-        "2": 31.6
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Arabia Saudí",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Uruguay",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.2%, X=34.3%, 2=31.6%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 100.0/100; favorito a vigilar: Empate; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: X.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Irán - Nueva Zelanda",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "2-2",
-      "resultado_final": "2-2",
-      "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 35.9,
-        "X": 34.7,
-        "2": 29.4
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Irán",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Nueva Zelanda",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.9%, X=34.7%, 2=29.4%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.5/100; favorito a vigilar: Irán; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1X.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Francia - Senegal",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "3-1",
-      "resultado_final": "3-1",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 34.1,
-        "X": 33.4,
-        "2": 32.4
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Francia",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Senegal",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.1%, X=33.4%, 2=32.4%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.5/100; favorito a vigilar: Francia; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1X.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Malaga CF - UD Almeria",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "0-0",
-      "resultado_final": "0-0",
-      "signo_real": "X",
-      "signos_cubiertos": "1X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 35.5,
-        "X": 34.5,
-        "2": 30.0
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Malaga CF",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "UD Almeria",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.5%, X=34.5%, 2=30.0%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.6/100; favorito a vigilar: F1 Hypermotion; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1X.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 68,
-      "partido": "EEUU - Australia",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "2-0",
-      "resultado_final": "2-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_67.json",
       "probabilidades_usadas": {
         "1": 33.7,
         "X": 35.4,
@@ -6808,7 +6038,7 @@
           "puntos": null
         },
         "visitante": {
-          "equipo": "Australia",
+          "equipo": "Paraguay",
           "posicion": null,
           "puntos": null
         }
@@ -6834,22 +6064,22 @@
       "perfil_autonomo_visitante": {}
     },
     {
-      "jornada": 68,
-      "partido": "Escocia - Marruecos",
+      "jornada": 67,
+      "partido": "Qatar - Suiza",
       "pronostico": "1X2",
       "tipo_pronostico": "TRIPLE",
-      "resultado": "0-1",
-      "resultado_final": "0-1",
-      "signo_real": "2",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
       "signos_cubiertos": "1X2",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_67.json",
       "probabilidades_usadas": {
-        "1": 38.8,
+        "1": 33.8,
         "X": 34.6,
-        "2": 26.6
+        "2": 31.6
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -6869,12 +6099,12 @@
       ],
       "clasificacion": {
         "local": {
-          "equipo": "Escocia",
+          "equipo": "Qatar",
           "posicion": null,
           "puntos": null
         },
         "visitante": {
-          "equipo": "Marruecos",
+          "equipo": "Suiza",
           "posicion": null,
           "puntos": null
         }
@@ -6884,7 +6114,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=38.8%, X=34.6%, 2=26.6%. Se mantiene como FIJO (1) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. Aun así, se vigila su riesgo: sugerencia=TRIPLE, índice de sorpresa=99.9/100, sorpresa=70.0%. Favorito o signo de referencia: Escocia. Motivos principales: margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=33.8%, X=34.6%, 2=31.6%. Se abre TRIPLE porque el partido aparece entre las máximas prioridades de cobertura: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=143.3 y margen=0.8. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1X2.",
       "ajuste_aprendizaje": {
         "activo": true,
         "riesgo_extra": 18.96,
@@ -6900,22 +6130,22 @@
       "perfil_autonomo_visitante": {}
     },
     {
-      "jornada": 68,
-      "partido": "Brasil - Haití",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "3-0",
-      "resultado_final": "3-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
+      "jornada": 67,
+      "partido": "Brasil - Marruecos",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "1X",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_67.json",
       "probabilidades_usadas": {
-        "1": 36.0,
-        "X": 32.9,
-        "2": 31.1
+        "1": 37.9,
+        "X": 33.9,
+        "2": 28.2
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -6940,7 +6170,7 @@
           "puntos": null
         },
         "visitante": {
-          "equipo": "Haití",
+          "equipo": "Marruecos",
           "posicion": null,
           "puntos": null
         }
@@ -6950,7 +6180,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=36.0%, X=32.9%, 2=31.1%. Se mantiene como FIJO (1) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. Aun así, se vigila su riesgo: sugerencia=TRIPLE, índice de sorpresa=96.9/100, sorpresa=70.0%. Favorito o signo de referencia: Brasil. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decisión final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=37.9%, X=33.9%, 2=28.2%. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=139.8 y margen=4.0. Favorito o signo de referencia: Brasil. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1X.",
       "ajuste_aprendizaje": {
         "activo": true,
         "riesgo_extra": 18.96,
@@ -6966,8 +6196,8 @@
       "perfil_autonomo_visitante": {}
     },
     {
-      "jornada": 68,
-      "partido": "Turquía - Paraguay",
+      "jornada": 67,
+      "partido": "Haití - Escocia",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
       "resultado": "0-1",
@@ -6977,7 +6207,7 @@
       "signo_omitido": "2",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_67.json",
       "probabilidades_usadas": {
         "1": 35.7,
         "X": 33.2,
@@ -7000,12 +6230,12 @@
       ],
       "clasificacion": {
         "local": {
-          "equipo": "Turquía",
+          "equipo": "Haití",
           "posicion": null,
           "puntos": null
         },
         "visitante": {
-          "equipo": "Paraguay",
+          "equipo": "Escocia",
           "posicion": null,
           "puntos": null
         }
@@ -7015,7 +6245,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.7%, X=33.2%, 2=31.1%. Se mantiene como FIJO (1) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. Aun así, se vigila su riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%. Favorito o signo de referencia: Turquía. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=35.7%, X=33.2%, 2=31.1%. Se mantiene como FIJO (1) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. Aun así, se vigila su riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%. Favorito o signo de referencia: Haití. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1.",
       "ajuste_aprendizaje": {
         "activo": true,
         "riesgo_extra": 18.96,
@@ -7031,22 +6261,22 @@
       "perfil_autonomo_visitante": {}
     },
     {
-      "jornada": 68,
-      "partido": "Países Bajos - Suecia",
-      "pronostico": "2",
-      "tipo_pronostico": "FIJO",
-      "resultado": "5-1",
-      "resultado_final": "5-1",
+      "jornada": 67,
+      "partido": "Australia - Turquía",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "2-0",
+      "resultado_final": "2-0",
       "signo_real": "1",
-      "signos_cubiertos": "2",
-      "signo_omitido": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_67.json",
       "probabilidades_usadas": {
-        "1": 31.6,
-        "X": 35.7,
-        "2": 32.7
+        "1": 34.6,
+        "X": 34.7,
+        "2": 30.7
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -7061,17 +6291,16 @@
         "bajas": 0.0217
       },
       "fuentes_utilizadas": [
-        "contexto_equipos",
-        "fallback_posicion_con_contexto"
+        "fallback_posicion"
       ],
       "clasificacion": {
         "local": {
-          "equipo": "Países Bajos",
+          "equipo": "Australia",
           "posicion": null,
           "puntos": null
         },
         "visitante": {
-          "equipo": "Suecia",
+          "equipo": "Turquía",
           "posicion": null,
           "puntos": null
         }
@@ -7081,7 +6310,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=31.6%, X=35.7%, 2=32.7%. Se abre TRIPLE porque el partido aparece entre las máximas prioridades de cobertura: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=141.5 y margen=3.0. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1X2.",
+      "explicacion_modelo": "Probabilidades IA: 1=34.6%, X=34.7%, 2=30.7%. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=139.0 y margen=0.1. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1X.",
       "ajuste_aprendizaje": {
         "activo": true,
         "riesgo_extra": 18.96,
@@ -7097,18 +6326,18 @@
       "perfil_autonomo_visitante": {}
     },
     {
-      "jornada": 68,
-      "partido": "Alemania - Costa Marfil",
+      "jornada": 67,
+      "partido": "Alemania - Curazao",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
-      "resultado": "2-1",
-      "resultado_final": "2-1",
+      "resultado": "7-1",
+      "resultado_final": "7-1",
       "signo_real": "1",
       "signos_cubiertos": "1",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_67.json",
       "probabilidades_usadas": {
         "1": 36.1,
         "X": 33.9,
@@ -7136,7 +6365,7 @@
           "puntos": null
         },
         "visitante": {
-          "equipo": "Costa Marfil",
+          "equipo": "Curazao",
           "posicion": null,
           "puntos": null
         }
@@ -7162,22 +6391,22 @@
       "perfil_autonomo_visitante": {}
     },
     {
-      "jornada": 68,
-      "partido": "Ecuador - Curazao",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "0-0",
-      "resultado_final": "0-0",
+      "jornada": 67,
+      "partido": "Países Bajos - Japón",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "2-2",
+      "resultado_final": "2-2",
       "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_67.json",
       "probabilidades_usadas": {
-        "1": 36.4,
-        "X": 33.6,
-        "2": 30.0
+        "1": 35.4,
+        "X": 35.5,
+        "2": 29.0
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -7197,12 +6426,12 @@
       ],
       "clasificacion": {
         "local": {
-          "equipo": "Ecuador",
+          "equipo": "Países Bajos",
           "posicion": null,
           "puntos": null
         },
         "visitante": {
-          "equipo": "Curazao",
+          "equipo": "Japón",
           "posicion": null,
           "puntos": null
         }
@@ -7212,7 +6441,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=36.4%, X=33.6%, 2=30.0%. Se mantiene como FIJO (1) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. Aun así, se vigila su riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%. Favorito o signo de referencia: Ecuador. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=35.4%, X=35.5%, 2=29.0%. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=148.3 y margen=0.1. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1X.",
       "ajuste_aprendizaje": {
         "activo": true,
         "riesgo_extra": 18.96,
@@ -7228,22 +6457,22 @@
       "perfil_autonomo_visitante": {}
     },
     {
-      "jornada": 68,
-      "partido": "Túnez - Japon",
-      "pronostico": "2",
+      "jornada": 67,
+      "partido": "Costa Marfil - Ecuador",
+      "pronostico": "1",
       "tipo_pronostico": "FIJO",
-      "resultado": "0-4",
-      "resultado_final": "0-4",
-      "signo_real": "2",
-      "signos_cubiertos": "2",
+      "resultado": "1-0",
+      "resultado_final": "1-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_67.json",
       "probabilidades_usadas": {
-        "1": 35.5,
-        "X": 33.4,
-        "2": 31.1
+        "1": 35.0,
+        "X": 32.9,
+        "2": 32.1
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -7258,16 +6487,17 @@
         "bajas": 0.0217
       },
       "fuentes_utilizadas": [
-        "fallback_posicion"
+        "contexto_equipos",
+        "fallback_posicion_con_contexto"
       ],
       "clasificacion": {
         "local": {
-          "equipo": "Túnez",
+          "equipo": "Costa Marfil",
           "posicion": null,
           "puntos": null
         },
         "visitante": {
-          "equipo": "Japon",
+          "equipo": "Ecuador",
           "posicion": null,
           "puntos": null
         }
@@ -7277,7 +6507,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.5%, X=33.4%, 2=31.1%. Se mantiene como FIJO (1) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. Aun así, se vigila su riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%. Favorito o signo de referencia: Túnez. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1.",
+      "explicacion_modelo": "Probabilidades IA: 1=35.0%, X=32.9%, 2=32.1%. Se mantiene como FIJO (1) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. Aun así, se vigila su riesgo: sugerencia=TRIPLE, índice de sorpresa=97.4/100, sorpresa=70.0%. Favorito o signo de referencia: Costa Marfil. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decisión final: 1.",
       "ajuste_aprendizaje": {
         "activo": true,
         "riesgo_extra": 18.96,
@@ -7293,18 +6523,18 @@
       "perfil_autonomo_visitante": {}
     },
     {
-      "jornada": 68,
-      "partido": "Bélgica - Irán",
-      "pronostico": "X",
+      "jornada": 67,
+      "partido": "Suecia - Túnez",
+      "pronostico": "1",
       "tipo_pronostico": "FIJO",
-      "resultado": "0-0",
-      "resultado_final": "0-0",
-      "signo_real": "X",
-      "signos_cubiertos": "X",
+      "resultado": "5-1",
+      "resultado_final": "5-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_67.json",
       "probabilidades_usadas": {
         "1": 34.8,
         "X": 34.3,
@@ -7327,12 +6557,12 @@
       ],
       "clasificacion": {
         "local": {
-          "equipo": "Bélgica",
+          "equipo": "Suecia",
           "posicion": null,
           "puntos": null
         },
         "visitante": {
-          "equipo": "Irán",
+          "equipo": "Túnez",
           "posicion": null,
           "puntos": null
         }
@@ -7342,7 +6572,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.8%, X=34.3%, 2=30.9%. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=138.5 y margen=0.5. Favorito o signo de referencia: Bélgica. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1X.",
+      "explicacion_modelo": "Probabilidades IA: 1=34.8%, X=34.3%, 2=30.9%. Se mantiene como FIJO (1) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. Aun así, se vigila su riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%. Favorito o signo de referencia: Suecia. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1.",
       "ajuste_aprendizaje": {
         "activo": true,
         "riesgo_extra": 18.96,
@@ -7358,84 +6588,18 @@
       "perfil_autonomo_visitante": {}
     },
     {
-      "jornada": 68,
-      "partido": "Uruguay - Cabo Verde",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "2-2",
-      "resultado_final": "2-2",
-      "signo_real": "X",
-      "signos_cubiertos": "1X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {
-        "1": 36.2,
-        "X": 35.3,
-        "2": 28.6
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_equipos",
-        "fallback_posicion_con_contexto"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Uruguay",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Cabo Verde",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=36.2%, X=35.3%, 2=28.6%. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=143.4 y margen=0.9. Favorito o signo de referencia: Uruguay. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1X.",
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 18.96,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 68,
-      "partido": "Nueva Zelanda - Egipto",
+      "jornada": 67,
+      "partido": "Bélgica - Egipto",
       "pronostico": "1X2",
       "tipo_pronostico": "TRIPLE",
-      "resultado": "1-3",
-      "resultado_final": "1-3",
-      "signo_real": "2",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
       "signos_cubiertos": "1X2",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_67.json",
       "probabilidades_usadas": {
         "1": 34.2,
         "X": 34.3,
@@ -7458,7 +6622,7 @@
       ],
       "clasificacion": {
         "local": {
-          "equipo": "Nueva Zelanda",
+          "equipo": "Bélgica",
           "posicion": null,
           "puntos": null
         },
@@ -7489,22 +6653,22 @@
       "perfil_autonomo_visitante": {}
     },
     {
-      "jornada": 68,
-      "partido": "Argentina - Austria",
-      "pronostico": "1",
+      "jornada": 67,
+      "partido": "Arabia Saudí - Uruguay",
+      "pronostico": "X",
       "tipo_pronostico": "FIJO",
-      "resultado": "2-0",
-      "resultado_final": "2-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "X",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_67.json",
       "probabilidades_usadas": {
-        "1": 32.9,
-        "X": 35.7,
-        "2": 31.4
+        "1": 34.2,
+        "X": 34.3,
+        "2": 31.6
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -7524,12 +6688,12 @@
       ],
       "clasificacion": {
         "local": {
-          "equipo": "Argentina",
+          "equipo": "Arabia Saudí",
           "posicion": null,
           "puntos": null
         },
         "visitante": {
-          "equipo": "Austria",
+          "equipo": "Uruguay",
           "posicion": null,
           "puntos": null
         }
@@ -7539,7 +6703,7 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=32.9%, X=35.7%, 2=31.4%. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=141.7 y margen=2.8. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1X.",
+      "explicacion_modelo": "Probabilidades IA: 1=34.2%, X=34.3%, 2=31.6%. Se mantiene como FIJO (X) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. Aun así, se vigila su riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: X.",
       "ajuste_aprendizaje": {
         "activo": true,
         "riesgo_extra": 18.96,
@@ -7555,18 +6719,83 @@
       "perfil_autonomo_visitante": {}
     },
     {
-      "jornada": 68,
-      "partido": "Francia - Iraq",
+      "jornada": 67,
+      "partido": "Irán - Nueva Zelanda",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
-      "resultado": "3-0",
-      "resultado_final": "3-0",
+      "resultado": "2-2",
+      "resultado_final": "2-2",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_67.json",
+      "probabilidades_usadas": {
+        "1": 35.9,
+        "X": 34.7,
+        "2": 29.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Irán",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Nueva Zelanda",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=35.9%, X=34.7%, 2=29.4%. Se mantiene como FIJO (1) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. Aun así, se vigila su riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%. Favorito o signo de referencia: Irán. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.96,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {},
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 67,
+      "partido": "Francia - Senegal",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "3-1",
+      "resultado_final": "3-1",
       "signo_real": "1",
       "signos_cubiertos": "1",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_67.json",
       "probabilidades_usadas": {
         "1": 35.1,
         "X": 32.9,
@@ -7595,7 +6824,7 @@
           "puntos": null
         },
         "visitante": {
-          "equipo": "Iraq",
+          "equipo": "Senegal",
           "posicion": null,
           "puntos": null
         }
@@ -7621,6 +6850,1031 @@
       "perfil_autonomo_visitante": {}
     },
     {
+      "jornada": 67,
+      "partido": "Malaga CF - UD Almeria",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "0-0",
+      "resultado_final": "0-0",
+      "signo_real": "X",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_67.json",
+      "probabilidades_usadas": {
+        "1": 61.1,
+        "X": 37.9,
+        "2": 0.9
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Malaga CF",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "UD Almeria",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=61.1%, X=37.9%, 2=0.9%. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, índice de sorpresa=65.7/100, sorpresa=50.9%, incertidumbre=208.0 y margen=23.2. Favorito o signo de referencia: Malaga CF. Motivos principales: empate con peso alto. Decisión final: 1X.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 6.22,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {},
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "EEUU - Australia",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-0",
+      "resultado_final": "2-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 39.8,
+        "X": 34.9,
+        "2": 25.3
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "EEUU",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Australia",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=39.8%, X=34.9%, 2=25.3%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): EEUU 3 pts, GF 4, GC 1; Australia 3 pts, GF 2, GC 0. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=97.0/100 o sorpresa=70.0%. Favorito o signo de referencia: EEUU. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 4.9 puntos. Decision final: 1.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 21.72,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "Escocia - Marruecos",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "0-1",
+      "resultado_final": "0-1",
+      "signo_real": "2",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Doble insuficiente",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 54.9,
+        "X": 29.4,
+        "2": 15.7
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Escocia",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Marruecos",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=54.9%, X=29.4%, 2=15.7%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Escocia 3 pts, GF 1, GC 0; Marruecos 1 pts, GF 1, GC 1. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=55.1/100, sorpresa=49.3%, incertidumbre=106.8 y margen=25.5. Favorito o signo de referencia: Escocia. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 25.5 puntos. Decision final: 1X.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 22.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "Brasil - Haití",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "3-0",
+      "resultado_final": "3-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 54.4,
+        "X": 30.1,
+        "2": 15.5
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Brasil",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Haití",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=54.4%, X=30.1%, 2=15.5%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Brasil 1 pts, GF 1, GC 1; Haití 0 pts, GF 0, GC 1. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=55.6/100, sorpresa=50.2%, incertidumbre=108.2 y margen=24.3. Favorito o signo de referencia: Brasil. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 24.3 puntos. Decision final: 1X.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 22.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "Turquía - Paraguay",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-1",
+      "resultado_final": "0-1",
+      "signo_real": "2",
+      "signos_cubiertos": "1",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 39.8,
+        "X": 34.9,
+        "2": 25.3
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_equipos",
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Turquía",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Paraguay",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=39.8%, X=34.9%, 2=25.3%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Turquía 0 pts, GF 0, GC 2; Paraguay 0 pts, GF 1, GC 4. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=97.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Turquía. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 4.9 puntos. Decision final: 1.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 22.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "Países Bajos - Suecia",
+      "pronostico": "X2",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "5-1",
+      "resultado_final": "5-1",
+      "signo_real": "1",
+      "signos_cubiertos": "X2",
+      "signo_omitido": "1",
+      "acierto": false,
+      "motivo_error": "Doble insuficiente",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 15.7,
+        "X": 29.4,
+        "2": 54.9
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Países Bajos",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Suecia",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=15.7%, X=29.4%, 2=54.9%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Países Bajos 1 pts, GF 2, GC 2; Suecia 3 pts, GF 5, GC 1. Se cubre con DOBLE (X2) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=55.1/100, sorpresa=49.3%, incertidumbre=106.8 y margen=25.5. Favorito o signo de referencia: Suecia. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 25.5 puntos. Decision final: X2.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 21.72,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "Alemania - Costa Marfil",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-1",
+      "resultado_final": "2-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 56.0,
+        "X": 28.0,
+        "2": 16.0
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Alemania",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Costa Marfil",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=56.0%, X=28.0%, 2=16.0%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Alemania 3 pts, GF 7, GC 1; Costa Marfil 3 pts, GF 1, GC 0. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=54.0/100 o sorpresa=47.5%. Favorito o signo de referencia: Alemania. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 28.0 puntos. Decision final: 1.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 22.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "Ecuador - Curazao",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-0",
+      "resultado_final": "0-0",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 56.0,
+        "X": 28.0,
+        "2": 16.0
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Ecuador",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Curazao",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=56.0%, X=28.0%, 2=16.0%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Ecuador 0 pts, GF 0, GC 1; Curazao 0 pts, GF 1, GC 7. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=54.0/100 o sorpresa=47.5%. Favorito o signo de referencia: Ecuador. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 28.0 puntos. Decision final: 1.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 22.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "Túnez - Japon",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-4",
+      "resultado_final": "0-4",
+      "signo_real": "2",
+      "signos_cubiertos": "2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 15.7,
+        "X": 29.4,
+        "2": 54.9
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Túnez",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Japon",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=15.7%, X=29.4%, 2=54.9%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Túnez 0 pts, GF 1, GC 5; Japon 1 pts, GF 2, GC 2. Se mantiene como FIJO (2) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es DOBLE, indice=55.1/100 o sorpresa=49.3%. Favorito o signo de referencia: Japon. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 25.5 puntos. Decision final: 2.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 22.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "Bélgica - Irán",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "0-0",
+      "resultado_final": "0-0",
+      "signo_real": "X",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 30.5,
+        "X": 39.0,
+        "2": 30.5
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Bélgica",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Irán",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=30.5%, X=39.0%, 2=30.5%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Bélgica 1 pts, GF 1, GC 1; Irán 1 pts, GF 2, GC 2. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=99.5/100, sorpresa=70.0%, incertidumbre=127.2 y margen=8.5. Favorito o signo de referencia: Empate. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 8.5 puntos. Decision final: 1X2.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 22.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "Uruguay - Cabo Verde",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "2-2",
+      "resultado_final": "2-2",
+      "signo_real": "X",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 30.5,
+        "X": 39.0,
+        "2": 30.5
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_equipos",
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Uruguay",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Cabo Verde",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=30.5%, X=39.0%, 2=30.5%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Uruguay 1 pts, GF 1, GC 1; Cabo Verde 1 pts, GF 0, GC 0. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=99.5/100, sorpresa=70.0%, incertidumbre=127.2 y margen=8.5. Favorito o signo de referencia: Empate. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 8.5 puntos. Decision final: 1X2.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 21.72,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "Nueva Zelanda - Egipto",
+      "pronostico": "X",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-3",
+      "resultado_final": "1-3",
+      "signo_real": "2",
+      "signos_cubiertos": "X",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 30.5,
+        "X": 39.0,
+        "2": 30.5
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Nueva Zelanda",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Egipto",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=30.5%, X=39.0%, 2=30.5%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Nueva Zelanda 1 pts, GF 2, GC 2; Egipto 1 pts, GF 1, GC 1. Se mantiene como FIJO (X) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=99.5/100 o sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 8.5 puntos. Decision final: X.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 21.72,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "Argentina - Austria",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-0",
+      "resultado_final": "2-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 39.8,
+        "X": 34.9,
+        "2": 25.3
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_equipos",
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Argentina",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Austria",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=39.8%, X=34.9%, 2=25.3%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Argentina 3 pts, GF 3, GC 0; Austria 3 pts, GF 3, GC 1. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=97.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Argentina. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 4.9 puntos. Decision final: 1.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 21.72,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 68,
+      "partido": "Francia - Iraq",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "3-0",
+      "resultado_final": "3-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_68.json",
+      "probabilidades_usadas": {
+        "1": 56.0,
+        "X": 28.0,
+        "2": 16.0
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_equipos",
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Francia",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Iraq",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=56.0%, X=28.0%, 2=16.0%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Francia 3 pts, GF 3, GC 1; Irak 0 pts, GF 1, GC 4. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=54.0/100 o sorpresa=47.5%. Favorito o signo de referencia: Francia. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 28.0 puntos. Decision final: 1.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.42,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 21.72,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
       "jornada": 68,
       "partido": "UD Almeria - Malaga CF",
       "pronostico": "X2",
@@ -7632,11 +7886,11 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_68.json",
       "probabilidades_usadas": {
-        "1": 10.4,
-        "X": 41.3,
-        "2": 48.3
+        "1": 11.2,
+        "X": 44.5,
+        "2": 44.3
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -7672,16 +7926,24 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=10.4%, X=41.3%, 2=48.3%. Se cubre con DOBLE (X2) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, índice de sorpresa=98.8/100, sorpresa=63.7%, incertidumbre=230.4 y margen=7.0. Favorito o signo de referencia: Malaga CF. Motivos principales: margen corto entre favorito y alternativa; favorito por debajo del 50%; empate con peso alto. Decisión final: X2.",
+      "explicacion_modelo": "Probabilidades IA: 1=11.2%, X=44.5%, 2=44.3%. Calidad de datos: alta; origen=estadistica_equipos. Se cubre con DOBLE (X2) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=100.0/100, sorpresa=67.5%, incertidumbre=261.0 y margen=0.2. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: X2.",
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 17.65,
+        "riesgo_extra": 17.38,
         "lecturas": [
           "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%."
         ]
       },
-      "ajuste_pesos_dinamicos": {},
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 22.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
       "ajuste_perfiles_autonomos": {},
       "perfil_autonomo_local": {},
       "perfil_autonomo_visitante": {}
@@ -7698,11 +7960,11 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_69.json",
       "probabilidades_usadas": {
-        "1": 49.9,
-        "X": 29.8,
-        "2": 20.3
+        "1": 50.4,
+        "X": 30.2,
+        "2": 19.4
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -7717,6 +7979,7 @@
         "bajas": 0.0217
       },
       "fuentes_utilizadas": [
+        "contexto_equipos",
         "mundial_2026",
         "mundial_2026_resultados_y_modelo_base"
       ],
@@ -7737,10 +8000,20 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=49.9%, X=29.8%, 2=20.3%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Noruega 3 pts, GF 4, GC 1; Senegal 0 pts, GF 1, GC 3. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es DOBLE, indice=64.5/100 o sorpresa=55.7%. Favorito o signo de referencia: Noruega. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 20.1 puntos. Decision final: 1.",
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (36.1%).",
+        "hipotesis_alternativa": "X como alternativa (35.7%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision TRIPLE 1X2: margen 0.4 puntos, indice sorpresa 100.0."
+      },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 18.27,
+        "riesgo_extra": 17.3,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
@@ -7749,15 +8022,46 @@
       },
       "ajuste_pesos_dinamicos": {
         "activo": true,
-        "riesgo_extra": 33.72,
+        "riesgo_extra": 9.94,
         "lecturas": [
           "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
           "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
         ]
       },
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Noruega: ppp=1.34; perfil visitante Senegal: ppp=0.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Noruega",
+        "partidos_total": 2,
+        "puntos_por_partido": 2.014,
+        "empates_pct": 49.28,
+        "surprise_score_medio": 48.39,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 2.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Senegal",
+        "partidos_total": 1,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 40.24,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
     },
     {
       "jornada": 69,
@@ -7771,11 +8075,11 @@
       "signo_omitido": "2",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_69.json",
       "probabilidades_usadas": {
-        "1": 38.5,
-        "X": 35.6,
-        "2": 25.9
+        "1": 38.0,
+        "X": 36.0,
+        "2": 26.0
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -7811,10 +8115,20 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=38.5%, X=35.6%, 2=25.9%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Jordania 0 pts, GF 1, GC 3; Argelia 0 pts, GF 0, GC 3. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Jordania. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 2.9 puntos. Decision final: 1.",
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (38.9%).",
+        "hipotesis_alternativa": "1 como alternativa (33.4%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision TRIPLE 1X2: margen 5.5 puntos, indice sorpresa 100.0."
+      },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 18.27,
+        "riesgo_extra": 17.3,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
@@ -7823,14 +8137,18 @@
       },
       "ajuste_pesos_dinamicos": {
         "activo": true,
-        "riesgo_extra": 34.92,
+        "riesgo_extra": 11.17,
         "lecturas": [
           "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
           "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
           "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
         ]
       },
-      "ajuste_perfiles_autonomos": {},
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
       "perfil_autonomo_local": {},
       "perfil_autonomo_visitante": {}
     },
@@ -7846,11 +8164,11 @@
       "signo_omitido": "1",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_69.json",
       "probabilidades_usadas": {
-        "1": 32.4,
-        "X": 33.6,
-        "2": 34.0
+        "1": 35.0,
+        "X": 35.1,
+        "2": 29.9
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -7865,8 +8183,7 @@
         "bajas": 0.0217
       },
       "fuentes_utilizadas": [
-        "contexto_equipos",
-        "fallback_posicion_con_contexto"
+        "fallback_posicion+modelo_entrenado"
       ],
       "clasificacion": {
         "local": {
@@ -7885,10 +8202,20 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=32.4%, X=33.6%, 2=34.0%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=176.3 y margen=0.4. Favorito o signo de referencia: Uzbekistán. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X2.",
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (35.1%).",
+        "hipotesis_alternativa": "1 como alternativa (35.0%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 0.1 puntos, indice sorpresa 100.0."
+      },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 18.27,
+        "riesgo_extra": 17.3,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
@@ -7897,14 +8224,31 @@
       },
       "ajuste_pesos_dinamicos": {
         "activo": true,
-        "riesgo_extra": 33.72,
+        "riesgo_extra": 11.1,
         "lecturas": [
           "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
         ]
       },
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Portugal",
+        "partidos_total": 3,
+        "puntos_por_partido": 2.314,
+        "empates_pct": 34.3,
+        "surprise_score_medio": 39.62,
+        "forma_5_ppp": 2.333,
+        "forma_10_ppp": 2.333,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
       "perfil_autonomo_visitante": {}
     },
     {
@@ -7919,11 +8263,11 @@
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_69.json",
       "probabilidades_usadas": {
-        "1": 35.1,
-        "X": 34.4,
-        "2": 30.6
+        "1": 32.0,
+        "X": 36.7,
+        "2": 31.3
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -7939,7 +8283,7 @@
       },
       "fuentes_utilizadas": [
         "contexto_equipos",
-        "fallback_posicion_con_contexto"
+        "fallback_posicion_con_contexto+modelo_entrenado"
       ],
       "clasificacion": {
         "local": {
@@ -7958,10 +8302,20 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.1%, X=34.4%, 2=30.6%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Inglaterra. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1.",
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (36.7%).",
+        "hipotesis_alternativa": "1 como alternativa (32.0%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 4.7 puntos, indice sorpresa 100.0."
+      },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 18.27,
+        "riesgo_extra": 17.3,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
@@ -7970,14 +8324,31 @@
       },
       "ajuste_pesos_dinamicos": {
         "activo": true,
-        "riesgo_extra": 33.72,
+        "riesgo_extra": 11.14,
         "lecturas": [
           "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
         ]
       },
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Inglaterra",
+        "partidos_total": 4,
+        "puntos_por_partido": 2.217,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 39.99,
+        "forma_5_ppp": 2.25,
+        "forma_10_ppp": 2.25,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
       "perfil_autonomo_visitante": {}
     },
     {
@@ -7992,11 +8363,11 @@
       "signo_omitido": "2",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_69.json",
       "probabilidades_usadas": {
-        "1": 35.0,
-        "X": 33.9,
-        "2": 31.1
+        "1": 34.7,
+        "X": 36.1,
+        "2": 29.2
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -8011,7 +8382,7 @@
         "bajas": 0.0217
       },
       "fuentes_utilizadas": [
-        "fallback_posicion"
+        "fallback_posicion+modelo_entrenado"
       ],
       "clasificacion": {
         "local": {
@@ -8030,10 +8401,20 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.0%, X=33.9%, 2=31.1%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Panamá. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1.",
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (36.1%).",
+        "hipotesis_alternativa": "1 como alternativa (34.7%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO X: margen 1.4 puntos, indice sorpresa 100.0."
+      },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 18.27,
+        "riesgo_extra": 17.3,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
@@ -8042,15 +8423,47 @@
       },
       "ajuste_pesos_dinamicos": {
         "activo": true,
-        "riesgo_extra": 33.72,
+        "riesgo_extra": 11.1,
         "lecturas": [
           "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
         ]
       },
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Panamá: ppp=2.01; perfil visitante Croacia: ppp=2.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Panamá",
+        "partidos_total": 2,
+        "puntos_por_partido": 2.014,
+        "empates_pct": 49.28,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 2.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Croacia",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 40.84,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
     },
     {
       "jornada": 69,
@@ -8064,11 +8477,11 @@
       "signo_omitido": "1",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_69.json",
       "probabilidades_usadas": {
-        "1": 32.5,
-        "X": 36.9,
-        "2": 30.6
+        "1": 34.9,
+        "X": 36.4,
+        "2": 28.7
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -8083,7 +8496,7 @@
         "bajas": 0.0217
       },
       "fuentes_utilizadas": [
-        "fallback_posicion"
+        "fallback_posicion+modelo_entrenado"
       ],
       "clasificacion": {
         "local": {
@@ -8102,10 +8515,20 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=32.5%, X=36.9%, 2=30.6%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (X) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto. Decision final: X.",
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (36.4%).",
+        "hipotesis_alternativa": "1 como alternativa (34.9%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO X: margen 1.5 puntos, indice sorpresa 100.0."
+      },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 18.27,
+        "riesgo_extra": 17.3,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
@@ -8114,15 +8537,31 @@
       },
       "ajuste_pesos_dinamicos": {
         "activo": true,
-        "riesgo_extra": 34.92,
+        "riesgo_extra": 11.1,
         "lecturas": [
           "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
           "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
           "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
         ]
       },
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Colombia",
+        "partidos_total": 1,
+        "puntos_por_partido": 1.0,
+        "empates_pct": 100.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
       "perfil_autonomo_visitante": {}
     },
     {
@@ -8137,11 +8576,11 @@
       "signo_omitido": "2",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
+      "origen": "data/predicciones/jornada_69.json",
       "probabilidades_usadas": {
-        "1": 31.9,
-        "X": 37.5,
-        "2": 30.6
+        "1": 34.2,
+        "X": 35.1,
+        "2": 30.7
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -8156,7 +8595,7 @@
         "bajas": 0.0217
       },
       "fuentes_utilizadas": [
-        "fallback_posicion"
+        "fallback_posicion+modelo_entrenado"
       ],
       "clasificacion": {
         "local": {
@@ -8175,10 +8614,20 @@
         "visitante": {}
       },
       "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=31.9%, X=37.5%, 2=30.6%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (X) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto. Decision final: X.",
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (35.1%).",
+        "hipotesis_alternativa": "1 como alternativa (34.2%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO X: margen 0.9 puntos, indice sorpresa 100.0."
+      },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 18.27,
+        "riesgo_extra": 17.3,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
@@ -8187,14 +8636,18 @@
       },
       "ajuste_pesos_dinamicos": {
         "activo": true,
-        "riesgo_extra": 34.92,
+        "riesgo_extra": 11.1,
         "lecturas": [
           "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
           "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
           "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
         ]
       },
-      "ajuste_perfiles_autonomos": {},
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
       "perfil_autonomo_local": {},
       "perfil_autonomo_visitante": {}
     }
@@ -8212,18 +8665,18 @@
     "partidos_base": 146,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 39.04,
-      "no_cubrio_empate_sobre_fallos_pct": 28.07,
-      "no_cubrio_empate_sobre_total_pct": 10.96,
-      "fijo_fallado_sobre_fallos_pct": 57.89,
-      "fijo_fallado_sobre_total_pct": 22.6,
-      "doble_insuficiente_sobre_total_pct": 5.48
+      "fallos_total_pct": 39.73,
+      "no_cubrio_empate_sobre_fallos_pct": 32.76,
+      "no_cubrio_empate_sobre_total_pct": 13.01,
+      "fijo_fallado_sobre_fallos_pct": 51.72,
+      "fijo_fallado_sobre_total_pct": 20.55,
+      "doble_insuficiente_sobre_total_pct": 6.16
     },
-    "boost_empate_zona_riesgo": 4.74,
-    "riesgo_extra_fijo_fragil": 13.06,
-    "riesgo_extra_triple_insuficiente": 1.33,
+    "boost_empate_zona_riesgo": 6.0,
+    "riesgo_extra_fijo_fragil": 10.18,
+    "riesgo_extra_triple_insuficiente": 1.94,
     "min_dobles_auto": 3,
-    "min_triples_auto": 0,
+    "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
     "reglas": [
       "Subir X en partidos de margen corto o tendencia de empate porque el historial propio dejo empates sin cubrir.",
