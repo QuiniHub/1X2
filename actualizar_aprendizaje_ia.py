@@ -1,6 +1,7 @@
 import json
 import re
 from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -12,6 +13,21 @@ HISTORIAL_QUINIELAS = DATA / "historial_quinielas.json"
 PREDICCIONES = DATA / "predicciones"
 SNAPSHOTS = DATA / "backtesting" / "pre_cierre"
 PESOS_DINAMICOS = DATA / "memoria_ia" / "pesos_dinamicos.json"
+HISTORIAL_PREMIOS = DATA / "premios" / "historial_premios.json"
+
+SIGNOS_VALIDOS = {"1", "X", "2"}
+
+# Tabla orientativa ya usada por calcular_premios.py. Se mantiene aqui para
+# que el cierre automatico pueda escribir historial_premios.json aunque el
+# registro anterior exista con 0 aciertos / 0 fallos.
+TABLA_PREMIOS_ESTIMADOS = {
+    15: 0.0,
+    14: 0.0,
+    13: 25.0,
+    12: 8.0,
+    11: 4.0,
+    10: 0.0,
+}
 
 
 def cargar_json(path, default=None):
@@ -20,6 +36,20 @@ def cargar_json(path, default=None):
     if not path.exists():
         return default
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def guardar_json(path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def ahora_iso():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def normalizar_signo(valor):
+    texto = str(valor or "").strip().upper()
+    return texto if texto in SIGNOS_VALIDOS else ""
 
 
 def signo_resultado(resultado):
@@ -32,6 +62,13 @@ def signo_resultado(resultado):
     if gl == gv:
         return "X"
     return "2"
+
+
+def signo_oficial_partido(partido):
+    oficial = normalizar_signo(partido.get("signo_oficial"))
+    if oficial:
+        return oficial
+    return signo_resultado(partido.get("resultado"))
 
 
 def signos_pronostico(valor):
@@ -112,22 +149,54 @@ def indexar_partidos_prediccion(prediccion):
     }
 
 
-def cargar_predicciones_por_jornada():
+def cargar_predicciones_detalladas_por_jornada():
     predicciones = {}
     if PREDICCIONES.exists():
         for path in sorted(PREDICCIONES.glob("jornada_*.json")):
             data = cargar_json(path, {})
             jornada = data.get("jornada")
             if str(jornada or "").isdigit() and data.get("prediccion_disponible") is not False:
-                predicciones[int(jornada)] = indexar_partidos_prediccion(data)
+                predicciones[int(jornada)] = {
+                    "path": path,
+                    "data": data,
+                    "partidos": indexar_partidos_prediccion(data),
+                }
     if SNAPSHOTS.exists():
         for path in sorted(SNAPSHOTS.glob("jornada_*.json")):
             snap = cargar_json(path, {})
             pred = snap.get("prediccion") or snap
             jornada = snap.get("jornada") or pred.get("jornada")
-            if str(jornada or "").isdigit():
-                predicciones[int(jornada)] = indexar_partidos_prediccion(pred)
+            if str(jornada or "").isdigit() and int(jornada) not in predicciones:
+                predicciones[int(jornada)] = {
+                    "path": path,
+                    "data": pred,
+                    "partidos": indexar_partidos_prediccion(pred),
+                }
     return predicciones
+
+
+def cargar_predicciones_por_jornada():
+    return {
+        jornada: info.get("partidos", {})
+        for jornada, info in cargar_predicciones_detalladas_por_jornada().items()
+    }
+
+
+def signo_prediccion(partido_pred):
+    if not partido_pred:
+        return ""
+    for campo in (
+        "signo_final",
+        "signo_base",
+        "signo",
+        "pronostico_ia",
+        "signo_recomendado",
+        "prediccion",
+    ):
+        valor = partido_pred.get(campo)
+        if pronostico_valido(valor):
+            return str(valor).strip().upper()
+    return ""
 
 
 def fuentes_utilizadas(prediccion):
@@ -369,7 +438,7 @@ def registrar_revision(resumen, jornada_num, partido, pron, real, origen, predic
 def construir_salida(resumen, fuentes_jugadas):
     total = max(resumen["partidos_revisados"], 1)
     salida = {
-        "version": "1.1",
+        "version": "1.2",
         "precision": round(resumen["aciertos"] / total * 100, 2),
         "jornadas_revisadas": resumen["jornadas_revisadas"],
         "partidos_revisados": resumen["partidos_revisados"],
@@ -395,20 +464,206 @@ def construir_salida(resumen, fuentes_jugadas):
     return salida
 
 
+def jornada_cerrada(data):
+    partidos = data.get("partidos") or []
+    return bool(partidos) and all(signo_oficial_partido(partido) in SIGNOS_VALIDOS for partido in partidos)
+
+
+def comparar_jornada_con_prediccion(jornada_data, pred_info):
+    pred_por_num = (pred_info or {}).get("partidos") or {}
+    detalle = []
+    aciertos = 0
+    fallos = 0
+    comparados = 0
+
+    for partido in jornada_data.get("partidos", []):
+        num = partido.get("num")
+        if not str(num or "").isdigit():
+            continue
+        real = signo_oficial_partido(partido)
+        pron = signo_prediccion(pred_por_num.get(int(num)))
+        if real not in SIGNOS_VALIDOS or not pronostico_valido(pron):
+            continue
+        ok = acierta(pron, real)
+        comparados += 1
+        aciertos += int(ok)
+        fallos += int(not ok)
+        detalle.append({
+            "num": int(num),
+            "local": partido.get("local"),
+            "visitante": partido.get("visitante"),
+            "signo_predicho": pron,
+            "signo_nuestro": pron,
+            "tipo": tipo_pronostico(pron),
+            "signo_oficial": real,
+            "resultado": partido.get("resultado"),
+            "acertado": ok,
+        })
+
+    return {
+        "comparados": comparados,
+        "aciertos": aciertos,
+        "fallos": fallos,
+        "detalle": sorted(detalle, key=lambda item: item["num"]),
+    }
+
+
+def cerrar_jornada_con_prediccion(path, jornada_data, pred_info):
+    if not jornada_cerrada(jornada_data) or not pred_info:
+        return None
+
+    comparacion = comparar_jornada_con_prediccion(jornada_data, pred_info)
+    if not comparacion["comparados"]:
+        return None
+
+    pred_por_num = pred_info.get("partidos") or {}
+    cambiado = False
+    for partido in jornada_data.get("partidos", []):
+        num = partido.get("num")
+        if not str(num or "").isdigit():
+            continue
+        real = signo_oficial_partido(partido)
+        pron = signo_prediccion(pred_por_num.get(int(num)))
+        if real not in SIGNOS_VALIDOS or not pronostico_valido(pron):
+            continue
+        ok = acierta(pron, real)
+        if partido.get("signo_nuestro") != pron:
+            partido["signo_nuestro"] = pron
+            cambiado = True
+        if partido.get("acierto_nuestro") is not ok:
+            partido["acierto_nuestro"] = ok
+            cambiado = True
+
+    resumen_nuestro = {
+        "origen": str(pred_info.get("path") or "data/predicciones"),
+        "comparados": comparacion["comparados"],
+        "aciertos": comparacion["aciertos"],
+        "fallos": comparacion["fallos"],
+        "precision": precision(comparacion["aciertos"], comparacion["comparados"]),
+        "actualizado_en": ahora_iso(),
+    }
+    if jornada_data.get("resumen_nuestro") != resumen_nuestro:
+        jornada_data["resumen_nuestro"] = resumen_nuestro
+        cambiado = True
+
+    if cambiado:
+        guardar_json(path, jornada_data)
+    return comparacion
+
+
+def hay_coberturas(prediccion, detalle):
+    resumen = prediccion.get("resumen") or {}
+    configuracion = prediccion.get("configuracion") or {}
+    if int(resumen.get("dobles") or configuracion.get("dobles") or 0) > 0:
+        return True
+    if int(resumen.get("triples") or configuracion.get("triples") or 0) > 0:
+        return True
+    return any(len(signos_pronostico(item.get("signo_predicho"))) > 1 for item in detalle)
+
+
+def estimar_premio(aciertos, prediccion, detalle):
+    if hay_coberturas(prediccion, detalle):
+        return 0.0, "pendiente"
+    if aciertos in TABLA_PREMIOS_ESTIMADOS:
+        premio = TABLA_PREMIOS_ESTIMADOS[aciertos]
+        fuente = "calculado" if premio > 0 else "pendiente"
+        return premio, fuente
+    return 0.0, "pendiente"
+
+
+def construir_registro_premios(jornada, pred_info, comparacion):
+    prediccion = (pred_info or {}).get("data") or {}
+    detalle = comparacion.get("detalle") or []
+    premio, fuente = estimar_premio(comparacion["aciertos"], prediccion, detalle)
+    boleto = "".join(
+        str(item.get("signo_predicho") or "?")
+        for item in sorted(detalle, key=lambda x: x.get("num") or 0)
+    )
+    return {
+        "jornada": jornada,
+        "aciertos": comparacion["aciertos"],
+        "fallos": comparacion["fallos"],
+        "partidos_comparados": comparacion["comparados"],
+        "premio_eur": premio,
+        "fuente_premio": fuente,
+        "boleto": boleto,
+        "detalle_partidos": detalle,
+        "origen_prediccion": str((pred_info or {}).get("path") or ""),
+        "actualizado_en": ahora_iso(),
+        "notas": "Comparado automaticamente contra data/predicciones/jornada_X.json al cerrarse la jornada.",
+    }
+
+
+def debe_reemplazar_registro_premios(actual, nuevo):
+    if not actual:
+        return True
+    if actual.get("fuente_premio") == "manual":
+        # Conserva el premio manual, pero permite actualizar aciertos/fallos y detalle.
+        return True
+    campos = ("aciertos", "fallos", "partidos_comparados", "boleto", "detalle_partidos")
+    return any(actual.get(campo) != nuevo.get(campo) for campo in campos)
+
+
+def actualizar_historial_premios(registros):
+    if not registros:
+        return 0
+    historial = cargar_json(HISTORIAL_PREMIOS, {"jornadas": []})
+    existentes = {
+        int(entry.get("jornada")): entry
+        for entry in historial.get("jornadas", [])
+        if str(entry.get("jornada") or "").isdigit()
+    }
+
+    cambios = 0
+    for jornada, nuevo in registros.items():
+        actual = existentes.get(jornada)
+        if not debe_reemplazar_registro_premios(actual, nuevo):
+            continue
+        if actual and actual.get("fuente_premio") == "manual":
+            nuevo["premio_eur"] = actual.get("premio_eur", nuevo["premio_eur"])
+            nuevo["fuente_premio"] = "manual"
+            nuevo["notas"] = actual.get("notas") or nuevo.get("notas", "")
+        existentes[jornada] = nuevo
+        cambios += 1
+
+    if cambios:
+        historial["jornadas"] = [existentes[j] for j in sorted(existentes)]
+        guardar_json(HISTORIAL_PREMIOS, historial)
+    return cambios
+
+
 def main():
     resumen = resumen_vacio()
     jugadas = cargar_jugadas_validadas()
-    predicciones = cargar_predicciones_por_jornada()
+    predicciones_detalladas = cargar_predicciones_detalladas_por_jornada()
+    predicciones = {j: info.get("partidos", {}) for j, info in predicciones_detalladas.items()}
     pesos_modelo = cargar_json(PESOS_DINAMICOS, {})
     fuentes_jugadas = Counter(jugada.get("origen") or "desconocido" for jugada in jugadas.values())
+    registros_premios = {}
+    jornadas_cerradas_actualizadas = 0
+
     for path in sorted(JORNADAS.glob("jornada_*.json"), key=numero_jornada):
         data = cargar_json(path, {})
         revisados_jornada = 0
-        jornada_num = data.get("jornada") or path.stem
-        jugada = jugadas.get(data.get("jornada"))
+        jornada_num = data.get("jornada") if str(data.get("jornada") or "").isdigit() else numero_jornada(path)
+        pred_info = predicciones_detalladas.get(int(jornada_num or 0))
+        jugada = jugadas.get(jornada_num)
+
+        comparacion_cierre = cerrar_jornada_con_prediccion(path, data, pred_info)
+        if comparacion_cierre:
+            registros_premios[int(jornada_num)] = construir_registro_premios(int(jornada_num), pred_info, comparacion_cierre)
+            jornadas_cerradas_actualizadas += 1
+            data = cargar_json(path, data)
+
         for idx, partido in enumerate(data.get("partidos", [])):
-            real = signo_resultado(partido.get("resultado"))
-            if jugada and idx < len(jugada["signos"]):
+            real = signo_oficial_partido(partido)
+            num = int(partido.get("num") or idx + 1) if str(partido.get("num") or idx + 1).isdigit() else idx + 1
+            prediccion = predicciones.get(int(jornada_num or 0), {}).get(num, {})
+            pron_prediccion = signo_prediccion(prediccion)
+            if pronostico_valido(pron_prediccion):
+                pron = pron_prediccion
+                origen = f"data/predicciones/jornada_{int(jornada_num)}.json"
+            elif jugada and idx < len(jugada["signos"]):
                 pron = jugada["signos"][idx]
                 origen = jugada.get("origen") or "data/quinielas_jugadas.json"
             else:
@@ -416,15 +671,17 @@ def main():
                 origen = "partido"
             if not real or not pronostico_valido(pron):
                 continue
-            prediccion = predicciones.get(int(data.get("jornada") or 0), {}).get(idx + 1, {})
             registrar_revision(resumen, jornada_num, partido, pron, real, origen, prediccion, pesos_modelo)
             revisados_jornada += 1
         if revisados_jornada:
             resumen["jornadas_revisadas"] += 1
 
+    cambios_premios = actualizar_historial_premios(registros_premios)
     salida = construir_salida(resumen, fuentes_jugadas)
-    OUT.write_text(json.dumps(salida, ensure_ascii=False, indent=2), encoding="utf-8")
+    guardar_json(OUT, salida)
     print(f"Aprendizaje IA generado: {OUT}")
+    print(f"Jornadas cerradas comparadas con prediccion: {jornadas_cerradas_actualizadas}")
+    print(f"Registros de premios actualizados: {cambios_premios}")
 
 
 if __name__ == "__main__":
