@@ -121,8 +121,11 @@ SCRIPTS_ACTIVOS = [
 def gestionar_mercado_y_temporada():
     mes = datetime.now().month
     year = datetime.now().year
-    if mes >= 8:
+    if mes in {7, 8}:
         print(f"Pretemporada detectada: preparar temporada {year}/{year + 1}.")
+        ejecutar_script("preparar_temporada_2026_2027.py")
+    elif mes >= 9:
+        print(f"Temporada {year}/{year + 1} en marcha o mercado cerrado: flujo normal.")
 
 
 def ejecutar_script(nombre):
