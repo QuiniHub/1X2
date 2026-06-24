@@ -113,6 +113,7 @@ SCRIPTS_ACTIVOS = [
     "aplicar_elige8_seguro.py",
     "limpiar_prediccion_bloqueada.py",
     "estabilizar_web.py",
+    "seleccionar_pleno15.py",
     "validar_publicacion_autonoma.py",
 ]
 
