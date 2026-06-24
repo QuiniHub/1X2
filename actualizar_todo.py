@@ -59,6 +59,7 @@ SCRIPTS_ACTIVOS = [
 
     # --- Competiciones internacionales y datos profesionales ---
     "actualizar_mundial_2026.py",
+    "actualizar_clasificaciones_mundial_2026.py",
     "generar_memoria_mundial_2026.py",
     "actualizar_datos_profesionales.py",
     "auditar_fuentes_profesionales.py",
