@@ -1,23 +1,23 @@
 {
   "version": "1.1",
-  "precision": 61.81,
+  "precision": 60.96,
   "jornadas_revisadas": 11,
-  "partidos_revisados": 144,
+  "partidos_revisados": 146,
   "aciertos": 89,
-  "fallos": 55,
+  "fallos": 57,
   "fallos_por_tipo": {
     "Doble insuficiente": 8,
-    "Fijo fallado": 31,
+    "Fijo fallado": 33,
     "No cubrio empate": 16
   },
   "fallos_por_signo_real": {
-    "1": 17,
-    "2": 22,
+    "1": 18,
+    "2": 23,
     "X": 16
   },
   "signos_omitidos_en_fallo": {
-    "1": 17,
-    "2": 22,
+    "1": 18,
+    "2": 23,
     "X": 16
   },
   "precision_por_tipo": {
@@ -28,10 +28,10 @@
       "precision": 68.0
     },
     "FIJO": {
-      "total": 92,
+      "total": 94,
       "aciertos": 45,
-      "fallos": 47,
-      "precision": 48.91
+      "fallos": 49,
+      "precision": 47.87
     },
     "TRIPLE": {
       "total": 27,
@@ -42,16 +42,16 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 64,
+      "total": 65,
       "aciertos": 47,
-      "fallos": 17,
-      "precision": 73.44
+      "fallos": 18,
+      "precision": 72.31
     },
     "2": {
-      "total": 43,
+      "total": 44,
       "aciertos": 21,
-      "fallos": 22,
-      "precision": 48.84
+      "fallos": 23,
+      "precision": 47.73
     },
     "X": {
       "total": 37,
@@ -7982,6 +7982,151 @@
     },
     {
       "jornada": 69,
+      "partido": "Panamá - Croacia",
+      "pronostico": "X",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-1",
+      "resultado_final": "0-1",
+      "signo_real": "2",
+      "signos_cubiertos": "X",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "issue_memoria_sin_token",
+      "probabilidades_usadas": {
+        "1": 35.0,
+        "X": 33.9,
+        "2": 31.1
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Panamá",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Croacia",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=35.0%, X=33.9%, 2=31.1%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Panamá. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.27,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 33.72,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 69,
+      "partido": "Colombia - Congo DR",
+      "pronostico": "X",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-0",
+      "resultado_final": "1-0",
+      "signo_real": "1",
+      "signos_cubiertos": "X",
+      "signo_omitido": "1",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "issue_memoria_sin_token",
+      "probabilidades_usadas": {
+        "1": 32.5,
+        "X": 36.9,
+        "2": 30.6
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Colombia",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Congo DR",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=32.5%, X=36.9%, 2=30.6%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (X) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto. Decision final: X.",
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.27,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 34.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 69,
       "partido": "IFK Mariehamn - HJK Helsinki",
       "pronostico": "X",
       "tipo_pronostico": "FIJO",
@@ -8064,19 +8209,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 144,
+    "partidos_base": 146,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 38.19,
-      "no_cubrio_empate_sobre_fallos_pct": 29.09,
-      "no_cubrio_empate_sobre_total_pct": 11.11,
-      "fijo_fallado_sobre_fallos_pct": 56.36,
-      "fijo_fallado_sobre_total_pct": 21.53,
-      "doble_insuficiente_sobre_total_pct": 5.56
+      "fallos_total_pct": 39.04,
+      "no_cubrio_empate_sobre_fallos_pct": 28.07,
+      "no_cubrio_empate_sobre_total_pct": 10.96,
+      "fijo_fallado_sobre_fallos_pct": 57.89,
+      "fijo_fallado_sobre_total_pct": 22.6,
+      "doble_insuficiente_sobre_total_pct": 5.48
     },
-    "boost_empate_zona_riesgo": 4.98,
-    "riesgo_extra_fijo_fragil": 11.9,
-    "riesgo_extra_triple_insuficiente": 1.4,
+    "boost_empate_zona_riesgo": 4.74,
+    "riesgo_extra_fijo_fragil": 13.06,
+    "riesgo_extra_triple_insuficiente": 1.33,
     "min_dobles_auto": 3,
     "min_triples_auto": 0,
     "umbral_fijo_seguro": 58,
