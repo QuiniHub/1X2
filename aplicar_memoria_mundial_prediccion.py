@@ -277,7 +277,7 @@ def aplicar_mundial_a_partido(partido, equipos, clasificaciones=None):
         f"muestra minima {muestra_minima} partido(s)",
         f"margen {partido['margen_probabilidad']} puntos",
     ] + lecturas_clasificacion[:3]
-    partido["origen_probabilidades"] = "mundial_2026_resultados_clasificacion_y_modelo_base"
+    partido["origen_probabilidades"] = "mundial_2026_resultados_y_modelo_base"
     partido["calidad_datos"] = calidad
     partido.setdefault("trazabilidad_datos", {})["origen_probabilidades"] = partido["origen_probabilidades"]
     partido["trazabilidad_datos"]["calidad_datos"] = calidad
@@ -317,7 +317,7 @@ def aplicar_a_prediccion(data, memoria, clasificaciones=None):
     for partido in data.get("partidos", []):
         antes = partido.get("origen_probabilidades")
         nuevo = aplicar_mundial_a_partido(dict(partido), equipos, clasificaciones=clasificaciones)
-        if nuevo.get("origen_probabilidades") == "mundial_2026_resultados_clasificacion_y_modelo_base" and antes != nuevo.get("origen_probabilidades"):
+        if nuevo.get("origen_probabilidades") == "mundial_2026_resultados_y_modelo_base" and antes != nuevo.get("origen_probabilidades"):
             aplicados += 1
         if nuevo.get("ajuste_clasificacion_mundial_2026", {}).get("activo"):
             clasificacion_aplicada += 1
