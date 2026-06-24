@@ -58,6 +58,7 @@ SCRIPTS_ACTIVOS = [
     "construir_fuente_verdad_competitiva.py",
 
     # --- Competiciones internacionales y datos profesionales ---
+    "actualizar_mundial_2026.py",
     "generar_memoria_mundial_2026.py",
     "actualizar_datos_profesionales.py",
     "auditar_fuentes_profesionales.py",
