@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-25T09:18:10.408259+00:00",
+  "generado_en": "2026-06-25T09:33:05.625842+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "muestra_baja",
   "global": {
-    "partidos": 54,
-    "precision_top": 37.04,
-    "brier_medio": 0.6551,
-    "logloss_medio": 1.0783,
+    "partidos": 56,
+    "precision_top": 37.5,
+    "brier_medio": 0.6521,
+    "logloss_medio": 1.0734,
     "muestra": "baja"
   },
   "por_bucket_top": {
@@ -19,10 +19,10 @@
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 5,
-      "prob_top_media": 48.02,
-      "precision_real": 80.0,
-      "desviacion_calibracion": 31.98,
+      "total": 7,
+      "prob_top_media": 48.34,
+      "precision_real": 71.43,
+      "desviacion_calibracion": 23.09,
       "muestra_suficiente": false
     },
     "50-60": {
@@ -35,10 +35,10 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 54,
-      "precision_top": 37.04,
-      "brier_medio": 0.6551,
-      "logloss_medio": 1.0783,
+      "partidos": 56,
+      "precision_top": 37.5,
+      "brier_medio": 0.6521,
+      "logloss_medio": 1.0734,
       "muestra": "baja",
       "muestra_suficiente": false
     }
@@ -837,6 +837,36 @@
       "bucket_top": "30-40",
       "brier": 0.64365,
       "logloss": 1.0642108619507773,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 69,
+      "num": 12,
+      "partido": "Curazao - Costa Marfil",
+      "fuente": "data/backtesting/pre_cierre/jornada_69.json",
+      "real": "X",
+      "top": "2",
+      "acierto_top": false,
+      "prob_top": 48.7,
+      "prob_real": 30.7,
+      "bucket_top": "40-50",
+      "brier": 0.7598540000000001,
+      "logloss": 1.18090753139494,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 69,
+      "num": 13,
+      "partido": "Ecuador - Alemania",
+      "fuente": "data/backtesting/pre_cierre/jornada_69.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 49.55,
+      "prob_real": 49.55,
+      "bucket_top": "40-50",
+      "brier": 0.3870674779765688,
+      "logloss": 0.702178852590293,
       "competicion": "desconocida"
     },
     {
