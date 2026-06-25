@@ -3,7 +3,6 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 PREDICCIONES = DATA / "predicciones"
@@ -13,11 +12,9 @@ PRECIO_ELIGE8 = 0.50
 UMBRAL_PARTIDOS_SEGUROS = 8
 SIGNOS = ("1", "X", "2")
 
-
 REGLA_ELIGE8 = (
     "Elige 8 se selecciona por probabilidad real de acertar el signo jugado: "
-    "TRIPLE=100%, DOBLE=suma de sus dos signos jugados, FIJO=probabilidad de su unico signo. "
-    "El tipo no da prioridad salvo que el triple siempre vale 100%."
+    "TRIPLE=100%, DOBLE=suma de sus dos signos jugados, FIJO=probabilidad de su unico signo."
 )
 
 
@@ -28,6 +25,7 @@ def ahora():
 def cargar_json(path, defecto=None):
     if defecto is None:
         defecto = {}
+    path = Path(path)
     if not path.exists():
         return defecto
     try:
@@ -38,7 +36,7 @@ def cargar_json(path, defecto=None):
 
 def guardar_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def numero_jornada(valor):
@@ -46,6 +44,33 @@ def numero_jornada(valor):
         return valor
     m = re.search(r"\d+", str(valor or ""))
     return int(m.group(0)) if m else None
+
+
+def detectar_jornada_activa():
+    ultima = cargar_json(PREDICCIONES / "ultima_prediccion.json", {})
+    jornada = numero_jornada(ultima.get("jornada"))
+    if jornada and (PREDICCIONES / f"jornada_{jornada}.json").exists():
+        return jornada
+    jornadas = []
+    for path in PREDICCIONES.glob("jornada_*.json"):
+        n = numero_jornada(path.stem)
+        if n:
+            jornadas.append(n)
+    return max(jornadas) if jornadas else None
+
+
+def rutas_prediccion_actual():
+    jornada = detectar_jornada_activa()
+    rutas = []
+    jornada_path = PREDICCIONES / f"jornada_{jornada}.json" if jornada else None
+    ultima = PREDICCIONES / "ultima_prediccion.json"
+    if jornada_path and jornada_path.exists():
+        rutas.append(jornada_path)
+    if ultima.exists():
+        data = cargar_json(ultima, {})
+        if not jornada or numero_jornada(data.get("jornada")) == jornada:
+            rutas.append(ultima)
+    return list(dict.fromkeys(rutas))
 
 
 def ffloat(valor, defecto=0.0):
@@ -58,68 +83,6 @@ def ffloat(valor, defecto=0.0):
 def signo_limpio(valor):
     texto = str(valor or "").upper()
     return "".join(signo for signo in SIGNOS if signo in texto)
-
-
-def prediccion_bloqueada(prediccion):
-    if prediccion.get("prediccion_disponible") is False:
-        return True
-    estado = str(prediccion.get("estado") or "").lower()
-    return "bloqueada" in estado or "aprendiendo" in estado or "pendiente_cierre" in estado
-
-
-def limpiar_elige8_bloqueado(prediccion):
-    """Si no puede haber prediccion real, no debe haber signos ni Elige 8 activo.
-
-    Los 14 partidos se conservan visibles. El Pleno al 15 se conserva aparte.
-    """
-    for partido in prediccion.get("partidos", []) or []:
-        partido["estado_prediccion"] = "bloqueada_por_aprendizaje_pendiente"
-        partido["signo_base"] = ""
-        partido["signo_final"] = ""
-        partido["pronostico_ia"] = "SIN PREDICCION"
-        partido["elige8"] = False
-        partido["elige8_modo"] = "bloqueado"
-        partido.pop("elige8_criterio", None)
-        partido.pop("elige8_seguro_score", None)
-        partido.pop("elige8_seguro_posicion", None)
-        partido.pop("elige8_seguro_cumple_umbral", None)
-        partido.pop("elige8_seguro_probabilidad_top", None)
-        partido.pop("elige8_seguro_margen", None)
-        partido.pop("elige8_probabilidad_acierto", None)
-        partido.pop("elige8_probabilidad_cubierta", None)
-        partido["lectura"] = "Partido cargado oficialmente. Prediccion retenida hasta cerrar y aprender la jornada anterior."
-
-    prediccion.pop("elige8_seguro", None)
-    prediccion["prediccion_disponible"] = False
-    prediccion["aprendizaje_pendiente"] = True
-    prediccion["prediccion_permitida"] = False
-    estado_actual = str(prediccion.get("estado") or "").lower()
-    prediccion["estado"] = estado_actual if estado_actual in {"bloqueada", "aprendiendo"} else "bloqueada"
-    prediccion["publicar_solo_boleto"] = True
-    prediccion["publicar_prediccion"] = False
-    config = prediccion.setdefault("configuracion", {})
-    config["elige8"] = False
-    config["elige8_modo"] = "bloqueado"
-    config["elige8_modos_disponibles"] = ["conservador", "rentable"]
-    config["elige8_recomendado"] = False
-    prediccion["coste"] = {
-        "apuestas": 0,
-        "apuestas_elige8": 0,
-        "importe_quiniela": 0,
-        "importe_elige8": 0,
-        "importe_total": 0.0,
-    }
-    resumen = prediccion.setdefault("resumen", {})
-    resumen["fijos"] = 0
-    resumen["dobles"] = 0
-    resumen["triples"] = 0
-    resumen["elige8_seleccionados"] = 0
-    resumen["partidos_cargados"] = len(prediccion.get("partidos", []) or [])
-    resumen["pleno15_cargado"] = bool(prediccion.get("pleno15"))
-    resumen["total_casillas"] = len(prediccion.get("partidos", []) or []) + (1 if prediccion.get("pleno15") else 0)
-    resumen["prediccion"] = "BLOQUEADA_POR_APRENDIZAJE_PENDIENTE"
-    prediccion["mensaje"] = "Partidos de la jornada cargados. Prediccion bloqueada hasta cerrar y aprender la jornada anterior."
-    return True
 
 
 def probabilidades(partido):
@@ -190,7 +153,7 @@ def multiplicador(signos):
 
 def recalcular_coste(prediccion, partidos):
     signos_totales = [p.get("signo_final") or p.get("signo_base") or "1" for p in partidos]
-    signos_elige8 = [p.get("signo_final") or p.get("signo_base") or "1" for p in partidos if p.get("elige8")]
+    signos_elige8 = [p.get("signo_final") or p.get("signo_base") or "1" for p in partidos if p.get("en_elige8") or p.get("elige8")]
     apuestas = multiplicador(signos_totales)
     apuestas_elige8 = multiplicador(signos_elige8) if signos_elige8 else 0
     prediccion["coste"] = {
@@ -202,59 +165,57 @@ def recalcular_coste(prediccion, partidos):
     }
 
 
+def prediccion_bloqueada(prediccion):
+    if prediccion.get("prediccion_disponible") is False:
+        return True
+    estado = str(prediccion.get("estado") or "").lower()
+    return "bloqueada" in estado or "aprendiendo" in estado or "pendiente_cierre" in estado
+
+
+def limpiar_elige8_bloqueado(prediccion):
+    for partido in prediccion.get("partidos", []) or []:
+        partido["elige8"] = False
+        partido["en_elige8"] = False
+        partido["elige8_modo"] = "bloqueado"
+        partido["probabilidad_acierto_elige8"] = 0.0
+        partido["elige8_probabilidad_acierto"] = 0.0
+        partido["elige8_probabilidad_cubierta"] = 0.0
+        partido.pop("elige8_criterio", None)
+        partido.pop("elige8_seguro_score", None)
+        partido.pop("elige8_seguro_posicion", None)
+        partido.pop("elige8_seguro_cumple_umbral", None)
+    prediccion.pop("elige8_seguro", None)
+    config = prediccion.setdefault("configuracion", {})
+    config["elige8"] = False
+    config["elige8_recomendado"] = False
+    resumen = prediccion.setdefault("resumen", {})
+    resumen["elige8_seleccionados"] = 0
+    return True
+
+
 def evaluar_seguridad_elige8(partido):
     probs = probabilidades(partido)
     signos = signos_jugados(partido)
     tipo = tipo_cobertura(signos)
-    top = signo_top(probs)
-    top_prob = prob_top(probs)
-    margen = margen_top(probs)
-    tercera = tercera_probabilidad(probs)
     prob_acierto = probabilidad_acierto_elige8(partido)
-    incertidumbre = ffloat(partido.get("incertidumbre"), 0.0)
-    sorpresa = ffloat(partido.get("probabilidad_sorpresa"), 0.0)
-    indice = ffloat(partido.get("indice_sorpresa_quinielistica"), 0.0)
-    calidad = str(partido.get("calidad_datos") or "").lower()
-    cobertura_sugerida = str(partido.get("cobertura_sorpresa_sugerida") or "FIJO").upper()
-    favorito_atacable = bool(partido.get("favorito_atacable"))
-    riesgo_necesidad = bool(partido.get("riesgo_necesidad_real") or partido.get("riesgo_necesidad"))
-
-    motivos = []
-    if tipo == "TRIPLE":
-        motivos.append("triple: probabilidad real de acierto 100%")
-    elif tipo == "DOBLE":
-        motivos.append(f"doble {signos}: probabilidad real por suma de signos jugados {prob_acierto:.1f}%")
-    elif tipo == "FIJO":
-        motivos.append(f"fijo {signos}: probabilidad real del signo jugado {prob_acierto:.1f}%")
-    if favorito_atacable:
-        motivos.append("favorito atacable: se informa como riesgo, pero no altera la prioridad principal")
-    if cobertura_sugerida != "FIJO":
-        motivos.append(f"cobertura sugerida {cobertura_sugerida}: la prioridad sigue siendo probabilidad real de acierto")
-    if riesgo_necesidad:
-        motivos.append("necesidad competitiva viva")
-
     return {
         "num": int(partido.get("num", 0) or 0),
         "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
         "signo_final": signos,
         "tipo_cobertura": tipo,
-        "signo_mas_probable": top,
-        "probabilidad_top": round(top_prob, 2),
+        "signo_mas_probable": signo_top(probs),
+        "probabilidad_top": round(prob_top(probs), 2),
         "probabilidad_acierto": round(prob_acierto, 3),
         "probabilidad_cubierta": round(prob_acierto, 3),
-        "margen": round(margen, 2),
-        "tercera_probabilidad": round(tercera, 2),
-        "incertidumbre": round(incertidumbre, 2),
-        "probabilidad_sorpresa": round(sorpresa, 2),
-        "indice_sorpresa_quinielistica": round(indice, 2),
-        "calidad_datos": calidad or "sin_dato",
-        "favorito_atacable": favorito_atacable,
-        "cobertura_sorpresa_sugerida": cobertura_sugerida,
+        "margen": round(margen_top(probs), 2),
+        "tercera_probabilidad": round(tercera_probabilidad(probs), 2),
+        "incertidumbre": round(ffloat(partido.get("incertidumbre"), 0.0), 2),
+        "probabilidad_sorpresa": round(ffloat(partido.get("probabilidad_sorpresa"), 0.0), 2),
+        "indice_sorpresa_quinielistica": round(ffloat(partido.get("indice_sorpresa_quinielistica"), 0.0), 2),
+        "calidad_datos": str(partido.get("calidad_datos") or "sin_dato").lower(),
         "score_seguridad": round(prob_acierto, 3),
         "confianza_real": round(prob_acierto, 3),
         "cumple_umbral_seguro": True,
-        "motivos": motivos[:8],
-        "bloqueos": [],
     }
 
 
@@ -272,44 +233,25 @@ def clave_ranking_elige8(item):
 def metricas_historicas_modos():
     memoria = cargar_json(MEMORIA / "aprendizaje_elige8.json", {})
     resumen = memoria.get("resumen") or {}
-    precision = resumen.get("precision_elige8")
-    base = {
+    return {
         "selecciones_evaluadas": resumen.get("selecciones_elige8", 0),
         "aciertos": resumen.get("aciertos_elige8", 0),
-        "precision": precision,
+        "precision": resumen.get("precision_elige8"),
         "fuente": "data/memoria_ia/aprendizaje_elige8.json",
     }
-    return {
-        "conservador": dict(base, criterio="probabilidad_real_de_acierto"),
-        "rentable": dict(base, criterio="probabilidad_real_de_acierto"),
-    }
 
 
-def construir_modos_elige8(ranking):
-    seleccionados = {item["num"] for item in ranking[:UMBRAL_PARTIDOS_SEGUROS]}
-    ranking_con_flags = [
-        dict(item, posicion=idx, seleccionado=item["num"] in seleccionados)
-        for idx, item in enumerate(ranking, start=1)
-    ]
+def construir_resumen(ranking, seleccionados_nums):
+    ranking_con_flags = [dict(item, posicion=idx, seleccionado=item["num"] in seleccionados_nums) for idx, item in enumerate(ranking, start=1)]
     return {
-        "version": "2.1",
+        "version": "2.2",
         "generado_en": ahora(),
-        "modo_activo": "conservador",
+        "modo": "conservador",
+        "modo_real": "probabilidad_real_de_acierto",
         "regla_activa": REGLA_ELIGE8,
-        "modos": {
-            "conservador": {
-                "objetivo": "elegir los 8 partidos con mayor probabilidad real de acierto del signo jugado",
-                "criterio_real": "TRIPLE=100%, DOBLE=suma de signos jugados, FIJO=probabilidad del signo jugado",
-                "seleccionados": sorted(seleccionados),
-                "ranking": ranking_con_flags,
-            },
-            "rentable": {
-                "objetivo": "mantener compatibilidad del modo rentable usando el mismo ranking matematico corregido",
-                "criterio_real": "probabilidad real de acierto; el tipo de apuesta no prioriza salvo TRIPLE=100%",
-                "seleccionados": sorted(seleccionados),
-                "ranking": ranking_con_flags,
-            },
-        },
+        "recomendado": len(seleccionados_nums) == UMBRAL_PARTIDOS_SEGUROS,
+        "seleccionados": sorted(seleccionados_nums),
+        "ranking": ranking_con_flags,
         "rendimiento": metricas_historicas_modos(),
     }
 
@@ -319,78 +261,63 @@ def aplicar_elige8_seguro(prediccion):
         return limpiar_elige8_bloqueado(prediccion)
 
     partidos = [p for p in prediccion.get("partidos", []) if int(p.get("num", 0) or 0) <= 14]
-    if len(partidos) < 8:
+    if len(partidos) < UMBRAL_PARTIDOS_SEGUROS:
         return False
 
     ranking = sorted([evaluar_seguridad_elige8(p) for p in partidos], key=clave_ranking_elige8)
-    seleccionados = ranking[:UMBRAL_PARTIDOS_SEGUROS]
-    seleccionados_nums = {item["num"] for item in seleccionados}
+    seleccionados_nums = {item["num"] for item in ranking[:UMBRAL_PARTIDOS_SEGUROS]}
     posicion_por_num = {item["num"]: idx for idx, item in enumerate(ranking, start=1)}
     evaluacion_por_num = {item["num"]: item for item in ranking}
-    recomendado = len(seleccionados) == UMBRAL_PARTIDOS_SEGUROS
 
     for partido in partidos:
         num = int(partido.get("num", 0) or 0)
         evaluacion = evaluacion_por_num.get(num, {})
         elegido = num in seleccionados_nums
+        prob_acierto = evaluacion.get("probabilidad_acierto", 0.0)
         partido["elige8"] = elegido
+        partido["en_elige8"] = elegido
         partido["elige8_modo"] = "conservador"
         partido["elige8_modo_real"] = "probabilidad_real"
+        partido["probabilidad_acierto_elige8"] = prob_acierto
+        partido["elige8_probabilidad_acierto"] = prob_acierto
+        partido["elige8_probabilidad_cubierta"] = evaluacion.get("probabilidad_cubierta", 0.0)
         partido["elige8_seguro_score"] = evaluacion.get("score_seguridad")
         partido["elige8_confianza_real"] = evaluacion.get("confianza_real")
-        partido["elige8_probabilidad_acierto"] = evaluacion.get("probabilidad_acierto")
-        partido["elige8_probabilidad_cubierta"] = evaluacion.get("probabilidad_cubierta")
         partido["elige8_tipo_cobertura"] = evaluacion.get("tipo_cobertura")
         partido["elige8_seguro_posicion"] = posicion_por_num.get(num)
         partido["elige8_seguro_cumple_umbral"] = True
         partido["elige8_seguro_probabilidad_top"] = evaluacion.get("probabilidad_top")
         partido["elige8_seguro_margen"] = evaluacion.get("margen")
         if elegido:
-            partido["elige8_criterio"] = (
-                "Entra en Elige 8 por ranking de probabilidad real de acierto: "
-                "TRIPLE=100%, DOBLE=suma de signos jugados, FIJO=probabilidad del signo jugado."
-            )
+            partido["elige8_criterio"] = "Entra en Elige 8 por ranking de probabilidad real de acierto."
         else:
             partido.pop("elige8_criterio", None)
 
-    prediccion["elige8_seguro"] = {
-        "version": "2.1",
+    resumen = construir_resumen(ranking, seleccionados_nums)
+    prediccion["elige8_seguro"] = resumen
+    prediccion["elige8_modos"] = {
+        "version": "2.2",
         "generado_en": ahora(),
-        "modo": "conservador",
-        "modo_real": "probabilidad_real_de_acierto",
+        "modo_activo": "conservador",
         "regla_activa": REGLA_ELIGE8,
-        "recomendado": recomendado,
-        "lectura": "Elige 8 seleccionado por probabilidad real de acierto del signo jugado; nombre publico conservador por compatibilidad.",
-        "seleccionados": sorted(seleccionados_nums),
-        "ranking": [dict(item, posicion=idx, seleccionado=item["num"] in seleccionados_nums) for idx, item in enumerate(ranking, start=1)],
+        "modos": {
+            "conservador": {"seleccionados": sorted(seleccionados_nums), "ranking": resumen["ranking"]},
+            "rentable": {"seleccionados": sorted(seleccionados_nums), "ranking": resumen["ranking"]},
+        },
+        "rendimiento": resumen["rendimiento"],
     }
-    prediccion["elige8_modos"] = construir_modos_elige8(ranking)
     config = prediccion.setdefault("configuracion", {})
     config["elige8"] = True
     config["elige8_modo"] = "conservador"
     config["elige8_modo_real"] = "probabilidad_real"
     config["elige8_modos_disponibles"] = ["conservador", "rentable"]
-    config["elige8_recomendado"] = recomendado
-    resumen = prediccion.setdefault("resumen", {})
-    resumen["elige8_seleccionados"] = UMBRAL_PARTIDOS_SEGUROS
-    resumen["elige8_seguro_recomendado"] = recomendado
-    resumen["elige8_regla"] = "probabilidad_real_de_acierto"
+    config["elige8_recomendado"] = True
+    resumen_pred = prediccion.setdefault("resumen", {})
+    resumen_pred["elige8_seleccionados"] = UMBRAL_PARTIDOS_SEGUROS
+    resumen_pred["elige8_seguro_recomendado"] = True
+    resumen_pred["elige8_regla"] = "probabilidad_real_de_acierto"
     recalcular_coste(prediccion, partidos)
     return True
-
-
-def rutas_prediccion_actual():
-    rutas = []
-    ultima = PREDICCIONES / "ultima_prediccion.json"
-    if ultima.exists():
-        rutas.append(ultima)
-        data = cargar_json(ultima, {})
-        jornada = numero_jornada(data.get("jornada"))
-        if jornada:
-            jornada_path = PREDICCIONES / f"jornada_{jornada}.json"
-            if jornada_path.exists() and jornada_path not in rutas:
-                rutas.append(jornada_path)
-    return rutas
 
 
 def main():
@@ -401,7 +328,9 @@ def main():
         if aplicar_elige8_seguro(prediccion):
             guardar_json(path, prediccion)
             actualizadas.append(str(path.relative_to(ROOT)))
-            if path.name == "ultima_prediccion.json":
+            if path.name.startswith("jornada_"):
+                resumen_actual = prediccion.get("elige8_seguro", resumen_actual)
+            elif not resumen_actual:
                 resumen_actual = prediccion.get("elige8_seguro", {})
 
     if resumen_actual:
