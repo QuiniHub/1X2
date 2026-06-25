@@ -100,7 +100,7 @@ def limpiar_elige8_bloqueado(prediccion):
     config = prediccion.setdefault("configuracion", {})
     config["elige8"] = False
     config["elige8_modo"] = "bloqueado"
-    config["elige8_modos_disponibles"] = ["probabilidad_real"]
+    config["elige8_modos_disponibles"] = ["conservador", "rentable"]
     config["elige8_recomendado"] = False
     prediccion["coste"] = {
         "apuestas": 0,
@@ -273,32 +273,42 @@ def metricas_historicas_modos():
     memoria = cargar_json(MEMORIA / "aprendizaje_elige8.json", {})
     resumen = memoria.get("resumen") or {}
     precision = resumen.get("precision_elige8")
+    base = {
+        "selecciones_evaluadas": resumen.get("selecciones_elige8", 0),
+        "aciertos": resumen.get("aciertos_elige8", 0),
+        "precision": precision,
+        "fuente": "data/memoria_ia/aprendizaje_elige8.json",
+    }
     return {
-        "probabilidad_real": {
-            "selecciones_evaluadas": resumen.get("selecciones_elige8", 0),
-            "aciertos": resumen.get("aciertos_elige8", 0),
-            "precision": precision,
-            "fuente": "data/memoria_ia/aprendizaje_elige8.json",
-        }
+        "conservador": dict(base, criterio="probabilidad_real_de_acierto"),
+        "rentable": dict(base, criterio="probabilidad_real_de_acierto"),
     }
 
 
 def construir_modos_elige8(ranking):
     seleccionados = {item["num"] for item in ranking[:UMBRAL_PARTIDOS_SEGUROS]}
+    ranking_con_flags = [
+        dict(item, posicion=idx, seleccionado=item["num"] in seleccionados)
+        for idx, item in enumerate(ranking, start=1)
+    ]
     return {
-        "version": "2.0",
+        "version": "2.1",
         "generado_en": ahora(),
-        "modo_activo": "probabilidad_real",
+        "modo_activo": "conservador",
         "regla_activa": REGLA_ELIGE8,
         "modos": {
-            "probabilidad_real": {
+            "conservador": {
                 "objetivo": "elegir los 8 partidos con mayor probabilidad real de acierto del signo jugado",
+                "criterio_real": "TRIPLE=100%, DOBLE=suma de signos jugados, FIJO=probabilidad del signo jugado",
                 "seleccionados": sorted(seleccionados),
-                "ranking": [
-                    dict(item, posicion=idx, seleccionado=item["num"] in seleccionados)
-                    for idx, item in enumerate(ranking, start=1)
-                ],
-            }
+                "ranking": ranking_con_flags,
+            },
+            "rentable": {
+                "objetivo": "mantener compatibilidad del modo rentable usando el mismo ranking matematico corregido",
+                "criterio_real": "probabilidad real de acierto; el tipo de apuesta no prioriza salvo TRIPLE=100%",
+                "seleccionados": sorted(seleccionados),
+                "ranking": ranking_con_flags,
+            },
         },
         "rendimiento": metricas_historicas_modos(),
     }
@@ -324,7 +334,8 @@ def aplicar_elige8_seguro(prediccion):
         evaluacion = evaluacion_por_num.get(num, {})
         elegido = num in seleccionados_nums
         partido["elige8"] = elegido
-        partido["elige8_modo"] = "probabilidad_real"
+        partido["elige8_modo"] = "conservador"
+        partido["elige8_modo_real"] = "probabilidad_real"
         partido["elige8_seguro_score"] = evaluacion.get("score_seguridad")
         partido["elige8_confianza_real"] = evaluacion.get("confianza_real")
         partido["elige8_probabilidad_acierto"] = evaluacion.get("probabilidad_acierto")
@@ -343,20 +354,22 @@ def aplicar_elige8_seguro(prediccion):
             partido.pop("elige8_criterio", None)
 
     prediccion["elige8_seguro"] = {
-        "version": "2.0",
+        "version": "2.1",
         "generado_en": ahora(),
-        "modo": "elige8_por_probabilidad_real_de_acierto",
+        "modo": "conservador",
+        "modo_real": "probabilidad_real_de_acierto",
         "regla_activa": REGLA_ELIGE8,
         "recomendado": recomendado,
-        "lectura": "Elige 8 seleccionado por probabilidad real de acierto del signo jugado.",
+        "lectura": "Elige 8 seleccionado por probabilidad real de acierto del signo jugado; nombre publico conservador por compatibilidad.",
         "seleccionados": sorted(seleccionados_nums),
         "ranking": [dict(item, posicion=idx, seleccionado=item["num"] in seleccionados_nums) for idx, item in enumerate(ranking, start=1)],
     }
     prediccion["elige8_modos"] = construir_modos_elige8(ranking)
     config = prediccion.setdefault("configuracion", {})
     config["elige8"] = True
-    config["elige8_modo"] = "probabilidad_real"
-    config["elige8_modos_disponibles"] = ["probabilidad_real"]
+    config["elige8_modo"] = "conservador"
+    config["elige8_modo_real"] = "probabilidad_real"
+    config["elige8_modos_disponibles"] = ["conservador", "rentable"]
     config["elige8_recomendado"] = recomendado
     resumen = prediccion.setdefault("resumen", {})
     resumen["elige8_seleccionados"] = UMBRAL_PARTIDOS_SEGUROS
