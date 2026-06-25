@@ -437,12 +437,15 @@
   </main>
 
   <script>
-    const state = { prediccion: null, aprendizaje: null, mundial: null, historial: null, generated: false, dobles: 0, triples: 0, elige8: true };
+    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, historial: null, metricas: null, generated: false, dobles: 0, triples: 0, elige8: true };
     const qs = (s, root = document) => root.querySelector(s);
     const qsa = (s, root = document) => [...root.querySelectorAll(s)];
     const fmt = (v, fallback = '-') => (v === null || v === undefined || v === '' ? fallback : v);
     const pct = v => Number.isFinite(Number(v)) ? `${Number(v).toFixed(Number(v) % 1 ? 1 : 0)}%` : '-';
     const eur = v => Number.isFinite(Number(v)) ? `${Number(v).toFixed(2)} €` : '-';
+    const arr = v => Array.isArray(v) ? v : [];
+    const escapeHtml = v => String(fmt(v, '')).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const firstNumber = (...values) => values.map(Number).find(Number.isFinite);
 
     async function getJson(path, fallback = {}) {
       try {
@@ -453,7 +456,7 @@
     }
 
     function metric(label, value) {
-      return `<article class="metric"><span>${label}</span><strong>${fmt(value)}</strong></article>`;
+      return `<article class="metric"><span>${escapeHtml(label)}</span><strong>${escapeHtml(fmt(value))}</strong></article>`;
     }
 
     function normalizeSignText(text) {
@@ -461,7 +464,7 @@
     }
 
     function selectedSigns(match) {
-      return normalizeSignText(match.signo_final || match.signo_base || match.pronostico_ia || '');
+      return normalizeSignText(match.signo_final || match.signo_base || match.pronostico_ia || match.pronostico_jugado || match.signo || match.prediccion || '');
     }
 
     function betType(match) {
@@ -471,14 +474,26 @@
       return len >= 3 ? 'triple' : len === 2 ? 'doble' : 'fijo';
     }
 
+    function predictionMatches() {
+      const p = state.prediccion || {};
+      const matches = arr(p.partidos || p.predicciones || p.partidos_quiniela || p.boleto);
+      return matches
+        .filter(m => Number(m.num ?? m.numero ?? m.partido ?? 0) > 0 && Number(m.num ?? m.numero ?? m.partido ?? 0) <= 14)
+        .sort((a, b) => Number(a.num ?? a.numero ?? a.partido ?? 0) - Number(b.num ?? b.numero ?? b.partido ?? 0))
+        .slice(0, 14);
+    }
+
     function renderPredictionMetrics() {
       const p = state.prediccion || {};
       const resumen = p.resumen || {};
       const coste = p.coste || {};
-      const precision = p.calibracion_probabilidades?.brier_medio ? 'calibrada' : (p.backtesting?.precision || p.precision_reciente || '-');
+      const m = state.metricas || {};
+      const precision = firstNumber(m.precision_reciente, m.precision, m.resumen?.precision, p.precision_reciente, p.backtesting?.precision);
+      const jornadasPorClave = Object.keys(m.por_jornada || {}).length || undefined;
+      const jornadasIA = firstNumber(m.jornadas_con_ia, m.jornadas_evaluadas, m.total_jornadas, jornadasPorClave, resumen.jornadas_con_ia, p.jornadas_con_ia);
       qs('#predictionMetrics').innerHTML = [
-        metric('Precisión reciente', typeof precision === 'number' ? pct(precision) : precision),
-        metric('Jornadas con IA', resumen.jornadas_con_ia || p.jornadas_con_ia || resumen.partidos_cargados || '-'),
+        metric('Precisión reciente', precision === undefined ? '-' : pct(precision)),
+        metric('Jornadas con IA', jornadasIA ?? '-'),
         metric('Coste boleto', eur(coste.importe_total ?? coste.importe_quiniela)),
         metric('Apuestas', coste.apuestas || '-')
       ].join('');
@@ -491,60 +506,95 @@
       qs('#elige8Toggle').checked = state.elige8;
     }
 
+    function probabilityText(match) {
+      const probs = match.probabilidades || match.probabilidad_signos || {};
+      if (!Object.keys(probs).length) return '';
+      return `<span>1 ${pct(probs['1'])} · X ${pct(probs.X)} · 2 ${pct(probs['2'])}</span>`;
+    }
+
     function renderTicket() {
-      const matches = (state.prediccion?.partidos || []).filter(p => Number(p.num) <= 14).sort((a,b) => Number(a.num) - Number(b.num));
+      const matches = predictionMatches();
+      state.generated = false;
+      document.body.classList.remove('generated');
       const html = matches.map(match => {
+        const num = match.num ?? match.numero ?? match.partido;
         const chosen = selectedSigns(match);
-        const elige8 = match.en_elige8 || match.elige8;
-        return `<article class="match-row" data-num="${match.num}">
-          <div class="match-num">${match.num}</div>
+        const elige8 = match.en_elige8 || match.elige8 || match.es_elige8;
+        return `<article class="match-row" data-num="${escapeHtml(num)}">
+          <div class="match-num">${escapeHtml(num)}</div>
           <div class="teams">
-            <strong>${fmt(match.local)} <span style="color:var(--muted);font-weight:700">vs</span> ${fmt(match.visitante)}</strong>
-            <div class="line-meta"><span class="bet-type">${betType(match)}</span>${elige8 ? '<span class="elige8-label">Elige 8</span>' : ''}</div>
+            <strong>${escapeHtml(match.local || match.equipo_local)} <span style="color:var(--muted);font-weight:700">vs</span> ${escapeHtml(match.visitante || match.equipo_visitante)}</strong>
+            <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8 ? '<span class="elige8-label">Elige 8</span>' : ''}${probabilityText(match)}</div>
           </div>
-          <div class="signs" data-selected="${chosen}">
-            ${['1','X','2'].map(s => `<span class="sign ${chosen.includes(s) ? 'selected' : ''}">${s}</span>`).join('')}
+          <div class="signs" data-selected="${escapeHtml(chosen)}">
+            ${['1','X','2'].map(s => `<span class="sign" data-sign="${s}">${s}</span>`).join('')}
           </div>
         </article>`;
       }).join('');
       qs('#ticketList').innerHTML = html || '<div class="empty">No hay partidos cargados todavía.</div>';
-      document.body.classList.toggle('generated', state.generated);
+    }
+
+    function extractPleno15(data) {
+      const candidates = [
+        data?.partido15,
+        data?.pleno15,
+        data?.partido,
+        data?.jornada?.pleno15,
+        ...arr(data?.partidos).filter(p => Number(p.num ?? p.numero ?? 0) === 15),
+        ...arr(data?.candidatos_evaluados).filter(p => Number(p.num ?? p.numero ?? 0) === 15),
+        data?.recomendacion
+      ].filter(Boolean);
+      return candidates.find(p => Number(p.num ?? p.numero ?? 0) === 15) || null;
     }
 
     function renderPleno15() {
-      const pleno = state.prediccion?.pleno15 || state.prediccion?.partido15 || {};
+      const pleno = extractPleno15(state.pleno15Data) || extractPleno15(state.jornadaActual) || extractPleno15(state.prediccion) || {};
       const local = pleno.local || pleno.equipo_local || pleno.local_nombre || 'Equipo local';
       const visitante = pleno.visitante || pleno.equipo_visitante || pleno.visitante_nombre || 'Equipo visitante';
-      qs('#pleno15').innerHTML = [local, visitante].map(team => `<div class="pleno-row"><strong>${team}</strong>${['0','1','2','M'].map(s => `<span class="pleno-cell">${s}</span>`).join('')}</div>`).join('');
+      qs('#pleno15').innerHTML = [local, visitante].map(team => `<div class="pleno-row"><strong>${escapeHtml(team)}</strong>${['0','1','2','M'].map(s => `<span class="pleno-cell">${s}</span>`).join('')}</div>`).join('');
     }
 
     async function animateTicket() {
+      const rows = qsa('.match-row');
+      if (!rows.length) return;
       state.generated = true;
       document.body.classList.add('generated');
-      const rows = qsa('.match-row');
+      qsa('.sign').forEach(sign => sign.classList.remove('selected'));
       rows.forEach(row => row.classList.remove('reveal'));
       for (const row of rows) {
+        const chosen = row.querySelector('.signs')?.dataset.selected || '';
+        qsa('.sign', row).forEach(sign => sign.classList.toggle('selected', chosen.includes(sign.dataset.sign)));
         row.classList.add('reveal');
         await new Promise(r => setTimeout(r, 90));
       }
     }
 
-    function renderLearning() {
+    function latestLearningEntries() {
       const a = state.aprendizaje || {};
-      const resumen = a.resumen || a;
+      const entries = arr(a.entradas || a.partidos || a.diario || a.detalle || a.aprendizajes);
+      const jornadas = entries.map(e => Number(e.jornada)).filter(Number.isFinite);
+      const latest = jornadas.length ? Math.max(...jornadas) : null;
+      return { jornada: latest, entries: latest === null ? entries : entries.filter(e => Number(e.jornada) === latest) };
+    }
+
+    function renderLearning() {
+      const { jornada, entries } = latestLearningEntries();
+      const aciertos = entries.filter(it => it.acierto === true || it.categoria_fallo === 'acierto' || String(it.resultado_aprendizaje || '').toLowerCase() === 'acierto').length;
+      const fallos = entries.length ? entries.length - aciertos : 0;
       qs('#learningMetrics').innerHTML = [
-        metric('Aciertos última jornada', resumen.aciertos_ultima_jornada ?? resumen.ultima_jornada_aciertos ?? '-'),
-        metric('Aciertos penúltima', resumen.aciertos_penultima ?? resumen.penultima_jornada_aciertos ?? '-'),
-        metric('Correcciones usuario', resumen.correcciones_usuario ?? resumen.correcciones ?? 0),
-        metric('Sorpresas detectadas', resumen.sorpresas_detectadas ?? resumen.sorpresas ?? 0)
+        metric('Última jornada cerrada', jornada ?? '-'),
+        metric('Partidos revisados', entries.length || '-'),
+        metric('Aciertos', entries.length ? aciertos : '-'),
+        metric('Fallos', entries.length ? fallos : '-')
       ].join('');
-      const items = a.partidos || a.diario || a.detalle || a.aprendizajes || [];
-      qs('#learningDiary').innerHTML = items.length ? items.slice(0, 14).map((it, idx) => {
-        const ok = it.acierto === true || it.resultado_aprendizaje === 'acierto';
+      qs('#learningDiary').innerHTML = entries.length ? entries.slice(0, 14).map((it, idx) => {
+        const ok = it.acierto === true || it.categoria_fallo === 'acierto' || String(it.resultado_aprendizaje || '').toLowerCase() === 'acierto';
+        const razonamiento = it.explicacion || it.razonamiento || it.aprendizaje || it.lectura || it.que_aprende || it.ajuste_recomendado || 'Ajusta pesos y señales para futuras jornadas.';
         return `<article class="learning-item ${ok ? '' : 'fail'}">
-          <strong>${fmt(it.partido || `${it.local || 'Partido'} - ${it.visitante || idx + 1}`)}</strong>
-          <span>Predijo: <b>${fmt(it.predicho || it.prediccion || it.signo_predicho)}</b> · Pasó: <b>${fmt(it.real || it.resultado || it.signo_real)}</b></span>
-          <span class="result">${ok ? 'Acierto' : 'Fallo'} · ${fmt(it.aprendizaje || it.lectura || it.que_aprende, 'Ajusta pesos y señales para futuras jornadas.')}</span>
+          <strong>${escapeHtml(it.partido || `${it.local || 'Partido'} - ${it.visitante || idx + 1}`)}</strong>
+          <span>Predijo: <b>${escapeHtml(it.pronostico_jugado || it.predicho || it.prediccion || it.signo_predicho)}</b> · Pasó: <b>${escapeHtml(it.signo_real || it.real || it.resultado || it.signo_real)}</b> · Resultado: <b>${escapeHtml(it.resultado || '-')}</b></span>
+          <span class="result">${ok ? 'Acierto' : 'Fallo'} · ${escapeHtml(razonamiento)}</span>
+          ${it.ajuste_recomendado ? `<span>${escapeHtml(it.ajuste_recomendado)}</span>` : ''}
         </article>`;
       }).join('') : '<div class="empty">El diario se rellenará cuando se cierre y aprenda una jornada.</div>';
     }
@@ -557,29 +607,34 @@
       const played = Math.round(teams.reduce((sum, t) => sum + Number(t.pj || 0), 0) / 2);
       const classified = teams.filter(t => String(t.situacion_competitiva || t.situacion || '').includes('clasificada')).length;
       const eliminated = teams.filter(t => String(t.situacion_competitiva || t.situacion || '').includes('elimin')).length;
-      const surprises = teams.filter(t => Number(t.posicion || 99) <= 2 && Number(t.pts || 0) >= 4 && ['haiti','panama','jordania','tunez','turquia'].includes(t.equipo)).length;
+      const surprises = teams.filter(t => Number(t.posicion || 99) <= 2 && Number(t.pts || 0) >= 4 && ['haiti','panama','jordania','tunez','turquia'].includes(String(t.equipo || '').toLowerCase())).length;
       qs('#worldMetrics').innerHTML = [metric('Partidos jugados', played || '-'), metric('Clasificadas', classified), metric('Eliminadas', eliminated), metric('Sorpresas', surprises)].join('');
       qs('#worldGroups').innerHTML = groupValues.length ? groupValues.map(g => `<article class="group-card">
-        <div class="group-title"><h3>Grupo ${g.grupo || ''}</h3><span class="tag">${(g.clasificacion || []).length} equipos</span></div>
-        ${(g.clasificacion || []).map(t => {
+        <div class="group-title"><h3>Grupo ${escapeHtml(g.grupo || '')}</h3><span class="tag">${arr(g.clasificacion).length} equipos</span></div>
+        ${arr(g.clasificacion).map(t => {
           const sit = String(t.situacion_competitiva || t.situacion || 'pendiente');
           const klass = sit.includes('clasificada') ? 'ok' : sit.includes('elimin') ? 'bad' : 'blue';
-          return `<div class="stand-row"><div><strong>${fmt(t.equipo)}</strong><div class="situation">${fmt(t.pts, 0)} pts · DG ${fmt(t.dg, 0)} · ${sit.replaceAll('_',' ')}</div></div><span class="tag ${klass}">${fmt(t.posicion)}</span></div>`;
+          return `<div class="stand-row"><div><strong>${escapeHtml(t.equipo)}</strong><div class="situation">${escapeHtml(fmt(t.pts, 0))} pts · DG ${escapeHtml(fmt(t.dg, 0))} · ${escapeHtml(sit.replaceAll('_',' '))}</div></div><span class="tag ${klass}">${escapeHtml(fmt(t.posicion))}</span></div>`;
         }).join('')}
       </article>`).join('') : '<div class="empty">Clasificaciones Mundial 2026 pendientes de cargar.</div>';
     }
 
+    function rowPrize(row) {
+      return firstNumber(row.premio_eur, row.premio, row.premio_euros, row.cobrado, 0) || 0;
+    }
+
     function renderHistory() {
       const h = state.historial || {};
-      const rows = h.jornadas || h.historial || h.resultados || [];
-      const totalCobrado = rows.reduce((s, r) => s + Number(r.premio || r.premio_euros || r.cobrado || 0), 0);
-      const totalInvertido = rows.reduce((s, r) => s + Number(r.invertido || r.importe || r.coste || 0), 0);
+      const rows = arr(h.jornadas || h.historial || h.resultados).sort((a, b) => Number(a.jornada || 0) - Number(b.jornada || 0));
+      const totalCobrado = rows.reduce((s, r) => s + rowPrize(r), 0);
+      const totalInvertido = rows.reduce((s, r) => s + (firstNumber(r.invertido, r.importe, r.coste, 0) || 0), 0);
       const best = rows.reduce((max, r) => Math.max(max, Number(r.aciertos || 0)), 0);
-      qs('#historyMetrics').innerHTML = [metric('Jornadas jugadas', rows.length || '-'), metric('Mejor resultado', best ? `${best} aciertos` : '-'), metric('Premios conseguidos', rows.filter(r => Number(r.premio || r.premio_euros || r.cobrado || 0) > 0).length), metric('Total cobrado', eur(totalCobrado))].join('');
-      qs('#historyTable').innerHTML = rows.length ? `<table><thead><tr><th>Jornada</th><th>Fecha</th><th>Aciertos</th><th>Pleno</th><th>Estado</th><th>Premio €</th><th>Acumulado €</th></tr></thead><tbody>${rows.map((r, i) => {
-        const premio = Number(r.premio || r.premio_euros || r.cobrado || 0);
-        const acumulado = rows.slice(0, i + 1).reduce((s, x) => s + Number(x.premio || x.premio_euros || x.cobrado || 0), 0);
-        return `<tr class="${premio > 0 ? 'prize' : ''}"><td>${fmt(r.jornada)}</td><td>${fmt(r.fecha || r.generado_en)}</td><td>${fmt(r.aciertos)}</td><td>${fmt(r.pleno || r.pleno15 || '-')}</td><td>${fmt(r.estado || (premio > 0 ? 'premio' : 'sin premio'))}</td><td>${eur(premio)}</td><td>${eur(acumulado)}</td></tr>`;
+      qs('#historyMetrics').innerHTML = [metric('Jornadas jugadas', rows.length || '-'), metric('Mejor resultado', best ? `${best} aciertos` : '-'), metric('Premios conseguidos', rows.filter(r => rowPrize(r) > 0).length), metric('Total cobrado', eur(totalCobrado))].join('');
+      let acumulado = 0;
+      qs('#historyTable').innerHTML = rows.length ? `<table><thead><tr><th>Jornada</th><th>Aciertos</th><th>Premio cobrado</th><th>Acumulado total</th></tr></thead><tbody>${rows.map(r => {
+        const premio = rowPrize(r);
+        acumulado += premio;
+        return `<tr class="${premio > 0 ? 'prize' : ''}"><td>${escapeHtml(r.jornada)}</td><td>${escapeHtml(fmt(r.aciertos))}</td><td>${eur(premio)}</td><td>${eur(acumulado)}</td></tr>`;
       }).join('')}</tbody></table>` : '<div class="empty">El historial se cargará cuando existan jornadas jugadas y premios registrados.</div>';
       qs('#historyBalance').innerHTML = `<div><span>Total invertido</span><strong>${eur(totalInvertido)}</strong></div><div><span>Total cobrado</span><strong>${eur(totalCobrado)}</strong></div><div><span>Balance neto</span><strong>${eur(totalCobrado - totalInvertido)}</strong></div>`;
     }
@@ -592,7 +647,7 @@
       const teams = [
         ['Real Madrid'], ['Barcelona'], ['Atlético de Madrid'], ['Athletic Club'], ['Villarreal'], ['Betis'], ['Real Sociedad'], ['Valencia'], ['Sevilla'], ['Celta'], ['Osasuna'], ['Getafe'], ['Rayo Vallecano'], ['Mallorca'], ['Girona'], ['Espanyol'], ['Alavés'], ['Real Oviedo', 'Ascendido'], ['Levante', 'Ascendido'], ['Elche', 'Ascendido'], ['Leganés', 'Descendido'], ['Las Palmas', 'Descendido'], ['Valladolid', 'Descendido']
       ];
-      qs('#leagueTeams').innerHTML = teams.map(([name, tag]) => `<div class="team-pill ${tag === 'Ascendido' ? 'promoted' : tag === 'Descendido' ? 'relegated' : ''}"><strong>${name}</strong>${tag ? `<span class="tag ${tag === 'Ascendido' ? 'ok' : 'bad'}">${tag}</span>` : '<span class="tag">Primera</span>'}</div>`).join('');
+      qs('#leagueTeams').innerHTML = teams.map(([name, tag]) => `<div class="team-pill ${tag === 'Ascendido' ? 'promoted' : tag === 'Descendido' ? 'relegated' : ''}"><strong>${escapeHtml(name)}</strong>${tag ? `<span class="tag ${tag === 'Ascendido' ? 'ok' : 'bad'}">${escapeHtml(tag)}</span>` : '<span class="tag">Primera</span>'}</div>`).join('');
     }
 
     function bindEvents() {
@@ -615,16 +670,22 @@
 
     async function init() {
       bindEvents();
-      const [pred, apr, mundial, hist] = await Promise.all([
+      const [pred, pleno, apr, mundial, hist, metricas] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
-        getJson('data/memoria_ia/diario_aprendizaje.json', await getJson('data/memoria_ia/aprendizaje_ia.json')),
+        getJson('data/predicciones/pleno15_jornada_actual.json'),
+        getJson('data/memoria_ia/diario_aprendizaje.json'),
         getJson('data/memoria_ia/clasificaciones_mundial_2026.json'),
-        getJson('data/memoria_ia/historial_quinielas.json', await getJson('data/memoria_ia/premios_historico.json'))
+        getJson('data/premios/historial_premios.json'),
+        getJson('data/memoria_ia/metricas_probabilisticas.json')
       ]);
       state.prediccion = pred;
+      state.pleno15Data = pleno;
       state.aprendizaje = apr;
       state.mundial = mundial;
       state.historial = hist;
+      state.metricas = metricas;
+      const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
+      state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       qs('#updatedAt').textContent = pred.generado_en ? `Actualizado ${new Date(pred.generado_en).toLocaleString('es-ES')}` : 'Datos cargados';
       renderPredictionMetrics();
       renderTicket();
