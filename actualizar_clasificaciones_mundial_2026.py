@@ -35,6 +35,10 @@ ALIAS = {"eeuu":"estados unidos","ee uu":"estados unidos","usa":"estados unidos"
 GRUPOS_MUNDIAL_2026 = {"A":["mexico","sudafrica","corea del sur","chequia"],"B":["suiza","canada","bosnia","qatar"],"C":["brasil","marruecos","haiti","escocia"],"D":["estados unidos","paraguay","australia","turquia"],"E":["alemania","curazao","costa de marfil","ecuador"],"F":["paises bajos","japon","suecia","tunez"],"G":["belgica","egipto","iran","nueva zelanda"],"H":["espana","cabo verde","arabia saudi","uruguay"],"I":["francia","senegal","irak","noruega"],"J":["argentina","argelia","austria","jordania"],"K":["portugal","congo dr","uzbekistan","colombia"],"L":["inglaterra","ghana","panama","croacia"]}
 EQUIPO_A_GRUPO = {equipo: grupo for grupo, equipos in GRUPOS_MUNDIAL_2026.items() for equipo in equipos}
 
+# Confirmados sin via matematica de clasificacion en fase de grupos.
+# Se fuerza aqui para que el workflow no regenere estos equipos como vivos.
+ELIMINADOS_MATEMATICOS_CONFIRMADOS = {"turquia", "tunez", "jordania", "panama", "haiti"}
+
 
 def cargar_json(path, defecto=None):
     if defecto is None:
@@ -128,7 +132,9 @@ def situacion_equipo(registro, grupo_ordenado):
     rivales_actual_superan_max = sum(1 for r in rivales if int(r.get("pts") or 0) > max_pts)
     rivales_max_superan_empate = sum(1 for r in rivales if puntos_maximos(r) > empate_pts)
 
-    if pj >= PARTIDOS_POR_EQUIPO:
+    if equipo in ELIMINADOS_MATEMATICOS_CONFIRMADOS:
+        situacion, necesidad, motivacion, objetivos_vivos, rotacion, lectura = "eliminada", "ninguna", "baja", False, True, "Eliminada por restriccion matematica confirmada: ya no tiene via de clasificacion."
+    elif pj >= PARTIDOS_POR_EQUIPO:
         if pos <= CLASIFICAN_DIRECTO:
             situacion, necesidad, motivacion, objetivos_vivos, rotacion, lectura = "ya_clasificada", "ninguna", "baja", False, True, "Grupo completado: posicion de clasificacion directa ya asegurada."
         elif pos == PLAZA_UTIL_MINIMA:
