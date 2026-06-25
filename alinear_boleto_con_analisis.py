@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+from aplicar_topes_mundial_2026 import main as aplicar_topes_mundial_2026
+
 ROOT = Path(__file__).resolve().parent
 PREDICCIONES = ROOT / "data" / "predicciones"
 PRECIO_APUESTA = 0.75
@@ -235,6 +237,7 @@ def alinear_archivo(path):
 
 
 def main():
+    aplicar_topes_mundial_2026()
     ultima = PREDICCIONES / "ultima_prediccion.json"
     cambios = []
     if alinear_archivo(ultima):
