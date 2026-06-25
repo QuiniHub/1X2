@@ -1,10 +1,16 @@
 import subprocess
 import sys
+import traceback
 from datetime import datetime
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
+
+
+class ErrorCriticoPrediccion(Exception):
+    """Fallo que debe detener el proceso por datos de prediccion."""
+
 
 # Scripts que existen en el repo pero cuya ejecucion esta temporalmente
 # bloqueada para evitar cambios visuales no controlados.
@@ -26,6 +32,11 @@ SCRIPTS_VISUALES_DESACTIVADOS = {
     "reforzar_coberturas_descenso.py",
     "corregir_elige8_web.py",
     "estabilizar_web.py",
+}
+
+SCRIPTS_CRITICOS_PREDICCION = {
+    "motor_prediccion_objetivo.py",
+    "validar_publicacion_autonoma.py",
 }
 
 # Estos scripts dependen de fuentes externas o son etapas auxiliares de datos.
@@ -186,22 +197,30 @@ def gestionar_mercado_y_temporada():
 def ejecutar_script(nombre):
     ruta = ROOT / nombre
     if not ruta.exists():
-        raise SystemExit(f"Falta script activo: {nombre}")
+        mensaje = f"Falta script activo: {nombre}"
+        if nombre in SCRIPTS_CRITICOS_PREDICCION:
+            raise ErrorCriticoPrediccion(mensaje)
+        print(f"AVISO: {mensaje}. Se continua con el siguiente script.")
+        return False
+
     print(f"\n=== Ejecutando {nombre} ===")
     try:
         subprocess.run([sys.executable, str(ruta)], cwd=ROOT, check=True)
     except subprocess.CalledProcessError as exc:
-        if nombre in SCRIPTS_NO_CRITICOS_RED:
-            print(
-                f"AVISO: {nombre} termino con codigo {exc.returncode}. "
-                "Se continua porque es una etapa de datos externos o auxiliar; "
-                "las validaciones predictivas criticas siguen activas."
-            )
-            return False
-        raise SystemExit(
-            f"Error critico en {nombre}: se detiene la publicacion para no ocultar "
-            "un problema en los datos de prediccion."
-        ) from exc
+        if nombre in SCRIPTS_CRITICOS_PREDICCION:
+            raise ErrorCriticoPrediccion(
+                f"Error critico de prediccion en {nombre}: codigo {exc.returncode}."
+            ) from exc
+        print(f"AVISO: {nombre} termino con codigo {exc.returncode}; se continua.")
+        return False
+    except Exception as exc:
+        if nombre in SCRIPTS_CRITICOS_PREDICCION:
+            raise ErrorCriticoPrediccion(
+                f"Excepcion critica de prediccion en {nombre}: {exc}"
+            ) from exc
+        print(f"AVISO: excepcion no critica en {nombre}: {exc}")
+        traceback.print_exc()
+        return False
     return True
 
 
@@ -212,8 +231,22 @@ def ejecutar_sistema():
             print(f"\n=== Omitiendo {script}: bloqueo de cambios visuales activo ===")
             continue
         ejecutar_script(script)
-    print("\nActualizacion completa; cualquier fallo no critico de fuentes externas queda avisado en el log.")
+    print("\nActualizacion completa; cualquier fallo no critico queda avisado en el log.")
+
+
+def main():
+    try:
+        ejecutar_sistema()
+    except ErrorCriticoPrediccion:
+        print("ERROR_CRITICO_PREDICCION: se detiene por validacion de prediccion.")
+        traceback.print_exc()
+        raise
+    except Exception as exc:
+        print("AVISO_GLOBAL_ACTUALIZACION: excepcion no critica capturada en actualizar_todo.py")
+        print(f"Tipo: {type(exc).__name__}")
+        print(f"Detalle: {exc}")
+        traceback.print_exc()
 
 
 if __name__ == "__main__":
-    ejecutar_sistema()
+    main()
