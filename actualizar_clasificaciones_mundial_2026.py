@@ -8,7 +8,8 @@ Correccion critica: nunca se mezcla una seleccion en un grupo artificial
 usan cuando ambos equipos pertenecen al mismo grupo del Mundial 2026. Una
 seleccion solo se marca eliminada si matematicamente ya no puede alcanzar ni
 una posicion util de grupo, considerando que el tercer puesto puede depender de
-comparativa externa.
+comparativa externa. Tambien se deduplican resultados repetidos de distintas
+fuentes por grupo, pareja de equipos y marcador.
 """
 
 import json
@@ -27,66 +28,12 @@ SALIDA = DATA / "memoria_ia" / "clasificaciones_mundial_2026.json"
 PARTIDOS_POR_EQUIPO = 3
 EQUIPOS_POR_GRUPO = 4
 CLASIFICAN_DIRECTO = 2
-PLAZA_UTIL_MINIMA = 3  # tercero puede pasar por comparativa externa
+PLAZA_UTIL_MINIMA = 3
 
-ALIAS = {
-    "eeuu": "estados unidos",
-    "ee uu": "estados unidos",
-    "usa": "estados unidos",
-    "united states": "estados unidos",
-    "estados unidos": "estados unidos",
-    "paises bajos": "paises bajos",
-    "holanda": "paises bajos",
-    "netherlands": "paises bajos",
-    "japon": "japon",
-    "japón": "japon",
-    "costa marfil": "costa de marfil",
-    "costa de marfil": "costa de marfil",
-    "ivory coast": "costa de marfil",
-    "cote divoire": "costa de marfil",
-    "curacao": "curazao",
-    "curazao": "curazao",
-    "curaçao": "curazao",
-    "arabia saudi": "arabia saudi",
-    "arabia saudí": "arabia saudi",
-    "turkiye": "turquia",
-    "turkey": "turquia",
-    "belgica": "belgica",
-    "bélgica": "belgica",
-    "tunez": "tunez",
-    "túnez": "tunez",
-    "espana": "espana",
-    "españa": "espana",
-    "méxico": "mexico",
-    "mexico": "mexico",
-    "irak": "irak",
-    "iraq": "irak",
-    "congo dr": "congo dr",
-    "rd congo": "congo dr",
-    "congo rd": "congo dr",
-    "cabo verde": "cabo verde",
-}
+ALIAS = {"eeuu":"estados unidos","ee uu":"estados unidos","usa":"estados unidos","united states":"estados unidos","estados unidos":"estados unidos","paises bajos":"paises bajos","holanda":"paises bajos","netherlands":"paises bajos","japon":"japon","japón":"japon","costa marfil":"costa de marfil","costa de marfil":"costa de marfil","ivory coast":"costa de marfil","cote divoire":"costa de marfil","curacao":"curazao","curazao":"curazao","curaçao":"curazao","arabia saudi":"arabia saudi","arabia saudí":"arabia saudi","turkiye":"turquia","turkey":"turquia","belgica":"belgica","bélgica":"belgica","tunez":"tunez","túnez":"tunez","espana":"espana","españa":"espana","méxico":"mexico","mexico":"mexico","irak":"irak","iraq":"irak","congo dr":"congo dr","rd congo":"congo dr","congo rd":"congo dr","cabo verde":"cabo verde"}
 
-GRUPOS_MUNDIAL_2026 = {
-    "A": ["mexico", "sudafrica", "corea del sur", "chequia"],
-    "B": ["suiza", "canada", "bosnia", "qatar"],
-    "C": ["brasil", "marruecos", "haiti", "escocia"],
-    "D": ["estados unidos", "paraguay", "australia", "turquia"],
-    "E": ["alemania", "curazao", "costa de marfil", "ecuador"],
-    "F": ["paises bajos", "japon", "suecia", "tunez"],
-    "G": ["belgica", "egipto", "iran", "nueva zelanda"],
-    "H": ["espana", "cabo verde", "arabia saudi", "uruguay"],
-    "I": ["francia", "senegal", "irak", "noruega"],
-    "J": ["argentina", "argelia", "austria", "jordania"],
-    "K": ["portugal", "congo dr", "uzbekistan", "colombia"],
-    "L": ["inglaterra", "ghana", "panama", "croacia"],
-}
-
-EQUIPO_A_GRUPO = {
-    equipo: grupo
-    for grupo, equipos in GRUPOS_MUNDIAL_2026.items()
-    for equipo in equipos
-}
+GRUPOS_MUNDIAL_2026 = {"A":["mexico","sudafrica","corea del sur","chequia"],"B":["suiza","canada","bosnia","qatar"],"C":["brasil","marruecos","haiti","escocia"],"D":["estados unidos","paraguay","australia","turquia"],"E":["alemania","curazao","costa de marfil","ecuador"],"F":["paises bajos","japon","suecia","tunez"],"G":["belgica","egipto","iran","nueva zelanda"],"H":["espana","cabo verde","arabia saudi","uruguay"],"I":["francia","senegal","irak","noruega"],"J":["argentina","argelia","austria","jordania"],"K":["portugal","congo dr","uzbekistan","colombia"],"L":["inglaterra","ghana","panama","croacia"]}
+EQUIPO_A_GRUPO = {equipo: grupo for grupo, equipos in GRUPOS_MUNDIAL_2026.items() for equipo in equipos}
 
 
 def cargar_json(path, defecto=None):
@@ -137,19 +84,7 @@ def grupo_por_equipos(local, visitante, grupo_fuente=""):
 
 
 def registro_base(equipo, grupo):
-    return {
-        "equipo": equipo,
-        "grupo": grupo,
-        "pj": 0,
-        "g": 0,
-        "e": 0,
-        "p": 0,
-        "gf": 0,
-        "gc": 0,
-        "dg": 0,
-        "pts": 0,
-        "partidos": [],
-    }
+    return {"equipo": equipo, "grupo": grupo, "pj": 0, "g": 0, "e": 0, "p": 0, "gf": 0, "gc": 0, "dg": 0, "pts": 0, "partidos": []}
 
 
 def sumar_partido(tabla, grupo, equipo, rival, gf, gc, fecha, fuente):
@@ -159,40 +94,17 @@ def sumar_partido(tabla, grupo, equipo, rival, gf, gc, fecha, fuente):
     reg["gc"] += gc
     reg["dg"] = reg["gf"] - reg["gc"]
     if gf > gc:
-        reg["g"] += 1
-        puntos = 3
-        signo = "G"
+        reg["g"] += 1; puntos = 3; signo = "G"
     elif gf == gc:
-        reg["e"] += 1
-        puntos = 1
-        signo = "E"
+        reg["e"] += 1; puntos = 1; signo = "E"
     else:
-        reg["p"] += 1
-        puntos = 0
-        signo = "P"
+        reg["p"] += 1; puntos = 0; signo = "P"
     reg["pts"] += puntos
-    reg["partidos"].append({
-        "fecha": fecha,
-        "rival": rival,
-        "resultado": f"{gf}-{gc}",
-        "signo_equipo": signo,
-        "puntos": puntos,
-        "fuente": fuente,
-    })
+    reg["partidos"].append({"fecha": fecha, "rival": rival, "resultado": f"{gf}-{gc}", "signo_equipo": signo, "puntos": puntos, "fuente": fuente})
 
 
 def ordenar_grupo(registros):
-    return sorted(
-        registros,
-        key=lambda r: (
-            int(r.get("pts") or 0),
-            int(r.get("dg") or 0),
-            int(r.get("gf") or 0),
-            -int(r.get("gc") or 0),
-            normalizar_nombre(r.get("equipo")),
-        ),
-        reverse=True,
-    )
+    return sorted(registros, key=lambda r: (int(r.get("pts") or 0), int(r.get("dg") or 0), int(r.get("gf") or 0), -int(r.get("gc") or 0), normalizar_nombre(r.get("equipo"))), reverse=True)
 
 
 def puntos_maximos(registro):
@@ -213,92 +125,31 @@ def situacion_equipo(registro, grupo_ordenado):
     max_pts = puntos_maximos(registro)
     empate_pts = puntos_si_empata(registro)
     rivales = [r for r in grupo_ordenado if r["equipo"] != equipo]
-
-    # Eliminacion matematica real: aun ganando todo, tres rivales ya quedarian
-    # por encima. Como los terceros pueden pasar, no basta con quedar fuera del
-    # top 2 para estar eliminado.
     rivales_actual_superan_max = sum(1 for r in rivales if int(r.get("pts") or 0) > max_pts)
     rivales_max_superan_empate = sum(1 for r in rivales if puntos_maximos(r) > empate_pts)
 
     if pj >= PARTIDOS_POR_EQUIPO:
         if pos <= CLASIFICAN_DIRECTO:
-            situacion = "ya_clasificada"
-            necesidad = "ninguna"
-            motivacion = "baja"
-            lectura = "Grupo completado: posicion de clasificacion directa ya asegurada."
-            objetivos_vivos = False
-            rotacion = True
+            situacion, necesidad, motivacion, objetivos_vivos, rotacion, lectura = "ya_clasificada", "ninguna", "baja", False, True, "Grupo completado: posicion de clasificacion directa ya asegurada."
         elif pos == PLAZA_UTIL_MINIMA:
-            situacion = "depende_de_otros_resultados"
-            necesidad = "depender"
-            motivacion = "media"
-            lectura = "Grupo completado en tercera posicion: depende de comparativa de terceros."
-            objetivos_vivos = True
-            rotacion = False
+            situacion, necesidad, motivacion, objetivos_vivos, rotacion, lectura = "depende_de_otros_resultados", "depender", "media", True, False, "Grupo completado en tercera posicion: depende de comparativa de terceros."
         else:
-            situacion = "eliminada"
-            necesidad = "ninguna"
-            motivacion = "baja"
-            lectura = "Grupo completado en cuarta posicion: sin via matematica de clasificacion."
-            objetivos_vivos = False
-            rotacion = True
+            situacion, necesidad, motivacion, objetivos_vivos, rotacion, lectura = "eliminada", "ninguna", "baja", False, True, "Grupo completado en cuarta posicion: sin via matematica de clasificacion."
     elif rivales_actual_superan_max >= PLAZA_UTIL_MINIMA:
-        situacion = "eliminada"
-        necesidad = "ninguna"
-        motivacion = "baja"
-        lectura = "Ni ganando todos los partidos restantes puede alcanzar una posicion util de grupo."
-        objetivos_vivos = False
-        rotacion = True
+        situacion, necesidad, motivacion, objetivos_vivos, rotacion, lectura = "eliminada", "ninguna", "baja", False, True, "Ni ganando todos los partidos restantes puede alcanzar una posicion util de grupo."
     elif restantes == 1 and rivales_max_superan_empate >= CLASIFICAN_DIRECTO:
-        situacion = "necesita_ganar"
-        necesidad = "ganar"
-        motivacion = "maxima"
-        lectura = "Con empate queda expuesta; necesita ganar para maximizar pase directo o tercer puesto fuerte."
-        objetivos_vivos = True
-        rotacion = False
+        situacion, necesidad, motivacion, objetivos_vivos, rotacion, lectura = "necesita_ganar", "ganar", "maxima", True, False, "Con empate queda expuesta; necesita ganar para maximizar pase directo o tercer puesto fuerte."
     elif restantes >= 1 and pos <= CLASIFICAN_DIRECTO and rivales_max_superan_empate <= CLASIFICAN_DIRECTO - 1:
-        situacion = "le_vale_empate"
-        necesidad = "empatar"
-        motivacion = "alta"
-        lectura = "Un empate mantiene una posicion de clasificacion directa o muy favorable."
-        objetivos_vivos = True
-        rotacion = False
+        situacion, necesidad, motivacion, objetivos_vivos, rotacion, lectura = "le_vale_empate", "empatar", "alta", True, False, "Un empate mantiene una posicion de clasificacion directa o muy favorable."
     else:
-        situacion = "depende_de_otros_resultados"
-        necesidad = "depender"
-        motivacion = "alta"
-        lectura = "Sigue con opciones matematicas de clasificacion, pero su pase depende tambien de otros marcadores."
-        objetivos_vivos = True
-        rotacion = False
+        situacion, necesidad, motivacion, objetivos_vivos, rotacion, lectura = "depende_de_otros_resultados", "depender", "alta", True, False, "Sigue con opciones matematicas de clasificacion, pero su pase depende tambien de otros marcadores."
 
-    return {
-        "posicion": pos,
-        "partidos_restantes_estimados": restantes,
-        "puntos_maximos": max_pts,
-        "puntos_si_empata_siguiente": empate_pts,
-        "situacion": situacion,
-        "situacion_competitiva": situacion,
-        "necesidad_resultado": necesidad,
-        "motivacion_competitiva": motivacion,
-        "objetivos_vivos": objetivos_vivos,
-        "rotacion_probable": rotacion,
-        "lectura": lectura,
-        "objetivos": [
-            {
-                "objetivo": "clasificacion_mundial_2026",
-                "estado": situacion,
-                "lectura": lectura,
-            }
-        ],
-    }
+    return {"posicion": pos, "partidos_restantes_estimados": restantes, "puntos_maximos": max_pts, "puntos_si_empata_siguiente": empate_pts, "situacion": situacion, "situacion_competitiva": situacion, "necesidad_resultado": necesidad, "motivacion_competitiva": motivacion, "objetivos_vivos": objetivos_vivos, "rotacion_probable": rotacion, "lectura": lectura, "objetivos": [{"objetivo": "clasificacion_mundial_2026", "estado": situacion, "lectura": lectura}]}
 
 
 def construir_clasificaciones(data):
     tabla = defaultdict(dict)
     descartados = []
-
-    # Asegura que todos los equipos de todos los grupos existan aunque aun no
-    # hayan jugado, para que la comparacion matematica sea de 4 equipos reales.
     for grupo, equipos in GRUPOS_MUNDIAL_2026.items():
         for equipo in equipos:
             tabla[grupo].setdefault(equipo, registro_base(equipo, grupo))
@@ -311,55 +162,28 @@ def construir_clasificaciones(data):
         grupo = grupo_por_equipos(local, visitante, partido.get("grupo"))
         fecha = partido.get("fecha") or ""
         if not resultado or not local or not visitante or not grupo or not fecha:
-            descartado = dict(partido)
-            descartado["motivo_descarte_clasificacion"] = "sin_resultado_valido_sin_fecha_o_equipos_de_distinto_grupo"
-            descartados.append(descartado)
-            continue
-        clave = (grupo, fecha, local, visitante, partido.get("resultado"))
+            descartado = dict(partido); descartado["motivo_descarte_clasificacion"] = "sin_resultado_valido_sin_fecha_o_equipos_de_distinto_grupo"; descartados.append(descartado); continue
+        gl, gv = resultado
+        clave = (grupo, tuple(sorted([local, visitante])), tuple(sorted([gl, gv])))
         if clave in partidos_vistos:
             continue
         partidos_vistos.add(clave)
-        gl, gv = resultado
         fuente = partido.get("fuente") or ""
         sumar_partido(tabla, grupo, local, visitante, gl, gv, fecha, fuente)
         sumar_partido(tabla, grupo, visitante, local, gv, gl, fecha, fuente)
 
-    grupos = {}
-    equipos = {}
+    grupos = {}; equipos = {}
     for grupo, registros in sorted(tabla.items()):
         ordenados = ordenar_grupo(list(registros.values()))
         filas = []
         for reg in ordenados:
-            tendencias = {
-                "forma_5_pts": sum(p.get("puntos", 0) for p in reg.get("partidos", [])[-5:]),
-                "goles_favor_por_partido": round(reg["gf"] / max(reg["pj"], 1), 2) if reg["pj"] else 0.0,
-                "goles_contra_por_partido": round(reg["gc"] / max(reg["pj"], 1), 2) if reg["pj"] else 0.0,
-                "empates_pct": round(reg["e"] / max(reg["pj"], 1) * 100, 2) if reg["pj"] else 0.0,
-            }
-            situacion = situacion_equipo(reg, ordenados)
-            fila = {**reg, "tendencias": tendencias, **situacion}
-            filas.append(fila)
-            equipos[normalizar_nombre(reg["equipo"])] = fila
+            pj_base = max(reg["pj"], 1)
+            tendencias = {"forma_5_pts": sum(p.get("puntos", 0) for p in reg.get("partidos", [])[-5:]), "goles_favor_por_partido": round(reg["gf"] / pj_base, 2) if reg["pj"] else 0.0, "goles_contra_por_partido": round(reg["gc"] / pj_base, 2) if reg["pj"] else 0.0, "empates_pct": round(reg["e"] / pj_base * 100, 2) if reg["pj"] else 0.0}
+            fila = {**reg, "tendencias": tendencias, **situacion_equipo(reg, ordenados)}
+            filas.append(fila); equipos[normalizar_nombre(reg["equipo"])] = fila
         grupos[grupo] = {"grupo": grupo, "equipos_detectados": len(filas), "clasificacion": filas}
 
-    return {
-        "version": "1.1",
-        "generado_en": ahora_iso(),
-        "fuente": str(FUENTE.relative_to(ROOT)),
-        "criterio": {
-            "fase": "grupos_mundial_2026",
-            "equipos_por_grupo": EQUIPOS_POR_GRUPO,
-            "partidos_por_equipo": PARTIDOS_POR_EQUIPO,
-            "clasificacion_directa": "top_2_grupo",
-            "terceros": "pueden depender de comparativa externa; se marca depende_de_otros_resultados",
-            "eliminacion": "solo si ni ganando todos sus partidos restantes puede alcanzar una posicion util de grupo",
-        },
-        "total_grupos": len(grupos),
-        "total_equipos": len(equipos),
-        "grupos": grupos,
-        "equipos": equipos,
-        "descartados": descartados,
-    }
+    return {"version": "1.2", "generado_en": ahora_iso(), "fuente": str(FUENTE.relative_to(ROOT)), "criterio": {"fase": "grupos_mundial_2026", "equipos_por_grupo": EQUIPOS_POR_GRUPO, "partidos_por_equipo": PARTIDOS_POR_EQUIPO, "clasificacion_directa": "top_2_grupo", "terceros": "pueden depender de comparativa externa; se marca depende_de_otros_resultados", "eliminacion": "solo si ni ganando todos sus partidos restantes puede alcanzar una posicion util de grupo", "deduplicacion": "grupo + pareja de equipos + marcador"}, "total_grupos": len(grupos), "total_equipos": len(equipos), "grupos": grupos, "equipos": equipos, "descartados": descartados}
 
 
 def main():
