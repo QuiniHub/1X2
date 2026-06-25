@@ -14,6 +14,13 @@ UMBRAL_PARTIDOS_SEGUROS = 8
 SIGNOS = ("1", "X", "2")
 
 
+REGLA_ELIGE8 = (
+    "Elige 8 se selecciona por probabilidad real de acertar el signo jugado: "
+    "TRIPLE=100%, DOBLE=suma de sus dos signos jugados, FIJO=probabilidad de su unico signo. "
+    "El tipo no da prioridad salvo que el triple siempre vale 100%."
+)
+
+
 def ahora():
     return datetime.now(timezone.utc).isoformat()
 
@@ -78,6 +85,8 @@ def limpiar_elige8_bloqueado(prediccion):
         partido.pop("elige8_seguro_cumple_umbral", None)
         partido.pop("elige8_seguro_probabilidad_top", None)
         partido.pop("elige8_seguro_margen", None)
+        partido.pop("elige8_probabilidad_acierto", None)
+        partido.pop("elige8_probabilidad_cubierta", None)
         partido["lectura"] = "Partido cargado oficialmente. Prediccion retenida hasta cerrar y aprender la jornada anterior."
 
     prediccion.pop("elige8_seguro", None)
@@ -91,7 +100,7 @@ def limpiar_elige8_bloqueado(prediccion):
     config = prediccion.setdefault("configuracion", {})
     config["elige8"] = False
     config["elige8_modo"] = "bloqueado"
-    config["elige8_modos_disponibles"] = ["conservador", "rentable"]
+    config["elige8_modos_disponibles"] = ["probabilidad_real"]
     config["elige8_recomendado"] = False
     prediccion["coste"] = {
         "apuestas": 0,
@@ -115,7 +124,11 @@ def limpiar_elige8_bloqueado(prediccion):
 
 def probabilidades(partido):
     probs = partido.get("probabilidades") or {}
-    return {signo: ffloat(probs.get(signo), 0.0) for signo in SIGNOS}
+    salida = {signo: max(ffloat(probs.get(signo), 0.0), 0.0) for signo in SIGNOS}
+    total = sum(salida.values())
+    if 0 < total <= 1.5:
+        salida = {signo: valor * 100.0 for signo, valor in salida.items()}
+    return salida
 
 
 def orden_probabilidades(probs):
@@ -149,118 +162,23 @@ def signos_jugados(partido):
     return signo_top(probabilidades(partido))
 
 
-def probabilidad_cubierta(partido):
-    probs = probabilidades(partido)
-    return min(100.0, sum(probs.get(signo, 0.0) for signo in signos_jugados(partido)))
+def tipo_cobertura(signos):
+    total = len(signo_limpio(signos))
+    if total >= 3:
+        return "TRIPLE"
+    if total == 2:
+        return "DOBLE"
+    if total == 1:
+        return "FIJO"
+    return "SIN_SIGNO"
 
 
-def datos_memoria_completos(partido):
-    memoria = ((partido.get("trazabilidad_datos") or {}).get("memoria_estadistica") or {})
-    return bool(memoria.get("local")) and bool(memoria.get("visitante"))
-
-
-def evaluar_seguridad_elige8(partido):
-    probs = probabilidades(partido)
+def probabilidad_acierto_elige8(partido):
     signos = signos_jugados(partido)
-    top = signo_top(probs)
-    top_prob = prob_top(probs)
-    margen = margen_top(probs)
-    tercera = tercera_probabilidad(probs)
-    cubierta = probabilidad_cubierta(partido)
-    incertidumbre = ffloat(partido.get("incertidumbre"), 0.0)
-    sorpresa = ffloat(partido.get("probabilidad_sorpresa"), 0.0)
-    indice = ffloat(partido.get("indice_sorpresa_quinielistica"), 0.0)
-    calidad = str(partido.get("calidad_datos") or "").lower()
-    cobertura_sugerida = str(partido.get("cobertura_sorpresa_sugerida") or "FIJO").upper()
-    favorito_atacable = bool(partido.get("favorito_atacable"))
-    riesgo_necesidad = bool(partido.get("riesgo_necesidad_real") or partido.get("riesgo_necesidad"))
-
-    base = probs.get(signos, top_prob) if len(signos) == 1 else min(cubierta, top_prob + (8.0 if len(signos) == 2 else 3.0))
-    score = base * 1.45 + margen * 1.10
-    score -= sorpresa * 0.70 + indice * 0.75
-    score -= max(0.0, incertidumbre - 70.0) * 0.22
-    score -= max(0.0, tercera - 18.0) * 0.60
-
-    motivos = []
-    bloqueos = []
-    if top not in signos:
-        score -= 30
-        bloqueos.append("el signo jugado no incluye el signo mas probable")
-    if len(signos) == 2:
-        score -= 8
-        motivos.append("doble: buena cobertura, pero no fijo seguro")
-    if len(signos) == 3:
-        score -= 42
-        bloqueos.append("triple: cubre mucho, pero no es seguro para Elige 8")
-    if calidad == "baja":
-        score -= 28
-        bloqueos.append("calidad de datos baja")
-    elif calidad == "alta":
-        score += 5
-    if not datos_memoria_completos(partido):
-        score -= 12
-        motivos.append("falta memoria estadistica completa")
-    if favorito_atacable:
-        score -= 26
-        bloqueos.append("favorito atacable")
-    if cobertura_sugerida != "FIJO":
-        score -= 20 if cobertura_sugerida == "DOBLE" else 30
-        bloqueos.append(f"la IA sugiere cobertura {cobertura_sugerida}")
-    if riesgo_necesidad:
-        score -= 12
-        motivos.append("necesidad competitiva viva")
-    if top_prob < 50:
-        score -= 25
-        bloqueos.append("probabilidad top por debajo del 50%")
-    if margen < 10:
-        score -= 18
-        bloqueos.append("margen demasiado corto")
-    if sorpresa > 50:
-        score -= 18
-        bloqueos.append("riesgo de sorpresa alto")
-    if indice >= 55:
-        score -= 16
-        bloqueos.append("indice de sorpresa alto")
-    if tercera >= 22:
-        score -= 10
-        motivos.append("tercer signo vivo")
-    penalizacion_calidad = 18.0 if calidad == "baja" else 8.0 if calidad in {"media_baja", "media"} else 0.0
-    confianza_real = max(
-        min(
-            cubierta * 0.92
-            + top_prob * 0.10
-            + margen * 0.25
-            - sorpresa * 0.22
-            - indice * 0.18
-            - max(0.0, incertidumbre - 70.0) * 0.12
-            - penalizacion_calidad
-            - (16.0 if favorito_atacable else 0.0),
-            100.0,
-        ),
-        0.0,
-    )
-
-    return {
-        "num": int(partido.get("num", 0) or 0),
-        "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
-        "signo_final": signos,
-        "signo_mas_probable": top,
-        "probabilidad_top": round(top_prob, 2),
-        "probabilidad_cubierta": round(cubierta, 2),
-        "margen": round(margen, 2),
-        "tercera_probabilidad": round(tercera, 2),
-        "incertidumbre": round(incertidumbre, 2),
-        "probabilidad_sorpresa": round(sorpresa, 2),
-        "indice_sorpresa_quinielistica": round(indice, 2),
-        "calidad_datos": calidad or "sin_dato",
-        "favorito_atacable": favorito_atacable,
-        "cobertura_sorpresa_sugerida": cobertura_sugerida,
-        "score_seguridad": round(score, 3),
-        "confianza_real": round(confianza_real, 3),
-        "cumple_umbral_seguro": not bloqueos,
-        "motivos": motivos[:6],
-        "bloqueos": bloqueos[:8],
-    }
+    if len(signos) >= 3:
+        return 100.0
+    probs = probabilidades(partido)
+    return round(min(100.0, sum(probs.get(signo, 0.0) for signo in signos)), 3)
 
 
 def multiplicador(signos):
@@ -284,15 +202,70 @@ def recalcular_coste(prediccion, partidos):
     }
 
 
-def score_rentable(evaluacion):
-    cobertura = 24 if len(signo_limpio(evaluacion.get("signo_final"))) == 2 else 38 if len(signo_limpio(evaluacion.get("signo_final"))) == 3 else 0
-    return round(
-        evaluacion.get("probabilidad_cubierta", 0) * 0.95
-        + evaluacion.get("margen", 0) * 0.25
-        + min(evaluacion.get("indice_sorpresa_quinielistica", 0), 70) * 0.22
-        + cobertura
-        - max(0.0, evaluacion.get("probabilidad_sorpresa", 0) - 62) * 0.45,
-        3,
+def evaluar_seguridad_elige8(partido):
+    probs = probabilidades(partido)
+    signos = signos_jugados(partido)
+    tipo = tipo_cobertura(signos)
+    top = signo_top(probs)
+    top_prob = prob_top(probs)
+    margen = margen_top(probs)
+    tercera = tercera_probabilidad(probs)
+    prob_acierto = probabilidad_acierto_elige8(partido)
+    incertidumbre = ffloat(partido.get("incertidumbre"), 0.0)
+    sorpresa = ffloat(partido.get("probabilidad_sorpresa"), 0.0)
+    indice = ffloat(partido.get("indice_sorpresa_quinielistica"), 0.0)
+    calidad = str(partido.get("calidad_datos") or "").lower()
+    cobertura_sugerida = str(partido.get("cobertura_sorpresa_sugerida") or "FIJO").upper()
+    favorito_atacable = bool(partido.get("favorito_atacable"))
+    riesgo_necesidad = bool(partido.get("riesgo_necesidad_real") or partido.get("riesgo_necesidad"))
+
+    motivos = []
+    if tipo == "TRIPLE":
+        motivos.append("triple: probabilidad real de acierto 100%")
+    elif tipo == "DOBLE":
+        motivos.append(f"doble {signos}: probabilidad real por suma de signos jugados {prob_acierto:.1f}%")
+    elif tipo == "FIJO":
+        motivos.append(f"fijo {signos}: probabilidad real del signo jugado {prob_acierto:.1f}%")
+    if favorito_atacable:
+        motivos.append("favorito atacable: se informa como riesgo, pero no altera la prioridad principal")
+    if cobertura_sugerida != "FIJO":
+        motivos.append(f"cobertura sugerida {cobertura_sugerida}: la prioridad sigue siendo probabilidad real de acierto")
+    if riesgo_necesidad:
+        motivos.append("necesidad competitiva viva")
+
+    return {
+        "num": int(partido.get("num", 0) or 0),
+        "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
+        "signo_final": signos,
+        "tipo_cobertura": tipo,
+        "signo_mas_probable": top,
+        "probabilidad_top": round(top_prob, 2),
+        "probabilidad_acierto": round(prob_acierto, 3),
+        "probabilidad_cubierta": round(prob_acierto, 3),
+        "margen": round(margen, 2),
+        "tercera_probabilidad": round(tercera, 2),
+        "incertidumbre": round(incertidumbre, 2),
+        "probabilidad_sorpresa": round(sorpresa, 2),
+        "indice_sorpresa_quinielistica": round(indice, 2),
+        "calidad_datos": calidad or "sin_dato",
+        "favorito_atacable": favorito_atacable,
+        "cobertura_sorpresa_sugerida": cobertura_sugerida,
+        "score_seguridad": round(prob_acierto, 3),
+        "confianza_real": round(prob_acierto, 3),
+        "cumple_umbral_seguro": True,
+        "motivos": motivos[:8],
+        "bloqueos": [],
+    }
+
+
+def clave_ranking_elige8(item):
+    return (
+        -float(item.get("probabilidad_acierto") or 0.0),
+        float(item.get("incertidumbre") or 0.0),
+        float(item.get("probabilidad_sorpresa") or 0.0),
+        float(item.get("indice_sorpresa_quinielistica") or 0.0),
+        -float(item.get("margen") or 0.0),
+        int(item.get("num") or 0),
     )
 
 
@@ -301,54 +274,31 @@ def metricas_historicas_modos():
     resumen = memoria.get("resumen") or {}
     precision = resumen.get("precision_elige8")
     return {
-        "conservador": {
+        "probabilidad_real": {
             "selecciones_evaluadas": resumen.get("selecciones_elige8", 0),
             "aciertos": resumen.get("aciertos_elige8", 0),
             "precision": precision,
             "fuente": "data/memoria_ia/aprendizaje_elige8.json",
-        },
-        "rentable": {
-            "selecciones_evaluadas": 0,
-            "aciertos": 0,
-            "precision": None,
-            "fuente": "pendiente_de_historial_con_modo_rentable",
-        },
+        }
     }
 
 
-def construir_modos_elige8(ranking_conservador):
-    rentable = sorted(
-        [dict(item, score_rentable=score_rentable(item)) for item in ranking_conservador],
-        key=lambda item: (
-            item["score_rentable"],
-            item.get("probabilidad_cubierta", 0),
-            -item.get("probabilidad_sorpresa", 0),
-        ),
-        reverse=True,
-    )
-    conservador_nums = {item["num"] for item in ranking_conservador[:UMBRAL_PARTIDOS_SEGUROS]}
-    rentable_nums = {item["num"] for item in rentable[:UMBRAL_PARTIDOS_SEGUROS]}
+def construir_modos_elige8(ranking):
+    seleccionados = {item["num"] for item in ranking[:UMBRAL_PARTIDOS_SEGUROS]}
     return {
-        "version": "1.0",
+        "version": "2.0",
         "generado_en": ahora(),
-        "modo_activo": "conservador",
+        "modo_activo": "probabilidad_real",
+        "regla_activa": REGLA_ELIGE8,
         "modos": {
-            "conservador": {
-                "objetivo": "maximizar fiabilidad y evitar partidos con bloqueos fuertes",
-                "seleccionados": sorted(conservador_nums),
+            "probabilidad_real": {
+                "objetivo": "elegir los 8 partidos con mayor probabilidad real de acierto del signo jugado",
+                "seleccionados": sorted(seleccionados),
                 "ranking": [
-                    dict(item, posicion=idx, seleccionado=item["num"] in conservador_nums)
-                    for idx, item in enumerate(ranking_conservador, start=1)
+                    dict(item, posicion=idx, seleccionado=item["num"] in seleccionados)
+                    for idx, item in enumerate(ranking, start=1)
                 ],
-            },
-            "rentable": {
-                "objetivo": "maximizar valor esperado con cobertura real y riesgo controlado",
-                "seleccionados": sorted(rentable_nums),
-                "ranking": [
-                    dict(item, posicion=idx, seleccionado=item["num"] in rentable_nums)
-                    for idx, item in enumerate(rentable, start=1)
-                ],
-            },
+            }
         },
         "rendimiento": metricas_historicas_modos(),
     }
@@ -362,55 +312,56 @@ def aplicar_elige8_seguro(prediccion):
     if len(partidos) < 8:
         return False
 
-    ranking = sorted(
-        [evaluar_seguridad_elige8(p) for p in partidos],
-        key=lambda item: (item["cumple_umbral_seguro"], item["confianza_real"], item["score_seguridad"], item["margen"]),
-        reverse=True,
-    )
-    fuertes = [item for item in ranking if item["cumple_umbral_seguro"]]
-    recomendado = len(fuertes) >= UMBRAL_PARTIDOS_SEGUROS
-    seleccionados = (fuertes if recomendado else ranking)[:UMBRAL_PARTIDOS_SEGUROS]
+    ranking = sorted([evaluar_seguridad_elige8(p) for p in partidos], key=clave_ranking_elige8)
+    seleccionados = ranking[:UMBRAL_PARTIDOS_SEGUROS]
     seleccionados_nums = {item["num"] for item in seleccionados}
     posicion_por_num = {item["num"]: idx for idx, item in enumerate(ranking, start=1)}
     evaluacion_por_num = {item["num"]: item for item in ranking}
+    recomendado = len(seleccionados) == UMBRAL_PARTIDOS_SEGUROS
 
     for partido in partidos:
         num = int(partido.get("num", 0) or 0)
         evaluacion = evaluacion_por_num.get(num, {})
         elegido = num in seleccionados_nums
         partido["elige8"] = elegido
-        partido["elige8_modo"] = "seguro"
+        partido["elige8_modo"] = "probabilidad_real"
         partido["elige8_seguro_score"] = evaluacion.get("score_seguridad")
         partido["elige8_confianza_real"] = evaluacion.get("confianza_real")
+        partido["elige8_probabilidad_acierto"] = evaluacion.get("probabilidad_acierto")
+        partido["elige8_probabilidad_cubierta"] = evaluacion.get("probabilidad_cubierta")
+        partido["elige8_tipo_cobertura"] = evaluacion.get("tipo_cobertura")
         partido["elige8_seguro_posicion"] = posicion_por_num.get(num)
-        partido["elige8_seguro_cumple_umbral"] = evaluacion.get("cumple_umbral_seguro", False)
+        partido["elige8_seguro_cumple_umbral"] = True
         partido["elige8_seguro_probabilidad_top"] = evaluacion.get("probabilidad_top")
         partido["elige8_seguro_margen"] = evaluacion.get("margen")
         if elegido:
-            partido["elige8_criterio"] = "Entra en Elige 8 seguro por ranking de seguridad real."
+            partido["elige8_criterio"] = (
+                "Entra en Elige 8 por ranking de probabilidad real de acierto: "
+                "TRIPLE=100%, DOBLE=suma de signos jugados, FIJO=probabilidad del signo jugado."
+            )
         else:
             partido.pop("elige8_criterio", None)
 
     prediccion["elige8_seguro"] = {
-        "version": "1.1",
+        "version": "2.0",
         "generado_en": ahora(),
-        "modo": "elige8_seguro_por_fiabilidad_real",
+        "modo": "elige8_por_probabilidad_real_de_acierto",
+        "regla_activa": REGLA_ELIGE8,
         "recomendado": recomendado,
-        "lectura": "Elige 8 seguro recomendado." if recomendado else f"Elige 8 forzado con los 8 mejores disponibles, pero solo {len(fuertes)} pasan filtros fuertes.",
+        "lectura": "Elige 8 seleccionado por probabilidad real de acierto del signo jugado.",
         "seleccionados": sorted(seleccionados_nums),
-        "partidos_que_pasan_filtro_fuerte": len(fuertes),
         "ranking": [dict(item, posicion=idx, seleccionado=item["num"] in seleccionados_nums) for idx, item in enumerate(ranking, start=1)],
     }
     prediccion["elige8_modos"] = construir_modos_elige8(ranking)
     config = prediccion.setdefault("configuracion", {})
     config["elige8"] = True
-    config["elige8_modo"] = "conservador"
-    config["elige8_modos_disponibles"] = ["conservador", "rentable"]
+    config["elige8_modo"] = "probabilidad_real"
+    config["elige8_modos_disponibles"] = ["probabilidad_real"]
     config["elige8_recomendado"] = recomendado
     resumen = prediccion.setdefault("resumen", {})
     resumen["elige8_seleccionados"] = UMBRAL_PARTIDOS_SEGUROS
     resumen["elige8_seguro_recomendado"] = recomendado
-    resumen["elige8_seguro_fuertes"] = len(fuertes)
+    resumen["elige8_regla"] = "probabilidad_real_de_acierto"
     recalcular_coste(prediccion, partidos)
     return True
 
