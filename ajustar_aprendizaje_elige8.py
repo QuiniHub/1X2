@@ -9,6 +9,7 @@ PREDICCIONES = DATA / "predicciones"
 JUGADAS_ARCHIVO = DATA / "quinielas_jugadas.json"
 JORNADAS = DATA / "jornadas"
 MEMORIA_ELIGE8 = DATA / "memoria_ia" / "aprendizaje_elige8.json"
+SIGNOS = ("1", "X", "2")
 
 
 PREMIOS_CONOCIDOS = {
@@ -20,9 +21,9 @@ PREMIOS_CONOCIDOS = {
 }
 
 REGLA_BASE = (
-    "Elige 8 se elige por cobertura real del boleto validado: primero triples porque cubren 1X2, "
-    "despues dobles con mayor probabilidad cubierta y despues fijos fiables. Si hay hueco, "
-    "un triple no puede quedar fuera del Elige 8."
+    "Elige 8 se elige por probabilidad real de acertar el signo jugado: "
+    "TRIPLE=100%, DOBLE=suma de probabilidades de sus dos signos, "
+    "FIJO=probabilidad de su unico signo. El tipo no prioriza salvo el triple, que siempre es 100%."
 )
 
 
@@ -51,70 +52,94 @@ def normalizar_signos(valor):
     return "".join(dict.fromkeys(signos))
 
 
-def prob_signo(partido, signo):
+def probabilidades_pct(partido):
     probs = partido.get("probabilidades") or {}
-    if signo in probs:
+    salida = {}
+    for signo in SIGNOS:
         try:
-            return float(probs.get(signo) or 0)
+            salida[signo] = max(float(probs.get(signo) or 0), 0.0)
         except (TypeError, ValueError):
-            return 0.0
-    valores = []
-    for valor in probs.values():
-        try:
-            valores.append(float(valor or 0))
-        except (TypeError, ValueError):
-            pass
-    return max(valores) if valores else 0.0
+            salida[signo] = 0.0
+    total = sum(salida.values())
+    if 0 < total <= 1.5:
+        salida = {signo: valor * 100.0 for signo, valor in salida.items()}
+    return salida
+
+
+def prob_signo(partido, signo):
+    return probabilidades_pct(partido).get(signo, 0.0)
 
 
 def signo_base(partido):
     signo = normalizar_signos(partido.get("signo_base") or partido.get("signo_final"))
     if len(signo) == 1:
         return signo
-    probs = partido.get("probabilidades") or {}
-    if not probs:
+    probs = probabilidades_pct(partido)
+    if not any(probs.values()):
         return signo[:1]
-    return max(("1", "X", "2"), key=lambda s: prob_signo(partido, s))
+    return max(SIGNOS, key=lambda s: probs.get(s, 0.0))
 
 
 def signos_jugados(partido):
     signos = normalizar_signos(partido.get("signo_final") or partido.get("signos") or partido.get("signo_base"))
-    return signos or signo_base(partido) or "1X2"
+    return signos or signo_base(partido) or ""
+
+
+def tipo_cobertura(signos):
+    total = len(normalizar_signos(signos))
+    if total >= 3:
+        return "TRIPLE"
+    if total == 2:
+        return "DOBLE"
+    if total == 1:
+        return "FIJO"
+    return "SIN_SIGNO"
 
 
 def probabilidad_cubierta(partido):
     signos = signos_jugados(partido)
-    probs = partido.get("probabilidades") or {}
-    if len(signos) == 3 and not probs:
+    if len(signos) >= 3:
         return 100.0
-    return min(100.0, sum(prob_signo(partido, signo) for signo in signos))
+    probs = probabilidades_pct(partido)
+    return round(min(100.0, sum(probs.get(signo, 0.0) for signo in signos)), 3)
 
 
 def puntuacion_elige8(partido):
-    signos_finales = signos_jugados(partido)
-    prob_cubierta = probabilidad_cubierta(partido)
-    prob_objetivo = prob_signo(partido, signo_base(partido))
-    incertidumbre = float(partido.get("incertidumbre") or 0)
-    sorpresa = float(partido.get("probabilidad_sorpresa") or 0)
-    riesgo_necesidad = float(partido.get("riesgo_necesidad_real") or partido.get("riesgo_necesidad") or 0)
-    prioridad_cobertura = 30000 if len(signos_finales) == 3 else 20000 if len(signos_finales) == 2 else 10000
-    penalizacion = min(25, incertidumbre * 0.05) + min(15, sorpresa * 0.05)
-    if riesgo_necesidad:
-        penalizacion += 1
+    return probabilidad_cubierta(partido)
 
-    score = prioridad_cobertura + prob_cubierta * 3 + prob_objetivo * 0.2 - penalizacion
-    return round(score, 3)
+
+def incertidumbre(partido):
+    try:
+        return float(partido.get("incertidumbre") or 0.0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def sorpresa(partido):
+    try:
+        return float(partido.get("probabilidad_sorpresa") or partido.get("surprise_score") or 0.0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def clave_ranking_elige8(partido):
+    return (
+        -probabilidad_cubierta(partido),
+        incertidumbre(partido),
+        sorpresa(partido),
+        int(partido.get("num", 0) or 0),
+    )
 
 
 def explicar_entrada_elige8(partido):
     signos = signos_jugados(partido)
     cubierta = probabilidad_cubierta(partido)
-    if len(signos) == 3:
-        return "Entra en Elige 8 porque es triple: cubre 1X2 y por tanto el signo queda asegurado en este partido."
-    if len(signos) == 2:
-        return f"Entra en Elige 8 porque es doble: cubre {signos} con {cubierta:.1f}% de probabilidad acumulada."
-    signo = signo_base(partido)
-    return f"Entra en Elige 8 como fijo fiable: signo {signo} con {cubierta:.1f}% de probabilidad cubierta."
+    tipo = tipo_cobertura(signos)
+    if tipo == "TRIPLE":
+        return "Entra en Elige 8 porque es TRIPLE: probabilidad real de acierto 100%."
+    if tipo == "DOBLE":
+        return f"Entra en Elige 8 porque el doble {signos} suma {cubierta:.1f}% de probabilidad real de acierto."
+    return f"Entra en Elige 8 porque el fijo {signos} tiene {cubierta:.1f}% de probabilidad real de acierto."
 
 
 def recalcular_elige8(prediccion):
@@ -127,13 +152,9 @@ def recalcular_elige8(prediccion):
     if not tenia_elige8:
         return False
 
-    ordenados = sorted(
-        partidos,
-        key=lambda p: (puntuacion_elige8(p), len(signos_jugados(p)), probabilidad_cubierta(p), prob_signo(p, signo_base(p))),
-        reverse=True,
-    )
+    ordenados = sorted(partidos, key=clave_ranking_elige8)
     seleccionados = {int(p.get("num")) for p in ordenados[:8]}
-    triples = {int(p.get("num")) for p in partidos if len(signos_jugados(p)) == 3 and int(p.get("num", 0) or 0)}
+    triples = {int(p.get("num")) for p in partidos if len(signos_jugados(p)) >= 3 and int(p.get("num", 0) or 0)}
     if len(triples) <= 8 and not triples.issubset(seleccionados):
         fuera = sorted(triples - seleccionados)
         raise RuntimeError(f"Elige 8 incoherente: triples fuera de la seleccion {fuera}")
@@ -144,14 +165,16 @@ def recalcular_elige8(prediccion):
         signo = signo_base(partido)
         prob = prob_signo(partido, signo)
         signos = signos_jugados(partido)
+        tipo = tipo_cobertura(signos)
         cubierta = probabilidad_cubierta(partido)
         elegido = num in seleccionados
         partido["elige8"] = elegido
         partido["elige8_score"] = puntuacion_elige8(partido)
         partido["elige8_probabilidad_signo"] = round(prob, 1)
         partido["elige8_probabilidad_cubierta"] = round(cubierta, 1)
+        partido["elige8_probabilidad_acierto"] = round(cubierta, 1)
         partido["elige8_signo_objetivo"] = signo
-        partido["elige8_tipo_cobertura"] = "triple" if len(signos) == 3 else "doble" if len(signos) == 2 else "fijo"
+        partido["elige8_tipo_cobertura"] = tipo.lower()
         if elegido:
             partido["elige8_criterio"] = explicar_entrada_elige8(partido)
         else:
@@ -163,21 +186,24 @@ def recalcular_elige8(prediccion):
             "visitante": partido.get("visitante"),
             "signo": signo,
             "signos_jugados": signos,
+            "tipo_cobertura": tipo,
             "probabilidad": round(prob, 1),
             "probabilidad_cubierta": round(cubierta, 1),
+            "probabilidad_acierto": round(cubierta, 1),
             "score": partido["elige8_score"],
             "seleccionado": elegido,
         })
 
     prediccion["elige8_aprendizaje"] = {
-        "version": "3.0",
+        "version": "4.0",
         "generado_en": ahora(),
         "regla_activa": REGLA_BASE,
-        "criterio": "ranking_por_cobertura_real_del_boleto",
+        "criterio": "ranking_por_probabilidad_real_de_acierto_del_signo_jugado",
         "ranking": ranking,
     }
     resumen = prediccion.setdefault("resumen", {})
     resumen["elige8_seleccionados"] = 8
+    resumen["elige8_regla"] = "probabilidad_real_de_acierto"
     return True
 
 
@@ -246,11 +272,11 @@ def evaluar_jugada(jugada):
         regla = "Jornada parcial: esperar resultados oficiales antes de aprender reglas fuertes."
     elif partido_rompio:
         regla = (
-            f"Elige 8 se rompio en el partido {partido_rompio['num']}; revisar si quedaron fuera triples "
-            "o dobles con mas cobertura real que el partido elegido."
+            f"Elige 8 se rompio en el partido {partido_rompio['num']}; revisar si quedaron fuera partidos "
+            "con mas probabilidad real de acierto que el partido elegido."
         )
     elif seleccionados_elige8:
-        regla = "Elige 8 completo: mantener prioridad por cobertura real del boleto."
+        regla = "Elige 8 completo: mantener prioridad por probabilidad real de acierto."
     else:
         regla = "Jornada sin Elige 8: aprender aciertos y fallos del boleto, sin regla especifica de Elige 8."
 
@@ -302,7 +328,7 @@ def construir_memoria_desde_jugadas():
         resumen["precision_elige8"] = 0.0
 
     memoria = {
-        "version": "3.0",
+        "version": "4.0",
         "actualizado_en": ahora(),
         "regla_activa": REGLA_BASE,
         "resumen": resumen,
