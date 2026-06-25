@@ -55,7 +55,12 @@ def probabilidades(partido):
     for signo in SIGNOS:
         if signo in probs:
             salida[signo] = numero(probs.get(signo), 0.0)
-    return salida if all(signo in salida for signo in SIGNOS) else {}
+    if not all(signo in salida for signo in SIGNOS):
+        return {}
+    total = sum(salida.values())
+    if 0 < total <= 1.5:
+        salida = {signo: valor * 100.0 for signo, valor in salida.items()}
+    return salida
 
 
 def signo_top(probs):
@@ -151,8 +156,7 @@ def evaluar_partido(partido):
     penalizacion_categoria = categoria_penalizacion(partido)
     penalizacion_motivacion = motivacion_penalizacion(partido)
     factor_calidad = calidad_factor(partido)
-    penalizacion_elige8 = 3.0 if partido.get("elige8") else 0.0
-    # Escala: prioriza probabilidad y margen, castiga incertidumbre/sorpresa.
+    # Elige 8 ya significa alta probabilidad real de acierto; no se penaliza aqui.
     score = (
         prob * 1.35
         + margen * 1.55
@@ -161,7 +165,6 @@ def evaluar_partido(partido):
         - sorpresa * 0.38
         - penalizacion_categoria
         - penalizacion_motivacion
-        - penalizacion_elige8
     )
     razonamiento = construir_razonamiento(
         partido,
@@ -188,6 +191,8 @@ def evaluar_partido(partido):
         "calidad_datos": partido.get("calidad_datos"),
         "origen_probabilidades": partido.get("origen_probabilidades"),
         "riesgo_necesidad_real": bool(partido.get("riesgo_necesidad_real")),
+        "elige8": bool(partido.get("elige8")),
+        "elige8_probabilidad_acierto": partido.get("elige8_probabilidad_acierto"),
         "ajuste_clasificacion_mundial_2026": partido.get("ajuste_clasificacion_mundial_2026", {}),
         "score_pleno15": round(score, 2),
         "razonamiento": razonamiento,
@@ -208,6 +213,8 @@ def construir_razonamiento(partido, signo, prob, margen, incertidumbre, sorpresa
         piezas.append("La motivacion/clasificacion competitiva introduce riesgo adicional de rotaciones, necesidad o resultado tactico.")
     if penal_categoria:
         piezas.append("La categoria de sorpresa o cobertura sugerida exige prudencia para el Pleno al 15.")
+    if partido.get("elige8"):
+        piezas.append("El partido tambien aparece en Elige 8 por probabilidad real de acierto; eso no se penaliza para el Pleno al 15.")
     lecturas = partido.get("lecturas_motivacion") or []
     if lecturas:
         piezas.append("Lectura contextual: " + str(lecturas[0]))
@@ -301,7 +308,7 @@ def main():
     ordenados = sorted(evaluados, key=lambda item: item["score_pleno15"], reverse=True)
     recomendacion = dict(ordenados[0])
     salida = {
-        "version": "1.0",
+        "version": "1.1",
         "generado_en": ahora_iso(),
         "jornada": data.get("jornada"),
         "estado": "recomendado",
@@ -311,6 +318,7 @@ def main():
         "criterio": {
             "prioriza": ["probabilidad_top", "margen_probabilidad", "baja_incertidumbre", "bajo_surprise_score", "calidad_datos"],
             "penaliza": ["categoria_sorpresa_alta", "rotacion_probable", "necesidad_competitiva_extrema", "fallback_o_baja_calidad"],
+            "elige8": "No se penaliza: si un partido entra en Elige 8 es porque tiene alta probabilidad real de acierto.",
         },
     }
     guardar_json(SALIDA, salida)
