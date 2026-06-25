@@ -5,6 +5,8 @@ from datetime import datetime, time, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from sincronizar_mundial_jornadas import sincronizar_jornadas_desde_mundial
+
 try:
     import requests
 except ImportError:
@@ -225,9 +227,6 @@ def partido_esta_programado_en_futuro(partido):
     if inicio:
         return inicio + MARGEN_RESULTADO_FINAL > ahora
 
-    # Sin hora fiable no se acepta scraping de resultados el mismo dia ni en el futuro.
-    # Evita cerrar partidos con marcadores encontrados en paginas agregadas pero no
-    # vinculados a un partido ya finalizado.
     fecha = fecha_partido(partido)
     if fecha and fecha >= ahora.date():
         return True
@@ -376,11 +375,16 @@ def sincronizar_calendario_liga(partidos):
 
 
 def main():
+    cambios_mundial, detalles_mundial = sincronizar_jornadas_desde_mundial()
+    if detalles_mundial:
+        print(f"Resultados Mundial sincronizados hacia jornadas: {cambios_mundial} cambios.")
     texto = descargar_fuentes()
     if not texto:
         print("Sin texto de fuentes directas.")
+        print(f"Actualizacion directa finalizada: {cambios_mundial} cambios desde Mundial.")
         return
     cambios, partidos = actualizar_jornada_quiniela(texto)
+    cambios += cambios_mundial
     if partidos:
         cambios += sincronizar_calendario_liga(partidos)
     print(f"Actualizacion directa finalizada: {cambios} cambios.")
