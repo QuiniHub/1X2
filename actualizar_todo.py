@@ -47,6 +47,7 @@ SCRIPTS_ACTIVOS = [
     "actualizar_aprendizaje_ia.py",
     "generar_diario_aprendizaje.py",
     "construir_memoria_ia.py",
+    "aprender_de_historial_resultados.py",
     "memoria_autonoma_quiniela.py",
     "sincronizar_dinamicas_memoria.py",
 
