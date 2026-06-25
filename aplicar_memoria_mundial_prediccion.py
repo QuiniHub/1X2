@@ -160,17 +160,32 @@ def buscar_clasificacion(clasificaciones, nombre):
     return mejor if mejor_score >= 1 else None
 
 
+def situacion(datos):
+    return str((datos or {}).get("situacion") or "").lower()
+
+
+def posicion(datos):
+    try:
+        return int((datos or {}).get("posicion") or 99)
+    except (TypeError, ValueError):
+        return 99
+
+
+def esta(datos, valor):
+    return situacion(datos) == valor
+
+
 def factor_motivacion_clasificacion(datos):
-    situacion = str((datos or {}).get("situacion") or "").lower()
-    if situacion == "necesita_ganar":
+    sit = situacion(datos)
+    if sit == "necesita_ganar":
         return 3.0
-    if situacion == "le_vale_empate":
+    if sit == "le_vale_empate":
         return 1.8
-    if situacion == "depende_de_otros_resultados":
+    if sit == "depende_de_otros_resultados":
         return 1.4
-    if situacion == "ya_clasificada":
+    if sit == "ya_clasificada":
         return -1.2
-    if situacion == "eliminada":
+    if sit == "eliminada":
         return -1.8
     return 0.0
 
@@ -193,25 +208,160 @@ def resumen_clasificacion(datos):
     }
 
 
+def registrar_escenario(escenarios, codigo, descripcion, impacto):
+    escenarios.append({"codigo": codigo, "descripcion": descripcion, "impacto_1x2": impacto})
+
+
 def ajustar_por_clasificacion_mundial(probs, local_cls, visitante_cls):
     if not local_cls and not visitante_cls:
-        return probs, 0.0, []
-    p = dict(probs)
+        return probs, 0.0, [], []
+
+    p = {k: float(probs.get(k, 33.3)) for k in ("1", "X", "2")}
     lecturas = []
+    escenarios = []
+    riesgo_extra = 0.0
+
+    sl = situacion(local_cls)
+    sv = situacion(visitante_cls)
+
+    # 1) Ya clasificado como primero contra eliminado: ambos pueden rotar,
+    # partido abierto, mas sorpresa y subida clara de la X.
+    if esta(local_cls, "ya_clasificada") and posicion(local_cls) == 1 and esta(visitante_cls, "eliminada"):
+        p["1"] -= 4.0
+        p["X"] += 5.2
+        p["2"] += 1.6
+        riesgo_extra += 7.0
+        registrar_escenario(
+            escenarios,
+            "primero_clasificado_vs_eliminado",
+            "Local ya clasificado como primero frente a visitante eliminado: posible doble rotacion, partido abierto y subida de la X.",
+            {"1": -4.0, "X": 5.2, "2": 1.6},
+        )
+    elif esta(visitante_cls, "ya_clasificada") and posicion(visitante_cls) == 1 and esta(local_cls, "eliminada"):
+        p["2"] -= 4.0
+        p["X"] += 5.2
+        p["1"] += 1.6
+        riesgo_extra += 7.0
+        registrar_escenario(
+            escenarios,
+            "eliminado_vs_primero_clasificado",
+            "Visitante ya clasificado como primero frente a local eliminado: posible doble rotacion, partido abierto y subida de la X.",
+            {"1": 1.6, "X": 5.2, "2": -4.0},
+        )
+
+    # 2) Clasificado que todavia puede mejorar posicion: intensidad media y
+    # ligera rotacion. Pierde algo de filo, no se desploma.
+    if esta(local_cls, "ya_clasificada") and posicion(local_cls) > 1:
+        p["1"] -= 1.5
+        p["X"] += 0.9
+        p["2"] += 0.6
+        riesgo_extra += 2.0
+        registrar_escenario(
+            escenarios,
+            "clasificado_puede_mejorar_local",
+            "Local clasificado pero con margen de mejora de posicion: intensidad media y ligera rotacion.",
+            {"1": -1.5, "X": 0.9, "2": 0.6},
+        )
+    if esta(visitante_cls, "ya_clasificada") and posicion(visitante_cls) > 1:
+        p["2"] -= 1.5
+        p["X"] += 0.9
+        p["1"] += 0.6
+        riesgo_extra += 2.0
+        registrar_escenario(
+            escenarios,
+            "clasificado_puede_mejorar_visitante",
+            "Visitante clasificado pero con margen de mejora de posicion: intensidad media y ligera rotacion.",
+            {"1": 0.6, "X": 0.9, "2": -1.5},
+        )
+
+    # 3) Eliminado contra rival que necesita ganar: ventaja motivacional clara
+    # para el que se juega el pase.
+    if esta(local_cls, "eliminada") and esta(visitante_cls, "necesita_ganar"):
+        p["1"] -= 3.4
+        p["X"] -= 0.4
+        p["2"] += 4.6
+        riesgo_extra += 3.0
+        registrar_escenario(
+            escenarios,
+            "eliminado_vs_necesita_ganar",
+            "Local eliminado contra visitante que necesita ganar: ventaja motivacional clara para el visitante.",
+            {"1": -3.4, "X": -0.4, "2": 4.6},
+        )
+    elif esta(local_cls, "necesita_ganar") and esta(visitante_cls, "eliminada"):
+        p["1"] += 4.6
+        p["X"] -= 0.4
+        p["2"] -= 3.4
+        riesgo_extra += 3.0
+        registrar_escenario(
+            escenarios,
+            "necesita_ganar_vs_eliminado",
+            "Local que necesita ganar contra visitante eliminado: ventaja motivacional clara para el local.",
+            {"1": 4.6, "X": -0.4, "2": -3.4},
+        )
+
+    # 4) Dos equipos dependen de otros resultados: partido equilibrado, ambos
+    # compiten, se reduce el exceso de favorito y sube ligeramente la X.
+    if esta(local_cls, "depende_de_otros_resultados") and esta(visitante_cls, "depende_de_otros_resultados"):
+        top = signo_top(p)
+        if top == "1":
+            p["1"] -= 1.8
+            p["2"] += 0.9
+        elif top == "2":
+            p["2"] -= 1.8
+            p["1"] += 0.9
+        p["X"] += 1.2
+        riesgo_extra += 2.5
+        registrar_escenario(
+            escenarios,
+            "ambos_dependen",
+            "Ambos dependen de otros resultados: partido competitivo y equilibrado, se suaviza el favorito y sube algo la X.",
+            {"1": round(p["1"] - float(probs.get("1", 33.3)), 2), "X": 1.2, "2": round(p["2"] - float(probs.get("2", 33.3)), 2)},
+        )
+
+    # 5) A uno le vale empate y el otro necesita ganar: presion asimetrica.
+    # Sube la X tactica y tambien el empuje del equipo obligado a ganar.
+    if esta(local_cls, "le_vale_empate") and esta(visitante_cls, "necesita_ganar"):
+        p["1"] -= 1.2
+        p["X"] += 3.6
+        p["2"] += 2.0
+        riesgo_extra += 4.0
+        registrar_escenario(
+            escenarios,
+            "local_le_vale_empate_visitante_necesita_ganar",
+            "Al local le vale empate y el visitante necesita ganar: sube la X tactica y el empuje visitante.",
+            {"1": -1.2, "X": 3.6, "2": 2.0},
+        )
+    elif esta(local_cls, "necesita_ganar") and esta(visitante_cls, "le_vale_empate"):
+        p["1"] += 2.0
+        p["X"] += 3.6
+        p["2"] -= 1.2
+        riesgo_extra += 4.0
+        registrar_escenario(
+            escenarios,
+            "local_necesita_ganar_visitante_le_vale_empate",
+            "El local necesita ganar y al visitante le vale empate: sube la X tactica y el empuje local.",
+            {"1": 2.0, "X": 3.6, "2": -1.2},
+        )
+
+    # Capa general: si no hay un escenario concreto, la diferencia de
+    # motivacion sigue moviendo el 1X2; si si lo hay, queda como ajuste suave.
     fl = factor_motivacion_clasificacion(local_cls)
     fv = factor_motivacion_clasificacion(visitante_cls)
     diff = fl - fv
     if diff:
-        ajuste = clamp(diff * 2.2, -8.0, 8.0)
+        multiplicador = 1.0 if escenarios else 2.2
+        ajuste = clamp(diff * multiplicador, -5.5, 5.5)
         p["1"] += ajuste
         p["2"] -= ajuste
         lecturas.append(
             "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 "
-            f"({(local_cls or {}).get('situacion', 'sin_dato')} vs {(visitante_cls or {}).get('situacion', 'sin_dato')})."
+            f"({sl or 'sin_dato'} vs {sv or 'sin_dato'})."
         )
-    if (local_cls or {}).get("situacion") == "le_vale_empate" or (visitante_cls or {}).get("situacion") == "le_vale_empate":
+
+    if not escenarios and (sl == "le_vale_empate" or sv == "le_vale_empate"):
         p["X"] += 2.3
         lecturas.append("Clasificacion Mundial 2026: a una seleccion le vale empate, sube la X como resultado tactico.")
+
     if (local_cls or {}).get("rotacion_probable") and not (visitante_cls or {}).get("rotacion_probable"):
         p["1"] -= 2.2
         p["X"] += 0.9
@@ -222,8 +372,12 @@ def ajustar_por_clasificacion_mundial(probs, local_cls, visitante_cls):
         p["X"] += 0.9
         p["1"] += 1.3
         lecturas.append("Clasificacion Mundial 2026: posible rotacion del visitante por objetivo cerrado.")
-    riesgo = min(abs(diff) * 3.0 + len(lecturas) * 1.5, 18.0)
-    return normalizar_probs(p), round(riesgo, 2), lecturas
+
+    for escenario in escenarios:
+        lecturas.append("Escenario competitivo: " + escenario["descripcion"])
+
+    riesgo = min(abs(diff) * 2.4 + len(lecturas) * 1.5 + riesgo_extra, 24.0)
+    return normalizar_probs(p), round(riesgo, 2), lecturas, escenarios
 
 
 def aplicar_mundial_a_partido(partido, equipos, clasificaciones=None):
@@ -249,7 +403,7 @@ def aplicar_mundial_a_partido(partido, equipos, clasificaciones=None):
     calidad, muestra_minima = calidad_muestra(local, visitante)
     peso = 0.72 if muestra_minima == 1 else 0.82 if muestra_minima == 2 else 0.90
     probs = mezclar_probs(base, mundial_probs, peso)
-    probs, riesgo_clasificacion, lecturas_clasificacion = ajustar_por_clasificacion_mundial(probs, local_cls, visitante_cls)
+    probs, riesgo_clasificacion, lecturas_clasificacion, escenarios_clasificacion = ajustar_por_clasificacion_mundial(probs, local_cls, visitante_cls)
     inc = incertidumbre(probs, muestra_minima, riesgo_clasificacion)
     sorpresa = prob_sorpresa(probs, inc)
     indice = indice_sorpresa(probs, inc, muestra_minima)
@@ -286,13 +440,15 @@ def aplicar_mundial_a_partido(partido, equipos, clasificaciones=None):
         "local": bool(local_cls),
         "visitante": bool(visitante_cls),
         "riesgo_extra": riesgo_clasificacion,
+        "escenarios": [e.get("codigo") for e in escenarios_clasificacion],
     }
     lecturas_previas = partido.get("lecturas_motivacion") or []
     partido["lecturas_motivacion"] = lecturas_previas + lecturas_clasificacion
     partido["ajuste_clasificacion_mundial_2026"] = {
-        "activo": bool(lecturas_clasificacion),
+        "activo": bool(lecturas_clasificacion or escenarios_clasificacion),
         "riesgo_extra": riesgo_clasificacion,
         "lecturas": lecturas_clasificacion,
+        "escenarios": escenarios_clasificacion,
         "local": resumen_clasificacion(local_cls),
         "visitante": resumen_clasificacion(visitante_cls),
     }
@@ -314,13 +470,19 @@ def aplicar_a_prediccion(data, memoria, clasificaciones=None):
     aplicados = 0
     pendientes = 0
     clasificacion_aplicada = 0
+    escenarios_detectados = {}
     for partido in data.get("partidos", []):
         antes = partido.get("origen_probabilidades")
         nuevo = aplicar_mundial_a_partido(dict(partido), equipos, clasificaciones=clasificaciones)
         if nuevo.get("origen_probabilidades") == "mundial_2026_resultados_y_modelo_base" and antes != nuevo.get("origen_probabilidades"):
             aplicados += 1
-        if nuevo.get("ajuste_clasificacion_mundial_2026", {}).get("activo"):
+        ajuste = nuevo.get("ajuste_clasificacion_mundial_2026", {})
+        if ajuste.get("activo"):
             clasificacion_aplicada += 1
+        for escenario in ajuste.get("escenarios", []):
+            codigo = escenario.get("codigo")
+            if codigo:
+                escenarios_detectados[codigo] = escenarios_detectados.get(codigo, 0) + 1
         if not nuevo.get("memoria_mundial_2026", {}).get("aplicado") and int(nuevo.get("num") or 0) <= 13:
             pendientes += 1
         partidos.append(nuevo)
@@ -330,6 +492,7 @@ def aplicar_a_prediccion(data, memoria, clasificaciones=None):
         "pendientes_sin_historial_completo": pendientes,
         "total_equipos_memoria": memoria.get("total_equipos", 0),
         "clasificacion_mundial_aplicada": clasificacion_aplicada,
+        "escenarios_competitivos_aplicados": escenarios_detectados,
         "total_equipos_clasificacion": (clasificaciones or {}).get("total_equipos", 0),
         "generado_en": memoria.get("generado_en"),
         "clasificaciones_generado_en": (clasificaciones or {}).get("generado_en"),
