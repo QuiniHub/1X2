@@ -18,6 +18,8 @@ from html import unescape
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+from sincronizar_mundial_jornadas import sincronizar_jornadas_desde_mundial
+
 try:
     import requests
 except ImportError:
@@ -65,7 +67,6 @@ ALIAS = {
     "curacao": "curazao",
     "curazao": "curazao",
     "curaçao": "curazao",
-    "arabia saudi": "arabia saudi",
     "arabia saudi": "arabia saudi",
     "turkiye": "turquia",
     "turkey": "turquia",
@@ -118,6 +119,8 @@ def variantes_equipo(nombre):
         variantes.update({"holanda", "netherlands"})
     if base == "costa de marfil":
         variantes.update({"costa marfil", "ivory coast", "cote divoire"})
+    if base == "curazao":
+        variantes.update({"curacao", "curaçao"})
     return {v for v in variantes if v}
 
 
@@ -420,9 +423,13 @@ def main():
     nuevos = resultados_desde_jornadas() + resultados_desde_fuentes(candidatos, fuentes)
     actualizado, cambios = fusionar_resultados(data, nuevos)
     guardar_json(RESULTADOS, actualizado)
+    cambios_jornadas, detalles_jornadas = sincronizar_jornadas_desde_mundial()
     memoria = construir_memoria(actualizado)
     guardar_json(MEMORIA, memoria)
     print(f"Mundial 2026 actualizado: {cambios} resultado(s) nuevo(s).")
+    print(f"Jornadas sincronizadas desde Mundial 2026: {cambios_jornadas} cambio(s).")
+    if detalles_jornadas:
+        print("Detalles sincronizados: " + json.dumps(detalles_jornadas, ensure_ascii=False))
     print(f"Memoria Mundial 2026 actualizada: {memoria['total_equipos']} equipos, {memoria['total_resultados']} resultados.")
 
 
