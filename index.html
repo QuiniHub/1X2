@@ -437,7 +437,7 @@
   </main>
 
   <script>
-    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, historial: null, metricas: null, generated: false, dobles: 0, triples: 0, elige8: true };
+    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, historial: null, metricas: null, generated: false, dobles: 4, triples: 2, elige8: true, mode: 'auto' };
     const qs = (s, root = document) => root.querySelector(s);
     const qsa = (s, root = document) => [...root.querySelectorAll(s)];
     const fmt = (v, fallback = '-') => (v === null || v === undefined || v === '' ? fallback : v);
@@ -483,27 +483,40 @@
         .slice(0, 14);
     }
 
+    function calculateCost() {
+      const apuestas = Math.pow(2, state.dobles) * Math.pow(3, state.triples);
+      const importeQuiniela = apuestas * 1.50;
+      const importeElige8 = state.elige8 ? apuestas * 0.50 : 0;
+      return { apuestas, importeQuiniela, importeElige8, importeTotal: importeQuiniela + importeElige8 };
+    }
+
+    function updateConfigUI() {
+      qs('#doblesCount').textContent = state.dobles;
+      qs('#triplesCount').textContent = state.triples;
+      qs('#elige8Toggle').checked = state.elige8;
+    }
+
     function renderPredictionMetrics() {
       const p = state.prediccion || {};
       const resumen = p.resumen || {};
-      const coste = p.coste || {};
       const m = state.metricas || {};
       const precision = firstNumber(m.precision_reciente, m.precision, m.resumen?.precision, p.precision_reciente, p.backtesting?.precision);
       const jornadasPorClave = Object.keys(m.por_jornada || {}).length || undefined;
       const jornadasIA = firstNumber(m.jornadas_con_ia, m.jornadas_evaluadas, m.total_jornadas, jornadasPorClave, resumen.jornadas_con_ia, p.jornadas_con_ia);
+      const configuredDobles = firstNumber(p.configuracion?.dobles, resumen.dobles);
+      const configuredTriples = firstNumber(p.configuracion?.triples, resumen.triples);
+      if (configuredDobles !== undefined) state.dobles = configuredDobles;
+      if (configuredTriples !== undefined) state.triples = configuredTriples;
+      state.elige8 = Boolean(p.configuracion?.elige8 ?? state.elige8);
+      const coste = calculateCost();
       qs('#predictionMetrics').innerHTML = [
         metric('Precisión reciente', precision === undefined ? '-' : pct(precision)),
         metric('Jornadas con IA', jornadasIA ?? '-'),
-        metric('Coste boleto', eur(coste.importe_total ?? coste.importe_quiniela)),
+        metric('Coste boleto', eur(coste.importeTotal)),
         metric('Apuestas', coste.apuestas || '-')
       ].join('');
       qs('#jornadaLabel').textContent = `Jornada ${fmt(p.jornada, '')}`.trim();
-      state.dobles = Number(p.configuracion?.dobles ?? resumen.dobles ?? state.dobles ?? 0);
-      state.triples = Number(p.configuracion?.triples ?? resumen.triples ?? state.triples ?? 0);
-      state.elige8 = Boolean(p.configuracion?.elige8 ?? true);
-      qs('#doblesCount').textContent = state.dobles;
-      qs('#triplesCount').textContent = state.triples;
-      qs('#elige8Toggle').checked = state.elige8;
+      updateConfigUI();
     }
 
     function probabilityText(match) {
@@ -512,19 +525,53 @@
       return `<span>1 ${pct(probs['1'])} · X ${pct(probs.X)} · 2 ${pct(probs['2'])}</span>`;
     }
 
+    function elige8Probability(match) {
+      return firstNumber(match.elige8_probabilidad_acierto, match.probabilidad_acierto_elige8, match.elige8_probabilidad_cubierta, match.elige8_confianza_real, match.probabilidad_top);
+    }
+
+    function flagValue(value) {
+      if (typeof value === 'boolean') return value;
+      if (typeof value === 'number') return value > 0;
+      if (typeof value === 'string') return ['true', 'si', 'sí', '1', 'yes'].includes(value.toLowerCase());
+      if (value && typeof value === 'object') return Boolean(value.activo ?? value.seleccionado ?? value.recomendado ?? value.enabled ?? value.value);
+      return false;
+    }
+
+    function isElige8Match(match) {
+      if (!state.elige8) return false;
+      if (flagValue(match.en_elige8) || flagValue(match.elige8) || flagValue(match.es_elige8)) return true;
+      const prob = elige8Probability(match);
+      return Number.isFinite(prob) && prob >= 60;
+    }
+
+    function renderSignSelection(signsBox) {
+      const chosen = normalizeSignText(signsBox.dataset.selected || '');
+      signsBox.dataset.selected = chosen;
+      qsa('.sign', signsBox).forEach(sign => sign.classList.toggle('selected', chosen.includes(sign.dataset.sign)));
+    }
+
+    function applyTicketVisibility() {
+      const editable = state.mode === 'mixta' || state.mode === 'manual';
+      document.body.classList.toggle('generated', state.generated || editable);
+      qsa('.match-row').forEach(row => row.classList.toggle('reveal', editable || row.classList.contains('reveal')));
+      qsa('.signs').forEach(renderSignSelection);
+    }
+
     function renderTicket() {
       const matches = predictionMatches();
       state.generated = false;
       document.body.classList.remove('generated');
       const html = matches.map(match => {
         const num = match.num ?? match.numero ?? match.partido;
-        const chosen = selectedSigns(match);
-        const elige8 = match.en_elige8 || match.elige8 || match.es_elige8;
+        const chosen = state.mode === 'manual' ? '' : selectedSigns(match);
+        const elige8 = isElige8Match(match);
+        const elige8Prob = elige8Probability(match);
+        const elige8Label = elige8 ? `<span class="elige8-label">Elige 8${Number.isFinite(elige8Prob) ? ` · ${pct(elige8Prob)}` : ''}</span>` : '';
         return `<article class="match-row" data-num="${escapeHtml(num)}">
           <div class="match-num">${escapeHtml(num)}</div>
           <div class="teams">
             <strong>${escapeHtml(match.local || match.equipo_local)} <span style="color:var(--muted);font-weight:700">vs</span> ${escapeHtml(match.visitante || match.equipo_visitante)}</strong>
-            <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8 ? '<span class="elige8-label">Elige 8</span>' : ''}${probabilityText(match)}</div>
+            <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8Label}${probabilityText(match)}</div>
           </div>
           <div class="signs" data-selected="${escapeHtml(chosen)}">
             ${['1','X','2'].map(s => `<span class="sign" data-sign="${s}">${s}</span>`).join('')}
@@ -532,6 +579,7 @@
         </article>`;
       }).join('');
       qs('#ticketList').innerHTML = html || '<div class="empty">No hay partidos cargados todavía.</div>';
+      applyTicketVisibility();
     }
 
     function extractPleno15(data) {
@@ -547,11 +595,47 @@
       return candidates.find(p => Number(p.num ?? p.numero ?? 0) === 15) || null;
     }
 
+    function topSignFromProbabilities(probs = {}) {
+      return ['1','X','2'].reduce((best, sign) => Number(probs[sign]) > Number(probs[best] ?? -Infinity) ? sign : best, '');
+    }
+
+    function sameTeam(a, b) {
+      return String(a || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim() === String(b || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    }
+
+    function findPredictionForCandidate(candidate = {}) {
+      const num = Number(candidate.num ?? candidate.numero ?? candidate.partido ?? 0);
+      const matches = predictionMatches();
+      if (num) {
+        const byNum = matches.find(m => Number(m.num ?? m.numero ?? m.partido ?? 0) === num);
+        if (byNum) return byNum;
+      }
+      return matches.find(m => sameTeam(m.local || m.equipo_local, candidate.local || candidate.equipo_local) && sameTeam(m.visitante || m.equipo_visitante, candidate.visitante || candidate.equipo_visitante));
+    }
+
+    function pleno15Recommendation() {
+      const data = state.pleno15Data || {};
+      return data.recomendacion || data.partido_recomendado || data.pleno15_recomendado || {};
+    }
+
+    function pleno15Sign(pleno = {}) {
+      const recommendation = pleno15Recommendation();
+      const explicit = normalizeSignText(recommendation.signo ?? recommendation.signo_recomendado ?? recommendation.pronostico ?? pleno.signo ?? pleno.signo_recomendado ?? pleno.pronostico);
+      if (explicit) return explicit[0];
+      const recommendedMatch = findPredictionForCandidate(recommendation) || findPredictionForCandidate(pleno);
+      return topSignFromProbabilities(recommendedMatch?.probabilidades || recommendation.probabilidades || pleno.probabilidades || '');
+    }
+
     function renderPleno15() {
-      const pleno = extractPleno15(state.pleno15Data) || extractPleno15(state.jornadaActual) || extractPleno15(state.prediccion) || {};
+      const pleno = extractPleno15(state.jornadaActual) || extractPleno15(state.prediccion) || extractPleno15(state.pleno15Data) || pleno15Recommendation() || {};
       const local = pleno.local || pleno.equipo_local || pleno.local_nombre || 'Equipo local';
       const visitante = pleno.visitante || pleno.equipo_visitante || pleno.visitante_nombre || 'Equipo visitante';
-      qs('#pleno15').innerHTML = [local, visitante].map(team => `<div class="pleno-row"><strong>${escapeHtml(team)}</strong>${['0','1','2','M'].map(s => `<span class="pleno-cell">${s}</span>`).join('')}</div>`).join('');
+      const selected = pleno15Sign(pleno);
+      const cells = ['0','1','2','M'];
+      qs('#pleno15').innerHTML = [local, visitante].map(team => `<div class="pleno-row"><strong>${escapeHtml(team)}</strong>${cells.map(s => {
+        const mark = s === selected ? ' style="background:var(--green);border-color:var(--green);color:#fff;" data-selected="true"' : '';
+        return `<span class="pleno-cell" data-sign="${s}"${mark}>${s}</span>`;
+      }).join('')}</div>`).join('');
     }
 
     async function animateTicket() {
@@ -661,10 +745,32 @@
         const key = btn.dataset.counter;
         const next = Math.max(0, Math.min(14, Number(state[key] || 0) + Number(btn.dataset.delta)));
         state[key] = next;
-        qs(`#${key}Count`).textContent = next;
+        updateConfigUI();
+        renderPredictionMetrics();
       }));
-      qs('#elige8Toggle').addEventListener('change', e => { state.elige8 = e.target.checked; });
-      qsa('.mode-btn').forEach(btn => btn.addEventListener('click', () => { qsa('.mode-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }));
+      qs('#elige8Toggle').addEventListener('change', e => {
+        state.elige8 = e.target.checked;
+        renderPredictionMetrics();
+        renderTicket();
+      });
+      qsa('.mode-btn').forEach(btn => btn.addEventListener('click', () => {
+        state.mode = btn.dataset.mode || 'auto';
+        qsa('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderTicket();
+      }));
+      qs('#ticketList').addEventListener('click', e => {
+        const sign = e.target.closest('.sign');
+        if (!sign || !['mixta', 'manual'].includes(state.mode)) return;
+        const signsBox = sign.closest('.signs');
+        const current = normalizeSignText(signsBox.dataset.selected || '');
+        const clicked = sign.dataset.sign;
+        const next = current.includes(clicked)
+          ? current.replace(clicked, '')
+          : ['1','X','2'].filter(s => (current + clicked).includes(s)).join('');
+        signsBox.dataset.selected = next;
+        renderSignSelection(signsBox);
+      });
       qs('#generateBtn').addEventListener('click', animateTicket);
     }
 
