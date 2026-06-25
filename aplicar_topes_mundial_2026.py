@@ -10,7 +10,7 @@ CLASIFICACIONES = DATA / "memoria_ia" / "clasificaciones_mundial_2026.json"
 ELIMINADOS = {"turquia", "tunez", "jordania", "panama", "haiti"}
 TOP = {"argentina", "brasil", "francia", "espana", "inglaterra", "alemania", "paises bajos", "portugal", "belgica"}
 RANKING = {"francia": 1, "espana": 2, "argentina": 3, "inglaterra": 4, "portugal": 5, "brasil": 6, "paises bajos": 7, "belgica": 9, "alemania": 10, "turquia": 24, "panama": 36, "tunez": 49, "jordania": 68, "haiti": 83}
-ALIAS = {"espana": "espana", "espana": "espana", "spain": "espana", "france": "francia", "england": "inglaterra", "germany": "alemania", "brazil": "brasil", "netherlands": "paises bajos", "holanda": "paises bajos", "belgium": "belgica", "turkey": "turquia", "turkiye": "turquia", "tunisia": "tunez", "jordan": "jordania"}
+ALIAS = {"espana": "espana", "spain": "espana", "france": "francia", "england": "inglaterra", "germany": "alemania", "brazil": "brasil", "netherlands": "paises bajos", "holanda": "paises bajos", "belgium": "belgica", "turkey": "turquia", "turkiye": "turquia", "tunisia": "tunez", "jordan": "jordania"}
 
 
 def norm(nombre):
@@ -41,11 +41,57 @@ def norm_probs(probs):
     return out
 
 
+def probabilidades_fijas(local, visitante):
+    if local == "jordania" and visitante == "argentina":
+        return {"1": 8.0, "X": 18.0, "2": 74.0}
+    if local == "argentina" and visitante == "jordania":
+        return {"1": 74.0, "X": 18.0, "2": 8.0}
+    return None
+
+
+def actualizar_derivados(partido, nuevo, nota, metadata):
+    orden = sorted(nuevo, key=nuevo.get, reverse=True)
+    signo = orden[0]
+    vals = sorted(nuevo.values(), reverse=True)
+    partido["probabilidades"] = nuevo
+    partido["signo_base"] = signo
+    partido["probabilidad_top"] = vals[0]
+    partido["margen_probabilidad"] = round(vals[0] - vals[1], 2)
+    partido["tercera_probabilidad"] = vals[2]
+    partido["favorito"] = signo if signo in {"1", "2"} else None
+    partido["favorito_nombre"] = partido.get("local") if signo == "1" else partido.get("visitante") if signo == "2" else "Empate"
+    partido.setdefault("lecturas_motivacion", []).append(nota)
+    partido.setdefault("motivos_sorpresa", []).append(nota)
+    partido.setdefault("trazabilidad_datos", {})["tope_ranking"] = metadata
+
+
 def recortar_partido(partido):
     local, visitante = norm(partido.get("local")), norm(partido.get("visitante"))
     probs = partido.get("probabilidades") or {}
     if not all(k in probs for k in ("1", "X", "2")):
         return False
+
+    fijo = probabilidades_fijas(local, visitante)
+    if fijo:
+        if {k: float(probs.get(k, 0.0)) for k in ("1", "X", "2")} == fijo:
+            return False
+        nota = "Regla ranking fuerte: Argentina mantiene 74% frente a Jordania."
+        actualizar_derivados(
+            partido,
+            fijo,
+            nota,
+            {
+                "activo": True,
+                "tipo": "probabilidad_fija_mundial_2026",
+                "equipo_debil": "jordania",
+                "equipo_fuerte": "argentina",
+                "ranking_equipo_debil": RANKING["jordania"],
+                "ranking_equipo_fuerte": RANKING["argentina"],
+                "probabilidad_fuerte": 74.0,
+            },
+        )
+        return True
+
     for bajo, alto, signo_bajo, signo_alto in ((local, visitante, "1", "2"), (visitante, local, "2", "1")):
         if alto not in TOP or bajo not in RANKING or alto not in RANKING:
             continue
@@ -57,20 +103,13 @@ def recortar_partido(partido):
         nuevo[signo_alto] += exceso * 0.78
         nuevo["X"] += exceso * 0.22
         nuevo = norm_probs(nuevo)
-        orden = sorted(nuevo, key=nuevo.get, reverse=True)
-        signo = orden[0]
-        vals = sorted(nuevo.values(), reverse=True)
-        partido["probabilidades"] = nuevo
-        partido["signo_base"] = signo
-        partido["probabilidad_top"] = vals[0]
-        partido["margen_probabilidad"] = round(vals[0] - vals[1], 2)
-        partido["tercera_probabilidad"] = vals[2]
-        partido["favorito"] = signo if signo in {"1", "2"} else None
-        partido["favorito_nombre"] = partido.get("local") if signo == "1" else partido.get("visitante") if signo == "2" else "Empate"
         nota = f"Regla ranking: {bajo} limitado al 15% frente a {alto}."
-        partido.setdefault("lecturas_motivacion", []).append(nota)
-        partido.setdefault("motivos_sorpresa", []).append(nota)
-        partido.setdefault("trazabilidad_datos", {})["tope_ranking"] = {"activo": True, "equipo": bajo, "rival": alto, "ranking_equipo": RANKING[bajo], "ranking_rival": RANKING[alto], "maximo": 15.0}
+        actualizar_derivados(
+            partido,
+            nuevo,
+            nota,
+            {"activo": True, "equipo": bajo, "rival": alto, "ranking_equipo": RANKING[bajo], "ranking_rival": RANKING[alto], "maximo": 15.0},
+        )
         return True
     return False
 
