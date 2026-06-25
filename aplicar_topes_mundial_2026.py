@@ -41,14 +41,6 @@ def norm_probs(probs):
     return out
 
 
-def probabilidades_fijas(local, visitante):
-    if local == "jordania" and visitante == "argentina":
-        return {"1": 8.0, "X": 18.0, "2": 74.0}
-    if local == "argentina" and visitante == "jordania":
-        return {"1": 74.0, "X": 18.0, "2": 8.0}
-    return None
-
-
 def actualizar_derivados(partido, nuevo, nota, metadata):
     orden = sorted(nuevo, key=nuevo.get, reverse=True)
     signo = orden[0]
@@ -71,44 +63,38 @@ def recortar_partido(partido):
     if not all(k in probs for k in ("1", "X", "2")):
         return False
 
-    fijo = probabilidades_fijas(local, visitante)
-    if fijo:
-        if {k: float(probs.get(k, 0.0)) for k in ("1", "X", "2")} == fijo:
-            return False
-        nota = "Regla ranking fuerte: Argentina mantiene 74% frente a Jordania."
-        actualizar_derivados(
-            partido,
-            fijo,
-            nota,
-            {
-                "activo": True,
-                "tipo": "probabilidad_fija_mundial_2026",
-                "equipo_debil": "jordania",
-                "equipo_fuerte": "argentina",
-                "ranking_equipo_debil": RANKING["jordania"],
-                "ranking_equipo_fuerte": RANKING["argentina"],
-                "probabilidad_fuerte": 74.0,
-            },
-        )
-        return True
-
-    for bajo, alto, signo_bajo, signo_alto in ((local, visitante, "1", "2"), (visitante, local, "2", "1")):
-        if alto not in TOP or bajo not in RANKING or alto not in RANKING:
+    pares = ((local, visitante, "1", "2"), (visitante, local, "2", "1"))
+    for bajo, alto, signo_bajo, signo_alto in pares:
+        if bajo not in RANKING or alto not in RANKING:
             continue
-        if RANKING[bajo] - RANKING[alto] <= 50 or float(probs.get(signo_bajo, 0.0)) <= 15.0:
+        diferencia = RANKING[bajo] - RANKING[alto]
+        if diferencia <= 50:
             continue
-        exceso = float(probs[signo_bajo]) - 15.0
+        prob_bajo = float(probs.get(signo_bajo, 0.0))
+        if prob_bajo <= 15.0:
+            continue
+        exceso = prob_bajo - 15.0
         nuevo = {k: float(probs[k]) for k in ("1", "X", "2")}
         nuevo[signo_bajo] = 15.0
-        nuevo[signo_alto] += exceso * 0.78
-        nuevo["X"] += exceso * 0.22
+        nuevo[signo_alto] += exceso * 0.70
+        nuevo["X"] += exceso * 0.30
         nuevo = norm_probs(nuevo)
-        nota = f"Regla ranking: {bajo} limitado al 15% frente a {alto}."
+        nota = f"Regla ranking FIFA: {bajo} limitado al 15% frente a {alto}; exceso redistribuido 70% favorito y 30% empate."
         actualizar_derivados(
             partido,
             nuevo,
             nota,
-            {"activo": True, "equipo": bajo, "rival": alto, "ranking_equipo": RANKING[bajo], "ranking_rival": RANKING[alto], "maximo": 15.0},
+            {
+                "activo": True,
+                "tipo": "tope_general_ranking_fifa",
+                "equipo_debil": bajo,
+                "equipo_fuerte": alto,
+                "ranking_equipo_debil": RANKING[bajo],
+                "ranking_equipo_fuerte": RANKING[alto],
+                "diferencia_ranking": diferencia,
+                "maximo_equipo_debil": 15.0,
+                "redistribucion_exceso": {"favorito": 0.70, "empate": 0.30},
+            },
         )
         return True
     return False
