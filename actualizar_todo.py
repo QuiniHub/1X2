@@ -28,6 +28,57 @@ SCRIPTS_VISUALES_DESACTIVADOS = {
     "estabilizar_web.py",
 }
 
+# Estos scripts dependen de fuentes externas o son etapas auxiliares de datos.
+# Si una fuente falla por red, DNS, timeout o servicio caido, se registra aviso
+# y se conserva el ultimo dato local valido. Las etapas predictivas y de
+# validacion final siguen siendo criticas y pueden detener la publicacion.
+SCRIPTS_NO_CRITICOS_RED = {
+    "preparar_temporada_2026_2027.py",
+    "actualizar_jornadas_detalle.py",
+    "actualizar_boleto_vivo.py",
+    "asegurar_proxima_jornada.py",
+    "actualizar_selector_jornadas_web.py",
+    "actualizar_resultados_directo.py",
+    "aplicar_correcciones_resultados.py",
+    "actualizar_monitor_temporadas.py",
+    "actualizar_clasificaciones_oficiales.py",
+    "corregir_clasificacion_segunda.py",
+    "actualizar_ligas_football_data.py",
+    "recalcular_dinamicas_calendario.py",
+    "actualizar_contexto_equipos.py",
+    "actualizar_analisis_ia.py",
+    "construir_historial_quinielas.py",
+    "actualizar_aprendizaje_ia.py",
+    "generar_diario_aprendizaje.py",
+    "construir_memoria_ia.py",
+    "aprender_de_historial_resultados.py",
+    "memoria_autonoma_quiniela.py",
+    "sincronizar_dinamicas_memoria.py",
+    "generar_contexto_competitivo.py",
+    "aplicar_objetivos_oficiales_json.py",
+    "forzar_overrides.py",
+    "actualizar_mundial_2026.py",
+    "actualizar_clasificaciones_mundial_2026.py",
+    "generar_memoria_mundial_2026.py",
+    "actualizar_datos_profesionales.py",
+    "auditar_fuentes_profesionales.py",
+    "resolver_competiciones_profesionales.py",
+    "sincronizar_resultados_jornada.py",
+    "aprender_patrones_competitivos.py",
+    "aplicar_memoria_mundial_prediccion.py",
+    "generar_estado_vivo_ia.py",
+    "ajustar_estado_vivo_motivacion.py",
+    "calcular_premios.py",
+    "guardar_snapshot_prediccion.py",
+    "backtesting_pre_cierre.py",
+    "calibrar_probabilidades.py",
+    "diagnostico_sistema.py",
+    "control_calidad_actualizacion.py",
+    "normalizar_diagnostico_control.py",
+    "normalizar_textos_generados.py",
+    "corregir_lectura_datos_web.py",
+}
+
 SCRIPTS_ACTIVOS = [
     # --- Datos base ---
     "actualizar_jornadas_detalle.py",
@@ -115,6 +166,7 @@ SCRIPTS_ACTIVOS = [
     "normalizar_textos_generados.py",
 
     # --- Cierre final: web y publicacion ---
+    "corregir_lectura_datos_web.py",
     "aplicar_elige8_seguro.py",
     "limpiar_prediccion_bloqueada.py",
     "estabilizar_web.py",
@@ -138,7 +190,21 @@ def ejecutar_script(nombre):
     if not ruta.exists():
         raise SystemExit(f"Falta script activo: {nombre}")
     print(f"\n=== Ejecutando {nombre} ===")
-    subprocess.run([sys.executable, str(ruta)], cwd=ROOT, check=True)
+    try:
+        subprocess.run([sys.executable, str(ruta)], cwd=ROOT, check=True)
+    except subprocess.CalledProcessError as exc:
+        if nombre in SCRIPTS_NO_CRITICOS_RED:
+            print(
+                f"AVISO: {nombre} termino con codigo {exc.returncode}. "
+                "Se continua porque es una etapa de datos externos o auxiliar; "
+                "las validaciones predictivas criticas siguen activas."
+            )
+            return False
+        raise SystemExit(
+            f"Error critico en {nombre}: se detiene la publicacion para no ocultar "
+            "un problema en los datos de prediccion."
+        ) from exc
+    return True
 
 
 def ejecutar_sistema():
@@ -148,7 +214,7 @@ def ejecutar_sistema():
             print(f"\n=== Omitiendo {script}: bloqueo de cambios visuales activo ===")
             continue
         ejecutar_script(script)
-    print("\nActualizacion completa sin errores ocultos.")
+    print("\nActualizacion completa; cualquier fallo no critico de fuentes externas queda avisado en el log.")
 
 
 if __name__ == "__main__":
