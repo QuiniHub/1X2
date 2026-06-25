@@ -55,15 +55,20 @@ def temporada_info(inicio):
 
 def descargar(url):
     if requests is not None:
-        respuesta = requests.get(url, headers=HEADERS, timeout=20)
-        return respuesta.status_code, respuesta.text
+        try:
+            respuesta = requests.get(url, headers=HEADERS, timeout=20)
+            return respuesta.status_code, respuesta.text
+        except Exception as exc:
+            print(f"AVISO: no se pudo consultar {url}: {exc}")
+            return 0, ""
     try:
         req = Request(url, headers=HEADERS)
         with urlopen(req, timeout=20) as respuesta:
             return respuesta.status, respuesta.read().decode("utf-8", errors="replace")
     except HTTPError as exc:
         return exc.code, ""
-    except URLError:
+    except (URLError, TimeoutError, OSError) as exc:
+        print(f"AVISO: no se pudo consultar {url}: {exc}")
         return 0, ""
 
 
