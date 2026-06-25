@@ -185,8 +185,16 @@ def limpiar_elige8_bloqueado(prediccion):
         partido.pop("elige8_seguro_posicion", None)
         partido.pop("elige8_seguro_cumple_umbral", None)
     prediccion.pop("elige8_seguro", None)
+    prediccion["prediccion_disponible"] = False
+    prediccion["aprendizaje_pendiente"] = True
+    prediccion["prediccion_permitida"] = False
+    prediccion["publicar_solo_boleto"] = True
+    prediccion["publicar_prediccion"] = False
+    estado_actual = str(prediccion.get("estado") or "").lower()
+    prediccion["estado"] = estado_actual if estado_actual in {"bloqueada", "aprendiendo"} else "bloqueada"
     config = prediccion.setdefault("configuracion", {})
     config["elige8"] = False
+    config["elige8_modo"] = "bloqueado"
     config["elige8_recomendado"] = False
     resumen = prediccion.setdefault("resumen", {})
     resumen["elige8_seleccionados"] = 0
