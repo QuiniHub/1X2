@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 59.33,
+  "precision": 59.6,
   "jornadas_revisadas": 11,
-  "partidos_revisados": 150,
-  "aciertos": 89,
+  "partidos_revisados": 151,
+  "aciertos": 90,
   "fallos": 61,
   "fallos_por_tipo": {
     "Doble insuficiente": 10,
@@ -34,18 +34,18 @@
       "precision": 51.89
     },
     "TRIPLE": {
-      "total": 15,
-      "aciertos": 15,
+      "total": 16,
+      "aciertos": 16,
       "fallos": 0,
       "precision": 100.0
     }
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 68,
-      "aciertos": 53,
+      "total": 69,
+      "aciertos": 54,
       "fallos": 15,
-      "precision": 77.94
+      "precision": 78.26
     },
     "2": {
       "total": 45,
@@ -9029,6 +9029,105 @@
     },
     {
       "jornada": 69,
+      "partido": "Sudáfrica - Corea del Sur",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "1-0",
+      "resultado_final": "1-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_69.json",
+      "probabilidades_usadas": {
+        "1": 33.2,
+        "X": 34.9,
+        "2": 31.9
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Sudáfrica",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Corea del Sur",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (34.9%).",
+        "hipotesis_alternativa": "1 como alternativa (33.2%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO X: margen 1.7 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 17.3,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {
+        "equipo": "Rep. Irlanda",
+        "partidos_total": 3,
+        "puntos_por_partido": 2.334,
+        "empates_pct": 33.32,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 2.333,
+        "forma_10_ppp": 2.333,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 69,
       "partido": "IFK Mariehamn - HJK Helsinki",
       "pronostico": "X",
       "tipo_pronostico": "FIJO",
@@ -9125,19 +9224,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 150,
+    "partidos_base": 151,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 40.67,
+      "fallos_total_pct": 40.4,
       "no_cubrio_empate_sobre_fallos_pct": 31.15,
-      "no_cubrio_empate_sobre_total_pct": 12.67,
+      "no_cubrio_empate_sobre_total_pct": 12.58,
       "fijo_fallado_sobre_fallos_pct": 52.46,
-      "fijo_fallado_sobre_total_pct": 21.33,
-      "doble_insuficiente_sobre_total_pct": 6.67
+      "fijo_fallado_sobre_total_pct": 21.19,
+      "doble_insuficiente_sobre_total_pct": 6.62
     },
-    "boost_empate_zona_riesgo": 5.97,
-    "riesgo_extra_fijo_fragil": 10.96,
-    "riesgo_extra_triple_insuficiente": 2.4,
+    "boost_empate_zona_riesgo": 5.94,
+    "riesgo_extra_fijo_fragil": 10.84,
+    "riesgo_extra_triple_insuficiente": 2.36,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
