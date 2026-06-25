@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-25T07:14:23.409714+00:00",
+  "generado_en": "2026-06-25T07:16:23.778597+00:00",
   "temporada": "2025/2026",
   "estado": "base_real_en_construccion",
   "ligas": {
@@ -6523,7 +6523,7 @@
       },
       "clasificacion_oficial": true,
       "fuente_clasificacion": "https://www.quinielafutbol.info/clasificacion.html",
-      "actualizado_en_clasificacion": "2026-06-25T07:14:22Z"
+      "actualizado_en_clasificacion": "2026-06-25T07:16:23Z"
     },
     "segunda": {
       "competicion": "segunda",
@@ -13861,7 +13861,7 @@
       },
       "clasificacion_oficial": true,
       "fuente_clasificacion": "https://www.quinielafutbol.info/clasificacion.html",
-      "actualizado_en_clasificacion": "2026-06-25T07:14:22Z"
+      "actualizado_en_clasificacion": "2026-06-25T07:16:23Z"
     }
   },
   "quiniela": {
@@ -19343,7 +19343,7 @@
   },
   "pesos_dinamicos": {
     "archivo": "data/memoria_ia/pesos_dinamicos.json",
-    "generado_en": "2026-06-25T07:14:23.409696+00:00",
+    "generado_en": "2026-06-25T07:16:23.778576+00:00",
     "muestra": {
       "partidos_validados": 151,
       "fallos": 60,
@@ -19376,9 +19376,51 @@
       "reiniciar estadisticas de temporada sin borrar memoria global"
     ]
   },
+  "conocimiento_universal": {
+    "archivo": "data/memoria_ia/aprendizaje_historial_universal.json",
+    "generado_en": "2026-06-25T07:16:23Z",
+    "jornadas_cerradas": 67,
+    "partidos_analizados": 938,
+    "frecuencia_global": {
+      "partidos": 938,
+      "peso_total": 331.5827,
+      "frecuencia_real": {
+        "1": 45.31,
+        "X": 24.52,
+        "2": 30.17
+      },
+      "frecuencia_ponderada_reciente": {
+        "1": 46.02,
+        "X": 24.95,
+        "2": 29.03
+      },
+      "sorpresas": 440,
+      "sorpresas_pct": 46.91,
+      "sorpresas_ponderadas_pct": 48.71
+    },
+    "sorpresas": {
+      "total": 440,
+      "porcentaje": 46.91,
+      "criterio": "Signo menos frecuente del contexto o resultado contrario al signo esperado por modelo rolling con margen suficiente."
+    },
+    "recomendaciones_base": [
+      "Contexto global muestra alta sorpresa reciente: exigir margen mayor antes de fijo.",
+      "Contexto liga muestra alta sorpresa reciente: exigir margen mayor antes de fijo.",
+      "En contexto mundial_2026, el empate aparece por encima de la media reciente: subir proteccion de X.",
+      "Contexto mundial_2026 muestra alta sorpresa reciente: exigir margen mayor antes de fijo.",
+      "En contexto selecciones, el empate aparece por encima de la media reciente: subir proteccion de X.",
+      "Contexto selecciones muestra alta sorpresa reciente: exigir margen mayor antes de fijo.",
+      "Patron favorito_discutido: muchos empates; activar doble con X si el margen del favorito es corto.",
+      "Fases mas impredecibles detectadas: liga_regular, fase_grupos_mundial."
+    ],
+    "criterio": "Capa base universal aprendida de resultados reales; se aplica antes del aprendizaje especifico de predicciones propias."
+  },
+  "capas_aprendizaje": [
+    "historial_resultados_universal"
+  ],
   "patrones_competitivos": {
     "version": "1.0",
-    "generado_en": "2026-06-25T07:14:38.539732+00:00",
+    "generado_en": "2026-06-25T07:16:41.167543+00:00",
     "descripcion": "Patrones aprendidos de resultados reales de 1a y 2a para no tratar como fijos tranquilos partidos con objetivos cerrados contra rivales necesitados.",
     "patrones": {
       "equipo_necesitado_vs_equipo_sin_objetivo": {
