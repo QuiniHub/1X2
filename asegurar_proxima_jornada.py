@@ -196,8 +196,26 @@ def debe_guardar(jornada_num):
     return False
 
 
+def usar_cache_si_falla(error):
+    existentes = numeros_existentes()
+    if existentes:
+        print(
+            "AVISO: no se pudo descargar la proxima jornada desde la fuente externa; "
+            f"se mantiene cache local hasta jornada {max(existentes)}. Error: {error}"
+        )
+        return True
+    print(f"AVISO: no se pudo descargar la proxima jornada y no hay cache local. Error: {error}")
+    return True
+
+
 def main():
-    lineas = html_a_lineas(descargar_html(FUENTE))
+    try:
+        html = descargar_html(FUENTE)
+    except Exception as exc:
+        usar_cache_si_falla(exc)
+        return
+
+    lineas = html_a_lineas(html)
     jornadas = parsear_jornadas_publicadas(lineas)
     guardadas = []
     for jornada in jornadas:
