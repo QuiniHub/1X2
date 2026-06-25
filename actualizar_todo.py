@@ -69,6 +69,10 @@ SCRIPTS_ACTIVOS = [
     # --- Capa predictiva entrenable ---
     "modelo_metricas_1x2.py",
 
+    # --- Comp puerta de resultados antes de predecir ---
+    "sincronizar_resultados_jornada.py",
+    "compuerta_jornada.py",
+
     # --- Motor predictivo y salidas ---
     "aprender_patrones_competitivos.py",
     "aplicar_patrones_motor.py",
