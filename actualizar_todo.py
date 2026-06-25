@@ -76,7 +76,6 @@ SCRIPTS_NO_CRITICOS_RED = {
     "control_calidad_actualizacion.py",
     "normalizar_diagnostico_control.py",
     "normalizar_textos_generados.py",
-    "corregir_lectura_datos_web.py",
 }
 
 SCRIPTS_ACTIVOS = [
@@ -166,7 +165,6 @@ SCRIPTS_ACTIVOS = [
     "normalizar_textos_generados.py",
 
     # --- Cierre final: web y publicacion ---
-    "corregir_lectura_datos_web.py",
     "aplicar_elige8_seguro.py",
     "limpiar_prediccion_bloqueada.py",
     "estabilizar_web.py",
