@@ -1,3 +1,4 @@
+# trigger workflow after workflow file exists
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -290,9 +291,9 @@ patch_file(ROOT / "generar_diario_aprendizaje.py", patch_diario)
 sorpresas = ROOT / "data" / "memoria_ia" / "sorpresas_mercado.json"
 if not sorpresas.exists():
     sorpresas.parent.mkdir(parents=True, exist_ok=True)
-    sorpresas.write_text('{
+    sorpresas.write_text('''{
   "version": "1.0",
   "sorpresas": []
 }
-', encoding="utf-8")
+''', encoding="utf-8")
     print("CREATED data/memoria_ia/sorpresas_mercado.json")
