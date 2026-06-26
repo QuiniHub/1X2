@@ -1,0 +1,36 @@
+name: Apply Instr3 Fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/apply_instr3_fix.py'
+      - '.github/workflows/apply_instr3_fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-instr3-fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply fix
+        run: python scripts/apply_instr3_fix.py
+      - name: Syntax check
+        run: python -m py_compile actualizar_aprendizaje_ia.py generar_diario_aprendizaje.py motor_prediccion_quiniela.py
+      - name: Commit fix
+        run: |
+          rm -f scripts/apply_instr3_fix.py .github/workflows/apply_instr3_fix.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "feat: memoria sorpresas mercado y razonamiento especifico diario aprendizaje"
+            git push
+          fi
