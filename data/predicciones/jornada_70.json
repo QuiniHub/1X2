@@ -63,9 +63,9 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 54.8,
-        "X": 29.6,
-        "2": 15.6
+        "1": 52.9,
+        "X": 32.0,
+        "2": 15.1
       },
       "confianza_signos": {
         "1": {
@@ -84,13 +84,13 @@
       "signo_base": "1",
       "signo_final": "1",
       "tipo": "FIJO",
-      "incertidumbre": 85.16,
-      "probabilidad_sorpresa": 45.2,
-      "probabilidad_top": 54.8,
-      "margen_probabilidad": 25.2,
-      "tercera_probabilidad": 15.6,
+      "incertidumbre": 90.3,
+      "probabilidad_sorpresa": 47.2,
+      "probabilidad_top": 52.9,
+      "margen_probabilidad": 20.9,
+      "tercera_probabilidad": 15.1,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 45.2,
+      "indice_sorpresa_quinielistica": 48.2,
       "surprise_score": 100.0,
       "categoria_sorpresa": "riesgo_controlado",
       "favorito_atacable": false,
@@ -104,8 +104,8 @@
       "cobertura_sorpresa_sugerida": "FIJO",
       "motivos_sorpresa": [
         "historial del Mundial 2026 incorporado",
-        "muestra minima 3 partido(s)",
-        "margen 25.2 puntos"
+        "muestra minima 4 partido(s)",
+        "margen 20.9 puntos"
       ],
       "origen_probabilidades": "mundial_2026_resultados_y_modelo_base",
       "calidad_datos": "alta",
@@ -245,7 +245,7 @@
         "lecturas": []
       },
       "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=54.8%, X=29.6%, 2=15.6%. Calidad de datos: alta. Historial Mundial 2026 incorporado con muestra minima 3 partido(s): Japon 7 pts, GF 7, GC 2; Suecia 6 pts, GF 12, GC 11. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=45.2/100 o sorpresa=45.2%. Favorito o signo de referencia: Japon. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 3 partido(s); margen 25.2 puntos. Decision final: 1.",
+      "razonamiento": "Probabilidades IA: 1=52.9%, X=32.0%, 2=15.1%. Calidad de datos: alta. Historial Mundial 2026 incorporado con muestra minima 4 partido(s): Japon 8 pts, GF 8, GC 3; Suecia 7 pts, GF 13, GC 12. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=48.2/100 o sorpresa=47.2%. Favorito o signo de referencia: Japon. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 4 partido(s); margen 20.9 puntos. Decision final: 1.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (37.7%).",
         "hipotesis_alternativa": "X como alternativa (37.0%).",
@@ -302,29 +302,20 @@
       "memoria_mundial_2026": {
         "aplicado": true,
         "calidad": "alta",
-        "muestra_minima": 3,
+        "muestra_minima": 4,
         "peso_aplicado": 0.9,
-        "diff_mundial": 68.54,
+        "diff_mundial": 50.25,
         "local": {
           "equipo": "japon",
-          "pj": 3,
-          "pts": 7,
-          "gf": 7,
-          "gc": 2,
+          "pj": 4,
+          "pts": 8,
+          "gf": 8,
+          "gc": 3,
           "dg": 5,
-          "forma_5_pts": 7,
-          "goles_favor_por_partido": 2.33,
-          "goles_contra_por_partido": 0.67,
+          "forma_5_pts": 8,
+          "goles_favor_por_partido": 2.0,
+          "goles_contra_por_partido": 0.75,
           "partidos": [
-            {
-              "fecha": "2026-06-14",
-              "grupo": "F",
-              "rival": "paises bajos",
-              "condicion": "neutral_visitante",
-              "resultado": "2-2",
-              "signo_equipo": "E",
-              "puntos": 1
-            },
             {
               "fecha": "2026-06-21",
               "grupo": "",
@@ -342,29 +333,29 @@
               "resultado": "1-0",
               "signo_equipo": "G",
               "puntos": 3
+            },
+            {
+              "fecha": "",
+              "grupo": "",
+              "rival": "suecia",
+              "condicion": "neutral_local",
+              "resultado": "1-1",
+              "signo_equipo": "E",
+              "puntos": 1
             }
           ]
         },
         "visitante": {
           "equipo": "suecia",
-          "pj": 4,
-          "pts": 6,
-          "gf": 12,
-          "gc": 11,
+          "pj": 5,
+          "pts": 7,
+          "gf": 13,
+          "gc": 12,
           "dg": 1,
-          "forma_5_pts": 6,
-          "goles_favor_por_partido": 3.0,
-          "goles_contra_por_partido": 2.75,
+          "forma_5_pts": 7,
+          "goles_favor_por_partido": 2.6,
+          "goles_contra_por_partido": 2.4,
           "partidos": [
-            {
-              "fecha": "2026-06-15",
-              "grupo": "",
-              "rival": "tunez",
-              "condicion": "neutral_local",
-              "resultado": "5-1",
-              "signo_equipo": "G",
-              "puntos": 3
-            },
             {
               "fecha": "2026-06-20",
               "grupo": "",
@@ -373,6 +364,15 @@
               "resultado": "1-5",
               "signo_equipo": "P",
               "puntos": 0
+            },
+            {
+              "fecha": "",
+              "grupo": "",
+              "rival": "japon",
+              "condicion": "neutral_visitante",
+              "resultado": "1-1",
+              "signo_equipo": "E",
+              "puntos": 1
             },
             {
               "fecha": "",
@@ -389,16 +389,16 @@
       "en_elige8": false,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 54.8,
-      "elige8_probabilidad_acierto": 54.8,
-      "elige8_probabilidad_cubierta": 54.8,
-      "elige8_seguro_score": 54.8,
-      "elige8_confianza_real": 54.8,
+      "probabilidad_acierto_elige8": 52.9,
+      "elige8_probabilidad_acierto": 52.9,
+      "elige8_probabilidad_cubierta": 52.9,
+      "elige8_seguro_score": 52.9,
+      "elige8_confianza_real": 52.9,
       "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 11,
+      "elige8_seguro_posicion": 12,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 54.8,
-      "elige8_seguro_margen": 25.2,
+      "elige8_seguro_probabilidad_top": 52.9,
+      "elige8_seguro_margen": 20.9,
       "competicion_resuelta": "mundial_2026",
       "modelo_datos_recomendado": "modelo_selecciones_mundial_2026",
       "resolucion_competicion": {
@@ -428,9 +428,9 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 4.2,
-        "X": 29.2,
-        "2": 66.6
+        "1": 4.3,
+        "X": 29.0,
+        "2": 66.7
       },
       "confianza_signos": {
         "1": {
@@ -449,13 +449,13 @@
       "signo_base": "2",
       "signo_final": "2",
       "tipo": "FIJO",
-      "incertidumbre": 91.84,
-      "probabilidad_sorpresa": 33.9,
-      "probabilidad_top": 66.6,
-      "margen_probabilidad": 37.4,
-      "tercera_probabilidad": 4.2,
+      "incertidumbre": 91.47,
+      "probabilidad_sorpresa": 33.7,
+      "probabilidad_top": 66.7,
+      "margen_probabilidad": 37.7,
+      "tercera_probabilidad": 4.3,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 33.4,
+      "indice_sorpresa_quinielistica": 33.3,
       "surprise_score": 100.0,
       "categoria_sorpresa": "riesgo_controlado",
       "favorito_atacable": false,
@@ -469,8 +469,8 @@
       "cobertura_sorpresa_sugerida": "FIJO",
       "motivos_sorpresa": [
         "historial del Mundial 2026 incorporado",
-        "muestra minima 3 partido(s)",
-        "margen 37.4 puntos",
+        "muestra minima 4 partido(s)",
+        "margen 37.7 puntos",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (eliminada vs necesita_ganar).",
         "Clasificacion Mundial 2026: posible rotacion del local por objetivo cerrado.",
         "Escenario competitivo: Local eliminado contra visitante que necesita ganar: ventaja motivacional clara para el visitante."
@@ -616,7 +616,7 @@
         "lecturas": []
       },
       "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=4.2%, X=29.2%, 2=66.6%. Calidad de datos: alta. Historial Mundial 2026 incorporado con muestra minima 3 partido(s): Túnez 0 pts, GF 2, GC 16; Países Bajos 5 pts, GF 8, GC 4. Se mantiene como FIJO (2) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=33.4/100 o sorpresa=33.9%. Favorito o signo de referencia: Países Bajos. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 3 partido(s); margen 37.4 puntos. Decision final: 2.",
+      "razonamiento": "Probabilidades IA: 1=4.3%, X=29.0%, 2=66.7%. Calidad de datos: alta. Historial Mundial 2026 incorporado con muestra minima 4 partido(s): Túnez 0 pts, GF 3, GC 19; Países Bajos 8 pts, GF 11, GC 5. Se mantiene como FIJO (2) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=33.3/100 o sorpresa=33.7%. Favorito o signo de referencia: Países Bajos. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 4 partido(s); margen 37.7 puntos. Decision final: 2.",
       "explicabilidad_ia": {
         "hipotesis_principal": "X como signo dominante (36.1%).",
         "hipotesis_alternativa": "1 como alternativa (33.2%).",
@@ -638,6 +638,9 @@
       },
       "justificacion_final": "Decision FIJO X: margen 2.9 puntos, indice sorpresa 100.0.",
       "lecturas_motivacion": [
+        "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (eliminada vs necesita_ganar).",
+        "Clasificacion Mundial 2026: posible rotacion del local por objetivo cerrado.",
+        "Escenario competitivo: Local eliminado contra visitante que necesita ganar: ventaja motivacional clara para el visitante.",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (eliminada vs necesita_ganar).",
         "Clasificacion Mundial 2026: posible rotacion del local por objetivo cerrado.",
         "Escenario competitivo: Local eliminado contra visitante que necesita ganar: ventaja motivacional clara para el visitante.",
@@ -748,29 +751,20 @@
       "memoria_mundial_2026": {
         "aplicado": true,
         "calidad": "alta",
-        "muestra_minima": 3,
+        "muestra_minima": 4,
         "peso_aplicado": 0.9,
-        "diff_mundial": -175.21,
+        "diff_mundial": -187.8,
         "local": {
           "equipo": "tunez",
-          "pj": 4,
+          "pj": 5,
           "pts": 0,
-          "gf": 2,
-          "gc": 16,
-          "dg": -14,
+          "gf": 3,
+          "gc": 19,
+          "dg": -16,
           "forma_5_pts": 0,
-          "goles_favor_por_partido": 0.5,
-          "goles_contra_por_partido": 4.0,
+          "goles_favor_por_partido": 0.6,
+          "goles_contra_por_partido": 3.8,
           "partidos": [
-            {
-              "fecha": "2026-06-15",
-              "grupo": "",
-              "rival": "suecia",
-              "condicion": "neutral_visitante",
-              "resultado": "1-5",
-              "signo_equipo": "P",
-              "puntos": 0
-            },
             {
               "fecha": "2026-06-21",
               "grupo": "",
@@ -788,29 +782,29 @@
               "resultado": "0-2",
               "signo_equipo": "P",
               "puntos": 0
+            },
+            {
+              "fecha": "",
+              "grupo": "",
+              "rival": "paises bajos",
+              "condicion": "neutral_local",
+              "resultado": "1-3",
+              "signo_equipo": "P",
+              "puntos": 0
             }
           ]
         },
         "visitante": {
           "equipo": "paises bajos",
-          "pj": 3,
-          "pts": 5,
-          "gf": 8,
-          "gc": 4,
-          "dg": 4,
-          "forma_5_pts": 5,
-          "goles_favor_por_partido": 2.67,
-          "goles_contra_por_partido": 1.33,
+          "pj": 4,
+          "pts": 8,
+          "gf": 11,
+          "gc": 5,
+          "dg": 6,
+          "forma_5_pts": 8,
+          "goles_favor_por_partido": 2.75,
+          "goles_contra_por_partido": 1.25,
           "partidos": [
-            {
-              "fecha": "2026-06-14",
-              "grupo": "F",
-              "rival": "japon",
-              "condicion": "neutral_local",
-              "resultado": "2-2",
-              "signo_equipo": "E",
-              "puntos": 1
-            },
             {
               "fecha": "2026-06-20",
               "grupo": "",
@@ -828,6 +822,15 @@
               "resultado": "1-1",
               "signo_equipo": "E",
               "puntos": 1
+            },
+            {
+              "fecha": "",
+              "grupo": "",
+              "rival": "tunez",
+              "condicion": "neutral_visitante",
+              "resultado": "3-1",
+              "signo_equipo": "G",
+              "puntos": 3
             }
           ]
         }
@@ -835,16 +838,16 @@
       "en_elige8": true,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 66.6,
-      "elige8_probabilidad_acierto": 66.6,
-      "elige8_probabilidad_cubierta": 66.6,
-      "elige8_seguro_score": 66.6,
-      "elige8_confianza_real": 66.6,
+      "probabilidad_acierto_elige8": 66.7,
+      "elige8_probabilidad_acierto": 66.7,
+      "elige8_probabilidad_cubierta": 66.7,
+      "elige8_seguro_score": 66.7,
+      "elige8_confianza_real": 66.7,
       "elige8_tipo_cobertura": "FIJO",
       "elige8_seguro_posicion": 7,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 66.6,
-      "elige8_seguro_margen": 37.4,
+      "elige8_seguro_probabilidad_top": 66.7,
+      "elige8_seguro_margen": 37.7,
       "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto.",
       "competicion_resuelta": "mundial_2026",
       "modelo_datos_recomendado": "modelo_selecciones_mundial_2026",
@@ -1120,6 +1123,8 @@
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (eliminada vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: posible rotacion del local por objetivo cerrado.",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (eliminada vs depende_de_otros_resultados).",
+        "Clasificacion Mundial 2026: posible rotacion del local por objetivo cerrado.",
+        "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (eliminada vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: posible rotacion del local por objetivo cerrado."
       ],
       "ajuste_clasificacion_mundial_2026": {
@@ -1268,9 +1273,9 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 19.8,
-        "X": 32.2,
-        "2": 48.0
+        "1": 22.3,
+        "X": 33.7,
+        "2": 44.0
       },
       "confianza_signos": {
         "1": {
@@ -1289,13 +1294,13 @@
       "signo_base": "2",
       "signo_final": "X2",
       "tipo": "DOBLE",
-      "incertidumbre": 110.81,
-      "probabilidad_sorpresa": 57.2,
-      "probabilidad_top": 48.0,
-      "margen_probabilidad": 15.8,
-      "tercera_probabilidad": 19.8,
+      "incertidumbre": 106.84,
+      "probabilidad_sorpresa": 60.2,
+      "probabilidad_top": 44.0,
+      "margen_probabilidad": 10.3,
+      "tercera_probabilidad": 22.3,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 60.2,
+      "indice_sorpresa_quinielistica": 72.4,
       "surprise_score": 100.0,
       "categoria_sorpresa": "sorpresa_vigilada",
       "favorito_atacable": true,
@@ -1309,15 +1314,15 @@
       "cobertura_sorpresa_sugerida": "DOBLE",
       "motivos_sorpresa": [
         "historial del Mundial 2026 incorporado",
-        "muestra minima 2 partido(s)",
-        "margen 15.8 puntos",
+        "muestra minima 3 partido(s)",
+        "margen 10.3 puntos",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados)."
       ],
       "origen_probabilidades": "mundial_2026_resultados_y_modelo_base",
-      "calidad_datos": "media",
+      "calidad_datos": "alta",
       "trazabilidad_datos": {
         "origen_probabilidades": "mundial_2026_resultados_y_modelo_base",
-        "calidad_datos": "media",
+        "calidad_datos": "alta",
         "memoria_estadistica": {
           "local": true,
           "visitante": true,
@@ -1451,7 +1456,7 @@
         "lecturas": []
       },
       "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=19.8%, X=32.2%, 2=48.0%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 2 partido(s): Paraguay 3 pts, GF 2, GC 4; Australia 7 pts, GF 5, GC 2. Se cubre con DOBLE (X2) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=60.2/100, sorpresa=57.2%, incertidumbre=110.8 y margen=15.8. Favorito o signo de referencia: Australia. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 2 partido(s); margen 15.8 puntos. Decision final: X2.",
+      "razonamiento": "Probabilidades IA: 1=22.3%, X=33.7%, 2=44.0%. Calidad de datos: alta. Historial Mundial 2026 incorporado con muestra minima 3 partido(s): Paraguay 4 pts, GF 2, GC 4; Australia 8 pts, GF 5, GC 2. Se cubre con DOBLE (X2) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=72.4/100, sorpresa=60.2%, incertidumbre=106.8 y margen=10.3. Favorito o signo de referencia: Australia. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 3 partido(s); margen 10.3 puntos. Decision final: X2.",
       "explicabilidad_ia": {
         "hipotesis_principal": "X como signo dominante (35.8%).",
         "hipotesis_alternativa": "1 como alternativa (35.0%).",
@@ -1473,6 +1478,7 @@
       },
       "justificacion_final": "Decision FIJO X: margen 0.8 puntos, indice sorpresa 100.0.",
       "lecturas_motivacion": [
+        "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados).",
@@ -1530,20 +1536,20 @@
       },
       "memoria_mundial_2026": {
         "aplicado": true,
-        "calidad": "media",
-        "muestra_minima": 2,
-        "peso_aplicado": 0.82,
-        "diff_mundial": -46.5,
+        "calidad": "alta",
+        "muestra_minima": 3,
+        "peso_aplicado": 0.9,
+        "diff_mundial": -37.15,
         "local": {
           "equipo": "paraguay",
-          "pj": 2,
-          "pts": 3,
+          "pj": 3,
+          "pts": 4,
           "gf": 2,
           "gc": 4,
           "dg": -2,
-          "forma_5_pts": 3,
-          "goles_favor_por_partido": 1.0,
-          "goles_contra_por_partido": 2.0,
+          "forma_5_pts": 4,
+          "goles_favor_por_partido": 0.67,
+          "goles_contra_por_partido": 1.33,
           "partidos": [
             {
               "fecha": "2026-06-12",
@@ -1562,29 +1568,29 @@
               "resultado": "1-0",
               "signo_equipo": "G",
               "puntos": 3
+            },
+            {
+              "fecha": "",
+              "grupo": "",
+              "rival": "australia",
+              "condicion": "neutral_local",
+              "resultado": "0-0",
+              "signo_equipo": "E",
+              "puntos": 1
             }
           ]
         },
         "visitante": {
           "equipo": "australia",
-          "pj": 4,
-          "pts": 7,
+          "pj": 5,
+          "pts": 8,
           "gf": 5,
           "gc": 2,
           "dg": 3,
-          "forma_5_pts": 7,
-          "goles_favor_por_partido": 1.25,
-          "goles_contra_por_partido": 0.5,
+          "forma_5_pts": 8,
+          "goles_favor_por_partido": 1.0,
+          "goles_contra_por_partido": 0.4,
           "partidos": [
-            {
-              "fecha": "2026-06-07",
-              "grupo": "",
-              "rival": "suiza",
-              "condicion": "neutral_visitante",
-              "resultado": "1-1",
-              "signo_equipo": "E",
-              "puntos": 1
-            },
             {
               "fecha": "2026-06-13",
               "grupo": "D",
@@ -1602,6 +1608,15 @@
               "resultado": "2-0",
               "signo_equipo": "G",
               "puntos": 3
+            },
+            {
+              "fecha": "",
+              "grupo": "",
+              "rival": "paraguay",
+              "condicion": "neutral_visitante",
+              "resultado": "0-0",
+              "signo_equipo": "E",
+              "puntos": 1
             }
           ]
         }
@@ -1609,16 +1624,16 @@
       "en_elige8": true,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 80.2,
-      "elige8_probabilidad_acierto": 80.2,
-      "elige8_probabilidad_cubierta": 80.2,
-      "elige8_seguro_score": 80.2,
-      "elige8_confianza_real": 80.2,
+      "probabilidad_acierto_elige8": 77.7,
+      "elige8_probabilidad_acierto": 77.7,
+      "elige8_probabilidad_cubierta": 77.7,
+      "elige8_seguro_score": 77.7,
+      "elige8_confianza_real": 77.7,
       "elige8_tipo_cobertura": "DOBLE",
-      "elige8_seguro_posicion": 5,
+      "elige8_seguro_posicion": 6,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 48.0,
-      "elige8_seguro_margen": 15.8,
+      "elige8_seguro_probabilidad_top": 44.0,
+      "elige8_seguro_margen": 10.3,
       "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto.",
       "competicion_resuelta": "mundial_2026",
       "modelo_datos_recomendado": "modelo_selecciones_mundial_2026",
@@ -1854,6 +1869,8 @@
       },
       "justificacion_final": "Decision FIJO X: margen 5.5 puntos, indice sorpresa 100.0.",
       "lecturas_motivacion": [
+        "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (le_vale_empate vs depende_de_otros_resultados).",
+        "Clasificacion Mundial 2026: a una seleccion le vale empate, sube la X como resultado tactico.",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (le_vale_empate vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: a una seleccion le vale empate, sube la X como resultado tactico.",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (le_vale_empate vs depende_de_otros_resultados).",
@@ -2266,6 +2283,7 @@
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados).",
+        "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados)."
       ],
       "ajuste_clasificacion_mundial_2026": {
@@ -2618,6 +2636,7 @@
       },
       "justificacion_final": "Decision TRIPLE 1X2: margen 0.3 puntos, indice sorpresa 100.0.",
       "lecturas_motivacion": [
+        "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (necesita_ganar vs depende_de_otros_resultados).",
@@ -3002,6 +3021,8 @@
       },
       "justificacion_final": "Decision TRIPLE 1X2: margen 0.8 puntos, indice sorpresa 100.0.",
       "lecturas_motivacion": [
+        "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (le_vale_empate vs necesita_ganar).",
+        "Escenario competitivo: Al local le vale empate y el visitante necesita ganar: sube la X tactica y el empuje visitante.",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (le_vale_empate vs necesita_ganar).",
         "Escenario competitivo: Al local le vale empate y el visitante necesita ganar: sube la X tactica y el empuje visitante.",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (le_vale_empate vs necesita_ganar).",
@@ -3541,7 +3562,7 @@
       "elige8_seguro_score": 54.8,
       "elige8_confianza_real": 54.8,
       "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 12,
+      "elige8_seguro_posicion": 11,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 54.8,
       "elige8_seguro_margen": 25.2,
@@ -3780,6 +3801,8 @@
       },
       "justificacion_final": "Decision FIJO X: margen 3.1 puntos, indice sorpresa 100.0.",
       "lecturas_motivacion": [
+        "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (eliminada vs depende_de_otros_resultados).",
+        "Clasificacion Mundial 2026: posible rotacion del local por objetivo cerrado.",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (eliminada vs depende_de_otros_resultados).",
         "Clasificacion Mundial 2026: posible rotacion del local por objetivo cerrado.",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (eliminada vs depende_de_otros_resultados).",
@@ -4203,6 +4226,7 @@
         "Escenario competitivo: Ambos dependen de otros resultados: partido competitivo y equilibrado, se suaviza el favorito y sube algo la X.",
         "Escenario competitivo: Ambos dependen de otros resultados: partido competitivo y equilibrado, se suaviza el favorito y sube algo la X.",
         "Escenario competitivo: Ambos dependen de otros resultados: partido competitivo y equilibrado, se suaviza el favorito y sube algo la X.",
+        "Escenario competitivo: Ambos dependen de otros resultados: partido competitivo y equilibrado, se suaviza el favorito y sube algo la X.",
         "Escenario competitivo: Ambos dependen de otros resultados: partido competitivo y equilibrado, se suaviza el favorito y sube algo la X."
       ],
       "ajuste_clasificacion_mundial_2026": {
@@ -4327,7 +4351,7 @@
       "elige8_seguro_score": 79.8,
       "elige8_confianza_real": 79.8,
       "elige8_tipo_cobertura": "DOBLE",
-      "elige8_seguro_posicion": 6,
+      "elige8_seguro_posicion": 5,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 44.8,
       "elige8_seguro_margen": 9.8,
@@ -4569,6 +4593,7 @@
       },
       "justificacion_final": "Decision FIJO X: margen 3.6 puntos, indice sorpresa 100.0.",
       "lecturas_motivacion": [
+        "Escenario competitivo: Ambos dependen de otros resultados: partido competitivo y equilibrado, se suaviza el favorito y sube algo la X.",
         "Escenario competitivo: Ambos dependen de otros resultados: partido competitivo y equilibrado, se suaviza el favorito y sube algo la X.",
         "Escenario competitivo: Ambos dependen de otros resultados: partido competitivo y equilibrado, se suaviza el favorito y sube algo la X.",
         "Escenario competitivo: Ambos dependen de otros resultados: partido competitivo y equilibrado, se suaviza el favorito y sube algo la X.",
@@ -5092,7 +5117,7 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 7.1,
+        "1": 7.2,
         "X": 30.8,
         "2": 62.0
       },
@@ -5117,7 +5142,7 @@
       "probabilidad_sorpresa": 38.7,
       "probabilidad_top": 62.0,
       "margen_probabilidad": 31.2,
-      "tercera_probabilidad": 7.1,
+      "tercera_probabilidad": 7.2,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 38.0,
       "surprise_score": 100.0,
@@ -5277,7 +5302,7 @@
         "lecturas": []
       },
       "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=7.1%, X=30.8%, 2=62.0%. Calidad de datos: alta. Historial Mundial 2026 incorporado con muestra minima 3 partido(s): Jordania 0 pts, GF 2, GC 6; Argentina 9 pts, GF 6, GC 0. Se mantiene como FIJO (2) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=38.0/100 o sorpresa=38.7%. Favorito o signo de referencia: Argentina. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 3 partido(s); margen 31.2 puntos. Decision final: 2.",
+      "razonamiento": "Probabilidades IA: 1=7.2%, X=30.8%, 2=62.0%. Calidad de datos: alta. Historial Mundial 2026 incorporado con muestra minima 3 partido(s): Jordania 0 pts, GF 2, GC 6; Argentina 9 pts, GF 6, GC 0. Se mantiene como FIJO (2) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=38.0/100 o sorpresa=38.7%. Favorito o signo de referencia: Argentina. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 3 partido(s); margen 31.2 puntos. Decision final: 2.",
       "explicabilidad_ia": {
         "hipotesis_principal": "X como signo dominante (36.2%).",
         "hipotesis_alternativa": "2 como alternativa (33.9%).",
@@ -5299,6 +5324,9 @@
       },
       "justificacion_final": "Decision DOBLE X2: margen 2.3 puntos, indice sorpresa 100.0.",
       "lecturas_motivacion": [
+        "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (eliminada vs le_vale_empate).",
+        "Clasificacion Mundial 2026: a una seleccion le vale empate, sube la X como resultado tactico.",
+        "Clasificacion Mundial 2026: posible rotacion del local por objetivo cerrado.",
         "Clasificacion Mundial 2026: la motivacion de grupo ajusta el 1X2 (eliminada vs le_vale_empate).",
         "Clasificacion Mundial 2026: a una seleccion le vale empate, sube la X como resultado tactico.",
         "Clasificacion Mundial 2026: posible rotacion del local por objetivo cerrado.",
@@ -5570,6 +5598,22 @@
       "motivo_sorpresa": "historial del Mundial 2026 incorporado; muestra minima 2 partido(s); margen 4.9 puntos"
     },
     {
+      "num": 4,
+      "partido": "Paraguay - Australia",
+      "favorito": "2",
+      "favorito_nombre": "Australia",
+      "indice_sorpresa_quinielistica": 72.4,
+      "signo_sorpresa_principal": "X",
+      "signos_contra_favorito": [
+        "X",
+        "1"
+      ],
+      "cobertura_sorpresa_sugerida": "DOBLE",
+      "tipo_final": "DOBLE",
+      "signo_final": "X2",
+      "motivo_sorpresa": "historial del Mundial 2026 incorporado; muestra minima 3 partido(s); margen 10.3 puntos"
+    },
+    {
       "num": 5,
       "partido": "Noruega - Francia",
       "favorito": "2",
@@ -5616,22 +5660,6 @@
       "tipo_final": "DOBLE",
       "signo_final": "1X",
       "motivo_sorpresa": "historial del Mundial 2026 incorporado; muestra minima 2 partido(s); margen 13.3 puntos"
-    },
-    {
-      "num": 4,
-      "partido": "Paraguay - Australia",
-      "favorito": "2",
-      "favorito_nombre": "Australia",
-      "indice_sorpresa_quinielistica": 60.2,
-      "signo_sorpresa_principal": "X",
-      "signos_contra_favorito": [
-        "X",
-        "1"
-      ],
-      "cobertura_sorpresa_sugerida": "DOBLE",
-      "tipo_final": "DOBLE",
-      "signo_final": "X2",
-      "motivo_sorpresa": "historial del Mundial 2026 incorporado; muestra minima 2 partido(s); margen 15.8 puntos"
     }
   ],
   "ranking_incertidumbre_coberturas": [
@@ -6303,7 +6331,7 @@
     "estado_prediccion": "seleccionado_por_criterio_pleno15",
     "razonamiento_pleno15": "Se recomienda el signo 2 porque es el signo con mayor probabilidad estimada (66.3%). El margen frente al segundo signo es de 37.0 puntos, que mide la separacion real del favorito. La incertidumbre del partido es 92.3 y el riesgo de sorpresa usado por el sistema es 100.0. La calidad de datos suma confianza al pronostico. La categoria de sorpresa o cobertura sugerida exige prudencia para el Pleno al 15. Score conservador Pleno al 15: 94.02; se elige el candidato con mayor seguridad combinada, no solo el favorito mas alto.",
     "actualizado_por": "seleccionar_pleno15.py",
-    "actualizado_en": "2026-06-26T00:13:48.752791+00:00"
+    "actualizado_en": "2026-06-26T04:50:44.823622+00:00"
   },
   "resumen": {
     "fijos": 8,
@@ -6313,8 +6341,8 @@
     "favoritos_atacables": 6,
     "indice_sorpresa_max": 90.4,
     "calidad_datos": {
-      "alta": 4,
-      "media": 10,
+      "alta": 5,
+      "media": 9,
       "media_baja": 0,
       "baja": 0
     },
@@ -6337,8 +6365,8 @@
       "ambos_dependen": 2
     },
     "total_equipos_clasificacion": 48,
-    "generado_en": "2026-06-26T00:13:32.604904+00:00",
-    "clasificaciones_generado_en": "2026-06-26T00:13:32.570574+00:00",
+    "generado_en": "2026-06-26T04:50:31.119189+00:00",
+    "clasificaciones_generado_en": "2026-06-26T04:50:31.089523+00:00",
     "criterio_critico": "Los porcentajes de selecciones solo se consideran estudiados si memoria_mundial_2026.aplicado es true."
   },
   "estado_jornada_objetivo": {
@@ -6449,17 +6477,17 @@
     "motivo_bloqueo": ""
   },
   "calibracion_probabilidades": {
-    "generado_en": "2026-06-26T00:13:48.177639+00:00",
+    "generado_en": "2026-06-26T04:50:44.378873+00:00",
     "estado": "muestra_baja",
     "muestra": "baja",
-    "partidos_evaluados": 60,
-    "brier_medio": 0.6467,
-    "logloss_medio": 1.0651,
+    "partidos_evaluados": 64,
+    "brier_medio": 0.6481,
+    "logloss_medio": 1.0675,
     "criterio": "No presentar porcentajes como plenamente fiables si la muestra es baja."
   },
   "elige8_seguro": {
     "version": "2.2",
-    "generado_en": "2026-06-26T00:13:48.676614+00:00",
+    "generado_en": "2026-06-26T04:50:44.764014+00:00",
     "modo": "conservador",
     "modo_real": "probabilidad_real_de_acierto",
     "regla_activa": "Elige 8 se selecciona por probabilidad real de acertar el signo jugado: TRIPLE=100%, DOBLE=suma de sus dos signos jugados, FIJO=probabilidad de su unico signo.",
@@ -6560,27 +6588,6 @@
         "seleccionado": true
       },
       {
-        "num": 4,
-        "partido": "Paraguay - Australia",
-        "signo_final": "X2",
-        "tipo_cobertura": "DOBLE",
-        "signo_mas_probable": "2",
-        "probabilidad_top": 48.0,
-        "probabilidad_acierto": 80.2,
-        "probabilidad_cubierta": 80.2,
-        "margen": 15.8,
-        "tercera_probabilidad": 19.8,
-        "incertidumbre": 110.81,
-        "probabilidad_sorpresa": 57.2,
-        "indice_sorpresa_quinielistica": 60.2,
-        "calidad_datos": "media",
-        "score_seguridad": 80.2,
-        "confianza_real": 80.2,
-        "cumple_umbral_seguro": true,
-        "posicion": 5,
-        "seleccionado": true
-      },
-      {
         "num": 11,
         "partido": "Croacia - Ghana",
         "signo_final": "X2",
@@ -6598,6 +6605,27 @@
         "score_seguridad": 79.8,
         "confianza_real": 79.8,
         "cumple_umbral_seguro": true,
+        "posicion": 5,
+        "seleccionado": true
+      },
+      {
+        "num": 4,
+        "partido": "Paraguay - Australia",
+        "signo_final": "X2",
+        "tipo_cobertura": "DOBLE",
+        "signo_mas_probable": "2",
+        "probabilidad_top": 44.0,
+        "probabilidad_acierto": 77.7,
+        "probabilidad_cubierta": 77.7,
+        "margen": 10.3,
+        "tercera_probabilidad": 22.3,
+        "incertidumbre": 106.84,
+        "probabilidad_sorpresa": 60.2,
+        "indice_sorpresa_quinielistica": 72.4,
+        "calidad_datos": "alta",
+        "score_seguridad": 77.7,
+        "confianza_real": 77.7,
+        "cumple_umbral_seguro": true,
         "posicion": 6,
         "seleccionado": true
       },
@@ -6607,17 +6635,17 @@
         "signo_final": "2",
         "tipo_cobertura": "FIJO",
         "signo_mas_probable": "2",
-        "probabilidad_top": 66.6,
-        "probabilidad_acierto": 66.6,
-        "probabilidad_cubierta": 66.6,
-        "margen": 37.4,
-        "tercera_probabilidad": 4.2,
-        "incertidumbre": 91.84,
-        "probabilidad_sorpresa": 33.9,
-        "indice_sorpresa_quinielistica": 33.4,
+        "probabilidad_top": 66.7,
+        "probabilidad_acierto": 66.7,
+        "probabilidad_cubierta": 66.7,
+        "margen": 37.7,
+        "tercera_probabilidad": 4.3,
+        "incertidumbre": 91.47,
+        "probabilidad_sorpresa": 33.7,
+        "indice_sorpresa_quinielistica": 33.3,
         "calidad_datos": "alta",
-        "score_seguridad": 66.6,
-        "confianza_real": 66.6,
+        "score_seguridad": 66.7,
+        "confianza_real": 66.7,
         "cumple_umbral_seguro": true,
         "posicion": 7,
         "seleccionado": true
@@ -6674,7 +6702,7 @@
         "probabilidad_acierto": 62.0,
         "probabilidad_cubierta": 62.0,
         "margen": 31.2,
-        "tercera_probabilidad": 7.1,
+        "tercera_probabilidad": 7.2,
         "incertidumbre": 92.72,
         "probabilidad_sorpresa": 38.7,
         "indice_sorpresa_quinielistica": 38.0,
@@ -6683,27 +6711,6 @@
         "confianza_real": 62.0,
         "cumple_umbral_seguro": true,
         "posicion": 10,
-        "seleccionado": false
-      },
-      {
-        "num": 1,
-        "partido": "Japon - Suecia",
-        "signo_final": "1",
-        "tipo_cobertura": "FIJO",
-        "signo_mas_probable": "1",
-        "probabilidad_top": 54.8,
-        "probabilidad_acierto": 54.8,
-        "probabilidad_cubierta": 54.8,
-        "margen": 25.2,
-        "tercera_probabilidad": 15.6,
-        "incertidumbre": 85.16,
-        "probabilidad_sorpresa": 45.2,
-        "indice_sorpresa_quinielistica": 45.2,
-        "calidad_datos": "alta",
-        "score_seguridad": 54.8,
-        "confianza_real": 54.8,
-        "cumple_umbral_seguro": true,
-        "posicion": 11,
         "seleccionado": false
       },
       {
@@ -6723,6 +6730,27 @@
         "calidad_datos": "alta",
         "score_seguridad": 54.8,
         "confianza_real": 54.8,
+        "cumple_umbral_seguro": true,
+        "posicion": 11,
+        "seleccionado": false
+      },
+      {
+        "num": 1,
+        "partido": "Japon - Suecia",
+        "signo_final": "1",
+        "tipo_cobertura": "FIJO",
+        "signo_mas_probable": "1",
+        "probabilidad_top": 52.9,
+        "probabilidad_acierto": 52.9,
+        "probabilidad_cubierta": 52.9,
+        "margen": 20.9,
+        "tercera_probabilidad": 15.1,
+        "incertidumbre": 90.3,
+        "probabilidad_sorpresa": 47.2,
+        "indice_sorpresa_quinielistica": 48.2,
+        "calidad_datos": "alta",
+        "score_seguridad": 52.9,
+        "confianza_real": 52.9,
         "cumple_umbral_seguro": true,
         "posicion": 12,
         "seleccionado": false
@@ -6779,7 +6807,7 @@
   },
   "elige8_modos": {
     "version": "2.2",
-    "generado_en": "2026-06-26T00:13:48.676803+00:00",
+    "generado_en": "2026-06-26T04:50:44.764157+00:00",
     "modo_activo": "conservador",
     "regla_activa": "Elige 8 se selecciona por probabilidad real de acertar el signo jugado: TRIPLE=100%, DOBLE=suma de sus dos signos jugados, FIJO=probabilidad de su unico signo.",
     "modos": {
@@ -6880,27 +6908,6 @@
             "seleccionado": true
           },
           {
-            "num": 4,
-            "partido": "Paraguay - Australia",
-            "signo_final": "X2",
-            "tipo_cobertura": "DOBLE",
-            "signo_mas_probable": "2",
-            "probabilidad_top": 48.0,
-            "probabilidad_acierto": 80.2,
-            "probabilidad_cubierta": 80.2,
-            "margen": 15.8,
-            "tercera_probabilidad": 19.8,
-            "incertidumbre": 110.81,
-            "probabilidad_sorpresa": 57.2,
-            "indice_sorpresa_quinielistica": 60.2,
-            "calidad_datos": "media",
-            "score_seguridad": 80.2,
-            "confianza_real": 80.2,
-            "cumple_umbral_seguro": true,
-            "posicion": 5,
-            "seleccionado": true
-          },
-          {
             "num": 11,
             "partido": "Croacia - Ghana",
             "signo_final": "X2",
@@ -6918,6 +6925,27 @@
             "score_seguridad": 79.8,
             "confianza_real": 79.8,
             "cumple_umbral_seguro": true,
+            "posicion": 5,
+            "seleccionado": true
+          },
+          {
+            "num": 4,
+            "partido": "Paraguay - Australia",
+            "signo_final": "X2",
+            "tipo_cobertura": "DOBLE",
+            "signo_mas_probable": "2",
+            "probabilidad_top": 44.0,
+            "probabilidad_acierto": 77.7,
+            "probabilidad_cubierta": 77.7,
+            "margen": 10.3,
+            "tercera_probabilidad": 22.3,
+            "incertidumbre": 106.84,
+            "probabilidad_sorpresa": 60.2,
+            "indice_sorpresa_quinielistica": 72.4,
+            "calidad_datos": "alta",
+            "score_seguridad": 77.7,
+            "confianza_real": 77.7,
+            "cumple_umbral_seguro": true,
             "posicion": 6,
             "seleccionado": true
           },
@@ -6927,17 +6955,17 @@
             "signo_final": "2",
             "tipo_cobertura": "FIJO",
             "signo_mas_probable": "2",
-            "probabilidad_top": 66.6,
-            "probabilidad_acierto": 66.6,
-            "probabilidad_cubierta": 66.6,
-            "margen": 37.4,
-            "tercera_probabilidad": 4.2,
-            "incertidumbre": 91.84,
-            "probabilidad_sorpresa": 33.9,
-            "indice_sorpresa_quinielistica": 33.4,
+            "probabilidad_top": 66.7,
+            "probabilidad_acierto": 66.7,
+            "probabilidad_cubierta": 66.7,
+            "margen": 37.7,
+            "tercera_probabilidad": 4.3,
+            "incertidumbre": 91.47,
+            "probabilidad_sorpresa": 33.7,
+            "indice_sorpresa_quinielistica": 33.3,
             "calidad_datos": "alta",
-            "score_seguridad": 66.6,
-            "confianza_real": 66.6,
+            "score_seguridad": 66.7,
+            "confianza_real": 66.7,
             "cumple_umbral_seguro": true,
             "posicion": 7,
             "seleccionado": true
@@ -6994,7 +7022,7 @@
             "probabilidad_acierto": 62.0,
             "probabilidad_cubierta": 62.0,
             "margen": 31.2,
-            "tercera_probabilidad": 7.1,
+            "tercera_probabilidad": 7.2,
             "incertidumbre": 92.72,
             "probabilidad_sorpresa": 38.7,
             "indice_sorpresa_quinielistica": 38.0,
@@ -7003,27 +7031,6 @@
             "confianza_real": 62.0,
             "cumple_umbral_seguro": true,
             "posicion": 10,
-            "seleccionado": false
-          },
-          {
-            "num": 1,
-            "partido": "Japon - Suecia",
-            "signo_final": "1",
-            "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "1",
-            "probabilidad_top": 54.8,
-            "probabilidad_acierto": 54.8,
-            "probabilidad_cubierta": 54.8,
-            "margen": 25.2,
-            "tercera_probabilidad": 15.6,
-            "incertidumbre": 85.16,
-            "probabilidad_sorpresa": 45.2,
-            "indice_sorpresa_quinielistica": 45.2,
-            "calidad_datos": "alta",
-            "score_seguridad": 54.8,
-            "confianza_real": 54.8,
-            "cumple_umbral_seguro": true,
-            "posicion": 11,
             "seleccionado": false
           },
           {
@@ -7043,6 +7050,27 @@
             "calidad_datos": "alta",
             "score_seguridad": 54.8,
             "confianza_real": 54.8,
+            "cumple_umbral_seguro": true,
+            "posicion": 11,
+            "seleccionado": false
+          },
+          {
+            "num": 1,
+            "partido": "Japon - Suecia",
+            "signo_final": "1",
+            "tipo_cobertura": "FIJO",
+            "signo_mas_probable": "1",
+            "probabilidad_top": 52.9,
+            "probabilidad_acierto": 52.9,
+            "probabilidad_cubierta": 52.9,
+            "margen": 20.9,
+            "tercera_probabilidad": 15.1,
+            "incertidumbre": 90.3,
+            "probabilidad_sorpresa": 47.2,
+            "indice_sorpresa_quinielistica": 48.2,
+            "calidad_datos": "alta",
+            "score_seguridad": 52.9,
+            "confianza_real": 52.9,
             "cumple_umbral_seguro": true,
             "posicion": 12,
             "seleccionado": false
@@ -7188,27 +7216,6 @@
             "seleccionado": true
           },
           {
-            "num": 4,
-            "partido": "Paraguay - Australia",
-            "signo_final": "X2",
-            "tipo_cobertura": "DOBLE",
-            "signo_mas_probable": "2",
-            "probabilidad_top": 48.0,
-            "probabilidad_acierto": 80.2,
-            "probabilidad_cubierta": 80.2,
-            "margen": 15.8,
-            "tercera_probabilidad": 19.8,
-            "incertidumbre": 110.81,
-            "probabilidad_sorpresa": 57.2,
-            "indice_sorpresa_quinielistica": 60.2,
-            "calidad_datos": "media",
-            "score_seguridad": 80.2,
-            "confianza_real": 80.2,
-            "cumple_umbral_seguro": true,
-            "posicion": 5,
-            "seleccionado": true
-          },
-          {
             "num": 11,
             "partido": "Croacia - Ghana",
             "signo_final": "X2",
@@ -7226,6 +7233,27 @@
             "score_seguridad": 79.8,
             "confianza_real": 79.8,
             "cumple_umbral_seguro": true,
+            "posicion": 5,
+            "seleccionado": true
+          },
+          {
+            "num": 4,
+            "partido": "Paraguay - Australia",
+            "signo_final": "X2",
+            "tipo_cobertura": "DOBLE",
+            "signo_mas_probable": "2",
+            "probabilidad_top": 44.0,
+            "probabilidad_acierto": 77.7,
+            "probabilidad_cubierta": 77.7,
+            "margen": 10.3,
+            "tercera_probabilidad": 22.3,
+            "incertidumbre": 106.84,
+            "probabilidad_sorpresa": 60.2,
+            "indice_sorpresa_quinielistica": 72.4,
+            "calidad_datos": "alta",
+            "score_seguridad": 77.7,
+            "confianza_real": 77.7,
+            "cumple_umbral_seguro": true,
             "posicion": 6,
             "seleccionado": true
           },
@@ -7235,17 +7263,17 @@
             "signo_final": "2",
             "tipo_cobertura": "FIJO",
             "signo_mas_probable": "2",
-            "probabilidad_top": 66.6,
-            "probabilidad_acierto": 66.6,
-            "probabilidad_cubierta": 66.6,
-            "margen": 37.4,
-            "tercera_probabilidad": 4.2,
-            "incertidumbre": 91.84,
-            "probabilidad_sorpresa": 33.9,
-            "indice_sorpresa_quinielistica": 33.4,
+            "probabilidad_top": 66.7,
+            "probabilidad_acierto": 66.7,
+            "probabilidad_cubierta": 66.7,
+            "margen": 37.7,
+            "tercera_probabilidad": 4.3,
+            "incertidumbre": 91.47,
+            "probabilidad_sorpresa": 33.7,
+            "indice_sorpresa_quinielistica": 33.3,
             "calidad_datos": "alta",
-            "score_seguridad": 66.6,
-            "confianza_real": 66.6,
+            "score_seguridad": 66.7,
+            "confianza_real": 66.7,
             "cumple_umbral_seguro": true,
             "posicion": 7,
             "seleccionado": true
@@ -7302,7 +7330,7 @@
             "probabilidad_acierto": 62.0,
             "probabilidad_cubierta": 62.0,
             "margen": 31.2,
-            "tercera_probabilidad": 7.1,
+            "tercera_probabilidad": 7.2,
             "incertidumbre": 92.72,
             "probabilidad_sorpresa": 38.7,
             "indice_sorpresa_quinielistica": 38.0,
@@ -7311,27 +7339,6 @@
             "confianza_real": 62.0,
             "cumple_umbral_seguro": true,
             "posicion": 10,
-            "seleccionado": false
-          },
-          {
-            "num": 1,
-            "partido": "Japon - Suecia",
-            "signo_final": "1",
-            "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "1",
-            "probabilidad_top": 54.8,
-            "probabilidad_acierto": 54.8,
-            "probabilidad_cubierta": 54.8,
-            "margen": 25.2,
-            "tercera_probabilidad": 15.6,
-            "incertidumbre": 85.16,
-            "probabilidad_sorpresa": 45.2,
-            "indice_sorpresa_quinielistica": 45.2,
-            "calidad_datos": "alta",
-            "score_seguridad": 54.8,
-            "confianza_real": 54.8,
-            "cumple_umbral_seguro": true,
-            "posicion": 11,
             "seleccionado": false
           },
           {
@@ -7351,6 +7358,27 @@
             "calidad_datos": "alta",
             "score_seguridad": 54.8,
             "confianza_real": 54.8,
+            "cumple_umbral_seguro": true,
+            "posicion": 11,
+            "seleccionado": false
+          },
+          {
+            "num": 1,
+            "partido": "Japon - Suecia",
+            "signo_final": "1",
+            "tipo_cobertura": "FIJO",
+            "signo_mas_probable": "1",
+            "probabilidad_top": 52.9,
+            "probabilidad_acierto": 52.9,
+            "probabilidad_cubierta": 52.9,
+            "margen": 20.9,
+            "tercera_probabilidad": 15.1,
+            "incertidumbre": 90.3,
+            "probabilidad_sorpresa": 47.2,
+            "indice_sorpresa_quinielistica": 48.2,
+            "calidad_datos": "alta",
+            "score_seguridad": 52.9,
+            "confianza_real": 52.9,
             "cumple_umbral_seguro": true,
             "posicion": 12,
             "seleccionado": false
@@ -7408,7 +7436,7 @@
     }
   },
   "resolucion_competiciones": {
-    "generado_en": "2026-06-26T00:13:33.561458+00:00",
+    "generado_en": "2026-06-26T04:50:32.957211+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
       "mundial_2026": 13,
