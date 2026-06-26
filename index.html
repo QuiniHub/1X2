@@ -739,9 +739,7 @@
     }
 
     function historyAciertos(row) {
-      const reales = { 61: 5, 63: 9, 65: 8, 66: 11, 67: 11, 68: 9, 69: 7 };
-      const jornada = Number(row.jornada);
-      return reales[jornada] ?? Number(row.aciertos || 0);
+      return Number(row.aciertos || 0);
     }
 
     function historyRowsWithIa() {
