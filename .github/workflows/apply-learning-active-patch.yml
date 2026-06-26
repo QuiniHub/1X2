@@ -1,0 +1,66 @@
+name: Aplicar parche aprendizaje activo
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/apply-learning-active-patch.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Aplicar cambios solicitados
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def must_replace(text, old, new, label):
+              if new in text:
+                  return text
+              if old not in text:
+                  raise SystemExit(f"No se encontro bloque esperado: {label}")
+              return text.replace(old, new, 1)
+
+          gen = Path("generar_diario_aprendizaje.py")
+          text = gen.read_text(encoding="utf-8")
+
+          old_pending = '''        real = signo_oficial(partido)\n        pron = signo_prediccion(pred)\n        if real not in SIGNOS or not pronostico_valido(pron):\n            continue\n        tipo = str(pred.get("tipo") or tipo_pronostico(pron)).upper()\n'''
+          new_pending = '''        real = signo_oficial(partido)\n        pron = signo_prediccion(pred)\n        jugado = real in SIGNOS and pronostico_valido(pron)\n        \n        if not jugado:\n            # Partido pendiente: incluirlo sin resultado\n            if pronostico_valido(pron) or pron:\n                partidos.append({\n                    "num": num,\n                    "partido": f"{num}. {partido.get('local', '')} - {partido.get('visitante', '')}",\n                    "local": partido.get("local"),\n                    "visitante": partido.get("visitante"),\n                    "fecha": str(partido.get("fecha") or ""),\n                    "hora": str(partido.get("hora") or ""),\n                    "es_pleno15": False,\n                    "pronostico_jugado": pron if pron else "Pendiente",\n                    "signo_real": None,\n                    "resultado": "Pendiente",\n                    "acierto": None,\n                    "tipo_apuesta": str(pred.get("tipo") or tipo_pronostico(pron)).upper() if pron else "-",\n                    "es_elige8": bool(pred.get("en_elige8") or pred.get("elige8")),\n                    "partido_sorpresa": False,\n                    "riesgo_necesidad": False,\n                    "calidad_datos": "pendiente",\n                    "explicacion": "Partido pendiente de jugarse.",\n                    "categoria_fallo": "",\n                    "ajuste_recomendado": "",\n                    "origen": "pendiente",\n                })\n            continue\n\n        tipo = str(pred.get("tipo") or tipo_pronostico(pron)).upper()\n'''
+          text = must_replace(text, old_pending, new_pending, "pendientes construir_entrada")
+
+          old_return = '''    total = len(partidos)\n    return {\n        "jornada": jornada,\n        "actualizado_en": ahora_iso(),\n        "origen_prediccion": str(PREDICCIONES / f"jornada_{jornada}.json"),\n        "resumen": {\n            "partidos": total,\n            "aciertos": aciertos,\n            "fallos": fallos,\n            "precision": round(aciertos / max(total, 1) * 100, 2),\n        },\n        "partidos": sorted(partidos, key=lambda p: p["num"]),\n    }\n'''
+          pleno_block = '''    # Procesar Pleno al 15\n    pleno = jornada_data.get("pleno15") or {}\n    pleno_pred = {}\n    for p_pred in pred_data.get("partidos", []):\n        if int(p_pred.get("num") or 0) == 15:\n            pleno_pred = p_pred\n            break\n    if not pleno_pred and pred_data.get("pleno15"):\n        pleno_pred = pred_data["pleno15"]\n\n    if pleno:\n        resultado_pleno = str(pleno.get("resultado") or "Pendiente")\n        signo_pleno = str(pleno.get("signo_oficial") or "Pendiente")\n        local_pleno = pleno.get("local", "")\n        visitante_pleno = pleno.get("visitante", "")\n        fecha_pleno = str(pleno.get("fecha") or "")\n        hora_pleno = str(pleno.get("hora") or "")\n        pronostico_pleno = str(\n            pleno_pred.get("signo_final") or\n            pleno_pred.get("signo_base") or\n            pleno_pred.get("pronostico_ia") or\n            pleno.get("signo_nuestro") or\n            "Pendiente"\n        )\n        jugado_pleno = "-" in resultado_pleno and signo_pleno in SIGNOS\n        partidos.append({\n            "num": 15,\n            "partido": f"PLENO AL 15: {local_pleno} - {visitante_pleno}",\n            "local": local_pleno,\n            "visitante": visitante_pleno,\n            "fecha": fecha_pleno,\n            "hora": hora_pleno,\n            "es_pleno15": True,\n            "pronostico_jugado": pronostico_pleno,\n            "signo_real": signo_pleno if jugado_pleno else None,\n            "resultado": resultado_pleno if jugado_pleno else "Pendiente",\n            "acierto": None,\n            "tipo_apuesta": "PLENO15",\n            "es_elige8": False,\n            "partido_sorpresa": False,\n            "riesgo_necesidad": False,\n            "calidad_datos": "alta" if jugado_pleno else "pendiente",\n            "explicacion": f"Pleno al 15: {local_pleno} vs {visitante_pleno}. " + (f"Resultado: {resultado_pleno}" if jugado_pleno else "Partido pendiente de jugarse."),\n            "categoria_fallo": "",\n            "ajuste_recomendado": "",\n            "origen": "jornada_data",\n        })\n\n    partidos = sorted(partidos, key=lambda p: p.get("num", 99))\n\n    total = len(partidos)\n    return {\n        "jornada": jornada,\n        "actualizado_en": ahora_iso(),\n        "origen_prediccion": str(PREDICCIONES / f"jornada_{jornada}.json"),\n        "resumen": {\n            "partidos": total,\n            "aciertos": aciertos,\n            "fallos": fallos,\n            "precision": round(aciertos / max(aciertos + fallos, 1) * 100, 2),\n        },\n        "partidos": partidos,\n    }\n'''
+          text = must_replace(text, old_return, pleno_block, "pleno15 construir_entrada")
+          gen.write_text(text, encoding="utf-8")
+
+          idx = Path("index.html")
+          html = idx.read_text(encoding="utf-8")
+          html = html.replace('<span class="tag">Última jornada cerrada</span>', '<span class="tag">Jornada activa</span>')
+
+          start = html.index('    function latestLearningEntries() {')
+          end = html.index('    function renderWorld() {', start)
+          new_funcs = '''    function latestLearningEntries() {\n      const a = state.aprendizaje || {};\n      const allEntries = arr(a.entradas || a.partidos || a.diario || a.detalle || a.aprendizajes);\n      const withResult = allEntries.filter(e => hasClosedSign(e) && Number(e.jornada));\n      const jornadas = withResult.map(e => Number(e.jornada)).filter(Number.isFinite);\n      const latest = jornadas.length ? Math.max(...jornadas) : null;\n      if (latest === null) return { jornada: null, entries: [] };\n      const entries = allEntries.filter(e => Number(e.jornada) === latest);\n      return {\n        jornada: latest,\n        entries: entries.sort((a, b) => {\n          const na = Number(a.num || (a.partido || '').split('.')[0]) || 99;\n          const nb = Number(b.num || (b.partido || '').split('.')[0]) || 99;\n          return na - nb;\n        })\n      };\n    }\n\n    function renderLearning() {\n      const { jornada, entries } = latestLearningEntries();\n      const jugados = entries.filter(it => it.acierto === true || it.acierto === false);\n      const aciertos = jugados.filter(it => it.acierto === true).length;\n      const fallos = jugados.filter(it => it.acierto === false).length;\n\n      qs('#learningMetrics').innerHTML = [\n        metric('Última jornada', jornada ?? '-'),\n        metric('Partidos jugados', jugados.length || '-'),\n        metric('Aciertos', jugados.length ? aciertos : '-'),\n        metric('Fallos', jugados.length ? fallos : '-')\n      ].join('');\n\n      qs('#learningDiary').innerHTML = entries.length ? entries.map((it, idx) => {\n        const jugado = it.acierto === true || it.acierto === false;\n        const ok = it.acierto === true;\n        const esPleno = it.es_pleno15 === true || it.tipo_apuesta === 'PLENO15';\n        const razonamiento = it.explicacion || it.razonamiento || it.aprendizaje || it.lectura || it.que_aprende || it.ajuste_recomendado || '';\n\n        if (esPleno) {\n          return `<article class="learning-item">\n            <strong>${escapeHtml(it.partido || 'Pleno al 15')}</strong>\n            <span>Pronóstico: <b>${escapeHtml(it.pronostico_jugado || '-')}</b>${jugado ? ` · Resultado: <b>${escapeHtml(it.resultado || '-')}</b>` : ''}</span>\n            <span>Tipo: <b>PLENO AL 15</b></span>\n            <span class="result" style="color:var(--muted,#888);font-style:italic">${jugado ? escapeHtml(razonamiento) : '⏳ Pendiente · Partido aún no jugado'}</span>\n          </article>`;\n        }\n\n        if (!jugado) {\n          return `<article class="learning-item" style="opacity:0.6;border-left:3px solid var(--muted,#ccc)">\n            <strong>${escapeHtml(it.partido || `Partido ${idx + 1}`)}</strong>\n            <span>Pronóstico: <b>${escapeHtml(it.pronostico_jugado || '-')}</b>${it.fecha ? ` · ${escapeHtml(it.fecha)}${it.hora ? ' ' + escapeHtml(it.hora) + 'h' : ''}` : ''}</span>\n            <span>Tipo: <b>${escapeHtml(it.tipo_apuesta || '-')}</b> · Elige 8: <b>${it.es_elige8 ? 'sí' : 'no'}</b></span>\n            <span class="result" style="color:var(--muted,#999);font-style:italic">⏳ Pendiente · Partido aún no jugado</span>\n          </article>`;\n        }\n\n        return `<article class="learning-item ${ok ? '' : 'fail'}">\n          <strong>${escapeHtml(it.partido || `Partido ${idx + 1}`)}</strong>\n          <span>Predijo: <b>${escapeHtml(it.pronostico_jugado || '-')}</b> · Pasó: <b>${escapeHtml(it.signo_real || '-')}</b> · Resultado: <b>${escapeHtml(it.resultado || '-')}</b></span>\n          <span>Tipo: <b>${escapeHtml(it.tipo_apuesta || '-')}</b> · Elige 8: <b>${it.es_elige8 ? 'sí' : 'no'}</b></span>\n          <span class="result">${ok ? '✅ Acierto' : '❌ Fallo'} · ${escapeHtml(razonamiento)}</span>\n          ${it.ajuste_recomendado && !ok ? `<span>${escapeHtml(it.ajuste_recomendado)}</span>` : ''}\n        </article>`;\n      }).join('') : '<div class="empty">El diario se rellenará cuando haya partidos de la jornada activa.</div>';\n    }\n\n'''
+          html = html[:start] + new_funcs + html[end:]
+          idx.write_text(html, encoding="utf-8")
+
+          Path(".github/workflows/apply-learning-active-patch.yml").unlink(missing_ok=True)
+          PY
+
+      - name: Commit y push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add generar_diario_aprendizaje.py index.html .github/workflows/apply-learning-active-patch.yml
+          git diff --cached --quiet && echo "Sin cambios" || git commit -m "Mostrar aprendizaje de jornada activa completa"
+          git push
