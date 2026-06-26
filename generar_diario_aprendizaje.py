@@ -336,11 +336,29 @@ def construir_entrada(jornada, jornada_data, pred_data):
         tercera = to_float(pred.get("tercera_probabilidad"), tercera_prob(probs))
         aciertos += int(ok)
         fallos += int(not ok)
+        explicacion = explicacion_especifica(partido, pred, pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera)
+        ajuste = ajuste_recomendado_especifico(partido, pred, pron, tipo, real, ok, probs, fav, score, margen_val, tercera)
         partidos.append({
             "num": num,
-            "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
+            "partido": f"{num}. {partido.get('local', '')} - {partido.get('visitante', '')}",
             "local": partido.get("local"),
             "visitante": partido.get("visitante"),
+            "fecha": str(partido.get("fecha") or ""),
+            "hora": str(partido.get("hora") or ""),
+            "es_pleno15": False,
+            "pronostico_jugado": pron,
+            "signo_real": real,
+            "resultado": partido.get("resultado") or "",
+            "acierto": ok,
+            "tipo_apuesta": tipo,
+            "es_elige8": bool(pred.get("en_elige8") or pred.get("elige8")),
+            "partido_sorpresa": bool(pred.get("sorpresa_potencial")),
+            "riesgo_necesidad": bool(pred.get("riesgo_necesidad")),
+            "calidad_datos": str(pred.get("calidad_datos") or "alta"),
+            "explicacion": explicacion,
+            "categoria_fallo": "acierto" if ok else "fallo",
+            "ajuste_recomendado": ajuste,
+            "origen": "generar_diario_aprendizaje",
             "prediccion": {
                 "signo_final": pron,
                 "tipo": tipo,
@@ -356,8 +374,6 @@ def construir_entrada(jornada, jornada_data, pred_data):
                 "resultado": partido.get("resultado"),
             },
             "acertado": ok,
-            "explicacion": explicacion_especifica(partido, pred, pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera),
-            "ajuste_recomendado": ajuste_recomendado_especifico(partido, pred, pron, tipo, real, ok, probs, fav, score, margen_val, tercera),
             "aprendizaje": aprendizaje(pron, tipo, real, ok, fav, score, margen_val, tercera),
         })
 
@@ -433,35 +449,48 @@ def comparable(entry):
 
 
 def actualizar_diario():
-    diario = cargar_json(SALIDA, {"version": "1.0", "jornadas": []})
-    existentes = {
-        int(e.get("jornada")): e
-        for e in diario.get("jornadas", [])
-        if str(e.get("jornada") or "").isdigit()
-    }
-    cambios = 0
+    diario = cargar_json(SALIDA, {"version": "1.0", "entradas": []})
+    entradas_previas = [
+        e for e in diario.get("entradas", [])
+        if str(e.get("jornada") or "") != "70"
+    ]
+    jornadas = []
+    nuevas_entradas = []
 
     for path in sorted(JORNADAS.glob("jornada_*.json"), key=numero_jornada):
         jornada = numero_jornada(path)
         jornada_data = cargar_json(path, {})
         pred_data = cargar_json(PREDICCIONES / f"jornada_{jornada}.json", {})
-        if not jornada_cerrada(jornada_data) or not pred_data.get("partidos"):
+        if not pred_data.get("partidos"):
+            continue
+        if not jornada_cerrada(jornada_data) and jornada != 70:
             continue
         entrada = construir_entrada(jornada, jornada_data, pred_data)
         if not entrada["partidos"]:
             continue
-        if comparable(existentes.get(jornada)) == comparable(entrada):
-            continue
-        existentes[jornada] = entrada
-        cambios += 1
+        jornadas.append(entrada)
+        for partido in entrada["partidos"]:
+            item = dict(partido)
+            item["jornada"] = jornada
+            nuevas_entradas.append(item)
 
-    if cambios:
-        diario["version"] = "1.0"
-        diario["actualizado_en"] = ahora_iso()
-        diario["jornadas"] = [existentes[j] for j in sorted(existentes)]
-        guardar_json(SALIDA, diario)
-    print(f"Diario de aprendizaje actualizado: {cambios} jornada(s).")
-    return cambios
+    entradas_por_clave = {}
+    for item in entradas_previas + nuevas_entradas:
+        clave = (int(item.get("jornada") or 0), int(item.get("num") or 0) or 99, item.get("partido") or "")
+        entradas_por_clave[clave] = item
+    entradas = [entradas_por_clave[k] for k in sorted(entradas_por_clave)]
+
+    salida = {
+        "version": "1.0",
+        "generado_en": ahora_iso(),
+        "actualizado_en": ahora_iso(),
+        "total_entradas": len(entradas),
+        "entradas": entradas,
+        "jornadas": jornadas,
+    }
+    guardar_json(SALIDA, salida)
+    print(f"Diario de aprendizaje actualizado: {len(jornadas)} jornada(s), {len(entradas)} entrada(s).")
+    return len(jornadas)
 
 
 if __name__ == "__main__":
