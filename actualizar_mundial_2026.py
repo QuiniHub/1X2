@@ -18,6 +18,7 @@ from html import unescape
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+from actualizar_clasificaciones_mundial_2026 import EQUIPO_A_GRUPO, normalizar_nombre
 from sincronizar_mundial_jornadas import sincronizar_jornadas_desde_mundial
 
 try:
@@ -342,6 +343,35 @@ def fusionar_resultados(data, nuevos):
     return data, cambios
 
 
+def limpiar_grupos_resultados(data):
+    """Completa grupos vacios antes de guardar resultados del Mundial.
+
+    Si ambos equipos pertenecen al mismo grupo real se asigna ese grupo. Si no,
+    se marca como "otro" para que no bloquee el flujo ni contamine tablas de
+    fase de grupos.
+    """
+    asignados_grupo_real = 0
+    asignados_otro = 0
+
+    for resultado in data.get("resultados", []):
+        if resultado.get("grupo"):
+            continue
+
+        local = normalizar_nombre(resultado.get("local"))
+        visitante = normalizar_nombre(resultado.get("visitante"))
+        grupo_local = EQUIPO_A_GRUPO.get(local)
+        grupo_visitante = EQUIPO_A_GRUPO.get(visitante)
+
+        if grupo_local and grupo_local == grupo_visitante:
+            resultado["grupo"] = grupo_local
+            asignados_grupo_real += 1
+        else:
+            resultado["grupo"] = "otro"
+            asignados_otro += 1
+
+    return asignados_grupo_real, asignados_otro
+
+
 def crear_registro(equipo):
     return {"equipo": equipo, "pj": 0, "g": 0, "e": 0, "p": 0, "gf": 0, "gc": 0, "dg": 0, "pts": 0, "partidos": [], "fuentes": []}
 
@@ -422,11 +452,13 @@ def main():
     fuentes = descargar_fuentes()
     nuevos = resultados_desde_jornadas() + resultados_desde_fuentes(candidatos, fuentes)
     actualizado, cambios = fusionar_resultados(data, nuevos)
+    grupos_asignados, grupos_otro = limpiar_grupos_resultados(actualizado)
     guardar_json(RESULTADOS, actualizado)
     cambios_jornadas, detalles_jornadas = sincronizar_jornadas_desde_mundial()
     memoria = construir_memoria(actualizado)
     guardar_json(MEMORIA, memoria)
     print(f"Mundial 2026 actualizado: {cambios} resultado(s) nuevo(s).")
+    print(f"Grupos inferidos en resultados: {grupos_asignados} real(es), {grupos_otro} otro(s).")
     print(f"Jornadas sincronizadas desde Mundial 2026: {cambios_jornadas} cambio(s).")
     if detalles_jornadas:
         print("Detalles sincronizados: " + json.dumps(detalles_jornadas, ensure_ascii=False))
