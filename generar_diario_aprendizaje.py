@@ -329,7 +329,8 @@ def construir_entrada(jornada, jornada_data, pred_data):
                 "resultado": partido.get("resultado"),
             },
             "acertado": ok,
-            "explicacion": explicar(pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera),
+            "explicacion": explicacion_especifica(partido, pred, pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera),
+            "ajuste_recomendado": ajuste_recomendado_especifico(partido, pred, pron, tipo, real, ok, probs, fav, score, margen_val, tercera),
             "aprendizaje": aprendizaje(pron, tipo, real, ok, fav, score, margen_val, tercera),
         })
 

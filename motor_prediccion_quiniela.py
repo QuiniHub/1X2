@@ -833,6 +833,7 @@ def calcular_ajuste_motivacion(partido, clasificaciones_mundial, fuente_losilla)
         detalle["lecturas"].append(f"Mercado Losilla muy sesgado ({signo_mercado} {valor_mercado:.1f}%) con alerta motivacional: sorpresa potencial alta.")
     detalle["activo"] = bool(detalle["alertas"] or any(abs(v) > 0 for v in detalle["ajuste_por_signo"].values()))
     detalle["clasificacion_losilla"] = {"local": liga_ctx["1"], "visitante": liga_ctx["2"]}
+    detalle = reforzar_ajuste_por_memoria_sorpresas(partido, detalle)
     return detalle
 
 
