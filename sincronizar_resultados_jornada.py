@@ -1,21 +1,14 @@
-"""Sincroniza resultados confirmados hacia jornadas abiertas.
-
-Solucion permanente: antes de que la compuerta revise data/jornadas/jornada_X.json,
-este script completa partidos pendientes si el resultado ya existe en otra fuente
-estructurada del repo:
-- data/mundial_2026_resultados.json
-- data/historial_partidos_primera.json
-- data/historial_partidos_segunda.json
-
-Genera log en data/sincronizacion_resultados.json.
-"""
+"""Sincroniza resultados confirmados hacia jornadas abiertas."""
 
 import json
 import re
 import unicodedata
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta, time as dt_time
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
+TZ_COMPETICION = ZoneInfo("Europe/Madrid")
+MARGEN_RESULTADO_FINAL = timedelta(minutes=105)
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -63,9 +56,7 @@ def cargar_json(path, defecto=None):
         return defecto
     try:
         texto = path.read_text(encoding="utf-8").strip()
-        if not texto:
-            return defecto
-        return json.loads(texto)
+        return json.loads(texto) if texto else defecto
     except Exception:
         return defecto
 
@@ -95,9 +86,7 @@ def resultado_valido(resultado):
 
 def normalizar_resultado(resultado):
     m = re.match(r"^\s*(\d{1,2})\s*-\s*(\d{1,2})\s*$", str(resultado or ""))
-    if not m:
-        return ""
-    return f"{int(m.group(1))}-{int(m.group(2))}"
+    return f"{int(m.group(1))}-{int(m.group(2))}" if m else ""
 
 
 def resultado_desde_goles(item):
@@ -128,9 +117,7 @@ def signo_pendiente(valor):
 
 
 def fecha_cercana(fecha_jornada, fecha_fuente, tolerancia_dias=2):
-    if not fecha_fuente:
-        return True
-    if not fecha_jornada:
+    if not fecha_fuente or not fecha_jornada:
         return True
     try:
         fj = datetime.fromisoformat(str(fecha_jornada)[:10]).date()
@@ -138,6 +125,29 @@ def fecha_cercana(fecha_jornada, fecha_fuente, tolerancia_dias=2):
     except ValueError:
         return True
     return abs((fj - ff).days) <= tolerancia_dias
+
+
+def partido_ya_terminado(partido):
+    """
+    Devuelve True SOLO si la fecha y hora del partido ya han pasado
+    (incluyendo margen de 105 minutos para el resultado final).
+    Si no tiene fecha/hora definida, devuelve False por seguridad.
+    """
+    fecha_txt = str(partido.get("fecha") or "").strip()
+    hora_txt = str(partido.get("hora") or "").strip()
+    if not fecha_txt:
+        return False
+    try:
+        fecha = datetime.fromisoformat(fecha_txt).date()
+    except ValueError:
+        return False
+    m = re.match(r"^(\d{1,2}):(\d{2})$", hora_txt)
+    if not m:
+        # Si no tiene hora, solo asignamos resultado si la fecha es anterior a hoy
+        return fecha < datetime.now(TZ_COMPETICION).date()
+    hora = dt_time(int(m.group(1)), int(m.group(2)))
+    inicio = datetime.combine(fecha, hora, TZ_COMPETICION)
+    return inicio + MARGEN_RESULTADO_FINAL <= datetime.now(TZ_COMPETICION)
 
 
 def es_jornada_abierta(data):
@@ -149,22 +159,20 @@ def es_jornada_abierta(data):
 
 def cargar_fuentes_confirmadas():
     fuentes = []
-
     mundial = cargar_json(MUNDIAL, {"resultados": []})
     for item in mundial.get("resultados", []):
         if str(item.get("confianza") or "").lower() != "confirmado":
             continue
         resultado = normalizar_resultado(item.get("resultado"))
-        if not resultado:
-            continue
-        fuentes.append({
-            "origen": "mundial_2026_resultados",
-            "archivo": str(MUNDIAL.relative_to(ROOT)),
-            "fecha": item.get("fecha") or "",
-            "local": item.get("local") or "",
-            "visitante": item.get("visitante") or "",
-            "resultado": resultado,
-        })
+        if resultado:
+            fuentes.append({
+                "origen": "mundial_2026_resultados",
+                "archivo": str(MUNDIAL.relative_to(ROOT)),
+                "fecha": item.get("fecha") or "",
+                "local": item.get("local") or "",
+                "visitante": item.get("visitante") or "",
+                "resultado": resultado,
+            })
 
     for archivo, origen in ((HISTORIAL_PRIMERA, "historial_partidos_primera"), (HISTORIAL_SEGUNDA, "historial_partidos_segunda")):
         data = cargar_json(archivo, {})
@@ -221,6 +229,8 @@ def sincronizar():
             signo = signo_resultado(resultado)
             if not resultado or signo not in SIGNOS:
                 continue
+            if not partido_ya_terminado(partido):
+                continue
             partido["resultado"] = resultado
             partido["signo_oficial"] = signo
             partido["fuente_resultado"] = confirmado.get("origen")
@@ -251,8 +261,7 @@ def sincronizar():
     log["generado_en"] = ahora_iso()
     log["cambios_ultima_ejecucion"] = cambios
     log["actualizaciones_ultima_ejecucion"] = actualizaciones
-    historico = log.get("actualizaciones") or []
-    log["actualizaciones"] = (historico + actualizaciones)[-500:]
+    log["actualizaciones"] = ((log.get("actualizaciones") or []) + actualizaciones)[-500:]
     guardar_json(LOG, log)
     return cambios, actualizaciones
 
