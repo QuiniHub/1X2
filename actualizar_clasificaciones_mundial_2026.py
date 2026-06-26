@@ -30,7 +30,113 @@ EQUIPOS_POR_GRUPO = 4
 CLASIFICAN_DIRECTO = 2
 PLAZA_UTIL_MINIMA = 3
 
-ALIAS = {"eeuu":"estados unidos","ee uu":"estados unidos","usa":"estados unidos","united states":"estados unidos","estados unidos":"estados unidos","paises bajos":"paises bajos","holanda":"paises bajos","netherlands":"paises bajos","japon":"japon","japón":"japon","costa marfil":"costa de marfil","costa de marfil":"costa de marfil","ivory coast":"costa de marfil","cote divoire":"costa de marfil","curacao":"curazao","curazao":"curazao","curaçao":"curazao","arabia saudi":"arabia saudi","arabia saudí":"arabia saudi","turkiye":"turquia","turkey":"turquia","belgica":"belgica","bélgica":"belgica","tunez":"tunez","túnez":"tunez","espana":"espana","españa":"espana","méxico":"mexico","mexico":"mexico","irak":"irak","iraq":"irak","congo dr":"congo dr","rd congo":"congo dr","congo rd":"congo dr","cabo verde":"cabo verde"}
+ALIAS = {
+    "eeuu": "estados unidos",
+    "ee uu": "estados unidos",
+    "usa": "estados unidos",
+    "united states": "estados unidos",
+    "estados unidos": "estados unidos",
+    "mexico": "mexico",
+    "méxico": "mexico",
+    "south africa": "sudafrica",
+    "sudafrica": "sudafrica",
+    "sudáfrica": "sudafrica",
+    "corea del sur": "corea del sur",
+    "south korea": "corea del sur",
+    "czechia": "chequia",
+    "chequia": "chequia",
+    "switzerland": "suiza",
+    "suiza": "suiza",
+    "canada": "canada",
+    "canadá": "canada",
+    "bosnia and herzegovina": "bosnia",
+    "bosnia herzegovina": "bosnia",
+    "bosnia": "bosnia",
+    "qatar": "qatar",
+    "brasil": "brasil",
+    "brazil": "brasil",
+    "marruecos": "marruecos",
+    "morocco": "marruecos",
+    "haiti": "haiti",
+    "haití": "haiti",
+    "escocia": "escocia",
+    "scotland": "escocia",
+    "paraguay": "paraguay",
+    "australia": "australia",
+    "turkiye": "turquia",
+    "turkey": "turquia",
+    "turquia": "turquia",
+    "turquía": "turquia",
+    "alemania": "alemania",
+    "germany": "alemania",
+    "costa marfil": "costa de marfil",
+    "costa de marfil": "costa de marfil",
+    "ivory coast": "costa de marfil",
+    "cote divoire": "costa de marfil",
+    "cote d ivoire": "costa de marfil",
+    "ecuador": "ecuador",
+    "curacao": "curazao",
+    "curazao": "curazao",
+    "curaçao": "curazao",
+    "paises bajos": "paises bajos",
+    "países bajos": "paises bajos",
+    "holanda": "paises bajos",
+    "netherlands": "paises bajos",
+    "japon": "japon",
+    "japón": "japon",
+    "japan": "japon",
+    "suecia": "suecia",
+    "sweden": "suecia",
+    "tunez": "tunez",
+    "túnez": "tunez",
+    "tunisia": "tunez",
+    "belgica": "belgica",
+    "bélgica": "belgica",
+    "belgium": "belgica",
+    "egipto": "egipto",
+    "egypt": "egipto",
+    "iran": "iran",
+    "irán": "iran",
+    "nueva zelanda": "nueva zelanda",
+    "new zealand": "nueva zelanda",
+    "espana": "espana",
+    "españa": "espana",
+    "spain": "espana",
+    "cabo verde": "cabo verde",
+    "cape verde": "cabo verde",
+    "arabia saudi": "arabia saudi",
+    "arabia saudí": "arabia saudi",
+    "saudi arabia": "arabia saudi",
+    "uruguay": "uruguay",
+    "francia": "francia",
+    "france": "francia",
+    "senegal": "senegal",
+    "irak": "irak",
+    "iraq": "irak",
+    "noruega": "noruega",
+    "norway": "noruega",
+    "argentina": "argentina",
+    "argelia": "argelia",
+    "algeria": "argelia",
+    "austria": "austria",
+    "jordania": "jordania",
+    "jordan": "jordania",
+    "portugal": "portugal",
+    "congo dr": "congo dr",
+    "dr congo": "congo dr",
+    "rd congo": "congo dr",
+    "congo rd": "congo dr",
+    "uzbekistan": "uzbekistan",
+    "uzbekistán": "uzbekistan",
+    "colombia": "colombia",
+    "inglaterra": "inglaterra",
+    "england": "inglaterra",
+    "ghana": "ghana",
+    "panama": "panama",
+    "panamá": "panama",
+    "croacia": "croacia",
+    "croatia": "croacia",
+}
 
 GRUPOS_MUNDIAL_2026 = {"A":["mexico","sudafrica","corea del sur","chequia"],"B":["suiza","canada","bosnia","qatar"],"C":["brasil","marruecos","haiti","escocia"],"D":["estados unidos","paraguay","australia","turquia"],"E":["alemania","curazao","costa de marfil","ecuador"],"F":["paises bajos","japon","suecia","tunez"],"G":["belgica","egipto","iran","nueva zelanda"],"H":["espana","cabo verde","arabia saudi","uruguay"],"I":["francia","senegal","irak","noruega"],"J":["argentina","argelia","austria","jordania"],"K":["portugal","congo dr","uzbekistan","colombia"],"L":["inglaterra","ghana","panama","croacia"]}
 EQUIPO_A_GRUPO = {equipo: grupo for grupo, equipos in GRUPOS_MUNDIAL_2026.items() for equipo in equipos}
@@ -77,6 +183,8 @@ def parsear_resultado(resultado):
 
 
 def grupo_por_equipos(local, visitante, grupo_fuente=""):
+    local = normalizar_nombre(local)
+    visitante = normalizar_nombre(visitante)
     grupo_fuente = str(grupo_fuente or "").strip().upper()
     gl = EQUIPO_A_GRUPO.get(local)
     gv = EQUIPO_A_GRUPO.get(visitante)
@@ -167,8 +275,8 @@ def construir_clasificaciones(data):
         visitante = normalizar_nombre(partido.get("visitante"))
         grupo = grupo_por_equipos(local, visitante, partido.get("grupo"))
         fecha = partido.get("fecha") or ""
-        if not resultado or not local or not visitante or not grupo or not fecha:
-            descartado = dict(partido); descartado["motivo_descarte_clasificacion"] = "sin_resultado_valido_sin_fecha_o_equipos_de_distinto_grupo"; descartados.append(descartado); continue
+        if not resultado or not local or not visitante or not grupo:
+            descartado = dict(partido); descartado["motivo_descarte_clasificacion"] = "sin_resultado_valido_o_equipos_de_distinto_grupo"; descartados.append(descartado); continue
         gl, gv = resultado
         clave = (grupo, tuple(sorted([local, visitante])), tuple(sorted([gl, gv])))
         if clave in partidos_vistos:
