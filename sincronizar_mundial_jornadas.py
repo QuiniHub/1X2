@@ -7,9 +7,13 @@ esta confirmado en data/mundial_2026_resultados.json.
 import json
 import re
 import unicodedata
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta, time as dt_time
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
+
+TZ_COMPETICION = ZoneInfo("Europe/Madrid")
+MARGEN_RESULTADO_FINAL = timedelta(minutes=105)
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -125,6 +129,29 @@ def resultado_confirmado_para(partido, indice):
     return indice.get(clave)
 
 
+def partido_ya_terminado(partido):
+    """
+    Devuelve True SOLO si la fecha y hora del partido ya han pasado
+    (incluyendo margen de 105 minutos para el resultado final).
+    Si no tiene fecha/hora definida, devuelve False por seguridad.
+    """
+    fecha_txt = str(partido.get("fecha") or "").strip()
+    hora_txt = str(partido.get("hora") or "").strip()
+    if not fecha_txt:
+        return False
+    try:
+        fecha = datetime.fromisoformat(fecha_txt).date()
+    except ValueError:
+        return False
+    m = re.match(r"^(\d{1,2}):(\d{2})$", hora_txt)
+    if not m:
+        # Si no tiene hora, solo asignamos resultado si la fecha es anterior a hoy
+        return fecha < datetime.now(TZ_COMPETICION).date()
+    hora = dt_time(int(m.group(1)), int(m.group(2)))
+    inicio = datetime.combine(fecha, hora, TZ_COMPETICION)
+    return inicio + MARGEN_RESULTADO_FINAL <= datetime.now(TZ_COMPETICION)
+
+
 def sincronizar_jornadas_desde_mundial():
     indice = indice_resultados_mundial()
     if not indice:
@@ -142,6 +169,9 @@ def sincronizar_jornadas_desde_mundial():
                 continue
             confirmado = resultado_confirmado_para(partido, indice)
             if not confirmado:
+                continue
+            # CRÍTICO: solo asignar resultado si el partido ya ha terminado
+            if not partido_ya_terminado(partido):
                 continue
             resultado = confirmado.get("resultado")
             signo = signo_resultado(resultado)
