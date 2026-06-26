@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 60.51,
+  "precision": 61.01,
   "jornadas_revisadas": 12,
-  "partidos_revisados": 157,
-  "aciertos": 95,
+  "partidos_revisados": 159,
+  "aciertos": 97,
   "fallos": 62,
   "fallos_por_tipo": {
     "Doble insuficiente": 9,
@@ -22,10 +22,10 @@
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 32,
-      "aciertos": 23,
+      "total": 33,
+      "aciertos": 24,
       "fallos": 9,
-      "precision": 71.88
+      "precision": 72.73
     },
     "FIJO": {
       "total": 109,
@@ -34,24 +34,24 @@
       "precision": 51.38
     },
     "TRIPLE": {
-      "total": 16,
-      "aciertos": 16,
+      "total": 17,
+      "aciertos": 17,
       "fallos": 0,
       "precision": 100.0
     }
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 71,
-      "aciertos": 55,
+      "total": 72,
+      "aciertos": 56,
       "fallos": 16,
-      "precision": 77.46
+      "precision": 77.78
     },
     "2": {
-      "total": 46,
-      "aciertos": 20,
+      "total": 47,
+      "aciertos": 21,
       "fallos": 26,
-      "precision": 43.48
+      "precision": 44.68
     },
     "X": {
       "total": 40,
@@ -9910,6 +9910,239 @@
           "partidos": 2
         }
       }
+    },
+    {
+      "jornada": 70,
+      "partido": "Noruega - Francia",
+      "pronostico": "X2",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "1-4",
+      "resultado_final": "1-4",
+      "signo_real": "2",
+      "signos_cubiertos": "X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_70.json",
+      "probabilidades_usadas": {
+        "1": 17.5,
+        "X": 34.8,
+        "2": 47.7
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_equipos",
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Noruega",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Francia",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (37.2%).",
+        "hipotesis_alternativa": "2 como alternativa (31.7%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO X: margen 5.5 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.46,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.17,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Noruega: ppp=2.56; perfil visitante Francia: ppp=3.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Noruega",
+        "partidos_total": 3,
+        "puntos_por_partido": 2.352,
+        "empates_pct": 32.38,
+        "surprise_score_medio": 39.44,
+        "forma_5_ppp": 2.333,
+        "forma_10_ppp": 2.333,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Francia",
+        "partidos_total": 3,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 33.67,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 3
+        }
+      }
+    },
+    {
+      "jornada": 70,
+      "partido": "Senegal - Iraq",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "5-0",
+      "resultado_final": "5-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_70.json",
+      "probabilidades_usadas": {
+        "1": 26.9,
+        "X": 34.7,
+        "2": 38.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_equipos",
+        "mundial_2026",
+        "mundial_2026_resultados_y_modelo_base"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Senegal",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Iraq",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (38.1%).",
+        "hipotesis_alternativa": "1 como alternativa (34.5%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO X: margen 3.6 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 18.46,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.14,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Senegal: ppp=0.00; perfil visitante Irak: ppp=1.00.",
+          "Memoria autonoma: tendencia de empate conjunta alta (50.0%)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Senegal",
+        "partidos_total": 2,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 35.43,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Irak",
+        "partidos_total": 1,
+        "puntos_por_partido": 1.0,
+        "empates_pct": 100.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -9922,19 +10155,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 157,
+    "partidos_base": 159,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 39.49,
+      "fallos_total_pct": 38.99,
       "no_cubrio_empate_sobre_fallos_pct": 32.26,
-      "no_cubrio_empate_sobre_total_pct": 12.74,
+      "no_cubrio_empate_sobre_total_pct": 12.58,
       "fijo_fallado_sobre_fallos_pct": 53.23,
-      "fijo_fallado_sobre_total_pct": 21.02,
-      "doble_insuficiente_sobre_total_pct": 5.73
+      "fijo_fallado_sobre_total_pct": 20.75,
+      "doble_insuficiente_sobre_total_pct": 5.66
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 10.86,
-    "riesgo_extra_triple_insuficiente": 1.56,
+    "riesgo_extra_fijo_fragil": 10.65,
+    "riesgo_extra_triple_insuficiente": 1.49,
     "min_dobles_auto": 3,
     "min_triples_auto": 0,
     "umbral_fijo_seguro": 58,
