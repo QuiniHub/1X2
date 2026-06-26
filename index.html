@@ -402,7 +402,7 @@
     <section id="aprendizaje" class="tab-panel">
       <div class="metrics" id="learningMetrics"></div>
       <div class="card">
-        <div class="card-head"><h2>Diario de aprendizaje</h2><span class="tag">Última jornada cerrada</span></div>
+        <div class="card-head"><h2>Diario de aprendizaje</h2><span class="tag">Jornada activa</span></div>
         <div class="card-body"><div class="learning-list" id="learningDiary"></div></div>
       </div>
     </section>
@@ -673,35 +673,67 @@
 
     function latestLearningEntries() {
       const a = state.aprendizaje || {};
-      const currentJornada = Number(state.prediccion?.jornada || state.pleno15Data?.jornada || 0);
-      const entries = arr(a.entradas || a.partidos || a.diario || a.detalle || a.aprendizajes)
-        .filter(e => hasClosedSign(e) && Number(e.jornada) && Number(e.jornada) !== currentJornada);
-      const jornadas = entries.map(e => Number(e.jornada)).filter(Number.isFinite);
+      const allEntries = arr(a.entradas || a.partidos || a.diario || a.detalle || a.aprendizajes);
+      const withResult = allEntries.filter(e => hasClosedSign(e) && Number(e.jornada));
+      const jornadas = withResult.map(e => Number(e.jornada)).filter(Number.isFinite);
       const latest = jornadas.length ? Math.max(...jornadas) : null;
-      return { jornada: latest, entries: latest === null ? [] : entries.filter(e => Number(e.jornada) === latest) };
+      if (latest === null) return { jornada: null, entries: [] };
+      const entries = allEntries.filter(e => Number(e.jornada) === latest);
+      return {
+        jornada: latest,
+        entries: entries.sort((a, b) => {
+          const na = Number(a.num || (a.partido || '').split('.')[0]) || 99;
+          const nb = Number(b.num || (b.partido || '').split('.')[0]) || 99;
+          return na - nb;
+        })
+      };
     }
 
     function renderLearning() {
       const { jornada, entries } = latestLearningEntries();
-      const aciertos = entries.filter(it => it.acierto === true || it.categoria_fallo === 'acierto' || String(it.resultado_aprendizaje || '').toLowerCase() === 'acierto').length;
-      const fallos = entries.length ? entries.length - aciertos : 0;
+      const jugados = entries.filter(it => it.acierto === true || it.acierto === false);
+      const aciertos = jugados.filter(it => it.acierto === true).length;
+      const fallos = jugados.filter(it => it.acierto === false).length;
+
       qs('#learningMetrics').innerHTML = [
-        metric('Última jornada cerrada', jornada ?? '-'),
-        metric('Partidos revisados', entries.length || '-'),
-        metric('Aciertos', entries.length ? aciertos : '-'),
-        metric('Fallos', entries.length ? fallos : '-')
+        metric('Última jornada', jornada ?? '-'),
+        metric('Partidos jugados', jugados.length || '-'),
+        metric('Aciertos', jugados.length ? aciertos : '-'),
+        metric('Fallos', jugados.length ? fallos : '-')
       ].join('');
-      qs('#learningDiary').innerHTML = entries.length ? entries.slice(0, 14).map((it, idx) => {
-        const ok = it.acierto === true || it.categoria_fallo === 'acierto' || String(it.resultado_aprendizaje || '').toLowerCase() === 'acierto';
-        const razonamiento = it.explicacion || it.razonamiento || it.aprendizaje || it.lectura || it.que_aprende || it.ajuste_recomendado || 'Ajusta pesos y señales para futuras jornadas.';
+
+      qs('#learningDiary').innerHTML = entries.length ? entries.map((it, idx) => {
+        const jugado = it.acierto === true || it.acierto === false;
+        const ok = it.acierto === true;
+        const esPleno = it.es_pleno15 === true || it.tipo_apuesta === 'PLENO15';
+        const razonamiento = it.explicacion || it.razonamiento || it.aprendizaje || it.lectura || it.que_aprende || it.ajuste_recomendado || '';
+
+        if (esPleno) {
+          return `<article class="learning-item">
+            <strong>${escapeHtml(it.partido || 'Pleno al 15')}</strong>
+            <span>Pronóstico: <b>${escapeHtml(it.pronostico_jugado || '-')}</b>${jugado ? ` · Resultado: <b>${escapeHtml(it.resultado || '-')}</b>` : ''}</span>
+            <span>Tipo: <b>PLENO AL 15</b></span>
+            <span class="result" style="color:var(--muted,#888);font-style:italic">${jugado ? escapeHtml(razonamiento) : '⏳ Pendiente · Partido aún no jugado'}</span>
+          </article>`;
+        }
+
+        if (!jugado) {
+          return `<article class="learning-item" style="opacity:0.6;border-left:3px solid var(--muted,#ccc)">
+            <strong>${escapeHtml(it.partido || `Partido ${idx + 1}`)}</strong>
+            <span>Pronóstico: <b>${escapeHtml(it.pronostico_jugado || '-')}</b>${it.fecha ? ` · ${escapeHtml(it.fecha)}${it.hora ? ' ' + escapeHtml(it.hora) + 'h' : ''}` : ''}</span>
+            <span>Tipo: <b>${escapeHtml(it.tipo_apuesta || '-')}</b> · Elige 8: <b>${it.es_elige8 ? 'sí' : 'no'}</b></span>
+            <span class="result" style="color:var(--muted,#999);font-style:italic">⏳ Pendiente · Partido aún no jugado</span>
+          </article>`;
+        }
+
         return `<article class="learning-item ${ok ? '' : 'fail'}">
-          <strong>${escapeHtml(it.partido || `${it.local || 'Partido'} - ${it.visitante || idx + 1}`)}</strong>
-          <span>Predijo: <b>${escapeHtml(it.pronostico_jugado || it.predicho || it.prediccion || it.signo_predicho)}</b> · Pasó: <b>${escapeHtml(it.signo_real || it.real || it.resultado || it.signo_real)}</b> · Resultado: <b>${escapeHtml(it.resultado || '-')}</b></span>
+          <strong>${escapeHtml(it.partido || `Partido ${idx + 1}`)}</strong>
+          <span>Predijo: <b>${escapeHtml(it.pronostico_jugado || '-')}</b> · Pasó: <b>${escapeHtml(it.signo_real || '-')}</b> · Resultado: <b>${escapeHtml(it.resultado || '-')}</b></span>
           <span>Tipo: <b>${escapeHtml(it.tipo_apuesta || '-')}</b> · Elige 8: <b>${it.es_elige8 ? 'sí' : 'no'}</b></span>
-          <span class="result">${ok ? 'Acierto' : 'Fallo'} · ${escapeHtml(razonamiento)}</span>
-          ${it.ajuste_recomendado ? `<span>${escapeHtml(it.ajuste_recomendado)}</span>` : ''}
+          <span class="result">${ok ? '✅ Acierto' : '❌ Fallo'} · ${escapeHtml(razonamiento)}</span>
+          ${it.ajuste_recomendado && !ok ? `<span>${escapeHtml(it.ajuste_recomendado)}</span>` : ''}
         </article>`;
-      }).join('') : '<div class="empty">El diario se rellenará cuando se cierre y aprenda una jornada.</div>';
+      }).join('') : '<div class="empty">El diario se rellenará cuando haya partidos de la jornada activa.</div>';
     }
 
     function renderWorld() {

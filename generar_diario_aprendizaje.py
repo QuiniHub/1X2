@@ -297,8 +297,35 @@ def construir_entrada(jornada, jornada_data, pred_data):
         pred = pred_por_num.get(num, {})
         real = signo_oficial(partido)
         pron = signo_prediccion(pred)
-        if real not in SIGNOS or not pronostico_valido(pron):
+        jugado = real in SIGNOS and pronostico_valido(pron)
+        
+        if not jugado:
+            # Partido pendiente: incluirlo sin resultado
+            if pronostico_valido(pron) or pron:
+                partidos.append({
+                    "num": num,
+                    "partido": f"{num}. {partido.get('local', '')} - {partido.get('visitante', '')}",
+                    "local": partido.get("local"),
+                    "visitante": partido.get("visitante"),
+                    "fecha": str(partido.get("fecha") or ""),
+                    "hora": str(partido.get("hora") or ""),
+                    "es_pleno15": False,
+                    "pronostico_jugado": pron if pron else "Pendiente",
+                    "signo_real": None,
+                    "resultado": "Pendiente",
+                    "acierto": None,
+                    "tipo_apuesta": str(pred.get("tipo") or tipo_pronostico(pron)).upper() if pron else "-",
+                    "es_elige8": bool(pred.get("en_elige8") or pred.get("elige8")),
+                    "partido_sorpresa": False,
+                    "riesgo_necesidad": False,
+                    "calidad_datos": "pendiente",
+                    "explicacion": "Partido pendiente de jugarse.",
+                    "categoria_fallo": "",
+                    "ajuste_recomendado": "",
+                    "origen": "pendiente",
+                })
             continue
+
         tipo = str(pred.get("tipo") or tipo_pronostico(pron)).upper()
         ok = real in signos_pronostico(pron)
         probs = probabilidades(pred)
@@ -334,6 +361,56 @@ def construir_entrada(jornada, jornada_data, pred_data):
             "aprendizaje": aprendizaje(pron, tipo, real, ok, fav, score, margen_val, tercera),
         })
 
+    # Procesar Pleno al 15
+    pleno = jornada_data.get("pleno15") or {}
+    pleno_pred = {}
+    for p_pred in pred_data.get("partidos", []):
+        if int(p_pred.get("num") or 0) == 15:
+            pleno_pred = p_pred
+            break
+    if not pleno_pred and pred_data.get("pleno15"):
+        pleno_pred = pred_data["pleno15"]
+
+    if pleno:
+        resultado_pleno = str(pleno.get("resultado") or "Pendiente")
+        signo_pleno = str(pleno.get("signo_oficial") or "Pendiente")
+        local_pleno = pleno.get("local", "")
+        visitante_pleno = pleno.get("visitante", "")
+        fecha_pleno = str(pleno.get("fecha") or "")
+        hora_pleno = str(pleno.get("hora") or "")
+        pronostico_pleno = str(
+            pleno_pred.get("signo_final") or
+            pleno_pred.get("signo_base") or
+            pleno_pred.get("pronostico_ia") or
+            pleno.get("signo_nuestro") or
+            "Pendiente"
+        )
+        jugado_pleno = "-" in resultado_pleno and signo_pleno in SIGNOS
+        partidos.append({
+            "num": 15,
+            "partido": f"PLENO AL 15: {local_pleno} - {visitante_pleno}",
+            "local": local_pleno,
+            "visitante": visitante_pleno,
+            "fecha": fecha_pleno,
+            "hora": hora_pleno,
+            "es_pleno15": True,
+            "pronostico_jugado": pronostico_pleno,
+            "signo_real": signo_pleno if jugado_pleno else None,
+            "resultado": resultado_pleno if jugado_pleno else "Pendiente",
+            "acierto": None,
+            "tipo_apuesta": "PLENO15",
+            "es_elige8": False,
+            "partido_sorpresa": False,
+            "riesgo_necesidad": False,
+            "calidad_datos": "alta" if jugado_pleno else "pendiente",
+            "explicacion": f"Pleno al 15: {local_pleno} vs {visitante_pleno}. " + (f"Resultado: {resultado_pleno}" if jugado_pleno else "Partido pendiente de jugarse."),
+            "categoria_fallo": "",
+            "ajuste_recomendado": "",
+            "origen": "jornada_data",
+        })
+
+    partidos = sorted(partidos, key=lambda p: p.get("num", 99))
+
     total = len(partidos)
     return {
         "jornada": jornada,
@@ -343,9 +420,9 @@ def construir_entrada(jornada, jornada_data, pred_data):
             "partidos": total,
             "aciertos": aciertos,
             "fallos": fallos,
-            "precision": round(aciertos / max(total, 1) * 100, 2),
+            "precision": round(aciertos / max(aciertos + fallos, 1) * 100, 2),
         },
-        "partidos": sorted(partidos, key=lambda p: p["num"]),
+        "partidos": partidos,
     }
 
 
