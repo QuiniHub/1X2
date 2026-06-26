@@ -62,6 +62,109 @@ jobs:
       - name: Generar diario de aprendizaje
         run: python generar_diario_aprendizaje.py
 
+      - name: Parche temporal panel coste
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          index_path = Path('index.html')
+          html = index_path.read_text(encoding='utf-8')
+
+          panel = '''        <div id="costPanel" style="display:none;gap:24px;align-items:center;padding:12px 16px;background:var(--surface2,#f5f5f5);border-radius:10px;margin-bottom:8px;flex-wrap:wrap">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Apuestas</span>
+              <span id="costApuestas" style="font-size:22px;font-weight:700;color:var(--text,#111)">1</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Quiniela</span>
+              <span id="costQuiniela" style="font-size:22px;font-weight:700;color:var(--text,#111)">1.50 €</span>
+            </div>
+            <div id="costElige8Panel" style="display:none;flex-direction:column;gap:2px">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Elige 8</span>
+              <span id="costElige8" style="font-size:22px;font-weight:700;color:var(--text,#111)">0.50 €</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px;margin-left:auto;padding-left:24px;border-left:2px solid var(--border,#ddd)">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Total</span>
+              <span id="costTotal" style="font-size:26px;font-weight:800;color:var(--accent,#4f46e5)">2.00 €</span>
+            </div>
+          </div>
+'''
+          marker = '        <div class="mode-group">\n'
+          if 'id="costPanel"' not in html:
+              if marker not in html:
+                  raise SystemExit('No se encontro mode-group')
+              html = html.replace(marker, panel + marker, 1)
+
+          calculate = '''    function calculateCost(apuestas = Math.pow(2, state.dobles) * Math.pow(3, state.triples), elige8Activo = state.elige8) {
+      const importeQuiniela = apuestas * 1.50;
+      const importeElige8 = elige8Activo ? apuestas * 0.50 : 0;
+      return { apuestas, importeQuiniela, importeElige8, importeTotal: importeQuiniela + importeElige8 };
+    }
+'''
+          update_cost = '''    function calculateCost(apuestas = Math.pow(2, state.dobles) * Math.pow(3, state.triples), elige8Activo = state.elige8) {
+      const importeQuiniela = apuestas * 1.50;
+      const importeElige8 = elige8Activo ? apuestas * 0.50 : 0;
+      return { apuestas, importeQuiniela, importeElige8, importeTotal: importeQuiniela + importeElige8 };
+    }
+
+    function updateCostPanel() {
+      const c = calculateCost();
+      const panel = document.getElementById('costPanel');
+      const apuestasEl = document.getElementById('costApuestas');
+      const quinielaEl = document.getElementById('costQuiniela');
+      const elige8El = document.getElementById('costElige8');
+      const elige8PanelEl = document.getElementById('costElige8Panel');
+      const totalEl = document.getElementById('costTotal');
+      if (!panel) return;
+      panel.style.display = 'flex';
+      apuestasEl.textContent = c.apuestas;
+      quinielaEl.textContent = c.importeQuiniela.toFixed(2) + ' €';
+      if (state.elige8) {
+        elige8PanelEl.style.display = 'flex';
+        elige8El.textContent = c.importeElige8.toFixed(2) + ' €';
+      } else {
+        elige8PanelEl.style.display = 'none';
+      }
+      totalEl.textContent = c.importeTotal.toFixed(2) + ' €';
+    }
+'''
+          if 'function updateCostPanel()' not in html:
+              if calculate not in html:
+                  raise SystemExit('No se encontro calculateCost')
+              html = html.replace(calculate, update_cost, 1)
+
+          animate_old = '''      for (const row of rows) {
+        const chosen = row.querySelector('.signs')?.dataset.selected || '';
+        qsa('.sign', row).forEach(sign => sign.classList.toggle('selected', chosen.includes(sign.dataset.sign)));
+        row.classList.add('reveal');
+        await new Promise(r => setTimeout(r, 90));
+      }
+    }
+'''
+          animate_new = '''      for (const row of rows) {
+        const chosen = row.querySelector('.signs')?.dataset.selected || '';
+        qsa('.sign', row).forEach(sign => sign.classList.toggle('selected', chosen.includes(sign.dataset.sign)));
+        row.classList.add('reveal');
+        await new Promise(r => setTimeout(r, 90));
+      }
+      updateCostPanel();
+    }
+'''
+          if '      updateCostPanel();\n    }\n\n    function hasClosedSign' not in html:
+              if animate_old not in html:
+                  raise SystemExit('No se encontro animateTicket')
+              html = html.replace(animate_old, animate_new, 1)
+
+          index_path.write_text(html, encoding='utf-8')
+          Path('.github/workflows/apply-cost-panel-patch.yml').unlink(missing_ok=True)
+
+          wf = Path('.github/workflows/main.yml')
+          text = wf.read_text(encoding='utf-8')
+          start = text.index('      - name: Parche temporal panel coste\n')
+          end = text.index('      - name: Guardar cambios\n', start)
+          wf.write_text(text[:start] + text[end:], encoding='utf-8')
+          PY
+
       - name: Guardar cambios
         run: |
           git config user.name "github-actions"
