@@ -1,9 +1,11 @@
 """Scraper principal de EduardoLosilla.es para alimentar la memoria IA.
 
 Extrae, de forma defensiva, probabilidades, cuotas, escrutinio y
-clasificaciones publicadas en eduardolosilla.es. Si la web falla o cambia su
-HTML, el script no detiene el flujo: conserva el ultimo dato local valido en
-data/memoria_ia/fuente_losilla.json y deja avisos en la salida.
+clasificaciones publicadas en eduardolosilla.es. En probabilidades incluye los
+14 partidos 1/X/2 y el Pleno al 15 con porcentajes de goles 0/1/2/M para cada
+equipo. Si la web falla o cambia su HTML, el script no detiene el flujo:
+conserva el ultimo dato local valido en data/memoria_ia/fuente_losilla.json y
+deja avisos en la salida.
 """
 
 import json
@@ -32,6 +34,28 @@ HEADERS = {
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
     ),
     "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
+}
+
+LABELS_NO_EQUIPO = {
+    "0",
+    "1",
+    "x",
+    "2",
+    "m",
+    "prob",
+    "probabilidad",
+    "probabilidades",
+    "porcentaje",
+    "porcentajes",
+    "% prob",
+    "local",
+    "visitante",
+    "equipo",
+    "equipos",
+    "partido",
+    "pleno",
+    "pleno al 15",
+    "goles",
 }
 
 
@@ -66,7 +90,7 @@ def normalizar_clave(texto):
     texto = normalizar_texto(texto).lower()
     texto = unicodedata.normalize("NFD", texto)
     texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
-    texto = re.sub(r"[^a-z0-9]+", " ", texto)
+    texto = re.sub(r"[^a-z0-9%]+", " ", texto)
     return " ".join(texto.split()).strip()
 
 
@@ -74,8 +98,13 @@ def numero(valor):
     if valor is None:
         return None
     texto = normalizar_texto(valor)
-    texto = texto.replace("%", "").replace("€", "").replace(".", "").replace(",", ".")
-    texto = re.sub(r"[^0-9.\-]", "", texto)
+    texto = texto.replace("%", "").replace("€", "")
+    texto = re.sub(r"[^0-9,.-]", "", texto)
+    if "," in texto:
+        texto = texto.replace(".", "").replace(",", ".")
+    elif texto.count(".") > 1:
+        texto = texto.replace(".", "")
+    texto = texto.strip()
     if not texto or texto in {"-", ".", "-."}:
         return None
     try:
@@ -119,9 +148,15 @@ def todas_las_filas(soup):
     return filas
 
 
+def porcentajes_en_texto(texto):
+    valores = [numero(x) for x in re.findall(r"\d{1,3}(?:[,.]\d+)?\s*%", texto)]
+    return [v for v in valores if v is not None and 0 <= v <= 100]
+
+
 def separar_partido(texto):
     texto = normalizar_texto(texto)
     texto = re.sub(r"^\d{1,2}[.)ºª]?\s+", "", texto)
+    texto = re.sub(r"^Pleno\s+al\s+15\s*[:.-]?\s*", "", texto, flags=re.I)
     partes = re.split(r"\s+(?:-|–|—|vs\.?|contra)\s+", texto, maxsplit=1, flags=re.I)
     if len(partes) != 2:
         return None, None
@@ -136,6 +171,49 @@ def separar_partido(texto):
 def extraer_jornada(texto):
     jornadas = [int(x) for x in re.findall(r"\bJORNADA\s+(\d{1,3})\b", texto, flags=re.I)]
     return max(jornadas) if jornadas else None
+
+
+def numero_partido_en_fila(celdas):
+    if not celdas:
+        return None
+    candidatos = celdas[:2]
+    for celda in candidatos:
+        m = re.match(r"^\s*(1[0-5]|[1-9])(?:[.)ºª]|\s|$)", celda)
+        if m:
+            return int(m.group(1))
+    return None
+
+
+def limpiar_candidato_equipo(texto):
+    texto = normalizar_texto(texto)
+    texto = re.sub(r"^\d{1,2}[.)ºª]?\s*", "", texto)
+    texto = re.sub(r"^Pleno\s+al\s+15\s*[:.-]?\s*", "", texto, flags=re.I)
+    texto = re.split(r"\d{1,3}(?:[,.]\d+)?\s*%", texto, maxsplit=1)[0]
+    texto = normalizar_texto(texto)
+    clave = normalizar_clave(texto)
+    if not texto or clave in LABELS_NO_EQUIPO:
+        return ""
+    if re.fullmatch(r"[\d,.% €+\-/]+", texto):
+        return ""
+    if len(texto) > 60:
+        return ""
+    return texto
+
+
+def extraer_equipos_de_celdas(celdas):
+    for celda in celdas:
+        local, visitante = separar_partido(celda)
+        if local and visitante:
+            return local, visitante
+
+    candidatos = []
+    for celda in celdas:
+        candidato = limpiar_candidato_equipo(celda)
+        if candidato and normalizar_clave(candidato) not in {normalizar_clave(c) for c in candidatos}:
+            candidatos.append(candidato)
+    if len(candidatos) >= 2:
+        return candidatos[0], candidatos[1]
+    return None, None
 
 
 def extraer_partidos_desde_texto(texto):
@@ -158,65 +236,168 @@ def extraer_partidos_desde_texto(texto):
     return partidos[:15]
 
 
+def construir_partido_1x2(numero_partido, local, visitante, porcentajes):
+    return {
+        "numero": numero_partido,
+        "tipo": "1X2",
+        "local": local,
+        "visitante": visitante,
+        "probabilidad_1": porcentajes[0],
+        "probabilidad_X": porcentajes[1],
+        "probabilidad_2": porcentajes[2],
+        "probabilidades_signo": {
+            "1": porcentajes[0],
+            "X": porcentajes[1],
+            "2": porcentajes[2],
+        },
+    }
+
+
+def construir_pleno_al_15(local, visitante, porcentajes, fuente):
+    valores = list(porcentajes or [])[:8]
+    while len(valores) < 8:
+        valores.append(None)
+    return {
+        "numero": 15,
+        "tipo": "pleno_al_15",
+        "local": local,
+        "visitante": visitante,
+        "probabilidad_local_0": valores[0],
+        "probabilidad_local_1": valores[1],
+        "probabilidad_local_2": valores[2],
+        "probabilidad_local_M": valores[3],
+        "probabilidad_visitante_0": valores[4],
+        "probabilidad_visitante_1": valores[5],
+        "probabilidad_visitante_2": valores[6],
+        "probabilidad_visitante_M": valores[7],
+        "probabilidades_goles_local": {
+            "0": valores[0],
+            "1": valores[1],
+            "2": valores[2],
+            "M": valores[3],
+        },
+        "probabilidades_goles_visitante": {
+            "0": valores[4],
+            "1": valores[5],
+            "2": valores[6],
+            "M": valores[7],
+        },
+        "fuente_parseo": fuente,
+    }
+
+
+def partido_por_numero(partidos, numero_partido):
+    for partido in partidos:
+        if partido.get("numero") == numero_partido:
+            return partido
+    return None
+
+
+def extraer_pleno_desde_texto(texto, partidos_texto):
+    partido_15 = partido_por_numero(partidos_texto, 15) or {}
+    local = partido_15.get("local")
+    visitante = partido_15.get("visitante")
+
+    marcadores = [m.start() for m in re.finditer(r"Pleno\s+al\s+15|Partido\s+15", texto, flags=re.I)]
+    for inicio in marcadores:
+        fragmento = texto[inicio : inicio + 1200]
+        porcentajes = porcentajes_en_texto(fragmento)
+        frag_local, frag_visitante = separar_partido(fragmento[:250])
+        if frag_local and frag_visitante:
+            local, visitante = frag_local, frag_visitante
+        if local and visitante and len(porcentajes) >= 8:
+            return construir_pleno_al_15(local, visitante, porcentajes[:8], "texto_pleno")
+
+    porcentajes_todos = porcentajes_en_texto(texto)
+    offset_pleno = 14 * 3
+    if local and visitante and len(porcentajes_todos) >= offset_pleno + 8:
+        return construir_pleno_al_15(
+            local,
+            visitante,
+            porcentajes_todos[offset_pleno : offset_pleno + 8],
+            "texto_offset_14x3",
+        )
+    if local and visitante:
+        return construir_pleno_al_15(local, visitante, [], "solo_equipos_texto")
+    return None
+
+
 def extraer_probabilidades():
     html = descargar(URL_BOLETOS)
     soup = soup_de(html)
     texto = texto_soup(soup)
     jornada = extraer_jornada(texto)
-    partidos = []
+    partidos_texto = extraer_partidos_desde_texto(texto)
+    partidos_1x2 = []
+    pleno_al_15 = None
 
     for celdas in todas_las_filas(soup):
         fila = " ".join(celdas)
         if "% PROB" in fila.upper():
             continue
         porcentajes = [numero(c) for c in celdas if "%" in c]
-        porcentajes = [p for p in porcentajes if p is not None]
+        porcentajes = [p for p in porcentajes if p is not None and 0 <= p <= 100]
         if len(porcentajes) < 3:
-            porcentajes = [numero(x) for x in re.findall(r"\d{1,3}(?:[,.]\d+)?\s*%", fila)]
+            porcentajes = porcentajes_en_texto(fila)
         if len(porcentajes) < 3:
             continue
 
-        local = visitante = None
-        for celda in celdas:
-            local, visitante = separar_partido(celda)
-            if local and visitante:
-                break
-        if not (local and visitante) and len(celdas) >= 3:
-            posibles = [c for c in celdas if not re.fullmatch(r"[\d,.% €+-]+", c)]
-            if len(posibles) >= 2:
-                local, visitante = posibles[0], posibles[1]
-        if local and visitante:
-            partidos.append(
-                {
-                    "numero": len(partidos) + 1,
-                    "local": local,
-                    "visitante": visitante,
-                    "probabilidad_1": porcentajes[0],
-                    "probabilidad_X": porcentajes[1],
-                    "probabilidad_2": porcentajes[2],
-                }
-            )
-        if len(partidos) >= 14:
-            break
+        numero_fila = numero_partido_en_fila(celdas)
+        local, visitante = extraer_equipos_de_celdas(celdas)
+        if not (local and visitante):
+            esperado = numero_fila or (len(partidos_1x2) + 1)
+            partido_base = partido_por_numero(partidos_texto, esperado) or {}
+            local = partido_base.get("local")
+            visitante = partido_base.get("visitante")
+        if not (local and visitante):
+            continue
 
-    if not partidos:
-        base_partidos = extraer_partidos_desde_texto(texto)
-        porcentajes = [numero(x) for x in re.findall(r"\d{1,3}(?:[,.]\d+)?\s*%", texto)]
-        for idx, partido in enumerate(base_partidos[:14]):
+        es_pleno = (
+            numero_fila == 15
+            or "PLENO" in fila.upper()
+            or (len(partidos_1x2) >= 14 and len(porcentajes) >= 8)
+        )
+        if es_pleno and len(porcentajes) >= 8:
+            pleno_al_15 = construir_pleno_al_15(local, visitante, porcentajes[:8], "fila_html")
+            continue
+
+        if len(partidos_1x2) < 14:
+            numero_partido = numero_fila or len(partidos_1x2) + 1
+            if 1 <= numero_partido <= 14:
+                partidos_1x2.append(construir_partido_1x2(numero_partido, local, visitante, porcentajes[:3]))
+
+    if not partidos_1x2:
+        porcentajes = porcentajes_en_texto(texto)
+        for idx, partido in enumerate(partidos_texto[:14]):
             offs = idx * 3
             if len(porcentajes) >= offs + 3:
-                partidos.append(
-                    {
-                        **partido,
-                        "probabilidad_1": porcentajes[offs],
-                        "probabilidad_X": porcentajes[offs + 1],
-                        "probabilidad_2": porcentajes[offs + 2],
-                    }
+                partidos_1x2.append(
+                    construir_partido_1x2(
+                        partido.get("numero") or idx + 1,
+                        partido.get("local"),
+                        partido.get("visitante"),
+                        porcentajes[offs : offs + 3],
+                    )
                 )
 
-    if not partidos:
+    if not pleno_al_15:
+        pleno_al_15 = extraer_pleno_desde_texto(texto, partidos_texto)
+
+    if not partidos_1x2 and not pleno_al_15:
         return None
-    return {"url": URL_BOLETOS, "jornada": jornada, "partidos": partidos[:14], "extraido_en": ahora_iso()}
+
+    partidos = partidos_1x2[:14]
+    if pleno_al_15:
+        partidos = partidos + [pleno_al_15]
+
+    return {
+        "url": URL_BOLETOS,
+        "jornada": jornada,
+        "partidos": partidos,
+        "partidos_1x2": partidos_1x2[:14],
+        "pleno_al_15": pleno_al_15,
+        "extraido_en": ahora_iso(),
+    }
 
 
 def extraer_cuotas():
@@ -228,11 +409,7 @@ def extraer_cuotas():
     partidos = []
 
     for celdas in todas_las_filas(soup):
-        local = visitante = None
-        for celda in celdas:
-            local, visitante = separar_partido(celda)
-            if local and visitante:
-                break
+        local, visitante = extraer_equipos_de_celdas(celdas)
         valores = [numero(c) for c in celdas]
         valores = [v for v in valores if v is not None and 1.0 <= v <= 99.0]
         if local and visitante and len(valores) >= 3:
@@ -376,13 +553,30 @@ def extraer_clasificaciones():
     return {"url": URL_CLASIFICACION, "ligas": clasificaciones, "extraido_en": ahora_iso()}
 
 
+def fusionar_probabilidades(anterior, nuevo):
+    previas = anterior.get("probabilidades", {}) if isinstance(anterior, dict) else {}
+    if not nuevo:
+        return previas
+
+    pleno = nuevo.get("pleno_al_15") or previas.get("pleno_al_15")
+    partidos_1x2 = nuevo.get("partidos_1x2") or previas.get("partidos_1x2") or []
+    if not partidos_1x2 and previas.get("partidos"):
+        partidos_1x2 = [p for p in previas.get("partidos", []) if p.get("tipo") != "pleno_al_15"][:14]
+
+    nuevo["partidos_1x2"] = partidos_1x2[:14]
+    nuevo["pleno_al_15"] = pleno
+    nuevo["partidos"] = nuevo["partidos_1x2"] + ([pleno] if pleno else [])
+    return nuevo
+
+
 def fusionar_con_anterior(anterior, nuevo, avisos):
+    probabilidades = fusionar_probabilidades(anterior, nuevo.get("probabilidades"))
     salida = {
-        "version": "1.0",
+        "version": "1.1",
         "fuente": "eduardolosilla.es",
         "actualizado_en": ahora_iso(),
         "avisos": avisos,
-        "probabilidades": nuevo.get("probabilidades") or anterior.get("probabilidades", {}),
+        "probabilidades": probabilidades,
         "cuotas": nuevo.get("cuotas") or anterior.get("cuotas", {}),
         "escrutinio": nuevo.get("escrutinio") or anterior.get("escrutinio", {}),
         "clasificaciones": nuevo.get("clasificaciones") or anterior.get("clasificaciones", {}),
@@ -390,7 +584,7 @@ def fusionar_con_anterior(anterior, nuevo, avisos):
     salida["conserva_datos_previos"] = any(
         not nuevo.get(k) and anterior.get(k)
         for k in ("probabilidades", "cuotas", "escrutinio", "clasificaciones")
-    )
+    ) or (bool(probabilidades.get("pleno_al_15")) and not (nuevo.get("probabilidades") or {}).get("pleno_al_15"))
     return salida
 
 
