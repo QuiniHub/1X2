@@ -1,0 +1,22 @@
+name: Regenerar diario aprendizaje
+on:
+  workflow_dispatch:
+jobs:
+  regenerar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt --break-system-packages 2>/dev/null || pip install requests beautifulsoup4
+      - name: Regenerar diario
+        run: python generar_diario_aprendizaje.py
+      - name: Commit
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git add data/memoria_ia/diario_aprendizaje.json
+          git diff --staged --quiet || git commit -m "Regenerar diario con pendientes y Pleno al 15"
+          git push
