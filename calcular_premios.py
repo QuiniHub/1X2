@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 PREDICCIONES = DATA / "predicciones"
 JORNADAS = DATA / "jornadas"
+QUINIELAS_JUGADAS = DATA / "quinielas_jugadas.json"
 SALIDA = DATA / "premios" / "historial_premios.json"
 
 # Tabla de premios orientativa de La Quiniela (SELAE).
@@ -55,6 +56,49 @@ def guardar_json(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def tipo_por_signo(signo):
+    signo = str(signo or "").strip().upper()
+    if len(signo) == 3:
+        return "TRIPLE"
+    if len(signo) == 2:
+        return "DOBLE"
+    return "FIJO"
+
+
+def prediccion_desde_quinielas_jugadas(jornada):
+    """Construye una prediccion normalizada desde la quiniela jugada."""
+    data = cargar_json(QUINIELAS_JUGADAS, {"jugadas": []})
+    for jugada in data.get("jugadas", []) if isinstance(data, dict) else []:
+        if jugada.get("jornada") != jornada:
+            continue
+        signos = jugada.get("signos") or []
+        if len(signos) < 14:
+            return {}
+        partidos = []
+        dobles = 0
+        triples = 0
+        for idx, signo in enumerate(signos[:14], start=1):
+            signo = str(signo or "").strip().upper()
+            tipo = tipo_por_signo(signo)
+            if tipo == "DOBLE":
+                dobles += 1
+            elif tipo == "TRIPLE":
+                triples += 1
+            partidos.append({
+                "num": idx,
+                "signo_base": signo,
+                "signo_final": signo,
+                "tipo": tipo,
+            })
+        return {
+            "jornada": jornada,
+            "partidos": partidos,
+            "resumen": {"dobles": dobles, "triples": triples},
+            "origen_prediccion": "data/quinielas_jugadas.json",
+        }
+    return {}
+
+
 def leer_prediccion_jornada(jornada):
     """Lee la prediccion pre-cierre de una jornada concreta."""
     candidatos = [
@@ -64,9 +108,11 @@ def leer_prediccion_jornada(jornada):
     ]
     for path in candidatos:
         data = cargar_json(path, {})
+        if not data:
+            continue
         if data.get("jornada") == jornada or not data.get("jornada"):
             return data
-    return {}
+    return prediccion_desde_quinielas_jugadas(jornada)
 
 
 def leer_resultados_jornada(jornada):
@@ -142,18 +188,27 @@ def estimar_premio(aciertos, prediccion):
     return 0.0, "pendiente"
 
 
+def partidos_principales_cerrados(resultados):
+    partidos = []
+    for partido in resultados.get("partidos") or []:
+        try:
+            num = int(partido.get("num") or 0)
+        except (TypeError, ValueError):
+            continue
+        if 1 <= num <= 14:
+            partidos.append(partido)
+    return len(partidos) == 14 and all(
+        str(p.get("signo_oficial", "")).upper() in ("1", "X", "2")
+        for p in partidos
+    )
+
+
 def registro_jornada(jornada):
     """Genera el registro de premios para una jornada concreta."""
     prediccion = leer_prediccion_jornada(jornada)
     resultados = leer_resultados_jornada(jornada)
 
-    partidos_res = resultados.get("partidos") or []
-    todos_cerrados = all(
-        str(p.get("signo_oficial", "")).upper() in ("1", "X", "2")
-        for p in partidos_res
-    ) and len(partidos_res) > 0
-
-    if not todos_cerrados:
+    if not partidos_principales_cerrados(resultados):
         return None  # jornada aun no completamente cerrada
 
     aciertos, fallos, detalle = calcular_aciertos(prediccion, resultados)
@@ -176,34 +231,41 @@ def registro_jornada(jornada):
     }
 
 
+def registro_completo(entry):
+    return len(entry.get("detalle_partidos") or []) == 14
+
+
 def main():
     """Actualiza el historial de premios con todas las jornadas cerradas."""
     historial = cargar_json(SALIDA, {"jornadas": []})
-    jornadas_conocidas = {entry["jornada"] for entry in historial.get("jornadas") or []}
+    registros = {
+        entry["jornada"]: entry
+        for entry in historial.get("jornadas") or []
+        if isinstance(entry.get("jornada"), int)
+    }
 
-    nuevas = []
+    actualizadas = []
     for path in sorted(JORNADAS.glob("jornada_*.json")):
         data = cargar_json(path, {})
         jornada = data.get("jornada")
         if not isinstance(jornada, int):
             continue
-        if jornada in jornadas_conocidas:
+        existente = registros.get(jornada)
+        if existente and registro_completo(existente):
             continue
         reg = registro_jornada(jornada)
         if reg:
-            nuevas.append(reg)
+            registros[jornada] = reg
+            actualizadas.append(reg)
             print(f"Jornada {jornada}: {reg['aciertos']} aciertos, {reg['fallos']} fallos, "
                   f"{reg['premio_eur']:.2f} EUR ({reg['fuente_premio']})")
 
-    if nuevas:
-        historial["jornadas"] = sorted(
-            (historial.get("jornadas") or []) + nuevas,
-            key=lambda x: x["jornada"]
-        )
+    if actualizadas:
+        historial["jornadas"] = sorted(registros.values(), key=lambda x: x["jornada"])
         guardar_json(SALIDA, historial)
-        print(f"Historial de premios actualizado: {len(nuevas)} jornada(s) nueva(s).")
+        print(f"Historial de premios actualizado: {len(actualizadas)} jornada(s).")
     else:
-        print("Sin jornadas nuevas cerradas para registrar premios.")
+        print("Sin jornadas nuevas o incompletas cerradas para registrar premios.")
 
 
 if __name__ == "__main__":
