@@ -1,18 +1,9 @@
-"""Genera el diario de aprendizaje por jornada cerrada.
-
-Lee data/jornadas/jornada_X.json y data/predicciones/jornada_X.json.
-Cuando todos los partidos tienen signo_oficial valido, compara la prediccion
-con el resultado real y actualiza data/memoria_ia/diario_aprendizaje.json.
-
-No usa API externa: todo el razonamiento sale de probabilidades, tipo de
-cobertura, surprise_score/categoria_sorpresa y resultado final.
-"""
+"""Genera el diario de aprendizaje comparando resultados contra la quiniela real jugada."""
 
 import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
-
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -55,9 +46,7 @@ def signos_pronostico(valor):
 
 
 def pronostico_valido(valor):
-    return bool(signos_pronostico(valor)) and str(valor or "").strip().upper() not in {
-        "NO JUGADA", "NO VALIDADA", "PENDIENTE"
-    }
+    return bool(signos_pronostico(valor)) and str(valor or "").strip().upper() not in {"NO JUGADA", "NO VALIDADA", "PENDIENTE"}
 
 
 def signo_resultado(resultado):
@@ -65,11 +54,7 @@ def signo_resultado(resultado):
     if not m:
         return ""
     local, visitante = int(m.group(1)), int(m.group(2))
-    if local > visitante:
-        return "1"
-    if local == visitante:
-        return "X"
-    return "2"
+    return "1" if local > visitante else "X" if local == visitante else "2"
 
 
 def signo_oficial(partido):
@@ -78,13 +63,7 @@ def signo_oficial(partido):
 
 def tipo_pronostico(valor):
     total = len(signos_pronostico(valor))
-    if total >= 3:
-        return "TRIPLE"
-    if total == 2:
-        return "DOBLE"
-    if total == 1:
-        return "FIJO"
-    return "NO_VALIDO"
+    return "TRIPLE" if total >= 3 else "DOBLE" if total == 2 else "FIJO" if total == 1 else "NO_VALIDO"
 
 
 def signo_prediccion(pred):
@@ -111,11 +90,7 @@ def probabilidades(pred):
 
 def favorito(pred, probs):
     fav = normalizar_signo(pred.get("favorito"))
-    if fav:
-        return fav
-    if not probs:
-        return ""
-    return max(probs, key=lambda s: probs.get(s, 0.0))
+    return fav or (max(probs, key=lambda s: probs.get(s, 0.0)) if probs else "")
 
 
 def score_sorpresa(pred):
@@ -129,13 +104,7 @@ def categoria_sorpresa(pred, score):
     categoria = str(pred.get("categoria_sorpresa") or "").strip()
     if categoria:
         return categoria
-    if score >= 75:
-        return "sorpresa_alta"
-    if score >= 55:
-        return "sorpresa_vigilada"
-    if score >= 35:
-        return "riesgo_medio"
-    return "riesgo_bajo"
+    return "sorpresa_alta" if score >= 75 else "sorpresa_vigilada" if score >= 55 else "riesgo_medio" if score >= 35 else "riesgo_bajo"
 
 
 def margen(probs):
@@ -148,15 +117,6 @@ def tercera_prob(probs):
     return round(vals[2], 2) if len(vals) >= 3 else 0.0
 
 
-
-def nombre_equipo_por_signo(partido, signo):
-    if signo == "1":
-        return partido.get("local") or "Local"
-    if signo == "2":
-        return partido.get("visitante") or "Visitante"
-    return "Empate"
-
-
 def alertas_motivacion_diario(pred):
     ajuste = (pred or {}).get("ajuste_motivacion") or {}
     alertas = ajuste.get("alertas") or (pred or {}).get("alertas_motivacion") or []
@@ -166,119 +126,71 @@ def alertas_motivacion_diario(pred):
 
 
 def explicacion_alerta(alertas):
-    if not alertas:
-        return "Revisar factores contextuales no capturados."
-    return "Alerta de motivacion detectada: " + ", ".join(alertas) + "."
+    return "Alerta de motivacion detectada: " + ", ".join(alertas) + "." if alertas else "Revisar factores contextuales no capturados."
 
-
-def explicacion_especifica(partido, pred, pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera):
-    cubiertos = signos_pronostico(pron)
-    fav_prob = round(to_float(probs.get(fav), 0.0), 1) if fav else 0.0
-    real_prob = round(to_float(probs.get(real), 0.0), 1)
-    fav_nombre = nombre_equipo_por_signo(partido, fav)
-    alertas = alertas_motivacion_diario(pred)
-    prefijo = "[ALERTA SORPRESA ACTIVA] " if pred.get("sorpresa_potencial") is True else ""
-
-    if ok and tipo == "FIJO" and fav_prob > 65:
-        return prefijo + f"Pronostico solido confirmado. {fav_nombre} era favorito claro con {fav_prob}% y cumplio."
-    if ok and real_prob < 40:
-        return prefijo + f"Sorpresa acertada. El mercado daba {fav_prob}% al favorito pero detectamos factores de riesgo. Reforzar este patron."
-    if not ok and tipo == "FIJO":
-        return prefijo + f"Fijo fallado. {fav_nombre} tenia {fav_prob}% pero no gano. {explicacion_alerta(alertas)}"
-    if not ok and tipo in {"DOBLE", "TRIPLE"} and real not in cubiertos:
-        cubiertos_txt = "".join(s for s in ("1", "X", "2") if s in cubiertos) or pron
-        return prefijo + f"Cobertura insuficiente. El signo {real} no estaba en nuestra cobertura {cubiertos_txt}. Considerar ampliar cobertura en situaciones similares."
-    return prefijo + explicar(pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera)
-
-
-def ajuste_recomendado_especifico(partido, pred, pron, tipo, real, ok, probs, fav, score, margen_val, tercera):
-    cubiertos = signos_pronostico(pron)
-    fav_prob = round(to_float(probs.get(fav), 0.0), 1) if fav else 0.0
-    real_prob = round(to_float(probs.get(real), 0.0), 1)
-    alertas = alertas_motivacion_diario(pred)
-    if ok and tipo == "FIJO" and fav_prob > 65:
-        return "Mantener fijo limpio cuando el favorito supere 65% y no existan alertas fuertes de motivacion."
-    if ok and real_prob < 40:
-        return "Reforzar patron de sorpresa acertada: subir cobertura cuando el signo ganador tenga menos del 40% pero haya riesgo contextual."
-    if not ok and tipo == "FIJO":
-        if alertas:
-            return "No dejar como FIJO partidos con alerta de motivacion activa; subir minimo a DOBLE si el mercado esta sesgado."
-        return "Revisar variables contextuales no capturadas y rebajar umbral de confianza del fijo en perfiles similares."
-    if not ok and tipo in {"DOBLE", "TRIPLE"} and real not in cubiertos:
-        return f"Ampliar cobertura para incluir {real} cuando el tercer signo conserve valor o haya sorpresa_potencial."
-    if pred.get("sorpresa_potencial") is True:
-        return "Mantener alerta sorpresa activa y validar si la cobertura elegida fue suficiente."
-    if score >= 60:
-        return "Elevar cobertura en partidos con indice de sorpresa igual o superior a 60."
-    return "Mantener el caso como muestra calibrada sin ajuste fuerte adicional."
 
 def explicar(pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera):
     cubiertos = signos_pronostico(pron)
     prob_cubierta = max((probs.get(s, 0.0) for s in cubiertos), default=0.0)
-    favorito_perdio = bool(fav and fav != real)
     partes = []
-
-    if ok and tipo == "TRIPLE":
-        partes.append("Acierto con TRIPLE: la incertidumbre estaba bien gestionada porque se cubrieron los tres desenlaces.")
-    elif ok and tipo == "DOBLE":
-        partes.append("Acierto con DOBLE: la cobertura elegida protegió el signo real en un partido con riesgo.")
-    elif ok and tipo == "FIJO":
-        partes.append("Acierto con FIJO: la confianza principal fue suficiente y el signo previsto coincidió con el resultado.")
-    elif not ok and tipo == "FIJO":
-        partes.append("Fallo con FIJO: hubo demasiada confianza en un solo signo y no se cubrió la alternativa real.")
-    elif not ok and tipo == "DOBLE":
-        partes.append("Fallo con DOBLE: la cobertura fue insuficiente; el tercer signo seguía vivo y acabó saliendo.")
+    if ok:
+        partes.append(f"Acierto con {tipo}: la quiniela jugada cubrio el signo real {real}.")
     else:
-        partes.append("Fallo con cobertura amplia: revisar coherencia entre tipo, signo final y resultado oficial.")
-
-    if favorito_perdio:
-        partes.append(f"El favorito probabilístico era {fav}, pero salió {real}; fue una sorpresa contra favorito.")
+        partes.append(f"Fallo con {tipo}: la quiniela jugada ({pron}) no cubrio el signo real {real}.")
+    if fav and fav != real:
+        partes.append(f"El favorito probabilistico era {fav}, pero salio {real}; fue una sorpresa contra favorito.")
     elif fav:
-        partes.append(f"El resultado no contradijo al favorito probabilístico principal ({fav}).")
-
-    if score >= 70:
-        partes.append(f"El score de sorpresa era alto ({score}, {categoria}), señal de prudencia y cobertura.")
-    elif score >= 50:
-        partes.append(f"El score de sorpresa era medio/alto ({score}, {categoria}), con riesgo que debía vigilarse.")
-    else:
-        partes.append(f"El score de sorpresa era bajo o moderado ({score}, {categoria}).")
-
+        partes.append(f"El resultado no contradijo al favorito probabilistico principal ({fav}).")
+    partes.append(f"Score de sorpresa: {score} ({categoria}).")
     if margen_val < 12:
-        partes.append(f"El margen entre signos era corto ({margen_val} puntos), por lo que el partido era abierto.")
+        partes.append(f"Margen corto entre signos ({margen_val} puntos).")
     if tercera >= 20 and tipo != "TRIPLE":
-        partes.append(f"La tercera opción tenía peso relevante ({tercera}%), lo que justificaba valorar TRIPLE.")
+        partes.append(f"La tercera opcion tenia peso relevante ({tercera}%).")
     if prob_cubierta:
-        partes.append(f"La mejor probabilidad cubierta por nuestra predicción era {round(prob_cubierta, 2)}%.")
+        partes.append(f"Mejor probabilidad cubierta por lo jugado: {round(prob_cubierta, 2)}%.")
     return " ".join(partes)
+
+
+def explicacion_especifica(partido, pred, pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera):
+    prefijo = "[ALERTA SORPRESA ACTIVA] " if pred.get("sorpresa_potencial") is True else ""
+    if not ok and tipo == "FIJO":
+        return prefijo + "Fijo fallado en la quiniela real jugada. " + explicacion_alerta(alertas_motivacion_diario(pred))
+    if not ok and tipo in {"DOBLE", "TRIPLE"} and real not in signos_pronostico(pron):
+        return prefijo + f"Cobertura insuficiente en la quiniela real jugada: {pron}. El signo real fue {real}."
+    return prefijo + explicar(pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera)
+
+
+def ajuste_recomendado_especifico(partido, pred, pron, tipo, real, ok, probs, fav, score, margen_val, tercera):
+    if ok:
+        return "Mantener como muestra positiva: la quiniela real jugada cubrio el signo oficial."
+    if tipo == "FIJO":
+        return "Revisar fijos fallados y subir cobertura cuando haya margen corto, alerta o sorpresa potencial."
+    if real not in signos_pronostico(pron):
+        return f"Ampliar cobertura para incluir {real} en perfiles similares."
+    return "Mantener el caso como muestra calibrada sin ajuste fuerte adicional."
 
 
 def aprendizaje(pron, tipo, real, ok, fav, score, margen_val, tercera):
     aprende = []
-    favorito_perdio = bool(fav and fav != real)
-
     if not ok and tipo == "FIJO":
         aprende.append("Rebajar confianza en fijos cuando el margen sea corto o el score de sorpresa sea alto.")
-        if real == "X" and "X" not in signos_pronostico(pron):
-            aprende.append("Subir peso del empate en partidos equilibrados que quedaron sin X cubierta.")
     elif not ok and tipo == "DOBLE":
-        aprende.append("Elevar a TRIPLE partidos donde la tercera vía tenga peso suficiente.")
+        aprende.append("Elevar a TRIPLE partidos donde la tercera via tenga peso suficiente.")
     elif ok and tipo == "TRIPLE":
-        aprende.append("Mantener TRIPLE en escenarios de incertidumbre alta: la cobertura amplia funcionó.")
+        aprende.append("Mantener TRIPLE en escenarios de incertidumbre alta: la cobertura amplia funciono.")
     elif ok and tipo == "DOBLE":
         aprende.append("Reforzar DOBLE en partidos de riesgo medio cuando la alternativa cubierta tenga sustento.")
     elif ok and tipo == "FIJO":
-        aprende.append("Mantener FIJO si la ventaja probabilística es clara y no hay alerta fuerte de sorpresa.")
-
-    if favorito_perdio:
+        aprende.append("Mantener FIJO si la ventaja probabilistica es clara y no hay alerta fuerte de sorpresa.")
+    if fav and fav != real:
         aprende.append("Penalizar favoritos atacables en perfiles similares y subir cobertura contra favorito.")
     if score >= 70 and tipo == "FIJO":
         aprende.append("No tratar como fijo tranquilo un partido con score de sorpresa alto.")
     if margen_val < 12:
-        aprende.append("En márgenes cortos, exigir más cobertura salvo señales externas muy sólidas.")
+        aprende.append("En margenes cortos, exigir mas cobertura salvo senales externas muy solidas.")
     if tercera >= 20 and tipo != "TRIPLE":
-        aprende.append("Reservar triples cuando la tercera opción tenga peso medio o alto.")
-
-    return aprende or ["Caso sin sesgo fuerte: mantener como muestra para calibración acumulada."]
+        aprende.append("Reservar triples cuando la tercera opcion tenga peso medio o alto.")
+    return aprende or ["Caso sin sesgo fuerte: mantener como muestra para calibracion acumulada."]
 
 
 def jornada_cerrada(data):
@@ -292,41 +204,40 @@ def construir_entrada(jornada, jornada_data, pred_data):
     aciertos = 0
     fallos = 0
 
+    # Cargar quiniela real jugada desde historial
+    HISTORIAL = DATA / "historial_quinielas.json"
+    historial = cargar_json(HISTORIAL, {})
+    quiniela_jugada = ""
+    pleno15_jugado = ""
+    for j in historial.get("jornadas", []):
+        if int(j.get("jornada", 0)) == jornada:
+            quiniela_jugada = str(j.get("nuestra_quiniela", "") or "").strip()
+            pleno15_jugado = str(j.get("pleno15_nuestro", "") or "").strip()
+            break
+
+    # Parsear la quiniela jugada en lista de signos por posición
+    # Formato: "1X 2 X2 X2 2 12 1 1X 2 2 1X X 1X 2" (separado por espacios)
+    signos_jugados = quiniela_jugada.split() if quiniela_jugada and quiniela_jugada != "No validada" else []
+
     for partido in jornada_data.get("partidos", []):
         num = int(partido.get("num") or 0)
         pred = pred_por_num.get(num, {})
         real = signo_oficial(partido)
-        pron = signo_prediccion(pred)
+
+        # Usar la quiniela real jugada si está disponible
+        idx_partido = num - 1  # num es 1-based
+        if signos_jugados and 0 <= idx_partido < len(signos_jugados):
+            pron = signos_jugados[idx_partido].upper().strip()
+        else:
+            pron = signo_prediccion(pred)
+
         jugado = real in SIGNOS and pronostico_valido(pron)
-        
         if not jugado:
-            # Partido pendiente: incluirlo sin resultado
             if pronostico_valido(pron) or pron:
-                partidos.append({
-                    "num": num,
-                    "partido": f"{num}. {partido.get('local', '')} - {partido.get('visitante', '')}",
-                    "local": partido.get("local"),
-                    "visitante": partido.get("visitante"),
-                    "fecha": str(partido.get("fecha") or ""),
-                    "hora": str(partido.get("hora") or ""),
-                    "es_pleno15": False,
-                    "pronostico_jugado": pron if pron else "Pendiente",
-                    "signo_real": None,
-                    "resultado": "Pendiente",
-                    "acierto": None,
-                    "tipo_apuesta": str(pred.get("tipo") or tipo_pronostico(pron)).upper() if pron else "-",
-                    "es_elige8": bool(pred.get("en_elige8") or pred.get("elige8")),
-                    "partido_sorpresa": False,
-                    "riesgo_necesidad": False,
-                    "calidad_datos": "pendiente",
-                    "explicacion": "Partido pendiente de jugarse.",
-                    "categoria_fallo": "",
-                    "ajuste_recomendado": "",
-                    "origen": "pendiente",
-                })
+                partidos.append(crear_item_pendiente(num, partido, pred, pron))
             continue
 
-        tipo = str(pred.get("tipo") or tipo_pronostico(pron)).upper()
+        tipo = tipo_pronostico(pron)
         ok = real in signos_pronostico(pron)
         probs = probabilidades(pred)
         fav = favorito(pred, probs)
@@ -336,110 +247,123 @@ def construir_entrada(jornada, jornada_data, pred_data):
         tercera = to_float(pred.get("tercera_probabilidad"), tercera_prob(probs))
         aciertos += int(ok)
         fallos += int(not ok)
-        explicacion = explicacion_especifica(partido, pred, pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera)
-        ajuste = ajuste_recomendado_especifico(partido, pred, pron, tipo, real, ok, probs, fav, score, margen_val, tercera)
-        partidos.append({
-            "num": num,
-            "partido": f"{num}. {partido.get('local', '')} - {partido.get('visitante', '')}",
-            "local": partido.get("local"),
-            "visitante": partido.get("visitante"),
-            "fecha": str(partido.get("fecha") or ""),
-            "hora": str(partido.get("hora") or ""),
-            "es_pleno15": False,
-            "pronostico_jugado": pron,
-            "signo_real": real,
-            "resultado": partido.get("resultado") or "",
-            "acierto": ok,
-            "tipo_apuesta": tipo,
-            "es_elige8": bool(pred.get("en_elige8") or pred.get("elige8")),
-            "partido_sorpresa": bool(pred.get("sorpresa_potencial")),
-            "riesgo_necesidad": bool(pred.get("riesgo_necesidad")),
-            "calidad_datos": str(pred.get("calidad_datos") or "alta"),
-            "explicacion": explicacion,
-            "categoria_fallo": "acierto" if ok else "fallo",
-            "ajuste_recomendado": ajuste,
-            "origen": "generar_diario_aprendizaje",
-            "prediccion": {
-                "signo_final": pron,
-                "tipo": tipo,
-                "probabilidades": probs,
-                "surprise_score": score,
-                "categoria_sorpresa": categoria,
-                "favorito": fav,
-                "margen_probabilidad": margen_val,
-                "tercera_probabilidad": tercera,
-            },
-            "resultado_real": {
-                "signo_oficial": real,
-                "resultado": partido.get("resultado"),
-            },
-            "acertado": ok,
-            "aprendizaje": aprendizaje(pron, tipo, real, ok, fav, score, margen_val, tercera),
-        })
+        partidos.append(crear_item_jugado(num, partido, pred, pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera, bool(signos_jugados)))
 
-    # Procesar Pleno al 15
-    pleno = jornada_data.get("pleno15") or {}
-    pleno_pred = {}
-    for p_pred in pred_data.get("partidos", []):
-        if int(p_pred.get("num") or 0) == 15:
-            pleno_pred = p_pred
-            break
-    if not pleno_pred and pred_data.get("pleno15"):
-        pleno_pred = pred_data["pleno15"]
-
-    if pleno:
-        resultado_pleno = str(pleno.get("resultado") or "Pendiente")
-        signo_pleno = str(pleno.get("signo_oficial") or "Pendiente")
-        local_pleno = pleno.get("local", "")
-        visitante_pleno = pleno.get("visitante", "")
-        fecha_pleno = str(pleno.get("fecha") or "")
-        hora_pleno = str(pleno.get("hora") or "")
-        pronostico_pleno = str(
-            pleno_pred.get("signo_final") or
-            pleno_pred.get("signo_base") or
-            pleno_pred.get("pronostico_ia") or
-            pleno.get("signo_nuestro") or
-            "Pendiente"
-        )
-        jugado_pleno = "-" in resultado_pleno and signo_pleno in SIGNOS
-        partidos.append({
-            "num": 15,
-            "partido": f"PLENO AL 15: {local_pleno} - {visitante_pleno}",
-            "local": local_pleno,
-            "visitante": visitante_pleno,
-            "fecha": fecha_pleno,
-            "hora": hora_pleno,
-            "es_pleno15": True,
-            "pronostico_jugado": pronostico_pleno,
-            "signo_real": signo_pleno if jugado_pleno else None,
-            "resultado": resultado_pleno if jugado_pleno else "Pendiente",
-            "acierto": None,
-            "tipo_apuesta": "PLENO15",
-            "es_elige8": False,
-            "partido_sorpresa": False,
-            "riesgo_necesidad": False,
-            "calidad_datos": "alta" if jugado_pleno else "pendiente",
-            "explicacion": f"Pleno al 15: {local_pleno} vs {visitante_pleno}. " + (f"Resultado: {resultado_pleno}" if jugado_pleno else "Partido pendiente de jugarse."),
-            "categoria_fallo": "",
-            "ajuste_recomendado": "",
-            "origen": "jornada_data",
-        })
-
+    agregar_pleno15(partidos, jornada_data, pred_data, pleno15_jugado)
     partidos = sorted(partidos, key=lambda p: p.get("num", 99))
-
-    total = len(partidos)
     return {
         "jornada": jornada,
         "actualizado_en": ahora_iso(),
         "origen_prediccion": str(PREDICCIONES / f"jornada_{jornada}.json"),
         "resumen": {
-            "partidos": total,
+            "partidos": len(partidos),
             "aciertos": aciertos,
             "fallos": fallos,
             "precision": round(aciertos / max(aciertos + fallos, 1) * 100, 2),
         },
         "partidos": partidos,
     }
+
+
+def crear_item_pendiente(num, partido, pred, pron):
+    return {
+        "num": num,
+        "partido": f"{num}. {partido.get('local', '')} - {partido.get('visitante', '')}",
+        "local": partido.get("local"),
+        "visitante": partido.get("visitante"),
+        "fecha": str(partido.get("fecha") or ""),
+        "hora": str(partido.get("hora") or ""),
+        "es_pleno15": False,
+        "pronostico_jugado": pron if pron else "Pendiente",
+        "signo_real": None,
+        "resultado": "Pendiente",
+        "acierto": None,
+        "tipo_apuesta": tipo_pronostico(pron) if pron else "-",
+        "es_elige8": bool(pred.get("en_elige8") or pred.get("elige8")),
+        "partido_sorpresa": False,
+        "riesgo_necesidad": False,
+        "calidad_datos": "pendiente",
+        "explicacion": "Partido pendiente de jugarse.",
+        "categoria_fallo": "",
+        "ajuste_recomendado": "",
+        "origen": "pendiente",
+    }
+
+
+def crear_item_jugado(num, partido, pred, pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera, desde_historial):
+    return {
+        "num": num,
+        "partido": f"{num}. {partido.get('local', '')} - {partido.get('visitante', '')}",
+        "local": partido.get("local"),
+        "visitante": partido.get("visitante"),
+        "fecha": str(partido.get("fecha") or ""),
+        "hora": str(partido.get("hora") or ""),
+        "es_pleno15": False,
+        "pronostico_jugado": pron,
+        "signo_real": real,
+        "resultado": partido.get("resultado") or "",
+        "acierto": ok,
+        "tipo_apuesta": tipo,
+        "es_elige8": bool(pred.get("en_elige8") or pred.get("elige8")),
+        "partido_sorpresa": bool(pred.get("sorpresa_potencial")),
+        "riesgo_necesidad": bool(pred.get("riesgo_necesidad")),
+        "calidad_datos": str(pred.get("calidad_datos") or "alta"),
+        "explicacion": explicacion_especifica(partido, pred, pron, tipo, real, ok, probs, fav, score_sorpresa(pred), categoria, margen_val, tercera),
+        "categoria_fallo": "acierto" if ok else "fallo",
+        "ajuste_recomendado": ajuste_recomendado_especifico(partido, pred, pron, tipo, real, ok, probs, fav, score, margen_val, tercera),
+        "origen": "historial_quinielas" if desde_historial else "generar_diario_aprendizaje",
+        "prediccion": {
+            "signo_final": pron,
+            "tipo": tipo,
+            "probabilidades": probs,
+            "surprise_score": score,
+            "categoria_sorpresa": categoria,
+            "favorito": fav,
+            "margen_probabilidad": margen_val,
+            "tercera_probabilidad": tercera,
+        },
+        "resultado_real": {"signo_oficial": real, "resultado": partido.get("resultado")},
+        "acertado": ok,
+        "aprendizaje": aprendizaje(pron, tipo, real, ok, fav, score, margen_val, tercera),
+    }
+
+
+def agregar_pleno15(partidos, jornada_data, pred_data, pleno15_jugado=""):
+    pleno = jornada_data.get("pleno15") or {}
+    if not pleno:
+        return
+    pleno_pred = next((p for p in pred_data.get("partidos", []) if int(p.get("num") or 0) == 15), {}) or pred_data.get("pleno15") or {}
+    resultado_pleno = str(pleno.get("resultado") or "Pendiente")
+    signo_pleno = str(pleno.get("signo_oficial") or "Pendiente")
+    local_pleno = pleno.get("local", "")
+    visitante_pleno = pleno.get("visitante", "")
+    pronostico_pleno = str(
+        pleno15_jugado if pleno15_jugado and pleno15_jugado != "No validada" else
+        pleno_pred.get("signo_final") or pleno_pred.get("signo_base") or pleno_pred.get("pronostico_ia") or pleno.get("signo_nuestro") or "Pendiente"
+    )
+    jugado_pleno = "-" in resultado_pleno and signo_pleno in SIGNOS
+    partidos.append({
+        "num": 15,
+        "partido": f"PLENO AL 15: {local_pleno} - {visitante_pleno}",
+        "local": local_pleno,
+        "visitante": visitante_pleno,
+        "fecha": str(pleno.get("fecha") or ""),
+        "hora": str(pleno.get("hora") or ""),
+        "es_pleno15": True,
+        "pronostico_jugado": pronostico_pleno,
+        "signo_real": signo_pleno if jugado_pleno else None,
+        "resultado": resultado_pleno if jugado_pleno else "Pendiente",
+        "acierto": None,
+        "tipo_apuesta": "PLENO15",
+        "es_elige8": False,
+        "partido_sorpresa": False,
+        "riesgo_necesidad": False,
+        "calidad_datos": "alta" if jugado_pleno else "pendiente",
+        "explicacion": f"Pleno al 15: {local_pleno} vs {visitante_pleno}. " + (f"Resultado: {resultado_pleno}" if jugado_pleno else "Partido pendiente de jugarse."),
+        "categoria_fallo": "",
+        "ajuste_recomendado": "",
+        "origen": "historial_quinielas" if pleno15_jugado and pleno15_jugado != "No validada" else "jornada_data",
+    })
 
 
 def comparable(entry):
@@ -450,13 +374,9 @@ def comparable(entry):
 
 def actualizar_diario():
     diario = cargar_json(SALIDA, {"version": "1.0", "entradas": []})
-    entradas_previas = [
-        e for e in diario.get("entradas", [])
-        if str(e.get("jornada") or "") != "70"
-    ]
+    entradas_previas = [e for e in diario.get("entradas", []) if str(e.get("jornada") or "") != "70"]
     jornadas = []
     nuevas_entradas = []
-
     for path in sorted(JORNADAS.glob("jornada_*.json"), key=numero_jornada):
         jornada = numero_jornada(path)
         jornada_data = cargar_json(path, {})
@@ -473,13 +393,11 @@ def actualizar_diario():
             item = dict(partido)
             item["jornada"] = jornada
             nuevas_entradas.append(item)
-
     entradas_por_clave = {}
     for item in entradas_previas + nuevas_entradas:
         clave = (int(item.get("jornada") or 0), int(item.get("num") or 0) or 99, item.get("partido") or "")
         entradas_por_clave[clave] = item
     entradas = [entradas_por_clave[k] for k in sorted(entradas_por_clave)]
-
     salida = {
         "version": "1.0",
         "generado_en": ahora_iso(),
