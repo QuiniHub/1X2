@@ -148,6 +148,70 @@ def tercera_prob(probs):
     return round(vals[2], 2) if len(vals) >= 3 else 0.0
 
 
+
+def nombre_equipo_por_signo(partido, signo):
+    if signo == "1":
+        return partido.get("local") or "Local"
+    if signo == "2":
+        return partido.get("visitante") or "Visitante"
+    return "Empate"
+
+
+def alertas_motivacion_diario(pred):
+    ajuste = (pred or {}).get("ajuste_motivacion") or {}
+    alertas = ajuste.get("alertas") or (pred or {}).get("alertas_motivacion") or []
+    if isinstance(alertas, str):
+        alertas = [alertas]
+    return [str(a).strip() for a in alertas if str(a).strip()]
+
+
+def explicacion_alerta(alertas):
+    if not alertas:
+        return "Revisar factores contextuales no capturados."
+    return "Alerta de motivacion detectada: " + ", ".join(alertas) + "."
+
+
+def explicacion_especifica(partido, pred, pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera):
+    cubiertos = signos_pronostico(pron)
+    fav_prob = round(to_float(probs.get(fav), 0.0), 1) if fav else 0.0
+    real_prob = round(to_float(probs.get(real), 0.0), 1)
+    fav_nombre = nombre_equipo_por_signo(partido, fav)
+    alertas = alertas_motivacion_diario(pred)
+    prefijo = "[ALERTA SORPRESA ACTIVA] " if pred.get("sorpresa_potencial") is True else ""
+
+    if ok and tipo == "FIJO" and fav_prob > 65:
+        return prefijo + f"Pronostico solido confirmado. {fav_nombre} era favorito claro con {fav_prob}% y cumplio."
+    if ok and real_prob < 40:
+        return prefijo + f"Sorpresa acertada. El mercado daba {fav_prob}% al favorito pero detectamos factores de riesgo. Reforzar este patron."
+    if not ok and tipo == "FIJO":
+        return prefijo + f"Fijo fallado. {fav_nombre} tenia {fav_prob}% pero no gano. {explicacion_alerta(alertas)}"
+    if not ok and tipo in {"DOBLE", "TRIPLE"} and real not in cubiertos:
+        cubiertos_txt = "".join(s for s in ("1", "X", "2") if s in cubiertos) or pron
+        return prefijo + f"Cobertura insuficiente. El signo {real} no estaba en nuestra cobertura {cubiertos_txt}. Considerar ampliar cobertura en situaciones similares."
+    return prefijo + explicar(pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera)
+
+
+def ajuste_recomendado_especifico(partido, pred, pron, tipo, real, ok, probs, fav, score, margen_val, tercera):
+    cubiertos = signos_pronostico(pron)
+    fav_prob = round(to_float(probs.get(fav), 0.0), 1) if fav else 0.0
+    real_prob = round(to_float(probs.get(real), 0.0), 1)
+    alertas = alertas_motivacion_diario(pred)
+    if ok and tipo == "FIJO" and fav_prob > 65:
+        return "Mantener fijo limpio cuando el favorito supere 65% y no existan alertas fuertes de motivacion."
+    if ok and real_prob < 40:
+        return "Reforzar patron de sorpresa acertada: subir cobertura cuando el signo ganador tenga menos del 40% pero haya riesgo contextual."
+    if not ok and tipo == "FIJO":
+        if alertas:
+            return "No dejar como FIJO partidos con alerta de motivacion activa; subir minimo a DOBLE si el mercado esta sesgado."
+        return "Revisar variables contextuales no capturadas y rebajar umbral de confianza del fijo en perfiles similares."
+    if not ok and tipo in {"DOBLE", "TRIPLE"} and real not in cubiertos:
+        return f"Ampliar cobertura para incluir {real} cuando el tercer signo conserve valor o haya sorpresa_potencial."
+    if pred.get("sorpresa_potencial") is True:
+        return "Mantener alerta sorpresa activa y validar si la cobertura elegida fue suficiente."
+    if score >= 60:
+        return "Elevar cobertura en partidos con indice de sorpresa igual o superior a 60."
+    return "Mantener el caso como muestra calibrada sin ajuste fuerte adicional."
+
 def explicar(pron, tipo, real, ok, probs, fav, score, categoria, margen_val, tercera):
     cubiertos = signos_pronostico(pron)
     prob_cubierta = max((probs.get(s, 0.0) for s in cubiertos), default=0.0)

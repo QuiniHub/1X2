@@ -36,6 +36,7 @@ PATRONES_COMPETITIVOS = DATA / "memoria_ia" / "patrones_competitivos.json"
 PERFILES_EQUIPOS = DATA / "memoria_ia" / "perfiles_equipos.json"
 CLASIFICACIONES_MUNDIAL = DATA / "memoria_ia" / "clasificaciones_mundial_2026.json"
 FUENTE_LOSILLA = DATA / "memoria_ia" / "fuente_losilla.json"
+SORPRESAS_MERCADO = DATA / "memoria_ia" / "sorpresas_mercado.json"
 JORNADAS = DATA / "jornadas"
 PREDICCIONES = DATA / "predicciones"
 JUGADAS = DATA / "quinielas_jugadas"
@@ -834,6 +835,50 @@ def calcular_ajuste_motivacion(partido, clasificaciones_mundial, fuente_losilla)
     detalle["clasificacion_losilla"] = {"local": liga_ctx["1"], "visitante": liga_ctx["2"]}
     return detalle
 
+
+
+def categoria_sorpresa_desde_alertas_motor(detalle):
+    alertas = set((detalle or {}).get("alertas") or [])
+    if "derbi_todo_puede_pasar" in alertas:
+        return "derbi"
+    if alertas & {"equipo_sin_objetivos", "ambos_clasificados_sin_tension"}:
+        return "partido_sin_presion"
+    if alertas:
+        return "motivacion_competitiva"
+    return "desconocido"
+
+
+def reforzar_ajuste_por_memoria_sorpresas(partido, detalle):
+    if not detalle or not detalle.get("activo"):
+        return detalle
+    memoria = cargar_json(SORPRESAS_MERCADO, {"sorpresas": []})
+    sorpresas = memoria.get("sorpresas") or []
+    categoria = categoria_sorpresa_desde_alertas_motor(detalle)
+    alertas = set(detalle.get("alertas") or [])
+    if not alertas:
+        return detalle
+    coincidencias = [
+        s for s in sorpresas
+        if s.get("categoria_sorpresa") == categoria
+        and (s.get("alerta_motivacion_detectada") in alertas or bool(alertas & set(s.get("alertas_motivacion_detectadas") or [])))
+    ]
+    if len(coincidencias) < 3:
+        return detalle
+    detalle["ajuste_por_signo"] = {
+        signo: round(float(delta or 0) * 1.20, 2)
+        for signo, delta in (detalle.get("ajuste_por_signo") or {}).items()
+    }
+    detalle["refuerzo_memoria_sorpresas_mercado"] = {
+        "activo": True,
+        "factor": 1.20,
+        "coincidencias": len(coincidencias),
+        "categoria_sorpresa": categoria,
+        "alertas_match": sorted(alertas),
+    }
+    detalle.setdefault("lecturas", []).append(
+        f"Memoria sorpresas mercado: {len(coincidencias)} casos previos con categoria {categoria}; se refuerza motivacion un 20%."
+    )
+    return detalle
 
 def aplicar_ajuste_motivacion_competitiva(probs, ajuste):
     if not ajuste or not ajuste.get("activo"):

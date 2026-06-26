@@ -14,6 +14,8 @@ PREDICCIONES = DATA / "predicciones"
 SNAPSHOTS = DATA / "backtesting" / "pre_cierre"
 PESOS_DINAMICOS = DATA / "memoria_ia" / "pesos_dinamicos.json"
 HISTORIAL_PREMIOS = DATA / "premios" / "historial_premios.json"
+FUENTE_LOSILLA = DATA / "memoria_ia" / "fuente_losilla.json"
+SORPRESAS_MERCADO = DATA / "memoria_ia" / "sorpresas_mercado.json"
 
 SIGNOS_VALIDOS = {"1", "X", "2"}
 
@@ -435,6 +437,108 @@ def registrar_revision(resumen, jornada_num, partido, pron, real, origen, predic
     })
 
 
+
+def mercado_partido_losilla(fuente_losilla, numero_partido):
+    partidos = (((fuente_losilla or {}).get("probabilidades") or {}).get("partidos") or [])
+    for item in partidos:
+        try:
+            if int(item.get("numero") or 0) == int(numero_partido):
+                signos = item.get("probabilidades_signo") or {}
+                valores = {
+                    "1": float(signos.get("1") if signos.get("1") is not None else item.get("probabilidad_1") or 0),
+                    "X": float(signos.get("X") if signos.get("X") is not None else item.get("probabilidad_X") or 0),
+                    "2": float(signos.get("2") if signos.get("2") is not None else item.get("probabilidad_2") or 0),
+                }
+                favorito = max(valores, key=lambda signo: valores.get(signo, 0.0))
+                return favorito, valores[favorito], valores
+        except Exception:
+            continue
+    return "", 0.0, {}
+
+
+def alertas_motivacion_prediccion(prediccion):
+    ajuste = (prediccion or {}).get("ajuste_motivacion") or {}
+    alertas = ajuste.get("alertas") or (prediccion or {}).get("alertas_motivacion") or []
+    if isinstance(alertas, str):
+        alertas = [alertas]
+    return [str(a).strip() for a in alertas if str(a).strip()]
+
+
+def categoria_sorpresa_mercado(prediccion):
+    alertas = alertas_motivacion_prediccion(prediccion)
+    if "derbi_todo_puede_pasar" in alertas:
+        return "derbi"
+    if any(a in alertas for a in ("equipo_sin_objetivos", "ambos_clasificados_sin_tension")):
+        return "partido_sin_presion"
+    if alertas:
+        return "motivacion_competitiva"
+    texto = json.dumps(prediccion or {}, ensure_ascii=False).lower()
+    if "racha" in texto or "racha_rota" in texto:
+        return "racha_rota"
+    return "desconocido"
+
+
+def inicializar_sorpresas_mercado():
+    if not SORPRESAS_MERCADO.exists():
+        guardar_json(SORPRESAS_MERCADO, {"version": "1.0", "sorpresas": []})
+
+
+def registrar_sorpresas_mercado(jornada_num, jornada_data, pred_info):
+    fuente_losilla = cargar_json(FUENTE_LOSILLA, {})
+    memoria = cargar_json(SORPRESAS_MERCADO, {"version": "1.0", "sorpresas": []})
+    sorpresas = memoria.setdefault("sorpresas", [])
+    existentes = {
+        (
+            int(item.get("jornada") or 0),
+            int(item.get("numero_partido") or 0),
+            str(item.get("signo_favorito_mercado") or ""),
+            str(item.get("signo_real") or ""),
+        )
+        for item in sorpresas
+        if str(item.get("jornada") or "").isdigit() and str(item.get("numero_partido") or "").isdigit()
+    }
+    pred_por_num = (pred_info or {}).get("partidos") or {}
+    nuevas = 0
+    for partido in jornada_data.get("partidos", []):
+        num = partido.get("num")
+        if not str(num or "").isdigit():
+            continue
+        num = int(num)
+        real = signo_oficial_partido(partido)
+        if real not in SIGNOS_VALIDOS:
+            continue
+        signo_fav, prob_fav, mercado = mercado_partido_losilla(fuente_losilla, num)
+        if not signo_fav or prob_fav <= 75.0 or signo_fav == real:
+            continue
+        prediccion = pred_por_num.get(num, {})
+        alertas = alertas_motivacion_prediccion(prediccion)
+        clave = (int(jornada_num), num, signo_fav, real)
+        if clave in existentes:
+            continue
+        entrada = {
+            "jornada": int(jornada_num),
+            "numero_partido": num,
+            "local": partido.get("local"),
+            "visitante": partido.get("visitante"),
+            "probabilidad_mercado_favorito": round(float(prob_fav), 2),
+            "signo_favorito_mercado": signo_fav,
+            "signo_real": real,
+            "alerta_motivacion_detectada": alertas[0] if alertas else "",
+            "alertas_motivacion_detectadas": alertas,
+            "categoria_sorpresa": categoria_sorpresa_mercado(prediccion),
+            "fecha": partido.get("fecha") or ahora_iso(),
+            "mercado_losilla": mercado,
+            "origen_prediccion": str((pred_info or {}).get("path") or ""),
+        }
+        sorpresas.append(entrada)
+        existentes.add(clave)
+        nuevas += 1
+    if nuevas or not SORPRESAS_MERCADO.exists():
+        memoria["actualizado_en"] = ahora_iso()
+        memoria["total_sorpresas"] = len(sorpresas)
+        guardar_json(SORPRESAS_MERCADO, memoria)
+    return nuevas
+
 def construir_salida(resumen, fuentes_jugadas):
     total = max(resumen["partidos_revisados"], 1)
     salida = {
@@ -652,6 +756,7 @@ def main():
         comparacion_cierre = cerrar_jornada_con_prediccion(path, data, pred_info)
         if comparacion_cierre:
             registros_premios[int(jornada_num)] = construir_registro_premios(int(jornada_num), pred_info, comparacion_cierre)
+            registrar_sorpresas_mercado(int(jornada_num), data, pred_info)
             jornadas_cerradas_actualizadas += 1
             data = cargar_json(path, data)
 
