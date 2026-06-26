@@ -1,11 +1,14 @@
-"""Scraper principal de EduardoLosilla.es para alimentar la memoria IA.
+"""Scraper principal de EduardoLosilla.es y La Bruja de Oro para alimentar la memoria IA.
 
 Extrae, de forma defensiva, probabilidades, cuotas, escrutinio y
-clasificaciones publicadas en eduardolosilla.es. En probabilidades incluye los
+clasificaciones publicadas en fuentes externas. En probabilidades incluye los
 14 partidos 1/X/2 y el Pleno al 15 con porcentajes de goles 0/1/2/M para cada
-equipo. Si la web falla o cambia su HTML, el script no detiene el flujo:
+equipo. Si una web falla o cambia su HTML, el script no detiene el flujo:
 conserva el ultimo dato local valido en data/memoria_ia/fuente_losilla.json y
 deja avisos en la salida.
+
+El escrutinio se guarda como historico acumulado bajo claves jornada_XX para
+no perder jornadas anteriores.
 """
 
 import json
@@ -26,6 +29,7 @@ URL_BOLETOS = f"{BASE}/quiniela/boletos"
 URL_CUOTAS = f"{BASE}/quiniela/ayudas/cuotas"
 URL_CLASIFICACION = f"{BASE}/quiniela/ayudas/clasificacion"
 URL_ESCRUTINIO = f"{BASE}/quiniela/ayudas/escrutinio/jornada_{{jornada}}"
+URL_BRUJA_PREMIOS = "https://www.labrujadeoro.es/quiniela-premios.htm"
 
 TIMEOUT = 10
 HEADERS = {
@@ -56,6 +60,26 @@ LABELS_NO_EQUIPO = {
     "pleno",
     "pleno al 15",
     "goles",
+}
+
+CATEGORIAS_ESCRUTINIO = ("15", "14", "13", "12", "11", "10", "elige8")
+NOMBRES_CATEGORIA = {
+    "15": "Pleno al 15",
+    "14": "14 Aciertos",
+    "13": "13 Aciertos",
+    "12": "12 Aciertos",
+    "11": "11 Aciertos",
+    "10": "10 Aciertos",
+    "elige8": "Elige 8 (8 Ac)",
+}
+CLAVES_PREMIO = {
+    "15": "premio_pleno_al_15",
+    "14": "premio_14",
+    "13": "premio_13",
+    "12": "premio_12",
+    "11": "premio_11",
+    "10": "premio_10",
+    "elige8": "premio_elige8",
 }
 
 
@@ -121,6 +145,8 @@ def entero(valor):
 def descargar(url):
     respuesta = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
     respuesta.raise_for_status()
+    if not respuesta.encoding or respuesta.encoding.lower() == "iso-8859-1":
+        respuesta.encoding = respuesta.apparent_encoding or "utf-8"
     return respuesta.text
 
 
@@ -169,8 +195,21 @@ def separar_partido(texto):
 
 
 def extraer_jornada(texto):
-    jornadas = [int(x) for x in re.findall(r"\bJORNADA\s+(\d{1,3})\b", texto, flags=re.I)]
+    patrones = (
+        r"\bJORNADA\s*(?:N[ºO.]?\s*)?(\d{1,3})\b",
+        r"\bJ\.\s*(\d{1,3})\b",
+    )
+    jornadas = []
+    for patron in patrones:
+        jornadas.extend(int(x) for x in re.findall(patron, texto or "", flags=re.I))
     return max(jornadas) if jornadas else None
+
+
+def clave_jornada(jornada):
+    try:
+        return f"jornada_{int(jornada):02d}"
+    except (TypeError, ValueError):
+        return None
 
 
 def numero_partido_en_fila(celdas):
@@ -444,16 +483,129 @@ def candidatos_jornada_cerrada(*textos):
     if max_jornada:
         inicio = max(max_jornada - 1, 1)
         return list(range(inicio, max(0, inicio - 15), -1))
-    return list(range(80, 0, -1))
+    return list(range(90, 0, -1))
+
+
+def categoria_desde_texto(texto):
+    clave = normalizar_clave(texto)
+    if "elige" in clave and "8" in clave:
+        return "elige8"
+    if "pleno" in clave and "15" in clave:
+        return "15"
+    if "especial" in clave and "15" in clave:
+        return "15"
+    for categoria in ("14", "13", "12", "11", "10"):
+        if re.search(rf"\b{categoria}\b", clave) and (("acierto" in clave) or ("ac" in clave)):
+            return categoria
+    return None
+
+
+def primer_importe(celdas):
+    candidatos = []
+    for celda in celdas:
+        if "€" in celda or re.search(r"\d+\s*(?:euros?|eur)\b", celda, flags=re.I):
+            valor = numero(celda)
+            if valor is not None:
+                candidatos.append(valor)
+    if candidatos:
+        return candidatos[-1]
+
+    for celda in reversed(celdas):
+        valor = numero(celda)
+        if valor is not None and ("," in celda or "." in celda):
+            return valor
+    return None
+
+
+def primer_acertantes(celdas):
+    for celda in celdas:
+        if "€" in celda:
+            continue
+        valor = entero(celda)
+        if valor is not None:
+            return valor
+    return None
+
+
+def construir_registro_escrutinio(jornada, categorias, url, fuente):
+    clave = clave_jornada(jornada)
+    if not clave or not categorias:
+        return None
+
+    normalizadas = {}
+    for categoria in CATEGORIAS_ESCRUTINIO:
+        datos = categorias.get(categoria) or {}
+        premio = datos.get("premio_euros")
+        normalizadas[categoria] = {
+            "nombre": NOMBRES_CATEGORIA[categoria],
+            "acertantes": datos.get("acertantes"),
+            "premio_euros": float(premio) if premio is not None else 0.0,
+        }
+
+    registro = {
+        "url": url,
+        "fuente": fuente,
+        "jornada": int(jornada),
+        "clave": clave,
+        "categorias": normalizadas,
+        "extraido_en": ahora_iso(),
+    }
+    for categoria, nombre_clave in CLAVES_PREMIO.items():
+        registro[nombre_clave] = normalizadas.get(categoria, {}).get("premio_euros", 0.0)
+    return registro
+
+
+def extraer_escrutinio_bruja():
+    html = descargar(URL_BRUJA_PREMIOS)
+    soup = soup_de(html)
+    texto = texto_soup(soup)
+    jornada = extraer_jornada(texto)
+    categorias = {}
+
+    for celdas in todas_las_filas(soup):
+        fila = " ".join(celdas)
+        categoria = categoria_desde_texto(fila)
+        if not categoria:
+            continue
+
+        premio = primer_importe(celdas[1:]) if len(celdas) > 1 else primer_importe(celdas)
+        acertantes = primer_acertantes(celdas[1:]) if len(celdas) > 1 else None
+        if premio is None and "bote" in normalizar_clave(fila):
+            premio = 0.0
+
+        categorias[categoria] = {
+            "acertantes": acertantes,
+            "premio_euros": premio if premio is not None else 0.0,
+        }
+
+    if len(categorias) < 3:
+        for categoria, etiqueta in NOMBRES_CATEGORIA.items():
+            variantes = [etiqueta]
+            if categoria == "15":
+                variantes += ["Pleno al quince", "Categoria especial"]
+            elif categoria == "elige8":
+                variantes += ["Elige8", "8 Aciertos Elige 8", "8 Ac."]
+            for variante in variantes:
+                patron = re.compile(
+                    rf"{re.escape(variante)}.{{0,120}}?(\d[\d.,]*)\s*(?:€|euros?|eur)",
+                    flags=re.I,
+                )
+                m = patron.search(texto)
+                if m:
+                    categorias.setdefault(categoria, {"acertantes": None, "premio_euros": numero(m.group(1)) or 0.0})
+                    break
+
+    return construir_registro_escrutinio(jornada, categorias, URL_BRUJA_PREMIOS, "labrujadeoro.es")
 
 
 def extraer_escrutinio_desde_texto(texto, jornada, url):
     limpio = normalizar_texto(texto)
     categorias = {}
 
-    for categoria in ("15", "14", "13", "12"):
+    for categoria in ("15", "14", "13", "12", "11", "10"):
+        etiqueta = "Pleno al 15" if categoria == "15" else f"{categoria} Aciertos"
         patrones = [
-            rf"(?:{categoria}\s+aciertos|acertantes\s+de\s+{categoria}|premio\s+{categoria}).{{0,80}}?(\d[\d.]*)\D+(\d[\d.,]*)\s*€",
+            rf"(?:{categoria}\s+aciertos|acertantes\s+de\s+{categoria}|premio\s+{categoria}|{re.escape(etiqueta)}).{{0,80}}?(\d[\d.]*)\D+(\d[\d.,]*)\s*€",
             rf"{categoria}\s+(\d[\d.]*)\s+(\d[\d.,]*)\s*€",
         ]
         for patron in patrones:
@@ -462,17 +614,16 @@ def extraer_escrutinio_desde_texto(texto, jornada, url):
                 categorias[categoria] = {"acertantes": entero(m.group(1)), "premio_euros": numero(m.group(2))}
                 break
 
-    bote = None
-    m_bote = re.search(r"\bbote\b.{0,80}?(\d[\d.,]*)\s*€", limpio, flags=re.I)
-    if m_bote:
-        bote = numero(m_bote.group(1))
+    m_elige8 = re.search(r"(?:elige\s*8|8\s*ac\.?).{0,100}?(\d[\d.,]*)\s*€", limpio, flags=re.I)
+    if m_elige8:
+        categorias["elige8"] = {"acertantes": None, "premio_euros": numero(m_elige8.group(1)) or 0.0}
 
     if not categorias:
         return None
-    return {"url": url, "jornada": jornada, "categorias": categorias, "bote_acumulado_euros": bote, "extraido_en": ahora_iso()}
+    return construir_registro_escrutinio(jornada, categorias, url, "eduardolosilla.es")
 
 
-def extraer_escrutinio(textos_referencia):
+def extraer_escrutinio_losilla(textos_referencia):
     for jornada in candidatos_jornada_cerrada(*textos_referencia):
         url = URL_ESCRUTINIO.format(jornada=jornada)
         try:
@@ -484,6 +635,17 @@ def extraer_escrutinio(textos_referencia):
         except Exception as exc:
             print(f"AVISO Losilla escrutinio jornada {jornada}: {exc}")
     return None
+
+
+def extraer_escrutinio(textos_referencia):
+    try:
+        resultado = extraer_escrutinio_bruja()
+        if resultado:
+            return resultado
+    except Exception as exc:
+        print(f"AVISO Bruja de Oro escrutinio: {exc}")
+
+    return extraer_escrutinio_losilla(textos_referencia)
 
 
 def parsear_linea_clasificacion(linea):
@@ -569,16 +731,111 @@ def fusionar_probabilidades(anterior, nuevo):
     return nuevo
 
 
+def normalizar_registro_legacy(registro):
+    if not isinstance(registro, dict):
+        return None
+    jornada = registro.get("jornada")
+    clave = clave_jornada(jornada)
+    if not clave:
+        return None
+
+    categorias = {}
+    for categoria, datos in (registro.get("categorias") or {}).items():
+        clave_categoria = "elige8" if str(categoria).lower() == "elige8" else str(categoria)
+        if clave_categoria in CATEGORIAS_ESCRUTINIO and isinstance(datos, dict):
+            categorias[clave_categoria] = {
+                "acertantes": datos.get("acertantes"),
+                "premio_euros": datos.get("premio_euros", datos.get("premio", 0.0)) or 0.0,
+            }
+
+    for categoria, nombre_clave in CLAVES_PREMIO.items():
+        if nombre_clave in registro:
+            categorias.setdefault(categoria, {"acertantes": None, "premio_euros": registro.get(nombre_clave) or 0.0})
+
+    return construir_registro_escrutinio(
+        jornada,
+        categorias,
+        registro.get("url") or "",
+        registro.get("fuente") or "legacy",
+    )
+
+
+def historico_escrutinio(escrutinio):
+    if not isinstance(escrutinio, dict) or not escrutinio:
+        return {}
+
+    if any(str(k).startswith("jornada_") for k in escrutinio):
+        historico = {}
+        for clave, registro in escrutinio.items():
+            normalizado = normalizar_registro_legacy(registro)
+            if normalizado:
+                historico[clave_jornada(normalizado["jornada"]) or clave] = normalizado
+            elif isinstance(registro, dict):
+                historico[str(clave)] = registro
+        return historico
+
+    normalizado = normalizar_registro_legacy(escrutinio)
+    if normalizado:
+        return {clave_jornada(normalizado["jornada"]): normalizado}
+    return {}
+
+
+def categoria_con_dato(categoria):
+    if not isinstance(categoria, dict):
+        return False
+    premio = categoria.get("premio_euros")
+    acertantes = categoria.get("acertantes")
+    return premio not in (None, "") or acertantes not in (None, "")
+
+
+def fusionar_registros_escrutinio(previo, nuevo):
+    if not isinstance(previo, dict):
+        return nuevo
+    if not isinstance(nuevo, dict):
+        return previo
+
+    fusionado = dict(previo)
+    for campo in ("url", "fuente", "jornada", "clave", "extraido_en"):
+        if not fusionado.get(campo) and nuevo.get(campo):
+            fusionado[campo] = nuevo[campo]
+
+    categorias = dict(fusionado.get("categorias") or {})
+    for categoria, datos_nuevos in (nuevo.get("categorias") or {}).items():
+        datos_previos = categorias.get(categoria)
+        if not categoria_con_dato(datos_previos):
+            categorias[categoria] = datos_nuevos
+    fusionado["categorias"] = categorias
+
+    for categoria, nombre_clave in CLAVES_PREMIO.items():
+        previo_valor = fusionado.get(nombre_clave)
+        nuevo_valor = nuevo.get(nombre_clave)
+        if previo_valor in (None, "") or (float(previo_valor or 0.0) == 0.0 and float(nuevo_valor or 0.0) > 0.0):
+            fusionado[nombre_clave] = nuevo_valor or 0.0
+
+    return fusionado
+
+
+def fusionar_escrutinio(anterior, nuevo):
+    historico = historico_escrutinio(anterior.get("escrutinio", {}) if isinstance(anterior, dict) else {})
+    nuevos = historico_escrutinio(nuevo)
+    for clave, registro in nuevos.items():
+        if clave in historico:
+            historico[clave] = fusionar_registros_escrutinio(historico[clave], registro)
+        else:
+            historico[clave] = registro
+    return dict(sorted(historico.items(), key=lambda item: int(re.search(r"\d+", item[0]).group(0)) if re.search(r"\d+", item[0]) else 0))
+
+
 def fusionar_con_anterior(anterior, nuevo, avisos):
     probabilidades = fusionar_probabilidades(anterior, nuevo.get("probabilidades"))
     salida = {
-        "version": "1.1",
-        "fuente": "eduardolosilla.es",
+        "version": "1.2",
+        "fuente": "eduardolosilla.es + labrujadeoro.es",
         "actualizado_en": ahora_iso(),
         "avisos": avisos,
         "probabilidades": probabilidades,
         "cuotas": nuevo.get("cuotas") or anterior.get("cuotas", {}),
-        "escrutinio": nuevo.get("escrutinio") or anterior.get("escrutinio", {}),
+        "escrutinio": fusionar_escrutinio(anterior, nuevo.get("escrutinio")),
         "clasificaciones": nuevo.get("clasificaciones") or anterior.get("clasificaciones", {}),
     }
     salida["conserva_datos_previos"] = any(
@@ -615,12 +872,12 @@ def main():
         datos_escrutinio = extraer_escrutinio(textos_referencia)
         if datos_escrutinio:
             nuevo["escrutinio"] = datos_escrutinio
-            print("Losilla OK: escrutinio")
+            print(f"Escrutinio OK: {datos_escrutinio.get('clave')}")
         else:
             avisos.append("Sin datos nuevos para escrutinio; se conserva el dato previo.")
     except Exception as exc:
         avisos.append(f"Fallo en escrutinio: {type(exc).__name__}: {exc}. Se conserva el dato previo.")
-        print(f"AVISO Losilla escrutinio: {exc}")
+        print(f"AVISO escrutinio: {exc}")
 
     salida = fusionar_con_anterior(anterior, nuevo, avisos)
     guardar_json(SALIDA, salida)
