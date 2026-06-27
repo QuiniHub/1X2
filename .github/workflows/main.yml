@@ -56,6 +56,9 @@ jobs:
           git pull --rebase origin main
 
       - name: Actualizar datos y validar publicacion
+        env:
+          BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
         run: |
           python actualizar_todo.py
 
