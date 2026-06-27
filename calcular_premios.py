@@ -3,24 +3,16 @@
 Calcula y persiste el registro de premios cobrados en cada jornada
 jugada. El premio se calcula automaticamente si hay datos fiables
 (aciertos confirmados y tabla de premios oficial). Si no hay dato
-fiable, el premio queda como 0.0 EUR y se marca como pendiente.
+oficial, se consulta historico web y finalmente se usa una estimacion.
 
 Salida: data/premios/historial_premios.json
-Formato de cada entrada:
-{
-    "jornada": 62,
-    "aciertos": 10,
-    "fallos": 4,
-    "premio_eur": 0.0,
-    "fuente_premio": "pendiente",   # o "oficial" / "calculado" / "manual"
-    "boleto": "1X2X11X12X1X2X1X2",  # signos jugados (opcional)
-    "notas": ""
-}
 """
 
 import json
 import re
+import requests
 from pathlib import Path
+from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -31,19 +23,23 @@ QUINIELAS_JUGADAS = DATA / "quinielas_jugadas.json"
 FUENTE_LOSILLA = MEMORIA / "fuente_losilla.json"
 SALIDA = DATA / "premios" / "historial_premios.json"
 
-# Tabla de premios orientativa de La Quiniela (SELAE).
-# Los valores reales cambian cada semana segun el bote acumulado
-# y el numero de acertantes. Esta tabla solo se usa como estimacion
-# cuando no hay dato oficial disponible.
-# Fuente: https://www.loteriasyapuestas.es
-TABLA_PREMIOS_ESTIMADOS = {
-    15: 0.0,    # Pleno al 15 — bote variable, no estimable
-    14: 0.0,    # Premio 14 — bote variable
-    13: 25.0,   # Estimacion orientativa
-    12: 8.0,    # Estimacion orientativa
-    11: 4.0,    # Estimacion orientativa
-    10: 0.0,    # Sin premio habitual
+HEADERS_WEB = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "es-ES,es;q=0.9",
 }
+
+# Tabla de premios aproximados pedida como ultimo fallback.
+# Los valores reales dependen del bote y del numero de acertantes.
+TABLA_PREMIOS_ESTIMADOS = {
+    15: 0.0,       # categoria especial, variable
+    14: 200000.0,
+    13: 2000.0,
+    12: 100.0,
+    11: 20.0,
+    10: 5.0,
+}
+PREMIO_ELIGE8_ESTIMADO = 5.0
 
 CLAVES_PREMIO = {
     15: ("premio_pleno_al_15", "premio_15"),
@@ -52,6 +48,15 @@ CLAVES_PREMIO = {
     12: ("premio_12",),
     11: ("premio_11",),
     10: ("premio_10",),
+}
+
+CATEGORIAS_WEB = {
+    15: ("pleno al 15", "pleno", "especial", "15"),
+    14: ("14 aciertos", "14", "1ª", "1a", "primera"),
+    13: ("13 aciertos", "13", "2ª", "2a", "segunda"),
+    12: ("12 aciertos", "12", "3ª", "3a", "tercera"),
+    11: ("11 aciertos", "11", "4ª", "4a", "cuarta"),
+    10: ("10 aciertos", "10", "5ª", "5a", "quinta"),
 }
 
 
@@ -187,15 +192,14 @@ def calcular_aciertos(prediccion, resultados):
             continue
         signo_oficial = str(res.get("signo_oficial") or "").upper()
         if signo_oficial not in ("1", "X", "2"):
-            continue  # partido sin resultado oficial todavia
+            continue
         signo_pred = str(pred.get("signo_final") or pred.get("signo_base") or "").upper()
         tipo = str(pred.get("tipo") or "FIJO").upper()
 
-        # Un TRIPLE cubre siempre los tres signos
         if tipo == "TRIPLE":
             acertado = True
         elif tipo == "DOBLE":
-            acertado = signo_oficial in signo_pred  # signo_pred es p.ej. "1X" o "X2"
+            acertado = signo_oficial in signo_pred
         else:
             acertado = signo_oficial == signo_pred
 
@@ -240,7 +244,6 @@ def registro_escrutinio(jornada):
     if clave in historico:
         return historico[clave]
 
-    # Compatibilidad por si alguna fuente guardo jornada_76 sin cero a la izquierda.
     clave_sin_padding = f"jornada_{int(jornada)}"
     return historico.get(clave_sin_padding)
 
@@ -277,34 +280,114 @@ def premio_elige8(registro):
     return 0.0
 
 
-def obtener_premio_oficial(jornada, aciertos, jugo_elige8):
-    """Devuelve el importe real del escrutinio oficial de una jornada.
+def importe_en_texto(texto):
+    patron = r"(\d{1,3}(?:\.\d{3})*,\d{2}|\d+(?:,\d{2})?)\s*€"
+    m = re.search(patron, texto)
+    return float_o_none(m.group(1)) if m else None
 
-    Lee data/memoria_ia/fuente_losilla.json -> escrutinio -> jornada_XX.
-    Si no existe escrutinio para la jornada devuelve None. Si existe, devuelve
-    el premio real de la categoria de aciertos y suma Elige 8 cuando corresponde
-    y hay premio_elige8 mayor que cero.
-    """
-    registro = registro_escrutinio(jornada)
-    if not registro:
+
+def fila_contiene_categoria(texto, aciertos):
+    t = re.sub(r"\s+", " ", str(texto or "").lower())
+    for etiqueta in CATEGORIAS_WEB.get(int(aciertos), (str(aciertos),)):
+        if etiqueta.lower() in t:
+            return True
+    return False
+
+
+def extraer_premio_html(html, jornada, aciertos):
+    soup = BeautifulSoup(html, "html.parser")
+
+    for tr in soup.find_all("tr"):
+        celdas = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
+        texto = " | ".join(celdas)
+        if fila_contiene_categoria(texto, aciertos):
+            premio = importe_en_texto(texto)
+            if premio is not None:
+                return premio
+
+    texto = soup.get_text("\n", strip=True)
+    lineas = [re.sub(r"\s+", " ", linea).strip() for linea in texto.splitlines()]
+    for linea in lineas:
+        if fila_contiene_categoria(linea, aciertos):
+            premio = importe_en_texto(linea)
+            if premio is not None:
+                return premio
+
+    etiquetas = "|".join(re.escape(e) for e in CATEGORIAS_WEB.get(int(aciertos), (str(aciertos),)))
+    patron = rf"(?:{etiquetas}).{{0,220}}?(\d{{1,3}}(?:\.\d{{3}})*,\d{{2}}|\d+(?:,\d{{2}})?)\s*€"
+    m = re.search(patron, texto, flags=re.I | re.S)
+    return float_o_none(m.group(1)) if m else None
+
+
+def extraer_premio_elige8_html(html):
+    soup = BeautifulSoup(html, "html.parser")
+    for tr in soup.find_all("tr"):
+        texto = " | ".join(c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"]))
+        if "elige" in texto.lower() and "8" in texto:
+            premio = importe_en_texto(texto)
+            if premio is not None:
+                return premio
+    texto = soup.get_text("\n", strip=True)
+    patron = r"elige\s*8.{0,180}?(\d{1,3}(?:\.\d{3})*,\d{2}|\d+(?:,\d{2})?)\s*€"
+    m = re.search(patron, texto, flags=re.I | re.S)
+    return float_o_none(m.group(1)) if m else None
+
+
+def urls_historicas_jornada(jornada):
+    j = int(jornada)
+    return [
+        ("eduardolosilla", f"https://www.eduardolosilla.es/quiniela/escrutinio/?jornada={j}"),
+        ("eduardolosilla", f"https://www.eduardolosilla.es/quiniela/escrutinio/jornada-{j}/"),
+        ("eduardolosilla", f"https://www.eduardolosilla.es/quiniela/escrutinio/{j}/"),
+        ("eduardolosilla", "https://www.eduardolosilla.es/quiniela/escrutinio/"),
+        ("labrujadeoro", f"https://www.labrujadeoro.es/quiniela-premios.htm?jornada={j}"),
+        ("labrujadeoro", f"https://www.labrujadeoro.es/quiniela-premios.htm?jor={j}"),
+        ("labrujadeoro", "https://www.labrujadeoro.es/quiniela-premios.htm"),
+    ]
+
+
+def buscar_premio_historico_web(jornada, aciertos, jugo_elige8):
+    """Busca escrutinio historico en Losilla y La Bruja antes del fallback."""
+    if int(aciertos) < 10:
         return None
 
-    total = 0.0
-    encontrado = False
+    for fuente, url in urls_historicas_jornada(jornada):
+        try:
+            r = requests.get(url, headers=HEADERS_WEB, timeout=20)
+            if r.status_code != 200 or not r.text:
+                continue
+            premio = extraer_premio_html(r.text, jornada, aciertos)
+            if premio is None:
+                continue
+            total = premio
+            if jugo_elige8:
+                total += extraer_premio_elige8_html(r.text) or 0.0
+            return round(total, 2), f"historico_{fuente}"
+        except Exception as exc:
+            print(f"Aviso: no se pudo consultar {fuente} J{jornada}: {exc}")
+    return None
 
-    if int(aciertos) in CLAVES_PREMIO:
-        premio = premio_categoria(registro, int(aciertos))
-        if premio is not None:
-            total += premio
-            encontrado = True
 
-    if jugo_elige8:
-        extra = premio_elige8(registro)
-        if extra > 0:
-            total += extra
-            encontrado = True
+def obtener_premio_oficial(jornada, aciertos, jugo_elige8):
+    """Devuelve (importe, fuente) usando local, webs historicas o None."""
+    registro = registro_escrutinio(jornada)
+    if registro:
+        total = 0.0
+        encontrado = False
+        if int(aciertos) in CLAVES_PREMIO:
+            premio = premio_categoria(registro, int(aciertos))
+            if premio is not None:
+                total += premio
+                encontrado = True
+        if jugo_elige8:
+            extra = premio_elige8(registro)
+            if extra > 0:
+                total += extra
+                encontrado = True
+        if encontrado:
+            return round(total, 2), "oficial"
 
-    return round(total, 2) if encontrado else None
+    return buscar_premio_historico_web(jornada, aciertos, jugo_elige8)
 
 
 def seleccion_elige8(prediccion, jornada):
@@ -348,26 +431,18 @@ def elige8_acertado(prediccion, jornada, detalle):
     return len(seleccion) == 8 and len(acertados) == 8, sorted(seleccion)
 
 
-def estimar_premio(aciertos, prediccion):
-    """Estima el premio basandose en la tabla orientativa.
+def estimar_premio(aciertos, gano_elige8=False):
+    """Estimacion aproximada cuando no hay escrutinio exacto disponible."""
+    try:
+        aciertos = int(aciertos)
+    except (TypeError, ValueError):
+        return 0.0, "pendiente"
 
-    Devuelve (premio_eur, fuente) donde fuente es 'calculado' o 'pendiente'.
-    Si el numero de aciertos no alcanza el minimo para prize, devuelve 0.0.
-    """
-    # Si la quiniela tiene triples/dobles, el coste es mayor y los
-    # premios se reparten entre mas combinaciones. No se puede estimar
-    # de forma fiable sin el bote oficial de esa semana.
-    resumen = prediccion.get("resumen") or {}
-    hay_coberturas = resumen.get("dobles", 0) > 0 or resumen.get("triples", 0) > 0
-    if hay_coberturas:
-        return 0.0, "pendiente"  # requiere dato oficial
-
-    if aciertos in TABLA_PREMIOS_ESTIMADOS:
-        premio = TABLA_PREMIOS_ESTIMADOS[aciertos]
-        fuente = "calculado" if premio > 0 else "pendiente"
-        return premio, fuente
-
-    return 0.0, "pendiente"
+    premio = TABLA_PREMIOS_ESTIMADOS.get(aciertos, 0.0)
+    if gano_elige8:
+        premio += PREMIO_ELIGE8_ESTIMADO
+    fuente = "estimado" if premio > 0 else "pendiente"
+    return round(premio, 2), fuente
 
 
 def partidos_principales_cerrados(resultados):
@@ -391,15 +466,15 @@ def registro_jornada(jornada):
     resultados = leer_resultados_jornada(jornada)
 
     if not partidos_principales_cerrados(resultados):
-        return None  # jornada aun no completamente cerrada
+        return None
 
     aciertos, fallos, detalle = calcular_aciertos(prediccion, resultados)
     gano_elige8, seleccion = elige8_acertado(prediccion, jornada, detalle)
-    premio_oficial = obtener_premio_oficial(jornada, aciertos, gano_elige8)
-    if premio_oficial is not None:
-        premio, fuente = premio_oficial, "oficial"
+    premio_real = obtener_premio_oficial(jornada, aciertos, gano_elige8)
+    if premio_real is not None:
+        premio, fuente = premio_real
     else:
-        premio, fuente = estimar_premio(aciertos, prediccion)
+        premio, fuente = estimar_premio(aciertos, gano_elige8)
 
     boleto = "".join(
         str(p.get("signo_final") or p.get("signo_base") or "?")
@@ -417,7 +492,7 @@ def registro_jornada(jornada):
         "elige8_seleccion": seleccion,
         "elige8_acertado": gano_elige8,
         "detalle_partidos": detalle,
-        "notas": "",
+        "notas": "Premio exacto si se obtuvo de escrutinio; estimado si no hubo dato historico web.",
     }
 
 
@@ -427,7 +502,7 @@ def registro_completo(entry):
 
 def pendiente_premio(entry):
     try:
-        return float(entry.get("premio_eur") or 0.0) == 0.0
+        return float(entry.get("premio_eur") or 0.0) == 0.0 or entry.get("fuente_premio") == "pendiente"
     except (TypeError, ValueError):
         return True
 
@@ -447,12 +522,19 @@ def refrescar_premio_oficial(entry):
     else:
         gano_elige8 = bool(entry.get("elige8_acertado"))
 
-    premio = obtener_premio_oficial(jornada, aciertos, gano_elige8)
-    if premio is None:
+    premio_real = obtener_premio_oficial(jornada, aciertos, gano_elige8)
+    if premio_real is not None:
+        premio, fuente = premio_real
+    else:
+        premio, fuente = estimar_premio(aciertos, gano_elige8)
+
+    if premio <= 0:
         return False
 
     entry["premio_eur"] = premio
-    entry["fuente_premio"] = "oficial"
+    entry["fuente_premio"] = fuente
+    if fuente == "estimado":
+        entry["notas"] = "Premio aproximado: no se encontro escrutinio exacto en fuentes historicas."
     return True
 
 
@@ -476,8 +558,7 @@ def main():
         if existente and registro_completo(existente):
             if pendiente_premio(existente) and refrescar_premio_oficial(existente):
                 actualizadas.append(existente)
-                print(f"Jornada {jornada}: premio oficial actualizado a "
-                      f"{existente['premio_eur']:.2f} EUR")
+                print(f"Jornada {jornada}: premio actualizado a {existente['premio_eur']:.2f} EUR ({existente['fuente_premio']})")
             continue
 
         reg = registro_jornada(jornada)
@@ -491,8 +572,7 @@ def main():
         if pendiente_premio(entry) and refrescar_premio_oficial(entry):
             if entry not in actualizadas:
                 actualizadas.append(entry)
-            print(f"Jornada {entry['jornada']}: premio oficial actualizado a "
-                  f"{entry['premio_eur']:.2f} EUR")
+            print(f"Jornada {entry['jornada']}: premio actualizado a {entry['premio_eur']:.2f} EUR ({entry['fuente_premio']})")
 
     if actualizadas:
         historial["jornadas"] = sorted(registros.values(), key=lambda x: x["jornada"])
