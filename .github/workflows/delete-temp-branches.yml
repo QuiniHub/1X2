@@ -1,0 +1,56 @@
+name: Delete temporary branches
+
+on:
+  push:
+    paths:
+      - '.github/workflows/delete-temp-branches.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  delete-temp-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Delete temporary branches
+        run: |
+          set -euo pipefail
+          branches=(
+            "tmp-blindar-premios-usuario"
+            "fix/mundial-group-normalization"
+            "fix/mundial-standings-20260625"
+            "fix/index-js-tabs-data"
+            "fix/index-js-ticket-modes"
+            "fix/frontend-tests-new-index"
+            "fix/web-data-actions-20260625"
+            "mejora-elige8-seguro"
+            "fix/jornada-objetivo-prediccion"
+            "fix/invisible-stability"
+          )
+          for branch in "${branches[@]}"; do
+            echo "Deleting $branch"
+            git push origin --delete "$branch" || true
+          done
+      - name: Verify remaining branches
+        run: |
+          set -euo pipefail
+          git ls-remote --heads origin | awk '{print $2}' | sed 's#refs/heads/##' | sort | tee branches_after.txt
+          python - <<'PY'
+          expected = {"main", "fase-2-aprendizaje-autonomo"}
+          actual = {line.strip() for line in open("branches_after.txt", encoding="utf-8") if line.strip()}
+          if actual != expected:
+              raise SystemExit(f"Ramas inesperadas. expected={sorted(expected)} actual={sorted(actual)}")
+          PY
+      - name: Remove this temporary workflow
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/delete-temp-branches.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A .github/workflows/delete-temp-branches.yml
+          git diff --cached --quiet || git commit -m "Eliminar workflow temporal de limpieza de ramas"
+          git push
