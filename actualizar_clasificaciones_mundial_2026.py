@@ -3,18 +3,16 @@
 Lee data/mundial_2026_resultados.json y escribe
  data/memoria_ia/clasificaciones_mundial_2026.json.
 
-Correccion critica: nunca se mezcla una seleccion en un grupo artificial
-"sin_grupo" si puede inferirse su grupo real. Los resultados sin grupo solo se
-usan cuando ambos equipos pertenecen al mismo grupo del Mundial 2026. Una
-seleccion solo se marca eliminada si matematicamente ya no puede alcanzar ni
-una posicion util de grupo, considerando que el tercer puesto puede depender de
-comparativa externa. Tambien se deduplican resultados repetidos de distintas
-fuentes por grupo, pareja de equipos y marcador.
+La API de BallDontLie es la fuente primaria cuando BALLDONTLIE_API_KEY
+esta disponible. Si no hay datos de API, el script calcula la tabla local
+con los resultados guardados en data/mundial_2026_resultados.json.
 """
 
 import json
+import os
 import re
 import unicodedata
+import requests as _requests
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -31,118 +29,45 @@ CLASIFICAN_DIRECTO = 2
 PLAZA_UTIL_MINIMA = 3
 
 ALIAS = {
-    "eeuu": "estados unidos",
-    "ee uu": "estados unidos",
-    "usa": "estados unidos",
-    "united states": "estados unidos",
-    "estados unidos": "estados unidos",
-    "mexico": "mexico",
-    "méxico": "mexico",
-    "south africa": "sudafrica",
-    "sudafrica": "sudafrica",
-    "sudáfrica": "sudafrica",
-    "corea del sur": "corea del sur",
-    "south korea": "corea del sur",
-    "czechia": "chequia",
-    "chequia": "chequia",
-    "switzerland": "suiza",
-    "suiza": "suiza",
-    "canada": "canada",
-    "canadá": "canada",
-    "bosnia and herzegovina": "bosnia",
-    "bosnia herzegovina": "bosnia",
-    "bosnia": "bosnia",
-    "qatar": "qatar",
-    "brasil": "brasil",
-    "brazil": "brasil",
-    "marruecos": "marruecos",
-    "morocco": "marruecos",
-    "haiti": "haiti",
-    "haití": "haiti",
-    "escocia": "escocia",
-    "scotland": "escocia",
-    "paraguay": "paraguay",
-    "australia": "australia",
-    "turkiye": "turquia",
-    "turkey": "turquia",
-    "turquia": "turquia",
-    "turquía": "turquia",
-    "alemania": "alemania",
-    "germany": "alemania",
-    "costa marfil": "costa de marfil",
-    "costa de marfil": "costa de marfil",
-    "ivory coast": "costa de marfil",
-    "cote divoire": "costa de marfil",
-    "cote d ivoire": "costa de marfil",
-    "ecuador": "ecuador",
-    "curacao": "curazao",
-    "curazao": "curazao",
-    "curaçao": "curazao",
-    "paises bajos": "paises bajos",
-    "países bajos": "paises bajos",
-    "holanda": "paises bajos",
-    "netherlands": "paises bajos",
-    "japon": "japon",
-    "japón": "japon",
-    "japan": "japon",
-    "suecia": "suecia",
-    "sweden": "suecia",
-    "tunez": "tunez",
-    "túnez": "tunez",
-    "tunisia": "tunez",
-    "belgica": "belgica",
-    "bélgica": "belgica",
-    "belgium": "belgica",
-    "egipto": "egipto",
-    "egypt": "egipto",
-    "iran": "iran",
-    "irán": "iran",
-    "nueva zelanda": "nueva zelanda",
-    "new zealand": "nueva zelanda",
-    "espana": "espana",
-    "españa": "espana",
-    "spain": "espana",
-    "cabo verde": "cabo verde",
-    "cape verde": "cabo verde",
-    "arabia saudi": "arabia saudi",
-    "arabia saudí": "arabia saudi",
-    "saudi arabia": "arabia saudi",
-    "uruguay": "uruguay",
-    "francia": "francia",
-    "france": "francia",
-    "senegal": "senegal",
-    "irak": "irak",
-    "iraq": "irak",
-    "noruega": "noruega",
-    "norway": "noruega",
-    "argentina": "argentina",
-    "argelia": "argelia",
-    "algeria": "argelia",
-    "austria": "austria",
-    "jordania": "jordania",
-    "jordan": "jordania",
-    "portugal": "portugal",
-    "congo dr": "congo dr",
-    "dr congo": "congo dr",
-    "rd congo": "congo dr",
-    "congo rd": "congo dr",
-    "uzbekistan": "uzbekistan",
-    "uzbekistán": "uzbekistan",
-    "colombia": "colombia",
-    "inglaterra": "inglaterra",
-    "england": "inglaterra",
-    "ghana": "ghana",
-    "panama": "panama",
-    "panamá": "panama",
-    "croacia": "croacia",
-    "croatia": "croacia",
+    "eeuu": "estados unidos", "ee uu": "estados unidos", "usa": "estados unidos",
+    "united states": "estados unidos", "estados unidos": "estados unidos",
+    "mexico": "mexico", "méxico": "mexico", "south africa": "sudafrica",
+    "sudafrica": "sudafrica", "sudáfrica": "sudafrica",
+    "corea del sur": "corea del sur", "south korea": "corea del sur",
+    "czechia": "chequia", "chequia": "chequia", "switzerland": "suiza",
+    "suiza": "suiza", "canada": "canada", "canadá": "canada",
+    "bosnia and herzegovina": "bosnia", "bosnia herzegovina": "bosnia", "bosnia": "bosnia",
+    "qatar": "qatar", "brasil": "brasil", "brazil": "brasil",
+    "marruecos": "marruecos", "morocco": "marruecos", "haiti": "haiti",
+    "haití": "haiti", "escocia": "escocia", "scotland": "escocia",
+    "paraguay": "paraguay", "australia": "australia", "turkiye": "turquia",
+    "turkey": "turquia", "turquia": "turquia", "turquía": "turquia",
+    "alemania": "alemania", "germany": "alemania", "costa marfil": "costa de marfil",
+    "costa de marfil": "costa de marfil", "ivory coast": "costa de marfil",
+    "cote divoire": "costa de marfil", "cote d ivoire": "costa de marfil",
+    "ecuador": "ecuador", "curacao": "curazao", "curazao": "curazao", "curaçao": "curazao",
+    "paises bajos": "paises bajos", "países bajos": "paises bajos", "holanda": "paises bajos",
+    "netherlands": "paises bajos", "japon": "japon", "japón": "japon", "japan": "japon",
+    "suecia": "suecia", "sweden": "suecia", "tunez": "tunez", "túnez": "tunez",
+    "tunisia": "tunez", "belgica": "belgica", "bélgica": "belgica", "belgium": "belgica",
+    "egipto": "egipto", "egypt": "egipto", "iran": "iran", "irán": "iran",
+    "nueva zelanda": "nueva zelanda", "new zealand": "nueva zelanda",
+    "espana": "espana", "españa": "espana", "spain": "espana",
+    "cabo verde": "cabo verde", "cape verde": "cabo verde",
+    "arabia saudi": "arabia saudi", "arabia saudí": "arabia saudi", "saudi arabia": "arabia saudi",
+    "uruguay": "uruguay", "francia": "francia", "france": "francia", "senegal": "senegal",
+    "irak": "irak", "iraq": "irak", "noruega": "noruega", "norway": "noruega",
+    "argentina": "argentina", "argelia": "argelia", "algeria": "argelia",
+    "austria": "austria", "jordania": "jordania", "jordan": "jordania",
+    "portugal": "portugal", "congo dr": "congo dr", "dr congo": "congo dr",
+    "rd congo": "congo dr", "congo rd": "congo dr", "uzbekistan": "uzbekistan",
+    "uzbekistán": "uzbekistan", "colombia": "colombia", "inglaterra": "inglaterra",
+    "england": "inglaterra", "ghana": "ghana", "panama": "panama", "panamá": "panama",
+    "croacia": "croacia", "croatia": "croacia",
 }
 
 GRUPOS_MUNDIAL_2026 = {"A":["mexico","sudafrica","corea del sur","chequia"],"B":["suiza","canada","bosnia","qatar"],"C":["brasil","marruecos","haiti","escocia"],"D":["estados unidos","paraguay","australia","turquia"],"E":["alemania","curazao","costa de marfil","ecuador"],"F":["paises bajos","japon","suecia","tunez"],"G":["belgica","egipto","iran","nueva zelanda"],"H":["espana","cabo verde","arabia saudi","uruguay"],"I":["francia","senegal","irak","noruega"],"J":["argentina","argelia","austria","jordania"],"K":["portugal","congo dr","uzbekistan","colombia"],"L":["inglaterra","ghana","panama","croacia"]}
 EQUIPO_A_GRUPO = {equipo: grupo for grupo, equipos in GRUPOS_MUNDIAL_2026.items() for equipo in equipos}
-
-# Confirmados sin via matematica de clasificacion en fase de grupos.
-# Se fuerza aqui para que el workflow no regenere estos equipos como vivos.
 ELIMINADOS_MATEMATICOS_CONFIRMADOS = {"turquia", "tunez", "jordania", "panama", "haiti"}
 
 
@@ -173,6 +98,91 @@ def normalizar_nombre(nombre):
     texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
     texto = re.sub(r"[^a-z0-9]+", " ", texto).strip()
     return ALIAS.get(texto, texto)
+
+
+def normalizar_grupo(nombre):
+    texto = str(nombre or "").strip()
+    texto = texto.replace("Group ", "").replace("Grupo ", "").strip().upper()
+    return texto if texto in GRUPOS_MUNDIAL_2026 else texto
+
+
+def obtener_clasificaciones_api():
+    key = os.environ.get("BALLDONTLIE_API_KEY", "")
+    if not key:
+        return {}
+    try:
+        headers = {"Authorization": key}
+        r = _requests.get(
+            "https://api.balldontlie.io/fifa/worldcup/v1/standings",
+            headers=headers, timeout=20
+        )
+        if r.status_code != 200:
+            print(f"BallDontLie standings error: {r.status_code}")
+            return {}
+        datos = r.json().get("data", [])
+        grupos = {}
+        for s in datos:
+            grupo = normalizar_grupo((s.get("group") or {}).get("name", ""))
+            if not grupo:
+                continue
+            equipo = (s.get("team") or {}).get("name", "")
+            grupos.setdefault(grupo, []).append({
+                "equipo": equipo,
+                "pts": s.get("points", 0),
+                "pj": s.get("games_played", 0),
+                "gf": s.get("goals_for", 0),
+                "gc": s.get("goals_against", 0),
+                "posicion": s.get("rank") or s.get("position") or 99,
+            })
+        for g in grupos:
+            grupos[g].sort(key=lambda x: x["posicion"])
+        print(f"BallDontLie standings: {len(grupos)} grupos obtenidos")
+        return grupos
+    except Exception as e:
+        print(f"BallDontLie standings error: {e}")
+        return {}
+
+
+def construir_salida_api(grupos_api):
+    grupos = {}
+    equipos = {}
+    for grupo, filas_api in sorted(grupos_api.items()):
+        filas = []
+        for fila_api in filas_api:
+            equipo = str(fila_api.get("equipo") or "").strip()
+            equipo_norm = normalizar_nombre(equipo)
+            pj = int(fila_api.get("pj") or 0)
+            gf = int(fila_api.get("gf") or 0)
+            gc = int(fila_api.get("gc") or 0)
+            fila = {
+                "equipo": equipo,
+                "equipo_normalizado": equipo_norm,
+                "grupo": grupo,
+                "posicion": int(fila_api.get("posicion") or 99),
+                "pj": pj,
+                "pts": int(fila_api.get("pts") or 0),
+                "gf": gf,
+                "gc": gc,
+                "dg": gf - gc,
+                "fuente": "balldontlie",
+                "situacion": "api_standings",
+                "situacion_competitiva": "api_standings",
+                "objetivos_vivos": True,
+            }
+            filas.append(fila)
+            equipos[equipo_norm] = fila
+        grupos[grupo] = {"grupo": grupo, "equipos_detectados": len(filas), "clasificacion": filas}
+    return {
+        "version": "1.3",
+        "generado_en": ahora_iso(),
+        "fuente": "balldontlie",
+        "criterio": {"fase": "grupos_mundial_2026", "prioridad": "BallDontLie API prevalece sobre calculo local"},
+        "total_grupos": len(grupos),
+        "total_equipos": len(equipos),
+        "grupos": grupos,
+        "equipos": equipos,
+        "descartados": [],
+    }
 
 
 def parsear_resultado(resultado):
@@ -239,7 +249,6 @@ def situacion_equipo(registro, grupo_ordenado):
     rivales = [r for r in grupo_ordenado if r["equipo"] != equipo]
     rivales_actual_superan_max = sum(1 for r in rivales if int(r.get("pts") or 0) > max_pts)
     rivales_max_superan_empate = sum(1 for r in rivales if puntos_maximos(r) > empate_pts)
-
     if equipo in ELIMINADOS_MATEMATICOS_CONFIRMADOS:
         situacion, necesidad, motivacion, objetivos_vivos, rotacion, lectura = "eliminada", "ninguna", "baja", False, True, "Eliminada por restriccion matematica confirmada: ya no tiene via de clasificacion."
     elif pj >= PARTIDOS_POR_EQUIPO:
@@ -257,7 +266,6 @@ def situacion_equipo(registro, grupo_ordenado):
         situacion, necesidad, motivacion, objetivos_vivos, rotacion, lectura = "le_vale_empate", "empatar", "alta", True, False, "Un empate mantiene una posicion de clasificacion directa o muy favorable."
     else:
         situacion, necesidad, motivacion, objetivos_vivos, rotacion, lectura = "depende_de_otros_resultados", "depender", "alta", True, False, "Sigue con opciones matematicas de clasificacion, pero su pase depende tambien de otros marcadores."
-
     return {"posicion": pos, "partidos_restantes_estimados": restantes, "puntos_maximos": max_pts, "puntos_si_empata_siguiente": empate_pts, "situacion": situacion, "situacion_competitiva": situacion, "necesidad_resultado": necesidad, "motivacion_competitiva": motivacion, "objetivos_vivos": objetivos_vivos, "rotacion_probable": rotacion, "lectura": lectura, "objetivos": [{"objetivo": "clasificacion_mundial_2026", "estado": situacion, "lectura": lectura}]}
 
 
@@ -267,7 +275,6 @@ def construir_clasificaciones(data):
     for grupo, equipos in GRUPOS_MUNDIAL_2026.items():
         for equipo in equipos:
             tabla[grupo].setdefault(equipo, registro_base(equipo, grupo))
-
     partidos_vistos = set()
     for partido in data.get("resultados", []):
         resultado = parsear_resultado(partido.get("resultado"))
@@ -285,7 +292,6 @@ def construir_clasificaciones(data):
         fuente = partido.get("fuente") or ""
         sumar_partido(tabla, grupo, local, visitante, gl, gv, fecha, fuente)
         sumar_partido(tabla, grupo, visitante, local, gv, gl, fecha, fuente)
-
     grupos = {}; equipos = {}
     for grupo, registros in sorted(tabla.items()):
         ordenados = ordenar_grupo(list(registros.values()))
@@ -296,11 +302,16 @@ def construir_clasificaciones(data):
             fila = {**reg, "tendencias": tendencias, **situacion_equipo(reg, ordenados)}
             filas.append(fila); equipos[normalizar_nombre(reg["equipo"])] = fila
         grupos[grupo] = {"grupo": grupo, "equipos_detectados": len(filas), "clasificacion": filas}
-
     return {"version": "1.2", "generado_en": ahora_iso(), "fuente": str(FUENTE.relative_to(ROOT)), "criterio": {"fase": "grupos_mundial_2026", "equipos_por_grupo": EQUIPOS_POR_GRUPO, "partidos_por_equipo": PARTIDOS_POR_EQUIPO, "clasificacion_directa": "top_2_grupo", "terceros": "pueden depender de comparativa externa; se marca depende_de_otros_resultados", "eliminacion": "solo si ni ganando todos sus partidos restantes puede alcanzar una posicion util de grupo", "deduplicacion": "grupo + pareja de equipos + marcador"}, "total_grupos": len(grupos), "total_equipos": len(equipos), "grupos": grupos, "equipos": equipos, "descartados": descartados}
 
 
 def main():
+    grupos_api = obtener_clasificaciones_api()
+    if grupos_api:
+        salida = construir_salida_api(grupos_api)
+        guardar_json(SALIDA, salida)
+        print(f"Clasificaciones Mundial 2026 actualizadas desde BallDontLie: {salida['total_grupos']} grupos, {salida['total_equipos']} selecciones.")
+        return
     data = cargar_json(FUENTE, {"resultados": []})
     salida = construir_clasificaciones(data)
     guardar_json(SALIDA, salida)
