@@ -1,0 +1,73 @@
+name: Patch blindar premios usuario
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch_blindar_premios_usuario.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Aplicar parche confirmado_usuario
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          path = Path('calcular_premios.py')
+          s = path.read_text(encoding='utf-8')
+
+          helper = '''\n\ndef premio_confirmado_usuario(entry):\n    return str(entry.get("fuente_premio", "")) == "confirmado_usuario"\n'''
+          if 'def premio_confirmado_usuario(entry):' not in s:
+              marker = '\ndef premio_labruja_invalido(entry):\n'
+              if marker in s:
+                  s = s.replace(marker, helper + marker, 1)
+              else:
+                  marker = '\ndef pendiente_premio(entry):\n'
+                  s = s.replace(marker, helper + marker, 1)
+
+          old = 'def pendiente_premio(entry):\n    try:'
+          new = 'def pendiente_premio(entry):\n    if premio_confirmado_usuario(entry):\n        return False\n    try:'
+          if old in s and new not in s:
+              s = s.replace(old, new, 1)
+
+          old = 'def refrescar_premio_real(entry):\n    jornada = entry.get("jornada")'
+          new = 'def refrescar_premio_real(entry):\n    if premio_confirmado_usuario(entry):\n        return False\n\n    jornada = entry.get("jornada")'
+          if old in s and new not in s:
+              s = s.replace(old, new, 1)
+
+          old = '        existente = registros.get(jornada)\n        if existente and registro_completo(existente):'
+          new = '        existente = registros.get(jornada)\n        if existente and premio_confirmado_usuario(existente):\n            continue\n        if existente and registro_completo(existente):'
+          if old in s and new not in s:
+              s = s.replace(old, new, 1)
+
+          old = '    for entry in registros.values():\n        if pendiente_premio(entry) and refrescar_premio_real(entry):'
+          new = '    for entry in registros.values():\n        if premio_confirmado_usuario(entry):\n            continue\n        if pendiente_premio(entry) and refrescar_premio_real(entry):'
+          if old in s and new not in s:
+              s = s.replace(old, new, 1)
+
+          path.write_text(s, encoding='utf-8')
+
+          hpath = Path('data/premios/historial_premios.json')
+          data = json.loads(hpath.read_text(encoding='utf-8'))
+          for j in data.get('jornadas', []):
+              if j.get('jornada') == 66:
+                  j['premio_eur'] = 0.0
+                  j['fuente_premio'] = 'confirmado_usuario'
+          hpath.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+      - name: Commit parche
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add calcular_premios.py data/premios/historial_premios.json
+          git diff --cached --quiet && echo "Sin cambios" || git commit -m "Blindar premios confirmados por usuario"
+          git push
