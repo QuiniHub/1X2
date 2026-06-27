@@ -93,6 +93,7 @@ SCRIPTS_NO_CRITICOS_RED = {
 }
 
 SCRIPTS_ACTIVOS = [
+    "actualizar_resultados_apis.py",
     # --- Datos base ---
     "actualizar_jornadas_detalle.py",
     "actualizar_boleto_vivo.py",
