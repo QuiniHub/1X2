@@ -10,20 +10,21 @@
       "resultado": "1-1",
       "signo_oficial": "X",
       "signo_nuestro": "No jugada",
-      "competicion_resuelta": "liga_extranjera",
-      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "competicion_resuelta": "mundial_2026",
+      "modelo_datos_recomendado": "modelo_selecciones_mundial_2026",
       "resolucion_competicion": {
-        "competicion": "liga_extranjera",
-        "modelo_recomendado": "modelo_liga_extranjera",
-        "confianza": 0.62,
-        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
-        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "competicion": "mundial_2026",
+        "modelo_recomendado": "modelo_selecciones_mundial_2026",
+        "confianza": 0.9,
+        "motivo": "Ambos equipos tienen memoria Mundial 2026.",
+        "lectura": "Usar memoria de selecciones/Mundial, sede neutral, grupo/fase y fuerza internacional.",
         "datos_minimos": [
           "resultados",
-          "clasificacion_liga",
-          "forma",
           "ranking_elo",
-          "lesiones"
+          "forma_seleccion",
+          "lesiones",
+          "alineaciones",
+          "contexto_grupo"
         ],
         "equipos_normalizados": {
           "local": "austria",
@@ -426,10 +427,11 @@
     }
   },
   "resolucion_competiciones": {
-    "generado_en": "2026-06-27T10:31:26.634848+00:00",
+    "generado_en": "2026-06-27T10:33:04.442901+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
-      "liga_extranjera": 14
+      "mundial_2026": 1,
+      "liga_extranjera": 13
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
   }
