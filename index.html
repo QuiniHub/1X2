@@ -803,7 +803,7 @@
     function historyRowsWithIa() {
       const h = state.historial || {};
       return arr(h.jornadas || h.historial || h.resultados)
-        .filter(r => Number(r.jornada) >= 70 && (historyAciertos(r) > 0 || Number(r.partidos_comparados || 0) > 0 || arr(r.detalle_partidos).length > 0))
+        .filter(r => Number(r.jornada) >= 61 && (historyAciertos(r) > 0 || Number(r.partidos_comparados || 0) > 0 || arr(r.detalle_partidos).length > 0))
         .sort((a, b) => Number(a.jornada || 0) - Number(b.jornada || 0));
     }
 
