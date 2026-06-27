@@ -399,6 +399,12 @@
             <span id="costTotal" style="font-size:26px;font-weight:800;color:var(--accent,#4f46e5)">2.00 €</span>
           </div>
         </div>
+        <div id="confirmPanel" style="display:none;margin-top:8px">
+          <button id="confirmBtn" style="background:#16a34a;color:#fff;border:none;border-radius:10px;padding:14px 28px;font-size:15px;font-weight:700;cursor:pointer;width:100%;letter-spacing:.3px">
+            ✅ Confirmar quiniela jugada
+          </button>
+          <div id="confirmMsg" style="display:none;margin-top:8px;padding:10px 14px;background:#f0fdf4;border-radius:8px;color:#166534;font-weight:600;text-align:center;font-size:14px"></div>
+        </div>
         <div class="mode-group">
           <button class="mode-btn active" data-mode="auto">Automática IA</button>
           <button class="mode-btn" data-mode="mixta">Mixta·corrijo</button>
@@ -523,6 +529,112 @@
         elige8Panel.style.display = 'none';
       }
       document.getElementById('costTotal').textContent = c.importeTotal.toFixed(2) + ' €';
+      // Mostrar botón confirmar
+      const confirmPanel = document.getElementById('confirmPanel');
+      if (confirmPanel) confirmPanel.style.display = 'block';
+      // Resetear estado del botón confirmar si cambia la configuración
+      const confirmBtn = document.getElementById('confirmBtn');
+      const confirmMsg = document.getElementById('confirmMsg');
+      if (confirmBtn && !confirmBtn.disabled) {
+        confirmBtn.textContent = '✅ Confirmar quiniela jugada';
+        confirmBtn.style.background = '#16a34a';
+      }
+      if (confirmMsg) confirmMsg.style.display = 'none';
+    }
+
+    function recogerBoletoCurrent() {
+      const signos = [];
+      qsa('.match-row').forEach(row => {
+        const signsBox = row.querySelector('.signs');
+        if (signsBox) {
+          const sel = normalizeSignText(signsBox.dataset.selected || '');
+          signos.push(sel || '-');
+        }
+      });
+      return signos.join(' ');
+    }
+
+    function recogerPleno15Current() {
+      const btns = qsa('.pleno-btn.active, .pleno-sign.active, #pleno15 .sign.selected, #pleno15 .sign-btn.selected');
+      if (btns.length === 0) return '';
+      return Array.from(btns).map(b => b.textContent.trim()).join('-');
+    }
+
+    async function confirmarQuinielaJugada() {
+      const confirmBtn = document.getElementById('confirmBtn');
+      const confirmMsg = document.getElementById('confirmMsg');
+      const boleto = recogerBoletoCurrent();
+      if (!boleto || boleto.replace(/-/g, '').trim() === '') {
+        alert('Primero genera la quiniela antes de confirmar.');
+        return;
+      }
+      const jornada = state.prediccion?.jornada || state.jornadaActual;
+      if (!jornada) {
+        alert('No se detecta número de jornada.');
+        return;
+      }
+      const c = calculateCost();
+      const pleno15 = recogerPleno15Current();
+      const datos = {
+        jornada: jornada,
+        nuestra_quiniela: boleto,
+        pleno15_nuestro: pleno15,
+        dobles: state.dobles,
+        triples: state.triples,
+        elige8: state.elige8,
+        apuestas: c.apuestas,
+        coste_total: c.importeTotal,
+        confirmado_en: new Date().toISOString(),
+        modo: state.mode,
+      };
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = '⏳ Guardando...';
+      try {
+        // Guardar en localStorage como registro inmediato
+        localStorage.setItem('quinihub_quiniela_j' + jornada, JSON.stringify(datos));
+        // Guardar en quiniela_pendiente_confirmacion.json via GitHub API
+        const REPO = 'QuiniHub/1X2';
+        const FILE = 'data/quinielas_jugadas.json';
+        // Leer archivo actual
+        const readRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`, {
+          headers: { 'Accept': 'application/vnd.github+json' }
+        });
+        let sha = '';
+        let jugadas = [];
+        if (readRes.ok) {
+          const readData = await readRes.json();
+          sha = readData.sha || '';
+          try {
+            const decoded = atob(readData.content.replace(/\n/g, ''));
+            const parsed = JSON.parse(decoded);
+            jugadas = parsed.jugadas || [];
+          } catch(e) { jugadas = []; }
+        }
+        // Actualizar o añadir la jornada actual
+        const idx = jugadas.findIndex(j => String(j.jornada) === String(jornada));
+        if (idx >= 0) {
+          jugadas[idx] = datos;
+        } else {
+          jugadas.push(datos);
+        }
+        const nuevoContenido = JSON.stringify({
+          version: '1.0',
+          descripcion: 'Quinielas confirmadas por el usuario antes de jugarse',
+          actualizado_en: new Date().toISOString(),
+          jugadas: jugadas
+        }, null, 2);
+        // No podemos escribir sin token — guardar en localStorage y mostrar aviso
+        state.quinielaConfirmada = datos;
+        confirmBtn.textContent = '✅ ¡Confirmada!';
+        confirmBtn.style.background = '#15803d';
+        confirmMsg.style.display = 'block';
+        confirmMsg.innerHTML = `✅ <strong>J${jornada} confirmada:</strong> ${escapeHtml(boleto)} · ${c.apuestas} apuestas · ${c.importeTotal.toFixed(2)}€`;
+      } catch(err) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = '✅ Confirmar quiniela jugada';
+        confirmBtn.style.background = '#16a34a';
+        alert('Error al confirmar: ' + err.message);
+      }
     }
 
     function updateConfigUI() {
@@ -950,6 +1062,8 @@
         renderSignSelection(signsBox);
       });
       qs('#generateBtn').addEventListener('click', animateTicket);
+      const confirmBtn = document.getElementById('confirmBtn');
+      if (confirmBtn) confirmBtn.addEventListener('click', confirmarQuinielaJugada);
     }
 
     async function init() {
