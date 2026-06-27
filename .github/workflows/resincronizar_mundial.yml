@@ -1,0 +1,22 @@
+name: Resincronizar Mundial
+on:
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar dependencias
+        run: pip install requests beautifulsoup4 lxml
+      - name: Resincronizar
+        run: python sincronizar_mundial_jornadas.py
+      - name: Commit
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git add data/jornadas/jornada_70.json data/mundial_2026_resultados.json
+          git diff --staged --quiet || git commit -m "Resincronizar resultados Mundial J70"
+          git push
