@@ -42,6 +42,7 @@ MEMORIA = DATA / "memoria_ia" / "mundial_2026_forma.json"
 FUENTES = [
     "https://www.quinielafutbol.info/proximas-jornadas-de-la-quiniela.html",
     "https://www.quiniela15.com/resultados-quiniela",
+    "https://www.resultados-futbol.com/mundial2026",
     "https://dondeverlo.es/quiniela/directo/",
 ]
 
@@ -72,6 +73,15 @@ ALIAS = {
     "turkiye": "turquia",
     "turkey": "turquia",
     "belgica": "belgica",
+    "belgium": "belgica",
+    "egipto": "egipto",
+    "egypt": "egipto",
+    "iran": "iran",
+    "irán": "iran",
+    "n zelanda": "nueva zelanda",
+    "n. zelanda": "nueva zelanda",
+    "nueva zelanda": "nueva zelanda",
+    "new zealand": "nueva zelanda",
     "tunez": "tunez",
     "espana": "espana",
     "mexico": "mexico",
@@ -122,6 +132,12 @@ def variantes_equipo(nombre):
         variantes.update({"costa marfil", "ivory coast", "cote divoire"})
     if base == "curazao":
         variantes.update({"curacao", "curaçao"})
+    if base == "nueva zelanda":
+        variantes.update({"n zelanda", "n. zelanda", "new zealand"})
+    if base == "iran":
+        variantes.update({"irán", "iran"})
+    if base == "egipto":
+        variantes.update({"egypt", "egipto"})
     return {v for v in variantes if v}
 
 
@@ -213,19 +229,33 @@ def descargar_fuentes():
     return textos
 
 
+def es_partido_especial_mundial_2026(local, visitante):
+    equipos = {normalizar(local), normalizar(visitante)}
+    return equipos in (
+        {"egipto", "iran"},
+        {"nueva zelanda", "belgica"},
+    )
+
+
 def buscar_resultado_en_texto(texto, local, visitante):
     patrones = [
         r"(?P<a>\d{1,2})\s*[-]\s*(?P<b>\d{1,2})",
         r"(?P<a>\d{1,2})\s+a\s+(?P<b>\d{1,2})",
     ]
-    for patron in patrones:
-        for match in re.finditer(patron, texto, re.I):
-            frag = texto[max(0, match.start() - 220): min(len(texto), match.end() + 220)]
-            if not (contiene_equipo(frag, local) and contiene_equipo(frag, visitante)):
-                continue
-            if re.search(r"\b(descanso|1t|2t|min\.?|minuto|en juego|pend|pr[oó]ximo|previa)\b", frag, re.I):
-                continue
-            return f"{int(match.group('a'))}-{int(match.group('b'))}"
+    ventanas = [220]
+    if es_partido_especial_mundial_2026(local, visitante):
+        # Patrones adicionales: Egipto cerca de Iran, y Nueva Zelanda/N. Zelanda cerca de Belgica.
+        # Algunas fuentes separan nombres y marcador con mucho HTML intermedio.
+        ventanas.extend([450, 700])
+    for ventana in ventanas:
+        for patron in patrones:
+            for match in re.finditer(patron, texto, re.I):
+                frag = texto[max(0, match.start() - ventana): min(len(texto), match.end() + ventana)]
+                if not (contiene_equipo(frag, local) and contiene_equipo(frag, visitante)):
+                    continue
+                if re.search(r"\b(descanso|1t|2t|min\.?|minuto|en juego|pend|pr[oó]ximo|previa)\b", frag, re.I):
+                    continue
+                return f"{int(match.group('a'))}-{int(match.group('b'))}"
     return ""
 
 
