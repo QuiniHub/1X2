@@ -45,6 +45,7 @@ SCRIPTS_CRITICOS_PREDICCION = {
 # validacion final siguen siendo criticas y pueden detener la publicacion.
 SCRIPTS_NO_CRITICOS_RED = {
     "preparar_temporada_2026_2027.py",
+    "actualizar_fuente_lae.py",
     "actualizar_jornadas_detalle.py",
     "actualizar_boleto_vivo.py",
     "asegurar_proxima_jornada.py",
@@ -95,6 +96,9 @@ SCRIPTS_NO_CRITICOS_RED = {
 }
 
 SCRIPTS_ACTIVOS = [
+    # --- Fuente oficial prioritaria ---
+    "actualizar_fuente_lae.py",
+
     # --- Datos base ---
     "actualizar_jornadas_detalle.py",
     "actualizar_boleto_vivo.py",
