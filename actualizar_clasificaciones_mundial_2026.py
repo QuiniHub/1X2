@@ -3,9 +3,9 @@
 Lee data/mundial_2026_resultados.json y escribe
  data/memoria_ia/clasificaciones_mundial_2026.json.
 
-La API de BallDontLie es la fuente primaria cuando BALLDONTLIE_API_KEY
-esta disponible. Si no hay datos de API, el script calcula la tabla local
-con los resultados guardados en data/mundial_2026_resultados.json.
+BallDontLie y football-data.org se prueban como fuentes de standings.
+Si no devuelven datos, se calcula la clasificacion local con los resultados
+ya consolidados en data/mundial_2026_resultados.json.
 """
 
 import json
@@ -102,8 +102,8 @@ def normalizar_nombre(nombre):
 
 def normalizar_grupo(nombre):
     texto = str(nombre or "").strip()
-    texto = texto.replace("Group ", "").replace("Grupo ", "").strip().upper()
-    return texto if texto in GRUPOS_MUNDIAL_2026 else texto
+    texto = texto.replace("Group ", "").replace("Grupo ", "").replace("GROUP_", "").strip().upper()
+    return texto
 
 
 def obtener_clasificaciones_api():
@@ -143,7 +143,48 @@ def obtener_clasificaciones_api():
         return {}
 
 
-def construir_salida_api(grupos_api):
+def obtener_standings_football_data():
+    key = os.environ.get("FOOTBALL_DATA_KEY", "")
+    if not key:
+        return {}
+    try:
+        headers = {"X-Auth-Token": key}
+        r = _requests.get(
+            "https://api.football-data.org/v4/competitions/WC/standings?season=2026",
+            headers=headers, timeout=20
+        )
+        if r.status_code != 200:
+            print(f"football-data.org standings error: {r.status_code}")
+            return {}
+        standings = r.json().get("standings", [])
+        grupos = {}
+        for grupo_data in standings:
+            tipo = grupo_data.get("type", "")
+            if tipo != "TOTAL":
+                continue
+            grupo_nombre = str(grupo_data.get("group", "") or "").replace("GROUP_", "")
+            tabla = grupo_data.get("table", [])
+            equipos = []
+            for row in tabla:
+                team = row.get("team", {})
+                equipos.append({
+                    "equipo": team.get("name", "") or team.get("shortName", ""),
+                    "pts": row.get("points", 0),
+                    "pj": row.get("playedGames", 0),
+                    "gf": row.get("goalsFor", 0),
+                    "gc": row.get("goalsAgainst", 0),
+                    "posicion": row.get("position", 99),
+                })
+            if grupo_nombre and equipos:
+                grupos[grupo_nombre] = equipos
+        print(f"football-data.org standings: {len(grupos)} grupos")
+        return grupos
+    except Exception as e:
+        print(f"football-data.org standings error: {e}")
+        return {}
+
+
+def construir_salida_api(grupos_api, fuente="api"):
     grupos = {}
     equipos = {}
     for grupo, filas_api in sorted(grupos_api.items()):
@@ -164,7 +205,7 @@ def construir_salida_api(grupos_api):
                 "gf": gf,
                 "gc": gc,
                 "dg": gf - gc,
-                "fuente": "balldontlie",
+                "fuente": fuente,
                 "situacion": "api_standings",
                 "situacion_competitiva": "api_standings",
                 "objetivos_vivos": True,
@@ -175,8 +216,8 @@ def construir_salida_api(grupos_api):
     return {
         "version": "1.3",
         "generado_en": ahora_iso(),
-        "fuente": "balldontlie",
-        "criterio": {"fase": "grupos_mundial_2026", "prioridad": "BallDontLie API prevalece sobre calculo local"},
+        "fuente": fuente,
+        "criterio": {"fase": "grupos_mundial_2026", "prioridad": "APIs de standings prevalecen sobre calculo local"},
         "total_grupos": len(grupos),
         "total_equipos": len(equipos),
         "grupos": grupos,
@@ -307,15 +348,19 @@ def construir_clasificaciones(data):
 
 def main():
     grupos_api = obtener_clasificaciones_api()
+    fuente_api = "balldontlie"
+    if not grupos_api:
+        grupos_api = obtener_standings_football_data()
+        fuente_api = "football-data.org"
     if grupos_api:
-        salida = construir_salida_api(grupos_api)
+        salida = construir_salida_api(grupos_api, fuente_api)
         guardar_json(SALIDA, salida)
-        print(f"Clasificaciones Mundial 2026 actualizadas desde BallDontLie: {salida['total_grupos']} grupos, {salida['total_equipos']} selecciones.")
+        print(f"Clasificaciones actualizadas desde API: {salida['total_grupos']} grupos")
         return
     data = cargar_json(FUENTE, {"resultados": []})
     salida = construir_clasificaciones(data)
     guardar_json(SALIDA, salida)
-    print(f"Clasificaciones Mundial 2026 actualizadas: {salida['total_grupos']} grupos, {salida['total_equipos']} selecciones.")
+    print(f"Clasificaciones calculadas localmente: {salida['total_grupos']} grupos")
 
 
 if __name__ == "__main__":
