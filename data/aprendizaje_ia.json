@@ -1,31 +1,31 @@
 {
   "version": "1.2",
-  "precision": 61.73,
+  "precision": 60.49,
   "jornadas_revisadas": 12,
   "partidos_revisados": 162,
-  "aciertos": 100,
-  "fallos": 62,
+  "aciertos": 98,
+  "fallos": 64,
   "fallos_por_tipo": {
-    "Doble insuficiente": 9,
+    "Doble insuficiente": 11,
     "Fijo fallado": 33,
     "No cubrio empate": 20
   },
   "fallos_por_signo_real": {
-    "1": 16,
-    "2": 26,
+    "1": 17,
+    "2": 27,
     "X": 20
   },
   "signos_omitidos_en_fallo": {
-    "1": 16,
-    "2": 26,
+    "1": 17,
+    "2": 27,
     "X": 20
   },
   "precision_por_tipo": {
     "DOBLE": {
       "total": 34,
-      "aciertos": 25,
-      "fallos": 9,
-      "precision": 73.53
+      "aciertos": 23,
+      "fallos": 11,
+      "precision": 67.65
     },
     "FIJO": {
       "total": 110,
@@ -43,21 +43,21 @@
   "precision_por_signo_real": {
     "1": {
       "total": 72,
-      "aciertos": 56,
-      "fallos": 16,
-      "precision": 77.78
+      "aciertos": 55,
+      "fallos": 17,
+      "precision": 76.39
     },
     "2": {
-      "total": 48,
+      "total": 49,
       "aciertos": 22,
-      "fallos": 26,
-      "precision": 45.83
+      "fallos": 27,
+      "precision": 44.9
     },
     "X": {
-      "total": 42,
-      "aciertos": 22,
+      "total": 41,
+      "aciertos": 21,
       "fallos": 20,
-      "precision": 52.38
+      "precision": 51.22
     }
   },
   "detalle": [
@@ -8799,13 +8799,13 @@
       "partido": "Escocia - Brasil",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
-      "resultado": "2-0",
-      "resultado_final": "2-0",
-      "signo_real": "1",
+      "resultado": "0-3",
+      "resultado_final": "0-3",
+      "signo_real": "2",
       "signos_cubiertos": "1X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Doble insuficiente",
       "origen": "data/predicciones/jornada_69.json",
       "probabilidades_usadas": {
         "1": 48.7,
@@ -8915,8 +8915,8 @@
       "partido": "Marruecos - Haití",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
-      "resultado": "2-0",
-      "resultado_final": "2-0",
+      "resultado": "4-2",
+      "resultado_final": "4-2",
       "signo_real": "1",
       "signos_cubiertos": "1X",
       "signo_omitido": "",
@@ -9131,9 +9131,9 @@
       "partido": "Curazao - Costa Marfil",
       "pronostico": "X2",
       "tipo_pronostico": "DOBLE",
-      "resultado": "0-0",
-      "resultado_final": "0-0",
-      "signo_real": "X",
+      "resultado": "0-2",
+      "resultado_final": "0-2",
+      "signo_real": "2",
       "signos_cubiertos": "X2",
       "signo_omitido": "",
       "acierto": true,
@@ -9247,13 +9247,13 @@
       "partido": "Ecuador - Alemania",
       "pronostico": "X2",
       "tipo_pronostico": "DOBLE",
-      "resultado": "0-4",
-      "resultado_final": "0-4",
-      "signo_real": "2",
+      "resultado": "2-1",
+      "resultado_final": "2-1",
+      "signo_real": "1",
       "signos_cubiertos": "X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
+      "signo_omitido": "1",
+      "acierto": false,
+      "motivo_error": "Doble insuficiente",
       "origen": "data/predicciones/jornada_69.json",
       "probabilidades_usadas": {
         "1": 20.0,
@@ -10508,18 +10508,18 @@
     "partidos_base": 162,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 38.27,
-      "no_cubrio_empate_sobre_fallos_pct": 32.26,
+      "fallos_total_pct": 39.51,
+      "no_cubrio_empate_sobre_fallos_pct": 31.25,
       "no_cubrio_empate_sobre_total_pct": 12.35,
-      "fijo_fallado_sobre_fallos_pct": 53.23,
+      "fijo_fallado_sobre_fallos_pct": 51.56,
       "fijo_fallado_sobre_total_pct": 20.37,
-      "doble_insuficiente_sobre_total_pct": 5.56
+      "doble_insuficiente_sobre_total_pct": 6.79
     },
-    "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 10.34,
-    "riesgo_extra_triple_insuficiente": 1.4,
+    "boost_empate_zona_riesgo": 5.87,
+    "riesgo_extra_fijo_fragil": 10.01,
+    "riesgo_extra_triple_insuficiente": 2.51,
     "min_dobles_auto": 3,
-    "min_triples_auto": 0,
+    "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
     "reglas": [
       "Subir X en partidos de margen corto o tendencia de empate porque el historial propio dejo empates sin cubrir.",
