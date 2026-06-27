@@ -1,0 +1,26 @@
+name: Buscar resultados pendientes
+on:
+  workflow_dispatch:
+jobs:
+  buscar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar dependencias
+        run: pip install requests
+      - name: Buscar resultados en Google
+        run: python buscar_resultados_google.py
+      - name: Sincronizar jornadas
+        run: python sincronizar_mundial_jornadas.py
+      - name: Regenerar diario
+        run: python generar_diario_aprendizaje.py
+      - name: Commit
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git add data/
+          git diff --staged --quiet || git commit -m "Actualizar resultados via Google Search"
+          git push
