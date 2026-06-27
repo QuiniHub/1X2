@@ -486,6 +486,10 @@ def registro_completo(entry):
     return len(entry.get("detalle_partidos") or []) == 14
 
 
+
+def premio_confirmado_usuario(entry):
+    return str(entry.get("fuente_premio", "")) == "confirmado_usuario"
+
 def premio_labruja_invalido(entry):
     return (
         entry.get("jornada") in JORNADAS_PREMIO_INVALIDO
@@ -494,6 +498,8 @@ def premio_labruja_invalido(entry):
 
 
 def pendiente_premio(entry):
+    if premio_confirmado_usuario(entry):
+        return False
     try:
         premio_cero = float(entry.get("premio_eur") or 0.0) == 0.0
     except (TypeError, ValueError):
@@ -520,6 +526,9 @@ def revertir_estimados_y_labruja_invalidos(historial):
 
 
 def refrescar_premio_real(entry):
+    if premio_confirmado_usuario(entry):
+        return False
+
     jornada = entry.get("jornada")
     aciertos = entry.get("aciertos")
     if not isinstance(jornada, int) or not isinstance(aciertos, int):
@@ -569,6 +578,8 @@ def main():
             continue
 
         existente = registros.get(jornada)
+        if existente and premio_confirmado_usuario(existente):
+            continue
         if existente and registro_completo(existente):
             if pendiente_premio(existente) and refrescar_premio_real(existente):
                 actualizadas.append(existente)
@@ -582,6 +593,8 @@ def main():
             print(f"Jornada {jornada}: {reg['aciertos']} aciertos, {reg['fallos']} fallos, {reg['premio_eur']:.2f} EUR ({reg['fuente_premio']})")
 
     for entry in registros.values():
+        if premio_confirmado_usuario(entry):
+            continue
         if pendiente_premio(entry) and refrescar_premio_real(entry):
             if entry not in actualizadas:
                 actualizadas.append(entry)
