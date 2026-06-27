@@ -12,7 +12,10 @@ jobs:
       - name: Instalar dependencias
         run: pip install requests
       - name: Buscar resultados en Google
-        run: python buscar_resultados_google.py
+        env:
+          BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: python actualizar_resultados_apis.py
       - name: Sincronizar jornadas
         run: python sincronizar_mundial_jornadas.py
       - name: Regenerar diario
