@@ -22,12 +22,12 @@ QUINIELAS_JUGADAS = DATA / "quinielas_jugadas.json"
 SALIDA = DATA / "premios" / "historial_premios.json"
 
 HEADERS_WEB = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "es-ES,es;q=0.9",
+    "Referer": "https://www.loteriasyapuestas.es/",
 }
 
-FUENTE_COMBINACIONGANADORA = "https://www.combinacionganadora.com/quiniela/jornada/{jornada}/"
 FUENTE_LABRUJA = "https://www.labrujadeoro.es/quiniela-premios.htm"
 FUENTE_LOSILLA = "https://www.eduardolosilla.es/quiniela/escrutinio/"
 
@@ -250,6 +250,70 @@ def extraer_premio_elige8_html(html):
     return float_o_none(m.group(1)) if m else None
 
 
+def obtener_premio_desde_lae(numero_jornada, aciertos, elige8_acertado=False):
+    """
+    Obtiene el premio real de una jornada desde LAE oficial.
+    Prueba multiples URLs hasta encontrar el escrutinio.
+    """
+    urls_a_probar = [
+        f"https://www.loteriasyapuestas.es/es/la-quiniela/resultados/jornada-{numero_jornada}",
+        f"https://www.loteriasyapuestas.es/f/loterias/resultados/quiniela.html?game_id=LAQU&numero_jornada={numero_jornada}",
+        f"https://www.loteriasyapuestas.es/es/resultados/quiniela/jornada-{numero_jornada}",
+        f"https://www.combinacionganadora.com/quiniela/jornada/{numero_jornada}/",
+        f"https://www.quiniela15.com/jornada-{numero_jornada}",
+    ]
+
+    for url in urls_a_probar:
+        try:
+            r = requests.get(url, headers=HEADERS_WEB, timeout=15)
+            if r.status_code != 200:
+                continue
+
+            soup = BeautifulSoup(r.text, "html.parser")
+            texto = soup.get_text(" ", strip=True)
+
+            if len(texto) < 100:
+                continue
+
+            patrones = [
+                rf'{aciertos}\s+aciertos[^\d]{{0,50}}(\d[\d\.]*,\d{{2}})\s*[€euros]',
+                rf'{aciertos}\s+aciert[^\d]{{0,50}}(\d[\d\.]*,\d{{2}})',
+                rf'categoría\s+\d+ª[^\d]{{0,100}}{aciertos}[^\d]{{0,100}}(\d[\d\.]*,\d{{2}})',
+                rf'{aciertos}[^\d]{{0,30}}(\d{{1,3}}(?:\.\d{{3}})*,\d{{2}})\s*€',
+            ]
+
+            for patron in patrones:
+                m = re.search(patron, texto, re.IGNORECASE)
+                if not m:
+                    continue
+                try:
+                    valor = float(m.group(1).replace('.', '').replace(',', '.'))
+                    if 0 < valor < 10000000:
+                        print(f"J{numero_jornada}: {aciertos} aciertos -> {valor} EUR (desde {url})")
+                        fuente = url.split('/')[2]
+
+                        premio_elige8 = 0.0
+                        if elige8_acertado:
+                            m8 = re.search(
+                                r'elige\s*8[^\d]{0,50}(\d[\d\.]*,\d{2})\s*€',
+                                texto, re.IGNORECASE
+                            )
+                            if m8:
+                                try:
+                                    premio_elige8 = float(m8.group(1).replace('.', '').replace(',', '.'))
+                                except Exception:
+                                    pass
+
+                        return round(valor + premio_elige8, 2), fuente
+                except Exception:
+                    continue
+        except Exception as e:
+            print(f"Error en {url}: {e}")
+            continue
+
+    return 0.0, "pendiente"
+
+
 def descargar_html(url, params=None):
     try:
         r = requests.get(url, params=params or None, headers=HEADERS_WEB, timeout=25)
@@ -269,12 +333,6 @@ def premio_desde_html(html, aciertos, gano_elige8, fuente):
     if gano_elige8:
         total += extraer_premio_elige8_html(html) or 0.0
     return round(total, 2), fuente
-
-
-def buscar_premio_combinacionganadora(jornada, aciertos, gano_elige8):
-    url = FUENTE_COMBINACIONGANADORA.format(jornada=int(jornada))
-    html = descargar_html(url)
-    return premio_desde_html(html, aciertos, gano_elige8, "combinacionganadora") if html else None
 
 
 def buscar_premio_labruja(jornada, aciertos, gano_elige8):
@@ -319,12 +377,11 @@ def obtener_premio_real(jornada, aciertos, gano_elige8):
     if aciertos < 10:
         return None
 
-    buscadores = (
-        buscar_premio_combinacionganadora,
-        buscar_premio_labruja,
-        buscar_premio_losilla,
-    )
-    for buscador in buscadores:
+    premio_lae, fuente_lae = obtener_premio_desde_lae(jornada, aciertos, gano_elige8)
+    if premio_lae > 0 and fuente_lae != "pendiente":
+        return premio_lae, fuente_lae
+
+    for buscador in (buscar_premio_labruja, buscar_premio_losilla):
         premio = buscador(jornada, aciertos, gano_elige8)
         if premio is not None:
             return premio
@@ -451,6 +508,13 @@ def refrescar_premio_real(entry):
     if not isinstance(jornada, int) or not isinstance(aciertos, int):
         return False
 
+    if int(aciertos) < 10:
+        return False
+
+    if entry.get("fuente_premio") in ("estimado", "fallback"):
+        entry["premio_eur"] = 0.0
+        entry["fuente_premio"] = "pendiente"
+
     if entry.get("elige8_acertado") is None:
         prediccion = leer_prediccion_jornada(jornada)
         gano_elige8, seleccion = elige8_acertado(prediccion, jornada, entry.get("detalle_partidos") or [])
@@ -469,7 +533,7 @@ def refrescar_premio_real(entry):
     premio, fuente = premio_real
     entry["premio_eur"] = premio
     entry["fuente_premio"] = fuente
-    entry["notas"] = "Premio real actualizado desde fuente web por numero de jornada."
+    entry["notas"] = "Premio real actualizado desde LAE/fuente web por numero de jornada."
     return True
 
 
