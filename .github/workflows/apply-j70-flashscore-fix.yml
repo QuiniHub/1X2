@@ -1,0 +1,110 @@
+name: Aplicar fix J70 Flashscore
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - buscar_resultados_google.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar dependencias
+        run: pip install requests beautifulsoup4 lxml
+      - name: Corregir resultados J70 y regenerar diario
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          now = datetime.now(timezone.utc).isoformat()
+
+          def signo(resultado):
+              a, b = [int(x) for x in resultado.split('-')]
+              return '1' if a > b else 'X' if a == b else '2'
+
+          def guardar(path, data):
+              path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+          mundial_path = Path('data/mundial_2026_resultados.json')
+          mundial = json.loads(mundial_path.read_text(encoding='utf-8'))
+
+          fixes = [
+              {'fecha': '2026-06-27', 'grupo': 'G', 'local': 'Nueva Zelanda', 'visitante': 'Bélgica', 'resultado': '1-5', 'signo': '2'},
+              {'fecha': '2026-06-27', 'grupo': 'H', 'local': 'Uruguay', 'visitante': 'España', 'resultado': '0-1', 'signo': '2'},
+              {'fecha': '2026-06-27', 'grupo': 'H', 'local': 'Cabo Verde', 'visitante': 'Arabia Saudí', 'resultado': '0-0', 'signo': 'X'},
+          ]
+
+          resultados = mundial.setdefault('resultados', [])
+          for fix in fixes:
+              found = None
+              for item in resultados:
+                  if str(item.get('local')) == fix['local'] and str(item.get('visitante')) == fix['visitante']:
+                      found = item
+                      break
+              if found is None:
+                  found = {
+                      'fecha': fix['fecha'],
+                      'grupo': fix['grupo'],
+                      'local': fix['local'],
+                      'visitante': fix['visitante'],
+                      'fuente': 'correccion_manual_j70',
+                      'confianza': 'confirmado',
+                  }
+                  resultados.append(found)
+              found['fecha'] = found.get('fecha') or fix['fecha']
+              found['grupo'] = found.get('grupo') or fix['grupo']
+              found['resultado'] = fix['resultado']
+              found['signo'] = fix['signo']
+              found['fuente'] = found.get('fuente') or 'correccion_manual_j70'
+              found['confianza'] = 'confirmado'
+              found['actualizado_en'] = now
+
+          mundial['actualizado_en'] = now
+          guardar(mundial_path, mundial)
+
+          jornada_path = Path('data/jornadas/jornada_70.json')
+          jornada = json.loads(jornada_path.read_text(encoding='utf-8'))
+          for partido in jornada.get('partidos', []):
+              if int(partido.get('num') or 0) == 7:
+                  partido['resultado'] = '0-0'
+                  partido['signo_oficial'] = 'X'
+                  partido['fuente_resultado'] = 'correccion_manual_j70'
+                  partido['actualizado_en'] = now
+              if int(partido.get('num') or 0) == 9:
+                  partido['resultado'] = '1-5'
+                  partido['signo_oficial'] = '2'
+                  partido['fuente_resultado'] = 'correccion_manual_j70'
+                  partido['actualizado_en'] = now
+          pleno = jornada.get('pleno15') or {}
+          pleno['resultado'] = '0-1'
+          pleno['signo_oficial'] = '2'
+          pleno['fuente_resultado'] = 'correccion_manual_j70'
+          pleno['actualizado_en'] = now
+          jornada['pleno15'] = pleno
+          jornada['actualizado_en'] = now
+          guardar(jornada_path, jornada)
+          PY
+          python sincronizar_mundial_jornadas.py
+          python generar_diario_aprendizaje.py
+          rm -f .github/workflows/apply-j70-flashscore-fix.yml
+      - name: Commit
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git add data/ .github/workflows/apply-j70-flashscore-fix.yml
+          git diff --staged --quiet || git commit -m "Corregir resultados J70 y regenerar diario"
+          git push
