@@ -206,6 +206,10 @@ if __name__ == "__main__":
         }
         with open(CUADRO, "w", encoding="utf-8") as f:
             json.dump(cuadro, f, ensure_ascii=False, indent=2)
-        print(f"✅ Cuadro guardado en {CUADRO}")
+        print(f"Cuadro guardado: {len(eliminatorias)} partidos")
         resolver_nombres_jornadas(eliminatorias)
+    else:
+        print("API sin datos de eliminatorias - usando clasificaciones locales")
+        # SIEMPRE resolver nombres desde clasificaciones aunque la API falle
+        resolver_nombres_jornadas([])
     print("=== Completado ===")
