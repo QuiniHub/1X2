@@ -788,6 +788,164 @@ def main():
     print(f"Jornadas cerradas comparadas con prediccion: {jornadas_cerradas_actualizadas}")
     print(f"Registros de premios actualizados: {cambios_premios}")
 
+    # Retroalimentación de factores psicológicos
+    try:
+        registrar_retroalimentacion_factores()
+    except Exception as exc:
+        print(f"AVISO: retroalimentacion_factores no critica: {exc}")
+
+
+def registrar_retroalimentacion_factores():
+    """
+    Analiza qué factores psicológicos/competitivos estaban activos
+    en cada partido y si el resultado confirmó o contradijo el factor.
+    Guarda en data/memoria_ia/retroalimentacion_factores.json
+    Sin tocar ningún archivo existente de aprendizaje.
+    """
+    SALIDA = DATA / "memoria_ia" / "retroalimentacion_factores.json"
+
+    memoria = cargar_json(SALIDA, {
+        "version": "1.0",
+        "descripcion": "Retroalimentacion de factores psicologicos sobre resultados reales",
+        "factores": {},
+        "partidos_analizados": 0,
+        "actualizado_en": ""
+    })
+
+    factores = memoria.setdefault("factores", {})
+
+    FACTORES_CONOCIDOS = {
+        "ultimo_partido_orgullo": "Equipo eliminado en su ultimo partido — factor orgullo",
+        "favorito_relajado_rival_desesperado": "Favorito clasificado vs rival desesperado",
+        "presion_descenso": "Equipo en zona de descenso — se juega la vida",
+        "presion_europea_o_ascenso": "Equipo peleando por Europa o ascenso",
+        "derbi_todo_puede_pasar": "Derbi o rivalidad historica",
+        "partido_sin_presion": "Ambos equipos sin objetivos — peligro de sorpresa",
+        "motivacion_competitiva": "Factor motivacional competitivo activo",
+    }
+
+    for factor_key, descripcion in FACTORES_CONOCIDOS.items():
+        if factor_key not in factores:
+            factores[factor_key] = {
+                "descripcion": descripcion,
+                "casos": 0,
+                "confirmo_patron": 0,
+                "contradijo_patron": 0,
+                "tasa_confirmacion": 0.0,
+                "ejemplos": []
+            }
+
+    partidos_procesados = 0
+
+    for path in sorted(JORNADAS.glob("jornada_*.json")):
+        jornada_data = cargar_json(path, {})
+        jornada_num = int(jornada_data.get("jornada", 0) or 0)
+        if not jornada_num:
+            continue
+
+        pred_path = PREDICCIONES / f"jornada_{jornada_num}.json"
+        pred_data = cargar_json(pred_path, {})
+        partidos_pred = {}
+        for p in (pred_data.get("partidos") or []):
+            num = p.get("num") or p.get("numero")
+            if num:
+                try:
+                    partidos_pred[int(num)] = p
+                except (ValueError, TypeError):
+                    pass
+
+        for partido in jornada_data.get("partidos", []):
+            signo_real = signo_oficial_partido(partido)
+            if not signo_real:
+                continue
+
+            try:
+                num = int(partido.get("num", 0) or 0)
+            except (ValueError, TypeError):
+                num = 0
+            pred_partido = partidos_pred.get(num, {})
+
+            # Recoger alertas de motivación
+            alertas = []
+            for campo in ("alertas_motivacion", "alertas_motivacion_detectadas",
+                          "alerta_motivacion_detectada", "factores_activos"):
+                valor = pred_partido.get(campo)
+                if isinstance(valor, list):
+                    alertas.extend(valor)
+                elif isinstance(valor, str) and valor:
+                    alertas.append(valor)
+
+            ajuste = pred_partido.get("ajuste_motivacion", {})
+            if isinstance(ajuste, dict):
+                alertas_ajuste = ajuste.get("alertas", [])
+                if isinstance(alertas_ajuste, list):
+                    alertas.extend(alertas_ajuste)
+
+            if not alertas:
+                continue
+
+            signo_pred = str(
+                pred_partido.get("signo") or
+                pred_partido.get("pronostico") or
+                pred_partido.get("signo_predicho") or ""
+            ).strip()
+
+            local = partido.get("local", "")
+            visitante = partido.get("visitante", "")
+
+            for alerta in alertas:
+                if alerta not in factores:
+                    continue
+
+                factor = factores[alerta]
+
+                # Lógica de confirmación por tipo de factor
+                if alerta == "ultimo_partido_orgullo":
+                    confirma = signo_real in ("X", "2") if signo_pred == "1" else signo_real in ("X", "1")
+                elif alerta == "favorito_relajado_rival_desesperado":
+                    confirma = signo_real != signo_pred
+                elif alerta == "presion_descenso":
+                    confirma = signo_real == "1"
+                elif alerta == "derbi_todo_puede_pasar":
+                    confirma = signo_real == "X"
+                elif alerta == "partido_sin_presion":
+                    confirma = signo_real != signo_pred
+                else:
+                    confirma = signo_real == signo_pred
+
+                factor["casos"] += 1
+                if confirma:
+                    factor["confirmo_patron"] += 1
+                else:
+                    factor["contradijo_patron"] += 1
+
+                if len(factor["ejemplos"]) < 5:
+                    factor["ejemplos"].append({
+                        "jornada": jornada_num,
+                        "partido": f"{local} vs {visitante}",
+                        "resultado_real": signo_real,
+                        "predicho": signo_pred,
+                        "confirmo": confirma
+                    })
+
+                factor["tasa_confirmacion"] = round(
+                    factor["confirmo_patron"] / factor["casos"] * 100, 1
+                ) if factor["casos"] > 0 else 0.0
+
+                partidos_procesados += 1
+
+    memoria["partidos_analizados"] = partidos_procesados
+    memoria["actualizado_en"] = ahora_iso()
+    guardar_json(SALIDA, memoria)
+
+    print(f"\n=== Retroalimentacion factores: {partidos_procesados} casos ===")
+    for key, f in factores.items():
+        if f["casos"] > 0:
+            print(f"  {key}: {f['casos']} casos | "
+                  f"confirma={f['confirmo_patron']} | "
+                  f"contradice={f['contradijo_patron']} | "
+                  f"tasa={f['tasa_confirmacion']}%")
+
 
 if __name__ == "__main__":
     main()
