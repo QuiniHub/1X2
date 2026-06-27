@@ -5,12 +5,8 @@ on:
   push:
     branches:
       - main
-  # GitHub Pages despliega la web tras cada push a main. No se debe escuchar
-  # page_build aqui: provocaria una segunda actualizacion automatica despues
-  # del despliegue y encadenaria commits de datos innecesarios.
   schedule:
     - cron: "*/30 * * * *"
-
 
 concurrency:
   group: actualizar-quiniela
@@ -59,6 +55,7 @@ jobs:
         env:
           BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+          FOOTBALL_DATA_KEY: ${{ secrets.FOOTBALL_DATA_KEY }}
         run: |
           python actualizar_todo.py
 
