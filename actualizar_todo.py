@@ -71,6 +71,7 @@ SCRIPTS_NO_CRITICOS_RED = {
     "generar_contexto_competitivo.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
+    "actualizar_resultados_apis.py",
     "actualizar_mundial_2026.py",
     "actualizar_clasificaciones_mundial_2026.py",
     "generar_memoria_mundial_2026.py",
@@ -93,7 +94,6 @@ SCRIPTS_NO_CRITICOS_RED = {
 }
 
 SCRIPTS_ACTIVOS = [
-    "actualizar_resultados_apis.py",
     # --- Datos base ---
     "actualizar_jornadas_detalle.py",
     "actualizar_boleto_vivo.py",
@@ -127,6 +127,8 @@ SCRIPTS_ACTIVOS = [
     "construir_fuente_verdad_competitiva.py",
 
     # --- Competiciones internacionales y datos profesionales ---
+    # --- Resultados via APIs (BallDontLie, API-Football, openfootball) ---
+    "actualizar_resultados_apis.py",
     "actualizar_mundial_2026.py",
     "actualizar_clasificaciones_mundial_2026.py",
     "generar_memoria_mundial_2026.py",
