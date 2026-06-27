@@ -1,8 +1,4 @@
-import json
-import os
-import re
-import requests
-import time
+import json, os, re, requests, time
 from datetime import datetime, timezone, timedelta, time as dt_time
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -11,13 +7,13 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 JORNADAS = DATA / "jornadas"
 RESULTADOS_MUNDIAL = DATA / "mundial_2026_resultados.json"
-CLASIFICACIONES = DATA / "memoria_ia" / "clasificaciones_mundial_2026.json"
 
 TZ = ZoneInfo("Europe/Madrid")
 MARGEN = timedelta(minutes=105)
 
 BALLDONTLIE_KEY = os.environ.get("BALLDONTLIE_API_KEY", "")
 API_FOOTBALL_KEY = os.environ.get("API_FOOTBALL_KEY", "")
+FOOTBALL_DATA_KEY = os.environ.get("FOOTBALL_DATA_KEY", "")
 
 ALIAS = {
     "iran": "irán", "turkey": "turquía", "turkiye": "turquía",
@@ -36,10 +32,16 @@ ALIAS = {
     "australia": "australia", "japan": "japón", "south africa": "sudáfrica",
     "panama": "panamá", "iraq": "irak", "jordan": "jordania",
     "canada": "canadá", "scotland": "escocia", "haiti": "haití",
-    "uzbekistan": "uzbekistán", "congo dr": "congo dr", "austria": "austria",
-    "curacao": "curazao", "new zealand": "nueva zelanda",
-    "costa rica": "costa rica", "serbia": "serbia",
+    "uzbekistan": "uzbekistán", "austria": "austria", "curacao": "curazao",
     "rd congo": "congo dr", "democratic republic of congo": "congo dr",
+    "costa rica": "costa rica", "serbia": "serbia",
+    "cote d'ivoire": "costa de marfil", "côte d'ivoire": "costa de marfil",
+    "bosnia and herzegovina": "bosnia", "bosnia herzegovina": "bosnia",
+    "czechia": "chequia", "czech republic": "chequia",
+    "republic of ireland": "irlanda", "northern ireland": "irlanda del norte",
+    "türkiye": "turquía", "côte d'ivoire": "costa de marfil",
+    "islamic republic of iran": "irán", "ir iran": "irán",
+    "dem. rep. congo": "congo dr", "congo, dr": "congo dr",
 }
 
 def norm(nombre):
@@ -65,69 +67,156 @@ def partido_terminado(fecha_txt, hora_txt):
     except:
         return False
 
-# ═══════════════════════════════════════════
+# ═══════════════════════════════════════
 # FUENTE 1: BallDontLie
-# ═══════════════════════════════════════════
+# ═══════════════════════════════════════
 def obtener_balldontlie():
     if not BALLDONTLIE_KEY:
-        print("Sin BALLDONTLIE_API_KEY")
+        print("BallDontLie: sin key")
         return []
-    resultados = []
     try:
-        url = "https://api.balldontlie.io/fifa/worldcup/v1/matches"
         headers = {"Authorization": BALLDONTLIE_KEY}
-        r = requests.get(url, headers=headers, timeout=20)
+        r = requests.get(
+            "https://api.balldontlie.io/fifa/worldcup/v1/matches",
+            headers=headers, timeout=20
+        )
         if r.status_code != 200:
             print(f"BallDontLie error: {r.status_code}")
             return []
-        data = r.json()
-        partidos = data.get("data", [])
-        print(f"BallDontLie: {len(partidos)} partidos")
+        partidos = r.json().get("data", [])
+        resultados = []
         for p in partidos:
             home_score = p.get("home_score")
             away_score = p.get("away_score")
             if home_score is None or away_score is None:
                 continue
+            status = p.get("status", "")
+            if status not in ("completed", "FT", "AET", "PEN", "finished", "FINISHED"):
+                continue
             resultado = f"{int(home_score)}-{int(away_score)}"
-            home = p.get("home_team", {}) or {}
-            away = p.get("away_team", {}) or {}
+            home = p.get("home_team") or {}
+            away = p.get("away_team") or {}
             local = norm(home.get("name", ""))
             visitante = norm(away.get("name", ""))
+            grupo = (p.get("group") or {}).get("name", "").replace("Group ", "")
             if not local or not visitante:
-                continue
-            status = p.get("status", "")
-            if status not in ("FT", "AET", "PEN", "finished", "FINISHED"):
                 continue
             resultados.append({
                 "local": local, "visitante": visitante,
-                "resultado": resultado,
+                "resultado": resultado, "grupo": grupo,
                 "fuente": "balldontlie", "confianza": "confirmado",
                 "actualizado_en": datetime.now(timezone.utc).isoformat()
             })
-        print(f"BallDontLie: {len(resultados)} resultados confirmados")
+        print(f"BallDontLie: {len(resultados)} resultados")
+        return resultados
     except Exception as e:
         print(f"BallDontLie error: {e}")
-    return resultados
+        return []
 
-# ═══════════════════════════════════════════
-# FUENTE 2: API-Football
-# ═══════════════════════════════════════════
+# ═══════════════════════════════════════
+# FUENTE 2: football-data.org
+# ═══════════════════════════════════════
+def obtener_football_data():
+    if not FOOTBALL_DATA_KEY:
+        print("football-data.org: sin key")
+        return []
+    try:
+        headers = {"X-Auth-Token": FOOTBALL_DATA_KEY}
+        r = requests.get(
+            "https://api.football-data.org/v4/competitions/WC/matches?season=2026",
+            headers=headers, timeout=20
+        )
+        if r.status_code != 200:
+            print(f"football-data.org error: {r.status_code}")
+            return []
+        matches = r.json().get("matches", [])
+        resultados = []
+        for m in matches:
+            status = m.get("status", "")
+            if status != "FINISHED":
+                continue
+            score = m.get("score", {})
+            ft = score.get("fullTime", {})
+            home_goals = ft.get("home")
+            away_goals = ft.get("away")
+            if home_goals is None or away_goals is None:
+                continue
+            resultado = f"{int(home_goals)}-{int(away_goals)}"
+            home = m.get("homeTeam", {})
+            away = m.get("awayTeam", {})
+            local = norm(home.get("name", "") or home.get("shortName", ""))
+            visitante = norm(away.get("name", "") or away.get("shortName", ""))
+            grupo = str(m.get("group", "") or "").replace("GROUP_", "")
+            if not local or not visitante:
+                continue
+            resultados.append({
+                "local": local, "visitante": visitante,
+                "resultado": resultado, "grupo": grupo,
+                "fuente": "football-data.org", "confianza": "confirmado",
+                "actualizado_en": datetime.now(timezone.utc).isoformat()
+            })
+        print(f"football-data.org: {len(resultados)} resultados")
+        return resultados
+    except Exception as e:
+        print(f"football-data.org error: {e}")
+        return []
+
+# ═══════════════════════════════════════
+# FUENTE 3: openfootball (sin key, GitHub)
+# ═══════════════════════════════════════
+def obtener_openfootball():
+    try:
+        url = "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json"
+        r = requests.get(url, timeout=20)
+        if r.status_code != 200:
+            print(f"openfootball error: {r.status_code}")
+            return []
+        data = r.json()
+        resultados = []
+        for ronda in data.get("rounds", []):
+            for match in ronda.get("matches", []):
+                score = match.get("score", {})
+                ft = score.get("ft", [])
+                if not ft or len(ft) < 2:
+                    continue
+                resultado = f"{ft[0]}-{ft[1]}"
+                local = norm(match.get("team1", {}).get("name", ""))
+                visitante = norm(match.get("team2", {}).get("name", ""))
+                grupo = str(match.get("group", "")).replace("Group ", "")
+                if not local or not visitante:
+                    continue
+                resultados.append({
+                    "local": local, "visitante": visitante,
+                    "resultado": resultado, "grupo": grupo,
+                    "fuente": "openfootball", "confianza": "confirmado",
+                    "actualizado_en": datetime.now(timezone.utc).isoformat()
+                })
+        print(f"openfootball: {len(resultados)} resultados")
+        return resultados
+    except Exception as e:
+        print(f"openfootball error: {e}")
+        return []
+
+# ═══════════════════════════════════════
+# FUENTE 4: API-Football
+# ═══════════════════════════════════════
 def obtener_api_football():
     if not API_FOOTBALL_KEY:
-        print("Sin API_FOOTBALL_KEY")
+        print("API-Football: sin key")
         return []
-    resultados = []
     try:
-        url = "https://v3.football.api-sports.io/fixtures"
         headers = {"x-apisports-key": API_FOOTBALL_KEY}
-        params = {"league": "1", "season": "2026", "status": "FT"}
-        r = requests.get(url, headers=headers, params=params, timeout=20)
+        r = requests.get(
+            "https://v3.football.api-sports.io/fixtures",
+            headers=headers,
+            params={"league": "1", "season": "2026", "status": "FT"},
+            timeout=20
+        )
         if r.status_code != 200:
             print(f"API-Football error: {r.status_code}")
             return []
-        data = r.json()
-        fixtures = data.get("response", [])
-        print(f"API-Football: {len(fixtures)} partidos terminados")
+        fixtures = r.json().get("response", [])
+        resultados = []
         for f in fixtures:
             goals = f.get("goals", {})
             home_goals = goals.get("home")
@@ -138,89 +227,24 @@ def obtener_api_football():
             teams = f.get("teams", {})
             local = norm(teams.get("home", {}).get("name", ""))
             visitante = norm(teams.get("away", {}).get("name", ""))
+            liga = f.get("league", {})
+            grupo = str(liga.get("round", "") or "").replace("Group Stage - ", "")
             if not local or not visitante:
                 continue
             resultados.append({
                 "local": local, "visitante": visitante,
-                "resultado": resultado,
+                "resultado": resultado, "grupo": grupo,
                 "fuente": "api-football", "confianza": "confirmado",
                 "actualizado_en": datetime.now(timezone.utc).isoformat()
             })
         print(f"API-Football: {len(resultados)} resultados")
+        return resultados
     except Exception as e:
         print(f"API-Football error: {e}")
-    return resultados
-
-# ═══════════════════════════════════════════
-# FUENTE 3: openfootball GitHub (sin key)
-# ═══════════════════════════════════════════
-def obtener_openfootball():
-    resultados = []
-    try:
-        url = "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json"
-        r = requests.get(url, timeout=20)
-        if r.status_code != 200:
-            print(f"openfootball error: {r.status_code}")
-            return []
-        data = r.json()
-        for ronda in data.get("rounds", []):
-            for match in ronda.get("matches", []):
-                score = match.get("score", {})
-                ft = score.get("ft", [])
-                if not ft or len(ft) < 2:
-                    continue
-                resultado = f"{ft[0]}-{ft[1]}"
-                local = norm(match.get("team1", {}).get("name", ""))
-                visitante = norm(match.get("team2", {}).get("name", ""))
-                if not local or not visitante:
-                    continue
-                resultados.append({
-                    "local": local, "visitante": visitante,
-                    "resultado": resultado,
-                    "fuente": "openfootball", "confianza": "confirmado",
-                    "actualizado_en": datetime.now(timezone.utc).isoformat()
-                })
-        print(f"openfootball: {len(resultados)} resultados")
-    except Exception as e:
-        print(f"openfootball error: {e}")
-    return resultados
-
-# ═══════════════════════════════════════════
-# FUENTE 4: Flashscore por partido individual
-# ═══════════════════════════════════════════
-def obtener_flashscore_partido(local, visitante):
-    HEADERS = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept-Language": "es-ES,es;q=0.9",
-    }
-    try:
-        query = f"{local} {visitante} flashscore resultado"
-        url = f"https://www.flashscore.es/futbol/mundial/campeonato-del-mundo/resultados/"
-        r = requests.get(url, headers=HEADERS, timeout=15)
-        if r.status_code != 200:
-            return None
-        html = r.text
-        local_norm = local.lower().split()[0]
-        vis_norm = visitante.lower().split()[0]
-        pos_local = [m.start() for m in re.finditer(re.escape(local_norm), html.lower())]
-        pos_vis = [m.start() for m in re.finditer(re.escape(vis_norm), html.lower())]
-        for pl in pos_local[:5]:
-            for pv in pos_vis[:5]:
-                if abs(pl - pv) < 300:
-                    inicio = max(0, min(pl, pv) - 20)
-                    fin = min(len(html), max(pl, pv) + 150)
-                    fragmento = html[inicio:fin]
-                    m = re.search(r'(\d{1,2})\s*-\s*(\d{1,2})', fragmento)
-                    if m:
-                        g1, g2 = int(m.group(1)), int(m.group(2))
-                        if g1 <= 20 and g2 <= 20:
-                            return f"{g1}-{g2}"
-    except Exception as e:
-        print(f"Flashscore error: {e}")
-    return None
+        return []
 
 def actualizar():
-    # Cargar resultados existentes
+    # Cargar existentes
     try:
         with open(RESULTADOS_MUNDIAL, encoding="utf-8") as f:
             data_mundial = json.load(f)
@@ -232,27 +256,34 @@ def actualizar():
         for r in data_mundial.get("resultados", [])
     }
 
-    # Recoger de todas las fuentes en orden de prioridad
-    nuevos = []
-    for fuente_fn in [obtener_balldontlie, obtener_api_football, obtener_openfootball]:
-        resultados = fuente_fn()
-        if resultados:
-            nuevos.extend(resultados)
-            print(f"Usando {len(resultados)} resultados de fuente")
-            break  # Parar en la primera fuente que funcione
-        time.sleep(1)
-
-    # Fusionar resultados
+    # Recoger de TODAS las fuentes y combinar
+    todas_fuentes = [
+        obtener_balldontlie,
+        obtener_football_data,
+        obtener_openfootball,
+        obtener_api_football,
+    ]
+    
     cambios = 0
-    for r in nuevos:
-        clave = (r["local"], r["visitante"])
-        existente = indice.get(clave, {})
-        if existente.get("resultado") != r["resultado"]:
-            indice[clave] = r
-            cambios += 1
-            print(f"  Actualizado: {r['local']} vs {r['visitante']} → {r['resultado']}")
+    for fuente_fn in todas_fuentes:
+        try:
+            resultados = fuente_fn()
+            for r in resultados:
+                clave = (r["local"], r["visitante"])
+                if clave not in indice:
+                    indice[clave] = r
+                    cambios += 1
+                    print(f"  Nuevo: {r['local']} vs {r['visitante']} → {r['resultado']} ({r['fuente']})")
+                elif indice[clave].get("resultado") != r["resultado"]:
+                    # Actualizar si el resultado cambió
+                    indice[clave] = r
+                    cambios += 1
+                    print(f"  Actualizado: {r['local']} vs {r['visitante']} → {r['resultado']} ({r['fuente']})")
+        except Exception as e:
+            print(f"Error en fuente {fuente_fn.__name__}: {e}")
+        time.sleep(0.5)
 
-    # Ahora buscar en jornadas los partidos que siguen pendientes
+    # Actualizar jornadas pendientes
     for path in sorted(JORNADAS.glob("jornada_*.json")):
         data = json.load(open(path, encoding="utf-8"))
         partidos = data.get("partidos", [])
@@ -267,10 +298,8 @@ def actualizar():
             visitante = p.get("visitante", "")
             if not local or not visitante:
                 continue
-            if "grupo" in local.lower() or "grupo" in visitante.lower():
+            if "grupo" in local.lower() or "º" in local:
                 continue
-
-            # Buscar en el índice de resultados
             clave = (norm(local), norm(visitante))
             if clave in indice:
                 r = indice[clave]
@@ -280,26 +309,11 @@ def actualizar():
                 cambios_j += 1
                 cambios += 1
                 print(f"  J{data.get('jornada')} [{p['num']}] {local} vs {visitante}: {r['resultado']}")
-            else:
-                # Fallback: Flashscore
-                resultado_flash = obtener_flashscore_partido(local, visitante)
-                if resultado_flash:
-                    p["resultado"] = resultado_flash
-                    p["signo_oficial"] = signo(resultado_flash)
-                    p["fuente_resultado"] = "flashscore"
-                    clave_norm = (norm(local), norm(visitante))
-                    indice[clave_norm] = {
-                        "local": norm(local), "visitante": norm(visitante),
-                        "resultado": resultado_flash, "fuente": "flashscore",
-                        "confianza": "confirmado",
-                        "actualizado_en": datetime.now(timezone.utc).isoformat()
-                    }
-                    cambios_j += 1
-                    cambios += 1
-                    time.sleep(1)
-
         if cambios_j:
-            todos = all(re.match(r"^\d+-\d+$", str(p.get("resultado",""))) for p in partidos)
+            todos = all(
+                re.match(r"^\d+-\d+$", str(p.get("resultado","")))
+                for p in partidos
+            )
             data["estado"] = "cerrada" if todos else "en_juego"
             data["actualizado_en"] = datetime.now(timezone.utc).isoformat()
             with open(path, "w", encoding="utf-8") as f:
