@@ -869,15 +869,15 @@
         { equipo: 'Alavés' },
         { equipo: 'Levante' },
         { equipo: 'Elche' },
-        { equipo: 'Racing de Santander', estado: 'Ascendido', tag: 'ok' },
-        { equipo: 'Deportivo de La Coruña', estado: 'Ascendido', tag: 'ok' },
-        { equipo: 'Málaga CF', estado: 'Ascendido', tag: 'ok' }
+        { equipo: 'Racing de Santander' },
+        { equipo: 'Deportivo de La Coruña' },
+        { equipo: 'Málaga CF' }
       ];
 
       const segunda = [
-        { equipo: 'Real Oviedo', estado: 'Descendido', tag: 'bad' },
-        { equipo: 'RCD Mallorca', estado: 'Descendido', tag: 'bad' },
-        { equipo: 'Girona FC', estado: 'Descendido', tag: 'bad' },
+        { equipo: 'Real Oviedo' },
+        { equipo: 'RCD Mallorca' },
+        { equipo: 'Girona FC' },
         { equipo: 'UD Almería' },
         { equipo: 'UD Las Palmas' },
         { equipo: 'CD Castellón' },
@@ -893,14 +893,14 @@
         { equipo: 'CD Leganés' },
         { equipo: 'Real Valladolid' },
         { equipo: 'Cádiz CF' },
-        { equipo: 'CD Tenerife', estado: 'Ascendido', tag: 'ok' },
-        { equipo: 'Eldense', estado: 'Ascendido', tag: 'ok' },
-        { equipo: 'Celta Fortuna', estado: 'Ascendido', tag: 'ok' },
-        { equipo: 'CD Sabadell', estado: 'Ascendido', tag: 'ok' }
+        { equipo: 'CD Tenerife' },
+        { equipo: 'Eldense' },
+        { equipo: 'Celta Fortuna' },
+        { equipo: 'CD Sabadell' }
       ];
 
       const statCells = '<td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>';
-      const teamCell = team => `<strong>${escapeHtml(team.equipo)}</strong>${team.estado ? ` <span class="tag ${team.tag}">${escapeHtml(team.estado)}</span>` : ''}`;
+      const teamCell = team => `<strong>${escapeHtml(team.equipo)}</strong>`;
       const row = (team, idx) => `<tr><td>${idx + 1}</td><td>${teamCell(team)}</td>${statCells}</tr>`;
       const table = (title, teams) => `<section style="grid-column:1/-1;display:grid;gap:12px"><div><h3>${escapeHtml(title)}</h3><p class="subtitle">Clasificación inicial 2026/27 · todos los equipos arrancan con 0 puntos.</p></div><table><thead><tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr></thead><tbody>${teams.map(row).join('')}</tbody></table></section>`;
 
