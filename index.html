@@ -1177,6 +1177,100 @@ ${resumenDiario || "Sin entradas recientes"}`;
       return div;
     }
 
+    // === CLAVES API ===
+    const GROQ_KEY = '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';
+    const TAVILY_KEY = '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';
+
+    // Detecta si la pregunta necesita búsqueda web
+    function necesitaBusquedaWeb(texto) {
+      const t = texto.toLowerCase();
+      const triggers = [
+        'lesion', 'lesionado', 'baja', 'bajas', 'sancionado',
+        'noticia', 'noticias', 'hoy', 'ayer', 'esta semana',
+        'convocatoria', 'alineacion', 'once probable',
+        'fichaje', 'traspaso', 'mercado',
+        'entrenador', 'destituido', 'despedido',
+        'parte medico', 'operacion', 'resultado de hoy',
+        'quien juega', 'cuando juega', 'a que hora',
+        'champions', 'europa league', 'copa del rey',
+        'clasificacion actual', 'como va la liga', 'posicion actual'
+      ];
+      return triggers.some(kw => t.includes(kw));
+    }
+
+    // Construye query de búsqueda para Tavily
+    function construirQueryBusqueda(texto) {
+      const t = texto.toLowerCase();
+      const equipos = [
+        'real madrid', 'barcelona', 'atletico', 'sevilla', 'valencia',
+        'betis', 'villarreal', 'athletic', 'sociedad', 'osasuna',
+        'mallorca', 'celta', 'getafe', 'rayo', 'girona', 'las palmas',
+        'argentina', 'portugal', 'brasil', 'francia', 'alemania', 'suiza',
+        'colombia', 'australia', 'egipto', 'croacia'
+      ];
+      const equipo = equipos.find(e => t.includes(e));
+      return equipo
+        ? `${equipo} noticias futbol 2026`
+        : `futbol quiniela ${texto.slice(0, 50)} 2026`;
+    }
+
+    // Llama a Tavily y devuelve contexto web
+    async function buscarEnWeb(pregunta) {
+      if (!TAVILY_KEY || TAVILY_KEY.includes('REEMPLAZA')) return null;
+      try {
+        const query = construirQueryBusqueda(pregunta);
+        const res = await fetch('https://api.tavily.com/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            api_key: TAVILY_KEY,
+            query: query,
+            search_depth: 'basic',
+            max_results: 4,
+            include_answer: true,
+            include_domains: [
+              'marca.com', 'as.com', 'sport.es', 'mundodeportivo.com',
+              'goal.com', 'transfermarkt.es', 'bbc.com/sport', 'espn.com'
+            ]
+          })
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        let ctx = '';
+        if (data.answer) ctx += `Resumen: ${data.answer}\n\n`;
+        (data.results || []).slice(0, 3).forEach((r, i) => {
+          ctx += `[${i+1}] ${r.title}\n${(r.content || '').slice(0, 280)}...\nFuente: ${r.url}\n\n`;
+        });
+        return ctx.trim() || null;
+      } catch (e) {
+        console.warn('Tavily error:', e.message);
+        return null;
+      }
+    }
+
+    // Llama a Groq con los mensajes preparados
+    async function llamarGroq(messages) {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GROQ_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          max_tokens: 1000,
+          temperature: 0.7,
+          messages: messages
+        })
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(`Error ${response.status}: ${err.error?.message || 'sin detalle'}`);
+      }
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || '';
+    }
+
     async function enviarMensajeChat() {
       const input = document.getElementById('chatInput');
       const sendBtn = document.getElementById('chatSendBtn');
@@ -1195,7 +1289,16 @@ ${resumenDiario || "Sin entradas recientes"}`;
 
       try {
         const contexto = construirContextoIA();
-        
+
+        // Buscar en web si la pregunta lo requiere (en paralelo mientras preparamos)
+        const usarWeb = necesitaBusquedaWeb(texto);
+        const webPromise = usarWeb ? buscarEnWeb(texto) : Promise.resolve(null);
+        const contextoWeb = await webPromise;
+
+        const bloqueWeb = contextoWeb
+          ? `\n\n--- INFORMACIÓN ACTUALIZADA DE LA WEB ---\n${contextoWeb}--- FIN DATOS WEB ---`
+          : '';
+
         const systemPrompt = `Eres el analista de QuiniHub. Tu nombre es "Analista QuiniHub" y llevas toda la temporada 2025/2026 analizando La Quiniela española y el fútbol europeo.
 
 REGLA CRÍTICA: Tienes acceso COMPLETO a los datos reales de la temporada 2025/2026 que aparecen más abajo. NUNCA digas que no tienes datos de esta temporada — los tienes. Úsalos siempre para responder con datos concretos.
@@ -1205,45 +1308,19 @@ TU PERSONALIDAD:
 - Usas expresiones naturales: "mira", "fíjate", "te lo digo yo", "ojo con esto", "no me fío", etc.
 - Cuando alguien quiere cambiar una predicción sin argumento sólido, se lo dices claramente pero sin ser brusco. Defiendes tu criterio.
 - Si el argumento del usuario es bueno, lo reconoces: "ahí sí tienes razón", "eso no lo había visto así".
-- Si no sabes algo concreto que no está en tus datos, lo dices — pero sin decir que no tienes la temporada.
-- Respuestas concisas y naturales. Sin listas de bullets innecesarias. Como una conversación real.
+- Si encontraste info web, intégrala de forma natural — no digas "según la web", di directamente los datos.
+- Respuestas concisas y naturales. Sin bullets innecesarios. Como una conversación real.
 
 DATOS REALES DE TU SISTEMA — TEMPORADA 2025/2026:
-${contexto}`;
+${contexto}${bloqueWeb}`;
 
-        const GROQ_KEY = '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';
-        
         const messages = [
           { role: 'system', content: systemPrompt },
-          ...chatHistory.slice(-8).map(m => ({
-            role: m.role,
-            content: m.content
-          }))
+          ...chatHistory.slice(-8).map(m => ({ role: m.role, content: m.content }))
         ];
 
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${GROQ_KEY}`
-          },
-          body: JSON.stringify({
-            model: 'llama-3.3-70b-versatile',
-            max_tokens: 1000,
-            temperature: 0.7,
-            messages: messages
-          })
-        });
-
+        const respuesta = await llamarGroq(messages);
         if (typing) typing.remove();
-
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(`Error ${response.status}: ${err.error?.message || 'sin detalle'}`);
-        }
-
-        const data = await response.json();
-        const respuesta = data.choices?.[0]?.message?.content || '';
 
         if (respuesta) {
           añadirMensajeChat('ia', respuesta);
