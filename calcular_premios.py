@@ -189,6 +189,7 @@ def calcular_aciertos(prediccion, resultados):
             "local": pred.get("local") or res.get("local"),
             "visitante": pred.get("visitante") or res.get("visitante"),
             "signo_predicho": signo_pred,
+            "signo_nuestro": signo_pred,
             "tipo": tipo,
             "signo_oficial": signo_oficial,
             "acertado": acertado,
@@ -382,7 +383,6 @@ def buscar_premio_losilla(jornada, aciertos, gano_elige8):
 
 
 def buscar_premio_tavily(jornada, aciertos, gano_elige8):
-    """Busca el premio via Tavily cuando las fuentes directas fallan (403)."""
     api_key = os.environ.get("TAVILY_API_KEY", "")
     if not api_key:
         return None
@@ -403,16 +403,12 @@ def buscar_premio_tavily(jornada, aciertos, gano_elige8):
         if r.status_code != 200:
             return None
         data = r.json()
-
-        # Intentar extraer importe del answer y resultados
         textos = [data.get("answer", "")]
         for res in data.get("results", []):
             textos.append(res.get("content", ""))
-
         for texto in textos:
             if not texto:
                 continue
-            # Buscar patrones de premio en euros
             patrones = [
                 rf'{aciertos}\s+aciertos?[^\d]{{0,80}}(\d{{1,3}}(?:[\.,]\d{{3}})*[\.,]\d{{2}})\s*[€e]',
                 rf'(\d{{1,3}}(?:[\.,]\d{{3}})*[\.,]\d{{2}})\s*[€e][^\d]{{0,40}}{aciertos}\s+aciertos?',
@@ -426,14 +422,13 @@ def buscar_premio_tavily(jornada, aciertos, gano_elige8):
                     raw = m.group(1).replace('.', '').replace(',', '.')
                     valor = float(raw)
                     if 0.50 < valor < 10_000_000:
-                        print(f"J{jornada}: premio encontrado vía Tavily: {valor} EUR")
+                        print(f"J{jornada}: premio encontrado via Tavily: {valor} EUR")
                         return round(valor, 2), "tavily"
                 except Exception:
                     continue
     except Exception as e:
         print(f"Tavily error buscando premio J{jornada}: {e}")
     return None
-
 
 
 def obtener_premio_real(jornada, aciertos, gano_elige8):
@@ -534,12 +529,15 @@ def registro_jornada(jornada):
         str(p.get("signo_final") or p.get("signo_base") or "?")
         for p in sorted(prediccion.get("partidos") or [], key=lambda x: x.get("num") or 0)
     )
+    fuente_aciertos = "quinielas_jugadas" if jugada_por_jornada(jornada) else "prediccion"
     return {
         "jornada": jornada,
         "aciertos": aciertos,
         "fallos": fallos,
         "premio_eur": premio,
         "fuente_premio": fuente,
+        "fuente_aciertos": fuente_aciertos,
+        "aciertos_confirmados": fuente_aciertos == "quinielas_jugadas",
         "boleto": boleto,
         "elige8_jugado": bool(seleccion),
         "elige8_seleccion": seleccion,
@@ -553,9 +551,13 @@ def registro_completo(entry):
     return len(entry.get("detalle_partidos") or []) == 14
 
 
+def aciertos_protegidos(entry):
+    return bool(entry.get("aciertos_confirmados")) or str(entry.get("fuente_aciertos", "")) == "quinielas_jugadas"
+
 
 def premio_confirmado_usuario(entry):
     return str(entry.get("fuente_premio", "")) == "confirmado_usuario"
+
 
 def premio_labruja_invalido(entry):
     return (
@@ -646,6 +648,12 @@ def main():
 
         existente = registros.get(jornada)
         if existente and premio_confirmado_usuario(existente):
+            continue
+        # Si hay registro existente con aciertos protegidos, no recalcular
+        if existente and aciertos_protegidos(existente):
+            if pendiente_premio(existente) and refrescar_premio_real(existente):
+                actualizadas.append(existente)
+                print(f"Jornada {jornada}: premio actualizado manteniendo {existente['aciertos']} aciertos verificados")
             continue
         if existente and registro_completo(existente):
             if pendiente_premio(existente) and refrescar_premio_real(existente):
