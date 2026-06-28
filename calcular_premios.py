@@ -9,6 +9,7 @@ Salida: data/premios/historial_premios.json
 """
 
 import json
+import os
 import re
 import requests
 from pathlib import Path
@@ -134,6 +135,12 @@ def prediccion_desde_quinielas_jugadas(jornada):
 
 
 def leer_prediccion_jornada(jornada):
+    # SIEMPRE priorizar los signos reales jugados sobre la predicción teórica.
+    # quinielas_jugadas.json es la fuente de verdad para calcular aciertos y premios.
+    jugada = prediccion_desde_quinielas_jugadas(jornada)
+    if jugada and jugada.get("partidos"):
+        return jugada
+    # Fallback si no hay quiniela jugada registrada
     candidatos = [
         PREDICCIONES / f"snapshot_jornada_{jornada}.json",
         PREDICCIONES / f"jornada_{jornada}.json",
@@ -143,7 +150,7 @@ def leer_prediccion_jornada(jornada):
         data = cargar_json(path, {})
         if data and (data.get("jornada") == jornada or not data.get("jornada")):
             return data
-    return prediccion_desde_quinielas_jugadas(jornada)
+    return {}
 
 
 def leer_resultados_jornada(jornada):
@@ -374,6 +381,61 @@ def buscar_premio_losilla(jornada, aciertos, gano_elige8):
     return None
 
 
+def buscar_premio_tavily(jornada, aciertos, gano_elige8):
+    """Busca el premio via Tavily cuando las fuentes directas fallan (403)."""
+    api_key = os.environ.get("TAVILY_API_KEY", "")
+    if not api_key:
+        return None
+    try:
+        query = f"quiniela jornada {jornada} 2026 premios {aciertos} aciertos euros resultado"
+        r = requests.post(
+            "https://api.tavily.com/search",
+            headers={"Content-Type": "application/json"},
+            json={
+                "api_key": api_key,
+                "query": query,
+                "search_depth": "advanced",
+                "max_results": 5,
+                "include_answer": True,
+            },
+            timeout=20
+        )
+        if r.status_code != 200:
+            return None
+        data = r.json()
+
+        # Intentar extraer importe del answer y resultados
+        textos = [data.get("answer", "")]
+        for res in data.get("results", []):
+            textos.append(res.get("content", ""))
+
+        for texto in textos:
+            if not texto:
+                continue
+            # Buscar patrones de premio en euros
+            patrones = [
+                rf'{aciertos}\s+aciertos?[^\d]{{0,80}}(\d{{1,3}}(?:[\.,]\d{{3}})*[\.,]\d{{2}})\s*[€e]',
+                rf'(\d{{1,3}}(?:[\.,]\d{{3}})*[\.,]\d{{2}})\s*[€e][^\d]{{0,40}}{aciertos}\s+aciertos?',
+                rf'premio[^\d]{{0,40}}{aciertos}[^\d]{{0,40}}(\d{{1,3}}(?:[\.,]\d{{3}})*[\.,]\d{{2}})\s*[€e]',
+            ]
+            for patron in patrones:
+                m = re.search(patron, texto, re.IGNORECASE)
+                if not m:
+                    continue
+                try:
+                    raw = m.group(1).replace('.', '').replace(',', '.')
+                    valor = float(raw)
+                    if 0.50 < valor < 10_000_000:
+                        print(f"J{jornada}: premio encontrado vía Tavily: {valor} EUR")
+                        return round(valor, 2), "tavily"
+                except Exception:
+                    continue
+    except Exception as e:
+        print(f"Tavily error buscando premio J{jornada}: {e}")
+    return None
+
+
+
 def obtener_premio_real(jornada, aciertos, gano_elige8):
     """Devuelve (premio_eur, fuente) solo si encuentra premio real por jornada."""
     try:
@@ -396,6 +458,11 @@ def obtener_premio_real(jornada, aciertos, gano_elige8):
         return premio
 
     premio = buscar_premio_losilla(jornada, aciertos, gano_elige8)
+    if premio:
+        return premio
+
+    # Último recurso: Tavily (bypasea bloqueos 403 de webs directas)
+    premio = buscar_premio_tavily(jornada, aciertos, gano_elige8)
     if premio:
         return premio
 
