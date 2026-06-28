@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-28T00:10:12.366565+00:00",
+  "generado_en": "2026-06-28T05:07:22.391603+00:00",
   "estado": "operativo_con_avisos",
   "score_salud": 72,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
@@ -59,13 +59,13 @@
       {
         "jornada": 70,
         "fecha": "Domingo, 28 de junio de 2026",
-        "estado": "en_juego",
+        "estado": "cerrada",
         "partidos": 14,
-        "cerrados": 11,
-        "pendientes": 3,
-        "pendientes_totales_con_pleno15": 3,
+        "cerrados": 14,
+        "pendientes": 0,
+        "pendientes_totales_con_pleno15": 0,
         "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "2026-06-28T00:09:07Z",
+        "ultima_actualizacion_partido": "2026-06-28T05:05:03Z",
         "path": "data/jornadas/jornada_70.json"
       },
       {
@@ -85,9 +85,9 @@
   "memoria_quinielas": {
     "jugadas_persistidas_json": 12,
     "jornadas_validadas_historial": 12,
-    "jornadas_memoria_real_total": 31,
-    "jornadas_con_signo_nuestro": 7,
-    "signos_nuestros_en_jornadas": 98,
+    "jornadas_memoria_real_total": 32,
+    "jornadas_con_signo_nuestro": 8,
+    "signos_nuestros_en_jornadas": 112,
     "estado": "memoria_propia_disponible",
     "fuentes_validas": [
       "data/quinielas_jugadas.json",
@@ -98,15 +98,15 @@
   },
   "prediccion": {
     "jornada": 71,
-    "generado_en": "2026-06-28T00:10:11.599981+00:00",
+    "generado_en": "2026-06-28T05:07:21.683147+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 14,
       "dobles": 0,
       "triples": 0,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 2,
-      "indice_sorpresa_max": 73.1,
+      "favoritos_atacables": 1,
+      "indice_sorpresa_max": 93.1,
       "calidad_datos": {
         "alta": 3,
         "media": 0,
@@ -115,7 +115,7 @@
       }
     },
     "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 70 solo tiene 11 de 14 resultados oficiales. No se genera prediccion para la jornada 71 hasta cerrar y aprender la 70."
+    "motivo_bloqueo": "Aprendizaje pendiente de la jornada anterior: faltan revisiones_prediccion_resultado, metricas_probabilisticas."
   },
   "clasificaciones": {
     "primera": {
@@ -168,7 +168,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 4.51,
+    "contexto_equipos_horas": 0.02,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -210,7 +210,7 @@
     "datos_profesionales": {
       "estado_global": "sin_datos_profesionales",
       "temporada_objetivo": "2026/2027",
-      "generado_en": "2026-06-27T18:01:39Z",
+      "generado_en": "2026-06-28T05:07:05Z",
       "resumen": {
         "partidos_enriquecidos": 0,
         "cuotas": 0,
@@ -239,10 +239,10 @@
   "backtesting_pre_cierre": {
     "estado": "operativo",
     "jornadas_snapshot": 5,
-    "partidos_cerrados": 67,
-    "aciertos": 40,
-    "precision": 59.7,
-    "generado_en": "2026-06-28T00:10:12.230117+00:00",
+    "partidos_cerrados": 70,
+    "aciertos": 41,
+    "precision": 58.57,
+    "generado_en": "2026-06-28T05:07:22.270032+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -261,7 +261,7 @@
     {
       "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 12 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 13 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -280,7 +280,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-06-28T00:10:12.366565+00:00",
+    "generado_en": "2026-06-28T05:07:22.391603+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
@@ -331,8 +331,8 @@
           "jornada": 70,
           "fecha": "Domingo, 28 de junio de 2026",
           "partidos": 14,
-          "cerrados": 11,
-          "pendientes": 3,
+          "cerrados": 14,
+          "pendientes": 0,
           "path": "data/jornadas/jornada_70.json"
         },
         {
@@ -464,7 +464,7 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-06-28T00:09:29.789232+00:00",
+      "generado_en": "2026-06-28T05:06:42.085614+00:00",
       "oviedo": {
         "clave": "oviedo",
         "equipo": "Real Oviedo",
@@ -865,15 +865,15 @@
     },
     "prediccion": {
       "jornada": 71,
-      "generado_en": "2026-06-28T00:10:11.599981+00:00",
+      "generado_en": "2026-06-28T05:07:21.683147+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 14,
         "dobles": 0,
         "triples": 0,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 2,
-        "indice_sorpresa_max": 73.1,
+        "favoritos_atacables": 1,
+        "indice_sorpresa_max": 93.1,
         "calidad_datos": {
           "alta": 3,
           "media": 0,
@@ -882,7 +882,7 @@
         }
       },
       "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 70 solo tiene 11 de 14 resultados oficiales. No se genera prediccion para la jornada 71 hasta cerrar y aprender la 70."
+      "motivo_bloqueo": "Aprendizaje pendiente de la jornada anterior: faltan revisiones_prediccion_resultado, metricas_probabilisticas."
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -933,8 +933,8 @@
         "jornada": 70,
         "fecha": "Domingo, 28 de junio de 2026",
         "partidos": 14,
-        "cerrados": 11,
-        "pendientes": 3,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_70.json"
       },
       {
@@ -1066,7 +1066,7 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-06-28T00:09:29.789232+00:00",
+    "generado_en": "2026-06-28T05:06:42.085614+00:00",
     "oviedo": {
       "clave": "oviedo",
       "equipo": "Real Oviedo",
