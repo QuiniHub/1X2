@@ -1114,18 +1114,45 @@
       const pred = state.prediccion || {};
       const apr = state.aprendizaje || {};
       const hist = state.historial || {};
-      
+      const met = state.metricas || {};
+
       const resumenMem = mem.resumen_para_chat || "";
       const jornadaActual = pred.jornada || "desconocida";
       const estadoJornada = pred.estado || "desconocido";
       const motivoBloqueo = pred.motivo_bloqueo || "";
-      
-      // Resumen de la jornada actual
+
+      // Estado jornada actual
       let estadoActual = `JORNADA ACTUAL: J${jornadaActual} — Estado: ${estadoJornada}.`;
       if (motivoBloqueo) estadoActual += ` Motivo: ${motivoBloqueo}`;
-      
-      // Últimas entradas del diario
-      const entradas = arr((apr.entradas || [])).slice(-15);
+
+      // Métricas globales de rendimiento
+      const precisionGlobal = met.precision || "desconocida";
+      const resumenMetricas = `RENDIMIENTO GLOBAL: Precisión ${precisionGlobal}% sobre ${met.partidos_evaluados || 0} partidos en ${met.jornadas_evaluadas || 0} jornadas.`;
+
+      // Historial de aciertos por jornada
+      const jornadas = arr((hist.jornadas || [])).filter(j => (j.aciertos || 0) + (j.fallos || 0) > 0);
+      const mejorResultado = jornadas.reduce((max, j) => Math.max(max, j.aciertos || 0), 0);
+      const totalCobrado = jornadas.reduce((sum, j) => sum + (j.premio_eur || 0), 0);
+      const resumenHistorial = jornadas.slice(-8).map(j => {
+        const premio = j.premio_eur > 0 ? ` 💰${j.premio_eur}€` : "";
+        const e8 = j.elige8_acertado ? " [Elige8✅]" : (j.elige8_jugado ? " [Elige8❌]" : "");
+        return `J${j.jornada}: ${j.aciertos} aciertos/${(j.aciertos||0)+(j.fallos||0)} partidos${premio}${e8}`;
+      }).join("\n");
+
+      // Detalle de la última jornada cerrada
+      const ultimaJ = jornadas[jornadas.length - 1];
+      let detalleUltima = "";
+      if (ultimaJ) {
+        const partidos = arr(ultimaJ.detalle_partidos || []);
+        detalleUltima = `\nDETALLE J${ultimaJ.jornada} (${ultimaJ.aciertos} aciertos / ${(ultimaJ.aciertos||0)+(ultimaJ.fallos||0)}):\n` +
+          partidos.map(p => {
+            const icon = p.acertado ? "✅" : "❌";
+            return `${icon} ${p.local} vs ${p.visitante}: jugamos ${p.signo_nuestro || p.signo_predicho} → real: ${p.signo_oficial} (${p.resultado || ""})`;
+          }).join("\n");
+      }
+
+      // Diario de aprendizaje
+      const entradas = arr((apr.entradas || [])).slice(-10);
       const resumenDiario = entradas.map(e => {
         const estado = e.acierto === true ? "✅" : e.acierto === false ? "❌" : "⏳";
         return `${estado} ${e.partido}: predije ${e.pronostico_jugado || "?"} → real: ${e.signo_real || "pendiente"}`;
@@ -1133,9 +1160,16 @@
 
       return `${resumenMem}
 
+${resumenMetricas}
+Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalCobrado.toFixed(2)}€
+
 ${estadoActual}
 
-ÚLTIMAS ENTRADAS DEL DIARIO DE APRENDIZAJE:
+HISTORIAL ÚLTIMAS JORNADAS:
+${resumenHistorial || "Sin datos"}
+${detalleUltima}
+
+DIARIO DE APRENDIZAJE (últimas entradas):
 ${resumenDiario || "Sin entradas recientes"}`;
     }
 
