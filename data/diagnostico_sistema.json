@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "generado_en": "2026-06-28T19:26:26.813658+00:00",
+  "generado_en": "2026-06-28T19:31:06.550125+00:00",
   "estado": "operativo_con_avisos",
-  "score_salud": 72,
+  "score_salud": 79,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 71,
@@ -98,24 +98,24 @@
   },
   "prediccion": {
     "jornada": 71,
-    "generado_en": "2026-06-28T19:26:26.037736+00:00",
+    "generado_en": "2026-06-28T19:31:05.557938+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
+      "fijos": 3,
       "dobles": 0,
-      "triples": 0,
+      "triples": 11,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 1,
-      "indice_sorpresa_max": 91.5,
+      "favoritos_atacables": 5,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
         "alta": 3,
         "media": 0,
         "media_baja": 0,
-        "baja": 0
+        "baja": 11
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Aprendizaje pendiente de la jornada anterior: faltan revisiones_prediccion_resultado, metricas_probabilisticas."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "clasificaciones": {
     "primera": {
@@ -168,7 +168,7 @@
   "fuentes": {
     "memoria_horas": 0.02,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 1.65,
+    "contexto_equipos_horas": 1.73,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -238,11 +238,11 @@
   },
   "backtesting_pre_cierre": {
     "estado": "operativo",
-    "jornadas_snapshot": 5,
+    "jornadas_snapshot": 6,
     "partidos_cerrados": 70,
     "aciertos": 41,
     "precision": 58.57,
-    "generado_en": "2026-06-28T19:26:26.677867+00:00",
+    "generado_en": "2026-06-28T19:31:06.392441+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -251,12 +251,6 @@
       "titulo": "Jornada actual incompleta",
       "detalle": "La jornada 71 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
       "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
-    },
-    {
-      "nivel": "media",
-      "titulo": "Prediccion demasiado rigida",
-      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
-      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
     },
     {
       "nivel": "media",
@@ -280,7 +274,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-06-28T19:26:26.813658+00:00",
+    "generado_en": "2026-06-28T19:31:06.550125+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
@@ -464,7 +458,7 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-06-28T19:25:28.818270+00:00",
+      "generado_en": "2026-06-28T19:30:03.106627+00:00",
       "oviedo": {
         "clave": "oviedo",
         "equipo": "Real Oviedo",
@@ -865,24 +859,24 @@
     },
     "prediccion": {
       "jornada": 71,
-      "generado_en": "2026-06-28T19:26:26.037736+00:00",
+      "generado_en": "2026-06-28T19:31:05.557938+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 14,
+        "fijos": 3,
         "dobles": 0,
-        "triples": 0,
+        "triples": 11,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 1,
-        "indice_sorpresa_max": 91.5,
+        "favoritos_atacables": 5,
+        "indice_sorpresa_max": 100.0,
         "calidad_datos": {
           "alta": 3,
           "media": 0,
           "media_baja": 0,
-          "baja": 0
+          "baja": 11
         }
       },
-      "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Aprendizaje pendiente de la jornada anterior: faltan revisiones_prediccion_resultado, metricas_probabilisticas."
+      "retenida_por_compuerta": false,
+      "motivo_bloqueo": null
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -1066,7 +1060,7 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-06-28T19:25:28.818270+00:00",
+    "generado_en": "2026-06-28T19:30:03.106627+00:00",
     "oviedo": {
       "clave": "oviedo",
       "equipo": "Real Oviedo",
