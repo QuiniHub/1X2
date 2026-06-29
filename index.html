@@ -270,6 +270,10 @@
     .bet-type { color: var(--muted); text-transform: lowercase; }
     body:not(.generated) .bet-type { display: none; }
     .elige8-label { color: var(--blue); font-weight: 900; }
+    .elige8-label.editable { cursor: pointer; text-decoration: underline dotted; }
+    .elige8-label.editable:hover { opacity: 0.7; }
+    .elige8-add { color: var(--muted); font-size: 11px; cursor: pointer; border: 1px dashed var(--soft); border-radius: 8px; padding: 1px 6px; }
+    .elige8-add:hover { border-color: var(--blue); color: var(--blue); }
 
     .signs { display: grid; grid-template-columns: repeat(3, 42px); gap: 7px; }
     .sign {
@@ -814,7 +818,14 @@
         const elige8 = isElige8Match(match);
         const matchType = betType(match);
         const elige8Prob = elige8ConfForMatch(match, matchType);
-        const elige8Label = elige8 ? `<span class="elige8-label">Elige 8${Number.isFinite(elige8Prob) ? ` · ${pct(elige8Prob)}` : ''}</span>` : '';
+        const editable = state.elige8 && (state.generated || state.mode === 'mixta' || state.mode === 'manual');
+        const elige8Count = state.elige8Set.size;
+        let elige8Label = '';
+        if (elige8) {
+          elige8Label = `<span class="elige8-label${editable ? ' editable' : ''}" data-elige8-toggle="${escapeHtml(String(num))}">Elige 8${Number.isFinite(elige8Prob) ? ` · ${pct(elige8Prob)}` : ''} ${editable ? '✕' : ''}</span>`;
+        } else if (editable && elige8Count < 8) {
+          elige8Label = `<span class="elige8-add" data-elige8-toggle="${escapeHtml(String(num))}">+ Elige 8</span>`;
+        }
         return `<article class="match-row" data-num="${escapeHtml(num)}">
           <div class="match-num">${escapeHtml(num)}</div>
           <div class="teams">
@@ -1190,6 +1201,20 @@
           : ['1','X','2'].filter(s => (current + clicked).includes(s)).join('');
         signsBox.dataset.selected = next;
         renderSignSelection(signsBox);
+        updateCostPanel();
+      });
+
+      qs('#ticketList').addEventListener('click', e => {
+        const btn = e.target.closest('[data-elige8-toggle]');
+        if (!btn) return;
+        const num = btn.dataset.elige8Toggle;
+        const numKey = isNaN(num) ? num : Number(num);
+        if (state.elige8Set.has(numKey)) {
+          state.elige8Set.delete(numKey);
+        } else if (state.elige8Set.size < 8) {
+          state.elige8Set.add(numKey);
+        }
+        renderTicket();
         updateCostPanel();
       });
       qs('#generateBtn').addEventListener('click', animateTicket);
