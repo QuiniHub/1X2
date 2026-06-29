@@ -262,55 +262,114 @@ def slug_liga(liga):
     return normalizar(liga).replace(" ", "-")
 
 
-LIGAS_CONOCIDAS = [
-    "Allsvenskan", "Veikkausliiga", "Eliteserien", "Superligaen",
-    "Scottish Premiership", "Eredivisie", "Bundesliga", "Ligue 1",
-    "Serie A", "Premier League", "La Liga", "Primeira Liga",
-    "Ekstraklasa", "Czech Liga", "Slovak Super Liga", "Swiss Super League",
-    "Austrian Bundesliga", "Belgian Pro League", "MLS", "Tippeliga",
-]
+# Ligas europeas y sus países para validar coherencia
+LIGAS_CONOCIDAS = {
+    "Allsvenskan": "sweden",
+    "Veikkausliiga": "finland",
+    "Eliteserien": "norway",
+    "Superligaen": "denmark",
+    "Scottish Premiership": "scotland",
+    "Eredivisie": "netherlands",
+    "Bundesliga": "germany",
+    "Ligue 1": "france",
+    "Serie A": "italy",
+    "Premier League": "england",
+    "La Liga": "spain",
+    "Primeira Liga": "portugal",
+    "Ekstraklasa": "poland",
+    "Swiss Super League": "switzerland",
+    "Austrian Bundesliga": "austria",
+    "Belgian Pro League": "belgium",
+    "MLS": "usa",
+    "Tippeliga": "norway",
+    "Czech Liga": "czech",
+    "Slovak Super Liga": "slovakia",
+}
+
+# Equipos con nombres ambiguos — query más específica para Tavily
+QUERIES_ESPECIFICAS = {
+    "sirius": "IK Sirius Allsvenskan football standings 2026",
+    "sjk": "SJK Seinajoki Veikkausliiga football standings 2026",
+    "vps": "Vaasa VPS Veikkausliiga standings 2026",
+    "mariehamn": "IFK Mariehamn Veikkausliiga standings 2026",
+}
+
+
+def _es_posicion_valida(pos):
+    """Posición plausible para una liga de fútbol europeo."""
+    try:
+        return 1 <= int(pos) <= 25
+    except (TypeError, ValueError):
+        return False
 
 
 def _parsear_tabla_tavily(texto, nombre_equipo):
     """Extrae posicion y puntos de texto de tabla de clasificación de Tavily."""
-    clave = normalizar(nombre_equipo)
     pos_detectada = None
     pts_detectados = None
 
     # Formato: | pos | equipo | pts | ... |  (tabla markdown)
-    for m in re.finditer(r"\|\s*(\d{1,2})\s*\|\s*([^|]{3,35}?)\s*\|\s*(\d{1,3})\s*\|", texto):
+    for m in re.finditer(r"\|\s*(\d{1,2})\s*\|\s*([^|]{3,40}?)\s*\|\s*(\d{1,3})\s*\|", texto):
         pos_raw, team_raw, pts_raw = m.group(1), m.group(2), m.group(3)
         if score_nombre(team_raw, nombre_equipo) >= 40:
             try:
-                pos_detectada = int(pos_raw)
-                pts_detectados = int(pts_raw)
+                pos_int = int(pos_raw)
+                pts_int = int(pts_raw)
+                if _es_posicion_valida(pos_int):
+                    pos_detectada = pos_int
+                    pts_detectados = pts_int
             except ValueError:
                 pass
             break
 
-    # Formato: "pos Team · pts"  o  "pos Team pts"
+    # Formato: "pos Team · pts"  o  "pos Team pts"  (texto normalizado)
     if pos_detectada is None:
-        pattern = rf"(\d{{1,2}})\s+{re.escape(clave[:6])}.{{0,25}}?[·\s](\d{{1,3}})"
+        clave = normalizar(nombre_equipo)
+        pattern = rf"(\d{{1,2}})\s+{re.escape(clave[:7])}.{{0,20}}?[·\s](\d{{1,3}})"
         m = re.search(pattern, normalizar(texto), re.I)
         if m:
             try:
-                pos_detectada = int(m.group(1))
-                pts_detectados = int(m.group(2))
+                pos_int = int(m.group(1))
+                pts_int = int(m.group(2))
+                if _es_posicion_valida(pos_int):
+                    pos_detectada = pos_int
+                    pts_detectados = pts_int
             except ValueError:
                 pass
 
-    # Formato: "Team ... position X"  o  "X. Team"
+    # Formato: "X. Team" o "X Team" al inicio de línea
     if pos_detectada is None:
-        for m in re.finditer(rf"(\d{{1,2}})[.\s]{{1,3}}{re.escape(clave[:6])}", normalizar(texto), re.I):
+        clave = normalizar(nombre_equipo)
+        for m in re.finditer(rf"(\d{{1,2}})[.\s]{{1,3}}{re.escape(clave[:7])}", normalizar(texto), re.I):
             try:
-                pos_detectada = int(m.group(1))
+                pos_int = int(m.group(1))
+                if _es_posicion_valida(pos_int):
+                    pos_detectada = pos_int
+                    break
             except ValueError:
-                pass
-            if pos_detectada and 1 <= pos_detectada <= 20:
-                break
-            pos_detectada = None
+                continue
 
     return pos_detectada, pts_detectados
+
+
+def _detectar_liga_contextual(contenido, nombre_equipo):
+    """Detecta liga solo si aparece en contexto cercano al nombre del equipo."""
+    contenido_norm = contenido.lower()
+    nombre_norm = normalizar(nombre_equipo)
+    for liga_cand, pais in LIGAS_CONOCIDAS.items():
+        if liga_cand.lower() not in contenido_norm:
+            continue
+        # Verificar que la liga aparece cerca del nombre del equipo (±300 chars)
+        idx_liga = contenido_norm.find(liga_cand.lower())
+        idx_equipo = contenido_norm.find(nombre_norm[:6]) if len(nombre_norm) >= 4 else -1
+        if idx_equipo == -1:
+            # Si no encontramos el nombre exacto, aceptar si el título menciona la liga
+            # pero solo si no es Bundesliga (demasiado genérica para confundirse)
+            if liga_cand != "Bundesliga" and pais not in ("germany",):
+                return liga_cand
+        elif abs(idx_liga - idx_equipo) <= 400:
+            return liga_cand
+    return ""
 
 
 def buscar_info_tavily(equipo, contexto=""):
@@ -319,9 +378,12 @@ def buscar_info_tavily(equipo, contexto=""):
     if not api_key or not requests:
         return {}
     nombre = equipo.strip()
-    query = f"{nombre} football standings table 2026"
-    if contexto:
-        query = f"{nombre} {contexto} football standings 2026"
+    clave = clave_equipo(nombre)
+    # Usar query específica si el equipo tiene nombre ambiguo
+    query = QUERIES_ESPECIFICAS.get(clave) or (
+        f"{nombre} {contexto} football standings table 2026" if contexto
+        else f'"{nombre}" football standings table 2026'
+    )
     try:
         resp = requests.post(
             "https://api.tavily.com/search",
@@ -331,24 +393,25 @@ def buscar_info_tavily(equipo, contexto=""):
         )
         resp.raise_for_status()
         resultados = resp.json().get("results") or []
-        textos = []
+        textos_completos = []
+        textos_cortos = []
         liga_detectada = ""
         pos_detectada = None
         pts_detectados = None
         for r in resultados:
             contenido = (r.get("content") or "") + " " + (r.get("title") or "")
-            textos.append(contenido[:400])
+            textos_completos.append(contenido)
+            textos_cortos.append(contenido[:500])
+            # Detectar liga con validación contextual
             if not liga_detectada:
-                for liga_cand in LIGAS_CONOCIDAS:
-                    if liga_cand.lower() in contenido.lower():
-                        liga_detectada = liga_cand
-                        break
+                liga_detectada = _detectar_liga_contextual(contenido, nombre)
+            # Parsear posición sobre el texto COMPLETO (no truncado)
             if pos_detectada is None:
                 pos_tv, pts_tv = _parsear_tabla_tavily(contenido, nombre)
                 if pos_tv:
                     pos_detectada = pos_tv
                     pts_detectados = pts_tv
-        extracto = " | ".join(textos[:3])[:600]
+        extracto = " | ".join(textos_cortos[:3])[:1200]
         print(f"  Tavily [{nombre}]: liga={liga_detectada or '?'}, pos={pos_detectada}, pts={pts_detectados}")
         return {
             "fuente_tavily": True,
@@ -362,14 +425,17 @@ def buscar_info_tavily(equipo, contexto=""):
 
 
 def consultar_resultados_futbol(equipo, liga):
-    if not liga or liga == "desconocida":
+    """Fuente secundaria — solo si liga conocida y no es desconocida."""
+    if not liga or liga in ("desconocida", "Bundesliga", "Premier League"):
         return {}
     url = URL_RF.format(liga=quote_plus(slug_liga(liga)))
     info = {"fuente_resultados_futbol": url}
     try:
-        info["equipo_detectado_resultados_futbol"] = clave_equipo(equipo) in normalizar(descargar(url))
+        resp = requests.get(url, headers=HEADERS, timeout=4)
+        resp.raise_for_status()
+        info["equipo_detectado_resultados_futbol"] = clave_equipo(equipo) in normalizar(resp.text)
     except Exception as exc:
-        info["aviso_resultados_futbol"] = str(exc)[:140]
+        info["aviso_resultados_futbol"] = str(exc)[:80]
     return info
 
 
