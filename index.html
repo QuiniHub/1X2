@@ -489,7 +489,7 @@
   </main>
 
   <script>
-    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, historial: null, metricas: null, segunda: null, generated: false, dobles: 4, triples: 2, elige8: true, mode: 'auto', configApplied: false };
+    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, historial: null, metricas: null, segunda: null, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set() };
     const qs = (s, root = document) => root.querySelector(s);
     const qsa = (s, root = document) => [...root.querySelectorAll(s)];
     const fmt = (v, fallback = '-') => (v === null || v === undefined || v === '' ? fallback : v);
@@ -517,12 +517,14 @@
     }
 
     function selectedSigns(match) {
+      const num = match.num ?? match.numero ?? match.partido;
+      if (state.signAssignment[num]) return state.signAssignment[num];
       return normalizeSignText(match.signo_final || match.signo_base || match.pronostico_ia || match.pronostico_jugado || match.signo || match.prediccion || '');
     }
 
     function betType(match) {
-      const type = String(match.tipo || match.elige8_tipo_cobertura || '').toLowerCase();
-      if (type) return type;
+      const num = match.num ?? match.numero ?? match.partido;
+      if (state.typeAssignment[num]) return state.typeAssignment[num];
       const len = selectedSigns(match).length;
       return len >= 3 ? 'triple' : len === 2 ? 'doble' : 'fijo';
     }
@@ -671,23 +673,10 @@
       qs('#elige8Toggle').checked = state.elige8;
     }
 
-    function applyPredictionConfigOnce() {
-      if (state.configApplied) return;
-      const p = state.prediccion || {};
-      const resumen = p.resumen || {};
-      const configuredDobles = firstNumber(p.configuracion?.dobles, resumen.dobles);
-      const configuredTriples = firstNumber(p.configuracion?.triples, resumen.triples);
-      if (configuredDobles !== undefined) state.dobles = configuredDobles;
-      if (configuredTriples !== undefined) state.triples = configuredTriples;
-      state.elige8 = Boolean(p.configuracion?.elige8 ?? state.elige8);
-      state.configApplied = true;
-    }
-
     function renderPredictionMetrics() {
       const p = state.prediccion || {};
       const resumen = p.resumen || {};
       const m = state.metricas || {};
-      applyPredictionConfigOnce();
       const precision = firstNumber(m.precision_reciente, m.precision, m.resumen?.precision, p.precision_reciente, p.backtesting?.precision);
       const jornadasPorClave = Object.keys(m.por_jornada || {}).length || undefined;
       const jornadasIA = firstNumber(m.jornadas_con_ia, m.jornadas_evaluadas, m.total_jornadas, jornadasPorClave, resumen.jornadas_con_ia, p.jornadas_con_ia);
@@ -720,9 +709,42 @@
 
     function isElige8Match(match) {
       if (!state.elige8) return false;
-      if (flagValue(match.en_elige8) || flagValue(match.elige8) || flagValue(match.es_elige8)) return true;
-      const prob = elige8Probability(match);
-      return Number.isFinite(prob) && prob >= 60;
+      const num = match.num ?? match.numero ?? match.partido;
+      return state.elige8Set.has(num);
+    }
+
+    function computeAssignments() {
+      const matches = predictionMatches();
+      // Ordenar por probabilidad_top ascendente: los menos seguros primero
+      const byUncertainty = [...matches].sort((a, b) =>
+        (Number(a.probabilidad_top) || 0) - (Number(b.probabilidad_top) || 0)
+      );
+      state.typeAssignment = {};
+      state.signAssignment = {};
+      byUncertainty.forEach((m, i) => {
+        const num = m.num ?? m.numero ?? m.partido;
+        const probs = m.probabilidades || m.probabilidad_signos || {};
+        const sorted = ['1','X','2'].sort((a, b) => (Number(probs[b]) || 0) - (Number(probs[a]) || 0));
+        if (i < state.triples) {
+          state.typeAssignment[num] = 'triple';
+          state.signAssignment[num] = '1X2';
+        } else if (i < state.triples + state.dobles) {
+          state.typeAssignment[num] = 'doble';
+          state.signAssignment[num] = sorted[0] + sorted[1];
+        } else {
+          state.typeAssignment[num] = 'fijo';
+          state.signAssignment[num] = sorted[0];
+        }
+      });
+      // Elige 8: los 8 con mayor probabilidad_top (más seguros)
+      if (state.elige8) {
+        const byConfidence = [...matches].sort((a, b) =>
+          (Number(b.probabilidad_top) || 0) - (Number(a.probabilidad_top) || 0)
+        );
+        state.elige8Set = new Set(byConfidence.slice(0, 8).map(m => m.num ?? m.numero ?? m.partido));
+      } else {
+        state.elige8Set = new Set();
+      }
     }
 
     function renderSignSelection(signsBox) {
@@ -828,11 +850,13 @@
     }
 
     async function animateTicket() {
+      const matches = predictionMatches();
+      if (!matches.length) return;
+      computeAssignments();
+      renderTicket();
       const rows = qsa('.match-row');
-      if (!rows.length) return;
       state.generated = true;
       document.body.classList.add('generated');
-      qsa('.sign').forEach(sign => sign.classList.remove('selected'));
       rows.forEach(row => row.classList.remove('reveal'));
       for (const row of rows) {
         const chosen = row.querySelector('.signs')?.dataset.selected || '';
@@ -1059,10 +1083,11 @@
       }));
       qsa('[data-counter]').forEach(btn => btn.addEventListener('click', () => {
         const key = btn.dataset.counter;
-        const next = Math.max(0, Math.min(14, Number(state[key] || 0) + Number(btn.dataset.delta)));
+        const other = key === 'dobles' ? 'triples' : 'dobles';
+        const next = Math.max(0, Math.min(14 - (state[other] || 0), Number(state[key] || 0) + Number(btn.dataset.delta)));
         state[key] = next;
         updateConfigUI();
-        renderPredictionMetrics();
+        updateCostPanel();
         renderHistory();
       }));
       qs('#elige8Toggle').addEventListener('change', e => {
