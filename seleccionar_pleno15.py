@@ -7,6 +7,7 @@ el campo pleno15 de la prediccion vigente.
 """
 
 import json
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -222,6 +223,49 @@ def construir_razonamiento(partido, signo, prob, margen, incertidumbre, sorpresa
     return " ".join(piezas)
 
 
+def poisson_goles(lam, max_goles=4):
+    """Distribución Poisson truncada en 0,1,2,M(3+)."""
+    probs = {}
+    acum = 0.0
+    for k in range(max_goles):
+        p = math.exp(-lam) * (lam ** k) / math.factorial(k)
+        probs[k] = p
+        acum += p
+    probs["M"] = max(0.0, 1.0 - acum)
+    return probs
+
+
+def calcular_probs_goles(partido):
+    """Estima probabilidades de goles (0,1,2,M) para local y visitante
+    usando la distribución de Poisson calibrada con las probs 1X2."""
+    probs = probabilidades(partido)
+    if not probs:
+        return None
+    p1 = numero(probs.get("1", 0)) / 100
+    p2 = numero(probs.get("2", 0)) / 100
+
+    # Lambda esperada: equipo fuerte tiene más goles esperados
+    # Referencia: media fútbol europeo ~1.4 local, ~1.05 visitante
+    lam_local = max(0.3, 0.5 + p1 * 2.2)
+    lam_visitante = max(0.3, 0.5 + p2 * 2.2)
+
+    def _format(dist):
+        total = sum(dist.values()) or 1.0
+        return {
+            "0": round(dist[0] / total * 100, 1),
+            "1": round(dist[1] / total * 100, 1),
+            "2": round(dist[2] / total * 100, 1),
+            "M": round(dist["M"] / total * 100, 1),
+        }
+
+    return {
+        "local": _format(poisson_goles(lam_local)),
+        "visitante": _format(poisson_goles(lam_visitante)),
+        "lambda_local": round(lam_local, 2),
+        "lambda_visitante": round(lam_visitante, 2),
+    }
+
+
 def candidatos_prediccion(data):
     candidatos = []
     for partido in data.get("partidos", []):
@@ -256,6 +300,7 @@ def actualizar_pleno15(data, recomendacion):
     pleno["signo_final"] = recomendacion.get("signo_recomendado")
     pleno["probabilidad"] = recomendacion.get("probabilidad")
     pleno["probabilidades"] = recomendacion.get("probabilidades", pleno.get("probabilidades", {}))
+    pleno["probabilidades_goles"] = recomendacion.get("probabilidades_goles") or pleno.get("probabilidades_goles") or {}
     pleno["margen_probabilidad"] = recomendacion.get("margen_probabilidad")
     pleno["incertidumbre"] = recomendacion.get("incertidumbre")
     pleno["surprise_score"] = recomendacion.get("surprise_score")
@@ -283,6 +328,7 @@ def main():
         if candidato_valido(partido):
             evaluado = evaluar_partido(partido)
             evaluado["probabilidades"] = probabilidades(partido)
+            evaluado["probabilidades_goles"] = calcular_probs_goles(partido)
             evaluados.append(evaluado)
         else:
             descartados.append({

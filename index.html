@@ -287,9 +287,14 @@
     .generated .sign.selected { background: var(--green); border-color: var(--green); color: #fff; opacity: 1; transform: scale(1.02); }
 
     .pleno-grid { display: grid; gap: 10px; }
-    .pleno-row { display: grid; grid-template-columns: minmax(160px, 1fr) repeat(4, 38px); gap: 8px; align-items: center; }
+    .pleno-row { display: grid; grid-template-columns: minmax(160px, 1fr) repeat(4, 52px); gap: 8px; align-items: center; }
     .pleno-row strong { font-size: 14px; }
-    .pleno-cell { height: 34px; border-radius: 11px; background: var(--soft-2); border: 1px solid var(--soft); display: grid; place-items: center; font-weight: 900; color: var(--muted); }
+    .pleno-cell { height: 52px; border-radius: 11px; background: var(--soft-2); border: 1px solid var(--soft); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font-weight: 900; color: var(--muted); cursor: pointer; transition: background 0.15s; }
+    .pleno-cell:hover { background: var(--soft); }
+    .pleno-cell .pleno-sign { font-size: 15px; font-weight: 900; }
+    .pleno-cell .pleno-pct { font-size: 10px; font-weight: 600; opacity: 0.7; }
+    .pleno-cell[data-selected="true"] { background: var(--green); border-color: var(--green); color: #fff; }
+    .pleno-cell[data-selected="true"] .pleno-pct { opacity: 0.9; }
 
     .learning-list, .group-list, .history-wrap, .teams-list { display: grid; gap: 12px; }
     .learning-item, .team-pill, .group-card {
@@ -490,7 +495,7 @@
   </main>
 
   <script>
-    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, historial: null, metricas: null, segunda: null, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set() };
+    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, historial: null, metricas: null, segunda: null, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {} };
     const qs = (s, root = document) => root.querySelector(s);
     const qsa = (s, root = document) => [...root.querySelectorAll(s)];
     const fmt = (v, fallback = '-') => (v === null || v === undefined || v === '' ? fallback : v);
@@ -863,12 +868,29 @@
       const pleno = extractPleno15(state.jornadaActual) || extractPleno15(state.prediccion) || extractPleno15(state.pleno15Data) || pleno15Recommendation() || {};
       const local = pleno.local || pleno.equipo_local || pleno.local_nombre || 'Equipo local';
       const visitante = pleno.visitante || pleno.equipo_visitante || pleno.visitante_nombre || 'Equipo visitante';
-      const selected = state.generated ? pleno15Sign(pleno) : '';
+      const aiSign = state.generated ? pleno15Sign(pleno) : '';
+      const probGoles = pleno.probabilidades_goles || pleno15Recommendation().probabilidades_goles || {};
+      const probLocal = probGoles.local || {};
+      const probVisitante = probGoles.visitante || {};
       const cells = ['0','1','2','M'];
-      qs('#pleno15').innerHTML = [local, visitante].map(team => `<div class="pleno-row"><strong>${escapeHtml(team)}</strong>${cells.map(s => {
-        const mark = s === selected ? ' style="background:var(--green);border-color:var(--green);color:#fff;" data-selected="true"' : '';
-        return `<span class="pleno-cell" data-sign="${s}"${mark}>${s}</span>`;
-      }).join('')}</div>`).join('');
+
+      const renderRow = (team, teamKey, probsTeam) => {
+        // Recuperar selección manual si existe, si no usar la de la IA
+        const sel = state.pleno15Manual?.[teamKey] ?? (state.generated ? aiSign : '');
+        return `<div class="pleno-row" data-team="${teamKey}">
+          <strong>${escapeHtml(team)}</strong>
+          ${cells.map(s => {
+            const isSelected = s === sel;
+            const pct = probsTeam[s] != null ? `${Number(probsTeam[s]).toFixed(0)}%` : '';
+            return `<span class="pleno-cell" data-sign="${s}" data-team="${teamKey}" data-selected="${isSelected}">
+              <span class="pleno-sign">${s}</span>
+              ${pct ? `<span class="pleno-pct">${pct}</span>` : ''}
+            </span>`;
+          }).join('')}
+        </div>`;
+      };
+
+      qs('#pleno15').innerHTML = renderRow(local, 'local', probLocal) + renderRow(visitante, 'visitante', probVisitante);
     }
 
     async function animateTicket() {
@@ -1111,8 +1133,22 @@
         state[key] = next;
         updateConfigUI();
         updateCostPanel();
+        if (state.generated || state.mode === 'mixta' || state.mode === 'manual') {
+          computeAssignments();
+          renderTicket();
+        }
         renderHistory();
       }));
+
+      qs('#pleno15').addEventListener('click', e => {
+        const cell = e.target.closest('.pleno-cell');
+        if (!cell) return;
+        const teamKey = cell.dataset.team;
+        const sign = cell.dataset.sign;
+        if (!teamKey || !sign) return;
+        state.pleno15Manual[teamKey] = sign;
+        renderPleno15();
+      });
       qs('#elige8Toggle').addEventListener('change', e => {
         state.elige8 = e.target.checked;
         renderPredictionMetrics();
