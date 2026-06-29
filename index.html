@@ -317,6 +317,42 @@
     .stand-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 9px 0; border-top: 1px solid var(--soft); }
     .stand-row:first-of-type { border-top: 0; }
     .situation { color: var(--muted); font-size: 12px; }
+
+    /* Mundial subtabs */
+    .world-subtabs { display: flex; gap: 6px; margin-bottom: 16px; }
+    .world-tab { padding: 7px 16px; border: 1px solid var(--soft); border-radius: 20px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.15s; }
+    .world-tab.active { background: var(--green); border-color: var(--green); color: #fff; }
+
+    /* Bracket */
+    .bracket-scroll { overflow-x: auto; padding-bottom: 12px; }
+    .bracket-wrap { display: flex; gap: 0; min-width: max-content; }
+    .b-col { display: flex; flex-direction: column; width: 160px; flex-shrink: 0; }
+    .b-col-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); text-align: center; padding: 0 8px 10px; white-space: nowrap; }
+    .b-col-body { position: relative; flex: 1; }
+    .b-col-connector { width: 20px; flex-shrink: 0; position: relative; }
+    .b-match { position: absolute; left: 6px; right: 6px; background: var(--card); border: 1px solid var(--soft); border-radius: 10px; display: flex; flex-direction: column; justify-content: space-between; padding: 6px 8px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .b-match.has-result { border-color: var(--green); }
+    .b-team { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+    .b-team.tbd { color: var(--muted); font-weight: 400; font-style: italic; }
+    .b-team.winner { color: var(--green); }
+    .b-team.loser { color: var(--muted); text-decoration: line-through; }
+    .b-divider { height: 1px; background: var(--soft); margin: 3px 0; }
+    .b-meta { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.2; }
+    .b-score { font-size: 11px; font-weight: 700; color: var(--fg); text-align: center; }
+
+    /* Bracket round cards (mobile-friendly fallback) */
+    .bracket-round { margin-bottom: 18px; }
+    .bracket-round-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; }
+    .bracket-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+    .bracket-match-card { background: var(--card); border: 1px solid var(--soft); border-radius: 10px; padding: 10px 12px; }
+    .bracket-match-card.played { border-color: var(--green); }
+    .bracket-team { font-size: 13px; font-weight: 600; padding: 3px 0; display: flex; justify-content: space-between; align-items: center; }
+    .bracket-team .goles { font-size: 15px; font-weight: 800; min-width: 18px; text-align: right; }
+    .bracket-team.winner .goles { color: var(--green); }
+    .bracket-team.loser { color: var(--muted); }
+    .bracket-team.tbd { color: var(--muted); font-style: italic; font-weight: 400; }
+    .bracket-divider { height: 1px; background: var(--soft); margin: 4px 0; }
+    .bracket-info { font-size: 10px; color: var(--muted); margin-top: 4px; }
     .tag { border-radius: 999px; padding: 5px 9px; font-size: 12px; font-weight: 900; background: var(--soft-2); color: var(--muted); }
     .tag.ok { background: rgba(29, 158, 117, 0.12); color: var(--green); }
     .tag.bad { background: rgba(200, 71, 71, 0.12); color: var(--danger); }
@@ -445,9 +481,18 @@
 
     <section id="mundial" class="tab-panel">
       <div class="metrics" id="worldMetrics"></div>
-      <div class="card">
-        <div class="card-head"><h2>Clasificaciones Mundial 2026</h2><span class="tag blue">Situación competitiva</span></div>
-        <div class="card-body"><div class="groups" id="worldGroups"></div></div>
+      <div class="world-subtabs">
+        <button class="world-tab active" data-wtab="eliminatorias">Eliminatorias</button>
+        <button class="world-tab" data-wtab="grupos">Fase de Grupos</button>
+      </div>
+      <div id="worldPanelEliminatorias" class="world-panel">
+        <div id="worldBracket"></div>
+      </div>
+      <div id="worldPanelGrupos" class="world-panel" style="display:none">
+        <div class="card">
+          <div class="card-head"><h2>Clasificaciones Mundial 2026</h2><span class="tag blue">Situación competitiva</span></div>
+          <div class="card-body"><div class="groups" id="worldGroups"></div></div>
+        </div>
       </div>
     </section>
 
@@ -500,7 +545,7 @@
   </main>
 
   <script>
-    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, historial: null, metricas: null, segunda: null, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {} };
+    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, eliminatorias: null, historial: null, metricas: null, segunda: null, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {} };
     const qs = (s, root = document) => root.querySelector(s);
     const qsa = (s, root = document) => [...root.querySelectorAll(s)];
     const fmt = (v, fallback = '-') => (v === null || v === undefined || v === '' ? fallback : v);
@@ -1006,15 +1051,23 @@
     }
 
     function renderWorld() {
+      // Metrics
       const m = state.mundial || {};
       const groups = m.grupos || {};
       const groupValues = Object.values(groups).sort((a, b) => String(a.grupo || '').localeCompare(String(b.grupo || ''), 'es', { numeric: true }));
-      const teams = groupValues.flatMap(g => arr(g.clasificacion));
-      const played = Math.round(teams.reduce((sum, t) => sum + Number(t.pj || 0), 0) / 2);
-      const classified = teams.filter(t => String(t.situacion_competitiva || t.situacion || '').includes('clasificada')).length;
-      const eliminated = teams.filter(t => String(t.situacion_competitiva || t.situacion || '').includes('elimin')).length;
-      const surprises = teams.filter(t => Number(t.posicion || 99) <= 2 && Number(t.pts || 0) >= 4 && ['haiti','panama','jordania','tunez','turquia'].includes(String(t.equipo || '').toLowerCase())).length;
-      qs('#worldMetrics').innerHTML = [metric('Partidos jugados', played || '-'), metric('Clasificadas', classified), metric('Eliminadas', eliminated), metric('Sorpresas', surprises)].join('');
+      const el = state.eliminatorias || {};
+      const rondas = el.rondas || {};
+      const allR32 = arr(rondas.dieciseisavos?.partidos);
+      const played32 = allR32.filter(p => p.resultado).length;
+      const totalAdvanced = played32; // each played R32 match = 1 team advances
+      qs('#worldMetrics').innerHTML = [
+        metric('Fase', played32 === 16 ? 'Octavos' : `Dieciseisavos (${played32}/16)`),
+        metric('Clasificados a octavos', totalAdvanced || '-'),
+        metric('Final', el.final_fecha ? new Date(el.final_fecha + 'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'}) : '19 jul'),
+        metric('Sede Final', 'MetLife Stadium')
+      ].join('');
+
+      // Group standings
       qs('#worldGroups').innerHTML = groupValues.length ? groupValues.map(g => {
         const clasificacion = arr(g.clasificacion).slice().sort((a, b) =>
           (firstNumber(a.posicion, 99) - firstNumber(b.posicion, 99)) ||
@@ -1031,6 +1084,78 @@
           }).join('')}
         </article>`;
       }).join('') : '<div class="empty">Clasificaciones Mundial 2026 pendientes de cargar.</div>';
+
+      // Bracket
+      renderBracket();
+    }
+
+    function renderBracket() {
+      const el = state.eliminatorias || {};
+      const rondas = el.rondas || {};
+
+      function teamHtml(nombre, ganador, otro) {
+        if (!nombre) return `<div class="bracket-team tbd">Por determinar</div>`;
+        const isWinner = ganador && nombre === ganador;
+        const isLoser = ganador && otro && nombre !== ganador;
+        const cls = isWinner ? 'winner' : isLoser ? 'loser' : '';
+        return `<div class="bracket-team ${cls}">${escapeHtml(nombre)}</div>`;
+      }
+
+      function scoreHtml(res, local, visitante, ganador) {
+        if (!res) return '';
+        const [gl, gv] = res.split('-').map(Number);
+        const lw = ganador === local;
+        const vw = ganador === visitante;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;margin:1px 0">
+          <span style="font-size:13px;font-weight:${lw?'800':'600'};color:${lw?'var(--green)':'var(--muted)'}">${gl}</span>
+          <span style="font-size:10px;color:var(--muted)">–</span>
+          <span style="font-size:13px;font-weight:${vw?'800':'600'};color:${vw?'var(--green)':'var(--muted)'}">${gv}</span>
+        </div>`;
+      }
+
+      function matchCard(p) {
+        const local = p.local;
+        const vis = p.visitante;
+        const res = p.resultado;
+        const gan = p.ganador;
+        const fecha = p.fecha ? new Date(p.fecha).toLocaleDateString('es-ES', {day:'numeric', month:'short'}) : '';
+        const played = !!res;
+        return `<div class="bracket-match-card${played ? ' played' : ''}">
+          ${teamHtml(local, gan, vis)}
+          ${played ? scoreHtml(res, local, vis, gan) : `<div class="bracket-divider"></div>`}
+          ${teamHtml(vis, gan, local)}
+          <div class="bracket-info">${escapeHtml(fecha)}${p.ciudad ? ' · ' + escapeHtml(p.ciudad) : ''}</div>
+        </div>`;
+      }
+
+      const RONDA_ORDER = [
+        ['dieciseisavos', 'Dieciseisavos de Final', 4],
+        ['octavos', 'Octavos de Final', 4],
+        ['cuartos', 'Cuartos de Final', 4],
+        ['semifinales', 'Semifinales', 2],
+        ['final', 'Final', 1]
+      ];
+
+      const html = RONDA_ORDER.map(([key, titulo, cols]) => {
+        const ronda = rondas[key];
+        if (!ronda) return '';
+        const partidos = arr(ronda.partidos).slice().sort((a, b) => (a.slot ?? 99) - (b.slot ?? 99));
+        if (!partidos.length) return '';
+        const jugados = partidos.filter(p => p.resultado).length;
+        const tag = jugados === partidos.length ? `<span class="tag ok">Completada</span>`
+          : jugados > 0 ? `<span class="tag blue">En juego (${jugados}/${partidos.length})</span>`
+          : `<span class="tag">${ronda.fechas || ''}</span>`;
+        return `<div class="bracket-round">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div class="bracket-round-title">${escapeHtml(titulo)}</div>${tag}
+          </div>
+          <div class="bracket-grid" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">
+            ${partidos.map(matchCard).join('')}
+          </div>
+        </div>`;
+      }).join('');
+
+      qs('#worldBracket').innerHTML = html || '<div class="empty">Datos del cuadro eliminatorio pendientes de carga.</div>';
     }
 
     const premiosLocales = (() => {
@@ -1183,6 +1308,16 @@
         btn.classList.add('active');
         qs(`#${btn.dataset.tab}`).classList.add('active');
       }));
+
+      document.addEventListener('click', e => {
+        const btn = e.target.closest('.world-tab');
+        if (!btn) return;
+        qsa('.world-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const tab = btn.dataset.wtab;
+        qs('#worldPanelEliminatorias').style.display = tab === 'eliminatorias' ? '' : 'none';
+        qs('#worldPanelGrupos').style.display = tab === 'grupos' ? '' : 'none';
+      });
       qsa('[data-counter]').forEach(btn => btn.addEventListener('click', () => {
         const key = btn.dataset.counter;
         const other = key === 'dobles' ? 'triples' : 'dobles';
@@ -1559,11 +1694,12 @@ ${contexto}${bloqueWeb}`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, mundial, hist, metricas, segunda, memoriaHistorica] = await Promise.all([
+      const [pred, pleno, apr, mundial, eliminatorias, hist, metricas, segunda, memoriaHistorica] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
         getJson('data/memoria_ia/clasificaciones_mundial_2026.json'),
+        getJson('data/mundial_2026_eliminatorias.json'),
         getJson('data/premios/historial_premios.json'),
         getJson('data/memoria_ia/metricas_probabilisticas.json'),
         getJson('data/calendario_segunda.json'),
@@ -1573,6 +1709,7 @@ ${contexto}${bloqueWeb}`;
       state.pleno15Data = pleno;
       state.aprendizaje = apr;
       state.mundial = mundial;
+      state.eliminatorias = eliminatorias;
       state.historial = hist;
       state.metricas = metricas;
       state.segunda = segunda;

@@ -1,6 +1,7 @@
 """
-Obtiene el cuadro eliminatorio del Mundial 2026 desde BallDontLie API
+Obtiene el cuadro eliminatorio del Mundial 2026 desde BallDontLie API (o Tavily como fallback)
 y resuelve los nombres de equipos en las jornadas de la Quiniela.
+Produce data/mundial_2026_eliminatorias.json con estructura de bracket para la UI.
 """
 import json, os, re, requests, time
 from datetime import datetime, timezone
@@ -10,9 +11,11 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 JORNADAS = DATA / "jornadas"
 CUADRO = DATA / "mundial_2026_cuadro_eliminatorio.json"
+ELIMINATORIAS = DATA / "mundial_2026_eliminatorias.json"
 CLASIFICACIONES = DATA / "memoria_ia" / "clasificaciones_mundial_2026.json"
 
 BALLDONTLIE_KEY = os.environ.get("BALLDONTLIE_API_KEY", "")
+TAVILY_KEY = os.environ.get("TAVILY_API_KEY", "")
 
 ALIAS = {
     "iran": "irán", "turkey": "turquía", "turkiye": "turquía",
@@ -195,6 +198,181 @@ def resolver_nombres_jornadas(eliminatorias):
     
     print(f"Total nombres resueltos: {cambios_total}")
 
+STAGE_MAP = {
+    "Round of 32": "dieciseisavos",
+    "Round of 16": "octavos",
+    "Quarter-finals": "cuartos",
+    "Semi-finals": "semifinales",
+    "Final": "final",
+}
+
+MATCH_NUM_TO_SLOT = {
+    73: 0, 75: 1, 74: 2, 77: 3,
+    76: 4, 78: 5, 79: 6, 80: 7,
+    81: 8, 82: 9, 83: 10, 84: 11,
+    85: 12, 87: 13, 86: 14, 88: 15,
+}
+
+
+def cargar_eliminatorias():
+    if ELIMINATORIAS.exists():
+        try:
+            return json.loads(ELIMINATORIAS.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return {}
+
+
+def guardar_eliminatorias(data):
+    data["actualizado_en"] = datetime.now(timezone.utc).isoformat()
+    ELIMINATORIAS.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def actualizar_desde_balldontlie(partidos, elim):
+    """Actualiza el JSON de eliminatorias con datos de la API BallDontLie."""
+    cambios = 0
+    rondas = elim.get("rondas", {})
+
+    for p in partidos:
+        stage_en = (p.get("stage") or {}).get("name", "")
+        ronda_es = STAGE_MAP.get(stage_en)
+        if not ronda_es or ronda_es not in rondas:
+            continue
+
+        num = p.get("match_number")
+        local = resolver_equipo(p, "home_team")
+        visitante = resolver_equipo(p, "away_team")
+        home_score = p.get("home_score")
+        away_score = p.get("away_score")
+        resultado = f"{home_score}-{away_score}" if home_score is not None and away_score is not None else None
+        dt_str = p.get("datetime", "") or ""
+        fecha = dt_str[:10] if dt_str else None
+
+        ganador = None
+        if resultado and home_score is not None and away_score is not None:
+            if home_score > away_score:
+                ganador = local
+            elif away_score > home_score:
+                ganador = visitante
+
+        partidos_ronda = rondas[ronda_es].get("partidos", [])
+        for m in partidos_ronda:
+            match_id = m.get("id")
+            # Match by num for dieciseisavos, by slot order for later rounds
+            if ronda_es == "dieciseisavos" and match_id != num:
+                continue
+            if ronda_es != "dieciseisavos" and not (local and local != "Por determinar" and m.get("local") == local):
+                continue
+
+            if local and local != "Por determinar":
+                if m.get("local") != local:
+                    m["local"] = local
+                    cambios += 1
+            if visitante and visitante != "Por determinar":
+                if m.get("visitante") != visitante:
+                    m["visitante"] = visitante
+                    cambios += 1
+            if resultado and m.get("resultado") != resultado:
+                m["resultado"] = resultado
+                m["ganador"] = ganador
+                cambios += 1
+            if fecha and not m.get("fecha"):
+                m["fecha"] = fecha
+                cambios += 1
+            break
+
+    return cambios
+
+
+def buscar_resultados_tavily():
+    """Usa Tavily para buscar resultados recientes del Mundial 2026."""
+    if not TAVILY_KEY:
+        return []
+    try:
+        resp = requests.post(
+            "https://api.tavily.com/search",
+            json={
+                "api_key": TAVILY_KEY,
+                "query": "Mundial 2026 eliminatorias resultados dieciseisavos octavos hoy",
+                "search_depth": "basic",
+                "max_results": 5,
+                "include_answer": True,
+            },
+            timeout=20,
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            answer = data.get("answer", "") or ""
+            content = " ".join(r.get("content", "") for r in data.get("results", []))
+            return [answer + " " + content]
+    except Exception as e:
+        print(f"Tavily eliminatorias: {e}")
+    return []
+
+
+def parse_resultado_texto(texto, local, visitante):
+    """Busca 'Local X-Y Visitante' en texto."""
+    variantes = [local.lower(), visitante.lower()]
+    for pat in [
+        r"(\d{1,2})\s*[-–]\s*(\d{1,2})",
+    ]:
+        for m in re.finditer(pat, texto, re.I):
+            frag = texto[max(0, m.start()-200): m.end()+200].lower()
+            if all(v.split()[0] in frag for v in variantes):
+                if not re.search(r"\b(minuto|min\.|en juego|descanso)\b", frag):
+                    return f"{m.group(1)}-{m.group(2)}"
+    return None
+
+
+def actualizar_desde_tavily(elim):
+    """Intenta completar resultados pendientes via Tavily."""
+    textos = buscar_resultados_tavily()
+    if not textos:
+        return 0
+    texto = " ".join(textos)
+    cambios = 0
+    for ronda_key, ronda in elim.get("rondas", {}).items():
+        for m in ronda.get("partidos", []):
+            if m.get("resultado") or not m.get("local") or not m.get("visitante"):
+                continue
+            res = parse_resultado_texto(texto, m["local"], m["visitante"])
+            if res:
+                m["resultado"] = res
+                gl, gv = (int(x) for x in res.split("-"))
+                m["ganador"] = m["local"] if gl > gv else (m["visitante"] if gv > gl else None)
+                cambios += 1
+                print(f"  Tavily: {m['local']} {res} {m['visitante']}")
+    return cambios
+
+
+def propagar_ganadores(elim):
+    """Rellena equipos en rondas posteriores a partir de los ganadores."""
+    rondas = elim.get("rondas", {})
+    pairings = elim.get("bracket_pairings", {})
+    match_by_id = {}
+    for ronda in rondas.values():
+        for m in ronda.get("partidos", []):
+            match_by_id[str(m["id"])] = m
+
+    cambios = 0
+    for ronda_key in ["octavos", "cuartos", "semifinales", "final"]:
+        for pair in pairings.get(ronda_key, []):
+            dest_id = pair["id"]
+            src_ids = [str(x) for x in pair["de"]]
+            dest = match_by_id.get(dest_id)
+            if not dest:
+                continue
+            src0 = match_by_id.get(src_ids[0])
+            src1 = match_by_id.get(src_ids[1])
+            if src0 and src0.get("ganador") and dest.get("local") != src0["ganador"]:
+                dest["local"] = src0["ganador"]
+                cambios += 1
+            if src1 and src1.get("ganador") and dest.get("visitante") != src1["ganador"]:
+                dest["visitante"] = src1["ganador"]
+                cambios += 1
+    return cambios
+
+
 if __name__ == "__main__":
     print("=== Actualizando cuadro eliminatorio Mundial 2026 ===")
     partidos = obtener_partidos()
@@ -208,8 +386,24 @@ if __name__ == "__main__":
             json.dump(cuadro, f, ensure_ascii=False, indent=2)
         print(f"Cuadro guardado: {len(eliminatorias)} partidos")
         resolver_nombres_jornadas(eliminatorias)
+
+        # Actualizar JSON estructurado de eliminatorias
+        elim = cargar_eliminatorias()
+        if elim:
+            c = actualizar_desde_balldontlie(partidos, elim)
+            c += propagar_ganadores(elim)
+            if c:
+                guardar_eliminatorias(elim)
+                print(f"Eliminatorias actualizadas desde API: {c} cambio(s)")
     else:
-        print("API sin datos de eliminatorias - usando clasificaciones locales")
-        # SIEMPRE resolver nombres desde clasificaciones aunque la API falle
+        print("API sin datos - intentando Tavily + clasificaciones locales")
         resolver_nombres_jornadas([])
+        elim = cargar_eliminatorias()
+        if elim:
+            c = actualizar_desde_tavily(elim)
+            c += propagar_ganadores(elim)
+            if c:
+                guardar_eliminatorias(elim)
+                print(f"Eliminatorias actualizadas desde Tavily: {c} cambio(s)")
+
     print("=== Completado ===")
