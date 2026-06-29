@@ -863,7 +863,7 @@
       const pleno = extractPleno15(state.jornadaActual) || extractPleno15(state.prediccion) || extractPleno15(state.pleno15Data) || pleno15Recommendation() || {};
       const local = pleno.local || pleno.equipo_local || pleno.local_nombre || 'Equipo local';
       const visitante = pleno.visitante || pleno.equipo_visitante || pleno.visitante_nombre || 'Equipo visitante';
-      const selected = pleno15Sign(pleno);
+      const selected = state.generated ? pleno15Sign(pleno) : '';
       const cells = ['0','1','2','M'];
       qs('#pleno15').innerHTML = [local, visitante].map(team => `<div class="pleno-row"><strong>${escapeHtml(team)}</strong>${cells.map(s => {
         const mark = s === selected ? ' style="background:var(--green);border-color:var(--green);color:#fff;" data-selected="true"' : '';
@@ -879,6 +879,7 @@
       const rows = qsa('.match-row');
       state.generated = true;
       document.body.classList.add('generated');
+      renderPleno15();
       rows.forEach(row => row.classList.remove('reveal'));
       for (const row of rows) {
         const chosen = row.querySelector('.signs')?.dataset.selected || '';
