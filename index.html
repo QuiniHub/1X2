@@ -527,6 +527,8 @@
     }
 
     function selectedSigns(match) {
+      // Before generating, never show pre-filled signs (avoids "old quiniela" effect)
+      if (!state.generated) return '';
       const num = match.num ?? match.numero ?? match.partido;
       if (state.signAssignment[num]) return state.signAssignment[num];
       return normalizeSignText(match.signo_final || match.signo_base || match.pronostico_ia || match.pronostico_jugado || match.signo || match.prediccion || '');
@@ -810,8 +812,8 @@
 
     function renderTicket() {
       const matches = predictionMatches();
-      state.generated = false;
-      document.body.classList.remove('generated');
+      // Do NOT reset state.generated here — only the generate button controls it.
+      // applyTicketVisibility() handles the body class correctly.
       const html = matches.map(match => {
         const num = match.num ?? match.numero ?? match.partido;
         const chosen = state.mode === 'manual' ? '' : selectedSigns(match);
@@ -1174,6 +1176,9 @@
       qs('#pleno15').addEventListener('click', e => {
         const cell = e.target.closest('.pleno-cell');
         if (!cell) return;
+        // Only allow manual edit of Pleno al 15 in mixta/manual mode (not in auto)
+        if (!['mixta', 'manual'].includes(state.mode) && !state.generated) return;
+        if (state.mode === 'auto' && state.generated) return;
         const teamKey = cell.dataset.team;
         const sign = cell.dataset.sign;
         if (!teamKey || !sign) return;
