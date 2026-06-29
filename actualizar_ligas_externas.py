@@ -303,21 +303,39 @@ def _es_posicion_valida(pos):
         return False
 
 
+def _parsear_goles(texto):
+    """Extrae GF y GA de formato '20:11' o '20-11'."""
+    m = re.search(r"(\d{1,3})[:\-](\d{1,3})", texto)
+    if m:
+        try:
+            return int(m.group(1)), int(m.group(2))
+        except ValueError:
+            pass
+    return None, None
+
+
 def _parsear_tabla_tavily(texto, nombre_equipo):
-    """Extrae posicion y puntos de texto de tabla de clasificación de Tavily."""
+    """Extrae posicion, puntos, GF y GA de texto de tabla de clasificación de Tavily."""
     pos_detectada = None
     pts_detectados = None
+    gf_detectado = None
+    ga_detectado = None
 
-    # Formato: | pos | equipo | pts | ... |  (tabla markdown)
-    for m in re.finditer(r"\|\s*(\d{1,2})\s*\|\s*([^|]{3,40}?)\s*\|\s*(\d{1,3})\s*\|", texto):
-        pos_raw, team_raw, pts_raw = m.group(1), m.group(2), m.group(3)
+    # Formato completo: | pos | equipo | pts | PJ | W | D | L | GF:GA | +/- |
+    # El patrón extrae toda la fila para buscar GF:GA
+    for m in re.finditer(r"\|\s*(\d{1,2})\s*\|\s*([^|]{3,40}?)\s*\|([^|\n]{0,120})", texto):
+        pos_raw, team_raw, resto = m.group(1), m.group(2), m.group(3)
         if score_nombre(team_raw, nombre_equipo) >= 40:
             try:
                 pos_int = int(pos_raw)
-                pts_int = int(pts_raw)
                 if _es_posicion_valida(pos_int):
                     pos_detectada = pos_int
-                    pts_detectados = pts_int
+                    # Extraer puntos (primer número en el resto)
+                    nums = re.findall(r"\d{1,3}", resto)
+                    if nums:
+                        pts_detectados = int(nums[0])
+                    # Extraer GF:GA del resto de la fila
+                    gf_detectado, ga_detectado = _parsear_goles(resto)
             except ValueError:
                 pass
             break
@@ -349,7 +367,68 @@ def _parsear_tabla_tavily(texto, nombre_equipo):
             except ValueError:
                 continue
 
-    return pos_detectada, pts_detectados
+    return pos_detectada, pts_detectados, gf_detectado, ga_detectado
+
+
+def _parsear_forma_reciente(texto, nombre_equipo):
+    """Extrae últimos resultados (W/D/L) del texto de Tavily."""
+    forma = []
+    nombre_norm = normalizar(nombre_equipo)
+    # Buscar sección de resultados recientes del equipo
+    idx = -1
+    for variante in [nombre_norm[:8], normalizar(nombre_equipo.split()[-1])[:6]]:
+        if len(variante) >= 4:
+            idx = normalizar(texto).find(variante)
+            if idx >= 0:
+                break
+    if idx < 0:
+        idx = 0
+    fragmento = texto[max(0, idx - 50): idx + 600]
+    # Detectar resultados: W/D/L explícitos
+    for m in re.finditer(r"\b(W|D|L|Win|Draw|Loss|won|drew|lost)\b", fragmento, re.I):
+        token = m.group(1).upper()[0]
+        if token == "W":
+            forma.append("G")
+        elif token == "D":
+            forma.append("E")
+        elif token == "L":
+            forma.append("P")
+        if len(forma) >= 5:
+            break
+    # Detectar resultados en formato marcador: "2-0", "1-1", "0-3"
+    if not forma:
+        for m in re.finditer(r"(\d)\s*[-–]\s*(\d)", fragmento):
+            gf, gc = int(m.group(1)), int(m.group(2))
+            forma.append("G" if gf > gc else "E" if gf == gc else "P")
+            if len(forma) >= 5:
+                break
+    return forma[:5]
+
+
+def _buscar_forma_tavily(equipo, liga, api_key):
+    """Búsqueda específica de forma reciente (últimos partidos)."""
+    if not api_key or not requests:
+        return []
+    nombre = equipo.strip()
+    liga_ctx = liga if liga and liga != "desconocida" else "football"
+    query = f"{nombre} {liga_ctx} last results recent matches 2026"
+    try:
+        resp = requests.post(
+            "https://api.tavily.com/search",
+            headers={"Content-Type": "application/json"},
+            json={"api_key": api_key, "query": query, "max_results": 3, "search_depth": "basic"},
+            timeout=12,
+        )
+        resp.raise_for_status()
+        resultados = resp.json().get("results") or []
+        for r in resultados:
+            contenido = (r.get("content") or "") + " " + (r.get("title") or "")
+            forma = _parsear_forma_reciente(contenido, nombre)
+            if len(forma) >= 3:
+                return forma
+    except Exception:
+        pass
+    return []
 
 
 def _detectar_liga_contextual(contenido, nombre_equipo):
@@ -398,26 +477,33 @@ def buscar_info_tavily(equipo, contexto=""):
         liga_detectada = ""
         pos_detectada = None
         pts_detectados = None
+        gf_detectado = None
+        ga_detectado = None
         for r in resultados:
             contenido = (r.get("content") or "") + " " + (r.get("title") or "")
             textos_completos.append(contenido)
             textos_cortos.append(contenido[:500])
-            # Detectar liga con validación contextual
             if not liga_detectada:
                 liga_detectada = _detectar_liga_contextual(contenido, nombre)
-            # Parsear posición sobre el texto COMPLETO (no truncado)
             if pos_detectada is None:
-                pos_tv, pts_tv = _parsear_tabla_tavily(contenido, nombre)
+                pos_tv, pts_tv, gf_tv, ga_tv = _parsear_tabla_tavily(contenido, nombre)
                 if pos_tv:
                     pos_detectada = pos_tv
                     pts_detectados = pts_tv
+                    gf_detectado = gf_tv
+                    ga_detectado = ga_tv
+        # Buscar forma reciente si tenemos la liga identificada
+        forma_reciente = _buscar_forma_tavily(nombre, liga_detectada, api_key) if liga_detectada else []
         extracto = " | ".join(textos_cortos[:3])[:1200]
-        print(f"  Tavily [{nombre}]: liga={liga_detectada or '?'}, pos={pos_detectada}, pts={pts_detectados}")
+        print(f"  Tavily [{nombre}]: liga={liga_detectada or '?'}, pos={pos_detectada}, pts={pts_detectados}, gf={gf_detectado}, forma={forma_reciente}")
         return {
             "fuente_tavily": True,
             "liga_tavily": liga_detectada or "",
             "posicion_tavily": pos_detectada,
             "puntos_tavily": pts_detectados,
+            "gf_tavily": gf_detectado,
+            "ga_tavily": ga_detectado,
+            "forma_tavily": forma_reciente,
             "extracto_tavily": extracto,
         }
     except Exception as exc:
@@ -457,14 +543,25 @@ def actualizar_ligas():
             liga_tv = tavily_info.get("liga_tavily") or ""
             if liga_tv and liga == "desconocida":
                 liga = liga_tv
-            pos_tv = tavily_info.get("posicion_tavily")
-            pts_tv = tavily_info.get("puntos_tavily")
             if not fila:
                 fila = {}
+            pos_tv = tavily_info.get("posicion_tavily")
+            pts_tv = tavily_info.get("puntos_tavily")
             if pos_tv and not fila.get("posicion"):
                 fila["posicion"] = pos_tv
             if pts_tv and not fila.get("Pts"):
                 fila["Pts"] = pts_tv
+            # Propagar GF/GA desde Tavily si la forma local está vacía
+            if tavily_info.get("gf_tavily") is not None and not forma.get("goles_favor"):
+                forma["goles_favor"] = tavily_info["gf_tavily"]
+            if tavily_info.get("ga_tavily") is not None and not forma.get("goles_contra"):
+                forma["goles_contra"] = tavily_info["ga_tavily"]
+            # Forma reciente desde Tavily si la local está vacía
+            forma_tv = tavily_info.get("forma_tavily") or []
+            if forma_tv and not forma.get("ultimos_5_local"):
+                forma["ultimos_5_local"] = forma_tv
+            if forma_tv and not forma.get("ultimos_5_visitante"):
+                forma["ultimos_5_visitante"] = forma_tv
         if not fila or not fila.get("posicion"):
             avisos.append(f"{det['equipo']}: sin clasificacion fiable; Tavily={tavily_info.get('liga_tavily') or 'sin resultado'}, pos={tavily_info.get('posicion_tavily')}.")
         fuente = "eduardolosilla.es" if (fila or {}).get("posicion") and not tavily_info.get("fuente_tavily") else ("tavily" if tavily_info.get("liga_tavily") else "pendiente")
