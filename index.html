@@ -736,12 +736,18 @@
           state.signAssignment[num] = sorted[0];
         }
       });
-      // Elige 8: los 8 con mayor probabilidad_top (más seguros)
+      // Elige 8: triples siempre incluidos (cubren los 3 signos = 100% seguro)
+      // luego completar hasta 8 con los dobles/fijos de mayor probabilidad_top
       if (state.elige8) {
-        const byConfidence = [...matches].sort((a, b) =>
-          (Number(b.probabilidad_top) || 0) - (Number(a.probabilidad_top) || 0)
-        );
-        state.elige8Set = new Set(byConfidence.slice(0, 8).map(m => m.num ?? m.numero ?? m.partido));
+        const tripleNums = matches
+          .filter(m => state.typeAssignment[m.num ?? m.numero ?? m.partido] === 'triple')
+          .map(m => m.num ?? m.numero ?? m.partido);
+        const nonTriples = matches
+          .filter(m => state.typeAssignment[m.num ?? m.numero ?? m.partido] !== 'triple')
+          .sort((a, b) => (Number(b.probabilidad_top) || 0) - (Number(a.probabilidad_top) || 0));
+        const needed = Math.max(0, 8 - tripleNums.length);
+        const fillers = nonTriples.slice(0, needed).map(m => m.num ?? m.numero ?? m.partido);
+        state.elige8Set = new Set([...tripleNums, ...fillers]);
       } else {
         state.elige8Set = new Set();
       }
@@ -768,7 +774,8 @@
         const num = match.num ?? match.numero ?? match.partido;
         const chosen = state.mode === 'manual' ? '' : selectedSigns(match);
         const elige8 = isElige8Match(match);
-        const elige8Prob = elige8Probability(match);
+        const isTriple = betType(match) === 'triple';
+        const elige8Prob = isTriple ? 100 : elige8Probability(match);
         const elige8Label = elige8 ? `<span class="elige8-label">Elige 8${Number.isFinite(elige8Prob) ? ` · ${pct(elige8Prob)}` : ''}</span>` : '';
         return `<article class="match-row" data-num="${escapeHtml(num)}">
           <div class="match-num">${escapeHtml(num)}</div>
