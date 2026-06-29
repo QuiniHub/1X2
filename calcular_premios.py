@@ -20,6 +20,7 @@ DATA = ROOT / "data"
 PREDICCIONES = DATA / "predicciones"
 JORNADAS = DATA / "jornadas"
 QUINIELAS_JUGADAS = DATA / "quinielas_jugadas.json"
+HISTORIAL_QUINIELAS = DATA / "historial_quinielas.json"
 SALIDA = DATA / "premios" / "historial_premios.json"
 
 HEADERS_WEB = {
@@ -134,12 +135,56 @@ def prediccion_desde_quinielas_jugadas(jornada):
     }
 
 
+def prediccion_desde_historial_quinielas(jornada):
+    """Lee nuestra_quiniela del historial y convierte a formato partidos."""
+    h = cargar_json(HISTORIAL_QUINIELAS, {"jornadas": []})
+    for entry in h.get("jornadas") or []:
+        if entry.get("jornada") != jornada:
+            continue
+        nuestra = str(entry.get("nuestra_quiniela") or "").strip()
+        if not nuestra or nuestra in ("No validada", ""):
+            continue
+        signos = nuestra.split()
+        if len(signos) < 14:
+            continue
+        elige8 = {int(x) for x in (entry.get("elige8") or []) if str(x).isdigit()}
+        partidos = []
+        dobles = triples = 0
+        for idx, signo in enumerate(signos[:14], start=1):
+            signo = signo.strip().upper()
+            tipo = tipo_por_signo(signo)
+            if tipo == "DOBLE":
+                dobles += 1
+            elif tipo == "TRIPLE":
+                triples += 1
+            partidos.append({
+                "num": idx,
+                "signo_base": signo,
+                "signo_final": signo,
+                "tipo": tipo,
+                "elige8": idx in elige8,
+                "en_elige8": idx in elige8,
+            })
+        return {
+            "jornada": jornada,
+            "partidos": partidos,
+            "resumen": {"dobles": dobles, "triples": triples},
+            "elige8": sorted(elige8),
+            "origen_prediccion": "data/historial_quinielas.json",
+        }
+    return {}
+
+
 def leer_prediccion_jornada(jornada):
     # SIEMPRE priorizar los signos reales jugados sobre la predicción teórica.
     # quinielas_jugadas.json es la fuente de verdad para calcular aciertos y premios.
     jugada = prediccion_desde_quinielas_jugadas(jornada)
     if jugada and jugada.get("partidos"):
         return jugada
+    # Segunda prioridad: nuestra_quiniela del historial de jornadas cerradas
+    desde_historial = prediccion_desde_historial_quinielas(jornada)
+    if desde_historial and desde_historial.get("partidos"):
+        return desde_historial
     # Fallback si no hay quiniela jugada registrada
     candidatos = [
         PREDICCIONES / f"snapshot_jornada_{jornada}.json",

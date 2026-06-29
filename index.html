@@ -1061,7 +1061,9 @@
       qs('#historyTable').innerHTML = rows.length ? `<table><thead><tr><th>Jornada</th><th>Aciertos</th><th>Premio cobrado</th><th>Acumulado total</th></tr></thead><tbody>${rows.map(r => {
         const premio = rowPrize(r);
         acumulado += premio;
-        return `<tr class="${premio > 0 ? 'prize' : ''}"><td>${escapeHtml(r.jornada)}</td><td>${escapeHtml(historyAciertos(r))}</td><td>${eur(premio)}</td><td>${eur(acumulado)}</td></tr>`;
+        const pendientePremio = historyAciertos(r) >= 12 && premio === 0 && (r.fuente_premio === 'pendiente' || !r.fuente_premio);
+        const premioCell = pendientePremio ? `<span title="12+ aciertos: puede haber premio pendiente de confirmar" style="color:var(--yellow,#f59e0b)">⏳ pendiente</span>` : eur(premio);
+        return `<tr class="${premio > 0 ? 'prize' : pendientePremio ? 'highlight' : ''}"><td>${escapeHtml(r.jornada)}</td><td>${escapeHtml(historyAciertos(r))}</td><td>${premioCell}</td><td>${eur(acumulado)}</td></tr>`;
       }).join('')}</tbody></table>` : '<div class="empty">Sin jornadas con predicción IA registradas todavía.</div>';
       qs('#historyBalance').innerHTML = `<div><span>Total premios cobrados</span><strong>${eur(totalCobrado)}</strong></div>`;
     }
