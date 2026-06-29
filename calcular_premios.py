@@ -431,48 +431,68 @@ def buscar_premio_tavily(jornada, aciertos, gano_elige8):
     api_key = os.environ.get("TAVILY_API_KEY", "")
     if not api_key:
         return None
-    try:
-        query = f"quiniela jornada {jornada} 2026 premios {aciertos} aciertos euros resultado"
-        r = requests.post(
-            "https://api.tavily.com/search",
-            headers={"Content-Type": "application/json"},
-            json={
-                "api_key": api_key,
-                "query": query,
-                "search_depth": "advanced",
-                "max_results": 5,
-                "include_answer": True,
-            },
-            timeout=20
-        )
-        if r.status_code != 200:
-            return None
-        data = r.json()
-        textos = [data.get("answer", "")]
-        for res in data.get("results", []):
-            textos.append(res.get("content", ""))
-        for texto in textos:
-            if not texto:
+
+    # Multiple focused queries — World Cup quinielas may use different terminology
+    queries = [
+        f"La Quiniela jornada {jornada} escrutinio premios {aciertos} aciertos euros 2026",
+        f"quiniela futbol jornada {jornada} 2026 resultado escrutinio premio categoría {aciertos} aciertos",
+        f"loteriasyapuestas quiniela jornada {jornada} premios {aciertos}",
+    ]
+    if gano_elige8:
+        queries.insert(0, f"La Quiniela jornada {jornada} 2026 Elige8 premio euros {aciertos} aciertos")
+
+    for query in queries:
+        try:
+            r = requests.post(
+                "https://api.tavily.com/search",
+                headers={"Content-Type": "application/json"},
+                json={
+                    "api_key": api_key,
+                    "query": query,
+                    "search_depth": "advanced",
+                    "max_results": 6,
+                    "include_answer": True,
+                },
+                timeout=20
+            )
+            if r.status_code != 200:
                 continue
-            patrones = [
-                rf'{aciertos}\s+aciertos?[^\d]{{0,80}}(\d{{1,3}}(?:[\.,]\d{{3}})*[\.,]\d{{2}})\s*[€e]',
-                rf'(\d{{1,3}}(?:[\.,]\d{{3}})*[\.,]\d{{2}})\s*[€e][^\d]{{0,40}}{aciertos}\s+aciertos?',
-                rf'premio[^\d]{{0,40}}{aciertos}[^\d]{{0,40}}(\d{{1,3}}(?:[\.,]\d{{3}})*[\.,]\d{{2}})\s*[€e]',
-            ]
-            for patron in patrones:
-                m = re.search(patron, texto, re.IGNORECASE)
-                if not m:
+            data = r.json()
+            textos = [data.get("answer", "")]
+            for res in data.get("results", []):
+                textos.append(res.get("content", ""))
+            for texto in textos:
+                if not texto:
                     continue
-                try:
-                    raw = m.group(1).replace('.', '').replace(',', '.')
-                    valor = float(raw)
-                    if 0.50 < valor < 10_000_000:
-                        print(f"J{jornada}: premio encontrado via Tavily: {valor} EUR")
-                        return round(valor, 2), "tavily"
-                except Exception:
-                    continue
-    except Exception as e:
-        print(f"Tavily error buscando premio J{jornada}: {e}")
+                patrones = [
+                    rf'{aciertos}\s+aciertos?[^\d]{{0,80}}(\d{{1,3}}(?:[\.,]\d{{3}})*[\.,]\d{{2}})\s*[€e]',
+                    rf'(\d{{1,3}}(?:[\.,]\d{{3}})*[\.,]\d{{2}})\s*[€e][^\d]{{0,40}}{aciertos}\s+aciertos?',
+                    rf'premio[^\d]{{0,40}}{aciertos}[^\d]{{0,40}}(\d{{1,3}}(?:[\.,]\d{{3}})*[\.,]\d{{2}})\s*[€e]',
+                    rf'categor[ií]a\s*\w*[^\d]{{0,60}}{aciertos}[^\d]{{0,60}}(\d{{1,3}}(?:[\.,]\d{{3}})*[\.,]\d{{2}})\s*[€e]',
+                ]
+                for patron in patrones:
+                    m = re.search(patron, texto, re.IGNORECASE)
+                    if not m:
+                        continue
+                    try:
+                        raw = m.group(1).replace('.', '').replace(',', '.')
+                        valor = float(raw)
+                        if 0.50 < valor < 10_000_000:
+                            premio_elige8 = 0.0
+                            if gano_elige8:
+                                m8 = re.search(r'elige\s*8[^\d]{0,60}(\d{1,3}(?:[\.,]\d{3})*[\.,]\d{2})\s*[€e]', texto, re.IGNORECASE)
+                                if m8:
+                                    try:
+                                        premio_elige8 = float(m8.group(1).replace('.', '').replace(',', '.'))
+                                    except Exception:
+                                        pass
+                            print(f"J{jornada}: premio encontrado via Tavily: {valor} EUR (elige8: {premio_elige8})")
+                            return round(valor + premio_elige8, 2), "tavily"
+                    except Exception:
+                        continue
+        except Exception as e:
+            print(f"Tavily error en query '{query}': {e}")
+            continue
     return None
 
 

@@ -1033,8 +1033,25 @@
       }).join('') : '<div class="empty">Clasificaciones Mundial 2026 pendientes de cargar.</div>';
     }
 
+    const premiosLocales = (() => {
+      try { return JSON.parse(localStorage.getItem('premios_confirmados') || '{}'); }
+      catch { return {}; }
+    })();
+
+    function guardarPremioLocal(jornada, importe, elige8Importe = 0) {
+      premiosLocales[String(jornada)] = { premio: importe, elige8: elige8Importe, total: importe + elige8Importe, confirmado_en: new Date().toISOString() };
+      try { localStorage.setItem('premios_confirmados', JSON.stringify(premiosLocales)); } catch {}
+    }
+
     function rowPrize(row) {
+      const local = premiosLocales[String(row.jornada)];
+      if (local) return Number(local.total || local.premio || 0);
       return firstNumber(row.premio_eur, row.premio, row.premio_euros, row.cobrado, 0) || 0;
+    }
+
+    function rowPremioElige8(row) {
+      const local = premiosLocales[String(row.jornada)];
+      return local ? Number(local.elige8 || 0) : Number(row.premio_elige8 || 0);
     }
 
     function historyAciertos(row) {
@@ -1064,8 +1081,12 @@
       qs('#historyTable').innerHTML = rows.length ? `<table><thead><tr><th>Jornada</th><th>Aciertos</th><th>Premio cobrado</th><th>Acumulado total</th></tr></thead><tbody>${rows.map(r => {
         const premio = rowPrize(r);
         acumulado += premio;
-        const pendientePremio = historyAciertos(r) >= 12 && premio === 0 && (r.fuente_premio === 'pendiente' || !r.fuente_premio);
-        const premioCell = pendientePremio ? `<span title="12+ aciertos: puede haber premio pendiente de confirmar" style="color:var(--yellow,#f59e0b)">⏳ pendiente</span>` : eur(premio);
+        const pendientePremio = historyAciertos(r) >= 10 && premio === 0 && r.fuente_premio !== 'confirmado_usuario' && !premiosLocales[String(r.jornada)] && (r.fuente_premio === 'pendiente' || !r.fuente_premio);
+        const e8Premio = rowPremioElige8(r);
+        const e8Label = e8Premio > 0 ? ` <span style="font-size:11px;opacity:0.75">+${eur(e8Premio)} Elige8</span>` : '';
+        const premioCell = pendientePremio
+          ? `<span style="color:var(--yellow,#f59e0b);cursor:pointer;text-decoration:underline dotted" data-confirm-premio="${escapeHtml(String(r.jornada))}" title="Haz clic para introducir el premio manualmente">⏳ confirmar</span>`
+          : `${eur(premio)}${e8Label}`;
         return `<tr class="${premio > 0 ? 'prize' : pendientePremio ? 'highlight' : ''}"><td>${escapeHtml(r.jornada)}</td><td>${escapeHtml(historyAciertos(r))}</td><td>${premioCell}</td><td>${eur(acumulado)}</td></tr>`;
       }).join('')}</tbody></table>` : '<div class="empty">Sin jornadas con predicción IA registradas todavía.</div>';
       qs('#historyBalance').innerHTML = `<div><span>Total premios cobrados</span><strong>${eur(totalCobrado)}</strong></div>`;
@@ -1186,6 +1207,32 @@
         state.pleno15Manual[teamKey] = sign;
         renderPleno15();
       });
+      qs('#historyTable').addEventListener('click', e => {
+        const btn = e.target.closest('[data-confirm-premio]');
+        if (!btn) return;
+        const jornada = btn.dataset.confirmPremio;
+        const rows = historyRowsWithIa();
+        const row = rows.find(r => String(r.jornada) === String(jornada));
+        const aciertos = row ? historyAciertos(row) : '?';
+        const tieneElige8 = row && row.elige8_jugado;
+
+        const input = prompt(
+          `Jornada ${jornada} · ${aciertos} aciertos\n\nIntroduce el premio cobrado por ${aciertos} aciertos (sin Elige 8):\nEj: 3.86 o 0 si no hubo premio`,
+          '0'
+        );
+        if (input === null) return;
+        const importe = parseFloat(String(input).replace(',', '.')) || 0;
+
+        let elige8Importe = 0;
+        if (tieneElige8 && row.elige8_acertado) {
+          const inp8 = prompt(`Premio adicional por Elige 8 acertado en jornada ${jornada}:`, '0');
+          if (inp8 !== null) elige8Importe = parseFloat(String(inp8).replace(',', '.')) || 0;
+        }
+
+        guardarPremioLocal(jornada, importe, elige8Importe);
+        renderHistory();
+      });
+
       qs('#elige8Toggle').addEventListener('change', e => {
         state.elige8 = e.target.checked;
         renderPredictionMetrics();
