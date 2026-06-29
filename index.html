@@ -544,10 +544,28 @@
         .slice(0, 14);
     }
 
-    function calculateCost(apuestas = Math.pow(2, state.dobles) * Math.pow(3, state.triples), elige8Activo = state.elige8) {
+    function countSignsFromBoleto() {
+      // Cuenta dobles y triples reales de los signos seleccionados en el boleto
+      let dobles = 0, triples = 0;
+      qsa('.signs', qs('#ticketList') || document).forEach(box => {
+        const sel = normalizeSignText(box.dataset.selected || '');
+        if (sel.length === 3) triples++;
+        else if (sel.length === 2) dobles++;
+      });
+      return { dobles, triples };
+    }
+
+    function calculateCost(elige8Activo = state.elige8) {
+      // Si hay boleto generado con signos reales, usarlos; si no, usar los contadores
+      let dobles = state.dobles, triples = state.triples;
+      if (state.generated || state.mode === 'mixta' || state.mode === 'manual') {
+        const real = countSignsFromBoleto();
+        if (real.dobles + real.triples > 0) { dobles = real.dobles; triples = real.triples; }
+      }
+      const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
       const importeQuiniela = apuestas * 1.50;
       const importeElige8 = elige8Activo ? apuestas * 0.50 : 0;
-      return { apuestas, importeQuiniela, importeElige8, importeTotal: importeQuiniela + importeElige8 };
+      return { apuestas, dobles, triples, importeQuiniela, importeElige8, importeTotal: importeQuiniela + importeElige8 };
     }
 
     function updateCostPanel() {
@@ -1172,6 +1190,7 @@
           : ['1','X','2'].filter(s => (current + clicked).includes(s)).join('');
         signsBox.dataset.selected = next;
         renderSignSelection(signsBox);
+        updateCostPanel();
       });
       qs('#generateBtn').addEventListener('click', animateTicket);
       const confirmBtn = document.getElementById('confirmBtn');
