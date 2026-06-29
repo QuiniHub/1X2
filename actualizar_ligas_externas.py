@@ -16,6 +16,8 @@ try:
 except Exception:
     requests = None
 
+import os
+
 try:
     from bs4 import BeautifulSoup
 except Exception:
@@ -260,6 +262,57 @@ def slug_liga(liga):
     return normalizar(liga).replace(" ", "-")
 
 
+def buscar_info_tavily(equipo, contexto=""):
+    """Busca info de un equipo/liga usando Tavily cuando las fuentes locales fallan."""
+    api_key = os.environ.get("TAVILY_API_KEY", "")
+    if not api_key or not requests:
+        return {}
+    nombre = equipo.strip()
+    query = f"{nombre} football league 2026 classification standings table"
+    if contexto:
+        query = f"{nombre} {contexto} football 2026 standings"
+    try:
+        resp = requests.post(
+            "https://api.tavily.com/search",
+            headers={"Content-Type": "application/json"},
+            json={"api_key": api_key, "query": query, "max_results": 5, "search_depth": "basic"},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        resultados = resp.json().get("results") or []
+        textos = []
+        liga_detectada = ""
+        pos_detectada = None
+        for r in resultados:
+            contenido = (r.get("content") or "") + " " + (r.get("title") or "")
+            textos.append(contenido[:300])
+            # Intentar detectar liga en el texto
+            if not liga_detectada:
+                for liga_cand in ["Allsvenskan", "Veikkausliiga", "Eliteserien", "Superligaen",
+                                   "Scottish Premiership", "Eredivisie", "Bundesliga", "Ligue 1",
+                                   "Serie A", "Premier League", "La Liga", "Primeira Liga",
+                                   "Ekstraklasa", "Czech Liga", "Slovak Super Liga", "Swiss Super League",
+                                   "Austrian Bundesliga", "Belgian Pro League"]:
+                    if liga_cand.lower() in contenido.lower():
+                        liga_detectada = liga_cand
+                        break
+            # Intentar extraer posición
+            if pos_detectada is None:
+                m = re.search(rf"(?:position|pos\.?|puesto|rank)[^\d]{{0,10}}(\d{{1,2}})", contenido, re.I)
+                if not m:
+                    m = re.search(rf"(\d{{1,2}})[^\d]{{0,5}}{re.escape(normalizar(nombre)[:8])}", normalizar(contenido), re.I)
+                if m:
+                    pos_detectada = int(m.group(1))
+        return {
+            "fuente_tavily": True,
+            "liga_tavily": liga_detectada or "",
+            "posicion_tavily": pos_detectada,
+            "extracto_tavily": " | ".join(textos[:3])[:500],
+        }
+    except Exception as exc:
+        return {"aviso_tavily": str(exc)[:120]}
+
+
 def consultar_resultados_futbol(equipo, liga):
     if not liga or liga == "desconocida":
         return {}
@@ -284,9 +337,21 @@ def actualizar_ligas():
         liga = liga or previo.get("liga") or "desconocida"
         forma = forma_equipo(clave)
         extra = consultar_resultados_futbol(det["equipo"], liga)
+        tavily_info = {}
+        if not fila or liga == "desconocida":
+            tavily_info = buscar_info_tavily(det["equipo"])
+            liga_tv = tavily_info.get("liga_tavily") or ""
+            if liga_tv and liga == "desconocida":
+                liga = liga_tv
+            pos_tv = tavily_info.get("posicion_tavily")
+            if pos_tv and not (fila or {}).get("posicion"):
+                if not fila:
+                    fila = {}
+                fila["posicion"] = fila.get("posicion") or pos_tv
         if not fila:
-            avisos.append(f"{det['equipo']}: sin clasificacion externa fiable; se conserva ficha pendiente y se usara fuente alternativa en ciclos futuros.")
-        equipos[clave] = {**previo, **det, "liga": liga, "posicion": numero((fila or {}).get("posicion"), previo.get("posicion")), "puntos": numero((fila or {}).get("Pts") if fila else None, previo.get("puntos")), **forma, "fuente_principal": "eduardolosilla.es" if fila else "pendiente", "fuentes_consultadas": [URL_LOSILLA, extra.get("fuente_resultados_futbol"), "flashscore_ultimo_recurso"], "actualizado_en": ahora(), **extra}
+            avisos.append(f"{det['equipo']}: sin clasificacion fiable en Losilla; se consulto Tavily ({tavily_info.get('liga_tavily') or 'sin resultado'}).")
+        fuente = "eduardolosilla.es" if fila and not tavily_info else ("tavily" if tavily_info.get("liga_tavily") else "pendiente")
+        equipos[clave] = {**previo, **det, "liga": liga, "posicion": numero((fila or {}).get("posicion"), previo.get("posicion")), "puntos": numero((fila or {}).get("Pts") if fila else None, previo.get("puntos")), **forma, "fuente_principal": fuente, "fuentes_consultadas": [URL_LOSILLA, extra.get("fuente_resultados_futbol"), "tavily" if tavily_info else None], "actualizado_en": ahora(), **extra, **tavily_info}
     data.update({"version": "1.0", "actualizado_en": ahora(), "total_equipos": len(equipos), "equipos_detectados_ultima_jornada": sorted(detectados), "avisos": avisos[-50:]})
     guardar(SALIDA_LIGAS, data)
     return data, detectados
