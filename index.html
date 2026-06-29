@@ -1084,9 +1084,11 @@
         const pendientePremio = historyAciertos(r) >= 10 && premio === 0 && r.fuente_premio !== 'confirmado_usuario' && !premiosLocales[String(r.jornada)] && (r.fuente_premio === 'pendiente' || !r.fuente_premio);
         const e8Premio = rowPremioElige8(r);
         const e8Label = e8Premio > 0 ? ` <span style="font-size:11px;opacity:0.75">+${eur(e8Premio)} Elige8</span>` : '';
+        const desglose = r.desglose_columnas;
+        const desgloseTitle = desglose ? Object.entries(desglose.desglose || {}).map(([k,v]) => `${k} ac: ${v.columnas}col×${eur(v.premio_cat)}=${eur(v.subtotal)}`).join(' | ') : '';
         const premioCell = pendientePremio
           ? `<span style="color:var(--yellow,#f59e0b);cursor:pointer;text-decoration:underline dotted" data-confirm-premio="${escapeHtml(String(r.jornada))}" title="Haz clic para introducir el premio manualmente">⏳ confirmar</span>`
-          : `${eur(premio)}${e8Label}`;
+          : `<span title="${escapeHtml(desgloseTitle || '')}">${eur(premio)}${e8Label}</span>`;
         return `<tr class="${premio > 0 ? 'prize' : pendientePremio ? 'highlight' : ''}"><td>${escapeHtml(r.jornada)}</td><td>${escapeHtml(historyAciertos(r))}</td><td>${premioCell}</td><td>${eur(acumulado)}</td></tr>`;
       }).join('')}</tbody></table>` : '<div class="empty">Sin jornadas con predicción IA registradas todavía.</div>';
       qs('#historyBalance').innerHTML = `<div><span>Total premios cobrados</span><strong>${eur(totalCobrado)}</strong></div>`;

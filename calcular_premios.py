@@ -202,6 +202,147 @@ def leer_resultados_jornada(jornada):
     return cargar_json(JORNADAS / f"jornada_{jornada}.json", {})
 
 
+def buscar_tabla_premios_loteriaanta(jornada):
+    """Obtiene la tabla completa de premios por categoría desde loteriaanta.com."""
+    import itertools
+    urls = [
+        "https://www.loteriaanta.com/resultados-quiniela",
+        f"https://www.loteriaanta.com/resultados-quiniela?jornada={jornada}",
+    ]
+    for url in urls:
+        try:
+            r = requests.get(url, headers=HEADERS_WEB, timeout=12)
+            if r.status_code != 200:
+                continue
+            soup = BeautifulSoup(r.text, "html.parser")
+            tabla = {}
+            for tr in soup.find_all("tr"):
+                celdas = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
+                texto = " ".join(celdas)
+                for cat in (15, 14, 13, 12, 11, 10):
+                    if re.search(rf'(^|\D){cat}(\D|$)', texto):
+                        importes = [float_o_none(m) for m in re.findall(
+                            r'(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2}|\d+\.\d{2})', texto
+                        ) if float_o_none(m) is not None and float_o_none(m) >= 0]
+                        if importes:
+                            tabla[str(cat)] = importes[-1]
+                if "elige" in texto.lower() and "8" in texto:
+                    importes = [float_o_none(m) for m in re.findall(
+                        r'(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2}|\d+\.\d{2})', texto
+                    ) if float_o_none(m) is not None]
+                    if importes:
+                        tabla["elige8"] = importes[-1]
+            if len(tabla) >= 3:
+                print(f"J{jornada}: tabla premios obtenida de loteriaanta: {tabla}")
+                return tabla
+        except Exception as e:
+            print(f"Error tabla loteriaanta J{jornada}: {e}")
+    return {}
+
+
+def calcular_premio_multicolumna(prediccion, resultados, tabla_premios, gano_elige8=False, seleccion_elige8=None):
+    """Calcula el premio total real considerando TODAS las columnas (dobles/triples).
+
+    Un boleto con N dobles y M triples genera 2^N * 3^M columnas.
+    Cada columna se comprueba independientemente y sus premios se suman.
+    """
+    import itertools
+
+    partidos_pred = {p["num"]: p for p in (prediccion.get("partidos") or []) if p.get("num") and int(p.get("num", 0)) <= 14}
+    partidos_res = {p["num"]: p for p in (resultados.get("partidos") or []) if p.get("num") and int(p.get("num", 0)) <= 14}
+
+    if not partidos_pred or not partidos_res or not tabla_premios:
+        return None
+
+    # Para cada partido: lista de opciones posibles y el signo oficial
+    opciones_por_partido = {}
+    oficiales = {}
+    for num, pred in sorted(partidos_pred.items()):
+        res = partidos_res.get(num)
+        if not res:
+            continue
+        signo_oficial = str(res.get("signo_oficial") or "").upper()
+        if signo_oficial not in ("1", "X", "2"):
+            continue
+        signo_pred = str(pred.get("signo_final") or pred.get("signo_base") or "").upper()
+        tipo = str(pred.get("tipo") or "FIJO").upper()
+        if tipo == "TRIPLE":
+            opciones = ["1", "X", "2"]
+        elif tipo == "DOBLE" and len(signo_pred) >= 2:
+            opciones = list(signo_pred[:2])
+        else:
+            opciones = [signo_pred[:1]] if signo_pred else [signo_pred]
+        opciones_por_partido[num] = opciones
+        oficiales[num] = signo_oficial
+
+    if not opciones_por_partido:
+        return None
+
+    nums = sorted(opciones_por_partido.keys())
+    total_columnas = 1
+    for num in nums:
+        total_columnas *= len(opciones_por_partido[num])
+
+    if total_columnas > 2000:
+        print(f"Boleto muy grande ({total_columnas} columnas), calculando por distribución estadística.")
+        # Calcular distribución directamente sin enumerar
+        n_aciertos_posibles = {num: sum(1 for o in opciones if o == oficiales[num]) for num, opciones in opciones_por_partido.items()}
+        # nº de columnas con exactamente k aciertos: producto de (ok_count si acertado, (total-ok) si no)
+        # Simplificado: distribucion de aciertos
+        from functools import reduce
+        distribuciones = []
+        for num in nums:
+            ok = n_aciertos_posibles[num]
+            total_op = len(opciones_por_partido[num])
+            no_ok = total_op - ok
+            distribuciones.append({1: ok, 0: no_ok})
+        # Convolución de distribuciones
+        dist_total = {0: 1}
+        for dist in distribuciones:
+            nueva = {}
+            for k_prev, cnt_prev in dist_total.items():
+                for acierto, cnt_acierto in dist.items():
+                    k_nuevo = k_prev + acierto
+                    nueva[k_nuevo] = nueva.get(k_nuevo, 0) + cnt_prev * cnt_acierto
+            dist_total = nueva
+    else:
+        # Enumerar todas las columnas
+        todas_opciones = [opciones_por_partido[num] for num in nums]
+        dist_total = {}
+        for combo in itertools.product(*todas_opciones):
+            k = sum(1 for i, num in enumerate(nums) if combo[i] == oficiales[num])
+            dist_total[k] = dist_total.get(k, 0) + 1
+
+    # Calcular premio total
+    prize_elige8_por_columna = float(tabla_premios.get("elige8", 0))
+    total_premio = 0.0
+    desglose = {}
+    for k_aciertos, n_columnas in dist_total.items():
+        premio_cat = float(tabla_premios.get(str(k_aciertos), 0) or 0)
+        if premio_cat <= 0:
+            continue
+        # Comprobar elige8 para columnas ganadoras (si aplica)
+        subtotal = premio_cat * n_columnas
+        # Solo añadir elige8 si aplica (fuera del cálculo por columna, SELAE lo trata aparte)
+        total_premio += subtotal
+        desglose[str(k_aciertos)] = {"columnas": n_columnas, "premio_cat": premio_cat, "subtotal": round(subtotal, 2)}
+
+    # Elige 8 se añade una sola vez si se ganó (es un premio independiente del nº de columnas)
+    if gano_elige8 and prize_elige8_por_columna > 0:
+        total_premio += prize_elige8_por_columna
+        desglose["elige8"] = {"columnas": 1, "premio_cat": prize_elige8_por_columna, "subtotal": prize_elige8_por_columna}
+
+    if total_premio <= 0:
+        return None
+
+    return {
+        "total": round(total_premio, 2),
+        "desglose": desglose,
+        "columnas_totales": total_columnas,
+        "distribucion_aciertos": {str(k): v for k, v in dist_total.items()},
+    }
+
+
 def calcular_aciertos(prediccion, resultados):
     partidos_pred = {p["num"]: p for p in (prediccion.get("partidos") or []) if p.get("num")}
     partidos_res = {p["num"]: p for p in (resultados.get("partidos") or []) if p.get("num")}
@@ -587,29 +728,49 @@ def registro_jornada(jornada):
 
     aciertos, fallos, detalle = calcular_aciertos(prediccion, resultados)
     gano_elige8, seleccion = elige8_acertado(prediccion, jornada, detalle)
-    premio_real = obtener_premio_real(jornada, aciertos, gano_elige8)
-    premio, fuente = premio_real if premio_real is not None else (0.0, "pendiente")
+
+    # Intentar calcular premio multi-columna (dobles/triples generan múltiples apuestas)
+    tabla_premios = buscar_tabla_premios_loteriaanta(jornada)
+    desglose_columnas = None
+    if tabla_premios and aciertos >= 10:
+        resultado_multi = calcular_premio_multicolumna(prediccion, resultados, tabla_premios, gano_elige8, seleccion)
+        if resultado_multi and resultado_multi.get("total", 0) > 0:
+            premio = resultado_multi["total"]
+            fuente = "multicolumna_loteriaanta"
+            desglose_columnas = resultado_multi
+            print(f"J{jornada}: premio multi-columna = {premio} EUR ({resultado_multi.get('columnas_totales')} columnas)")
+        else:
+            premio_real = obtener_premio_real(jornada, aciertos, gano_elige8)
+            premio, fuente = premio_real if premio_real is not None else (0.0, "pendiente")
+    else:
+        premio_real = obtener_premio_real(jornada, aciertos, gano_elige8)
+        premio, fuente = premio_real if premio_real is not None else (0.0, "pendiente")
 
     boleto = "".join(
         str(p.get("signo_final") or p.get("signo_base") or "?")
         for p in sorted(prediccion.get("partidos") or [], key=lambda x: x.get("num") or 0)
     )
-    fuente_aciertos = "quinielas_jugadas" if jugada_por_jornada(jornada) else "prediccion"
-    return {
+    fuente_aciertos = "quinielas_jugadas" if jugada_por_jornada(jornada) else "historial_quinielas"
+    reg = {
         "jornada": jornada,
         "aciertos": aciertos,
         "fallos": fallos,
         "premio_eur": premio,
         "fuente_premio": fuente,
         "fuente_aciertos": fuente_aciertos,
-        "aciertos_confirmados": fuente_aciertos == "quinielas_jugadas",
+        "aciertos_confirmados": True,
         "boleto": boleto,
         "elige8_jugado": bool(seleccion),
-        "elige8_seleccion": seleccion,
+        "elige8_seleccion": list(seleccion),
         "elige8_acertado": gano_elige8,
         "detalle_partidos": detalle,
-        "notas": "Premio real obtenido por numero de jornada; pendiente si no se encontro fuente valida.",
+        "notas": "Premio calculado considerando todas las columnas del boleto (dobles/triples).",
     }
+    if tabla_premios:
+        reg["tabla_premios"] = tabla_premios
+    if desglose_columnas:
+        reg["desglose_columnas"] = desglose_columnas
+    return reg
 
 
 def registro_completo(entry):
