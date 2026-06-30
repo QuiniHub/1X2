@@ -1803,7 +1803,11 @@ ${resumenDiario || "Sin entradas recientes"}`;
         'parte medico', 'operacion', 'resultado de hoy',
         'quien juega', 'cuando juega', 'a que hora',
         'champions', 'europa league', 'copa del rey',
-        'clasificacion actual', 'como va la liga', 'posicion actual'
+        'clasificacion', 'clasificación', 'como va la liga', 'posicion',
+        'allsvenskan', 'veikkausliiga', 'liga sueca', 'liga finlandesa',
+        'noruega', 'dinamarca', 'nordica', 'nórdica',
+        'forma', 'racha', 'ultimos partidos', 'últimos partidos',
+        'mundial 2026', 'grupo', 'eliminatoria'
       ];
       return triggers.some(kw => t.includes(kw));
     }
@@ -1811,17 +1815,23 @@ ${resumenDiario || "Sin entradas recientes"}`;
     // Construye query de búsqueda para Tavily
     function construirQueryBusqueda(texto) {
       const t = texto.toLowerCase();
+      // Detectar si es sobre ligas nórdicas
+      if (/allsvenskan|suec|veikkausliiga|finlan|norueg|dinamarc|nordic|nórdic/.test(t)) {
+        return `${texto.slice(0, 80)} 2026 clasificacion resultados`;
+      }
       const equipos = [
         'real madrid', 'barcelona', 'atletico', 'sevilla', 'valencia',
         'betis', 'villarreal', 'athletic', 'sociedad', 'osasuna',
         'mallorca', 'celta', 'getafe', 'rayo', 'girona', 'las palmas',
         'argentina', 'portugal', 'brasil', 'francia', 'alemania', 'suiza',
-        'colombia', 'australia', 'egipto', 'croacia'
+        'colombia', 'australia', 'egipto', 'croacia', 'göteborg', 'kalmar',
+        'malmö', 'sirius', 'djurgarden', 'hammarby', 'aik', 'elfsborg',
+        'sjk', 'hjk', 'fc lahti', 'ilves', 'vps', 'inter turku'
       ];
       const equipo = equipos.find(e => t.includes(e));
       return equipo
         ? `${equipo} noticias futbol 2026`
-        : `futbol quiniela ${texto.slice(0, 50)} 2026`;
+        : `futbol quiniela ${texto.slice(0, 60)} 2026`;
     }
 
     // Llama a Tavily y devuelve contexto web
@@ -1829,26 +1839,26 @@ ${resumenDiario || "Sin entradas recientes"}`;
       if (!WORKER_URL) return null;
       try {
         const query = construirQueryBusqueda(pregunta);
+        const esNordica = /allsvenskan|suec|veikkausliiga|finlan|norueg|dinamarc|nordic/i.test(pregunta);
         const res = await fetch(`${WORKER_URL}/api/tavily`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             query: query,
-            search_depth: 'basic',
-            max_results: 4,
+            search_depth: 'advanced',
+            max_results: 5,
             include_answer: true,
-            include_domains: [
-              'marca.com', 'as.com', 'sport.es', 'mundodeportivo.com',
-              'goal.com', 'transfermarkt.es', 'bbc.com/sport', 'espn.com'
-            ]
+            include_domains: esNordica
+              ? ['eduardolosilla.es', 'flashscore.es', 'sofascore.com', 'soccerway.com', 'transfermarkt.es']
+              : ['eduardolosilla.es', 'marca.com', 'as.com', 'goal.com', 'transfermarkt.es', 'sofascore.com']
           })
         });
         if (!res.ok) return null;
         const data = await res.json();
         let ctx = '';
         if (data.answer) ctx += `Resumen: ${data.answer}\n\n`;
-        (data.results || []).slice(0, 3).forEach((r, i) => {
-          ctx += `[${i+1}] ${r.title}\n${(r.content || '').slice(0, 280)}...\nFuente: ${r.url}\n\n`;
+        (data.results || []).slice(0, 4).forEach((r, i) => {
+          ctx += `[${i+1}] ${r.title}\n${(r.content || '').slice(0, 300)}...\nFuente: ${r.url}\n\n`;
         });
         return ctx.trim() || null;
       } catch (e) {
@@ -1899,9 +1909,9 @@ ${resumenDiario || "Sin entradas recientes"}`;
         const contexto = construirContextoIA();
 
         // Buscar datos de fútbol en tiempo real (ESPN + TheSportsDB via Worker) si la pregunta lo requiere
-        const necesitaFutbol = /resultado|marcador|ganó|gano|ganó|empat|jugó|jugaron|hoy|ayer|partido|clasificaci|liga|champions|premier|bundesliga|serie a|ligue|mundial|eliminatori/i.test(texto);
+        const necesitaFutbol = /resultado|marcador|gan[oó]|empat|jug[oó]|jugaron|hoy|ayer|partido|clasificaci|liga|champions|premier|bundesliga|serie a|ligue|mundial|eliminatori|allsvenskan|veikkausliiga|nordic|suec|finlan|norueg|dinamarc/i.test(texto);
         const footballPromise = necesitaFutbol
-          ? fetch(`${WORKER_URL}/api/football?ligas=esp.1,esp.2,UEFA.CHAMPIONS,UEFA.EUROPA,eng.1,ger.1,ita.1,FIFA.WORLD&dias=3`)
+          ? fetch(`${WORKER_URL}/api/football?ligas=all&dias=7`)
               .then(r => r.ok ? r.json() : null).catch(() => null)
           : Promise.resolve(null);
 
