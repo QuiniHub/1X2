@@ -1546,26 +1546,31 @@
 
 CONTEXTO IMPORTANTE:
 - Los partidos 1-5 son del MUNDIAL 2026 fase eliminatoria. Se juegan en EEUU, México y Canadá — NO hay ventaja de local real, es sede neutral. Para estos partidos usa el historial del Mundial 2026 que aparece abajo y tu conocimiento de cada selección.
-- Los partidos 6-14 son de ligas nórdicas (Veikkausliiga finlandesa y Allsvenskan sueca). Para estos usa la forma ESPN si la hay, y tu conocimiento de esas ligas.
-- El Pleno al 15 es un partido adicional fuera del boleto.
+- Los partidos 6-14 son de ligas nórdicas (Veikkausliiga finlandesa y Allsvenskan sueca). Para estos usa la forma ESPN si la hay, y tu conocimiento general de esas ligas y equipos.
+- IMPORTANTE SOBRE % : Cada partido incluye el "Motor %" calculado por nuestro sistema. Tus porcentajes IA DEBEN partir de esos valores y ajustarse como MÁXIMO ±10 puntos según factores contextuales que el motor no tenga (lesiones conocidas, forma reciente, motivación táctica). NO inventes % aleatorios — el motor ya tiene datos calibrados.
 
 DATOS POR PARTIDO:
 ${listaPartidos}
-${plenoTexto}
 
 INSTRUCCIONES:
-1. Para partidos del Mundial: analiza racha en el torneo, estilo de juego, jugadores clave (lesionados si los conoces), y si la sede favorece a alguno psicológicamente.
-2. Para ligas nórdicas: usa la forma ESPN reciente si está disponible, y tu conocimiento de esas ligas.
-3. Si el % del motor difiere mucho del tuyo, señálalo claramente.
-4. Sé concreto y directo. Nada de "sin datos disponibles" — siempre razona desde lo que sabes.
+1. Para partidos del Mundial: analiza racha en el torneo (usando el historial WC de abajo), estilo de juego, jugadores clave, y si la sede favorece psicológicamente.
+2. Para ligas nórdicas: usa la forma ESPN reciente si la hay, y tu conocimiento de esas ligas y equipos.
+3. Tus % deben estar cerca de los del motor. Si decides ajustar más de ±5 puntos, explica brevemente por qué.
+4. Sé concreto y directo. NUNCA escribas "sin datos" — siempre razona desde lo que sabes.
+5. OBLIGATORIO: Al final de todo el análisis, incluye una sección PLENO AL 15 respondiendo a la pregunta de si compartes el pronóstico del motor para ese partido especial.
 
-FORMATO OBLIGATORIO para CADA partido:
+FORMATO OBLIGATORIO para CADA partido (partidos 1-14):
 **N. Local vs Visitante**
 📊 Local X% | Empate X% | Visitante X%
 ⚡ Sorpresa: Alta/Media/Baja
-💬 [razones concretas: racha, jugadores clave, factor sede/psicológico, discrepancia con el motor si la hay]
+💬 [razones: racha, forma ESPN, historial WC si aplica, ajuste respecto al motor]
 
-Termina con: **TOP 3 PARTIDOS CON MÁS VALOR** (donde ves mayor discrepancia o sorpresa clara).`;
+Después de los 14 partidos, incluye:
+
+**TOP 3 PARTIDOS CON MÁS VALOR** (los que tienen mayor sorpresa o discrepancia interesante)
+${plenoTexto ? `
+**PLENO AL 15 — Análisis del motor**
+${plenoTexto}` : ''}`;
 
         try {
           const resp = await llamarGroq([{ role: 'user', content: prompt }], 'llama-3.3-70b-versatile', 4000);

@@ -14,6 +14,10 @@ const ESPN_LIGAS = {
   "por.1":                  "Primeira Liga",
   "ned.1":                  "Eredivisie",
   "FIFA.WORLD":             "Copa del Mundo",
+  "swe.1":                  "Allsvenskan",
+  "fin.1":                  "Veikkausliiga",
+  "nor.1":                  "Eliteserien",
+  "den.1":                  "Superliga Danesa",
 };
 
 const THESPORTSDB_LIGAS = {
@@ -25,6 +29,8 @@ const THESPORTSDB_LIGAS = {
   "Bundesliga":       "4331",
   "Serie A":          "4332",
   "Mundial 2026":     "600614",
+  "Allsvenskan":      "4344",
+  "Veikkausliiga":    "4430",
 };
 
 export default {
