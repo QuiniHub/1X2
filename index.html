@@ -1459,110 +1459,123 @@
           if (p.visitante) equipos.push(p.visitante);
         }
 
-        // Obtener datos de fútbol en tiempo real — todas las ligas posibles incluyendo nórdicas
+        // ── 1. Datos ESPN en tiempo real (todas las ligas, 21 días) ──────────
         let datosFootball = null;
         try {
-          const ligas = 'esp.1,esp.2,UEFA.CHAMPIONS,UEFA.EUROPA,UEFA.EUROPA.CONFERENCE,eng.1,ger.1,ita.1,fra.1,ned.1,por.1,swe.1,fin.1,nor.1,den.1,FIFA.WORLD,arg.1,bra.1,mex.1';
-          const r = await fetch(`${WORKER_URL}/api/football?ligas=${ligas}&dias=14`);
+          const ligas = 'all';
+          const r = await fetch(`${WORKER_URL}/api/football?ligas=${ligas}&dias=21`);
           if (r.ok) datosFootball = await r.json();
         } catch(e) {}
 
-        // Construir resumen de forma reciente por equipo (hasta 5 últimos partidos)
+        // ── 2. Construir forma reciente por equipo desde ESPN ─────────────────
         const formaEquipo = {};
-        const addForma = (equipo, rival, resultado, esLocal) => {
-          if (!equipo || !resultado) return;
-          if (!formaEquipo[equipo]) formaEquipo[equipo] = [];
-          if (formaEquipo[equipo].length >= 5) return;
-          const [g1, g2] = resultado.split('-').map(Number);
-          const res = esLocal ? (g1>g2?'G':g1===g2?'E':'P') : (g2>g1?'G':g1===g2?'E':'P');
-          formaEquipo[equipo].push(`${res}(${resultado} vs ${rival})`);
-        };
-        // También buscar por nombre parcial para equipos con nombre diferente en ESPN vs Quiniela
-        const normNombre = n => (n||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'');
-        const formaEquipoNorm = {};
+        const normN = n => (n||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'');
         if (datosFootball) {
           for (const p of (datosFootball.resultados || [])) {
-            addForma(p.local, p.visitante, p.resultado, true);
-            addForma(p.visitante, p.local, p.resultado, false);
-            // índice normalizado para búsqueda flexible
-            if (p.local) formaEquipoNorm[normNombre(p.local)] = p.local;
-            if (p.visitante) formaEquipoNorm[normNombre(p.visitante)] = p.visitante;
-          }
-        }
-
-        const buscarForma = (nombre) => {
-          if (formaEquipo[nombre]?.length) return formaEquipo[nombre].join(', ');
-          // búsqueda flexible por nombre normalizado
-          const norm = normNombre(nombre);
-          for (const [k, v] of Object.entries(formaEquipoNorm)) {
-            if (k.includes(norm.slice(0,6)) || norm.includes(k.slice(0,6))) {
-              if (formaEquipo[v]?.length) return formaEquipo[v].join(', ');
+            for (const [equipo, rival, esLocal] of [[p.local, p.visitante, true],[p.visitante, p.local, false]]) {
+              if (!equipo || !p.resultado) continue;
+              if (!formaEquipo[equipo]) formaEquipo[equipo] = [];
+              if (formaEquipo[equipo].length >= 5) continue;
+              const [g1,g2] = p.resultado.split('-').map(Number);
+              const res = esLocal ? (g1>g2?'G':g1===g2?'E':'P') : (g2>g1?'G':g1===g2?'E':'P');
+              formaEquipo[equipo].push(`${res}(${p.resultado} vs ${rival})`);
             }
           }
-          return 'sin datos ESPN';
+        }
+        const buscarForma = nombre => {
+          if (formaEquipo[nombre]?.length) return formaEquipo[nombre].join(', ');
+          const nn = normN(nombre);
+          for (const [k,v] of Object.entries(formaEquipo)) {
+            const nk = normN(k);
+            if (nn.length>4 && (nk.includes(nn.slice(0,5)) || nn.includes(nk.slice(0,5)))) return v.join(', ');
+          }
+          return null;
         };
 
-        // Recopilar datos de resultados_libres.json si está disponible en state
-        const resultadosLibres = state.resultadosLibres || {};
-        const getFormaLocal = (nombre) => {
-          const espn = buscarForma(nombre);
-          return espn !== 'sin datos ESPN' ? espn : 'sin datos recientes';
-        };
+        // ── 3. Historial Mundial 2026 desde state.eliminatorias ───────────────
+        const elim = state.eliminatorias || {};
+        const wcHistorial = {};
+        for (const [, datos] of Object.entries(elim.rondas || {})) {
+          for (const p of arr(datos.partidos || [])) {
+            if (!p.resultado || !p.local || !p.visitante) continue;
+            const [g1,g2] = p.resultado.split('-').map(Number);
+            [[p.local,true],[p.visitante,false]].forEach(([eq,esL]) => {
+              if (!wcHistorial[eq.toLowerCase()]) wcHistorial[eq.toLowerCase()] = [];
+              const gF=esL?g1:g2, gC=esL?g2:g1;
+              const res=gF>gC?'G':gF===gC?'E':'P';
+              wcHistorial[eq.toLowerCase()].push(`${res}(${gF}-${gC} vs ${esL?p.visitante:p.local}, ${datos.nombre})`);
+            });
+          }
+        }
+        const getWC = eq => wcHistorial[eq.toLowerCase()]?.join(' → ') || null;
 
-        // Pleno al 15
+        // ── 4. Pleno al 15 ────────────────────────────────────────────────────
         const pleno = state.pleno15Data || {};
-        const plenoParts = arr(pleno.partidos || pleno.equipos || []);
-        const plenoTexto = plenoParts.length
-          ? `\nPLENO AL 15 — equipos a analizar también:\n${plenoParts.map((p,i) => `P${i+1}. ${p.local||p.equipo||p.nombre||JSON.stringify(p)}`).join('\n')}`
+        const plenoRec = pleno.recomendacion || {};
+        const plenoTexto = plenoRec.local
+          ? `\nPLENO AL 15 — Partido recomendado por el motor:\n` +
+            `  ${plenoRec.local} vs ${plenoRec.visitante}\n` +
+            `  Signo motor: ${plenoRec.signo_recomendado} (${plenoRec.probabilidad}% prob)\n` +
+            `  Historial WC ${plenoRec.local}: ${getWC(plenoRec.local)||'sin datos'}\n` +
+            `  Historial WC ${plenoRec.visitante}: ${getWC(plenoRec.visitante)||'sin datos'}\n` +
+            `  ¿Compartes este pronóstico? Argumenta.`
           : '';
 
-        // Construir lista de los 15 partidos con toda la info disponible
+        // ── 5. Construir lista de partidos con todos los datos ────────────────
         const listaPartidos = partidos.map((p, i) => {
           const local = p.local || p.equipo_local || '?';
           const visitante = p.visitante || p.equipo_visitante || '?';
-          const signoMotor = p.signo_final || p.signo_base || p.pronostico_ia || '?';
-          const pL = p.prob_local || p.prob_1 || '';
-          const pX = p.prob_empate || p.prob_x || '';
-          const pV = p.prob_visitante || p.prob_2 || '';
-          const probsMotor = pL ? `Motor %: 1=${pL}% X=${pX}% 2=${pV}%` : '';
-          const formaL = getFormaLocal(local);
-          const formaV = getFormaLocal(visitante);
+          const signo = p.signo_final || p.signo_base || p.pronostico_ia || '?';
+          const pL = p.prob_1 || p.prob_local || '';
+          const pX = p.prob_x || p.prob_empate || '';
+          const pV = p.prob_2 || p.prob_visitante || '';
+          const probsStr = pL ? `Motor %: 1=${parseFloat(pL).toFixed(1)}% X=${parseFloat(pX).toFixed(1)}% 2=${parseFloat(pV).toFixed(1)}%` : '';
+          const formaL = buscarForma(local) || 'sin datos ESPN recientes';
+          const formaV = buscarForma(visitante) || 'sin datos ESPN recientes';
+          const wcL = getWC(local);
+          const wcV = getWC(visitante);
           const liga = p.liga || p.competicion || '';
-          return `${i+1}. ${local} vs ${visitante}${liga ? ' ['+liga+']' : ''}
-   Motor predice: ${signoMotor}${probsMotor ? ' | '+probsMotor : ''}
-   Forma ${local}: ${formaL}
-   Forma ${visitante}: ${formaV}`;
+          return `${i+1}. ${local} vs ${visitante}${liga?' ['+liga+']':''}
+   Motor predice: ${signo}${probsStr?' | '+probsStr:''}
+   Forma ESPN reciente ${local}: ${formaL}
+   Forma ESPN reciente ${visitante}: ${formaV}${wcL?'\n   Mundial 2026 '+local+': '+wcL:''}${wcV?'\n   Mundial 2026 '+visitante+': '+wcV:''}`;
         }).join('\n\n');
 
-        const prompt = `Eres el analista de QuiniHub. Analiza los 15 partidos de la jornada con los datos reales de forma reciente que tienes abajo. Esta jornada mezcla partidos del Mundial 2026 (eliminatorias) y ligas europeas/nórdicas.
+        // ── 6. Prompt completo ────────────────────────────────────────────────
+        const prompt = `Eres el analista de QuiniHub. Analiza los partidos de esta jornada de La Quiniela española.
 
-PARTIDOS CON DATOS REALES:
+CONTEXTO IMPORTANTE:
+- Los partidos 1-5 son del MUNDIAL 2026 fase eliminatoria. Se juegan en EEUU, México y Canadá — NO hay ventaja de local real, es sede neutral. Para estos partidos usa el historial del Mundial 2026 que aparece abajo y tu conocimiento de cada selección.
+- Los partidos 6-14 son de ligas nórdicas (Veikkausliiga finlandesa y Allsvenskan sueca). Para estos usa la forma ESPN si la hay, y tu conocimiento de esas ligas.
+- El Pleno al 15 es un partido adicional fuera del boleto.
+
+DATOS POR PARTIDO:
 ${listaPartidos}
 ${plenoTexto}
 
 INSTRUCCIONES:
-- Usa los datos de forma cuando los tengas. Si dice "sin datos recientes" razona desde el conocimiento futbolístico (historial, nivel, local/visitante).
-- Para los equipos nórdicos (SJK, TPS, VPS, Halmstads, etc.) usa tu conocimiento de esas ligas.
-- Para el Mundial 2026 usa lo que sabes de esos seleccionados.
-- Si el % del motor difiere mucho del tuyo, señálalo.
+1. Para partidos del Mundial: analiza racha en el torneo, estilo de juego, jugadores clave (lesionados si los conoces), y si la sede favorece a alguno psicológicamente.
+2. Para ligas nórdicas: usa la forma ESPN reciente si está disponible, y tu conocimiento de esas ligas.
+3. Si el % del motor difiere mucho del tuyo, señálalo claramente.
+4. Sé concreto y directo. Nada de "sin datos disponibles" — siempre razona desde lo que sabes.
 
-FORMATO OBLIGATORIO para cada partido (los 15 + Pleno si existe):
+FORMATO OBLIGATORIO para CADA partido:
 **N. Local vs Visitante**
 📊 Local X% | Empate X% | Visitante X%
 ⚡ Sorpresa: Alta/Media/Baja
-💬 [2-3 líneas: forma reciente, factor clave, lesionados si los conoces]
+💬 [razones concretas: racha, jugadores clave, factor sede/psicológico, discrepancia con el motor si la hay]
 
-Al final añade un resumen de los 3 partidos donde VES MÁS VALOR (donde el motor y tú discrepáis más o donde hay sorpresa clara).`;
+Termina con: **TOP 3 PARTIDOS CON MÁS VALOR** (donde ves mayor discrepancia o sorpresa clara).`;
 
         try {
           const resp = await llamarGroq([{ role: 'user', content: prompt }], 'llama-3.3-70b-versatile', 4000);
           loading.style.display = 'none';
           content.style.display = 'block';
           content.innerHTML = resp
-            .replace(/\*\*(.+?)\*\*/g, '<strong style="display:block;margin-top:14px;font-size:15px">$1</strong>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong style="display:block;margin-top:16px;font-size:15px;color:var(--text,#111)">$1</strong>')
             .replace(/📊(.+)/g, '<span style="color:#0891b2;font-weight:700;display:block">📊$1</span>')
             .replace(/⚡(.+)/g, '<span style="color:#d97706;font-weight:600;display:block">⚡$1</span>')
-            .replace(/💬(.+)/g, '<span style="color:var(--muted,#555);display:block;margin-bottom:4px">💬$1</span>')
+            .replace(/💬(.+)/g, '<span style="color:var(--muted,#555);display:block;margin-bottom:8px;line-height:1.5">💬$1</span>')
             .replace(/\n/g, '<br>');
         } catch(e) {
           loading.style.display = 'none';
