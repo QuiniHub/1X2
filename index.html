@@ -1776,15 +1776,34 @@ Al final:
           Object.entries(pesosActuales).map(([k, v]) => `  ${k}: ${(v * 100).toFixed(1)}%`).join('\n');
       }
 
+      // Predicción actual — los 15 partidos con probabilidades y tipo de apuesta
+      const partidos = arr(pred.partidos || []);
+      let bloquePredActual = '';
+      if (partidos.length > 0) {
+        bloquePredActual = `\nPREDICCIÓN JORNADA ${jornadaActual} (pestaña Predicción):\n` +
+          partidos.map(p => {
+            const pr = p.probabilidades || {};
+            const tipo = p.tipo ? ` [${p.tipo}]` : '';
+            return `P${p.num} ${p.local} vs ${p.visitante}: jugamos ${p.signo_final || p.signo_base}${tipo} | 1=${(pr['1']||0).toFixed(0)}% X=${(pr['X']||0).toFixed(0)}% 2=${(pr['2']||0).toFixed(0)}%`;
+          }).join('\n');
+      }
+
+      // Pestaña Liga 26/27 — resumen estático
+      const liga2627 = `\nPESTAÑA LIGA 26/27:
+Primera División 2026/27 comienza el 14/08/2026. Equipos confirmados: Real Madrid, Barcelona, Atlético de Madrid, Athletic Club, Real Sociedad, Villarreal, Betis, Sevilla, Valencia, Osasuna, Celta, Getafe, Rayo Vallecano, Mallorca, Girona, Espanyol, Leganés, Alavés, Las Palmas y uno por determinar (ascendido de Segunda).
+Segunda División 2026/27: 22 equipos incluyendo Valladolid, Sporting de Gijón, Real Oviedo, Mirandés, Burgos, Racing, SD Huesca, Zaragoza y equipos descendidos.`;
+
       return `${resumenMem}
 
 ${resumenMetricas}
 Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalCobrado.toFixed(2)}€
 
 ${estadoActual}
+${bloquePredActual}
 ${bloqueBracket}
 ${bloqueGrupos}
 ${bloquePesos}
+${liga2627}
 
 HISTORIAL ÚLTIMAS JORNADAS:
 ${resumenHistorial || "Sin datos"}
@@ -1835,47 +1854,83 @@ ${resumenDiario || "Sin entradas recientes"}`;
     // === PROXY URL ===
     const WORKER_URL = 'https://quinihub-ia.marc-ruzafa-c.workers.dev';
 
-    // Detecta si la pregunta necesita búsqueda web
+    // Detecta si la pregunta necesita búsqueda web — umbral amplio
     function necesitaBusquedaWeb(texto) {
       const t = texto.toLowerCase();
       const triggers = [
-        'lesion', 'lesionado', 'baja', 'bajas', 'sancionado',
-        'noticia', 'noticias', 'hoy', 'ayer', 'esta semana',
-        'convocatoria', 'alineacion', 'once probable',
-        'fichaje', 'traspaso', 'mercado',
-        'entrenador', 'destituido', 'despedido',
-        'parte medico', 'operacion', 'resultado de hoy',
-        'quien juega', 'cuando juega', 'a que hora',
-        'champions', 'europa league', 'copa del rey',
-        'clasificacion', 'clasificación', 'como va la liga', 'posicion',
-        'allsvenskan', 'veikkausliiga', 'liga sueca', 'liga finlandesa',
-        'noruega', 'dinamarca', 'nordica', 'nórdica',
-        'forma', 'racha', 'ultimos partidos', 'últimos partidos',
-        'mundial 2026', 'grupo', 'eliminatoria'
+        // Temporalidad
+        'hoy', 'ayer', 'mañana', 'ahora', 'esta semana', 'esta noche', 'esta tarde',
+        'ultimo', 'última', 'último', 'reciente', 'actual',
+        // Plantilla y estado del equipo
+        'lesion', 'lesionado', 'baja', 'bajas', 'sancionado', 'parte medico', 'operacion',
+        'convocatoria', 'alineacion', 'once probable', 'titular',
+        'fichaje', 'traspaso', 'mercado', 'contrato',
+        'entrenador', 'destituido', 'despedido', 'nuevo entrenador', 'dimite',
+        // Resultados y partidos
+        'resultado', 'marcador', 'partido', 'partidos', 'juegan', 'jugaron',
+        'ganó', 'gano', 'empató', 'empato', 'perdió', 'perdio', 'goles',
+        'horario', 'a que hora', 'cuando juega', 'cuándo juega',
+        'quién gana', 'quien gana', 'quién ganó', 'quien ganó',
+        // Competiciones
+        'mundial', 'copa del mundo', 'world cup',
+        'champions', 'europa league', 'conference', 'copa del rey',
+        'premier', 'bundesliga', 'serie a', 'ligue 1', 'eredivisie',
+        'allsvenskan', 'veikkausliiga', 'eliteserien', 'superligaen',
+        'liga sueca', 'liga finlandesa', 'noruega', 'dinamarca', 'nordica', 'nórdica',
+        // Clasificaciones y estado de liga
+        'clasificacion', 'clasificación', 'tabla', 'standing', 'posicion', 'posición',
+        'como va la liga', 'como va el', 'cómo va', 'cómo está', 'como esta',
+        'jornada', 'temporada', 'grupo', 'eliminatoria',
+        // Forma y racha
+        'forma', 'racha', 'ultimos partidos', 'últimos partidos', 'en racha',
+        // Noticias generales
+        'noticia', 'noticias', 'ultima hora', 'última hora', 'rumor'
       ];
       return triggers.some(kw => t.includes(kw));
     }
 
-    // Construye query de búsqueda para Tavily
+    // Construye query de búsqueda para Tavily — context-aware y con fecha real
     function construirQueryBusqueda(texto) {
       const t = texto.toLowerCase();
-      // Detectar si es sobre ligas nórdicas
-      if (/allsvenskan|suec|veikkausliiga|finlan|norueg|dinamarc|nordic|nórdic/.test(t)) {
-        return `${texto.slice(0, 80)} 2026 clasificacion resultados`;
+      const fechaHoy = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+
+      if (/mundial|copa del mundo|world cup/i.test(t)) {
+        if (/hoy|partido|juegan|horario|cuando|cuándo|ahora/i.test(t))
+          return `Mundial 2026 partidos hoy ${fechaHoy} resultados FIFA`;
+        return `Mundial 2026 ${texto.slice(0, 60)} ${fechaHoy}`;
       }
+      if (/allsvenskan|liga suec/i.test(t))
+        return `Allsvenskan 2026 ${texto.slice(0, 50)} ${fechaHoy}`;
+      if (/veikkausliiga|liga finlan/i.test(t))
+        return `Veikkausliiga 2026 ${texto.slice(0, 50)} ${fechaHoy}`;
+      if (/eliteserien|norueg/i.test(t))
+        return `Eliteserien 2026 ${texto.slice(0, 50)} ${fechaHoy}`;
+      if (/superligaen|dinamarc/i.test(t))
+        return `Superligaen Dinamarca 2026 ${texto.slice(0, 50)} ${fechaHoy}`;
+      if (/premier league|premier/i.test(t))
+        return `Premier League ${texto.slice(0, 50)} ${fechaHoy}`;
+      if (/bundesliga/i.test(t))
+        return `Bundesliga ${texto.slice(0, 50)} ${fechaHoy}`;
+      if (/serie a/i.test(t))
+        return `Serie A Italia ${texto.slice(0, 50)} ${fechaHoy}`;
+      if (/ligue 1/i.test(t))
+        return `Ligue 1 Francia ${texto.slice(0, 50)} ${fechaHoy}`;
+      if (/champions/i.test(t))
+        return `Champions League ${texto.slice(0, 50)} ${fechaHoy}`;
+
       const equipos = [
         'real madrid', 'barcelona', 'atletico', 'sevilla', 'valencia',
         'betis', 'villarreal', 'athletic', 'sociedad', 'osasuna',
         'mallorca', 'celta', 'getafe', 'rayo', 'girona', 'las palmas',
         'argentina', 'portugal', 'brasil', 'francia', 'alemania', 'suiza',
-        'colombia', 'australia', 'egipto', 'croacia', 'göteborg', 'kalmar',
-        'malmö', 'sirius', 'djurgarden', 'hammarby', 'aik', 'elfsborg',
-        'sjk', 'hjk', 'fc lahti', 'ilves', 'vps', 'inter turku'
+        'colombia', 'australia', 'egipto', 'croacia', 'españa', 'japon',
+        'göteborg', 'kalmar', 'malmö', 'sirius', 'djurgarden', 'hammarby',
+        'aik', 'elfsborg', 'sjk', 'hjk', 'fc lahti', 'ilves', 'vps', 'inter turku'
       ];
       const equipo = equipos.find(e => t.includes(e));
       return equipo
-        ? `${equipo} noticias futbol 2026`
-        : `futbol quiniela ${texto.slice(0, 60)} 2026`;
+        ? `${equipo} futbol noticias ${fechaHoy}`
+        : `futbol ${texto.slice(0, 70)} ${fechaHoy}`;
     }
 
     // Llama a Tavily y devuelve contexto web
@@ -1884,17 +1939,24 @@ ${resumenDiario || "Sin entradas recientes"}`;
       try {
         const query = construirQueryBusqueda(pregunta);
         const esNordica = /allsvenskan|suec|veikkausliiga|finlan|norueg|dinamarc|nordic/i.test(pregunta);
+        const esMundial = /mundial|copa del mundo|world cup/i.test(pregunta);
+        let dominios;
+        if (esMundial)
+          dominios = ['espn.com', 'bbc.com', 'fifa.com', 'goal.com', 'marca.com', 'as.com', 'relevo.com', 'sofascore.com'];
+        else if (esNordica)
+          dominios = ['flashscore.es', 'sofascore.com', 'soccerway.com', 'transfermarkt.es', 'eduardolosilla.es'];
+        else
+          dominios = ['marca.com', 'as.com', 'relevo.com', 'goal.com', 'sofascore.com', 'transfermarkt.es', 'espn.com', 'eduardolosilla.es'];
+
         const res = await fetch(`${WORKER_URL}/api/tavily`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             query: query,
             search_depth: 'advanced',
-            max_results: 5,
+            max_results: 6,
             include_answer: true,
-            include_domains: esNordica
-              ? ['eduardolosilla.es', 'flashscore.es', 'sofascore.com', 'soccerway.com', 'transfermarkt.es']
-              : ['eduardolosilla.es', 'marca.com', 'as.com', 'goal.com', 'transfermarkt.es', 'sofascore.com']
+            include_domains: dominios
           })
         });
         if (!res.ok) return null;
@@ -1961,21 +2023,30 @@ ${resumenDiario || "Sin entradas recientes"}`;
         // Buscar datos de fútbol en tiempo real si la pregunta lo requiere
         const necesitaFutbol = /resultado|marcador|gan[oó]|empat|jug[oó]|jugaron|hoy|ayer|partido|clasificaci|liga|champions|premier|bundesliga|serie a|ligue|mundial|eliminatori|allsvenskan|veikkausliiga|nordic|suec|finlan|norueg|dinamarc/i.test(textoTotal);
         const footballPromise = necesitaFutbol
-          ? fetch(`${WORKER_URL}/api/football?ligas=all&dias=7`).then(r => r.ok ? r.json() : null).catch(() => null)
+          ? fetch(`${WORKER_URL}/api/football?ligas=all&dias=14`).then(r => r.ok ? r.json() : null).catch(() => null)
           : Promise.resolve(null);
 
         // Clasificaciones TheSportsDB — detecta contexto de conversación completa
-        const necesitaClasif = /clasificaci|tabla|standing|posici|puntos|liga suec|liga finlan|allsvenskan|veikkausliiga|completa|complet|toda la|el resto|sigue|más equipo|mas equipo/i.test(textoTotal);
+        const necesitaClasif = /clasificaci|tabla|standing|posici|puntos|liga suec|liga finlan|allsvenskan|veikkausliiga|norueg|dinamarc|eliteserien|superligaen|completa|complet|toda la|el resto|sigue|más equipo|mas equipo/i.test(textoTotal);
         const tsdbClasifPromise = necesitaClasif ? Promise.all([
-          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4344&s=2026').then(r=>r.ok?r.json():null).catch(()=>null), // Allsvenskan
-          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4430&s=2026').then(r=>r.ok?r.json():null).catch(()=>null), // Veikkausliiga
+          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4344&s=2026').then(r=>r.ok?r.json():null).catch(()=>null),   // Allsvenskan
+          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4430&s=2026').then(r=>r.ok?r.json():null).catch(()=>null),   // Veikkausliiga
           fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4335&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null), // La Liga
+          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4332&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null), // Eliteserien
+          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4339&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null), // Superligaen
+        ]) : Promise.resolve(null);
+
+        // Partidos del Mundial 2026 — recientes + próximos vía TheSportsDB
+        const necesitaMundial = /mundial|copa del mundo|world cup/i.test(textoTotal);
+        const tsdbMundialPromise = necesitaMundial ? Promise.all([
+          fetch('https://www.thesportsdb.com/api/v1/json/3/eventspastleague.php?id=600614').then(r=>r.ok?r.json():null).catch(()=>null),
+          fetch('https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=600614').then(r=>r.ok?r.json():null).catch(()=>null),
         ]) : Promise.resolve(null);
 
         // Buscar en web si la pregunta lo requiere
         const usarWeb = necesitaBusquedaWeb(texto);
         const webPromise = usarWeb ? buscarEnWeb(texto) : Promise.resolve(null);
-        const [contextoWeb, datosFootball, tsdbClasif] = await Promise.all([webPromise, footballPromise, tsdbClasifPromise]);
+        const [contextoWeb, datosFootball, tsdbClasif, tsdbMundial] = await Promise.all([webPromise, footballPromise, tsdbClasifPromise, tsdbMundialPromise]);
 
         // Formatear clasificaciones TheSportsDB
         let bloqueClasif = '';
@@ -1984,13 +2055,34 @@ ${resumenDiario || "Sin entradas recientes"}`;
             { nombre: 'Allsvenskan (Suecia)', data: tsdbClasif[0] },
             { nombre: 'Veikkausliiga (Finlandia)', data: tsdbClasif[1] },
             { nombre: 'La Liga', data: tsdbClasif[2] },
+            { nombre: 'Eliteserien (Noruega)', data: tsdbClasif[3] },
+            { nombre: 'Superligaen (Dinamarca)', data: tsdbClasif[4] },
           ];
           for (const { nombre, data } of ligas) {
-            const tabla = data?.table || [];
+            const tabla = (data?.table || data?.standing || []);
             if (!tabla.length) continue;
             bloqueClasif += `\n\nCLASIFICACIÓN ${nombre} (en tiempo real):\n`;
             bloqueClasif += tabla.slice(0, 20).map(t =>
               `${t.intRank}. ${t.strTeam} — ${t.intPoints}pts (${t.intPlayed}PJ ${t.intWin}G ${t.intDraw}E ${t.intLoss}P) GF:${t.intGoalsFor} GC:${t.intGoalsAgainst}`
+            ).join('\n');
+          }
+        }
+
+        // Formatear partidos del Mundial TSDB
+        let bloqueMundialTSDB = '';
+        if (tsdbMundial) {
+          const pasados = (tsdbMundial[0]?.events || []).slice(-20);
+          const proximos = (tsdbMundial[1]?.events || []).slice(0, 10);
+          if (pasados.length) {
+            bloqueMundialTSDB += `\n\nRESULTADOS RECIENTES MUNDIAL 2026 (TheSportsDB):\n`;
+            bloqueMundialTSDB += pasados.map(e =>
+              `${e.strHomeTeam} ${e.intHomeScore ?? '?'}-${e.intAwayScore ?? '?'} ${e.strAwayTeam} (${(e.dateEvent||'').slice(0,10)})`
+            ).join('\n');
+          }
+          if (proximos.length) {
+            bloqueMundialTSDB += `\n\nPRÓXIMOS PARTIDOS MUNDIAL 2026:\n`;
+            bloqueMundialTSDB += proximos.map(e =>
+              `${e.strHomeTeam} vs ${e.strAwayTeam} — ${(e.dateEvent||'').slice(0,10)} ${e.strTime||''}`
             ).join('\n');
           }
         }
@@ -2023,7 +2115,10 @@ ${resumenDiario || "Sin entradas recientes"}`;
           }
         }
 
+        const fechaHoyStr = new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
         const systemPrompt = `Eres el analista de QuiniHub. Tu nombre es "Analista QuiniHub" y llevas toda la temporada 2025/2026 analizando La Quiniela española y el Mundial 2026.
+HOY ES: ${fechaHoyStr}. Usa esta fecha para responder preguntas sobre "hoy", "ayer", "esta semana", etc.
 
 REGLAS CRÍTICAS — LEE ANTES DE RESPONDER:
 1. Los datos que aparecen más abajo son REALES y están actualizados. Úsalos siempre.
@@ -2031,6 +2126,7 @@ REGLAS CRÍTICAS — LEE ANTES DE RESPONDER:
 3. Si un partido no aparece en RESULTADOS CONFIRMADOS, todavía no se ha jugado o no tenemos el dato — dilo claramente sin inventar.
 4. La información web que recibes es complementaria. Si contradice los datos del sistema, prioriza SIEMPRE los datos del sistema.
 5. NUNCA digas que no tienes datos de esta temporada — los tienes en el bloque de abajo.
+6. Si los datos de fútbol en tiempo real (ESPN/TheSportsDB) o la búsqueda web te dan información sobre hoy, úsala sin dudar.
 
 TU PERSONALIDAD:
 - Directo, apasionado y honesto. Hablas como un aficionado muy preparado del fútbol, no como un robot.
@@ -2041,14 +2137,14 @@ TU PERSONALIDAD:
 - Respuestas concisas y naturales. Sin bullets innecesarios. Como una conversación real.
 
 DATOS REALES DE TU SISTEMA — TEMPORADA 2025/2026:
-${contexto}${bloqueFootball}${bloqueClasif}${bloqueWeb}`;
+${contexto}${bloqueFootball}${bloqueMundialTSDB}${bloqueClasif}${bloqueWeb}`;
 
         const messages = [
           { role: 'system', content: systemPrompt },
           ...chatHistory.slice(-8).map(m => ({ role: m.role, content: m.content }))
         ];
 
-        const respuesta = await llamarGroq(messages);
+        const respuesta = await llamarGroq(messages, 'llama-3.1-8b-instant', 900);
         if (typing) typing.remove();
 
         if (respuesta) {
