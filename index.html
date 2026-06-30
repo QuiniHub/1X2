@@ -1932,14 +1932,18 @@ ${resumenDiario || "Sin entradas recientes"}`;
       try {
         const contexto = construirContextoIA();
 
+        // Analizar también el historial reciente de chat para detectar contexto
+        const contextoReciente = chatHistory.slice(-6).map(m => m.content).join(' ');
+        const textoTotal = texto + ' ' + contextoReciente;
+
         // Buscar datos de fútbol en tiempo real si la pregunta lo requiere
-        const necesitaFutbol = /resultado|marcador|gan[oó]|empat|jug[oó]|jugaron|hoy|ayer|partido|clasificaci|liga|champions|premier|bundesliga|serie a|ligue|mundial|eliminatori|allsvenskan|veikkausliiga|nordic|suec|finlan|norueg|dinamarc/i.test(texto);
+        const necesitaFutbol = /resultado|marcador|gan[oó]|empat|jug[oó]|jugaron|hoy|ayer|partido|clasificaci|liga|champions|premier|bundesliga|serie a|ligue|mundial|eliminatori|allsvenskan|veikkausliiga|nordic|suec|finlan|norueg|dinamarc/i.test(textoTotal);
         const footballPromise = necesitaFutbol
           ? fetch(`${WORKER_URL}/api/football?ligas=all&dias=7`).then(r => r.ok ? r.json() : null).catch(() => null)
           : Promise.resolve(null);
 
-        // Clasificaciones TheSportsDB para ligas nórdicas (JSON limpio, sin HTML)
-        const necesitaClasif = /clasificaci|tabla|standing|posici|puntos|liga suec|liga finlan|allsvenskan|veikkausliiga/i.test(texto);
+        // Clasificaciones TheSportsDB — detecta contexto de conversación completa
+        const necesitaClasif = /clasificaci|tabla|standing|posici|puntos|liga suec|liga finlan|allsvenskan|veikkausliiga|completa|complet|toda la|el resto|sigue|más equipo|mas equipo/i.test(textoTotal);
         const tsdbClasifPromise = necesitaClasif ? Promise.all([
           fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4344&s=2026').then(r=>r.ok?r.json():null).catch(()=>null), // Allsvenskan
           fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4430&s=2026').then(r=>r.ok?r.json():null).catch(()=>null), // Veikkausliiga
