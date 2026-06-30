@@ -1858,7 +1858,7 @@ ${resumenDiario || "Sin entradas recientes"}`;
     }
 
     // Llama a Groq con los mensajes preparados
-    async function llamarGroq(messages, model = 'llama-3.3-70b-versatile', max_tokens = 1000) {
+    async function llamarGroq(messages, model = 'llama-3.1-8b-instant', max_tokens = 800) {
       const response = await fetch(`${WORKER_URL}/api/groq`, {
         method: 'POST',
         headers: {
