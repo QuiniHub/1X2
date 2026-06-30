@@ -1878,23 +1878,24 @@ ${resumenDiario || "Sin entradas recientes"}`;
       }
     }
 
-    // Llama a Groq con los mensajes preparados
-    async function llamarGroq(messages, model = 'llama-3.1-8b-instant', max_tokens = 800) {
+    // Llama a Groq con los mensajes preparados — auto-retry en rate limit TPM
+    async function llamarGroq(messages, model = 'llama-3.1-8b-instant', max_tokens = 600, _retry = 0) {
       const response = await fetch(`${WORKER_URL}/api/groq`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model,
-          max_tokens,
-          temperature: 0.7,
-          messages: messages
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model, max_tokens, temperature: 0.7, messages })
       });
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
-        throw new Error(`Error ${response.status}: ${err.error?.message || 'sin detalle'}`);
+        const msg = err.error?.message || '';
+        // Rate limit por minuto (TPM) → esperar el tiempo sugerido y reintentar una vez
+        if (response.status === 429 && msg.includes('per minute') && _retry < 2) {
+          const match = msg.match(/try again in ([\d.]+)s/i);
+          const wait = match ? Math.ceil(parseFloat(match[1]) * 1000) + 500 : 8000;
+          await new Promise(r => setTimeout(r, wait));
+          return llamarGroq(messages, model, max_tokens, _retry + 1);
+        }
+        throw new Error(`Error ${response.status}: ${msg || 'sin detalle'}`);
       }
       const data = await response.json();
       return data.choices?.[0]?.message?.content || '';
