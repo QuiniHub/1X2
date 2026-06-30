@@ -428,6 +428,7 @@
             <label class="toggle"><input id="elige8Toggle" type="checkbox" /><span class="switch"></span> Elige 8</label>
           </div>
           <button class="primary" id="generateBtn">Generar quiniela</button>
+          <button class="primary" id="analysisBtn" style="background:var(--accent2,#0891b2);display:flex;align-items:center;gap:6px">🔍 Análisis IA</button>
         </div>
         <div id="costPanel" style="display:none;gap:24px;align-items:center;padding:12px 16px;background:var(--surface2,#f5f5f5);border-radius:10px;margin-bottom:8px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:2px">
@@ -459,6 +460,24 @@
           <button class="mode-btn" data-mode="manual">Manual</button>
         </div>
       </div>
+      <!-- Panel de Análisis IA -->
+      <div id="analysisPanel" style="display:none;margin-bottom:16px">
+        <div class="card">
+          <div class="card-head">
+            <h2>🔍 Análisis IA de la Jornada</h2>
+            <span class="tag blue" id="analysisJornadaLabel"></span>
+          </div>
+          <div class="card-body">
+            <div id="analysisLoading" style="display:none;text-align:center;padding:32px;color:var(--muted,#888)">
+              <div style="font-size:28px;margin-bottom:8px">⚙️</div>
+              <div style="font-weight:600">Analizando los 15 partidos con datos en tiempo real...</div>
+              <div style="font-size:13px;margin-top:4px">Consultando ESPN · TheSportsDB · forma reciente · lesionados</div>
+            </div>
+            <div id="analysisContent" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="grid-2">
         <div class="card">
           <div class="card-head"><h2>Boleto</h2><span class="tag blue" id="jornadaLabel">Jornada</span></div>
@@ -1413,6 +1432,110 @@
       const confirmBtn = document.getElementById('confirmBtn');
       if (confirmBtn) confirmBtn.addEventListener('click', confirmarQuinielaJugada);
 
+      // === ANÁLISIS IA ===
+      const analysisBtn = document.getElementById('analysisBtn');
+      if (analysisBtn) analysisBtn.addEventListener('click', analizarJornada);
+
+      async function analizarJornada() {
+        const pred = state.prediccion || {};
+        const partidos = arr(pred.partidos || pred.predicciones || pred.partidos_quiniela || pred.boleto);
+        if (!partidos.length) { alert('No hay partidos cargados aún.'); return; }
+
+        const panel = document.getElementById('analysisPanel');
+        const loading = document.getElementById('analysisLoading');
+        const content = document.getElementById('analysisContent');
+        const label = document.getElementById('analysisJornadaLabel');
+
+        panel.style.display = 'block';
+        loading.style.display = 'block';
+        content.style.display = 'none';
+        label.textContent = `Jornada ${pred.jornada || ''}`;
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Equipos únicos para buscar en ESPN
+        const equipos = [];
+        for (const p of partidos) {
+          if (p.local) equipos.push(p.local);
+          if (p.visitante) equipos.push(p.visitante);
+        }
+
+        // Obtener datos de fútbol en tiempo real (últimos 14 días)
+        let datosFootball = null;
+        try {
+          const r = await fetch(`${WORKER_URL}/api/football?ligas=esp.1,esp.2,UEFA.CHAMPIONS,UEFA.EUROPA,eng.1,ger.1,ita.1,fra.1&dias=7`);
+          if (r.ok) datosFootball = await r.json();
+        } catch(e) {}
+
+        // Construir resumen de forma reciente por equipo
+        const formaEquipo = {};
+        if (datosFootball) {
+          for (const p of (datosFootball.resultados || [])) {
+            for (const campo of ['local', 'visitante']) {
+              const equipo = p[campo];
+              if (!equipo) continue;
+              if (!formaEquipo[equipo]) formaEquipo[equipo] = [];
+              if (formaEquipo[equipo].length < 5 && p.resultado) {
+                const esLocal = campo === 'local';
+                const [g1, g2] = p.resultado.split('-').map(Number);
+                let res;
+                if (esLocal) res = g1 > g2 ? 'G' : g1 === g2 ? 'E' : 'P';
+                else res = g2 > g1 ? 'G' : g1 === g2 ? 'E' : 'P';
+                formaEquipo[equipo].push(`${res}(${p.resultado} vs ${esLocal ? p.visitante : p.local})`);
+              }
+            }
+          }
+        }
+
+        // Construir prompt para la IA
+        const listaPartidos = partidos.map((p, i) => {
+          const local = p.local || p.equipo_local || '?';
+          const visitante = p.visitante || p.equipo_visitante || '?';
+          const signoMotor = p.signo_final || p.signo_base || p.pronostico_ia || '?';
+          const formaL = formaEquipo[local]?.join(', ') || 'sin datos recientes';
+          const formaV = formaEquipo[visitante]?.join(', ') || 'sin datos recientes';
+          return `${i+1}. ${local} vs ${visitante}
+   Motor predice: ${signoMotor}
+   Forma ${local}: ${formaL}
+   Forma ${visitante}: ${formaV}`;
+        }).join('\n\n');
+
+        const prompt = `Eres el analista de QuiniHub. Tienes los 15 partidos de la jornada actual de La Quiniela española más datos de forma reciente de cada equipo obtenidos en tiempo real.
+
+PARTIDOS Y DATOS:
+${listaPartidos}
+
+TAREA: Para cada partido, dame un análisis conciso que incluya:
+- % estimado: Local / Empate / Visitante
+- Nivel de sorpresa (Alta/Media/Baja)
+- 1-2 líneas clave que justifiquen el pronóstico (lesionados conocidos, racha, local fuerte, etc.)
+- Si el motor predice algo diferente a lo que ves tú, dilo
+
+Formato por partido:
+**N. Local vs Visitante**
+📊 Local X% | Empate X% | Visitante X%
+⚡ Sorpresa: Alta/Media/Baja
+💬 [análisis breve]
+
+Sé directo y apasionado, como siempre. Si no tienes datos de un equipo, dilo y razona desde la lógica futbolística.`;
+
+        try {
+          const resp = await llamarGroq([{ role: 'user', content: prompt }], 'llama-3.3-70b-versatile', 3000);
+          loading.style.display = 'none';
+          content.style.display = 'block';
+          // Renderizar con formato
+          content.innerHTML = resp
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/📊(.+)/g, '<span style="color:#0891b2;font-weight:600">📊$1</span>')
+            .replace(/⚡(.+)/g, '<span style="color:#d97706;font-weight:600">⚡$1</span>')
+            .replace(/💬(.+)/g, '<span style="color:var(--muted,#555)">💬$1</span>')
+            .replace(/\n/g, '<br>');
+        } catch(e) {
+          loading.style.display = 'none';
+          content.style.display = 'block';
+          content.innerHTML = '<span style="color:red">Error al obtener el análisis. Inténtalo de nuevo.</span>';
+        }
+      }
+
       // === CHAT IA ===
       const chatInput = document.getElementById('chatInput');
       const chatSendBtn = document.getElementById('chatSendBtn');
@@ -1650,15 +1773,15 @@ ${resumenDiario || "Sin entradas recientes"}`;
     }
 
     // Llama a Groq con los mensajes preparados
-    async function llamarGroq(messages) {
+    async function llamarGroq(messages, model = 'llama-3.3-70b-versatile', max_tokens = 1000) {
       const response = await fetch(`${WORKER_URL}/api/groq`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          max_tokens: 1000,
+          model,
+          max_tokens,
           temperature: 0.7,
           messages: messages
         })
