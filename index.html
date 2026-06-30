@@ -1452,20 +1452,37 @@
         label.textContent = `Jornada ${pred.jornada || ''}`;
         panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-        // ── 1. Datos de fútbol: ESPN + TheSportsDB nórdicas en paralelo ───────
+        // ── 1. Datos: ESPN + TheSportsDB nórdicas + Tavily/Losilla en paralelo ──
         const normN = n => (n||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'');
+        // Construir query para Losilla: equipos de la jornada
+        const nombresEquipos = partidos.flatMap(p => [p.local||'', p.visitante||'']).filter(Boolean).slice(0, 10).join(' ');
+        const jornadaNum = pred.jornada || '';
+        const tavilyLosilla = body => fetch(`${WORKER_URL}/api/tavily`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...body, include_domains: ['eduardolosilla.es'], max_results: 5, search_depth: 'advanced' })
+        }).then(r => r.ok ? r.json() : null).catch(() => null);
+
         let datosFootball = null;
         let datosTSDB = null;
+        let losilla1 = null;
+        let losilla2 = null;
         try {
-          [datosFootball, datosTSDB] = await Promise.all([
+          [datosFootball, datosTSDB, losilla1, losilla2] = await Promise.all([
             fetch(`${WORKER_URL}/api/football?ligas=all&dias=21`).then(r => r.ok ? r.json() : null).catch(()=>null),
-            // TheSportsDB nórdicas directamente
             Promise.all([
               fetch('https://www.thesportsdb.com/api/v1/json/3/eventspastleague.php?id=4344').then(r=>r.ok?r.json():null).catch(()=>null),
               fetch('https://www.thesportsdb.com/api/v1/json/3/eventspastleague.php?id=4430').then(r=>r.ok?r.json():null).catch(()=>null),
-            ])
+            ]),
+            tavilyLosilla({ query: `quiniela jornada ${jornadaNum} analisis partidos pronósticos` }),
+            tavilyLosilla({ query: `${nombresEquipos} rachas clasificación forma` }),
           ]);
         } catch(e) {}
+
+        // Extraer texto útil de Losilla
+        const losillaTxt = [losilla1, losilla2]
+          .flatMap(r => (r?.results || []).map(x => `[${x.title}]\n${x.content}`))
+          .join('\n\n').slice(0, 3000);
 
         // ── 2. Construir forma por equipo ─────────────────────────────────────
         const formaEquipo = {};
@@ -1545,22 +1562,25 @@
         }).join('\n\n');
 
         // ── 5. Prompt — IA solo comenta, NO inventa % ─────────────────────────
+        const bloquelosilla = losillaTxt
+          ? `\nFUENTE EXTERNA — eduardolosilla.es (datos reales de la jornada):\n${losillaTxt}\n`
+          : '';
         const prompt = `Eres el analista de QuiniHub. Analiza esta jornada de La Quiniela española.
 
 REGLA FUNDAMENTAL: Los % del motor son datos calibrados. En tu respuesta COPIA exactamente esos % — no cambies ningún número. Tu valor añadido es el texto de análisis, no los %.
 
 CONTEXTO:
 - Partidos 1-5: Mundial 2026 eliminatoria. Sede neutral (EEUU/México/Canadá). Usa el historial WC2026 de cada selección.
-- Partidos 6-14: Ligas nórdicas (Veikkausliiga finlandesa y Allsvenskan sueca). Usa la forma ESPN/TSDB si la hay.
-
-DATOS POR PARTIDO:
+- Partidos 6-14: Ligas nórdicas (Veikkausliiga finlandesa y Allsvenskan sueca). Usa la forma ESPN/TSDB y los datos de Losilla si los hay.
+${bloquelosilla}
+DATOS POR PARTIDO (ESPN + TheSportsDB):
 ${listaPartidos}
 
 FORMATO EXACTO para cada partido (pon los % DEL MOTOR sin cambiarlos):
 **N. Local vs Visitante**
 📊 Local [copia el 1% del motor]% | Empate [copia el X% del motor]% | Visitante [copia el 2% del motor]%
 ⚡ Sorpresa: Alta/Media/Baja
-💬 [2-3 frases: racha WC, forma reciente, jugadores clave, contexto táctico]
+💬 [2-3 frases usando los datos de Losilla si los hay, forma ESPN, historial WC, jugadores clave]
 
 Al final:
 **TOP 3 PARTIDOS CON MÁS VALOR**`;
