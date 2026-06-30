@@ -1,7 +1,13 @@
 """
-Obtiene el cuadro eliminatorio del Mundial 2026 desde BallDontLie API (o Tavily como fallback)
-y resuelve los nombres de equipos en las jornadas de la Quiniela.
-Produce data/mundial_2026_eliminatorias.json con estructura de bracket para la UI.
+Actualiza el cuadro eliminatorio del Mundial 2026.
+Fuentes en orden de prioridad:
+  1. API-Football (api-football.com) — más fiable para resultados en tiempo real
+  2. Football-Data.org — segunda fuente de verificación
+  3. BallDontLie — tercera opción
+  4. Tavily — SOLO para partidos donde las 3 APIs no tienen datos, y SOLO
+               para encontrar el marcador exacto (no acepta respuestas ambiguas)
+Si ninguna fuente confirma un resultado, el partido queda como pendiente.
+NUNCA se escribe un resultado no confirmado por al menos una API real.
 """
 import json, os, re, requests, time
 from datetime import datetime, timezone
@@ -14,8 +20,15 @@ CUADRO = DATA / "mundial_2026_cuadro_eliminatorio.json"
 ELIMINATORIAS = DATA / "mundial_2026_eliminatorias.json"
 CLASIFICACIONES = DATA / "memoria_ia" / "clasificaciones_mundial_2026.json"
 
-BALLDONTLIE_KEY = os.environ.get("BALLDONTLIE_API_KEY", "")
-TAVILY_KEY = os.environ.get("TAVILY_API_KEY", "")
+BALLDONTLIE_KEY  = os.environ.get("BALLDONTLIE_API_KEY", "")
+API_FOOTBALL_KEY = os.environ.get("API_FOOTBALL_KEY", "")
+FOOTBALL_DATA_KEY = os.environ.get("FOOTBALL_DATA_KEY", "")
+TAVILY_KEY       = os.environ.get("TAVILY_API_KEY", "")
+
+# ID de la competición Mundial 2026 en cada API
+API_FOOTBALL_LEAGUE = 1  # FIFA World Cup en api-football.com
+API_FOOTBALL_SEASON = 2026
+FOOTBALL_DATA_COMPETITION = "WC"  # World Cup en football-data.org
 
 ALIAS = {
     "iran": "irán", "turkey": "turquía", "turkiye": "turquía",
@@ -38,165 +51,138 @@ ALIAS = {
     "rd congo": "congo dr", "democratic republic of congo": "congo dr",
     "costa rica": "costa rica", "serbia": "serbia",
     "cote d'ivoire": "costa de marfil", "côte d'ivoire": "costa de marfil",
+    "bosnia and herzegovina": "bosnia-herzegovina",
+    "bosnia & herzegovina": "bosnia-herzegovina",
+    "dr congo": "rd congo", "congo, dr": "rd congo",
+    "cabo verde": "cabo verde",
 }
 
 def norm(nombre):
     n = str(nombre or "").strip().lower()
     return ALIAS.get(n, n)
 
-def traducir_source(source):
-    """Convierte home_team_source a texto legible en español."""
-    if not source:
-        return "Por determinar"
-    tipo = source.get("type", "")
-    desc = source.get("description", "") or source.get("label", "")
-    grupo = (source.get("group") or {}).get("name", "")
-    letra = grupo.replace("Group ", "").strip() if grupo else ""
-    
-    if tipo in ("group_winner", "winner"):
-        return f"1º Grupo {letra}" if letra else desc
-    elif tipo in ("group_runner_up", "runner_up"):
-        return f"2º Grupo {letra}" if letra else desc
-    elif tipo == "third_place":
-        grupos = source.get("groups", []) or []
-        letras = "".join(g.get("name","").replace("Group","").strip() for g in grupos)
-        return f"3º Grupo {letras}" if letras else desc
-    elif desc:
-        # Traducir descripciones en inglés
-        desc = desc.replace("Winner of Group ", "1º Grupo ")
-        desc = desc.replace("Runner-up of Group ", "2º Grupo ")
-        desc = desc.replace("Best third-place from Groups ", "3º Grupo ")
-        return desc
-    return "Por determinar"
+def norm_titulo(nombre):
+    n = norm(nombre)
+    return n.title() if n else ""
 
-def resolver_equipo(partido, campo):
-    """Resuelve el nombre real o placeholder de un equipo."""
-    equipo = partido.get(campo)
-    if equipo and equipo.get("name"):
-        return norm(equipo["name"])
-    source = partido.get(f"{campo}_source")
-    return traducir_source(source)
+# ─── FUENTE 1: API-Football ────────────────────────────────────────────────────
 
-def obtener_partidos():
-    if not BALLDONTLIE_KEY:
-        print("Sin BALLDONTLIE_API_KEY")
+def obtener_api_football():
+    """Obtiene partidos eliminatorios del Mundial 2026 desde api-football.com."""
+    if not API_FOOTBALL_KEY:
+        print("Sin API_FOOTBALL_KEY")
         return []
     try:
-        headers = {"Authorization": BALLDONTLIE_KEY}
+        headers = {"x-apisports-key": API_FOOTBALL_KEY}
         r = requests.get(
-            "https://api.balldontlie.io/fifa/worldcup/v1/matches",
-            headers=headers, timeout=20
+            "https://v3.football.api-sports.io/fixtures",
+            headers=headers,
+            params={
+                "league": API_FOOTBALL_LEAGUE,
+                "season": API_FOOTBALL_SEASON,
+            },
+            timeout=20,
         )
         if r.status_code != 200:
-            print(f"Error API: {r.status_code}")
+            print(f"API-Football error {r.status_code}")
             return []
-        partidos = r.json().get("data", [])
-        print(f"BallDontLie: {len(partidos)} partidos obtenidos")
-        return partidos
+        fixtures = r.json().get("response", [])
+        print(f"API-Football: {len(fixtures)} partidos obtenidos")
+        resultados = []
+        for f in fixtures:
+            ronda = (f.get("league") or {}).get("round", "")
+            # Solo fases eliminatorias
+            if any(x in ronda.lower() for x in ["group", "grupo"]):
+                continue
+            equipos = f.get("teams", {})
+            goles = f.get("goals", {})
+            fixture = f.get("fixture", {})
+            status = (fixture.get("status") or {}).get("short", "")
+            home = norm(equipos.get("home", {}).get("name", ""))
+            away = norm(equipos.get("away", {}).get("name", ""))
+            home_g = goles.get("home")
+            away_g = goles.get("away")
+            fecha = (fixture.get("date") or "")[:10]
+            terminado = status in ("FT", "AET", "PEN")
+            resultado = f"{home_g}-{away_g}" if terminado and home_g is not None and away_g is not None else None
+            ganador = None
+            if resultado:
+                if home_g > away_g:
+                    ganador = home
+                elif away_g > home_g:
+                    ganador = away
+                # empate en tiempo normal → puede haber penaltis
+                elif status == "PEN":
+                    pen = f.get("score", {}).get("penalty", {})
+                    ph = pen.get("home")
+                    pa = pen.get("away")
+                    if ph is not None and pa is not None:
+                        ganador = home if ph > pa else away
+            resultados.append({
+                "local": home, "visitante": away,
+                "resultado": resultado, "ganador": ganador,
+                "fecha": fecha, "ronda": ronda, "fuente": "api-football",
+            })
+        return resultados
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"API-Football excepción: {e}")
         return []
 
-def construir_cuadro(partidos):
-    eliminatorias = []
-    for p in partidos:
-        stage = (p.get("stage") or {}).get("name", "")
-        if "Group" in stage:
-            continue
-        
-        local = resolver_equipo(p, "home_team")
-        visitante = resolver_equipo(p, "away_team")
-        home_score = p.get("home_score")
-        away_score = p.get("away_score")
-        resultado = f"{home_score}-{away_score}" if home_score is not None and away_score is not None else "Pendiente"
-        
-        dt_str = p.get("datetime", "") or ""
-        fecha = dt_str[:10] if dt_str else ""
-        hora = dt_str[11:16] if len(dt_str) > 10 else ""
-        
-        eliminatorias.append({
-            "num": p.get("match_number"),
-            "stage": stage,
-            "local": local,
-            "visitante": visitante,
-            "fecha": fecha,
-            "hora": hora,
-            "resultado": resultado,
-            "status": p.get("status", ""),
-        })
-    
-    eliminatorias.sort(key=lambda x: x.get("num") or 999)
-    print(f"Cuadro eliminatorio: {len(eliminatorias)} partidos")
-    return eliminatorias
 
-def resolver_nombres_jornadas(eliminatorias):
-    """
-    Para cada partido de jornada con placeholder tipo '2º Grupo K',
-    busca si ya hay equipo real en el cuadro y actualiza.
-    """
-    # Índice: placeholder → nombre real
-    indice = {}
-    for p in eliminatorias:
-        local = p["local"]
-        visitante = p["visitante"]
-        # Si tiene nombre real (no placeholder), guardarlo
-        # Los placeholders contienen "Grupo" o "Por determinar"
-        if "Grupo" not in local and local != "Por determinar":
-            # Este es un nombre real - pero necesitamos saber 
-            # qué placeholder representa
-            pass
-    
-    # Construir índice desde clasificaciones
+# ─── FUENTE 2: Football-Data.org ──────────────────────────────────────────────
+
+def obtener_football_data():
+    """Obtiene partidos eliminatorios del Mundial 2026 desde football-data.org."""
+    if not FOOTBALL_DATA_KEY:
+        print("Sin FOOTBALL_DATA_KEY")
+        return []
     try:
-        with open(CLASIFICACIONES, encoding="utf-8") as f:
-            clasif = json.load(f)
-        grupos = clasif.get("grupos", {})
-        for g_nombre, g_data in grupos.items():
-            letra = g_nombre.replace("Grupo ", "").strip()
-            equipos = g_data.get("clasificacion", [])
-            if len(equipos) >= 1:
-                indice[f"1º Grupo {letra}"] = norm(equipos[0].get("equipo", ""))
-            if len(equipos) >= 2:
-                indice[f"2º Grupo {letra}"] = norm(equipos[1].get("equipo", ""))
+        headers = {"X-Auth-Token": FOOTBALL_DATA_KEY}
+        r = requests.get(
+            f"https://api.football-data.org/v4/competitions/{FOOTBALL_DATA_COMPETITION}/matches",
+            headers=headers,
+            params={"season": API_FOOTBALL_SEASON},
+            timeout=20,
+        )
+        if r.status_code != 200:
+            print(f"Football-Data error {r.status_code}")
+            return []
+        matches = r.json().get("matches", [])
+        print(f"Football-Data: {len(matches)} partidos obtenidos")
+        resultados = []
+        for m in matches:
+            stage = m.get("stage", "")
+            if stage in ("GROUP_STAGE", "PRELIMINARY_ROUND"):
+                continue
+            home = norm((m.get("homeTeam") or {}).get("name", ""))
+            away = norm((m.get("awayTeam") or {}).get("name", ""))
+            score = m.get("score", {})
+            full = score.get("fullTime", {})
+            hg = full.get("home")
+            ag = full.get("away")
+            status = m.get("status", "")
+            terminado = status in ("FINISHED",)
+            resultado = f"{hg}-{ag}" if terminado and hg is not None and ag is not None else None
+            ganador = None
+            if resultado:
+                winner = score.get("winner")
+                if winner == "HOME_TEAM":
+                    ganador = home
+                elif winner == "AWAY_TEAM":
+                    ganador = away
+            fecha = (m.get("utcDate") or "")[:10]
+            resultados.append({
+                "local": home, "visitante": away,
+                "resultado": resultado, "ganador": ganador,
+                "fecha": fecha, "ronda": stage, "fuente": "football-data",
+            })
+        return resultados
     except Exception as e:
-        print(f"Error leyendo clasificaciones: {e}")
-    
-    print(f"Índice de resolución: {len(indice)} entradas")
-    
-    cambios_total = 0
-    for path in sorted(JORNADAS.glob("jornada_*.json")):
-        data = json.load(open(path, encoding="utf-8"))
-        partidos = data.get("partidos", [])
-        cambios = 0
-        
-        for p in partidos:
-            local = p.get("local", "")
-            visitante = p.get("visitante", "")
-            
-            # Resolver local si es placeholder
-            if ("Grupo" in local or "º" in local) and local in indice and indice[local]:
-                nuevo_local = indice[local]
-                if nuevo_local != local.lower():
-                    p["local"] = nuevo_local.title()
-                    cambios += 1
-                    print(f"  [{p.get('num')}] Local: {local} → {nuevo_local}")
-            
-            # Resolver visitante si es placeholder
-            if ("Grupo" in visitante or "º" in visitante) and visitante in indice and indice[visitante]:
-                nuevo_vis = indice[visitante]
-                if nuevo_vis != visitante.lower():
-                    p["visitante"] = nuevo_vis.title()
-                    cambios += 1
-                    print(f"  [{p.get('num')}] Visitante: {visitante} → {nuevo_vis}")
-        
-        if cambios:
-            data["actualizado_en"] = datetime.now(timezone.utc).isoformat()
-            with open(path, "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
-            print(f"Jornada {data.get('jornada')}: {cambios} nombres resueltos")
-            cambios_total += cambios
-    
-    print(f"Total nombres resueltos: {cambios_total}")
+        print(f"Football-Data excepción: {e}")
+        return []
+
+
+# ─── FUENTE 3: BallDontLie ────────────────────────────────────────────────────
 
 STAGE_MAP = {
     "Round of 32": "dieciseisavos",
@@ -206,13 +192,120 @@ STAGE_MAP = {
     "Final": "final",
 }
 
-MATCH_NUM_TO_SLOT = {
-    73: 0, 75: 1, 74: 2, 77: 3,
-    76: 4, 78: 5, 79: 6, 80: 7,
-    81: 8, 82: 9, 83: 10, 84: 11,
-    85: 12, 87: 13, 86: 14, 88: 15,
-}
+def traducir_source(source):
+    if not source:
+        return None
+    tipo = source.get("type", "")
+    desc = source.get("description", "") or source.get("label", "")
+    grupo = (source.get("group") or {}).get("name", "")
+    letra = grupo.replace("Group ", "").strip() if grupo else ""
+    if tipo in ("group_winner", "winner"):
+        return f"1º Grupo {letra}" if letra else None
+    elif tipo in ("group_runner_up", "runner_up"):
+        return f"2º Grupo {letra}" if letra else None
+    return None
 
+def resolver_equipo_bdl(partido, campo):
+    equipo = partido.get(campo)
+    if equipo and equipo.get("name"):
+        return norm(equipo["name"])
+    source = partido.get(f"{campo}_source")
+    return traducir_source(source)
+
+def obtener_balldontlie():
+    if not BALLDONTLIE_KEY:
+        print("Sin BALLDONTLIE_API_KEY")
+        return []
+    try:
+        headers = {"Authorization": BALLDONTLIE_KEY}
+        r = requests.get(
+            "https://api.balldontlie.io/fifa/worldcup/v1/matches",
+            headers=headers, timeout=20,
+        )
+        if r.status_code != 200:
+            print(f"BallDontLie error {r.status_code}")
+            return []
+        partidos = r.json().get("data", [])
+        print(f"BallDontLie: {len(partidos)} partidos obtenidos")
+        resultados = []
+        for p in partidos:
+            stage_en = (p.get("stage") or {}).get("name", "")
+            if "Group" in stage_en:
+                continue
+            local = resolver_equipo_bdl(p, "home_team")
+            visitante = resolver_equipo_bdl(p, "away_team")
+            hg = p.get("home_score")
+            ag = p.get("away_score")
+            terminado = p.get("status", "") in ("finished", "completed", "FT")
+            resultado = f"{hg}-{ag}" if terminado and hg is not None and ag is not None else None
+            ganador = None
+            if resultado and hg is not None and ag is not None:
+                if hg > ag:
+                    ganador = local
+                elif ag > hg:
+                    ganador = visitante
+            dt = (p.get("datetime") or "")[:10]
+            resultados.append({
+                "local": local, "visitante": visitante,
+                "resultado": resultado, "ganador": ganador,
+                "fecha": dt, "ronda": stage_en,
+                "match_number": p.get("match_number"),
+                "fuente": "balldontlie",
+            })
+        return resultados
+    except Exception as e:
+        print(f"BallDontLie excepción: {e}")
+        return []
+
+
+# ─── FUSIÓN DE FUENTES ────────────────────────────────────────────────────────
+
+def fusionar_resultados(listas):
+    """
+    Combina resultados de varias APIs. Para cada partido (local+visitante),
+    acepta el resultado SOLO si al menos una API lo confirma como terminado.
+    Si dos APIs difieren en el marcador, prevalece API-Football > Football-Data > BallDontLie.
+    """
+    index = {}  # clave: (norm(local), norm(visitante)) → mejor resultado
+    prioridad = {"api-football": 0, "football-data": 1, "balldontlie": 2}
+
+    for lista in listas:
+        for r in lista:
+            local = norm(r.get("local") or "")
+            visitante = norm(r.get("visitante") or "")
+            if not local or not visitante:
+                continue
+            if "grupo" in local or "grupo" in visitante:
+                continue  # placeholder, no es equipo real
+            clave = (local, visitante)
+            clave_inv = (visitante, local)
+            # Normalizar al orden canónico
+            k = clave if clave in index or clave_inv not in index else clave_inv
+            if k == clave_inv:
+                # Invertir local/visitante
+                local, visitante = visitante, local
+                r = dict(r, local=local, visitante=visitante)
+                if r.get("resultado"):
+                    g, v = r["resultado"].split("-")
+                    r["resultado"] = f"{v}-{g}"
+                    if r.get("ganador"):
+                        pass  # ganador ya está normalizado
+            fuente_prio = prioridad.get(r.get("fuente", ""), 99)
+            if k not in index:
+                index[k] = dict(r, _prio=fuente_prio)
+            else:
+                prev = index[k]
+                # Actualizar si tenemos resultado y el anterior no, o somos más prioritarios
+                tiene_res = bool(r.get("resultado"))
+                prev_res = bool(prev.get("resultado"))
+                if tiene_res and (not prev_res or fuente_prio < prev.get("_prio", 99)):
+                    index[k] = dict(r, _prio=fuente_prio)
+                elif tiene_res and prev_res and fuente_prio == prev.get("_prio", 99):
+                    pass  # mismo prioridad, mantener
+    return list(index.values())
+
+
+# ─── ACTUALIZAR JSON ELIMINATORIAS ────────────────────────────────────────────
 
 def cargar_eliminatorias():
     if ELIMINATORIAS.exists():
@@ -222,131 +315,135 @@ def cargar_eliminatorias():
             pass
     return {}
 
-
 def guardar_eliminatorias(data):
     data["actualizado_en"] = datetime.now(timezone.utc).isoformat()
-    ELIMINATORIAS.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    ELIMINATORIAS.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
 
-
-def actualizar_desde_balldontlie(partidos, elim):
-    """Actualiza el JSON de eliminatorias con datos de la API BallDontLie."""
+def actualizar_desde_fusionados(fusionados, elim):
+    """Actualiza el JSON de eliminatorias con los resultados fusionados de las APIs."""
     cambios = 0
     rondas = elim.get("rondas", {})
 
-    for p in partidos:
-        stage_en = (p.get("stage") or {}).get("name", "")
-        ronda_es = STAGE_MAP.get(stage_en)
-        if not ronda_es or ronda_es not in rondas:
-            continue
+    for r in fusionados:
+        if not r.get("resultado"):
+            continue  # solo partidos terminados
+        local_api = norm(r["local"])
+        visitante_api = norm(r["visitante"])
+        resultado = r["resultado"]
+        ganador = r.get("ganador")
 
-        num = p.get("match_number")
-        local = resolver_equipo(p, "home_team")
-        visitante = resolver_equipo(p, "away_team")
-        home_score = p.get("home_score")
-        away_score = p.get("away_score")
-        resultado = f"{home_score}-{away_score}" if home_score is not None and away_score is not None else None
-        dt_str = p.get("datetime", "") or ""
-        fecha = dt_str[:10] if dt_str else None
-
-        ganador = None
-        if resultado and home_score is not None and away_score is not None:
-            if home_score > away_score:
-                ganador = local
-            elif away_score > home_score:
-                ganador = visitante
-
-        partidos_ronda = rondas[ronda_es].get("partidos", [])
-        for m in partidos_ronda:
-            match_id = m.get("id")
-            # Match by num for dieciseisavos, by slot order for later rounds
-            if ronda_es == "dieciseisavos" and match_id != num:
-                continue
-            if ronda_es != "dieciseisavos" and not (local and local != "Por determinar" and m.get("local") == local):
-                continue
-
-            if local and local != "Por determinar":
-                if m.get("local") != local:
-                    m["local"] = local
-                    cambios += 1
-            if visitante and visitante != "Por determinar":
-                if m.get("visitante") != visitante:
-                    m["visitante"] = visitante
-                    cambios += 1
-            if resultado and m.get("resultado") != resultado:
-                m["resultado"] = resultado
-                m["ganador"] = ganador
-                cambios += 1
-            if fecha and not m.get("fecha"):
-                m["fecha"] = fecha
-                cambios += 1
-            break
-
+        for ronda_key, ronda_data in rondas.items():
+            for m in ronda_data.get("partidos", []):
+                local_json = norm(m.get("local") or "")
+                visitante_json = norm(m.get("visitante") or "")
+                if not local_json or not visitante_json:
+                    continue
+                if local_json == local_api and visitante_json == visitante_api:
+                    if m.get("resultado") != resultado:
+                        m["resultado"] = resultado
+                        m["ganador"] = ganador
+                        print(f"  ✓ {m['local']} {resultado} {m['visitante']} (fuente: {r.get('fuente')})")
+                        cambios += 1
+                    break
     return cambios
 
 
-def buscar_resultados_tavily():
-    """Usa Tavily para buscar resultados recientes del Mundial 2026."""
+# ─── TAVILY: SOLO PARA PARTIDOS SIN RESULTADO CONFIRMADO ──────────────────────
+
+def parse_marcador_estricto(texto, local, visitante):
+    """
+    Busca un marcador SOLO si aparece exactamente junto al nombre del equipo.
+    Rechaza resultados ambiguos. Devuelve (goles_local, goles_visitante) o None.
+    """
+    local_n = norm(local).split()[0]   # primera palabra del equipo
+    visit_n = norm(visitante).split()[0]
+    texto_n = texto.lower()
+
+    # Buscar patrón "equipo X-Y equipo" o "equipo X equipo Y"
+    patrones = [
+        rf"{re.escape(local_n)}\s+(\d{{1,2}})\s*[-–]\s*(\d{{1,2}})\s+{re.escape(visit_n)}",
+        rf"{re.escape(visit_n)}\s+(\d{{1,2}})\s*[-–]\s*(\d{{1,2}})\s+{re.escape(local_n)}",
+    ]
+    for i, pat in enumerate(patrones):
+        m = re.search(pat, texto_n)
+        if m:
+            g1, g2 = int(m.group(1)), int(m.group(2))
+            if i == 0:
+                return g1, g2
+            else:
+                return g2, g1  # invertir si visitante aparece primero
+    return None
+
+def buscar_tavily_partido(local, visitante, fecha):
+    """Busca el resultado de UN partido concreto en Tavily."""
     if not TAVILY_KEY:
-        return []
+        return None
+    query = f"{local} vs {visitante} resultado Mundial 2026 {fecha}"
     try:
         resp = requests.post(
             "https://api.tavily.com/search",
             json={
                 "api_key": TAVILY_KEY,
-                "query": "Mundial 2026 eliminatorias resultados dieciseisavos octavos hoy",
+                "query": query,
                 "search_depth": "basic",
                 "max_results": 5,
                 "include_answer": True,
             },
             timeout=20,
         )
-        if resp.status_code == 200:
-            data = resp.json()
-            answer = data.get("answer", "") or ""
-            content = " ".join(r.get("content", "") for r in data.get("results", []))
-            return [answer + " " + content]
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
+        texto = (data.get("answer") or "") + " " + " ".join(
+            r.get("content", "") for r in data.get("results", [])
+        )
+        marcador = parse_marcador_estricto(texto, local, visitante)
+        if marcador:
+            gl, gv = marcador
+            ganador = local if gl > gv else (visitante if gv > gl else None)
+            print(f"  Tavily (verificado): {local} {gl}-{gv} {visitante}")
+            return {"resultado": f"{gl}-{gv}", "ganador": ganador}
+        else:
+            print(f"  Tavily: no encontró marcador claro para {local} vs {visitante}")
+            return None
     except Exception as e:
-        print(f"Tavily eliminatorias: {e}")
-    return []
+        print(f"  Tavily excepción: {e}")
+        return None
 
-
-def parse_resultado_texto(texto, local, visitante):
-    """Busca 'Local X-Y Visitante' en texto."""
-    variantes = [local.lower(), visitante.lower()]
-    for pat in [
-        r"(\d{1,2})\s*[-–]\s*(\d{1,2})",
-    ]:
-        for m in re.finditer(pat, texto, re.I):
-            frag = texto[max(0, m.start()-200): m.end()+200].lower()
-            if all(v.split()[0] in frag for v in variantes):
-                if not re.search(r"\b(minuto|min\.|en juego|descanso)\b", frag):
-                    return f"{m.group(1)}-{m.group(2)}"
-    return None
-
-
-def actualizar_desde_tavily(elim):
-    """Intenta completar resultados pendientes via Tavily."""
-    textos = buscar_resultados_tavily()
-    if not textos:
-        return 0
-    texto = " ".join(textos)
+def completar_con_tavily(elim):
+    """Solo usa Tavily para partidos cuya fecha ya pasó y no tienen resultado."""
+    hoy = datetime.now(timezone.utc).date()
     cambios = 0
-    for ronda_key, ronda in elim.get("rondas", {}).items():
-        for m in ronda.get("partidos", []):
-            if m.get("resultado") or not m.get("local") or not m.get("visitante"):
+    for ronda_key, ronda_data in elim.get("rondas", {}).items():
+        for m in ronda_data.get("partidos", []):
+            if m.get("resultado"):
+                continue  # ya tiene resultado, no tocar
+            if not m.get("local") or not m.get("visitante"):
+                continue  # equipos no conocidos aún
+            fecha_str = m.get("fecha", "")
+            if not fecha_str:
                 continue
-            res = parse_resultado_texto(texto, m["local"], m["visitante"])
-            if res:
-                m["resultado"] = res
-                gl, gv = (int(x) for x in res.split("-"))
-                m["ganador"] = m["local"] if gl > gv else (m["visitante"] if gv > gl else None)
+            try:
+                fecha_partido = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+            except ValueError:
+                continue
+            # Solo buscar si el partido fue hace más de 2 horas (margen de seguridad)
+            if fecha_partido >= hoy:
+                continue
+            resultado = buscar_tavily_partido(m["local"], m["visitante"], fecha_str)
+            if resultado:
+                m["resultado"] = resultado["resultado"]
+                m["ganador"] = resultado["ganador"]
                 cambios += 1
-                print(f"  Tavily: {m['local']} {res} {m['visitante']}")
+            time.sleep(1)  # respetar rate limit de Tavily
     return cambios
 
 
+# ─── PROPAGAR GANADORES AL SIGUIENTE ROUND ────────────────────────────────────
+
 def propagar_ganadores(elim):
-    """Rellena equipos en rondas posteriores a partir de los ganadores."""
     rondas = elim.get("rondas", {})
     pairings = elim.get("bracket_pairings", {})
     match_by_id = {}
@@ -373,37 +470,85 @@ def propagar_ganadores(elim):
     return cambios
 
 
+# ─── RESOLVER NOMBRES EN JORNADAS ─────────────────────────────────────────────
+
+def resolver_nombres_jornadas():
+    try:
+        with open(CLASIFICACIONES, encoding="utf-8") as f:
+            clasif = json.load(f)
+        grupos = clasif.get("grupos", {})
+        indice = {}
+        for g_nombre, g_data in grupos.items():
+            letra = g_nombre.replace("Grupo ", "").strip()
+            equipos = g_data.get("clasificacion", [])
+            if len(equipos) >= 1:
+                indice[f"1º Grupo {letra}"] = norm(equipos[0].get("equipo", ""))
+            if len(equipos) >= 2:
+                indice[f"2º Grupo {letra}"] = norm(equipos[1].get("equipo", ""))
+    except Exception as e:
+        print(f"Error leyendo clasificaciones: {e}")
+        return
+
+    cambios_total = 0
+    for path in sorted(JORNADAS.glob("jornada_*.json")):
+        data = json.load(open(path, encoding="utf-8"))
+        partidos = data.get("partidos", [])
+        cambios = 0
+        for p in partidos:
+            for campo in ("local", "visitante"):
+                val = p.get(campo, "")
+                if ("Grupo" in val or "º" in val) and val in indice and indice[val]:
+                    p[campo] = indice[val].title()
+                    cambios += 1
+        if cambios:
+            data["actualizado_en"] = datetime.now(timezone.utc).isoformat()
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            cambios_total += cambios
+    print(f"Nombres resueltos en jornadas: {cambios_total}")
+
+
+# ─── MAIN ─────────────────────────────────────────────────────────────────────
+
 if __name__ == "__main__":
     print("=== Actualizando cuadro eliminatorio Mundial 2026 ===")
-    partidos = obtener_partidos()
-    if partidos:
-        eliminatorias = construir_cuadro(partidos)
-        cuadro = {
-            "actualizado_en": datetime.now(timezone.utc).isoformat(),
-            "partidos": eliminatorias
-        }
-        with open(CUADRO, "w", encoding="utf-8") as f:
-            json.dump(cuadro, f, ensure_ascii=False, indent=2)
-        print(f"Cuadro guardado: {len(eliminatorias)} partidos")
-        resolver_nombres_jornadas(eliminatorias)
 
-        # Actualizar JSON estructurado de eliminatorias
-        elim = cargar_eliminatorias()
-        if elim:
-            c = actualizar_desde_balldontlie(partidos, elim)
-            c += propagar_ganadores(elim)
-            if c:
-                guardar_eliminatorias(elim)
-                print(f"Eliminatorias actualizadas desde API: {c} cambio(s)")
+    elim = cargar_eliminatorias()
+    if not elim:
+        print("ERROR: no se puede cargar mundial_2026_eliminatorias.json")
+        exit(1)
+
+    # 1. Obtener datos de las 3 APIs reales
+    lista_apifootball = obtener_api_football()
+    lista_footballdata = obtener_football_data()
+    lista_balldontlie  = obtener_balldontlie()
+
+    total_api = len(lista_apifootball) + len(lista_footballdata) + len(lista_balldontlie)
+    print(f"Total partidos de APIs: {total_api}")
+
+    # 2. Fusionar y priorizar
+    fusionados = fusionar_resultados([lista_apifootball, lista_footballdata, lista_balldontlie])
+    cambios = actualizar_desde_fusionados(fusionados, elim)
+    print(f"Actualizados desde APIs reales: {cambios} partido(s)")
+
+    # 3. Propagar ganadores al siguiente round
+    cambios += propagar_ganadores(elim)
+
+    # 4. Solo si quedan partidos sin resultado cuya fecha ya pasó → Tavily con verificación estricta
+    cambios_tavily = completar_con_tavily(elim)
+    if cambios_tavily:
+        print(f"Completados con Tavily (verificación estricta): {cambios_tavily}")
+        cambios += cambios_tavily
+        propagar_ganadores(elim)
+
+    # 5. Guardar si hubo cambios
+    if cambios:
+        guardar_eliminatorias(elim)
+        print(f"Eliminatorias guardadas: {cambios} cambio(s) totales")
     else:
-        print("API sin datos - intentando Tavily + clasificaciones locales")
-        resolver_nombres_jornadas([])
-        elim = cargar_eliminatorias()
-        if elim:
-            c = actualizar_desde_tavily(elim)
-            c += propagar_ganadores(elim)
-            if c:
-                guardar_eliminatorias(elim)
-                print(f"Eliminatorias actualizadas desde Tavily: {c} cambio(s)")
+        print("Sin cambios nuevos")
+
+    # 6. Resolver placeholders en jornadas
+    resolver_nombres_jornadas()
 
     print("=== Completado ===")
