@@ -1920,17 +1920,42 @@ ${resumenDiario || "Sin entradas recientes"}`;
       try {
         const contexto = construirContextoIA();
 
-        // Buscar datos de fútbol en tiempo real (ESPN + TheSportsDB via Worker) si la pregunta lo requiere
+        // Buscar datos de fútbol en tiempo real si la pregunta lo requiere
         const necesitaFutbol = /resultado|marcador|gan[oó]|empat|jug[oó]|jugaron|hoy|ayer|partido|clasificaci|liga|champions|premier|bundesliga|serie a|ligue|mundial|eliminatori|allsvenskan|veikkausliiga|nordic|suec|finlan|norueg|dinamarc/i.test(texto);
         const footballPromise = necesitaFutbol
-          ? fetch(`${WORKER_URL}/api/football?ligas=all&dias=7`)
-              .then(r => r.ok ? r.json() : null).catch(() => null)
+          ? fetch(`${WORKER_URL}/api/football?ligas=all&dias=7`).then(r => r.ok ? r.json() : null).catch(() => null)
           : Promise.resolve(null);
 
-        // Buscar en web si la pregunta lo requiere (en paralelo mientras preparamos)
+        // Clasificaciones TheSportsDB para ligas nórdicas (JSON limpio, sin HTML)
+        const necesitaClasif = /clasificaci|tabla|standing|posici|puntos|liga suec|liga finlan|allsvenskan|veikkausliiga/i.test(texto);
+        const tsdbClasifPromise = necesitaClasif ? Promise.all([
+          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4344&s=2026').then(r=>r.ok?r.json():null).catch(()=>null), // Allsvenskan
+          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4430&s=2026').then(r=>r.ok?r.json():null).catch(()=>null), // Veikkausliiga
+          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4335&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null), // La Liga
+        ]) : Promise.resolve(null);
+
+        // Buscar en web si la pregunta lo requiere
         const usarWeb = necesitaBusquedaWeb(texto);
         const webPromise = usarWeb ? buscarEnWeb(texto) : Promise.resolve(null);
-        const [contextoWeb, datosFootball] = await Promise.all([webPromise, footballPromise]);
+        const [contextoWeb, datosFootball, tsdbClasif] = await Promise.all([webPromise, footballPromise, tsdbClasifPromise]);
+
+        // Formatear clasificaciones TheSportsDB
+        let bloqueClasif = '';
+        if (tsdbClasif) {
+          const ligas = [
+            { nombre: 'Allsvenskan (Suecia)', data: tsdbClasif[0] },
+            { nombre: 'Veikkausliiga (Finlandia)', data: tsdbClasif[1] },
+            { nombre: 'La Liga', data: tsdbClasif[2] },
+          ];
+          for (const { nombre, data } of ligas) {
+            const tabla = data?.table || [];
+            if (!tabla.length) continue;
+            bloqueClasif += `\n\nCLASIFICACIÓN ${nombre} (en tiempo real):\n`;
+            bloqueClasif += tabla.slice(0, 20).map(t =>
+              `${t.intRank}. ${t.strTeam} — ${t.intPoints}pts (${t.intPlayed}PJ ${t.intWin}G ${t.intDraw}E ${t.intLoss}P) GF:${t.intGoalsFor} GC:${t.intGoalsAgainst}`
+            ).join('\n');
+          }
+        }
 
         const bloqueWeb = contextoWeb
           ? `\n\n--- INFORMACIÓN ACTUALIZADA DE LA WEB ---\n${contextoWeb}--- FIN DATOS WEB ---`
@@ -1978,7 +2003,7 @@ TU PERSONALIDAD:
 - Respuestas concisas y naturales. Sin bullets innecesarios. Como una conversación real.
 
 DATOS REALES DE TU SISTEMA — TEMPORADA 2025/2026:
-${contexto}${bloqueFootball}${bloqueWeb}`;
+${contexto}${bloqueFootball}${bloqueClasif}${bloqueWeb}`;
 
         const messages = [
           { role: 'system', content: systemPrompt },
