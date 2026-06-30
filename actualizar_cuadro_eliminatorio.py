@@ -25,6 +25,11 @@ API_FOOTBALL_KEY = os.environ.get("API_FOOTBALL_KEY", "")
 FOOTBALL_DATA_KEY = os.environ.get("FOOTBALL_DATA_KEY", "")
 TAVILY_KEY       = os.environ.get("TAVILY_API_KEY", "")
 
+# TheSportsDB no necesita key — usa el endpoint público gratuito
+THESPORTSDB_KEY = "3"
+# IDs conocidos de FIFA World Cup en TheSportsDB (se prueban en orden)
+THESPORTSDB_WC_IDS = ["600614", "4480", "4479"]
+
 # ID de la competición Mundial 2026 en cada API
 API_FOOTBALL_LEAGUE = 1  # FIFA World Cup en api-football.com
 API_FOOTBALL_SEASON = 2026
@@ -65,17 +70,80 @@ def norm_titulo(nombre):
     n = norm(nombre)
     return n.title() if n else ""
 
+# ─── FUENTE 0: TheSportsDB (sin key, gratuito) ────────────────────────────────
+
+def obtener_thesportsdb():
+    """Obtiene partidos del Mundial 2026 desde TheSportsDB — sin API key."""
+    for league_id in THESPORTSDB_WC_IDS:
+        try:
+            r = requests.get(
+                "https://www.thesportsdb.com/api/v1/json/3/eventsseason.php",
+                params={"id": league_id, "s": "2026"},
+                timeout=20,
+            )
+            if r.status_code != 200:
+                continue
+            events = r.json().get("events") or []
+            if not events:
+                continue
+            print(f"TheSportsDB: {len(events)} eventos (league {league_id})")
+            resultados = []
+            for e in events:
+                stage = str(e.get("strRound") or e.get("intRound") or "")
+                if "group" in stage.lower() or "fase de grupos" in stage.lower():
+                    continue
+                home = norm(e.get("strHomeTeam", ""))
+                away = norm(e.get("strAwayTeam", ""))
+                hg = e.get("intHomeScore")
+                ag = e.get("intAwayScore")
+                status = str(e.get("strStatus") or e.get("strProgress") or "")
+                terminado = status in ("Match Finished", "FT", "finished", "AOT", "AP")
+                resultado = None
+                ganador = None
+                if terminado and hg is not None and ag is not None:
+                    try:
+                        hg_i, ag_i = int(hg), int(ag)
+                        resultado = f"{hg_i}-{ag_i}"
+                        if hg_i > ag_i:
+                            ganador = home
+                        elif ag_i > hg_i:
+                            ganador = away
+                    except (ValueError, TypeError):
+                        pass
+                fecha = e.get("dateEvent") or ""
+                resultados.append({
+                    "local": home, "visitante": away,
+                    "resultado": resultado, "ganador": ganador,
+                    "fecha": fecha, "ronda": stage, "fuente": "thesportsdb",
+                })
+            return resultados
+        except Exception as e:
+            print(f"TheSportsDB excepción (league {league_id}): {e}")
+    print("TheSportsDB: sin datos")
+    return []
+
+
 # ─── FUENTE 1: API-Football ────────────────────────────────────────────────────
 
 def obtener_api_football():
-    """Obtiene partidos eliminatorios del Mundial 2026 desde api-football.com."""
+    """Obtiene partidos eliminatorios del Mundial 2026 desde api-football.com o RapidAPI."""
     if not API_FOOTBALL_KEY:
         print("Sin API_FOOTBALL_KEY")
         return []
     try:
-        headers = {"x-apisports-key": API_FOOTBALL_KEY}
+        # Detectar si es key de RapidAPI (contiene 'jsn') o key directa de api-sports.io
+        is_rapidapi = "jsn" in API_FOOTBALL_KEY
+        if is_rapidapi:
+            headers = {
+                "X-RapidAPI-Key": API_FOOTBALL_KEY,
+                "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
+            }
+            base_url = "https://api-football-v1.p.rapidapi.com/v3/fixtures"
+        else:
+            headers = {"x-apisports-key": API_FOOTBALL_KEY}
+            base_url = "https://v3.football.api-sports.io/fixtures"
         r = requests.get(
-            "https://v3.football.api-sports.io/fixtures",
+            base_url,
             headers=headers,
             params={
                 "league": API_FOOTBALL_LEAGUE,
@@ -267,7 +335,7 @@ def fusionar_resultados(listas):
     Si dos APIs difieren en el marcador, prevalece API-Football > Football-Data > BallDontLie.
     """
     index = {}  # clave: (norm(local), norm(visitante)) → mejor resultado
-    prioridad = {"api-football": 0, "football-data": 1, "balldontlie": 2}
+    prioridad = {"api-football": 0, "football-data": 1, "thesportsdb": 2, "balldontlie": 3}
 
     for lista in listas:
         for r in lista:
@@ -518,16 +586,17 @@ if __name__ == "__main__":
         print("ERROR: no se puede cargar mundial_2026_eliminatorias.json")
         exit(1)
 
-    # 1. Obtener datos de las 3 APIs reales
+    # 1. Obtener datos de todas las fuentes
+    lista_thesportsdb = obtener_thesportsdb()
     lista_apifootball = obtener_api_football()
     lista_footballdata = obtener_football_data()
     lista_balldontlie  = obtener_balldontlie()
 
-    total_api = len(lista_apifootball) + len(lista_footballdata) + len(lista_balldontlie)
+    total_api = len(lista_thesportsdb) + len(lista_apifootball) + len(lista_footballdata) + len(lista_balldontlie)
     print(f"Total partidos de APIs: {total_api}")
 
-    # 2. Fusionar y priorizar
-    fusionados = fusionar_resultados([lista_apifootball, lista_footballdata, lista_balldontlie])
+    # 2. Fusionar y priorizar (api-football > football-data > thesportsdb > balldontlie)
+    fusionados = fusionar_resultados([lista_apifootball, lista_footballdata, lista_thesportsdb, lista_balldontlie])
     cambios = actualizar_desde_fusionados(fusionados, elim)
     print(f"Actualizados desde APIs reales: {cambios} partido(s)")
 
