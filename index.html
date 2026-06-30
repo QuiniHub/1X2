@@ -1748,23 +1748,20 @@ Al final:
           }
         }
       }
-      const bloqueBracket = (partidosJugados.length > 0 || partidosPendientes.length > 0)
-        ? `\nMUNDIAL 2026 — ELIMINATORIAS (datos reales del sistema):\n` +
-          (partidosJugados.length > 0 ? `RESULTADOS CONFIRMADOS:\n${partidosJugados.join('\n')}\n` : '') +
-          (partidosPendientes.length > 0 ? `PRÓXIMOS PARTIDOS:\n${partidosPendientes.join('\n')}` : '')
+      // Bracket — últimos 10 resultados + próximos 5 (compacto)
+      const bloqueBracket = partidosJugados.length > 0
+        ? `\nMUNDIAL 2026 — ÚLTIMOS RESULTADOS:\n${partidosJugados.slice(-10).join('\n')}` +
+          (partidosPendientes.length > 0 ? `\nPRÓXIMOS: ${partidosPendientes.slice(0, 5).join(' | ')}` : '')
         : '';
 
-      // Clasificaciones de grupos
+      // Grupos — compacto: solo top 2 por grupo con pts
       const grupos = mundial.grupos || {};
       let bloqueGrupos = '';
       if (Object.keys(grupos).length > 0) {
-        const resumenGrupos = Object.entries(grupos).map(([g, d]) => {
-          const equipos = arr(d.equipos || []).map(e =>
-            `${e.nombre}(${e.pj || 0}pj ${e.pts || 0}pts${e.clasificado ? ' ✓CLASIF' : e.eliminado ? ' ✗ELIM' : ''})`
-          ).join(', ');
-          return `Grupo ${g}: ${equipos}`;
-        }).join('\n');
-        bloqueGrupos = `\nCLASIFICACIONES GRUPOS MUNDIAL 2026:\n${resumenGrupos}`;
+        bloqueGrupos = `\nGRUPOS M2026: ` + Object.entries(grupos).map(([g, d]) => {
+          const eq = arr(d.equipos || []).map(e => `${e.nombre}${e.clasificado ? '✓' : e.eliminado ? '✗' : ''}(${e.pts||0})`).join(' ');
+          return `${g}:[${eq}]`;
+        }).join(' ');
       }
 
       // Pesos dinámicos del motor
@@ -2015,36 +2012,42 @@ ${resumenDiario || "Sin entradas recientes"}`;
         const contexto = construirContextoIA();
 
         // Analizar también el historial reciente de chat para detectar contexto
-        const contextoReciente = chatHistory.slice(-6).map(m => m.content).join(' ');
+        const contextoReciente = chatHistory.slice(-4).map(m => m.content).join(' ');
         const textoTotal = texto + ' ' + contextoReciente;
 
-        // Buscar datos de fútbol en tiempo real si la pregunta lo requiere
-        const necesitaFutbol = /resultado|marcador|gan[oó]|empat|jug[oó]|jugaron|hoy|ayer|partido|clasificaci|liga|champions|premier|bundesliga|serie a|ligue|mundial|eliminatori|allsvenskan|veikkausliiga|nordic|suec|finlan|norueg|dinamarc/i.test(textoTotal);
+        // Consultas sobre datos locales: no necesitan fetches externos
+        const esConsultaLocal = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|pesos|jornada actual|jornada anterior|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev/i.test(textoTotal);
+
+        // Buscar datos de fútbol en tiempo real (solo si no es consulta local)
+        const necesitaFutbol = !esConsultaLocal && /resultado|marcador|gan[oó]|empat|jug[oó]|jugaron|hoy|ayer|partido|clasificaci|liga|champions|premier|bundesliga|serie a|ligue|mundial|eliminatori|allsvenskan|veikkausliiga|nordic|suec|finlan|norueg|dinamarc/i.test(textoTotal);
         const footballPromise = necesitaFutbol
           ? fetch(`${WORKER_URL}/api/football?ligas=all&dias=14`).then(r => r.ok ? r.json() : null).catch(() => null)
           : Promise.resolve(null);
 
-        // Clasificaciones TheSportsDB — detecta contexto de conversación completa
-        const necesitaClasif = /clasificaci|tabla|standing|posici|puntos|liga suec|liga finlan|allsvenskan|veikkausliiga|norueg|dinamarc|eliteserien|superligaen|completa|complet|toda la|el resto|sigue|más equipo|mas equipo/i.test(textoTotal);
+        // Clasificaciones TheSportsDB (solo si no es consulta local)
+        const necesitaClasif = !esConsultaLocal && /clasificaci|tabla|standing|posici|puntos|liga suec|liga finlan|allsvenskan|veikkausliiga|norueg|dinamarc|eliteserien|superligaen|completa|toda la|más equipo|mas equipo/i.test(textoTotal);
         const tsdbClasifPromise = necesitaClasif ? Promise.all([
-          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4344&s=2026').then(r=>r.ok?r.json():null).catch(()=>null),   // Allsvenskan
-          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4430&s=2026').then(r=>r.ok?r.json():null).catch(()=>null),   // Veikkausliiga
-          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4335&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null), // La Liga
-          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4332&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null), // Eliteserien
-          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4339&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null), // Superligaen
+          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4344&s=2026').then(r=>r.ok?r.json():null).catch(()=>null),
+          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4430&s=2026').then(r=>r.ok?r.json():null).catch(()=>null),
+          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4335&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null),
+          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4332&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null),
+          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4339&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null),
         ]) : Promise.resolve(null);
 
-        // Partidos del Mundial 2026 — recientes + próximos vía TheSportsDB
-        const necesitaMundial = /mundial|copa del mundo|world cup/i.test(textoTotal);
+        // Partidos del Mundial TSDB (solo si no es consulta local)
+        const necesitaMundial = !esConsultaLocal && /mundial|copa del mundo|world cup/i.test(textoTotal);
         const tsdbMundialPromise = necesitaMundial ? Promise.all([
           fetch('https://www.thesportsdb.com/api/v1/json/3/eventspastleague.php?id=600614').then(r=>r.ok?r.json():null).catch(()=>null),
           fetch('https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=600614').then(r=>r.ok?r.json():null).catch(()=>null),
         ]) : Promise.resolve(null);
 
-        // Buscar en web si la pregunta lo requiere
-        const usarWeb = necesitaBusquedaWeb(texto);
+        // Buscar en web (solo si no es consulta local)
+        const usarWeb = !esConsultaLocal && necesitaBusquedaWeb(texto);
         const webPromise = usarWeb ? buscarEnWeb(texto) : Promise.resolve(null);
         const [contextoWeb, datosFootball, tsdbClasif, tsdbMundial] = await Promise.all([webPromise, footballPromise, tsdbClasifPromise, tsdbMundialPromise]);
+
+        // Historia de chat enviada a Groq: reducir a 4 si hay datos externos, 6 si es local
+        const historialEnvio = esConsultaLocal ? chatHistory.slice(-6) : chatHistory.slice(-4);
 
         // Formatear clasificaciones TheSportsDB
         let bloqueClasif = '';
@@ -2139,7 +2142,7 @@ ${contexto}${bloqueFootball}${bloqueMundialTSDB}${bloqueClasif}${bloqueWeb}`;
 
         const messages = [
           { role: 'system', content: systemPrompt },
-          ...chatHistory.slice(-6).map(m => ({ role: m.role, content: m.content }))
+          ...historialEnvio.map(m => ({ role: m.role, content: m.content }))
         ];
 
         const respuesta = await llamarGroq(messages, 'llama-3.1-8b-instant', 600);
