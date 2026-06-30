@@ -1690,14 +1690,45 @@ ${resumenDiario || "Sin entradas recientes"}`;
       try {
         const contexto = construirContextoIA();
 
+        // Buscar datos de fútbol en tiempo real (ESPN + TheSportsDB via Worker) si la pregunta lo requiere
+        const necesitaFutbol = /resultado|marcador|ganó|gano|ganó|empat|jugó|jugaron|hoy|ayer|partido|clasificaci|liga|champions|premier|bundesliga|serie a|ligue|mundial|eliminatori/i.test(texto);
+        const footballPromise = necesitaFutbol
+          ? fetch(`${WORKER_URL}/api/football?ligas=esp.1,esp.2,UEFA.CHAMPIONS,UEFA.EUROPA,eng.1,ger.1,ita.1,FIFA.WORLD&dias=3`)
+              .then(r => r.ok ? r.json() : null).catch(() => null)
+          : Promise.resolve(null);
+
         // Buscar en web si la pregunta lo requiere (en paralelo mientras preparamos)
         const usarWeb = necesitaBusquedaWeb(texto);
         const webPromise = usarWeb ? buscarEnWeb(texto) : Promise.resolve(null);
-        const contextoWeb = await webPromise;
+        const [contextoWeb, datosFootball] = await Promise.all([webPromise, footballPromise]);
 
         const bloqueWeb = contextoWeb
           ? `\n\n--- INFORMACIÓN ACTUALIZADA DE LA WEB ---\n${contextoWeb}--- FIN DATOS WEB ---`
           : '';
+
+        // Bloque de resultados de fútbol en tiempo real
+        let bloqueFootball = '';
+        if (datosFootball) {
+          const vivos = (datosFootball.en_juego || []);
+          const recientes = (datosFootball.resultados || []).slice(-60);
+          if (vivos.length > 0) {
+            bloqueFootball += `\n\n--- PARTIDOS EN JUEGO AHORA ---\n`;
+            bloqueFootball += vivos.map(p => `${p.liga}: ${p.local} ${p.resultado || ''} ${p.visitante} (min. ${p.minuto})`).join('\n');
+          }
+          if (recientes.length > 0) {
+            bloqueFootball += `\n\n--- RESULTADOS RECIENTES (ESPN + TheSportsDB) ---\n`;
+            // Agrupar por liga
+            const porLiga = {};
+            for (const p of recientes) {
+              if (!porLiga[p.liga]) porLiga[p.liga] = [];
+              porLiga[p.liga].push(`${p.local} ${p.resultado} ${p.visitante} (${p.fecha})`);
+            }
+            for (const [liga, partidos] of Object.entries(porLiga)) {
+              bloqueFootball += `\n${liga}:\n${partidos.join('\n')}`;
+            }
+            bloqueFootball += `\n--- FIN DATOS FÚTBOL ---`;
+          }
+        }
 
         const systemPrompt = `Eres el analista de QuiniHub. Tu nombre es "Analista QuiniHub" y llevas toda la temporada 2025/2026 analizando La Quiniela española y el Mundial 2026.
 
@@ -1717,7 +1748,7 @@ TU PERSONALIDAD:
 - Respuestas concisas y naturales. Sin bullets innecesarios. Como una conversación real.
 
 DATOS REALES DE TU SISTEMA — TEMPORADA 2025/2026:
-${contexto}${bloqueWeb}`;
+${contexto}${bloqueFootball}${bloqueWeb}`;
 
         const messages = [
           { role: 'system', content: systemPrompt },

@@ -46,6 +46,7 @@ SCRIPTS_CRITICOS_PREDICCION = {
 SCRIPTS_NO_CRITICOS_RED = {
     "preparar_temporada_2026_2027.py",
     "actualizar_fuente_lae.py",
+    "actualizar_resultados_libres.py",
     "actualizar_jornadas_detalle.py",
     "actualizar_boleto_vivo.py",
     "asegurar_proxima_jornada.py",
@@ -132,6 +133,8 @@ SCRIPTS_ACTIVOS = [
     "construir_fuente_verdad_competitiva.py",
 
     # --- Competiciones internacionales y datos profesionales ---
+    # --- Resultados via fuentes libres (ESPN, TheSportsDB, OpenFootball — sin key) ---
+    "actualizar_resultados_libres.py",
     # --- Resultados via APIs (BallDontLie, API-Football, openfootball) ---
     "actualizar_resultados_apis.py",
     "actualizar_cuadro_eliminatorio.py",
