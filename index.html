@@ -1585,8 +1585,7 @@ FORMATO EXACTO para cada partido (pon los % DEL MOTOR sin cambiarlos):
 Al final:
 **TOP 3 PARTIDOS CON MÁS VALOR**`;
 
-        try {
-          const resp = await llamarGroq([{ role: 'user', content: prompt }], 'llama-3.3-70b-versatile', 3500);
+        const renderAnalisis = (resp) => {
           loading.style.display = 'none';
           content.style.display = 'block';
           content.innerHTML = resp
@@ -1595,8 +1594,6 @@ Al final:
             .replace(/⚡(.+)/g, '<span style="color:#d97706;font-weight:600;display:block">⚡$1</span>')
             .replace(/💬(.+)/g, '<span style="color:var(--muted,#555);display:block;margin-bottom:8px;line-height:1.5">💬$1</span>')
             .replace(/\n/g, '<br>');
-
-          // ── 6. Pleno al 15 renderizado SIEMPRE desde state (no depende de la IA)
           const plenoRec = (state.pleno15Data||{}).recomendacion || {};
           if (plenoRec.local) {
             const pProbs = plenoRec.probabilidades || {};
@@ -1614,10 +1611,24 @@ Al final:
               ${wcPV?`<span style="color:var(--muted,#555);display:block">📋 WC2026 ${plenoRec.visitante}: ${wcPV}</span>`:''}
               <span style="color:var(--muted,#555);display:block;margin-top:8px;font-size:13px;line-height:1.5">${(plenoRec.razonamiento||'').slice(0,300)}…</span>`;
           }
+        };
+
+        try {
+          // Intentar con 70B, si falla por rate limit usar 8B como fallback
+          let resp;
+          try {
+            resp = await llamarGroq([{ role: 'user', content: prompt }], 'llama-3.3-70b-versatile', 3500);
+          } catch(e70) {
+            if (e70.message?.includes('429') || e70.message?.includes('rate')) {
+              content.innerHTML = '<span style="color:#d97706;font-size:13px">⚠️ Modelo 70B limitado, usando modelo alternativo…</span>';
+              resp = await llamarGroq([{ role: 'user', content: prompt }], 'llama-3.1-8b-instant', 3000);
+            } else { throw e70; }
+          }
+          renderAnalisis(resp);
         } catch(e) {
           loading.style.display = 'none';
           content.style.display = 'block';
-          content.innerHTML = '<span style="color:red">Error al obtener el análisis. Inténtalo de nuevo.</span>';
+          content.innerHTML = `<span style="color:red">Error: ${e.message || 'Inténtalo de nuevo.'}</span>`;
         }
       }
 
