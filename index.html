@@ -1776,22 +1776,20 @@ Al final:
           Object.entries(pesosActuales).map(([k, v]) => `  ${k}: ${(v * 100).toFixed(1)}%`).join('\n');
       }
 
-      // Predicción actual — los 15 partidos con probabilidades y tipo de apuesta
+      // Predicción actual — compacta para ahorrar tokens
       const partidos = arr(pred.partidos || []);
       let bloquePredActual = '';
       if (partidos.length > 0) {
-        bloquePredActual = `\nPREDICCIÓN JORNADA ${jornadaActual} (pestaña Predicción):\n` +
+        bloquePredActual = `\nPREDICCIÓN J${jornadaActual}: ` +
           partidos.map(p => {
             const pr = p.probabilidades || {};
-            const tipo = p.tipo ? ` [${p.tipo}]` : '';
-            return `P${p.num} ${p.local} vs ${p.visitante}: jugamos ${p.signo_final || p.signo_base}${tipo} | 1=${(pr['1']||0).toFixed(0)}% X=${(pr['X']||0).toFixed(0)}% 2=${(pr['2']||0).toFixed(0)}%`;
-          }).join('\n');
+            const t = (p.tipo || 'F')[0];
+            return `P${p.num} ${p.local.split(/\s+/).pop()} vs ${p.visitante.split(/\s+/).pop()} ${p.signo_final||p.signo_base}(${t}) 1=${Math.round(pr['1']||0)}%X=${Math.round(pr['X']||0)}%2=${Math.round(pr['2']||0)}%`;
+          }).join(' | ');
       }
 
-      // Pestaña Liga 26/27 — resumen estático
-      const liga2627 = `\nPESTAÑA LIGA 26/27:
-Primera División 2026/27 comienza el 14/08/2026. Equipos confirmados: Real Madrid, Barcelona, Atlético de Madrid, Athletic Club, Real Sociedad, Villarreal, Betis, Sevilla, Valencia, Osasuna, Celta, Getafe, Rayo Vallecano, Mallorca, Girona, Espanyol, Leganés, Alavés, Las Palmas y uno por determinar (ascendido de Segunda).
-Segunda División 2026/27: 22 equipos incluyendo Valladolid, Sporting de Gijón, Real Oviedo, Mirandés, Burgos, Racing, SD Huesca, Zaragoza y equipos descendidos.`;
+      // Pestaña Liga 26/27 — una línea
+      const liga2627 = `\nLIGA 26/27: Primera comienza 14/08/2026. 1ª: R.Madrid,Barça,Atlético,Athletic,R.Sociedad,Villarreal,Betis,Sevilla,Valencia,Osasuna,Celta,Getafe,Rayo,Mallorca,Girona,Espanyol,Leganés,Alavés,LasPalmas+1. 2ª: 22 equipos (Valladolid,Oviedo,Sporting,Mirandés,Burgos...).`;
 
       return `${resumenMem}
 
@@ -2071,8 +2069,8 @@ ${resumenDiario || "Sin entradas recientes"}`;
         // Formatear partidos del Mundial TSDB
         let bloqueMundialTSDB = '';
         if (tsdbMundial) {
-          const pasados = (tsdbMundial[0]?.events || []).slice(-20);
-          const proximos = (tsdbMundial[1]?.events || []).slice(0, 10);
+          const pasados = (tsdbMundial[0]?.events || []).slice(-8);
+          const proximos = (tsdbMundial[1]?.events || []).slice(0, 5);
           if (pasados.length) {
             bloqueMundialTSDB += `\n\nRESULTADOS RECIENTES MUNDIAL 2026 (TheSportsDB):\n`;
             bloqueMundialTSDB += pasados.map(e =>
@@ -2141,10 +2139,10 @@ ${contexto}${bloqueFootball}${bloqueMundialTSDB}${bloqueClasif}${bloqueWeb}`;
 
         const messages = [
           { role: 'system', content: systemPrompt },
-          ...chatHistory.slice(-8).map(m => ({ role: m.role, content: m.content }))
+          ...chatHistory.slice(-6).map(m => ({ role: m.role, content: m.content }))
         ];
 
-        const respuesta = await llamarGroq(messages, 'llama-3.1-8b-instant', 900);
+        const respuesta = await llamarGroq(messages, 'llama-3.1-8b-instant', 600);
         if (typing) typing.remove();
 
         if (respuesta) {
