@@ -1435,6 +1435,9 @@
       const apr = state.aprendizaje || {};
       const hist = state.historial || {};
       const met = state.metricas || {};
+      const elim = state.eliminatorias || {};
+      const mundial = state.mundial || {};
+      const pesos = state.pesosDinamicos || {};
 
       const resumenMem = mem.resumen_para_chat || "";
       const jornadaActual = pred.jornada || "desconocida";
@@ -1478,12 +1481,58 @@
         return `${estado} ${e.partido}: predije ${e.pronostico_jugado || "?"} → real: ${e.signo_real || "pendiente"}`;
       }).join("\n");
 
+      // Bracket Mundial 2026 — partidos jugados con resultado real
+      const rondas = elim.rondas || {};
+      const partidosJugados = [];
+      const partidosPendientes = [];
+      for (const [ronda, datos] of Object.entries(rondas)) {
+        for (const p of arr(datos.partidos || [])) {
+          if (p.resultado && p.ganador) {
+            partidosJugados.push(`${datos.nombre}: ${p.local} ${p.resultado} ${p.visitante} → GANA ${p.ganador} (${p.fecha})`);
+          } else if (p.local && p.visitante) {
+            partidosPendientes.push(`${datos.nombre}: ${p.local} vs ${p.visitante} (${p.fecha})`);
+          } else if (p.desc_local && p.desc_visitante) {
+            partidosPendientes.push(`${datos.nombre}: ${p.desc_local} vs ${p.desc_visitante} (${p.fecha})`);
+          }
+        }
+      }
+      const bloqueBracket = (partidosJugados.length > 0 || partidosPendientes.length > 0)
+        ? `\nMUNDIAL 2026 — ELIMINATORIAS (datos reales del sistema):\n` +
+          (partidosJugados.length > 0 ? `RESULTADOS CONFIRMADOS:\n${partidosJugados.join('\n')}\n` : '') +
+          (partidosPendientes.length > 0 ? `PRÓXIMOS PARTIDOS:\n${partidosPendientes.join('\n')}` : '')
+        : '';
+
+      // Clasificaciones de grupos
+      const grupos = mundial.grupos || {};
+      let bloqueGrupos = '';
+      if (Object.keys(grupos).length > 0) {
+        const resumenGrupos = Object.entries(grupos).map(([g, d]) => {
+          const equipos = arr(d.equipos || []).map(e =>
+            `${e.nombre}(${e.pj || 0}pj ${e.pts || 0}pts${e.clasificado ? ' ✓CLASIF' : e.eliminado ? ' ✗ELIM' : ''})`
+          ).join(', ');
+          return `Grupo ${g}: ${equipos}`;
+        }).join('\n');
+        bloqueGrupos = `\nCLASIFICACIONES GRUPOS MUNDIAL 2026:\n${resumenGrupos}`;
+      }
+
+      // Pesos dinámicos del motor
+      const pesosActuales = pesos.pesos || {};
+      let bloquePesos = '';
+      if (Object.keys(pesosActuales).length > 0) {
+        const muestra = pesos.muestra || {};
+        bloquePesos = `\nPESOS ACTUALES DEL MOTOR (${muestra.partidos_validados || 0} partidos validados):\n` +
+          Object.entries(pesosActuales).map(([k, v]) => `  ${k}: ${(v * 100).toFixed(1)}%`).join('\n');
+      }
+
       return `${resumenMem}
 
 ${resumenMetricas}
 Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalCobrado.toFixed(2)}€
 
 ${estadoActual}
+${bloqueBracket}
+${bloqueGrupos}
+${bloquePesos}
 
 HISTORIAL ÚLTIMAS JORNADAS:
 ${resumenHistorial || "Sin datos"}
@@ -1650,14 +1699,19 @@ ${resumenDiario || "Sin entradas recientes"}`;
           ? `\n\n--- INFORMACIÓN ACTUALIZADA DE LA WEB ---\n${contextoWeb}--- FIN DATOS WEB ---`
           : '';
 
-        const systemPrompt = `Eres el analista de QuiniHub. Tu nombre es "Analista QuiniHub" y llevas toda la temporada 2025/2026 analizando La Quiniela española y el fútbol europeo.
+        const systemPrompt = `Eres el analista de QuiniHub. Tu nombre es "Analista QuiniHub" y llevas toda la temporada 2025/2026 analizando La Quiniela española y el Mundial 2026.
 
-REGLA CRÍTICA: Tienes acceso COMPLETO a los datos reales de la temporada 2025/2026 que aparecen más abajo. NUNCA digas que no tienes datos de esta temporada — los tienes. Úsalos siempre para responder con datos concretos.
+REGLAS CRÍTICAS — LEE ANTES DE RESPONDER:
+1. Los datos que aparecen más abajo son REALES y están actualizados. Úsalos siempre.
+2. En la sección "MUNDIAL 2026 — ELIMINATORIAS" tienes los resultados CONFIRMADOS de los partidos jugados. Si alguien pregunta quién ganó un partido, usa SOLO esos datos. NUNCA inventes resultados.
+3. Si un partido no aparece en RESULTADOS CONFIRMADOS, todavía no se ha jugado o no tenemos el dato — dilo claramente sin inventar.
+4. La información web que recibes es complementaria. Si contradice los datos del sistema, prioriza SIEMPRE los datos del sistema.
+5. NUNCA digas que no tienes datos de esta temporada — los tienes en el bloque de abajo.
 
 TU PERSONALIDAD:
-- Directo, apasionado y honesto. Hablas como un aficionado muy preparado del fútbol español, no como un robot.
+- Directo, apasionado y honesto. Hablas como un aficionado muy preparado del fútbol, no como un robot.
 - Usas expresiones naturales: "mira", "fíjate", "te lo digo yo", "ojo con esto", "no me fío", etc.
-- Cuando alguien quiere cambiar una predicción sin argumento sólido, se lo dices claramente pero sin ser brusco. Defiendes tu criterio.
+- Cuando alguien quiere cambiar una predicción sin argumento sólido, se lo dices claramente pero sin ser brusco.
 - Si el argumento del usuario es bueno, lo reconoces: "ahí sí tienes razón", "eso no lo había visto así".
 - Si encontraste info web, intégrala de forma natural — no digas "según la web", di directamente los datos.
 - Respuestas concisas y naturales. Sin bullets innecesarios. Como una conversación real.
@@ -1691,7 +1745,7 @@ ${contexto}${bloqueWeb}`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, mundial, eliminatorias, hist, metricas, segunda, memoriaHistorica] = await Promise.all([
+      const [pred, pleno, apr, mundial, eliminatorias, hist, metricas, segunda, memoriaHistorica, pesosDinamicos] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -1700,7 +1754,8 @@ ${contexto}${bloqueWeb}`;
         getJson('data/premios/historial_premios.json'),
         getJson('data/memoria_ia/metricas_probabilisticas.json'),
         getJson('data/calendario_segunda.json'),
-        getJson('data/memoria_ia/memoria_historica_profunda.json')
+        getJson('data/memoria_ia/memoria_historica_profunda.json'),
+        getJson('data/memoria_ia/pesos_dinamicos.json')
       ]);
       state.prediccion = pred;
       state.pleno15Data = pleno;
@@ -1711,6 +1766,7 @@ ${contexto}${bloqueWeb}`;
       state.metricas = metricas;
       state.segunda = segunda;
       state.memoriaHistorica = memoriaHistorica;
+      state.pesosDinamicos = pesosDinamicos;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       qs('#updatedAt').textContent = pred.generado_en ? `Actualizado ${new Date(pred.generado_en).toLocaleString('es-ES')}` : 'Datos cargados';
