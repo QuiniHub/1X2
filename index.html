@@ -1757,6 +1757,29 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       } catch {}
     }
 
+    // === MEMORIA PERSISTENTE DE LA IA ===
+    const IA_MEMORIA_KEY = 'quinihub_ia_memoria';
+
+    function cargarMemoriaIA() {
+      try { return JSON.parse(localStorage.getItem(IA_MEMORIA_KEY) || '{"entradas":[]}'); }
+      catch { return { entradas: [] }; }
+    }
+
+    function guardarMemoriaIA(contenido, tipo) {
+      const mem = cargarMemoriaIA();
+      mem.entradas.push({
+        fecha: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        tipo: tipo || 'usuario',
+        contenido: contenido.slice(0, 300)
+      });
+      if (mem.entradas.length > 50) mem.entradas = mem.entradas.slice(-50);
+      try { localStorage.setItem(IA_MEMORIA_KEY, JSON.stringify(mem)); } catch {}
+    }
+
+    function esIntencionAprender(texto) {
+      return /\baprende\b|\baprender\b|\bmemoriza\b|\bmemorizar\b|\brecuerda\b|\brecuerda que\b|\bguarda esto\b|\bguárdalo\b|\bno olvides\b|\btoma nota\b|\banota\b|\baprende de\b|\baprende esto\b|\bguarda en memoria\b|\bquiero que sepas\b|\besto es importante\b/i.test(texto);
+    }
+
     function construirContextoIA() {
       const mem = state.memoriaHistorica || {};
       const pred = state.prediccion || {};
@@ -1881,7 +1904,12 @@ ${resumenHistorial || "Sin datos"}
 ${detalleUltima}
 
 DIARIO DE APRENDIZAJE (últimas entradas):
-${resumenDiario || "Sin entradas recientes"}`;
+${resumenDiario || "Sin entradas recientes"}${(() => {
+        const mems = cargarMemoriaIA().entradas;
+        if (!mems.length) return '';
+        return '\n\nMEMORIAS QUE HAS APRENDIDO (persistentes entre sesiones):\n' +
+          mems.slice(-20).map(e => `[${e.fecha}][${e.tipo}] ${e.contenido}`).join('\n');
+      })()}`;
     }
 
     function añadirMensajeChat(rol, texto) {
@@ -2091,8 +2119,11 @@ ${resumenDiario || "Sin entradas recientes"}`;
         const contextoReciente = chatHistory.slice(-4).map(m => m.content).join(' ');
         const textoTotal = texto + ' ' + contextoReciente;
 
+        // Detectar si el usuario quiere que la IA aprenda algo
+        const quiereAprender = esIntencionAprender(textoTotal);
+
         // Consultas sobre datos locales: no necesitan fetches externos
-        const esConsultaLocal = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|pesos|jornada actual|jornada anterior|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev/i.test(textoTotal);
+        const esConsultaLocal = !quiereAprender && /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|pesos|jornada actual|jornada anterior|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev/i.test(textoTotal);
 
         // Buscar datos de fútbol en tiempo real (solo si no es consulta local)
         const necesitaFutbol = !esConsultaLocal && /resultado|marcador|gan[oó]|empat|jug[oó]|jugaron|hoy|ayer|partido|clasificaci|liga|champions|premier|bundesliga|serie a|ligue|mundial|eliminatori|allsvenskan|veikkausliiga|nordic|suec|finlan|norueg|dinamarc/i.test(textoTotal);
@@ -2214,7 +2245,10 @@ TU PERSONALIDAD:
 - Respuestas concisas y naturales. Sin bullets innecesarios. Como una conversación real.
 
 DATOS REALES DE TU SISTEMA — TEMPORADA 2025/2026:
-${contexto}${bloqueFootball}${bloqueMundialTSDB}${bloqueClasif}${bloqueWeb}`;
+${contexto}${bloqueFootball}${bloqueMundialTSDB}${bloqueClasif}${bloqueWeb}${quiereAprender ? `
+
+INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Responde normalmente y al final añade EXACTAMENTE esta línea (sin nada después):
+[MEMO]resumen breve de lo aprendido, máximo 250 caracteres, incluyendo info web si la hay[/MEMO]` : ''}`;
 
         const messages = [
           { role: 'system', content: systemPrompt },
@@ -2225,8 +2259,17 @@ ${contexto}${bloqueFootball}${bloqueMundialTSDB}${bloqueClasif}${bloqueWeb}`;
         if (typing) typing.remove();
 
         if (respuesta) {
-          añadirMensajeChat('ia', respuesta);
-          chatHistory.push({ role: 'assistant', content: respuesta });
+          // Extraer y guardar memo si la IA incluyó [MEMO]...[/MEMO]
+          const memoMatch = respuesta.match(/\[MEMO\]([\s\S]*?)\[\/MEMO\]/);
+          let respuestaFinal = respuesta;
+          if (memoMatch) {
+            const contenidoMemo = memoMatch[1].trim();
+            guardarMemoriaIA(contenidoMemo, usarWeb ? 'web+usuario' : 'usuario');
+            respuestaFinal = respuesta.replace(/\s*\[MEMO\][\s\S]*?\[\/MEMO\]/, '').trim()
+              + '\n\n✅ Memorizado. Lo recordaré en futuras conversaciones.';
+          }
+          añadirMensajeChat('ia', respuestaFinal);
+          chatHistory.push({ role: 'assistant', content: respuestaFinal });
           guardarHistorialChat();
         }
 
