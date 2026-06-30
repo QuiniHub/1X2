@@ -1660,6 +1660,27 @@ Al final:
     // === FUNCIONES DEL CHAT IA ===
     const chatHistory = [];
 
+    function guardarHistorialChat() {
+      const j = (state.prediccion && state.prediccion.jornada) || 0;
+      if (!j) return;
+      try { localStorage.setItem(`quinihub_chat_j${j}`, JSON.stringify(chatHistory.slice(-20))); } catch {}
+    }
+
+    function restaurarHistorialChat() {
+      const j = (state.prediccion && state.prediccion.jornada) || 0;
+      if (!j) return;
+      try {
+        const saved = JSON.parse(localStorage.getItem(`quinihub_chat_j${j}`) || 'null');
+        if (!Array.isArray(saved) || saved.length === 0) return;
+        saved.forEach(m => {
+          chatHistory.push(m);
+          añadirMensajeChat(m.role === 'user' ? 'usuario' : 'ia', m.content);
+        });
+        const msgs = document.getElementById('chatMessages');
+        if (msgs) msgs.scrollTop = msgs.scrollHeight;
+      } catch {}
+    }
+
     function construirContextoIA() {
       const mem = state.memoriaHistorica || {};
       const pred = state.prediccion || {};
@@ -1926,6 +1947,7 @@ ${resumenDiario || "Sin entradas recientes"}`;
 
       añadirMensajeChat('usuario', texto);
       chatHistory.push({ role: 'user', content: texto });
+      guardarHistorialChat();
 
       const typing = mostrarTyping();
 
@@ -2032,6 +2054,7 @@ ${contexto}${bloqueFootball}${bloqueClasif}${bloqueWeb}`;
         if (respuesta) {
           añadirMensajeChat('ia', respuesta);
           chatHistory.push({ role: 'assistant', content: respuesta });
+          guardarHistorialChat();
         }
 
       } catch (err) {
@@ -2079,6 +2102,7 @@ ${contexto}${bloqueFootball}${bloqueClasif}${bloqueWeb}`;
       renderWorld();
       renderHistory();
       renderLeague();
+      restaurarHistorialChat();
     }
 
     init();

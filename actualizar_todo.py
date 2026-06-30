@@ -46,6 +46,7 @@ SCRIPTS_CRITICOS_PREDICCION = {
 SCRIPTS_NO_CRITICOS_RED = {
     "preparar_temporada_2026_2027.py",
     "actualizar_fuente_lae.py",
+    "alimentar_sorpresas_mercado.py",
     "actualizar_resultados_libres.py",
     "actualizar_jornadas_detalle.py",
     "actualizar_boleto_vivo.py",
@@ -68,6 +69,7 @@ SCRIPTS_NO_CRITICOS_RED = {
     "generar_artefactos_compuerta_aprendizaje.py",
     "generar_diario_aprendizaje.py",
     "construir_memoria_ia.py",
+    "alimentar_sorpresas_mercado.py",
     "construir_memoria_historica_profunda.py",
     "aprender_de_historial_resultados.py",
     "aplicar_objetivos_oficiales_json.py",
