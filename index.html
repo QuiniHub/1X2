@@ -1174,6 +1174,41 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Partidos de la temporada -->
+          <div style="margin-top:10px">
+            <button onclick="const d=this.nextElementSibling;const open=d.style.display!=='none';d.style.display=open?'none':'block';this.textContent=open?'Ver ${(() => 'N')()} partidos ▼':'Ocultar partidos ▲'"
+              style="background:none;border:1px solid var(--border,#ddd);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px;color:var(--muted,#666)"
+              data-label="Ver ${arr(tData.partidos).length} partidos ▼">
+              Ver ${arr(tData.partidos).length} partidos ▼
+            </button>
+            <div style="display:none;margin-top:8px;overflow-x:auto;max-height:420px;overflow-y:auto;border:1px solid var(--border,#eee);border-radius:6px">
+              <table style="width:100%;border-collapse:collapse;font-size:12px">
+                <thead style="position:sticky;top:0;background:var(--surface2,#f5f5f5);z-index:1">
+                  <tr>
+                    <th style="padding:5px 8px;text-align:left">Fecha</th>
+                    <th style="padding:5px 8px;text-align:left">Local</th>
+                    <th style="padding:5px 8px;text-align:center">Res.</th>
+                    <th style="padding:5px 8px;text-align:left">Visitante</th>
+                    <th style="padding:5px 8px;text-align:center">Signo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${arr(tData.partidos).map(p => {
+                    const bg = p.signo==='1' ? '#e8f5e9' : p.signo==='X' ? '#fff3e0' : '#e3f2fd';
+                    const fg = p.signo==='1' ? '#2e7d32' : p.signo==='X' ? '#e65100' : '#1565c0';
+                    return `<tr style="border-bottom:1px solid var(--border,#eee)">
+                      <td style="padding:3px 8px;color:var(--muted,#888);white-space:nowrap">${escapeHtml(p.fecha||'')}</td>
+                      <td style="padding:3px 8px">${escapeHtml(p.local)}</td>
+                      <td style="padding:3px 8px;text-align:center;font-weight:700">${escapeHtml(p.resultado)}</td>
+                      <td style="padding:3px 8px">${escapeHtml(p.visitante)}</td>
+                      <td style="padding:3px 8px;text-align:center"><span style="background:${bg};color:${fg};padding:1px 7px;border-radius:8px;font-weight:700">${p.signo}</span></td>
+                    </tr>`;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>`;
       }
 
