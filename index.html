@@ -395,6 +395,7 @@
       .status-pill { justify-content: center; }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
   <main class="app">
@@ -563,9 +564,15 @@
               ¡Hola! Soy la IA de QuiniHub. Llevo toda la temporada analizando partidos, patrones y quinielas. Puedes preguntarme lo que quieras — predicciones, por qué fallé en tal partido, qué equipo da más sorpresas, actualidad de cualquier equipo... Y si no estás de acuerdo con algo, dímelo que debatimos.
             </div>
           </div>
-          <div style="padding:12px;border-top:1px solid var(--border,#ddd);display:flex;gap:8px;background:var(--bg,#fff)">
-            <textarea id="chatInput" placeholder="Pregúntame algo... '¿Por qué predices 1 en el partido de Argentina?' o '¿Cómo está el Barça esta temporada?'" style="flex:1;border:1px solid var(--border,#ddd);border-radius:8px;padding:10px 12px;font-size:14px;resize:none;height:52px;font-family:inherit;background:var(--bg,#fff);color:var(--text,#111)" rows="2"></textarea>
-            <button id="chatSendBtn" style="background:var(--accent,#4f46e5);color:#fff;border:none;border-radius:8px;padding:0 20px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;min-width:80px">Enviar</button>
+          <div id="chatAdjuntoBadge" style="display:none;padding:6px 12px;background:var(--surface2,#f0f0f0);border-top:1px solid var(--border,#ddd);font-size:12px;color:var(--text,#111);display:none;align-items:center;gap:8px">
+            <span id="chatAdjuntoNombre" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+            <button id="chatAdjuntoEliminar" style="background:none;border:none;cursor:pointer;color:#c84747;font-size:16px;line-height:1;padding:0">✕</button>
+          </div>
+          <div style="padding:12px;border-top:1px solid var(--border,#ddd);display:flex;gap:8px;background:var(--bg,#fff);align-items:flex-end">
+            <input type="file" id="chatFileInput" accept="image/*,.pdf,.txt,.csv,.json" style="display:none">
+            <button id="chatAttachBtn" title="Adjuntar archivo, imagen o PDF" style="background:var(--surface2,#f0f0f0);border:1px solid var(--border,#ddd);border-radius:8px;padding:0 12px;height:52px;font-size:18px;cursor:pointer;flex-shrink:0">📎</button>
+            <textarea id="chatInput" placeholder="Pregúntame algo... o pega un link, adjunta imagen/PDF..." style="flex:1;border:1px solid var(--border,#ddd);border-radius:8px;padding:10px 12px;font-size:14px;resize:none;height:52px;font-family:inherit;background:var(--bg,#fff);color:var(--text,#111)" rows="2"></textarea>
+            <button id="chatSendBtn" style="background:var(--accent,#4f46e5);color:#fff;border:none;border-radius:8px;padding:0 20px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;min-width:80px;height:52px">Enviar</button>
           </div>
           <div id="chatSugerencias" style="padding:8px 12px 12px;display:flex;flex-wrap:wrap;gap:6px">
             <button class="sugerencia-btn" style="background:var(--surface2,#f0f0f0);border:1px solid var(--border,#ddd);border-radius:20px;padding:4px 12px;font-size:12px;cursor:pointer;color:var(--text,#111)">¿Por qué fallas tanto en los fijos?</button>
@@ -1823,6 +1830,17 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         if (chatInput) chatInput.value = btn.textContent;
         enviarMensajeChat();
       }));
+
+      // === ADJUNTOS ===
+      const chatAttachBtn = document.getElementById('chatAttachBtn');
+      const chatFileInput = document.getElementById('chatFileInput');
+      const chatAdjuntoEliminar = document.getElementById('chatAdjuntoEliminar');
+      if (chatAttachBtn) chatAttachBtn.addEventListener('click', () => chatFileInput?.click());
+      if (chatFileInput) chatFileInput.addEventListener('change', async e => {
+        const file = e.target.files?.[0];
+        if (file) await procesarArchivoAdjunto(file);
+      });
+      if (chatAdjuntoEliminar) chatAdjuntoEliminar.addEventListener('click', limpiarAdjunto);
     }
 
     // === FUNCIONES DEL CHAT IA ===
@@ -2164,6 +2182,100 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
       }
     }
 
+    // ── Adjuntos Chat IA ────────────────────────────────────────────────────────
+    let chatAdjunto = null; // { tipo: 'imagen'|'pdf'|'texto', nombre, datos }
+
+    function mostrarBadgeAdjunto(nombre) {
+      const badge = document.getElementById('chatAdjuntoBadge');
+      const label = document.getElementById('chatAdjuntoNombre');
+      if (badge && label) { label.textContent = '📎 ' + nombre; badge.style.display = 'flex'; }
+    }
+    function limpiarAdjunto() {
+      chatAdjunto = null;
+      const badge = document.getElementById('chatAdjuntoBadge');
+      const fi = document.getElementById('chatFileInput');
+      if (badge) badge.style.display = 'none';
+      if (fi) fi.value = '';
+    }
+
+    function leerArchivoTexto(file) {
+      return new Promise((res, rej) => {
+        const fr = new FileReader();
+        fr.onload = e => res(e.target.result);
+        fr.onerror = rej;
+        fr.readAsText(file);
+      });
+    }
+
+    function leerImagenBase64(file) {
+      return new Promise((res, rej) => {
+        const fr = new FileReader();
+        fr.onload = e => res(e.target.result); // data:image/...;base64,...
+        fr.onerror = rej;
+        fr.readAsDataURL(file);
+      });
+    }
+
+    async function leerPDF(file) {
+      try {
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        if (pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const lib = pdfjsLib || window.pdfjsLib;
+        if (!lib) return null;
+        const buffer = await file.arrayBuffer();
+        const pdf = await lib.getDocument({ data: buffer }).promise;
+        let texto = '';
+        for (let i = 1; i <= Math.min(pdf.numPages, 20); i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          texto += content.items.map(it => it.str).join(' ') + '\n';
+        }
+        return texto.trim();
+      } catch (e) {
+        console.warn('PDF parse error:', e);
+        return null;
+      }
+    }
+
+    async function procesarArchivoAdjunto(file) {
+      const tipo = file.type;
+      if (tipo.startsWith('image/')) {
+        const b64 = await leerImagenBase64(file);
+        chatAdjunto = { tipo: 'imagen', nombre: file.name, datos: b64 };
+      } else if (tipo === 'application/pdf') {
+        const txt = await leerPDF(file);
+        chatAdjunto = txt
+          ? { tipo: 'pdf', nombre: file.name, datos: txt.slice(0, 8000) }
+          : { tipo: 'pdf', nombre: file.name, datos: '[No se pudo extraer texto del PDF]' };
+      } else {
+        const txt = await leerArchivoTexto(file);
+        chatAdjunto = { tipo: 'texto', nombre: file.name, datos: txt.slice(0, 8000) };
+      }
+      mostrarBadgeAdjunto(file.name);
+    }
+
+    function detectarURLs(texto) {
+      const re = /https?:\/\/[^\s"'>)]+/g;
+      return [...new Set(texto.match(re) || [])];
+    }
+
+    async function fetchURLTexto(url) {
+      try {
+        const res = await fetch(`${WORKER_URL}/api/tavily`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: url, search_depth: 'basic', max_results: 3, include_answer: true, include_urls: [url] })
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        let out = data.answer ? `Resumen: ${data.answer}\n` : '';
+        (data.results || []).slice(0, 2).forEach(r => {
+          out += `\n${r.title}\n${(r.content || '').slice(0, 600)}\nFuente: ${r.url}\n`;
+        });
+        return out.trim() || null;
+      } catch { return null; }
+    }
+
     // Llama a Groq con los mensajes preparados — auto-retry en rate limit TPM
     async function llamarGroq(messages, model = 'llama-3.1-8b-instant', max_tokens = 600, _retry = 0) {
       const response = await fetch(`${WORKER_URL}/api/groq`, {
@@ -2192,14 +2304,17 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
       const sendBtn = document.getElementById('chatSendBtn');
       if (!input) return;
       const texto = input.value.trim();
-      if (!texto) return;
+      const adjuntoActual = chatAdjunto;
+      if (!texto && !adjuntoActual) return;
 
       input.value = '';
       input.disabled = true;
       if (sendBtn) sendBtn.disabled = true;
+      limpiarAdjunto();
 
-      añadirMensajeChat('usuario', texto);
-      chatHistory.push({ role: 'user', content: texto });
+      const textoMostrar = texto + (adjuntoActual ? ` [📎 ${adjuntoActual.nombre}]` : '');
+      añadirMensajeChat('usuario', textoMostrar);
+      chatHistory.push({ role: 'user', content: texto || `Analiza el adjunto: ${adjuntoActual?.nombre}` });
       guardarHistorialChat();
 
       const typing = mostrarTyping();
@@ -2243,7 +2358,14 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         // Buscar en web (solo si no es consulta local)
         const usarWeb = !esConsultaLocal && necesitaBusquedaWeb(texto);
         const webPromise = usarWeb ? buscarEnWeb(texto) : Promise.resolve(null);
-        const [contextoWeb, datosFootball, tsdbClasif, tsdbMundial] = await Promise.all([webPromise, footballPromise, tsdbClasifPromise, tsdbMundialPromise]);
+
+        // Detectar URLs en el mensaje y obtener su contenido
+        const urlsDetectadas = detectarURLs(texto);
+        const urlsPromise = urlsDetectadas.length > 0
+          ? Promise.all(urlsDetectadas.slice(0, 2).map(u => fetchURLTexto(u)))
+          : Promise.resolve([]);
+
+        const [contextoWeb, datosFootball, tsdbClasif, tsdbMundial, urlsContenido] = await Promise.all([webPromise, footballPromise, tsdbClasifPromise, tsdbMundialPromise, urlsPromise]);
 
         // Historia de chat enviada a Groq: reducir a 4 si hay datos externos, 6 si es local
         const historialEnvio = esConsultaLocal ? chatHistory.slice(-6) : chatHistory.slice(-4);
@@ -2289,6 +2411,17 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
 
         const bloqueWeb = contextoWeb
           ? `\n\n--- INFORMACIÓN ACTUALIZADA DE LA WEB ---\n${contextoWeb}--- FIN DATOS WEB ---`
+          : '';
+
+        // Bloque de contenido de URLs pegadas por el usuario
+        const urlsValidas = (urlsContenido || []).filter(Boolean);
+        const bloqueURLs = urlsValidas.length > 0
+          ? `\n\n--- CONTENIDO DE LINKS ENVIADOS POR EL USUARIO ---\n${urlsValidas.join('\n\n')}\n--- FIN LINKS ---`
+          : '';
+
+        // Bloque de adjunto (PDF o texto)
+        const bloqueAdjunto = adjuntoActual && adjuntoActual.tipo !== 'imagen'
+          ? `\n\n--- ARCHIVO ADJUNTO: ${adjuntoActual.nombre} ---\n${adjuntoActual.datos}\n--- FIN ADJUNTO ---`
           : '';
 
         // Bloque de resultados de fútbol en tiempo real
@@ -2337,17 +2470,36 @@ TU PERSONALIDAD:
 - Respuestas concisas y naturales. Sin bullets innecesarios. Como una conversación real.
 
 DATOS REALES DE TU SISTEMA — TEMPORADA 2025/2026:
-${contexto}${bloqueFootball}${bloqueMundialTSDB}${bloqueClasif}${bloqueWeb}${quiereAprender ? `
+${contexto}${bloqueFootball}${bloqueMundialTSDB}${bloqueClasif}${bloqueWeb}${bloqueURLs}${bloqueAdjunto}${quiereAprender ? `
 
 INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Responde normalmente y al final añade EXACTAMENTE esta línea (sin nada después):
 [MEMO]resumen breve de lo aprendido, máximo 250 caracteres, incluyendo info web si la hay[/MEMO]` : ''}`;
 
-        const messages = [
-          { role: 'system', content: systemPrompt },
-          ...historialEnvio.map(m => ({ role: m.role, content: m.content }))
-        ];
+        let modeloGroq = 'llama-3.1-8b-instant';
+        let messages;
 
-        const respuesta = await llamarGroq(messages, 'llama-3.1-8b-instant', 600);
+        if (adjuntoActual?.tipo === 'imagen') {
+          // Vision: el último mensaje de usuario lleva texto + imagen en base64
+          modeloGroq = 'meta-llama/llama-4-scout-17b-16e-instruct';
+          messages = [
+            { role: 'system', content: systemPrompt },
+            ...historialEnvio.slice(0, -1).map(m => ({ role: m.role, content: m.content })),
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: texto || 'Analiza esta imagen y dime todo lo que ves relevante.' },
+                { type: 'image_url', image_url: { url: adjuntoActual.datos } }
+              ]
+            }
+          ];
+        } else {
+          messages = [
+            { role: 'system', content: systemPrompt },
+            ...historialEnvio.map(m => ({ role: m.role, content: m.content }))
+          ];
+        }
+
+        const respuesta = await llamarGroq(messages, modeloGroq, 800);
         if (typing) typing.remove();
 
         if (respuesta) {
