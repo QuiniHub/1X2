@@ -1555,18 +1555,12 @@
         const jornadaNum = pred.jornada || '';
         const fechaHoyStr = new Date().toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' });
 
-        // Clasificar partidos por competición
-        const equiposMundial = [], equiposNordicos = [];
+        // Clasificar equipos nórdicos para búsqueda Tavily
+        const equiposNordicos = [];
         partidos.forEach(p => {
-          const comp = (p.competicion_resuelta || p.competicion || '').toLowerCase();
           const local = p.local || '', visitante = p.visitante || '';
-          if (comp.includes('mundial') || comp.includes('wc') || comp.includes('world') || comp.includes('copa del mundo')) {
-            if (local) equiposMundial.push(local);
-            if (visitante) equiposMundial.push(visitante);
-          } else {
-            if (local) equiposNordicos.push(local);
-            if (visitante) equiposNordicos.push(visitante);
-          }
+          if (local) equiposNordicos.push(local);
+          if (visitante) equiposNordicos.push(visitante);
         });
         const plenoPartido = extractPleno15(state.jornadaActual) || extractPleno15(state.prediccion) || extractPleno15(state.pleno15Data) || {};
 
@@ -1581,36 +1575,26 @@
 
         // ── 1. TODOS LOS FETCHES EN PARALELO ─────────────────────────────────
         let espnData,
-            tsdbAllsv, tsdbVeik, tsdbElite, tsdbSuper, tsdbWcPast, tsdbWcNext,
+            tsdbAllsv, tsdbVeik, tsdbElite, tsdbSuper,
             standAllsv, standVeik, standElite, standSuper,
-            tavilyLosilla, tavilyMundial, tavilyNordic;
+            tavilyLosilla, tavilyNordic;
         try {
           [espnData,
-           tsdbAllsv, tsdbVeik, tsdbElite, tsdbSuper, tsdbWcPast, tsdbWcNext,
+           tsdbAllsv, tsdbVeik, tsdbElite, tsdbSuper,
            standAllsv, standVeik, standElite, standSuper,
-           tavilyLosilla, tavilyMundial, tavilyNordic
+           tavilyLosilla, tavilyNordic
           ] = await Promise.all([
             // ESPN — todas las ligas, 30 días
             fetch(`${WORKER_URL}/api/football?ligas=all&dias=30`).then(r=>r.ok?r.json():null).catch(()=>null),
-            // TSDB — eventos pasados (Allsvenskan, Veikkausliiga, Eliteserien, Superligaen, Mundial 2026)
-            tsdbPast(4344), tsdbPast(4430), tsdbPast(4356), tsdbPast(4341), tsdbPast(600614),
-            // TSDB — próximos del Mundial
-            tsdbNext(600614),
-            // TSDB — clasificaciones en vivo
+            // TSDB — eventos pasados ligas nórdicas (Mundial eliminado)
+            tsdbPast(4344), tsdbPast(4430), tsdbPast(4356), tsdbPast(4341),
+            // TSDB — clasificaciones ligas nórdicas
             tsdbStand(4344,'2026'), tsdbStand(4430,'2026'), tsdbStand(4356,'2026'), tsdbStand(4341,'2025-2026'),
             // Tavily: Losilla (análisis quiniela)
             tavilyFetch({
               query: `quiniela jornada ${jornadaNum} análisis pronósticos partidos ${fechaHoyStr}`,
               include_domains: ['eduardolosilla.es'], max_results: 5
             }),
-            // Tavily: noticias selecciones del Mundial
-            equiposMundial.length > 0
-              ? tavilyFetch({
-                  query: `${equiposMundial.slice(0,6).join(' ')} Mundial 2026 forma lesionados partido ${fechaHoyStr}`,
-                  include_domains: ['espn.com','marca.com','relevo.com','bbc.com','goal.com','fifa.com','as.com','eldesmarque.com'],
-                  max_results: 5
-                })
-              : Promise.resolve(null),
             // Tavily: noticias equipos nórdicos + Pleno al 15
             tavilyFetch({
               query: `${[...equiposNordicos.slice(0,5), plenoPartido.local, plenoPartido.visitante].filter(Boolean).join(' ')} resultados forma clasificación 2026`,
@@ -1636,7 +1620,7 @@
           addForma(p.local, p.visitante, p.resultado, true);
           addForma(p.visitante, p.local, p.resultado, false);
         }
-        for (const tsdb of [tsdbAllsv, tsdbVeik, tsdbElite, tsdbSuper, tsdbWcPast]) {
+        for (const tsdb of [tsdbAllsv, tsdbVeik, tsdbElite, tsdbSuper]) {
           for (const e of ((tsdb||{}).events || [])) {
             if (!['Match Finished','FT','AOT','AP'].includes(e.strStatus||'')) continue;
             const hg = parseInt(e.intHomeScore), ag = parseInt(e.intAwayScore);
@@ -1676,32 +1660,7 @@
           return null;
         };
 
-        // ── 4. Historial Mundial 2026 (state.eliminatorias + TSDB Mundial) ───
-        const wcHistorial = {};
-        const addWC = (equipo, gF, gC) => {
-          const key = (equipo||'').toLowerCase();
-          if (!key) return;
-          if (!wcHistorial[key]) wcHistorial[key] = [];
-          wcHistorial[key].push(`${gF>gC?'G':gF===gC?'E':'P'}(${gF}-${gC})`);
-        };
-        for (const [, datos] of Object.entries((state.eliminatorias||{}).rondas || {})) {
-          for (const p of arr(datos.partidos || [])) {
-            if (!p.resultado || !p.local || !p.visitante) continue;
-            const [g1,g2] = p.resultado.split('-').map(Number);
-            addWC(p.local, g1, g2); addWC(p.visitante, g2, g1);
-          }
-        }
-        for (const e of ((tsdbWcPast||{}).events || [])) {
-          if (!['Match Finished','FT','AOT','AP'].includes(e.strStatus||'')) continue;
-          const hg = parseInt(e.intHomeScore), ag = parseInt(e.intAwayScore);
-          if (isNaN(hg) || isNaN(ag)) continue;
-          addWC(e.strHomeTeam, hg, ag); addWC(e.strAwayTeam, ag, hg);
-        }
-        const getWC = eq => {
-          const key = (eq||'').toLowerCase();
-          const hist = wcHistorial[key] || Object.entries(wcHistorial).find(([k]) => k.includes(key.slice(0,4)))?.[1];
-          return hist?.slice(-5).join(' ') || null;
-        };
+        // Mundial 2026 eliminado del análisis — fase de liga
 
         // ── 5. Formatear texto Tavily ─────────────────────────────────────────
         const fmtTavily = (data, maxChars) => {
@@ -1711,7 +1670,6 @@
           return txt.slice(0,maxChars).trim() || null;
         };
         const lossillaTxt = fmtTavily(tavilyLosilla, 1200);
-        const mundialTxt  = fmtTavily(tavilyMundial, 700);
         const nordicTxt   = fmtTavily(tavilyNordic, 700);
 
         // ── 6. Lista de partidos enriquecida ──────────────────────────────────
@@ -1733,23 +1691,20 @@
           if (standV) ln += `\n  ${visitante}: ${standV.pos}°/${standV.liga} ${standV.pts}pts ${standV.gf}-${standV.gc}gf-gc`;
           if (formaL) ln += `\n  Forma ${local}: ${formaL}`;
           if (formaV) ln += `\n  Forma ${visitante}: ${formaV}`;
-          if (wcL) ln += `\n  WC2026 ${local}: ${wcL}`;
-          if (wcV) ln += `\n  WC2026 ${visitante}: ${wcV}`;
           return ln;
         }).join('\n\n');
 
         // ── 7. Prompt ─────────────────────────────────────────────────────────
         const bloquelosilla = lossillaTxt ? `\nLOSILLA (pronósticos quiniela):\n${lossillaTxt}\n` : '';
-        const bloqueMundial = mundialTxt  ? `\nNOTICIAS MUNDIAL 2026 (ESPN/Marca/BBC/Relevo):\n${mundialTxt}\n` : '';
         const bloqueNordic  = nordicTxt   ? `\nNOTICIAS LIGAS NÓRDICAS (Flashscore/Sofascore):\n${nordicTxt}\n` : '';
 
         const prompt = `Eres el analista de QuiniHub. HOY ES ${fechaHoyStr}. Analiza TODOS los ${partidos.length} partidos de esta jornada de La Quiniela española.
 
 REGLA FUNDAMENTAL: Los % del motor son datos calibrados — CÓPIALOS exactamente sin cambiar ningún número. Tu aportación es el análisis cualitativo usando las fuentes reales.
 
-Partidos mundialistas: usa historial WC2026 y noticias de selecciones. Partidos nórdicos: usa forma ESPN/TSDB y clasificación de tabla.
-${bloquelosilla}${bloqueMundial}${bloqueNordic}
-DATOS POR PARTIDO (ESPN 30d + TheSportsDB Allsvenskan/Veikkausliiga/Eliteserien/Superligaen/Mundial + clasificaciones reales):
+Partidos nórdicos: usa forma ESPN/TSDB y clasificación de tabla.
+${bloquelosilla}${bloqueNordic}
+DATOS POR PARTIDO (ESPN 30d + TheSportsDB Allsvenskan/Veikkausliiga/Eliteserien/Superligaen + clasificaciones reales):
 ${listaPartidos}
 
 FORMATO OBLIGATORIO para cada partido:
@@ -1942,36 +1897,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         return `${estado} ${e.partido}: predije ${e.pronostico_jugado || "?"} → real: ${e.signo_real || "pendiente"}`;
       }).join("\n");
 
-      // Bracket Mundial 2026 — partidos jugados con resultado real
-      const rondas = elim.rondas || {};
-      const partidosJugados = [];
-      const partidosPendientes = [];
-      for (const [ronda, datos] of Object.entries(rondas)) {
-        for (const p of arr(datos.partidos || [])) {
-          if (p.resultado && p.ganador) {
-            partidosJugados.push(`${datos.nombre}: ${p.local} ${p.resultado} ${p.visitante} → GANA ${p.ganador} (${p.fecha})`);
-          } else if (p.local && p.visitante) {
-            partidosPendientes.push(`${datos.nombre}: ${p.local} vs ${p.visitante} (${p.fecha})`);
-          } else if (p.desc_local && p.desc_visitante) {
-            partidosPendientes.push(`${datos.nombre}: ${p.desc_local} vs ${p.desc_visitante} (${p.fecha})`);
-          }
-        }
-      }
-      // Bracket — últimos 10 resultados + próximos 5 (compacto)
-      const bloqueBracket = partidosJugados.length > 0
-        ? `\nMUNDIAL 2026 — ÚLTIMOS RESULTADOS:\n${partidosJugados.slice(-10).join('\n')}` +
-          (partidosPendientes.length > 0 ? `\nPRÓXIMOS: ${partidosPendientes.slice(0, 5).join(' | ')}` : '')
-        : '';
-
-      // Grupos — compacto: solo top 2 por grupo con pts
-      const grupos = mundial.grupos || {};
-      let bloqueGrupos = '';
-      if (Object.keys(grupos).length > 0) {
-        bloqueGrupos = `\nGRUPOS M2026: ` + Object.entries(grupos).map(([g, d]) => {
-          const eq = arr(d.equipos || []).map(e => `${e.nombre}${e.clasificado ? '✓' : e.eliminado ? '✗' : ''}(${e.pts||0})`).join(' ');
-          return `${g}:[${eq}]`;
-        }).join(' ');
-      }
+      // Mundial 2026 eliminado del contexto IA — fase de liga, no contaminar modelo
 
       // Pesos dinámicos del motor
       const pesosActuales = pesos.pesos || {};
@@ -2015,8 +1941,6 @@ Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalC
 
 ${estadoActual}
 ${bloquePredActual}
-${bloqueBracket}
-${bloqueGrupos}
 ${bloquePesos}
 ${liga2627}
 
@@ -2373,13 +2297,6 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
           fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4339&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null),
         ]) : Promise.resolve(null);
 
-        // Partidos del Mundial TSDB (solo si no es consulta local)
-        const necesitaMundial = !esConsultaLocal && /mundial|copa del mundo|world cup/i.test(textoTotal);
-        const tsdbMundialPromise = necesitaMundial ? Promise.all([
-          fetch('https://www.thesportsdb.com/api/v1/json/3/eventspastleague.php?id=600614').then(r=>r.ok?r.json():null).catch(()=>null),
-          fetch('https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=600614').then(r=>r.ok?r.json():null).catch(()=>null),
-        ]) : Promise.resolve(null);
-
         // Buscar en web (solo si no es consulta local)
         const usarWeb = !esConsultaLocal && necesitaBusquedaWeb(texto);
         const webPromise = usarWeb ? buscarEnWeb(texto) : Promise.resolve(null);
@@ -2390,7 +2307,7 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
           ? Promise.all(urlsDetectadas.slice(0, 2).map(u => fetchURLTexto(u)))
           : Promise.resolve([]);
 
-        const [contextoWeb, datosFootball, tsdbClasif, tsdbMundial, urlsContenido] = await Promise.all([webPromise, footballPromise, tsdbClasifPromise, tsdbMundialPromise, urlsPromise]);
+        const [contextoWeb, datosFootball, tsdbClasif, urlsContenido] = await Promise.all([webPromise, footballPromise, tsdbClasifPromise, urlsPromise]);
 
         // Historia de chat enviada a Groq: reducir a 4 si hay datos externos, 6 si es local
         const historialEnvio = esConsultaLocal ? chatHistory.slice(-4) : chatHistory.slice(-2);
@@ -2415,24 +2332,6 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
           }
         }
 
-        // Formatear partidos del Mundial TSDB
-        let bloqueMundialTSDB = '';
-        if (tsdbMundial) {
-          const pasados = (tsdbMundial[0]?.events || []).slice(-8);
-          const proximos = (tsdbMundial[1]?.events || []).slice(0, 5);
-          if (pasados.length) {
-            bloqueMundialTSDB += `\n\nRESULTADOS RECIENTES MUNDIAL 2026 (TheSportsDB):\n`;
-            bloqueMundialTSDB += pasados.map(e =>
-              `${e.strHomeTeam} ${e.intHomeScore ?? '?'}-${e.intAwayScore ?? '?'} ${e.strAwayTeam} (${(e.dateEvent||'').slice(0,10)})`
-            ).join('\n');
-          }
-          if (proximos.length) {
-            bloqueMundialTSDB += `\n\nPRÓXIMOS PARTIDOS MUNDIAL 2026:\n`;
-            bloqueMundialTSDB += proximos.map(e =>
-              `${e.strHomeTeam} vs ${e.strAwayTeam} — ${(e.dateEvent||'').slice(0,10)} ${e.strTime||''}`
-            ).join('\n');
-          }
-        }
 
         const bloqueWeb = contextoWeb
           ? `\n\n--- INFORMACIÓN ACTUALIZADA DE LA WEB ---\n${contextoWeb}--- FIN DATOS WEB ---`
@@ -2505,7 +2404,7 @@ TU PERSONALIDAD:
 - Respuestas concisas y naturales. Sin bullets innecesarios. Como una conversación real.
 
 DATOS REALES DE TU SISTEMA — TEMPORADA 2025/2026:
-${contexto}${bloqueFootball}${bloqueMundialTSDB}${bloqueClasif}${bloqueWeb}${bloqueURLs}${bloqueAdjunto}${quiereAprender ? `
+${contexto}${bloqueFootball}${bloqueClasif}${bloqueWeb}${bloqueURLs}${bloqueAdjunto}${quiereAprender ? `
 
 INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Responde normalmente y al final añade EXACTAMENTE esta línea (sin nada después):
 [MEMO]resumen breve de lo aprendido, máximo 250 caracteres, incluyendo info web si la hay[/MEMO]` : ''}`;
