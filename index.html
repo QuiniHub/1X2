@@ -492,6 +492,20 @@
 
     <section id="aprendizaje" class="tab-panel">
       <div class="metrics" id="learningMetrics"></div>
+
+      <!-- Historial LaLiga -->
+      <div class="card" id="historicoCard" style="display:none">
+        <div class="card-head">
+          <h2>Historial LaLiga</h2>
+          <span class="tag" id="historicoTag">Cargando...</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px" id="historicoTabs"></div>
+          <div id="historicoBody"></div>
+        </div>
+      </div>
+
+      <!-- Diario -->
       <div class="card">
         <div class="card-head"><h2>Diario de aprendizaje</h2><span class="tag">Última jornada cerrada</span></div>
         <div class="card-body"><div class="learning-list" id="learningDiary"></div></div>
@@ -569,7 +583,7 @@
   </main>
 
   <script>
-    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, eliminatorias: null, historial: null, metricas: null, segunda: null, calendario1a: null, calendario2a: null, calJornada1a: 1, calJornada2a: 1, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {} };
+    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, eliminatorias: null, historial: null, metricas: null, segunda: null, calendario1a: null, calendario2a: null, historicoLigas: null, calJornada1a: 1, calJornada2a: 1, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {}, _historicoTabActiva: 'primera' };
     const qs = (s, root = document) => root.querySelector(s);
     const qsa = (s, root = document) => [...root.querySelectorAll(s)];
     const fmt = (v, fallback = '-') => (v === null || v === undefined || v === '' ? fallback : v);
@@ -1072,6 +1086,98 @@
           ${it.ajuste_recomendado && !ok ? `<span>${escapeHtml(it.ajuste_recomendado)}</span>` : ''}
         </article>`;
       }).join('') : '<div class="empty">El diario se rellenará cuando haya partidos de la jornada activa.</div>';
+      renderHistoricoLigas();
+    }
+
+    function renderHistoricoLigas() {
+      const hl = state.historicoLigas;
+      const card = qs('#historicoCard');
+      if (!hl || !hl.ligas) { if (card) card.style.display = 'none'; return; }
+      card.style.display = '';
+
+      const ligas = hl.ligas;
+      const tabsEl = qs('#historicoTabs');
+      const bodyEl = qs('#historicoBody');
+
+      const ligaKeys = Object.keys(ligas);
+      if (!ligaKeys.includes(state._historicoTabActiva)) state._historicoTabActiva = ligaKeys[0];
+
+      // Total partidos para el tag
+      const total = ligaKeys.reduce((s, k) => s + arr(ligas[k].consolidado?.partidos).length, 0);
+      const temps = hl.temporadas_cargadas || [];
+      qs('#historicoTag').textContent = `${total} partidos · ${temps.join(' | ')}`;
+
+      // Tabs de liga
+      tabsEl.innerHTML = ligaKeys.map(k => {
+        const activa = k === state._historicoTabActiva;
+        return `<button onclick="state._historicoTabActiva='${k}';renderHistoricoLigas()" style="
+          padding:6px 14px;border-radius:20px;border:none;cursor:pointer;font-size:13px;font-weight:600;
+          background:${activa ? 'var(--accent,#4f46e5)' : 'var(--surface2,#e8e8e8)'};
+          color:${activa ? '#fff' : 'var(--fg,#333)'}">
+          ${ligas[k].nombre || k}
+        </button>`;
+      }).join('');
+
+      // Contenido de la liga activa
+      const ligaData = ligas[state._historicoTabActiva];
+      const temporadas = ligaData.temporadas || {};
+      const tempKeys = Object.keys(temporadas).sort();
+
+      let html = '';
+      for (const temp of tempKeys) {
+        const tData = temporadas[temp];
+        const stats = tData.estadisticas || {};
+        const f = stats.frecuencias_signos || {};
+        const equipos = arr(stats.equipos);
+
+        html += `<div style="margin-bottom:20px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
+            <h3 style="margin:0;font-size:15px;font-weight:700">Temporada ${temp}</h3>
+            <span style="font-size:13px;color:var(--muted,#888)">${stats.total_partidos} partidos</span>
+            <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#e8f5e9;color:#2e7d32">1: ${f['1']}%</span>
+            <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#fff3e0;color:#e65100">X: ${f['X']}%</span>
+            <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#e3f2fd;color:#1565c0">2: ${f['2']}%</span>
+          </div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:var(--surface2,#f5f5f5);text-align:left">
+                  <th style="padding:5px 8px">#</th>
+                  <th style="padding:5px 8px">Equipo</th>
+                  <th style="padding:5px 8px;text-align:center">PJ</th>
+                  <th style="padding:5px 8px;text-align:center">G</th>
+                  <th style="padding:5px 8px;text-align:center">E</th>
+                  <th style="padding:5px 8px;text-align:center">P</th>
+                  <th style="padding:5px 8px;text-align:center">GF</th>
+                  <th style="padding:5px 8px;text-align:center">GC</th>
+                  <th style="padding:5px 8px;text-align:center">Pts</th>
+                  <th style="padding:5px 8px;text-align:center">%V</th>
+                  <th style="padding:5px 8px;text-align:center">%V casa</th>
+                  <th style="padding:5px 8px;text-align:center">%V fuera</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${equipos.map((e, i) => `<tr style="border-bottom:1px solid var(--border,#eee)">
+                  <td style="padding:4px 8px;color:var(--muted,#888)">${i+1}</td>
+                  <td style="padding:4px 8px;font-weight:600">${escapeHtml(e.equipo)}</td>
+                  <td style="padding:4px 8px;text-align:center">${e.pj}</td>
+                  <td style="padding:4px 8px;text-align:center;color:#2e7d32">${e.g}</td>
+                  <td style="padding:4px 8px;text-align:center;color:#e65100">${e.e}</td>
+                  <td style="padding:4px 8px;text-align:center;color:#c62828">${e.p}</td>
+                  <td style="padding:4px 8px;text-align:center">${e.gf}</td>
+                  <td style="padding:4px 8px;text-align:center">${e.gc}</td>
+                  <td style="padding:4px 8px;text-align:center;font-weight:700">${e.pts}</td>
+                  <td style="padding:4px 8px;text-align:center">${e.pct_victorias ?? '-'}%</td>
+                  <td style="padding:4px 8px;text-align:center">${e.local?.pct_victorias ?? '-'}%</td>
+                  <td style="padding:4px 8px;text-align:center">${e.visitante?.pct_victorias ?? '-'}%</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      bodyEl.innerHTML = html || '<div class="empty">Sin datos históricos cargados.</div>';
     }
 
     function renderWorld() {
@@ -1837,6 +1943,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       const elim = state.eliminatorias || {};
       const mundial = state.mundial || {};
       const pesos = state.pesosDinamicos || {};
+      const hligas = state.historicoLigas || {};
 
       const resumenMem = mem.resumen_para_chat || "";
       const jornadaActual = pred.jornada || "desconocida";
@@ -1917,6 +2024,27 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       // Pestaña Liga 26/27 — una línea
       const liga2627 = `\nLIGA 26/27: Primera comienza 14/08/2026. 1ª: R.Madrid,Barça,Atlético,Athletic,R.Sociedad,Villarreal,Betis,Sevilla,Valencia,Osasuna,Celta,Getafe,Rayo,Mallorca,Girona,Espanyol,Leganés,Alavés,LasPalmas+1. 2ª: 22 equipos (Valladolid,Oviedo,Sporting,Mirandés,Burgos...).`;
 
+      // Historial real LaLiga 1ª y 2ª — 3 temporadas completas
+      let bloqueHistoricoLigas = '';
+      if (hligas.ligas) {
+        const lineas = [];
+        for (const [ligaKey, ligaData] of Object.entries(hligas.ligas)) {
+          const nombre = ligaData.nombre || ligaKey;
+          const temps = ligaData.temporadas || {};
+          for (const [temp, tData] of Object.entries(temps)) {
+            const stats = tData.estadisticas || {};
+            const f = stats.frecuencias_signos || {};
+            lineas.push(`${nombre} ${temp}: ${stats.total_partidos} partidos | 1=${f['1']}% X=${f['X']}% 2=${f['2']}%`);
+            // Top 5 equipos por pts
+            const tops = arr(stats.equipos).slice(0, 5).map(e => `${e.equipo}(${e.pts}pts,${e.pj}pj)`).join(', ');
+            if (tops) lineas.push(`  Top: ${tops}`);
+          }
+        }
+        if (lineas.length) {
+          bloqueHistoricoLigas = `\nHISTORIAL LALIGAS APRENDIDO (${hligas.temporadas_cargadas?.join(', ')}):\n${lineas.join('\n')}`;
+        }
+      }
+
       return `${resumenMem}
 
 ${resumenMetricas}
@@ -1926,6 +2054,7 @@ ${estadoActual}
 ${bloquePredActual}
 ${bloquePesos}
 ${liga2627}
+${bloqueHistoricoLigas}
 
 HISTORIAL ÚLTIMAS JORNADAS:
 ${resumenHistorial || "Sin datos"}
@@ -2555,7 +2684,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, mundial, eliminatorias, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a] = await Promise.all([
+      const [pred, pleno, apr, mundial, eliminatorias, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -2567,7 +2696,8 @@ No inventes — solo lo que ves con fondo oscuro.`;
         getJson('data/memoria_ia/memoria_historica_profunda.json'),
         getJson('data/memoria_ia/pesos_dinamicos.json'),
         getJson('data/calendario_1a_2627.json', null),
-        getJson('data/calendario_2a_2627.json', null)
+        getJson('data/calendario_2a_2627.json', null),
+        getJson('data/memoria_ia/historico_ligas_espana.json', null)
       ]);
       state.prediccion = pred;
       state.pleno15Data = pleno;
@@ -2581,6 +2711,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.pesosDinamicos = pesosDinamicos;
       state.calendario1a = cal1a;
       state.calendario2a = cal2a;
+      state.historicoLigas = historicoLigas;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       qs('#updatedAt').textContent = pred.generado_en ? `Actualizado ${new Date(pred.generado_en).toLocaleString('es-ES')}` : 'Datos cargados';
