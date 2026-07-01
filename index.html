@@ -2081,6 +2081,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       }
 
       return `${resumenMem}
+${bloqueHistoricoLigas}
 
 ${resumenMetricas}
 Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalCobrado.toFixed(2)}€
@@ -2089,7 +2090,6 @@ ${estadoActual}
 ${bloquePredActual}
 ${bloquePesos}
 ${liga2627}
-${bloqueHistoricoLigas}
 
 HISTORIAL ÚLTIMAS JORNADAS:
 ${resumenHistorial || "Sin datos"}
@@ -2418,7 +2418,7 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
 
         // Detectar si es consulta local ANTES de truncar para ajustar el límite
         // Consultas locales no hacen fetch externo → podemos dar más contexto sin riesgo de 413
-        const esConsultaLocalPrevia = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|pesos|jornada actual|jornada anterior|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev|partidos.*jornada|quiniela.*jornada|dame.*partido|publica.*partido|lista.*partido|muestra.*partido/i.test(textoTotal);
+        const esConsultaLocalPrevia = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|pesos|jornada actual|jornada anterior|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev|partidos.*jornada|quiniela.*jornada|dame.*partido|publica.*partido|lista.*partido|muestra.*partido|temporada|24.25|25.26|23.24|datos.*equipo|equipo.*datos|como.*fue|estadistica|clasificaci[oó]n.*liga|liga.*clasificaci[oó]n|1[aª] division|2[aª] division|primera.*division|segunda.*division/i.test(textoTotal);
         const limiteContexto = esConsultaLocalPrevia ? 4500 : 2500;
         const contexto = contextoCompleto.slice(0, limiteContexto);
 
