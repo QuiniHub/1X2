@@ -526,12 +526,27 @@
     </section>
 
     <section id="liga" class="tab-panel">
-      <div class="grid-2">
+      <div class="grid-2" style="margin-bottom:16px">
         <div class="countdown"><div><strong id="daysToLeague">--</strong><span>días hasta el inicio de Liga 26/27</span></div></div>
         <div class="card">
-          <div class="card-head"><h2>Primera División 26/27</h2><span class="tag blue">Calendario automático</span></div>
-          <div class="card-body"><div class="teams-list" id="leagueTeams"></div><p class="subtitle" style="margin-top:16px">El calendario se cargará automáticamente cuando se publique oficialmente.</p></div>
+          <div class="card-head"><h2>Clasificación inicial 26/27</h2><span class="tag blue">Sorteo celebrado 30/06/2026</span></div>
+          <div class="card-body"><div class="teams-list" id="leagueTeams"></div></div>
         </div>
+      </div>
+      <div class="card" style="margin-top:0">
+        <div class="card-head" style="flex-wrap:wrap;gap:8px">
+          <h2>📅 Calendario oficial 26/27</h2>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select id="calLigaSel" style="border:1px solid var(--border,#ddd);border-radius:6px;padding:4px 8px;font-size:13px;background:var(--bg,#fff);color:var(--text,#111)">
+              <option value="1a">LaLiga EA Sports (1ª)</option>
+              <option value="2a">LaLiga Hypermotion (2ª)</option>
+            </select>
+            <button id="calPrevBtn" style="background:var(--surface2,#f0f0f0);border:1px solid var(--border,#ddd);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:14px">◀</button>
+            <strong id="calJornadaLabel" style="min-width:70px;text-align:center;font-size:14px">Jornada 1</strong>
+            <button id="calNextBtn" style="background:var(--surface2,#f0f0f0);border:1px solid var(--border,#ddd);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:14px">▶</button>
+          </div>
+        </div>
+        <div class="card-body" id="calContent" style="padding:8px 0"></div>
       </div>
     </section>
 
@@ -564,7 +579,7 @@
   </main>
 
   <script>
-    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, eliminatorias: null, historial: null, metricas: null, segunda: null, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {} };
+    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, eliminatorias: null, historial: null, metricas: null, segunda: null, calendario1a: null, calendario2a: null, calJornada1a: 1, calJornada2a: 1, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {} };
     const qs = (s, root = document) => root.querySelector(s);
     const qsa = (s, root = document) => [...root.querySelectorAll(s)];
     const fmt = (v, fallback = '-') => (v === null || v === undefined || v === '' ? fallback : v);
@@ -1318,6 +1333,65 @@
         table('LALIGA EA SPORTS 2026/27', primera),
         table('LALIGA HYPERMOTION 2026/27', segunda)
       ].join('');
+
+      renderCalendario();
+    }
+
+    function renderCalendario() {
+      const sel = qs('#calLigaSel');
+      const liga = sel ? sel.value : '1a';
+      const cal = liga === '1a' ? state.calendario1a : state.calendario2a;
+      const jornadaKey = liga === '1a' ? 'calJornada1a' : 'calJornada2a';
+      const jornadaActual = state[jornadaKey] || 1;
+      const label = qs('#calJornadaLabel');
+      const content = qs('#calContent');
+      if (!content) return;
+
+      if (!cal || !cal.jornadas) {
+        content.innerHTML = '<p class="subtitle" style="padding:16px">Cargando calendario...</p>';
+        if (label) label.textContent = 'Jornada 1';
+        return;
+      }
+
+      const totalJornadas = cal.jornadas.length;
+      const jIdx = Math.max(0, Math.min(jornadaActual - 1, totalJornadas - 1));
+      const jornada = cal.jornadas[jIdx];
+      if (!jornada) { content.innerHTML = '<p class="subtitle" style="padding:16px">Sin datos.</p>'; return; }
+
+      if (label) label.textContent = `Jornada ${jornada.num}`;
+
+      // Formato fecha
+      const fecha = jornada.fecha
+        ? new Date(jornada.fecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+        : '';
+
+      const notaParcial = cal._nota
+        ? `<p class="subtitle" style="padding:4px 16px 0;color:#d97706">⚠️ ${cal._nota}</p>`
+        : '';
+
+      const filas = jornada.partidos.map(p =>
+        `<tr>
+          <td style="padding:7px 16px;font-size:13px;text-align:right;font-weight:600;color:var(--text,#111)">${escapeHtml(p.local)}</td>
+          <td style="padding:7px 6px;font-size:11px;color:var(--muted,#888);text-align:center;white-space:nowrap">vs</td>
+          <td style="padding:7px 16px;font-size:13px;color:var(--text,#111)">${escapeHtml(p.visitante)}</td>
+        </tr>`
+      ).join('');
+
+      content.innerHTML = `
+        ${notaParcial}
+        <p class="subtitle" style="padding:8px 16px 4px;text-transform:capitalize">${fecha}</p>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse">
+            <tbody>${filas}</tbody>
+          </table>
+        </div>
+        <p class="subtitle" style="padding:4px 16px 8px">${totalJornadas === 38 || totalJornadas === 42 ? `${totalJornadas} jornadas · sorteo oficial 30/06/2026` : `${totalJornadas} jornada${totalJornadas !== 1 ? 's' : ''} disponible${totalJornadas !== 1 ? 's' : ''}`}</p>`;
+
+      // Prev/next state
+      const prevBtn = qs('#calPrevBtn');
+      const nextBtn = qs('#calNextBtn');
+      if (prevBtn) prevBtn.style.opacity = jornadaActual <= 1 ? '0.3' : '1';
+      if (nextBtn) nextBtn.style.opacity = jornadaActual >= totalJornadas ? '0.3' : '1';
     }
 
     function bindEvents() {
@@ -1327,6 +1401,24 @@
         btn.classList.add('active');
         qs(`#${btn.dataset.tab}`).classList.add('active');
       }));
+
+      // Navegador de calendario
+      const calNav = (delta) => {
+        const sel = qs('#calLigaSel');
+        const liga = sel ? sel.value : '1a';
+        const key = liga === '1a' ? 'calJornada1a' : 'calJornada2a';
+        const cal = liga === '1a' ? state.calendario1a : state.calendario2a;
+        const total = cal?.jornadas?.length || 1;
+        state[key] = Math.max(1, Math.min(total, (state[key] || 1) + delta));
+        renderCalendario();
+      };
+      document.addEventListener('click', e => {
+        if (e.target.closest('#calPrevBtn')) calNav(-1);
+        if (e.target.closest('#calNextBtn')) calNav(+1);
+      });
+      document.addEventListener('change', e => {
+        if (e.target.id === 'calLigaSel') renderCalendario();
+      });
 
       document.addEventListener('click', e => {
         const btn = e.target.closest('.world-tab');
@@ -2286,7 +2378,7 @@ INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Respon
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, mundial, eliminatorias, hist, metricas, segunda, memoriaHistorica, pesosDinamicos] = await Promise.all([
+      const [pred, pleno, apr, mundial, eliminatorias, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -2296,7 +2388,9 @@ INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Respon
         getJson('data/memoria_ia/metricas_probabilisticas.json'),
         getJson('data/calendario_segunda.json'),
         getJson('data/memoria_ia/memoria_historica_profunda.json'),
-        getJson('data/memoria_ia/pesos_dinamicos.json')
+        getJson('data/memoria_ia/pesos_dinamicos.json'),
+        getJson('data/calendario_1a_2627.json', null),
+        getJson('data/calendario_2a_2627.json', null)
       ]);
       state.prediccion = pred;
       state.pleno15Data = pleno;
@@ -2308,6 +2402,8 @@ INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Respon
       state.segunda = segunda;
       state.memoriaHistorica = memoriaHistorica;
       state.pesosDinamicos = pesosDinamicos;
+      state.calendario1a = cal1a;
+      state.calendario2a = cal2a;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       qs('#updatedAt').textContent = pred.generado_en ? `Actualizado ${new Date(pred.generado_en).toLocaleString('es-ES')}` : 'Datos cargados';
