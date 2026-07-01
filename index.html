@@ -1984,14 +1984,25 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
 
       // Predicción actual — compacta para ahorrar tokens
       const partidos = arr(pred.partidos || []);
+      const pleno15 = pred.pleno15 || null;
       let bloquePredActual = '';
       if (partidos.length > 0) {
-        bloquePredActual = `\nPREDICCIÓN J${jornadaActual}: ` +
-          partidos.map(p => {
-            const pr = p.probabilidades || {};
-            const t = (p.tipo || 'F')[0];
-            return `P${p.num} ${p.local.split(/\s+/).pop()} vs ${p.visitante.split(/\s+/).pop()} ${p.signo_final||p.signo_base}(${t}) 1=${Math.round(pr['1']||0)}%X=${Math.round(pr['X']||0)}%2=${Math.round(pr['2']||0)}%`;
-          }).join(' | ');
+        const lineasPartidos = partidos.map(p => {
+          const pr = p.probabilidades || {};
+          const t = (p.tipo || 'F')[0];
+          return `P${p.num} ${p.local} vs ${p.visitante} ${p.signo_final||p.signo_base}(${t}) 1=${Math.round(pr['1']||0)}%X=${Math.round(pr['X']||0)}%2=${Math.round(pr['2']||0)}%`;
+        });
+        // Añadir P15 (pleno al 15) si existe como clave separada
+        if (pleno15) {
+          const norma = pleno15.resolucion_competicion?.equipos_normalizados || {};
+          const localP15 = norma.local ? (norma.local.charAt(0).toUpperCase() + norma.local.slice(1)) : pleno15.local;
+          const visitP15 = norma.visitante ? (norma.visitante.charAt(0).toUpperCase() + norma.visitante.slice(1)) : pleno15.visitante;
+          const pr15 = pleno15.probabilidades || {};
+          const gl = pleno15.probabilidades_goles?.local || {};
+          const gv = pleno15.probabilidades_goles?.visitante || {};
+          lineasPartidos.push(`P15 PLENO: ${localP15} vs ${visitP15} — signo: ${pleno15.signo_final||pleno15.signo_recomendado} 1=${Math.round(pr15['1']||0)}%X=${Math.round(pr15['X']||0)}%2=${Math.round(pr15['2']||0)}% | Goles local: 0=${Math.round(gl['0']||0)}%1=${Math.round(gl['1']||0)}%2=${Math.round(gl['2']||0)}%M=${Math.round(gl['M']||0)}% | Goles visit: 0=${Math.round(gv['0']||0)}%1=${Math.round(gv['1']||0)}%2=${Math.round(gv['2']||0)}%M=${Math.round(gv['M']||0)}%`);
+        }
+        bloquePredActual = `\nPREDICCIÓN J${jornadaActual} (${partidos.length + (pleno15 ? 1 : 0)} partidos):\n` + lineasPartidos.join('\n');
       }
 
       // Pestaña Liga 26/27 — una línea
