@@ -5,7 +5,6 @@ from datetime import datetime, time, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from sincronizar_mundial_jornadas import sincronizar_jornadas_desde_mundial
 
 try:
     import requests
@@ -375,16 +374,11 @@ def sincronizar_calendario_liga(partidos):
 
 
 def main():
-    cambios_mundial, detalles_mundial = sincronizar_jornadas_desde_mundial()
-    if detalles_mundial:
-        print(f"Resultados Mundial sincronizados hacia jornadas: {cambios_mundial} cambios.")
     texto = descargar_fuentes()
     if not texto:
         print("Sin texto de fuentes directas.")
-        print(f"Actualizacion directa finalizada: {cambios_mundial} cambios desde Mundial.")
         return
     cambios, partidos = actualizar_jornada_quiniela(texto)
-    cambios += cambios_mundial
     if partidos:
         cambios += sincronizar_calendario_liga(partidos)
     print(f"Actualizacion directa finalizada: {cambios} cambios.")
