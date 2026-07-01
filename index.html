@@ -1600,14 +1600,14 @@
             equiposMundial.length > 0
               ? tavilyFetch({
                   query: `${equiposMundial.slice(0,6).join(' ')} Mundial 2026 forma lesionados partido ${fechaHoyStr}`,
-                  include_domains: ['espn.com','marca.com','relevo.com','bbc.com','goal.com','fifa.com','as.com'],
+                  include_domains: ['espn.com','marca.com','relevo.com','bbc.com','goal.com','fifa.com','as.com','eldesmarque.com'],
                   max_results: 5
                 })
               : Promise.resolve(null),
             // Tavily: noticias equipos nórdicos + Pleno al 15
             tavilyFetch({
               query: `${[...equiposNordicos.slice(0,5), plenoPartido.local, plenoPartido.visitante].filter(Boolean).join(' ')} resultados forma clasificación 2026`,
-              include_domains: ['flashscore.es','sofascore.com','soccerway.com','transfermarkt.es','fotmob.com'],
+              include_domains: ['flashscore.es','sofascore.com','soccerway.com','transfermarkt.es','fotmob.com','eldesmarque.com'],
               max_results: 5
             }),
           ]);
@@ -2133,11 +2133,11 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         const esMundial = /mundial|copa del mundo|world cup/i.test(pregunta);
         let dominios;
         if (esMundial)
-          dominios = ['espn.com', 'bbc.com', 'fifa.com', 'goal.com', 'marca.com', 'as.com', 'relevo.com', 'sofascore.com'];
+          dominios = ['espn.com', 'bbc.com', 'fifa.com', 'goal.com', 'marca.com', 'as.com', 'relevo.com', 'sofascore.com', 'eldesmarque.com'];
         else if (esNordica)
-          dominios = ['flashscore.es', 'sofascore.com', 'soccerway.com', 'transfermarkt.es', 'eduardolosilla.es'];
+          dominios = ['flashscore.es', 'sofascore.com', 'soccerway.com', 'transfermarkt.es', 'eduardolosilla.es', 'eldesmarque.com'];
         else
-          dominios = ['marca.com', 'as.com', 'relevo.com', 'goal.com', 'sofascore.com', 'transfermarkt.es', 'espn.com', 'eduardolosilla.es'];
+          dominios = ['marca.com', 'as.com', 'relevo.com', 'goal.com', 'sofascore.com', 'transfermarkt.es', 'espn.com', 'eduardolosilla.es', 'eldesmarque.com'];
 
         const res = await fetch(`${WORKER_URL}/api/tavily`, {
           method: 'POST',
