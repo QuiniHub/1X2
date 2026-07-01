@@ -2293,6 +2293,14 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
           await new Promise(r => setTimeout(r, wait));
           return llamarGroq(messages, model, max_tokens, _retry + 1);
         }
+        // 413: contexto demasiado grande → recortar system prompt y reintentar
+        if (response.status === 413 && _retry < 1) {
+          const trimmed = messages.map((m, i) => {
+            if (i === 0 && typeof m.content === 'string') return { ...m, content: m.content.slice(0, 3000) };
+            return m;
+          });
+          return llamarGroq(trimmed, model, max_tokens, _retry + 1);
+        }
         throw new Error(`Error ${response.status}: ${msg || 'sin detalle'}`);
       }
       const data = await response.json();
@@ -2320,7 +2328,9 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
       const typing = mostrarTyping();
 
       try {
-        const contexto = construirContextoIA();
+        const contextoCompleto = construirContextoIA();
+        // Chat IA: limitar contexto a 2500 chars para no superar el TPM de 6000 tokens
+        const contexto = contextoCompleto.slice(0, 2500);
 
         // Analizar también el historial reciente de chat para detectar contexto
         const contextoReciente = chatHistory.slice(-4).map(m => m.content).join(' ');
@@ -2368,7 +2378,7 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         const [contextoWeb, datosFootball, tsdbClasif, tsdbMundial, urlsContenido] = await Promise.all([webPromise, footballPromise, tsdbClasifPromise, tsdbMundialPromise, urlsPromise]);
 
         // Historia de chat enviada a Groq: reducir a 4 si hay datos externos, 6 si es local
-        const historialEnvio = esConsultaLocal ? chatHistory.slice(-6) : chatHistory.slice(-4);
+        const historialEnvio = esConsultaLocal ? chatHistory.slice(-4) : chatHistory.slice(-2);
 
         // Formatear clasificaciones TheSportsDB
         let bloqueClasif = '';
@@ -2499,7 +2509,7 @@ INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Respon
           ];
         }
 
-        const respuesta = await llamarGroq(messages, modeloGroq, 800);
+        const respuesta = await llamarGroq(messages, modeloGroq, 500);
         if (typing) typing.remove();
 
         if (respuesta) {
