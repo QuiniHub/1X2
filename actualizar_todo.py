@@ -30,7 +30,6 @@ SCRIPTS_VISUALES_DESACTIVADOS = {
     "mejorar_coberturas_necesidad.py",
     "corregir_ajuste_necesidad_boleto.py",
     "reforzar_coberturas_descenso.py",
-    "corregir_elige8_web.py",
     "estabilizar_web.py",
 }
 
