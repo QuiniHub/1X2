@@ -2329,12 +2329,16 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
 
       try {
         const contextoCompleto = construirContextoIA();
-        // Chat IA: limitar contexto a 2500 chars para no superar el TPM de 6000 tokens
-        const contexto = contextoCompleto.slice(0, 2500);
 
         // Analizar también el historial reciente de chat para detectar contexto
         const contextoReciente = chatHistory.slice(-4).map(m => m.content).join(' ');
-        const textoTotal = texto + ' ' + contextoReciente;
+        const textoTotal = (texto || '') + ' ' + contextoReciente;
+
+        // Detectar si es consulta local ANTES de truncar para ajustar el límite
+        // Consultas locales no hacen fetch externo → podemos dar más contexto sin riesgo de 413
+        const esConsultaLocalPrevia = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|pesos|jornada actual|jornada anterior|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev|partidos.*jornada|quiniela.*jornada|dame.*partido|publica.*partido|lista.*partido|muestra.*partido/i.test(textoTotal);
+        const limiteContexto = esConsultaLocalPrevia ? 4500 : 2500;
+        const contexto = contextoCompleto.slice(0, limiteContexto);
 
         // Detectar si el usuario quiere que la IA aprenda algo
         const quiereAprender = esIntencionAprender(textoTotal);
