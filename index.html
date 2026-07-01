@@ -2490,7 +2490,7 @@ INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Respon
 
         if (adjuntoActual?.tipo === 'imagen') {
           // Vision: el último mensaje de usuario lleva texto + imagen en base64
-          modeloGroq = 'meta-llama/llama-4-scout-17b-16e-instruct';
+          modeloGroq = 'llama-3.2-90b-vision-preview';
           // Prompt específico para leer boletos/quinielas — identifica qué signo está marcado en cada fila
           const promptImagen = texto
             ? texto + `\n\nNOTA VISUAL — CÓDIGO DE COLORES DEL BOLETO: Las casillas MARCADAS/SELECCIONADAS tienen fondo AZUL OSCURO o AZUL MARINO. Las casillas NO marcadas tienen fondo ROSA CLARO o BLANCO. Lee fila por fila (1 al 15) e indica solo las casillas con fondo azul oscuro.`
