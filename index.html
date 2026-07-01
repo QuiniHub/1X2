@@ -2491,13 +2491,21 @@ INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Respon
         if (adjuntoActual?.tipo === 'imagen') {
           // Vision: el último mensaje de usuario lleva texto + imagen en base64
           modeloGroq = 'meta-llama/llama-4-scout-17b-16e-instruct';
+          // Prompt específico para leer boletos/quinielas — identifica qué signo está marcado en cada fila
+          const promptImagen = texto || `Analiza esta imagen con mucho detalle.
+Si es un boleto o tabla de quiniela (con columnas 1, X, 2):
+- Lee FILA POR FILA (P1 a P15 o del 1 al 15)
+- Para cada fila indica EXACTAMENTE qué casilla(s) están marcadas, sombreadas, resaltadas o seleccionadas (1, X, 2 o combinaciones)
+- Si hay columnas con porcentajes u otros datos, léelos también
+- No inventes datos — solo lo que ves claramente en la imagen
+Si es otra cosa, describe todo lo que ves con el máximo detalle posible.`;
           messages = [
             { role: 'system', content: systemPrompt },
             ...historialEnvio.slice(0, -1).map(m => ({ role: m.role, content: m.content })),
             {
               role: 'user',
               content: [
-                { type: 'text', text: texto || 'Analiza esta imagen y dime todo lo que ves relevante.' },
+                { type: 'text', text: promptImagen },
                 { type: 'image_url', image_url: { url: adjuntoActual.datos } }
               ]
             }
