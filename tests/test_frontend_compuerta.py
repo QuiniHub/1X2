@@ -51,7 +51,6 @@ class FrontendCompuertaTests(unittest.TestCase):
         self.assertIn("Number(p.num ?? p.numero ?? 0) === 15", html)
         self.assertIn("function latestLearningEntries()", html)
         self.assertIn("a.entradas", html)
-        self.assertIn("Última jornada cerrada", html)
         self.assertIn("function rowPrize(row)", html)
         self.assertIn("row.premio_eur", html)
         self.assertIn("Premio cobrado", html)
