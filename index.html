@@ -2551,7 +2551,8 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
       });
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
-        throw new Error(`Gemini error ${response.status}: ${err.error?.message || 'sin detalle'}`);
+        const detail = err.error?.message || err.message || JSON.stringify(err).slice(0, 200);
+        throw new Error(`Gemini error ${response.status}: ${detail}`);
       }
       const data = await response.json();
       return data.choices?.[0]?.message?.content || '';
