@@ -517,11 +517,6 @@
         </div>
       </div>
 
-      <!-- Diario -->
-      <div class="card">
-        <div class="card-head"><h2>Diario de aprendizaje</h2><span class="tag">Última jornada cerrada</span></div>
-        <div class="card-body"><div class="learning-list" id="learningDiary"></div></div>
-      </div>
     </section>
 
 
@@ -1110,35 +1105,6 @@
         metric('Aciertos', jugados.length ? aciertos : '-'),
         metric('Fallos', jugados.length ? fallos : '-')
       ].join('');
-      qs('#learningDiary').innerHTML = entries.length ? entries.map((it, idx) => {
-        const jugado = it.acierto === true || it.acierto === false;
-        const ok = it.acierto === true;
-        const esPleno = it.es_pleno15 === true || it.tipo_apuesta === 'PLENO15';
-        const razonamiento = it.explicacion || it.razonamiento || it.aprendizaje || it.lectura || it.que_aprende || it.ajuste_recomendado || '';
-        if (esPleno) {
-          return `<article class="learning-item">
-            <strong>${escapeHtml(it.partido || 'Pleno al 15')}</strong>
-            <span>Pronóstico: <b>${escapeHtml(it.pronostico_jugado || '-')}</b>${jugado ? ` · Resultado: <b>${escapeHtml(it.resultado || '-')}</b>` : ''}</span>
-            <span>Tipo: <b>PLENO AL 15</b></span>
-            <span class="result" style="color:var(--muted,#888);font-style:italic">${jugado ? escapeHtml(razonamiento) : '⏳ Pendiente · Partido aún no jugado'}</span>
-          </article>`;
-        }
-        if (!jugado) {
-          return `<article class="learning-item" style="opacity:0.6;border-left:3px solid var(--muted,#ccc)">
-            <strong>${escapeHtml(it.partido || `Partido ${idx + 1}`)}</strong>
-            <span>Pronóstico: <b>${escapeHtml(it.pronostico_jugado || '-')}</b>${it.fecha ? ` · ${escapeHtml(it.fecha)}${it.hora ? ' ' + escapeHtml(it.hora) + 'h' : ''}` : ''}</span>
-            <span>Tipo: <b>${escapeHtml(it.tipo_apuesta || '-')}</b> · Elige 8: <b>${it.es_elige8 ? 'sí' : 'no'}</b></span>
-            <span class="result" style="color:var(--muted,#999);font-style:italic">⏳ Pendiente · Partido aún no jugado</span>
-          </article>`;
-        }
-        return `<article class="learning-item ${ok ? '' : 'fail'}">
-          <strong>${escapeHtml(it.partido || `Partido ${idx + 1}`)}</strong>
-          <span>Predijo: <b>${escapeHtml(it.pronostico_jugado || '-')}</b> · Pasó: <b>${escapeHtml(it.signo_real || '-')}</b> · Resultado: <b>${escapeHtml(it.resultado || '-')}</b></span>
-          <span>Tipo: <b>${escapeHtml(it.tipo_apuesta || '-')}</b> · Elige 8: <b>${it.es_elige8 ? 'sí' : 'no'}</b></span>
-          <span class="result">${ok ? '✅ Acierto' : '❌ Fallo'} · ${escapeHtml(razonamiento)}</span>
-          ${it.ajuste_recomendado && !ok ? `<span>${escapeHtml(it.ajuste_recomendado)}</span>` : ''}
-        </article>`;
-      }).join('') : '<div class="empty">El diario se rellenará cuando haya partidos de la jornada activa.</div>';
       renderHistoricoLigas();
       renderHistoricoQuinielas();
     }
