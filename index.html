@@ -2700,11 +2700,7 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
                   const fecha = (j.fecha || '').slice(5, 10);
                   return `J${j.num}(${fecha}):${esL ? p.visitante : p.local}(${esL ? 'L' : 'V'})`;
                 }).filter(Boolean);
-                const mitad = Math.ceil(fixtures.length / 2);
-                const col1 = fixtures.slice(0, mitad);
-                const col2 = fixtures.slice(mitad);
-                const filas = col1.map((f, i) => `| ${f} | ${col2[i] || ''} |`);
-                return `\n\nCALENDARIO COMPLETO ${eq.toUpperCase()} — ${div} 26/27 (IMPORTANTE: responde con esta tabla markdown exacta, sin reformatear):\n| 1ª Vuelta | 2ª Vuelta |\n|---|---|\n${filas.join('\n')}`;
+                return `\n\nCALENDARIO COMPLETO ${eq.toUpperCase()} — ${div} 26/27 (transcribe TODAS las jornadas):\n${fixtures.join('\n')}`;
               }
             }
             return '';
