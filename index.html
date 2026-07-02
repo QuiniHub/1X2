@@ -2542,7 +2542,23 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
       } catch { return null; }
     }
 
-    // Fallback a Gemini cuando Groq agota el límite diario
+    // Fallback 3: OpenRouter cuando Gemini también falla
+    async function llamarOpenRouter(messages, max_tokens = 600) {
+      const response = await fetch(`${WORKER_URL}/api/openrouter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ max_tokens, temperature: 0.7, messages })
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        const detail = err.error?.message || err.message || JSON.stringify(err).slice(0, 200);
+        throw new Error(`OpenRouter error ${response.status}: ${detail}`);
+      }
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || '';
+    }
+
+    // Fallback 2: Gemini cuando Groq agota el límite diario
     async function llamarGemini(messages, max_tokens = 600) {
       const response = await fetch(`${WORKER_URL}/api/gemini`, {
         method: 'POST',
@@ -2552,7 +2568,8 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
         const detail = err.error?.message || err.message || JSON.stringify(err).slice(0, 200);
-        throw new Error(`Gemini error ${response.status}: ${detail}`);
+        // Gemini también falló → probar OpenRouter
+        return llamarOpenRouter(messages, max_tokens);
       }
       const data = await response.json();
       return data.choices?.[0]?.message?.content || '';

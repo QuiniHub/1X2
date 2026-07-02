@@ -75,6 +75,20 @@ export default {
       return res;
     }
 
+    // ── /api/openrouter ──────────────────────────────────────────────────────
+    if (url.pathname === "/api/openrouter") {
+      const body = await request.json();
+      body.model = "meta-llama/llama-3.3-70b-instruct:free";
+      const upstream = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${env.OPENROUTER_KEY}` },
+        body:    JSON.stringify(body),
+      });
+      const res = new Response(upstream.body, upstream);
+      Object.entries(corsHeaders).forEach(([k, v]) => res.headers.set(k, v));
+      return res;
+    }
+
     // ── /api/tavily ──────────────────────────────────────────────────────────
     if (url.pathname === "/api/tavily") {
       const body = await request.json();
