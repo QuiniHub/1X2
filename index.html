@@ -2700,7 +2700,11 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
                   const fecha = (j.fecha || '').slice(5, 10);
                   return `J${j.num}(${fecha}):${esL ? p.visitante : p.local}(${esL ? 'L' : 'V'})`;
                 }).filter(Boolean);
-                return `\n\nCALENDARIO ${eq.toUpperCase()} — ${div} 26/27:\n${fixtures.join(' | ')}`;
+                const mitad = Math.ceil(fixtures.length / 2);
+                const col1 = fixtures.slice(0, mitad);
+                const col2 = fixtures.slice(mitad);
+                const lineas = col1.map((f, i) => col2[i] ? `${f.padEnd(28)} ${col2[i]}` : f);
+                return `\n\nCALENDARIO COMPLETO ${eq.toUpperCase()} — ${div} 26/27 (transcribe TODAS las filas):\n1ª VUELTA              2ª VUELTA\n${lineas.join('\n')}`;
               }
             }
             return '';
@@ -2901,7 +2905,8 @@ No inventes — solo lo que ves con fondo oscuro.`;
           ];
         }
 
-        const respuesta = await llamarGroq(messages, modeloGroq, 500);
+        const maxTok = esConsultaCalendario ? 1500 : 500;
+        const respuesta = await llamarGroq(messages, modeloGroq, maxTok);
         if (typing) typing.remove();
 
         if (respuesta) {
