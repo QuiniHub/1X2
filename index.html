@@ -2921,7 +2921,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
           ];
         }
 
-        const maxTok = esConsultaCalendario ? 1500 : 500;
+        const maxTok = esConsultaCalendario ? 800 : 500;
         const respuesta = await llamarGroq(messages, modeloGroq, maxTok);
         if (typing) typing.remove();
 
