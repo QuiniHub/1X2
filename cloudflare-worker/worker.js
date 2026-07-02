@@ -64,7 +64,7 @@ export default {
     // ── /api/gemini ──────────────────────────────────────────────────────────
     if (url.pathname === "/api/gemini") {
       const body = await request.json();
-      body.model = "gemini-1.5-flash";
+      body.model = "gemini-2.0-flash";
       const upstream = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
         method:  "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${env.GEMINI_KEY}` },
