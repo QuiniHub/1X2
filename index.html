@@ -2542,7 +2542,22 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
       } catch { return null; }
     }
 
-    // Llama a Groq con los mensajes preparados — auto-retry en rate limit TPM
+    // Fallback a Gemini cuando Groq agota el límite diario
+    async function llamarGemini(messages, max_tokens = 600) {
+      const response = await fetch(`${WORKER_URL}/api/gemini`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'gemini-2.0-flash', max_tokens, temperature: 0.7, messages })
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(`Gemini error ${response.status}: ${err.error?.message || 'sin detalle'}`);
+      }
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || '';
+    }
+
+    // Llama a Groq con los mensajes preparados — auto-retry en rate limit TPM, fallback a Gemini en límite diario
     async function llamarGroq(messages, model = 'llama-3.1-8b-instant', max_tokens = 600, _retry = 0) {
       const response = await fetch(`${WORKER_URL}/api/groq`, {
         method: 'POST',
@@ -2558,6 +2573,10 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
           const wait = match ? Math.ceil(parseFloat(match[1]) * 1000) + 500 : 8000;
           await new Promise(r => setTimeout(r, wait));
           return llamarGroq(messages, model, max_tokens, _retry + 1);
+        }
+        // Rate limit diario (TPD) → fallback a Gemini
+        if (response.status === 429 && msg.includes('per day')) {
+          return llamarGemini(messages, max_tokens);
         }
         // 413: contexto demasiado grande → recortar system prompt y reintentar
         if (response.status === 413 && _retry < 1) {
