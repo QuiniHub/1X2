@@ -906,8 +906,28 @@
       if (!idx || idx < 40) return '';
       const alta = idx >= 70;
       const color = alta ? '#c62828' : '#e65100';
-      const label = alta ? '🔴 ALERTA' : '🟡 VIGILAR';
-      return `<span style="font-size:10px;padding:1px 6px;border-radius:6px;background:${color}18;color:${color};font-weight:700;border:1px solid ${color}35;margin-left:4px">${label} ${Math.round(idx)}</span>`;
+      const emoji = alta ? '🔴' : '🟡';
+
+      // Etiqueta descriptiva según probabilidades (Opción A)
+      const probs = match.probabilidades || match.probabilidad_signos || {};
+      const vals = [Number(probs['1']||0), Number(probs['X']||0), Number(probs['2']||0)];
+      const sorted = [...vals].sort((a,b) => b-a);
+      const topProb = sorted[0] || 0;
+      const margin = sorted.length >= 2 ? sorted[0] - sorted[1] : 100;
+      const xProb = Number(probs['X'] || 0);
+
+      let tipoLabel;
+      if (topProb < 45 || topProb === 0) tipoLabel = 'Sin favorito claro';
+      else if (margin <= 5)              tipoLabel = 'Muy igualado';
+      else if (xProb >= 33)             tipoLabel = 'Empate peligroso';
+      else                              tipoLabel = 'Favorito con riesgo';
+
+      // Primer motivo del motor (Opción C)
+      const motivos = Array.isArray(match.motivos_sorpresa) ? match.motivos_sorpresa : [];
+      const motivo = motivos[0] || '';
+      const motivoHtml = motivo ? `<span style="font-weight:400;opacity:0.85"> · ${escapeHtml(motivo)}</span>` : '';
+
+      return `<span style="font-size:10px;padding:2px 7px;border-radius:6px;background:${color}15;color:${color};font-weight:700;border:1px solid ${color}30;margin-left:4px">${emoji} ${escapeHtml(tipoLabel)}${motivoHtml}</span>`;
     }
 
     function analisisExpansible(match) {
