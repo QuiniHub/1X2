@@ -505,6 +505,18 @@
         </div>
       </div>
 
+      <!-- Historial Quinielas LAE -->
+      <div class="card" id="historicoQuinielasCard" style="display:none">
+        <div class="card-head">
+          <h2>Historial Quinielas LAE</h2>
+          <span class="tag" id="historicoQuinielasTag">Cargando...</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px" id="historicoQuinielasTabs"></div>
+          <div id="historicoQuinielasBody"></div>
+        </div>
+      </div>
+
       <!-- Diario -->
       <div class="card">
         <div class="card-head"><h2>Diario de aprendizaje</h2><span class="tag">Última jornada cerrada</span></div>
@@ -583,7 +595,7 @@
   </main>
 
   <script>
-    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, eliminatorias: null, historial: null, metricas: null, segunda: null, calendario1a: null, calendario2a: null, historicoLigas: null, calJornada1a: 1, calJornada2a: 1, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {}, _historicoTabActiva: 'primera' };
+    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, eliminatorias: null, historial: null, metricas: null, segunda: null, calendario1a: null, calendario2a: null, historicoLigas: null, historicoQuinielas: null, calJornada1a: 1, calJornada2a: 1, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {}, _historicoTabActiva: 'primera', _quinielaTabActiva: '2025/2026' };
     const qs = (s, root = document) => root.querySelector(s);
     const qsa = (s, root = document) => [...root.querySelectorAll(s)];
     const fmt = (v, fallback = '-') => (v === null || v === undefined || v === '' ? fallback : v);
@@ -1087,6 +1099,7 @@
         </article>`;
       }).join('') : '<div class="empty">El diario se rellenará cuando haya partidos de la jornada activa.</div>';
       renderHistoricoLigas();
+      renderHistoricoQuinielas();
     }
 
     function renderHistoricoLigas() {
@@ -1213,6 +1226,102 @@
       }
 
       bodyEl.innerHTML = html || '<div class="empty">Sin datos históricos cargados.</div>';
+    }
+
+    function renderHistoricoQuinielas() {
+      const hq = state.historicoQuinielas;
+      const card = qs('#historicoQuinielasCard');
+      if (!hq || !hq.temporadas) { if (card) card.style.display = 'none'; return; }
+      card.style.display = '';
+
+      const temporadas = hq.temporadas;
+      const tempKeys = Object.keys(temporadas).sort();
+      if (!tempKeys.includes(state._quinielaTabActiva)) state._quinielaTabActiva = tempKeys[tempKeys.length - 1];
+
+      // Tag resumen
+      const totalJ = tempKeys.reduce((s, k) => s + (temporadas[k].estadisticas?.jornadas || 0), 0);
+      qs('#historicoQuinielasTag').textContent = `${totalJ} jornadas · ${tempKeys.join(' | ')}`;
+
+      // Tabs por temporada
+      qs('#historicoQuinielasTabs').innerHTML = tempKeys.map(k => {
+        const activa = k === state._quinielaTabActiva;
+        return `<button onclick="state._quinielaTabActiva='${k}';renderHistoricoQuinielas()" style="
+          padding:6px 14px;border-radius:20px;border:none;cursor:pointer;font-size:13px;font-weight:600;
+          background:${activa ? 'var(--accent,#4f46e5)' : 'var(--surface2,#e8e8e8)'};
+          color:${activa ? '#fff' : 'var(--fg,#333)'}">
+          ${k}
+        </button>`;
+      }).join('');
+
+      const tData = temporadas[state._quinielaTabActiva] || {};
+      const stats = tData.estadisticas || {};
+      const f = stats.frecuencias_signos || {};
+      const jornadas = arr(tData.jornadas).sort((a, b) => (a.jornada || 0) - (b.jornada || 0));
+
+      let html = `<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+        <span style="font-size:13px;color:var(--muted,#888)">${stats.jornadas} jornadas · ${stats.partidos_totales} partidos con signo</span>
+        <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#e8f5e9;color:#2e7d32">1: ${f['1']}%</span>
+        <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#fff3e0;color:#e65100">X: ${f['X']}%</span>
+        <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#e3f2fd;color:#1565c0">2: ${f['2']}%</span>
+      </div>`;
+
+      html += `<div style="overflow-x:auto;max-height:520px;overflow-y:auto;border:1px solid var(--border,#eee);border-radius:6px">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead style="position:sticky;top:0;background:var(--surface2,#f5f5f5);z-index:1">
+            <tr>
+              <th style="padding:5px 8px;text-align:center">J</th>
+              <th style="padding:5px 8px;text-align:left">Fecha</th>
+              <th style="padding:5px 8px;text-align:center">Signos (1-14)</th>
+              <th style="padding:5px 8px;text-align:center">Ver partidos</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${jornadas.map(j => {
+              const signos = (j.signos_14 || '').split('');
+              const signosHtml = signos.map(s => {
+                const bg = s==='1' ? '#e8f5e9' : s==='X' ? '#fff3e0' : s==='2' ? '#e3f2fd' : '#f5f5f5';
+                const fg = s==='1' ? '#2e7d32' : s==='X' ? '#e65100' : s==='2' ? '#1565c0' : '#999';
+                return `<span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:3px;background:${bg};color:${fg};font-weight:700;font-size:11px;margin:1px">${s}</span>`;
+              }).join('');
+              const id = `qj_${j.temporada_key}_${j.jornada}`;
+              const partidos14 = arr(j.partidos).filter(p => p.num <= 14);
+              const p15 = arr(j.partidos).find(p => p.num === 15);
+              const partidosHtml = `<div id="${id}" style="display:none;margin-top:6px;border-top:1px solid var(--border,#eee);padding-top:6px">
+                <table style="width:100%;border-collapse:collapse;font-size:11px">
+                  ${partidos14.map(p => {
+                    const bg2 = (p.signo_oficial||'') === '1' ? '#e8f5e9' : (p.signo_oficial||'') === 'X' ? '#fff3e0' : (p.signo_oficial||'') === '2' ? '#e3f2fd' : '#f9f9f9';
+                    const porc = p.porc1 != null ? ` <span style="color:var(--muted,#888)">(${p.porc1}%·${p.porcX}%·${p.porc2}%)</span>` : '';
+                    return `<tr><td style="padding:2px 6px;color:var(--muted,#888);width:20px">${p.num}</td>
+                      <td style="padding:2px 6px">${escapeHtml(p.local)}</td>
+                      <td style="padding:2px 6px;text-align:center;font-weight:700">${escapeHtml(p.resultado||'')}</td>
+                      <td style="padding:2px 6px">${escapeHtml(p.visitante)}</td>
+                      <td style="padding:2px 4px;text-align:center"><span style="background:${bg2};padding:1px 5px;border-radius:4px;font-weight:700">${p.signo_oficial||'?'}</span>${porc}</td>
+                    </tr>`;
+                  }).join('')}
+                  ${p15 ? `<tr style="border-top:2px solid var(--border,#ddd)"><td style="padding:2px 6px;color:var(--muted,#888)">P15</td>
+                    <td style="padding:2px 6px">${escapeHtml(p15.local)}</td>
+                    <td style="padding:2px 6px;text-align:center;font-weight:700">${escapeHtml(p15.resultado||'')}</td>
+                    <td style="padding:2px 6px">${escapeHtml(p15.visitante)}</td>
+                    <td style="padding:2px 4px;text-align:center"><span style="background:#f3e5f5;padding:1px 5px;border-radius:4px;font-weight:700">${p15.signo_p15||p15.signo_oficial||'?'}</span></td>
+                  </tr>` : ''}
+                </table>
+              </div>`;
+              return `<tr style="border-bottom:1px solid var(--border,#eee)">
+                <td style="padding:5px 8px;text-align:center;font-weight:700;color:var(--muted,#888)">${j.jornada}</td>
+                <td style="padding:5px 8px;white-space:nowrap;color:var(--muted,#888)">${escapeHtml(j.fecha||'')}</td>
+                <td style="padding:5px 8px">${signosHtml}</td>
+                <td style="padding:5px 8px;text-align:center">
+                  <button onclick="const d=document.getElementById('${id}');const open=d.style.display!=='none';d.style.display=open?'none':'block';this.textContent=open?'▼':'▲'"
+                    style="background:none;border:1px solid var(--border,#ddd);border-radius:4px;padding:2px 8px;cursor:pointer;font-size:12px">▼</button>
+                  ${partidosHtml}
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+
+      qs('#historicoQuinielasBody').innerHTML = html || '<div class="empty">Sin datos de jornadas.</div>';
     }
 
     function renderWorld() {
@@ -1979,6 +2088,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       const mundial = state.mundial || {};
       const pesos = state.pesosDinamicos || {};
       const hligas = state.historicoLigas || {};
+      const hquinielas = state.historicoQuinielas || {};
 
       const resumenMem = mem.resumen_para_chat || "";
       const jornadaActual = pred.jornada || "desconocida";
@@ -2080,8 +2190,23 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         }
       }
 
+      // Historial quinielas LAE — frecuencias por temporada
+      let bloqueHistoricoQuinielas = '';
+      if (hquinielas.temporadas) {
+        const lineas = [];
+        for (const [temp, tData] of Object.entries(hquinielas.temporadas)) {
+          const stats = tData.estadisticas || {};
+          const f = stats.frecuencias_signos || {};
+          lineas.push(`${temp}: ${stats.jornadas} jornadas | 1=${f['1']}% X=${f['X']}% 2=${f['2']}% (${stats.partidos_totales} partidos)`);
+        }
+        if (lineas.length) {
+          bloqueHistoricoQuinielas = `\nHISTORIAL QUINIELAS LAE APRENDIDO (3 temporadas):\n${lineas.join('\n')}`;
+        }
+      }
+
       return `${resumenMem}
 ${bloqueHistoricoLigas}
+${bloqueHistoricoQuinielas}
 
 ${resumenMetricas}
 Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalCobrado.toFixed(2)}€
@@ -2719,7 +2844,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, mundial, eliminatorias, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas] = await Promise.all([
+      const [pred, pleno, apr, mundial, eliminatorias, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -2732,7 +2857,8 @@ No inventes — solo lo que ves con fondo oscuro.`;
         getJson('data/memoria_ia/pesos_dinamicos.json'),
         getJson('data/calendario_1a_2627.json', null),
         getJson('data/calendario_2a_2627.json', null),
-        getJson('data/memoria_ia/historico_ligas_espana.json', null)
+        getJson('data/memoria_ia/historico_ligas_espana.json', null),
+        getJson('data/memoria_ia/historico_quinielas_lae.json', null)
       ]);
       state.prediccion = pred;
       state.pleno15Data = pleno;
@@ -2747,6 +2873,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.calendario1a = cal1a;
       state.calendario2a = cal2a;
       state.historicoLigas = historicoLigas;
+      state.historicoQuinielas = historicoQuinielas;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       qs('#updatedAt').textContent = pred.generado_en ? `Actualizado ${new Date(pred.generado_en).toLocaleString('es-ES')}` : 'Datos cargados';
