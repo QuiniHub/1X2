@@ -595,7 +595,7 @@
   </main>
 
   <script>
-    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, eliminatorias: null, historial: null, metricas: null, segunda: null, calendario1a: null, calendario2a: null, historicoLigas: null, historicoQuinielas: null, calJornada1a: 1, calJornada2a: 1, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {}, _historicoTabActiva: 'primera', _quinielaTabActiva: '2025/2026' };
+    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, eliminatorias: null, historial: null, metricas: null, segunda: null, calendario1a: null, calendario2a: null, historicoLigas: null, historicoQuinielas: null, detallesPartidos: null, calJornada1a: 1, calJornada2a: 1, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {}, _historicoTabActiva: 'primera', _quinielaTabActiva: '2025/2026' };
     const qs = (s, root = document) => root.querySelector(s);
     const qsa = (s, root = document) => [...root.querySelectorAll(s)];
     const fmt = (v, fallback = '-') => (v === null || v === undefined || v === '' ? fallback : v);
@@ -906,6 +906,46 @@
       qsa('.signs').forEach(renderSignSelection);
     }
 
+    function surpriseBadge(match) {
+      const idx = Number(match.indice_sorpresa_quinielistica ?? match.surprise_score ?? 0);
+      if (!idx || idx < 40) return '';
+      const alta = idx >= 70;
+      const color = alta ? '#c62828' : '#e65100';
+      const label = alta ? '🔴 ALERTA' : '🟡 VIGILAR';
+      return `<span style="font-size:10px;padding:1px 6px;border-radius:6px;background:${color}18;color:${color};font-weight:700;border:1px solid ${color}35;margin-left:4px">${label} ${Math.round(idx)}</span>`;
+    }
+
+    function analisisExpansible(match) {
+      if (!state.generated) return '';
+      const razon = match.razonamiento || match.justificacion_final || '';
+      if (!razon) return '';
+      const id = `anl_${match.num ?? match.numero ?? ''}`;
+      const motivos = arr(match.motivos_sorpresa).slice(0, 3).join(' · ');
+      const detallesMap = {};
+      arr((state.detallesPartidos || {}).partidos).forEach(d => { detallesMap[d.num] = d; });
+      const det = detallesMap[match.num ?? match.numero];
+      let h2hHtml = '';
+      if (det) {
+        const h = det.h2h_quiniela || {};
+        const dd = arr(det.datos_destacados)[0] || '';
+        if (h.total > 0 || dd) {
+          h2hHtml = `<div style="margin-top:4px;padding-top:4px;border-top:1px solid var(--border,#eee);color:var(--muted,#666)">`;
+          if (h.total > 0) h2hHtml += `<span style="margin-right:8px">H2H (${h.total}): ${h.v1}V ${h.vX}E ${h.v2}D</span>`;
+          if (dd) h2hHtml += `<span>${escapeHtml(dd)}</span>`;
+          h2hHtml += `</div>`;
+        }
+      }
+      return `<div style="margin-top:3px">
+        <button onclick="const d=document.getElementById('${id}');const v=d.style.display!=='block';d.style.display=v?'block':'none';this.textContent=v?'▴ cerrar análisis':'▸ ver análisis'"
+          style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--accent,#4f46e5);padding:0;text-decoration:underline">▸ ver análisis</button>
+        <div id="${id}" style="display:none;margin-top:5px;padding:8px 10px;background:var(--surface2,#f5f5f5);border-radius:6px;font-size:11px;line-height:1.5;color:var(--text,#333);max-height:180px;overflow-y:auto">
+          ${motivos ? `<div style="font-weight:600;margin-bottom:4px;color:var(--muted,#666);font-size:10px">${escapeHtml(motivos)}</div>` : ''}
+          ${escapeHtml(razon.slice(0, 500))}${razon.length > 500 ? '…' : ''}
+          ${h2hHtml}
+        </div>
+      </div>`;
+    }
+
     function renderTicket() {
       const matches = predictionMatches();
       // Do NOT reset state.generated here — only the generate button controls it.
@@ -928,7 +968,8 @@
           <div class="match-num">${escapeHtml(num)}</div>
           <div class="teams">
             <strong>${escapeHtml(match.local || match.equipo_local)} <span style="color:var(--muted);font-weight:700">vs</span> ${escapeHtml(match.visitante || match.equipo_visitante)}</strong>
-            <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8Label}${probabilityText(match)}</div>
+            <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8Label}${probabilityText(match)}${surpriseBadge(match)}</div>
+            ${analisisExpansible(match)}
           </div>
           <div class="signs" data-selected="${escapeHtml(chosen)}">
             ${['1','X','2'].map(s => `<span class="sign" data-sign="${s}">${s}</span>`).join('')}
@@ -2089,6 +2130,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       const pesos = state.pesosDinamicos || {};
       const hligas = state.historicoLigas || {};
       const hquinielas = state.historicoQuinielas || {};
+      const detallesPart = state.detallesPartidos || {};
 
       const resumenMem = mem.resumen_para_chat || "";
       const jornadaActual = pred.jornada || "desconocida";
@@ -2204,9 +2246,40 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         }
       }
 
+      // Alertas de sorpresa por partido (solo partidos con índice >= 60)
+      let bloqueSorpresas = '';
+      const sorpresasAltas = arr(pred.partidos || []).filter(p => Number(p.indice_sorpresa_quinielistica ?? p.surprise_score ?? 0) >= 60);
+      if (sorpresasAltas.length) {
+        const lineas = sorpresasAltas.map(p => {
+          const idx = Math.round(Number(p.indice_sorpresa_quinielistica ?? p.surprise_score ?? 0));
+          const motivo = arr(p.motivos_sorpresa).slice(0, 2).join(', ');
+          return `P${p.num} ${p.local} vs ${p.visitante}: riesgo=${idx} (${p.categoria_sorpresa || ''})${motivo ? ' — ' + motivo : ''}`;
+        });
+        bloqueSorpresas = `\nALERTAS SORPRESA J${jornadaActual}:\n${lineas.join('\n')}`;
+      }
+
+      // H2H y datos destacados de eduardolosilla por partido (solo si hay datos reales)
+      let bloqueDetallesH2H = '';
+      if (arr(detallesPart.partidos).length) {
+        const lineas = arr(detallesPart.partidos).reduce((acc, d) => {
+          const h = d.h2h_quiniela || {};
+          const dd = arr(d.datos_destacados)[0] || '';
+          if (h.total > 0 || dd) {
+            let linea = `P${d.num} ${d.local} vs ${d.visitante}`;
+            if (h.total > 0) linea += `: H2H ${h.v1}V-${h.vX}E-${h.v2}D`;
+            if (dd) linea += ` | ${dd}`;
+            acc.push(linea);
+          }
+          return acc;
+        }, []);
+        if (lineas.length) bloqueDetallesH2H = `\nH2H EDUARDOLOSILLA J${detallesPart.jornada || jornadaActual}:\n${lineas.join('\n')}`;
+      }
+
       return `${resumenMem}
 ${bloqueHistoricoLigas}
 ${bloqueHistoricoQuinielas}
+${bloqueSorpresas}
+${bloqueDetallesH2H}
 
 ${resumenMetricas}
 Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalCobrado.toFixed(2)}€
@@ -2876,6 +2949,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.historicoQuinielas = historicoQuinielas;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
+      state.detallesPartidos = jornadaNum ? await getJson(`data/jornadas/detalles_j${jornadaNum}.json`, null) : null;
       qs('#updatedAt').textContent = pred.generado_en ? `Actualizado ${new Date(pred.generado_en).toLocaleString('es-ES')}` : 'Datos cargados';
       renderPredictionMetrics();
       renderTicket();
