@@ -78,7 +78,7 @@ export default {
     // ── /api/openrouter ──────────────────────────────────────────────────────
     if (url.pathname === "/api/openrouter") {
       const body = await request.json();
-      body.model = "meta-llama/llama-3.3-70b-instruct:free";
+      body.model = "mistralai/mistral-7b-instruct:free";
       const upstream = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method:  "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${env.OPENROUTER_KEY}` },
