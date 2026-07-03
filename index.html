@@ -590,7 +590,7 @@
   </main>
 
   <script>
-    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, mundial: null, eliminatorias: null, historial: null, metricas: null, segunda: null, calendario1a: null, calendario2a: null, historicoLigas: null, historicoQuinielas: null, detallesPartidos: null, calJornada1a: 1, calJornada2a: 1, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {}, _historicoTabActiva: 'primera', _quinielaTabActiva: '2025/2026' };
+    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, historial: null, metricas: null, segunda: null, calendario1a: null, calendario2a: null, historicoLigas: null, historicoQuinielas: null, detallesPartidos: null, calJornada1a: 1, calJornada2a: 1, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {}, _historicoTabActiva: 'primera', _quinielaTabActiva: '2025/2026' };
     const qs = (s, root = document) => root.querySelector(s);
     const qsa = (s, root = document) => [...root.querySelectorAll(s)];
     const fmt = (v, fallback = '-') => (v === null || v === undefined || v === '' ? fallback : v);
@@ -1351,114 +1351,6 @@
       qs('#historicoQuinielasBody').innerHTML = html || '<div class="empty">Sin datos de jornadas.</div>';
     }
 
-    function renderWorld() {
-      // Metrics
-      const m = state.mundial || {};
-      const groups = m.grupos || {};
-      const groupValues = Object.values(groups).sort((a, b) => String(a.grupo || '').localeCompare(String(b.grupo || ''), 'es', { numeric: true }));
-      const el = state.eliminatorias || {};
-      const rondas = el.rondas || {};
-      const allR32 = arr(rondas.dieciseisavos?.partidos);
-      const played32 = allR32.filter(p => p.resultado).length;
-      const totalAdvanced = played32; // each played R32 match = 1 team advances
-      qs('#worldMetrics').innerHTML = [
-        metric('Fase', played32 === 16 ? 'Octavos' : `Dieciseisavos (${played32}/16)`),
-        metric('Clasificados a octavos', totalAdvanced || '-'),
-        metric('Final', el.final_fecha ? new Date(el.final_fecha + 'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'}) : '19 jul'),
-        metric('Sede Final', 'MetLife Stadium')
-      ].join('');
-
-      // Group standings
-      qs('#worldGroups').innerHTML = groupValues.length ? groupValues.map(g => {
-        const clasificacion = arr(g.clasificacion).slice().sort((a, b) =>
-          (firstNumber(a.posicion, 99) - firstNumber(b.posicion, 99)) ||
-          (Number(b.pts || 0) - Number(a.pts || 0)) ||
-          (Number(b.dg || 0) - Number(a.dg || 0)) ||
-          (Number(b.gf || 0) - Number(a.gf || 0))
-        );
-        return `<article class="group-card">
-          <div class="group-title"><h3>Grupo ${escapeHtml(g.grupo || '')}</h3><span class="tag">${escapeHtml(g.equipos_detectados || clasificacion.length)} equipos</span></div>
-          ${clasificacion.map(t => {
-            const sit = String(t.situacion_competitiva || t.situacion || 'pendiente');
-            const klass = sit.includes('clasificada') ? 'ok' : sit.includes('elimin') ? 'bad' : 'blue';
-            return `<div class="stand-row"><div><strong>${escapeHtml(t.equipo)}</strong><div class="situation">${escapeHtml(fmt(t.pts, 0))} pts · PJ ${escapeHtml(fmt(t.pj, 0))} · DG ${escapeHtml(fmt(t.dg, 0))} · ${escapeHtml(sit.replaceAll('_',' '))}</div></div><span class="tag ${klass}">${escapeHtml(fmt(t.posicion))}</span></div>`;
-          }).join('')}
-        </article>`;
-      }).join('') : '<div class="empty">Clasificaciones Mundial 2026 pendientes de cargar.</div>';
-
-      // Bracket
-      renderBracket();
-    }
-
-    function renderBracket() {
-      const el = state.eliminatorias || {};
-      const rondas = el.rondas || {};
-
-      function teamHtml(nombre, ganador, otro) {
-        if (!nombre) return `<div class="bracket-team tbd">Por determinar</div>`;
-        const isWinner = ganador && nombre === ganador;
-        const isLoser = ganador && otro && nombre !== ganador;
-        const cls = isWinner ? 'winner' : isLoser ? 'loser' : '';
-        return `<div class="bracket-team ${cls}">${escapeHtml(nombre)}</div>`;
-      }
-
-      function scoreHtml(res, local, visitante, ganador) {
-        if (!res) return '';
-        const [gl, gv] = res.split('-').map(Number);
-        const lw = ganador === local;
-        const vw = ganador === visitante;
-        return `<div style="display:flex;justify-content:space-between;align-items:center;margin:1px 0">
-          <span style="font-size:13px;font-weight:${lw?'800':'600'};color:${lw?'var(--green)':'var(--muted)'}">${gl}</span>
-          <span style="font-size:10px;color:var(--muted)">–</span>
-          <span style="font-size:13px;font-weight:${vw?'800':'600'};color:${vw?'var(--green)':'var(--muted)'}">${gv}</span>
-        </div>`;
-      }
-
-      function matchCard(p) {
-        const local = p.local;
-        const vis = p.visitante;
-        const res = p.resultado;
-        const gan = p.ganador;
-        const fecha = p.fecha ? new Date(p.fecha).toLocaleDateString('es-ES', {day:'numeric', month:'short'}) : '';
-        const played = !!res;
-        return `<div class="bracket-match-card${played ? ' played' : ''}">
-          ${teamHtml(local, gan, vis)}
-          ${played ? scoreHtml(res, local, vis, gan) : `<div class="bracket-divider"></div>`}
-          ${teamHtml(vis, gan, local)}
-          <div class="bracket-info">${escapeHtml(fecha)}${p.ciudad ? ' · ' + escapeHtml(p.ciudad) : ''}</div>
-        </div>`;
-      }
-
-      const RONDA_ORDER = [
-        ['dieciseisavos', 'Dieciseisavos de Final', 4],
-        ['octavos', 'Octavos de Final', 4],
-        ['cuartos', 'Cuartos de Final', 4],
-        ['semifinales', 'Semifinales', 2],
-        ['final', 'Final', 1]
-      ];
-
-      const html = RONDA_ORDER.map(([key, titulo, cols]) => {
-        const ronda = rondas[key];
-        if (!ronda) return '';
-        const partidos = arr(ronda.partidos).slice().sort((a, b) => (a.slot ?? 99) - (b.slot ?? 99));
-        if (!partidos.length) return '';
-        const jugados = partidos.filter(p => p.resultado).length;
-        const tag = jugados === partidos.length ? `<span class="tag ok">Completada</span>`
-          : jugados > 0 ? `<span class="tag blue">En juego (${jugados}/${partidos.length})</span>`
-          : `<span class="tag">${ronda.fechas || ''}</span>`;
-        return `<div class="bracket-round">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-            <div class="bracket-round-title">${escapeHtml(titulo)}</div>${tag}
-          </div>
-          <div class="bracket-grid" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">
-            ${partidos.map(matchCard).join('')}
-          </div>
-        </div>`;
-      }).join('');
-
-      qs('#worldBracket').innerHTML = html || '<div class="empty">Datos del cuadro eliminatorio pendientes de carga.</div>';
-    }
-
     const premiosLocales = (() => {
       try { return JSON.parse(localStorage.getItem('premios_confirmados') || '{}'); }
       catch { return {}; }
@@ -2111,8 +2003,6 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       const apr = state.aprendizaje || {};
       const hist = state.historial || {};
       const met = state.metricas || {};
-      const elim = state.eliminatorias || {};
-      const mundial = state.mundial || {};
       const pesos = state.pesosDinamicos || {};
       const hligas = state.historicoLigas || {};
       const hquinielas = state.historicoQuinielas || {};
@@ -2970,12 +2860,10 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, mundial, eliminatorias, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas] = await Promise.all([
+      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
-        getJson('data/memoria_ia/clasificaciones_mundial_2026.json'),
-        getJson('data/mundial_2026_eliminatorias.json'),
         getJson('data/premios/historial_premios.json'),
         getJson('data/memoria_ia/metricas_probabilisticas.json'),
         getJson('data/calendario_segunda.json'),
@@ -2989,8 +2877,6 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.prediccion = pred;
       state.pleno15Data = pleno;
       state.aprendizaje = apr;
-      state.mundial = mundial;
-      state.eliminatorias = eliminatorias;
       state.historial = hist;
       state.metricas = metricas;
       state.segunda = segunda;
@@ -3008,7 +2894,6 @@ No inventes — solo lo que ves con fondo oscuro.`;
       renderTicket();
       renderPleno15();
       renderLearning();
-      renderWorld();
       renderHistory();
       renderLeague();
       restaurarHistorialChat();
