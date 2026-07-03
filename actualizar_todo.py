@@ -150,6 +150,7 @@ SCRIPTS_ACTIVOS = [
 
     # --- Motor predictivo y salidas ---
     "aprender_patrones_competitivos.py",
+    "alimentar_sorpresas_mercado.py",
     "aplicar_patrones_motor.py",
     "reforzar_patrones_motor.py",
     "corregir_emparejamiento_motor.py",
@@ -189,7 +190,9 @@ SCRIPTS_ACTIVOS = [
     "normalizar_textos_generados.py",
 
     # --- Cierre final: web y publicacion ---
+    "ajustar_aprendizaje_elige8.py",
     "aplicar_elige8_seguro.py",
+    "construir_memoria_historica_profunda.py",
     "limpiar_prediccion_bloqueada.py",
     "estabilizar_web.py",
     "seleccionar_pleno15.py",
