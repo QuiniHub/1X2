@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 59.88,
-  "jornadas_revisadas": 12,
-  "partidos_revisados": 167,
-  "aciertos": 100,
+  "precision": 60.36,
+  "jornadas_revisadas": 13,
+  "partidos_revisados": 169,
+  "aciertos": 102,
   "fallos": 67,
   "fallos_por_tipo": {
     "Doble insuficiente": 12,
@@ -22,10 +22,10 @@
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 35,
-      "aciertos": 23,
+      "total": 37,
+      "aciertos": 25,
       "fallos": 12,
-      "precision": 65.71
+      "precision": 67.57
     },
     "FIJO": {
       "total": 114,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 73,
-      "aciertos": 55,
+      "total": 75,
+      "aciertos": 57,
       "fallos": 18,
-      "precision": 75.34
+      "precision": 76.0
     },
     "2": {
       "total": 51,
@@ -11077,6 +11077,237 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 71,
+      "partido": "Portugal - Croacia",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "2-1",
+      "resultado_final": "2-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_71.json",
+      "probabilidades_usadas": {
+        "1": 34.8,
+        "X": 35.6,
+        "2": 29.6
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Portugal",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Croacia",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (35.6%).",
+        "hipotesis_alternativa": "1 como alternativa (34.8%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 0.8 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 17.93,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 1.69,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Portugal: ppp=2.36; perfil visitante Croacia: ppp=1.97.",
+          "Memoria autonoma: historial de sorpresa medio elevado (54.4)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Portugal",
+        "partidos_total": 6,
+        "puntos_por_partido": 2.314,
+        "empates_pct": 34.3,
+        "surprise_score_medio": 52.73,
+        "forma_5_ppp": 2.2,
+        "forma_10_ppp": 2.333,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Croacia",
+        "partidos_total": 4,
+        "puntos_por_partido": 2.217,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 56.05,
+        "forma_5_ppp": 2.25,
+        "forma_10_ppp": 2.25,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 71,
+      "partido": "Suiza - Argelia",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "2-0",
+      "resultado_final": "2-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_71.json",
+      "probabilidades_usadas": {
+        "1": 36.9,
+        "X": 36.2,
+        "2": 26.9
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Suiza",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Argelia",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (36.9%).",
+        "hipotesis_alternativa": "X como alternativa (36.2%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision TRIPLE 1X2: margen 0.7 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 17.93,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.82,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Suiza: ppp=2.25; perfil visitante Argelia: ppp=1.36.",
+          "Memoria autonoma: tendencia de empate conjunta alta (41.3%).",
+          "Memoria autonoma: historial de sorpresa medio elevado (49.5)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Suiza",
+        "partidos_total": 6,
+        "puntos_por_partido": 2.014,
+        "empates_pct": 49.32,
+        "surprise_score_medio": 45.61,
+        "forma_5_ppp": 2.2,
+        "forma_10_ppp": 2.0,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Argelia",
+        "partidos_total": 3,
+        "puntos_por_partido": 1.305,
+        "empates_pct": 33.32,
+        "surprise_score_medio": 53.45,
+        "forma_5_ppp": 1.333,
+        "forma_10_ppp": 1.333,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -11089,19 +11320,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 167,
+    "partidos_base": 169,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 40.12,
+      "fallos_total_pct": 39.64,
       "no_cubrio_empate_sobre_fallos_pct": 32.84,
-      "no_cubrio_empate_sobre_total_pct": 13.17,
+      "no_cubrio_empate_sobre_total_pct": 13.02,
       "fijo_fallado_sobre_fallos_pct": 49.25,
-      "fijo_fallado_sobre_total_pct": 19.76,
-      "doble_insuficiente_sobre_total_pct": 7.19
+      "fijo_fallado_sobre_total_pct": 19.53,
+      "doble_insuficiente_sobre_total_pct": 7.1
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 9.06,
-    "riesgo_extra_triple_insuficiente": 2.87,
+    "riesgo_extra_fijo_fragil": 8.87,
+    "riesgo_extra_triple_insuficiente": 2.79,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
