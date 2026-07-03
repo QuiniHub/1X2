@@ -151,8 +151,6 @@ SCRIPTS_ACTIVOS = [
     # --- Motor predictivo y salidas ---
     "aprender_patrones_competitivos.py",
     "alimentar_sorpresas_mercado.py",
-    "corregir_emparejamiento_motor.py",
-    "mejorar_motor_dinamica_10.py",
     "motor_prediccion_objetivo.py",
     "alinear_boleto_con_analisis.py",
     "generar_estado_vivo_ia.py",
