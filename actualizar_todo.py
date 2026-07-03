@@ -155,8 +155,6 @@ SCRIPTS_ACTIVOS = [
     "reforzar_patrones_motor.py",
     "corregir_emparejamiento_motor.py",
     "mejorar_motor_dinamica_10.py",
-    "alinear_pronostico_analisis.py",
-    "mejorar_prioridad_coberturas.py",
     "motor_prediccion_objetivo.py",
     "alinear_boleto_con_analisis.py",
     "generar_estado_vivo_ia.py",
@@ -175,7 +173,6 @@ SCRIPTS_ACTIVOS = [
     "aplicar_patrones_web.py",
     "corregir_emparejamiento_equipos.py",
     "ajustar_coberturas_contexto_global.py",
-    "verificar_coherencia_pronostico.py",
 
     # --- Premios ---
     "calcular_premios.py",
