@@ -151,7 +151,6 @@ SCRIPTS_ACTIVOS = [
     # --- Motor predictivo y salidas ---
     "aprender_patrones_competitivos.py",
     "alimentar_sorpresas_mercado.py",
-    "aplicar_patrones_motor.py",
     "reforzar_patrones_motor.py",
     "corregir_emparejamiento_motor.py",
     "mejorar_motor_dinamica_10.py",
