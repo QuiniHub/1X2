@@ -1,21 +1,21 @@
 {
   "version": "1.0",
   "descripcion": "Memoria historica profunda de la IA — conocimiento acumulado sobre futbol y quinielas",
-  "generado_en": "2026-06-27T17:52:30.280192+00:00",
+  "generado_en": "2026-07-03T17:51:29.130450+00:00",
   "temporadas_analizadas": [
     "2025_2026"
   ],
   "estadisticas_globales": {
-    "total_partidos_analizados": 974,
-    "total_jornadas": 70,
+    "total_partidos_analizados": 981,
+    "total_jornadas": 71,
     "frecuencia_1": 45.4,
-    "frecuencia_X": 24.4,
+    "frecuencia_X": 24.5,
     "frecuencia_2": 30.2,
     "pct_sorpresa_global": 30.2,
     "por_competicion": {
-      "liga": 974
+      "liga": 981
     },
-    "conclusion": "En 974 partidos analizados, gana el local el 45.4% de las veces, hay empate el 24.4% y gana el visitante el 30.2%. El 30.2% de los partidos son sorpresas para el pronóstico habitual."
+    "conclusion": "En 981 partidos analizados, gana el local el 45.4% de las veces, hay empate el 24.5% y gana el visitante el 30.2%. El 30.2% de los partidos son sorpresas para el pronóstico habitual."
   },
   "patrones_jornada": {
     "jornadas_mas_impredecibles": [
@@ -61,13 +61,13 @@
       },
       {
         "jornada": 70,
-        "partidos": 9,
+        "partidos": 14,
         "distribucion": {
-          "X": 4,
-          "2": 3,
-          "1": 2
+          "X": 6,
+          "2": 5,
+          "1": 3
         },
-        "pct_sorpresa": 77.8
+        "pct_sorpresa": 78.6
       },
       {
         "jornada": 14,
@@ -121,6 +121,14 @@
     ],
     "jornadas_mas_predecibles": [
       {
+        "jornada": 71,
+        "partidos": 2,
+        "distribucion": {
+          "1": 2
+        },
+        "pct_sorpresa": 0.0
+      },
+      {
         "jornada": 48,
         "partidos": 14,
         "distribucion": {
@@ -131,7 +139,7 @@
         "pct_sorpresa": 28.6
       }
     ],
-    "media_sorpresa_por_jornada": 54.7
+    "media_sorpresa_por_jornada": 54.0
   },
   "equipos_destacados": {
     "mas_sorprendentes": [
@@ -258,27 +266,36 @@
         "pct_victoria_local": 100.0
       }
     ],
-    "total_equipos_analizados": 85
+    "total_equipos_analizados": 87
   },
   "aprendizaje_quiniela": {
     "jornadas_jugadas": 12,
-    "jornadas_con_resultado": 10,
+    "jornadas_con_resultado": 11,
     "mejor_jornada": {
-      "jornada": 66,
-      "aciertos": 11
+      "jornada": null,
+      "aciertos": 0
     },
     "peor_jornada": {
-      "jornada": 61,
-      "aciertos": 5
+      "jornada": null,
+      "aciertos": 99
     },
-    "total_cobrado_eur": 3.86,
-    "precision_media": 58.0,
+    "total_cobrado_eur": 0.0,
+    "precision_media": 0.0,
     "fallos_mas_comunes": [
       "Fijo fallado cuando había alerta de motivación activa",
       "No cubrir empate en partidos con alta incertidumbre",
       "Confiar demasiado en el favorito cuando el rival está desesperado",
       "No detectar el factor 'último partido' en equipos eliminados"
-    ]
+    ],
+    "estadisticas_fallos": {
+      "fijos_fallados": 40,
+      "empates_no_cubiertos": 18,
+      "precision_por_tipo": {
+        "FIJO": 51.2,
+        "DOBLE": 75.0,
+        "TRIPLE": 100.0
+      }
+    }
   },
   "dinamicas_temporada": {
     "pesos_aprendidos": {
@@ -307,37 +324,6 @@
     },
     "conclusion_pesos": "El sistema ha aprendido que la SORPRESA y el EMPATE pesan más de lo esperado. La FORMA RECIENTE y la CLASIFICACIÓN engañan más de lo que ayudan. Los GOLES y la MOTIVACIÓN COMPETITIVA son los factores más fiables."
   },
-  "factores_humanos_validados": {
-    "equipo_necesitado_vs_equipo_sin_objetivo": {
-      "casos": 294,
-      "tasa_sorpresa": 66.0,
-      "fiabilidad": "alta",
-      "conclusion": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
-    },
-    "local_descenso_vs_visitante_favorito": {
-      "casos": 27,
-      "tasa_sorpresa": 59.3,
-      "fiabilidad": "media",
-      "conclusion": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
-    },
-    "necesitado_local_vs_visitante_objetivo_cerrado": {
-      "casos": 147,
-      "tasa_sorpresa": 79.6,
-      "fiabilidad": "alta",
-      "conclusion": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
-    },
-    "visitante_descenso_vs_local_favorito": {
-      "casos": 27,
-      "tasa_sorpresa": 22.2,
-      "fiabilidad": "baja",
-      "conclusion": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
-    },
-    "visitante_necesitado_vs_local_objetivo_cerrado": {
-      "casos": 147,
-      "tasa_sorpresa": 52.4,
-      "fiabilidad": "media",
-      "conclusion": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
-    }
-  },
-  "resumen_para_chat": "SOY LA IA DE QUINIHUB. ESTO ES LO QUE SÉ Y HE APRENDIDO:\n\nSOBRE EL FÚTBOL (basado en 974 partidos analizados):\n- Gana el local el 45.4% de las veces. Hay empate el 24.4%. Gana el visitante el 30.2%.\n- El 30.2% de los partidos son sorpresas para el pronóstico habitual.\n- Las jornadas de La Quiniela tienen de media un 54.7% de sorpresa.\n\nSOBRE LO QUE HE APRENDIDO DE LOS PESOS:\n- La SORPRESA pesa más de lo que pensaba inicialmente (+72% sobre mi referencia base).\n- El EMPATE suelo subestimarlo — ha subido un 75% en mi modelo.\n- La FORMA RECIENTE engaña — la he reducido un 50%.\n- La CLASIFICACIÓN sola miente — la he reducido un 50%.\n- Los GOLES y la MOTIVACIÓN son los factores más fiables.\n\nPATRONES COMPETITIVOS QUE HE VALIDADO:\n- Equipo necesitado vs sin objetivo: 66% de sorpresa (294 casos). MUY FIABLE.\n- Local desesperado (descenso) vs visitante objetivo cerrado: 79.6% sorpresa (147 casos). EL MÁS FIABLE.\n- Visitante necesitado vs local sin objetivos: 52.4% sorpresa (147 casos). MODERADO.\n\nMIS FALLOS MÁS HABITUALES:\n- Fijo fallado (35 veces): confío demasiado en el favorito sin cobertura.\n- No cubro empate (16 veces): el X me cuesta más de lo que debería.\n- Precision en FIJOS: solo 46.9%. En DOBLES: 72.4%. En TRIPLES: 100%.\n\nSOBRE NUESTRAS QUINIELAS:\n- Llevamos 12 jornadas jugadas con IA.\n- Mejor resultado: J66 con 11 aciertos.\n- Total cobrado: 3.86€\n- Precisión media: 58.0%\n\nEQUIPOS QUE MÁS SORPRENDEN (dan la sorpresa con más frecuencia):\n- Cultural Leonesa: 54.5% de sorpresa en 11 partidos\n- Ajax: 42.9% de sorpresa en 7 partidos\n- R. Zaragoza: 38.1% de sorpresa en 21 partidos\n- Psv: 37.5% de sorpresa en 8 partidos\n- Benfica: 33.3% de sorpresa en 6 partidos\n\nESTADO ACTUAL: J70 en juego (5 partidos pendientes esta noche/mañana). J71 bloqueada hasta cerrar J70."
+  "factores_humanos_validados": {},
+  "resumen_para_chat": "SOY LA IA DE QUINIHUB. ESTO ES LO QUE SÉ Y HE APRENDIDO:\n\nSOBRE EL FÚTBOL (basado en 981 partidos analizados):\n- Gana el local el 45.4% de las veces. Hay empate el 24.5%. Gana el visitante el 30.2%.\n- El 30.2% de los partidos son sorpresas para el pronóstico habitual.\n- Las jornadas de La Quiniela tienen de media un 54.0% de sorpresa.\n\nSOBRE LO QUE HE APRENDIDO DE LOS PESOS:\n- el EMPATE pesa más de lo esperado — ha subido un 75% sobre mi referencia base.\n- la SORPRESA pesa más de lo esperado — ha subido un 73% sobre mi referencia base.\n- la FORMA RECIENTE la he reducido un 50% — engañaba más de lo que ayudaba.\n- la CLASIFICACIÓN la he reducido un 50% — engañaba más de lo que ayudaba.\n- la FATIGA y las BAJAS son los factores que menos he tenido que tocar — los más fiables desde el inicio.\n\nPATRONES COMPETITIVOS QUE HE VALIDADO:\n- Equipo necesitado vs sin objetivo: 66% de sorpresa (294 casos). MUY FIABLE.\n- Local desesperado (descenso) vs visitante objetivo cerrado: 79.6% sorpresa (147 casos). EL MÁS FIABLE.\n- Visitante necesitado vs local sin objetivos: 52.4% sorpresa (147 casos). MODERADO.\n\nMIS FALLOS MÁS HABITUALES:\n- Fijo fallado (40 veces): confío demasiado en el favorito sin cobertura.\n- No cubro empate (18 veces): el X me cuesta más de lo que debería.\n- Precisión en FIJOS: 51.2%. En DOBLES: 75.0%. En TRIPLES: 100.0%.\n\nSOBRE NUESTRAS QUINIELAS:\n- Llevamos 12 jornadas jugadas con IA.\n- Mejor resultado: JNone con 0 aciertos.\n- Total cobrado: 0.0€\n- Precisión media: 0.0%\n\nEQUIPOS QUE MÁS SORPRENDEN (dan la sorpresa con más frecuencia):\n- Cultural Leonesa: 54.5% de sorpresa en 11 partidos\n- Ajax: 42.9% de sorpresa en 7 partidos\n- R. Zaragoza: 38.1% de sorpresa en 21 partidos\n- Psv: 37.5% de sorpresa en 8 partidos\n- Benfica: 33.3% de sorpresa en 6 partidos\n\nESTADO ACTUAL: J71 en estado: lista para publicar."
 }

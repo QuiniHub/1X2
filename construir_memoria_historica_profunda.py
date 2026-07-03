@@ -35,6 +35,62 @@ def signo_resultado(resultado):
     except:
         return ""
 
+NOMBRES_PESO = {
+    "forma_reciente": "la FORMA RECIENTE",
+    "casa_fuera": "el factor CASA/FUERA",
+    "clasificacion": "la CLASIFICACIÓN",
+    "goles": "los GOLES",
+    "empate": "el EMPATE",
+    "sorpresa": "la SORPRESA",
+    "motivacion_competitiva": "la MOTIVACIÓN COMPETITIVA",
+    "necesidad_descenso_ascenso_europa": "la NECESIDAD (descenso/ascenso/Europa)",
+    "fatiga": "la FATIGA",
+    "bajas": "las BAJAS",
+}
+
+def describir_pesos_aprendidos(pesos_actuales, referencia):
+    cambios = []
+    for clave, ref_valor in (referencia or {}).items():
+        actual = (pesos_actuales or {}).get(clave)
+        if actual is None or not ref_valor:
+            continue
+        cambios.append((clave, (actual - ref_valor) / ref_valor * 100))
+    if not cambios:
+        return []
+
+    suben = sorted([c for c in cambios if c[1] > 15], key=lambda c: -c[1])[:2]
+    bajan = sorted([c for c in cambios if c[1] < -15], key=lambda c: c[1])[:2]
+    estables = sorted([c for c in cambios if abs(c[1]) <= 15], key=lambda c: abs(c[1]))[:2]
+
+    lineas = []
+    for clave, pct in suben:
+        lineas.append(f"- {NOMBRES_PESO.get(clave, clave.upper())} pesa más de lo esperado — ha subido un {abs(round(pct))}% sobre mi referencia base.")
+    for clave, pct in bajan:
+        lineas.append(f"- {NOMBRES_PESO.get(clave, clave.upper())} la he reducido un {abs(round(pct))}% — engañaba más de lo que ayudaba.")
+    if estables:
+        nombres = " y ".join(NOMBRES_PESO.get(c[0], c[0].upper()) for c in estables)
+        lineas.append(f"- {nombres} son los factores que menos he tenido que tocar — los más fiables desde el inicio.")
+    return lineas
+
+ESTADOS_TEXTO = {
+    "bloqueada": "bloqueada, esperando el cierre de la jornada anterior",
+    "aprendiendo": "aprendiendo de la jornada anterior antes de predecir la siguiente",
+    "lista_para_publicar": "lista para publicar",
+    "publicada": "publicada",
+}
+
+def describir_estado_actual(ultima_prediccion):
+    jornada = ultima_prediccion.get("jornada")
+    estado = ultima_prediccion.get("estado") or "desconocido"
+    if not jornada:
+        return "sin datos de jornada disponibles ahora mismo."
+    texto = ESTADOS_TEXTO.get(estado, estado)
+    frase = f"J{jornada} en estado: {texto}."
+    motivo = ultima_prediccion.get("motivo_bloqueo")
+    if estado == "bloqueada" and motivo:
+        frase += f" Motivo: {motivo}."
+    return frase
+
 def construir_memoria():
     print("=== Construyendo memoria histórica profunda ===")
     
@@ -61,6 +117,9 @@ def construir_memoria():
     signos = Counter()
     sorpresas = 0
     partidos_por_competicion = defaultdict(int)
+    tipo_stats = defaultdict(lambda: {"aciertos": 0, "total": 0})
+    fijos_fallados = 0
+    empates_no_cubiertos = 0
     equipos_stats = defaultdict(lambda: {
         "partidos": 0, "victorias": 0, "empates": 0, "derrotas": 0,
         "gf": 0, "gc": 0, "sorpresas_causadas": 0, "como_local": 0, "como_visitante": 0
@@ -91,7 +150,21 @@ def construir_memoria():
             signos[signo] += 1
             total_partidos += 1
             signos_jornada.append(signo)
-            
+
+            jugado = "".join(c for c in str(p.get("signo_nuestro") or "") if c in "1X2")
+            if jugado:
+                tipo = "FIJO" if len(jugado) == 1 else "DOBLE" if len(jugado) == 2 else "TRIPLE"
+                acierto = p.get("acierto_nuestro")
+                if acierto is None:
+                    acierto = signo in jugado
+                tipo_stats[tipo]["total"] += 1
+                if acierto:
+                    tipo_stats[tipo]["aciertos"] += 1
+                elif tipo == "FIJO":
+                    fijos_fallados += 1
+                if signo == "X" and "X" not in jugado:
+                    empates_no_cubiertos += 1
+
             local = (p.get("local") or "").lower().strip()
             visitante = (p.get("visitante") or "").lower().strip()
             
@@ -274,7 +347,15 @@ def construir_memoria():
             "No cubrir empate en partidos con alta incertidumbre",
             "Confiar demasiado en el favorito cuando el rival está desesperado",
             "No detectar el factor 'último partido' en equipos eliminados"
-        ]
+        ],
+        "estadisticas_fallos": {
+            "fijos_fallados": fijos_fallados,
+            "empates_no_cubiertos": empates_no_cubiertos,
+            "precision_por_tipo": {
+                tipo: round(datos["aciertos"] / datos["total"] * 100, 1)
+                for tipo, datos in tipo_stats.items() if datos["total"] > 0
+            }
+        }
     }
 
     # ══════════════════════════════════════════
@@ -327,7 +408,18 @@ def construir_memoria():
     
     est = memoria["estadisticas_globales"]
     apq = memoria["aprendizaje_quiniela"]
-    
+    ef = apq["estadisticas_fallos"]
+    ultima_prediccion = cargar_json(DATA / "predicciones" / "ultima_prediccion.json", {})
+
+    texto_pesos = "\n".join(
+        describir_pesos_aprendidos(pesos.get("pesos", {}), pesos.get("referencia", {}))
+    ) or "- Aún no hay suficiente variación en los pesos para destacar cambios."
+
+    precision_tipo = ef["precision_por_tipo"]
+    precision_fijo = f"{precision_tipo['FIJO']}%" if "FIJO" in precision_tipo else "sin datos suficientes"
+    precision_doble = f"{precision_tipo['DOBLE']}%" if "DOBLE" in precision_tipo else "sin datos suficientes"
+    precision_triple = f"{precision_tipo['TRIPLE']}%" if "TRIPLE" in precision_tipo else "sin datos suficientes"
+
     resumen = f"""SOY LA IA DE QUINIHUB. ESTO ES LO QUE SÉ Y HE APRENDIDO:
 
 SOBRE EL FÚTBOL (basado en {est.get('total_partidos_analizados', 0)} partidos analizados):
@@ -336,11 +428,7 @@ SOBRE EL FÚTBOL (basado en {est.get('total_partidos_analizados', 0)} partidos a
 - Las jornadas de La Quiniela tienen de media un {memoria['patrones_jornada'].get('media_sorpresa_por_jornada', 0)}% de sorpresa.
 
 SOBRE LO QUE HE APRENDIDO DE LOS PESOS:
-- La SORPRESA pesa más de lo que pensaba inicialmente (+72% sobre mi referencia base).
-- El EMPATE suelo subestimarlo — ha subido un 75% en mi modelo.
-- La FORMA RECIENTE engaña — la he reducido un 50%.
-- La CLASIFICACIÓN sola miente — la he reducido un 50%.
-- Los GOLES y la MOTIVACIÓN son los factores más fiables.
+{texto_pesos}
 
 PATRONES COMPETITIVOS QUE HE VALIDADO:
 - Equipo necesitado vs sin objetivo: 66% de sorpresa (294 casos). MUY FIABLE.
@@ -348,9 +436,9 @@ PATRONES COMPETITIVOS QUE HE VALIDADO:
 - Visitante necesitado vs local sin objetivos: 52.4% sorpresa (147 casos). MODERADO.
 
 MIS FALLOS MÁS HABITUALES:
-- Fijo fallado (35 veces): confío demasiado en el favorito sin cobertura.
-- No cubro empate (16 veces): el X me cuesta más de lo que debería.
-- Precision en FIJOS: solo 46.9%. En DOBLES: 72.4%. En TRIPLES: 100%.
+- Fijo fallado ({ef['fijos_fallados']} veces): confío demasiado en el favorito sin cobertura.
+- No cubro empate ({ef['empates_no_cubiertos']} veces): el X me cuesta más de lo que debería.
+- Precisión en FIJOS: {precision_fijo}. En DOBLES: {precision_doble}. En TRIPLES: {precision_triple}.
 
 SOBRE NUESTRAS QUINIELAS:
 - Llevamos {apq.get('jornadas_jugadas', 0)} jornadas jugadas con IA.
@@ -363,9 +451,8 @@ EQUIPOS QUE MÁS SORPRENDEN (dan la sorpresa con más frecuencia):"""
     for eq in memoria["equipos_destacados"].get("mas_sorprendentes", [])[:5]:
         resumen += f"\n- {eq['equipo']}: {eq['pct_sorpresa']}% de sorpresa en {eq['partidos']} partidos"
 
-    resumen += "\n\nESTADO ACTUAL: "
-    resumen += "J70 en juego (5 partidos pendientes esta noche/mañana). J71 bloqueada hasta cerrar J70."
-    
+    resumen += "\n\nESTADO ACTUAL: " + describir_estado_actual(ultima_prediccion)
+
     memoria["resumen_para_chat"] = resumen
     memoria["temporadas_analizadas"] = ["2025_2026"]
     
