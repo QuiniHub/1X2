@@ -12,27 +12,6 @@ class ErrorCriticoPrediccion(Exception):
     """Fallo que debe detener el proceso por datos de prediccion."""
 
 
-# Scripts que existen en el repo pero cuya ejecucion esta temporalmente
-# bloqueada para evitar cambios visuales no controlados.
-SCRIPTS_VISUALES_DESACTIVADOS = {
-    "actualizar_selector_jornadas_web.py",
-    "aplicar_coherencia_pro_boleto.py",
-    "aplicar_patrones_web.py",
-    "ajustar_coberturas_contexto_global.py",
-    "mejorar_asistente_ia.py",
-    "corregir_asistente_objeciones.py",
-    "corregir_puntos_asistente.py",
-    "mejorar_asistente_estrategia_apuesta.py",
-    "corregir_comparacion_estrategia.py",
-    "corregir_recomendacion_estrategia.py",
-    "ajustar_estrategia_motivacion.py",
-    "mejorar_lectura_competitiva_global.py",
-    "mejorar_coberturas_necesidad.py",
-    "corregir_ajuste_necesidad_boleto.py",
-    "reforzar_coberturas_descenso.py",
-    "estabilizar_web.py",
-}
-
 SCRIPTS_CRITICOS_PREDICCION = {
     "motor_prediccion_objetivo.py",
     "validar_publicacion_autonoma.py",
@@ -101,7 +80,6 @@ SCRIPTS_ACTIVOS = [
     "actualizar_jornadas_detalle.py",
     "actualizar_boleto_vivo.py",
     "asegurar_proxima_jornada.py",
-    "actualizar_selector_jornadas_web.py",
     "buscar_resultados_google.py",
     "actualizar_resultados_directo.py",
     "aplicar_correcciones_resultados.py",
@@ -155,20 +133,7 @@ SCRIPTS_ACTIVOS = [
     "alinear_boleto_con_analisis.py",
     "generar_estado_vivo_ia.py",
     "ajustar_estado_vivo_motivacion.py",
-    "mejorar_asistente_ia.py",
-    "corregir_asistente_objeciones.py",
-    "corregir_puntos_asistente.py",
-    "mejorar_asistente_estrategia_apuesta.py",
-    "corregir_comparacion_estrategia.py",
-    "corregir_recomendacion_estrategia.py",
-    "ajustar_estrategia_motivacion.py",
-    "mejorar_lectura_competitiva_global.py",
-    "mejorar_coberturas_necesidad.py",
-    "corregir_ajuste_necesidad_boleto.py",
-    "reforzar_coberturas_descenso.py",
-    "aplicar_patrones_web.py",
     "corregir_emparejamiento_equipos.py",
-    "ajustar_coberturas_contexto_global.py",
 
     # --- Premios ---
     "calcular_premios.py",
@@ -187,7 +152,6 @@ SCRIPTS_ACTIVOS = [
     "aplicar_elige8_seguro.py",
     "construir_memoria_historica_profunda.py",
     "limpiar_prediccion_bloqueada.py",
-    "estabilizar_web.py",
     "seleccionar_pleno15.py",
     "validar_publicacion_autonoma.py",
 ]
@@ -236,9 +200,6 @@ def ejecutar_script(nombre):
 def ejecutar_sistema():
     gestionar_mercado_y_temporada()
     for script in SCRIPTS_ACTIVOS:
-        if script in SCRIPTS_VISUALES_DESACTIVADOS:
-            print(f"\n=== Omitiendo {script}: bloqueo de cambios visuales activo ===")
-            continue
         ejecutar_script(script)
     print("\nActualizacion completa; cualquier fallo no critico queda avisado en el log.")
 
