@@ -51,7 +51,7 @@ def cargar_json(path, defecto=None):
         defecto = {}
     if not path.exists():
         return defecto
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
 def guardar_json(path, data):
