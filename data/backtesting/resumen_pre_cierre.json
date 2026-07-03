@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-03T00:16:42.653484+00:00",
+  "generado_en": "2026-07-03T04:31:34.729699+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 6,
-    "partidos_cerrados": 70,
+    "partidos_cerrados": 71,
     "aciertos": 41,
-    "precision": 58.57
+    "precision": 57.75
   },
   "jornadas": [
     {
@@ -1254,10 +1254,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_71.json",
       "creado_en": "2026-06-28T19:31:05.558421+00:00",
       "prediccion_generada_en": "2026-06-28T19:31:05.557938+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 1,
       "aciertos": 0,
-      "precision": null,
+      "precision": 0.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -1278,7 +1278,7 @@
       },
       "por_tipo": {
         "FIJO": {
-          "total": 0,
+          "total": 1,
           "aciertos": 0
         },
         "DOBLE": {
@@ -1290,7 +1290,23 @@
           "aciertos": 0
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 1,
+          "partido": "Portugal - Croacia",
+          "jugado": "X",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": false,
+          "probabilidades": {
+            "1": 26.1,
+            "X": 46.7,
+            "2": 27.2
+          },
+          "incertidumbre": 155.97,
+          "probabilidad_sorpresa": 65.3
+        }
+      ]
     }
   ]
 }
