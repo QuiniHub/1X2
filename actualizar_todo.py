@@ -1,11 +1,14 @@
+import json
 import subprocess
 import sys
 import traceback
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
+HISTORIAL_FALLOS = ROOT / "data" / "diagnostico_fallos_cronicos.json"
+UMBRAL_FALLO_CRONICO = 3
 
 
 class ErrorCriticoPrediccion(Exception):
@@ -167,6 +170,49 @@ def gestionar_mercado_y_temporada():
         print(f"Temporada {year}/{year + 1} en marcha o mercado cerrado: flujo normal.")
 
 
+def cargar_historial_fallos():
+    if not HISTORIAL_FALLOS.exists():
+        return {}
+    try:
+        return json.loads(HISTORIAL_FALLOS.read_text(encoding="utf-8-sig"))
+    except Exception:
+        return {}
+
+
+def guardar_historial_fallos(historial):
+    HISTORIAL_FALLOS.parent.mkdir(parents=True, exist_ok=True)
+    HISTORIAL_FALLOS.write_text(
+        json.dumps(historial, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def registrar_resultado_script(nombre, exito):
+    """Lleva la cuenta de fallos consecutivos por script no critico.
+
+    No cambia la tolerancia existente (los no criticos siguen sin bloquear
+    el pipeline); solo hace ruidoso en el log un fallo que lleva varias
+    ejecuciones seguidas repitiendose, que hasta ahora quedaba invisible
+    detras del AVISO normal.
+    """
+    historial = cargar_historial_fallos()
+    if exito:
+        if nombre in historial:
+            del historial[nombre]
+            guardar_historial_fallos(historial)
+        return
+
+    entrada = historial.get(nombre, {"fallos_consecutivos": 0})
+    entrada["fallos_consecutivos"] = entrada.get("fallos_consecutivos", 0) + 1
+    entrada["ultimo_fallo"] = datetime.now(timezone.utc).isoformat()
+    historial[nombre] = entrada
+    guardar_historial_fallos(historial)
+    if entrada["fallos_consecutivos"] >= UMBRAL_FALLO_CRONICO:
+        print(
+            f"ALERTA_FALLO_CRONICO: {nombre} lleva {entrada['fallos_consecutivos']} "
+            "ejecuciones seguidas fallando. Revisar cuanto antes."
+        )
+
+
 def ejecutar_script(nombre):
     ruta = ROOT / nombre
     if not ruta.exists():
@@ -174,6 +220,7 @@ def ejecutar_script(nombre):
         if nombre in SCRIPTS_CRITICOS_PREDICCION:
             raise ErrorCriticoPrediccion(mensaje)
         print(f"AVISO: {mensaje}. Se continua con el siguiente script.")
+        registrar_resultado_script(nombre, False)
         return False
 
     print(f"\n=== Ejecutando {nombre} ===")
@@ -185,6 +232,7 @@ def ejecutar_script(nombre):
                 f"Error critico de prediccion en {nombre}: codigo {exc.returncode}."
             ) from exc
         print(f"AVISO: {nombre} termino con codigo {exc.returncode}; se continua.")
+        registrar_resultado_script(nombre, False)
         return False
     except Exception as exc:
         if nombre in SCRIPTS_CRITICOS_PREDICCION:
@@ -193,7 +241,9 @@ def ejecutar_script(nombre):
             ) from exc
         print(f"AVISO: excepcion no critica en {nombre}: {exc}")
         traceback.print_exc()
+        registrar_resultado_script(nombre, False)
         return False
+    registrar_resultado_script(nombre, True)
     return True
 
 
