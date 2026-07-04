@@ -42,7 +42,7 @@ PREDICCIONES = DATA / "predicciones"
 JUGADAS = DATA / "quinielas_jugadas"
 MODELO_PREDICTIVO = DATA / "modelo_predictivo"
 
-PRECIO_APUESTA = 1.50
+PRECIO_APUESTA = 0.75
 IMPORTE_MINIMO = 1.50
 PRECIO_ELIGE8 = 0.50
 

@@ -46,9 +46,9 @@ class MotorPrediccionTests(unittest.TestCase):
 
         self.assertEqual(resultado["apuestas"], 12)
         self.assertEqual(resultado["apuestas_elige8"], 12)
-        self.assertEqual(resultado["importe_quiniela"], 18.0)
+        self.assertEqual(resultado["importe_quiniela"], 9.0)
         self.assertEqual(resultado["importe_elige8"], 6.0)
-        self.assertEqual(resultado["importe_total"], 24.0)
+        self.assertEqual(resultado["importe_total"], 15.0)
 
     def test_coste_elige8_usa_solo_partidos_marcados(self):
         partidos = [
@@ -66,9 +66,9 @@ class MotorPrediccionTests(unittest.TestCase):
 
         self.assertEqual(resultado["apuestas"], 36)
         self.assertEqual(resultado["apuestas_elige8"], 18)
-        self.assertEqual(resultado["importe_quiniela"], 54.0)
+        self.assertEqual(resultado["importe_quiniela"], 27.0)
         self.assertEqual(resultado["importe_elige8"], 9.0)
-        self.assertEqual(resultado["importe_total"], 63.0)
+        self.assertEqual(resultado["importe_total"], 36.0)
 
     def test_cobertura_automatica_evitar_14_fijos_en_jornada_abierta(self):
         evaluados = [

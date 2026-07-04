@@ -97,10 +97,10 @@ class CalidadPrediccionTests(unittest.TestCase):
             f"coste.apuestas={coste.get('apuestas')} pero {dobles} dobles y "
             f"{triples} triples dan {apuestas_esperadas} apuestas",
         )
-        importe_esperado = round(apuestas_esperadas * 1.50, 2)
+        importe_esperado = round(max(apuestas_esperadas * 0.75, 1.50), 2)
         self.assertAlmostEqual(
             coste.get("importe_quiniela", 0), importe_esperado, delta=0.01,
-            msg=f"importe_quiniela no coincide con {apuestas_esperadas} apuestas a 1.50e",
+            msg=f"importe_quiniela no coincide con {apuestas_esperadas} apuestas a 0.75e (minimo 1.50e)",
         )
 
 

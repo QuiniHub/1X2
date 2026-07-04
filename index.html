@@ -660,7 +660,7 @@
         if (real.dobles + real.triples > 0) { dobles = real.dobles; triples = real.triples; }
       }
       const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
-      const importeQuiniela = apuestas * 1.50;
+      const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
       const importeElige8 = elige8Activo ? apuestas * 0.50 : 0;
       return { apuestas, dobles, triples, importeQuiniela, importeElige8, importeTotal: importeQuiniela + importeElige8 };
     }

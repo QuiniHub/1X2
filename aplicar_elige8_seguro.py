@@ -7,7 +7,8 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 PREDICCIONES = DATA / "predicciones"
 MEMORIA = DATA / "memoria_ia"
-PRECIO_APUESTA = 1.50
+PRECIO_APUESTA = 0.75
+IMPORTE_MINIMO = 1.50
 PRECIO_ELIGE8 = 0.50
 UMBRAL_PARTIDOS_SEGUROS = 8
 SIGNOS = ("1", "X", "2")
@@ -159,9 +160,9 @@ def recalcular_coste(prediccion, partidos):
     prediccion["coste"] = {
         "apuestas": apuestas,
         "apuestas_elige8": apuestas_elige8,
-        "importe_quiniela": round(max(apuestas * PRECIO_APUESTA, PRECIO_APUESTA), 2),
+        "importe_quiniela": round(max(apuestas * PRECIO_APUESTA, IMPORTE_MINIMO), 2),
         "importe_elige8": round(apuestas_elige8 * PRECIO_ELIGE8, 2),
-        "importe_total": round(max(apuestas * PRECIO_APUESTA, PRECIO_APUESTA) + apuestas_elige8 * PRECIO_ELIGE8, 2),
+        "importe_total": round(max(apuestas * PRECIO_APUESTA, IMPORTE_MINIMO) + apuestas_elige8 * PRECIO_ELIGE8, 2),
     }
 
 
