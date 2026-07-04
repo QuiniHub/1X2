@@ -2293,6 +2293,16 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         'aik', 'elfsborg', 'sjk', 'hjk', 'fc lahti', 'ilves', 'vps', 'inter turku'
       ];
       const equipo = equipos.find(e => t.includes(e));
+
+      // Bajas/lesionados/sancionados: no perder esta intencion detras de un
+      // "noticias" generico — la query debe pedir explicitamente bajas.
+      const esConsultaBajas = /lesion|lesionado|baja|bajas|sancionad|parte medic|convocatoria|alineacion|once probable|titular/i.test(t);
+      if (esConsultaBajas) {
+        return equipo
+          ? `${equipo} bajas lesionados sancionados convocatoria ${fechaHoy}`
+          : `bajas lesionados sancionados quiniela jornada ${fechaHoy}`;
+      }
+
       return equipo
         ? `${equipo} futbol noticias ${fechaHoy}`
         : `futbol ${texto.slice(0, 70)} ${fechaHoy}`;
