@@ -964,9 +964,20 @@
       const matches = predictionMatches();
       // Do NOT reset state.generated here — only the generate button controls it.
       // applyTicketVisibility() handles the body class correctly.
+      // renderTicket() reconstruye todo el HTML del listado. En modo manual el
+      // signo elegido solo vive en el DOM (data-selected), así que hay que
+      // conservarlo antes de destruirlo, o cualquier re-render (Elige8,
+      // dobles/triples...) borraría toda la quiniela marcada a mano.
+      const manualActual = {};
+      if (state.mode === 'manual') {
+        qsa('.match-row').forEach(row => {
+          const sel = row.querySelector('.signs')?.dataset.selected;
+          if (sel) manualActual[row.dataset.num] = sel;
+        });
+      }
       const html = matches.map(match => {
         const num = match.num ?? match.numero ?? match.partido;
-        const chosen = state.mode === 'manual' ? '' : selectedSigns(match);
+        const chosen = state.mode === 'manual' ? (manualActual[String(num)] || '') : selectedSigns(match);
         const elige8 = isElige8Match(match);
         const matchType = betType(match);
         const elige8Prob = elige8ConfForMatch(match, matchType);
