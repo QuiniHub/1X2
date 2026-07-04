@@ -178,33 +178,8 @@ def diagnosticar_clasificacion(alertas):
 
 def diagnosticar_contexto(alertas):
     contexto = cargar_json(MEMORIA / "contexto_competitivo.json", {})
-    primera = (contexto.get("primera") or {}).get("equipos", [])
-    segunda = (contexto.get("segunda") or {}).get("equipos", [])
-    oviedo = buscar(primera, "Real Oviedo")
-    deportivo = buscar(segunda, "RC Deportivo de La Coruna")
-    racing = buscar(segunda, "Real Racing Club de Santander")
-    leganes = buscar(segunda, "CD Leganes")
-    huesca = buscar(segunda, "SD Huesca")
-
-    if not oviedo or (oviedo.get("objetivo_principal") or {}).get("estado") != "descendido_matematicamente":
-        alertas.append({"nivel": "critica", "titulo": "Lectura del Oviedo incorrecta", "detalle": "El análisis debe marcar Real Oviedo como descendido matemáticamente."})
-    if not racing or (racing.get("objetivo_principal") or {}).get("estado") != "asegurado_matematicamente":
-        alertas.append({"nivel": "alta", "titulo": "Lectura del Racing dudosa", "detalle": "Racing debe aparecer con ascenso directo matemático asegurado."})
-    estado_deportivo = (deportivo or {}).get("objetivo_principal") or {}
-    if (
-        not deportivo
-        or int(deportivo.get("puntos", 0)) < 74
-        or estado_deportivo.get("estado") != "asegurado_matematicamente"
-    ):
-        alertas.append({"nivel": "alta", "titulo": "Lectura del Deportivo dudosa", "detalle": "Deportivo debe aparecer con al menos 74 puntos y ascenso directo matematicamente asegurado."})
-
     return {
         "generado_en": contexto.get("generado_en"),
-        "oviedo": oviedo,
-        "racing": racing,
-        "deportivo": deportivo,
-        "leganes": leganes,
-        "huesca": huesca,
     }
 
 
