@@ -2343,11 +2343,11 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         const esMundial = /mundial|copa del mundo|world cup/i.test(pregunta);
         let dominios;
         if (esMundial)
-          dominios = ['espn.com', 'bbc.com', 'fifa.com', 'goal.com', 'marca.com', 'as.com', 'relevo.com', 'sofascore.com', 'eldesmarque.com'];
+          dominios = ['espn.com', 'bbc.com', 'fifa.com', 'goal.com', 'marca.com', 'as.com', 'relevo.com', 'sofascore.com', 'eldesmarque.com', 'mundodeportivo.com', 'sport.es', 'efe.com'];
         else if (esNordica)
           dominios = ['flashscore.es', 'sofascore.com', 'soccerway.com', 'transfermarkt.es', 'eduardolosilla.es', 'eldesmarque.com'];
         else
-          dominios = ['marca.com', 'as.com', 'relevo.com', 'goal.com', 'sofascore.com', 'transfermarkt.es', 'espn.com', 'eduardolosilla.es', 'eldesmarque.com'];
+          dominios = ['marca.com', 'as.com', 'relevo.com', 'goal.com', 'sofascore.com', 'transfermarkt.es', 'espn.com', 'eduardolosilla.es', 'eldesmarque.com', 'mundodeportivo.com', 'sport.es', 'efe.com'];
 
         const res = await fetch(`${WORKER_URL}/api/tavily`, {
           method: 'POST',
