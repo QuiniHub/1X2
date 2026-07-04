@@ -2539,14 +2539,18 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         // Consultas sobre datos locales: no necesitan fetches externos
         const esConsultaLocal = !quiereAprender && /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|pesos|jornada actual|jornada anterior|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev/i.test(textoTotal);
 
-        // Buscar datos de fútbol en tiempo real (solo si no es consulta local)
-        const necesitaFutbol = !esConsultaLocal && /resultado|marcador|gan[oó]|empat|jug[oó]|jugaron|hoy|ayer|partido|clasificaci|liga|champions|premier|bundesliga|serie a|ligue|mundial|eliminatori|allsvenskan|veikkausliiga|nordic|suec|finlan|norueg|dinamarc/i.test(textoTotal);
+        // Buscar datos de fútbol en tiempo real — independiente de esConsultaLocal:
+        // un mensaje puede pedir a la vez contexto local (aprendizaje/jornada) Y
+        // resultados reales (p. ej. "que has aprendido de los partidos de ayer").
+        // Antes, esConsultaLocal apagaba esta búsqueda aunque el mensaje tambien
+        // pidiera datos en vivo, y la IA respondia "mira tu ESPN" en vez de mirarlo ella.
+        const necesitaFutbol = /resultado|marcador|gan[oó]|empat|jug[oó]|jugaron|hoy|ayer|partido|clasificaci|liga|champions|premier|bundesliga|serie a|ligue|mundial|eliminatori|allsvenskan|veikkausliiga|nordic|suec|finlan|norueg|dinamarc/i.test(textoTotal);
         const footballPromise = necesitaFutbol
           ? fetch(`${WORKER_URL}/api/football?ligas=all&dias=14`).then(r => r.ok ? r.json() : null).catch(() => null)
           : Promise.resolve(null);
 
-        // Clasificaciones TheSportsDB (solo si no es consulta local)
-        const necesitaClasif = !esConsultaLocal && /clasificaci|tabla|standing|posici|puntos|liga suec|liga finlan|allsvenskan|veikkausliiga|norueg|dinamarc|eliteserien|superligaen|completa|toda la|más equipo|mas equipo/i.test(textoTotal);
+        // Clasificaciones TheSportsDB — misma logica: independiente de esConsultaLocal.
+        const necesitaClasif = /clasificaci|tabla|standing|posici|puntos|liga suec|liga finlan|allsvenskan|veikkausliiga|norueg|dinamarc|eliteserien|superligaen|completa|toda la|más equipo|mas equipo/i.test(textoTotal);
         const tsdbClasifPromise = necesitaClasif ? Promise.all([
           fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4344&s=2026').then(r=>r.ok?r.json():null).catch(()=>null),
           fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4430&s=2026').then(r=>r.ok?r.json():null).catch(()=>null),
@@ -2555,8 +2559,8 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
           fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4339&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null),
         ]) : Promise.resolve(null);
 
-        // Buscar en web (solo si no es consulta local)
-        const usarWeb = !esConsultaLocal && necesitaBusquedaWeb(texto);
+        // Buscar en web — misma logica: independiente de esConsultaLocal.
+        const usarWeb = necesitaBusquedaWeb(texto);
         const webPromise = usarWeb ? buscarEnWeb(texto) : Promise.resolve(null);
 
         // Detectar URLs en el mensaje y obtener su contenido
