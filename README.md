@@ -114,7 +114,8 @@ Si los secrets no existen, el workflow no falla: genera un esqueleto auditable.
 ### Control de calidad
 - `guardar_snapshot_prediccion.py` — foto pre-cierre de prediccion
 - `backtesting_pre_cierre.py` — backtesting solo con snapshots validos
-- `calibrar_probabilidades.py` — calibracion de probabilidades
+- `calibrar_probabilidades.py` — calibracion de probabilidades (Brier, log loss, por rango y competicion)
+- `evaluar_valor_senales.py` — compara la precision real de los partidos con cada senal del motor activa (contexto competitivo/motivacion, datos profesionales de cuotas, refuerzo por sorpresas de mercado) frente a sin ella, usando solo snapshots pre-cierre inmutables. No concluye nada por debajo de 100 partidos con la senal activa. Salida: `data/memoria_ia/valor_de_senales.json`, tambien consultable desde el chat IA.
 - `diagnostico_sistema.py` — diagnostico del estado del sistema
 - `control_calidad_actualizacion.py` — control de calidad del pipeline (estructura y datos base, sin afirmaciones sobre equipos o temporadas concretas)
 - `validar_publicacion_autonoma.py` — valida publicacion antes de subir (unico paso, junto a `motor_prediccion_objetivo.py`, que puede parar todo el proceso)
@@ -169,6 +170,9 @@ Incluye tambien tests de calidad matematica sobre la ultima prediccion real
 (`test_calidad_prediccion.py`: probabilidades suman ~100, tipo coincide con
 signo_final, Elige 8 tiene exactamente 8, coste coherente con dobles/triples)
 y del mecanismo de alertas de fallo cronico (`test_alertas_fallo_cronico.py`).
+`test_evaluar_valor_senales.py` prueba la logica de veredicto (ayuda/perjudica/
+sin diferencia/sin muestra) y la extraccion real de cada senal desde el JSON
+de snapshots pre-cierre.
 
 ---
 

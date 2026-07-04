@@ -2074,6 +2074,14 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
           Object.entries(pesosActuales).map(([k, v]) => `  ${k}: ${(v * 100).toFixed(1)}%`).join('\n');
       }
 
+      // Valor real de cada señal del motor (¿ayuda de verdad o no hay evidencia?)
+      const senalesVal = (state.valorSenales || {}).senales || {};
+      let bloqueValorSenales = '';
+      const lineasSenales = Object.entries(senalesVal).map(([nombre, info]) => `  ${nombre}: ${info.conclusion}`);
+      if (lineasSenales.length) {
+        bloqueValorSenales = `\nVALOR REAL DE LAS SEÑALES DEL MOTOR (comparando partidos con/sin cada señal activa):\n${lineasSenales.join('\n')}`;
+      }
+
       // Predicción actual — compacta para ahorrar tokens
       const partidos = arr(pred.partidos || []);
       const pleno15 = pred.pleno15 || null;
@@ -2176,6 +2184,7 @@ Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalC
 ${estadoActual}
 ${bloquePredActual}
 ${bloquePesos}
+${bloqueValorSenales}
 ${liga2627}
 
 HISTORIAL ÚLTIMAS JORNADAS:
@@ -2888,7 +2897,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas] = await Promise.all([
+      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -2900,7 +2909,8 @@ No inventes — solo lo que ves con fondo oscuro.`;
         getJson('data/calendario_1a_2627.json', null),
         getJson('data/calendario_2a_2627.json', null),
         getJson('data/memoria_ia/historico_ligas_espana.json', null),
-        getJson('data/memoria_ia/historico_quinielas_lae.json', null)
+        getJson('data/memoria_ia/historico_quinielas_lae.json', null),
+        getJson('data/memoria_ia/valor_de_senales.json', null)
       ]);
       state.prediccion = pred;
       state.pleno15Data = pleno;
@@ -2914,6 +2924,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.calendario2a = cal2a;
       state.historicoLigas = historicoLigas;
       state.historicoQuinielas = historicoQuinielas;
+      state.valorSenales = valorSenales;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       state.detallesPartidos = jornadaNum ? await getJson(`data/jornadas/detalles_j${jornadaNum}.json`, null) : null;
