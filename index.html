@@ -1227,7 +1227,7 @@
 
           <!-- Partidos de la temporada -->
           <div style="margin-top:10px">
-            <button onclick="const d=this.nextElementSibling;const open=d.style.display!=='none';d.style.display=open?'none':'block';this.textContent=open?'Ver ${(() => 'N')()} partidos ▼':'Ocultar partidos ▲'"
+            <button onclick="const d=this.nextElementSibling;const open=d.style.display!=='none';d.style.display=open?'none':'block';this.textContent=open?this.dataset.label:'Ocultar partidos ▲'"
               style="background:none;border:1px solid var(--border,#ddd);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px;color:var(--muted,#666)"
               data-label="Ver ${arr(tData.partidos).length} partidos ▼">
               Ver ${arr(tData.partidos).length} partidos ▼
@@ -1394,9 +1394,12 @@
     }
 
     function historyRowCost(row) {
-      const apuestas = firstNumber(row.apuestas, row.coste?.apuestas, row.coste_apuestas, calculateCost().apuestas) || calculateCost().apuestas;
-      const elige8Activo = Boolean(row.elige8 ?? row.coste?.elige8 ?? state.elige8);
-      return calculateCost(apuestas, elige8Activo).importeTotal;
+      if (row.coste?.importe_total != null) return Number(row.coste.importe_total);
+      const apuestas = firstNumber(row.apuestas, row.coste?.apuestas, row.coste_apuestas, 1) || 1;
+      const elige8Activo = Boolean(row.elige8 ?? row.coste?.elige8 ?? false);
+      const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
+      const importeElige8 = elige8Activo ? apuestas * 0.50 : 0;
+      return importeQuiniela + importeElige8;
     }
 
     function renderHistory() {
