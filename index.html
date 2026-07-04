@@ -706,9 +706,10 @@
     }
 
     function recogerPleno15Current() {
-      const btns = qsa('.pleno-btn.active, .pleno-sign.active, #pleno15 .sign.selected, #pleno15 .sign-btn.selected');
-      if (btns.length === 0) return '';
-      return Array.from(btns).map(b => b.textContent.trim()).join('-');
+      const local = qs('#pleno15 .pleno-cell[data-team="local"][data-selected="true"]');
+      const visitante = qs('#pleno15 .pleno-cell[data-team="visitante"][data-selected="true"]');
+      if (!local || !visitante) return '';
+      return `${local.dataset.sign}-${visitante.dataset.sign}`;
     }
 
     async function confirmarQuinielaJugada() {
@@ -719,6 +720,11 @@
         alert('Primero genera la quiniela antes de confirmar.');
         return;
       }
+      const signos = boleto.split(' ');
+      if (signos.length < 14 || signos.some(s => !s || s === '-')) {
+        alert('El boleto está incompleto: hay partidos sin signo marcado. Complétalo antes de confirmar.');
+        return;
+      }
       const jornada = state.prediccion?.jornada || state.jornadaActual;
       if (!jornada) {
         alert('No se detecta número de jornada.');
@@ -726,6 +732,7 @@
       }
       const c = calculateCost();
       const pleno15 = recogerPleno15Current();
+      const elige8Nums = state.elige8 ? Array.from(state.elige8Set).map(Number).sort((a, b) => a - b) : [];
       const datos = {
         jornada: jornada,
         nuestra_quiniela: boleto,
@@ -741,45 +748,37 @@
       confirmBtn.disabled = true;
       confirmBtn.textContent = '⏳ Guardando...';
       try {
-        // Guardar en localStorage como registro inmediato
+        // Guardar en localStorage como registro inmediato en este navegador
         localStorage.setItem('quinihub_quiniela_j' + jornada, JSON.stringify(datos));
-        // Guardar en quiniela_pendiente_confirmacion.json via GitHub API
-        const REPO = 'QuiniHub/1X2';
-        const FILE = 'data/quinielas_jugadas.json';
-        // Leer archivo actual
-        const readRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`, {
-          headers: { 'Accept': 'application/vnd.github+json' }
-        });
-        let sha = '';
-        let jugadas = [];
-        if (readRes.ok) {
-          const readData = await readRes.json();
-          sha = readData.sha || '';
-          try {
-            const decoded = atob(readData.content.replace(/\n/g, ''));
-            const parsed = JSON.parse(decoded);
-            jugadas = parsed.jugadas || [];
-          } catch(e) { jugadas = []; }
-        }
-        // Actualizar o añadir la jornada actual
-        const idx = jugadas.findIndex(j => String(j.jornada) === String(jornada));
-        if (idx >= 0) {
-          jugadas[idx] = datos;
-        } else {
-          jugadas.push(datos);
-        }
-        const nuevoContenido = JSON.stringify({
-          version: '1.0',
-          descripcion: 'Quinielas confirmadas por el usuario antes de jugarse',
-          actualizado_en: new Date().toISOString(),
-          jugadas: jugadas
-        }, null, 2);
-        // No podemos escribir sin token — guardar en localStorage y mostrar aviso
+
+        // Guardado real y permanente: el navegador no puede escribir en GitHub
+        // sin exponer un token (inseguro). En su lugar, abrimos un Issue
+        // prellenado con el formato exacto que ya procesa de forma segura
+        // .github/workflows/importar-memoria-quinielas.yml (usa el token
+        // interno de la Action, nunca visible en el navegador).
+        const payloadImportacion = {
+          tipo: 'memoria_quinielas_jugadas',
+          jugadas: [{
+            jornada: jornada,
+            signos: signos,
+            elige8: elige8Nums,
+            pleno15: pleno15,
+            validado_en: new Date().toISOString(),
+          }],
+        };
+        const cuerpoIssue = `Quiniela jugada de la jornada ${jornada}, confirmada desde la web.\n\n` +
+          '```json\n' + JSON.stringify(payloadImportacion, null, 2) + '\n```';
+        const urlIssue = 'https://github.com/QuiniHub/1X2/issues/new'
+          + '?title=' + encodeURIComponent(`Memoria Quiniela IA - J${jornada}`)
+          + '&body=' + encodeURIComponent(cuerpoIssue);
+
         state.quinielaConfirmada = datos;
         confirmBtn.textContent = '✅ ¡Confirmada!';
         confirmBtn.style.background = '#15803d';
         confirmMsg.style.display = 'block';
-        confirmMsg.innerHTML = `✅ <strong>J${jornada} confirmada:</strong> ${escapeHtml(boleto)} · ${c.apuestas} apuestas · ${c.importeTotal.toFixed(2)}€`;
+        confirmMsg.innerHTML = `✅ <strong>J${jornada} confirmada:</strong> ${escapeHtml(boleto)} · ${c.apuestas} apuestas · ${c.importeTotal.toFixed(2)}€`
+          + `<br><a href="${urlIssue}" target="_blank" rel="noopener" style="color:#2563eb;font-weight:600">📮 Guardar en el historial permanente (se abre un Issue ya relleno — solo hay que pulsar "Submit new issue")</a>`;
+        window.open(urlIssue, '_blank', 'noopener');
       } catch(err) {
         confirmBtn.disabled = false;
         confirmBtn.textContent = '✅ Confirmar quiniela jugada';
@@ -1079,11 +1078,11 @@
     async function animateTicket() {
       const matches = predictionMatches();
       if (!matches.length) return;
+      state.generated = true;
+      document.body.classList.add('generated');
       computeAssignments();
       renderTicket();
       const rows = qsa('.match-row');
-      state.generated = true;
-      document.body.classList.add('generated');
       renderPleno15();
       rows.forEach(row => row.classList.remove('reveal'));
       for (const row of rows) {
@@ -1642,6 +1641,9 @@
 
       qs('#elige8Toggle').addEventListener('change', e => {
         state.elige8 = e.target.checked;
+        if (state.generated || state.mode === 'mixta' || state.mode === 'manual') {
+          computeAssignments();
+        }
         renderPredictionMetrics();
         renderTicket();
         renderHistory();
