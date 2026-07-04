@@ -2082,6 +2082,34 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         bloqueValorSenales = `\nVALOR REAL DE LAS SEÑALES DEL MOTOR (comparando partidos con/sin cada señal activa):\n${lineasSenales.join('\n')}`;
       }
 
+      // Aprendizaje real del Elige 8 (desde las quinielas realmente jugadas)
+      const elige8Res = (state.aprendizajeElige8 || {}).resumen || {};
+      let bloqueElige8Aprendizaje = '';
+      if (elige8Res.selecciones_elige8) {
+        const ultimasJ = arr((state.aprendizajeElige8 || {}).jornadas || []).slice(-5);
+        const lineasJ = ultimasJ.map(j => {
+          const totalSeleccionados = (j.seleccionados_elige8 || []).length;
+          if (!totalSeleccionados) return `J${j.jornada} (${j.estado}): sin Elige8 jugado`;
+          const rotura = j.partido_que_rompio_elige8
+            ? ` — rompió en ${j.partido_que_rompio_elige8.local} vs ${j.partido_que_rompio_elige8.visitante}`
+            : '';
+          return `J${j.jornada} (${j.estado}): Elige8 ${j.aciertos_elige8}/${totalSeleccionados}${rotura}`;
+        });
+        bloqueElige8Aprendizaje = `\nAPRENDIZAJE ELIGE 8 (de lo realmente jugado, ${elige8Res.jugadas_evaluadas} jornadas evaluadas):\n` +
+          `Precisión Elige8: ${elige8Res.precision_elige8}% (${elige8Res.aciertos_elige8}/${elige8Res.selecciones_elige8}) | Premio cobrado: ${elige8Res.premio_cobrado}€ | Premio que se escapó: ${elige8Res.premio_que_se_escapo}€\n` +
+          lineasJ.join('\n');
+      }
+
+      // Sorpresas de mercado: casos donde el motor jugó FIJO y falló
+      const sorpresasM = (state.sorpresasMercado || {}).sorpresas || [];
+      let bloqueSorpresasMercado = '';
+      if (sorpresasM.length) {
+        const recientes = arr(sorpresasM).slice(-6).map(s =>
+          `J${s.jornada} ${s.partido}: jugamos ${s.pronostico_jugado} → real ${s.signo_real} (${s.resultado})${s.categoria_sorpresa && s.categoria_sorpresa !== 'desconocido' ? ` [${s.categoria_sorpresa}]` : ''}`
+        );
+        bloqueSorpresasMercado = `\nSORPRESAS DE MERCADO (fijo jugado que falló, ${sorpresasM.length} casos registrados):\n${recientes.join('\n')}`;
+      }
+
       // Predicción actual — compacta para ahorrar tokens
       const partidos = arr(pred.partidos || []);
       const pleno15 = pred.pleno15 || null;
@@ -2185,6 +2213,8 @@ ${estadoActual}
 ${bloquePredActual}
 ${bloquePesos}
 ${bloqueValorSenales}
+${bloqueElige8Aprendizaje}
+${bloqueSorpresasMercado}
 ${liga2627}
 
 HISTORIAL ÚLTIMAS JORNADAS:
@@ -2897,7 +2927,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales] = await Promise.all([
+      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -2910,7 +2940,9 @@ No inventes — solo lo que ves con fondo oscuro.`;
         getJson('data/calendario_2a_2627.json', null),
         getJson('data/memoria_ia/historico_ligas_espana.json', null),
         getJson('data/memoria_ia/historico_quinielas_lae.json', null),
-        getJson('data/memoria_ia/valor_de_senales.json', null)
+        getJson('data/memoria_ia/valor_de_senales.json', null),
+        getJson('data/memoria_ia/aprendizaje_elige8.json', null),
+        getJson('data/memoria_ia/sorpresas_mercado.json', null)
       ]);
       state.prediccion = pred;
       state.pleno15Data = pleno;
@@ -2925,6 +2957,8 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.historicoLigas = historicoLigas;
       state.historicoQuinielas = historicoQuinielas;
       state.valorSenales = valorSenales;
+      state.aprendizajeElige8 = aprendizajeElige8;
+      state.sorpresasMercado = sorpresasMercado;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       state.detallesPartidos = jornadaNum ? await getJson(`data/jornadas/detalles_j${jornadaNum}.json`, null) : null;
