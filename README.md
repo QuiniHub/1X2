@@ -23,15 +23,24 @@ y genera la prediccion para la siguiente.
 
 ## Estructura del flujo
 
-El workflow de GitHub Actions ejecuta cada 30 minutos:
+El workflow de GitHub Actions tiene el cron configurado a cada 30 minutos,
+pero GitHub Actions lo ejecuta en la practica cada 1-4 horas segun su propia
+carga (el cron es una peticion, no una garantia):
 
 ```
 .github/workflows/main.yml
   -> python actualizar_todo.py
 ```
 
-`actualizar_todo.py` ejecuta los scripts activos en orden y falla si uno rompe,
-evitando actualizaciones silenciosas con datos incompletos.
+`actualizar_todo.py` ejecuta los ~60 scripts activos en orden. Solo dos son
+criticos (`motor_prediccion_objetivo.py` y `validar_publicacion_autonoma.py`):
+si fallan, paran todo el proceso. El resto son tolerantes — si uno falla, se
+registra un `AVISO` y se continua con el siguiente, para no bloquear toda la
+actualizacion por una fuente externa caida. Para que un fallo tolerado no
+pase desapercibido para siempre, `actualizar_todo.py` lleva la cuenta de
+fallos consecutivos por script (`data/diagnostico_fallos_cronicos.json`) y
+lanza un `ALERTA_FALLO_CRONICO` bien visible en el log a partir de 3 fallos
+seguidos.
 
 Antes de actualizar datos se ejecutan los tests:
 
@@ -45,13 +54,14 @@ python -m unittest discover -s tests
 
 | Competicion | Estado |
 |---|---|
-| Mundial 2026 | Activo |
 | Ligas europeas (segun quiniela) | Activo segun jornada |
 | Primera Division 2026/2027 | Pendiente inicio agosto 2026 |
 | Segunda Division 2026/2027 | Pendiente inicio agosto 2026 |
 
-Cuando empiece la liga 2026/2027, el sistema inicializara automaticamente
-las tablas clasificatorias y el calendario de Primera y Segunda.
+El Mundial 2026 se retiro por completo del sistema (pestana, datos y scripts)
+el 1 de julio de 2026: el proyecto se reorienta a la Liga 2026/2027. Cuando
+empiece, el sistema inicializara automaticamente las tablas clasificatorias
+y el calendario de Primera y Segunda.
 
 ---
 
@@ -70,8 +80,10 @@ las tablas clasificatorias y el calendario de Primera y Segunda.
 - `construir_memoria_ia.py` — memoria global de aprendizaje
 - `memoria_autonoma_quiniela.py` — memoria persistente de quinielas
 - `generar_contexto_competitivo.py` — contexto competitivo global
-- `generar_memoria_mundial_2026.py` — memoria especifica Mundial 2026
 - `aprender_patrones_competitivos.py` — patrones aprendidos por competicion
+- `alimentar_sorpresas_mercado.py` — memoria de casos donde el motor predijo FIJO y fallo
+- `ajustar_aprendizaje_elige8.py` — aprendizaje de aciertos/fallos del Elige 8
+- `construir_memoria_historica_profunda.py` — resumen dinamico (pesos, fallos, estado real de la jornada) para el contexto del chat IA
 
 ### Motor predictivo
 - `motor_prediccion_quiniela.py` — nucleo de prediccion 1X2 (motor principal)
@@ -104,8 +116,11 @@ Si los secrets no existen, el workflow no falla: genera un esqueleto auditable.
 - `backtesting_pre_cierre.py` — backtesting solo con snapshots validos
 - `calibrar_probabilidades.py` — calibracion de probabilidades
 - `diagnostico_sistema.py` — diagnostico del estado del sistema
-- `control_calidad_actualizacion.py` — control de calidad del pipeline
-- `validar_publicacion_autonoma.py` — valida publicacion antes de subir
+- `control_calidad_actualizacion.py` — control de calidad del pipeline (estructura y datos base, sin afirmaciones sobre equipos o temporadas concretas)
+- `validar_publicacion_autonoma.py` — valida publicacion antes de subir (unico paso, junto a `motor_prediccion_objetivo.py`, que puede parar todo el proceso)
+
+### Herramientas manuales (no forman parte del pipeline automatico)
+- `validar_esquema_datos.py` — valida sintaxis, ausencia de BOM y esquema minimo (claves y tipos, nunca valores) de los ~150 JSON de `data/`. Se ejecuta a mano; siempre en modo informe, nunca falla ni bloquea nada.
 
 ---
 
@@ -150,6 +165,10 @@ python -m unittest discover -s tests
 
 Cobertura actual: jornadas, resultados, prediccion, boleto, Elige 8,
 datos profesionales, memoria, compuerta, control de calidad y premios.
+Incluye tambien tests de calidad matematica sobre la ultima prediccion real
+(`test_calidad_prediccion.py`: probabilidades suman ~100, tipo coincide con
+signo_final, Elige 8 tiene exactamente 8, coste coherente con dobles/triples)
+y del mecanismo de alertas de fallo cronico (`test_alertas_fallo_cronico.py`).
 
 ---
 
@@ -167,19 +186,10 @@ scikit-learn
 
 ---
 
-## Copia de seguridad
-
-Antes del refactor estructural de junio 2026:
-
-```
-git checkout backup/pre-refactor-auditoria-total
-```
-
----
-
 ## Estado del sistema
 
-- Competicion activa: **Mundial 2026**
+- Competicion activa: **ligas europeas segun jornada** (Mundial 2026 retirado el 1 jul 2026)
 - Proxima transicion: **Liga 2026/2027** (agosto 2026)
-- Workflow: **automatico cada 30 minutos**
+- Workflow: cron cada 30 min, ejecucion real cada 1-4 horas segun GitHub Actions
 - Premios: **automaticos si hay dato fiable, pendiente si no**
+- Fallos no criticos: tolerados y avisados; alerta especial si un script lleva 3+ ejecuciones seguidas fallando
