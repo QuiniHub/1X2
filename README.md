@@ -2,6 +2,9 @@
 
 Motor predictivo de quinielas de futbol con aprendizaje autonomo por jornada.
 
+Ver [DECISION_LOG.md](DECISION_LOG.md) para el porque de las decisiones tecnicas
+importantes (que no son obvias leyendo solo el codigo).
+
 ---
 
 ## Que hace este sistema
