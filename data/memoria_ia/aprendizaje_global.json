@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-05T12:24:44.253979+00:00",
+  "generado_en": "2026-07-05T14:20:42.274407+00:00",
   "temporada": "2025/2026",
   "estado": "base_real_en_construccion",
   "ligas": {
@@ -782,7 +782,7 @@
       },
       "clasificacion_oficial": true,
       "fuente_clasificacion": "",
-      "actualizado_en_clasificacion": "2026-07-05T12:21:49Z"
+      "actualizado_en_clasificacion": "2026-07-05T14:18:27Z"
     },
     "segunda": {
       "competicion": "segunda",
@@ -1638,7 +1638,7 @@
       },
       "clasificacion_oficial": true,
       "fuente_clasificacion": "",
-      "actualizado_en_clasificacion": "2026-07-05T12:21:49Z"
+      "actualizado_en_clasificacion": "2026-07-05T14:18:27Z"
     }
   },
   "quiniela": {
@@ -1894,15 +1894,15 @@
     "jornadas_oficiales": {
       "jornadas_disponibles": 72,
       "frecuencia_oficial": {
-        "1": 45.51,
-        "X": 24.42,
-        "2": 30.07
+        "1": 45.52,
+        "X": 24.37,
+        "2": 30.11
       },
       "nuestras_jugadas": {
-        "partidos_validados": 112,
-        "aciertos": 67,
-        "fallos": 45,
-        "precision": 59.82
+        "partidos_validados": 126,
+        "aciertos": 80,
+        "fallos": 46,
+        "precision": 63.49
       },
       "resumen_jornadas": [
         {
@@ -2608,12 +2608,12 @@
         {
           "jornada": 71,
           "fecha": "Domingo, 5 de julio de 2026",
-          "partidos_con_resultado": 12,
-          "signos": "11X111111X22",
-          "unos": 8,
+          "partidos_con_resultado": 14,
+          "signos": "11X111111X2221",
+          "unos": 9,
           "equis": 2,
-          "doses": 2,
-          "partidos_jugados_por_nosotros": 0
+          "doses": 3,
+          "partidos_jugados_por_nosotros": 14
         },
         {
           "jornada": 72,
@@ -7605,7 +7605,7 @@
   },
   "pesos_dinamicos": {
     "archivo": "data/memoria_ia/pesos_dinamicos.json",
-    "generado_en": "2026-07-05T12:24:44.253962+00:00",
+    "generado_en": "2026-07-05T14:20:42.274371+00:00",
     "muestra": {
       "partidos_validados": 167,
       "fallos": 63,
@@ -7640,40 +7640,37 @@
   },
   "conocimiento_universal": {
     "archivo": "data/memoria_ia/aprendizaje_historial_universal.json",
-    "generado_en": "2026-06-28T05:06:41Z",
-    "jornadas_cerradas": 69,
-    "partidos_analizados": 966,
+    "generado_en": "2026-07-05T14:20:42Z",
+    "jornadas_cerradas": 70,
+    "partidos_analizados": 980,
     "frecuencia_global": {
-      "partidos": 966,
-      "peso_total": 334.4751,
+      "partidos": 980,
+      "peso_total": 335.84,
       "frecuencia_real": {
-        "1": 45.13,
-        "X": 24.53,
-        "2": 30.33
+        "1": 45.41,
+        "X": 24.39,
+        "2": 30.2
       },
       "frecuencia_ponderada_reciente": {
-        "1": 45.43,
-        "X": 24.99,
-        "2": 29.58
+        "1": 46.22,
+        "X": 24.54,
+        "2": 29.24
       },
-      "sorpresas": 453,
-      "sorpresas_pct": 46.89,
-      "sorpresas_ponderadas_pct": 48.74
+      "sorpresas": 465,
+      "sorpresas_pct": 47.45,
+      "sorpresas_ponderadas_pct": 49.78
     },
     "sorpresas": {
-      "total": 453,
-      "porcentaje": 46.89,
+      "total": 465,
+      "porcentaje": 47.45,
       "criterio": "Signo menos frecuente del contexto o resultado contrario al signo esperado por modelo rolling con margen suficiente."
     },
     "recomendaciones_base": [
       "Contexto global muestra alta sorpresa reciente: exigir margen mayor antes de fijo.",
       "Contexto liga muestra alta sorpresa reciente: exigir margen mayor antes de fijo.",
-      "En contexto mundial_2026, el empate aparece por encima de la media reciente: subir proteccion de X.",
-      "Contexto mundial_2026 muestra alta sorpresa reciente: exigir margen mayor antes de fijo.",
-      "En contexto selecciones, el empate aparece por encima de la media reciente: subir proteccion de X.",
       "Contexto selecciones muestra alta sorpresa reciente: exigir margen mayor antes de fijo.",
       "Patron favorito_discutido: muchos empates; activar doble con X si el margen del favorito es corto.",
-      "Fases mas impredecibles detectadas: liga_regular, fase_grupos_mundial."
+      "Fases mas impredecibles detectadas: liga_regular, selecciones_sin_fase."
     ],
     "criterio": "Capa base universal aprendida de resultados reales; se aplica antes del aprendizaje especifico de predicciones propias."
   },
@@ -7682,7 +7679,7 @@
   ],
   "patrones_competitivos": {
     "version": "1.0",
-    "generado_en": "2026-07-05T12:25:10.790987+00:00",
+    "generado_en": "2026-07-05T14:21:06.291220+00:00",
     "descripcion": "Patrones aprendidos de resultados reales de 1a y 2a para no tratar como fijos tranquilos partidos con objetivos cerrados contra rivales necesitados.",
     "patrones": {},
     "regla_uso": "Si un patron supera el 30% de sorpresa, sube incertidumbre; si supera el 45%, recomienda cobertura cuando haya dobles/triples."

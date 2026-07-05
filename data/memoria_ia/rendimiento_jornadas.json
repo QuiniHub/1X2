@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-05T12:24:44.455611+00:00",
+  "generado_en": "2026-07-05T14:20:42.508008+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -3338,21 +3338,21 @@
     },
     "71": {
       "jornada": 71,
-      "partidos_cerrados": 12,
-      "partidos_con_prediccion": 12,
-      "precision_boleto": 100.0,
-      "precision_top1": 75.0,
-      "brier_medio": 0.5934,
-      "logloss_medio": 0.989,
+      "partidos_cerrados": 14,
+      "partidos_con_prediccion": 14,
+      "precision_boleto": 92.86,
+      "precision_top1": 71.43,
+      "brier_medio": 0.6008,
+      "logloss_medio": 1.0,
       "por_tipo": {
         "FIJO": {
-          "total": 7,
+          "total": 8,
           "aciertos": 7,
-          "precision": 100.0
+          "precision": 87.5
         },
         "DOBLE": {
-          "total": 3,
-          "aciertos": 3,
+          "total": 4,
+          "aciertos": 4,
           "precision": 100.0
         },
         "TRIPLE": {
@@ -3362,11 +3362,11 @@
         }
       },
       "elige8": {
-        "selecciones": 7,
-        "aciertos": 7,
+        "selecciones": 8,
+        "aciertos": 8,
         "precision": 100.0
       },
-      "surprise_score_medio": 40.83,
+      "surprise_score_medio": 41.93,
       "ranking_incertidumbre": [
         {
           "num": 5,
@@ -3404,25 +3404,25 @@
           "margen_probabilidad": 0.1
         },
         {
+          "num": 13,
+          "partido": "IFK Göteborg - AIK",
+          "incertidumbre": 146.9,
+          "surprise_score": 40.42,
+          "margen_probabilidad": 0.6
+        },
+        {
+          "num": 14,
+          "partido": "Kalmar FF - Orgryte IS",
+          "incertidumbre": 146.81,
+          "surprise_score": 56.64,
+          "margen_probabilidad": 1.0
+        },
+        {
           "num": 3,
           "partido": "Australia - Egipto",
           "incertidumbre": 144.78,
           "surprise_score": 39.49,
           "margen_probabilidad": 3.8
-        },
-        {
-          "num": 4,
-          "partido": "Argentina - Cabo Verde",
-          "incertidumbre": 143.88,
-          "surprise_score": 37.88,
-          "margen_probabilidad": 3.9
-        },
-        {
-          "num": 10,
-          "partido": "Sirius - Mjällby",
-          "incertidumbre": 143.31,
-          "surprise_score": 39.0,
-          "margen_probabilidad": 5.2
         }
       ],
       "ranking_elige8_confianza_real": [
@@ -3457,6 +3457,12 @@
           "elige8": true
         },
         {
+          "num": 13,
+          "partido": "IFK Göteborg - AIK",
+          "confianza_real_elige8": 10.75,
+          "elige8": true
+        },
+        {
           "num": 3,
           "partido": "Australia - Egipto",
           "confianza_real_elige8": 0.0,
@@ -3465,12 +3471,6 @@
         {
           "num": 4,
           "partido": "Argentina - Cabo Verde",
-          "confianza_real_elige8": 0.0,
-          "elige8": false
-        },
-        {
-          "num": 6,
-          "partido": "FC Lahti - IF Gnistan",
           "confianza_real_elige8": 0.0,
           "elige8": false
         }
@@ -3512,8 +3512,8 @@
     }
   },
   "resumen": {
-    "jornadas_evaluadas": 8,
-    "precision_media_ultimas_8": 59.82,
+    "jornadas_evaluadas": 9,
+    "precision_media_ultimas_8": 66.97,
     "criterio_aprendizaje": "tras cada jornada cerrada se compara prediccion vs resultado y se reentrena la memoria"
   }
 }
