@@ -55,6 +55,36 @@ class ContextoEquiposTests(unittest.TestCase):
         self.assertIn("boleto_activo", indice["haiti"]["origenes"])
         self.assertEqual(indice["haiti"]["partido"], 4)
 
+    def test_usa_google_news_si_da_resultados(self):
+        original_google = actualizar_contexto_equipos.leer_google_news
+        original_bing = actualizar_contexto_equipos.leer_bing_news
+        llamadas_bing = []
+        try:
+            actualizar_contexto_equipos.leer_google_news = lambda equipo: [
+                {"titulo": "x", "url": "y", "fecha": "z", "fuente": "google_news"}
+            ]
+            actualizar_contexto_equipos.leer_bing_news = lambda equipo: llamadas_bing.append(equipo) or []
+            noticias = actualizar_contexto_equipos.leer_noticias_equipo("Equipo X")
+        finally:
+            actualizar_contexto_equipos.leer_google_news = original_google
+            actualizar_contexto_equipos.leer_bing_news = original_bing
+        self.assertEqual(noticias[0]["fuente"], "google_news")
+        self.assertEqual(llamadas_bing, [], "no deberia llamarse a Bing si Google ya dio resultados")
+
+    def test_recurre_a_bing_si_google_no_da_resultados(self):
+        original_google = actualizar_contexto_equipos.leer_google_news
+        original_bing = actualizar_contexto_equipos.leer_bing_news
+        try:
+            actualizar_contexto_equipos.leer_google_news = lambda equipo: []
+            actualizar_contexto_equipos.leer_bing_news = lambda equipo: [
+                {"titulo": "x", "url": "y", "fecha": "z", "fuente": "bing_news"}
+            ]
+            noticias = actualizar_contexto_equipos.leer_noticias_equipo("Equipo X")
+        finally:
+            actualizar_contexto_equipos.leer_google_news = original_google
+            actualizar_contexto_equipos.leer_bing_news = original_bing
+        self.assertEqual(noticias[0]["fuente"], "bing_news")
+
 
 if __name__ == "__main__":
     unittest.main()

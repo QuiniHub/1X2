@@ -75,7 +75,7 @@ y el calendario de Primera y Segunda.
 - `actualizar_resultados_directo.py` — resultados oficiales
 - `actualizar_clasificaciones_oficiales.py` — clasificaciones de ligas
 - `actualizar_ligas_football_data.py` — datos de ligas externas
-- `actualizar_contexto_equipos.py` — contexto competitivo por equipo
+- `actualizar_contexto_equipos.py` — contexto competitivo por equipo: busca bajas/lesiones/sanciones/dudas por equipo en Google News RSS (principal) con Bing News RSS como respaldo gratuito si Google no da resultados; sus alertas ajustan probabilidades en el motor
 - `actualizar_analisis_ia.py` — analisis IA por partido
 - `actualizar_aprendizaje_ia.py` — aprendizaje por jornada
 

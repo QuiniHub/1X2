@@ -155,9 +155,7 @@ def equipos_objetivo():
     return list(indice.values())
 
 
-def leer_google_news(equipo):
-    consulta = quote_plus(f'"{nombre_corto(equipo)}" futbol lesion sancion baja alta noticias')
-    url = f"https://news.google.com/rss/search?q={consulta}&hl=es&gl=ES&ceid=ES:es"
+def leer_feed_noticias(url, equipo, fuente):
     try:
         if requests is not None:
             response = requests.get(url, headers=HEADERS, timeout=15)
@@ -169,7 +167,7 @@ def leer_google_news(equipo):
                 contenido = response.read()
         root = ET.fromstring(contenido)
     except Exception as exc:
-        print(f"No se pudo leer noticias de {equipo}: {exc}")
+        print(f"No se pudo leer noticias de {equipo} via {fuente}: {exc}")
         return []
 
     noticias = []
@@ -187,10 +185,32 @@ def leer_google_news(equipo):
         except Exception:
             pass
         if titulo:
-            noticias.append({"titulo": titulo, "url": enlace, "fecha": fecha})
+            noticias.append({"titulo": titulo, "url": enlace, "fecha": fecha, "fuente": fuente})
         if len(noticias) >= 8:
             break
     return noticias
+
+
+def leer_google_news(equipo):
+    consulta = quote_plus(f'"{nombre_corto(equipo)}" futbol lesion sancion baja alta noticias')
+    url = f"https://news.google.com/rss/search?q={consulta}&hl=es&gl=ES&ceid=ES:es"
+    return leer_feed_noticias(url, equipo, "google_news")
+
+
+def leer_bing_news(equipo):
+    consulta = quote_plus(f'"{nombre_corto(equipo)}" futbol lesion sancion baja alta noticias')
+    url = f"https://www.bing.com/news/search?q={consulta}&format=RSS&setmkt=es-ES"
+    return leer_feed_noticias(url, equipo, "bing_news")
+
+
+def leer_noticias_equipo(equipo):
+    """Google News como fuente principal; si no devuelve nada (fallo, bloqueo o
+    sin resultados), se intenta Bing News como respaldo gratuito antes de darlo
+    por vacio, para que la busqueda nunca dependa de una unica fuente."""
+    noticias = leer_google_news(equipo)
+    if noticias:
+        return noticias
+    return leer_bing_news(equipo)
 
 
 def clasificar_noticias(noticias):
@@ -235,14 +255,15 @@ def main():
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "ttl_horas": TTL_HORAS,
         "ventana_noticias_dias": VENTANA_NOTICIAS_DIAS,
-        "fuentes": ["Google News RSS", "equipos de clasificacion", "equipos del boleto activo"],
+        "fuentes": ["Google News RSS (principal)", "Bing News RSS (respaldo si Google no da resultados)", "equipos de clasificacion", "equipos del boleto activo"],
         "equipos": {},
     }
 
     for item in objetivos:
         equipo = item["equipo"]
-        noticias = leer_google_news(equipo)
+        noticias = leer_noticias_equipo(equipo)
         categorias, alertas = clasificar_noticias(noticias)
+        fuente_usada = noticias[0]["fuente"] if noticias else "sin_resultados"
         salida["equipos"][equipo] = {
             "liga": item["liga"],
             "origenes": item.get("origenes", [item.get("origen", "desconocido")]),
@@ -252,7 +273,7 @@ def main():
             "alertas": alertas,
             "resumen": resumen_equipo(equipo, noticias, categorias, alertas),
         }
-        print(f"{equipo}: {len(noticias)} noticias, alertas={','.join(alertas) or 'sin_alertas'}")
+        print(f"{equipo}: {len(noticias)} noticias ({fuente_usada}), alertas={','.join(alertas) or 'sin_alertas'}")
 
     guardar_json(SALIDA, salida)
     print(f"Contexto de equipos guardado: {SALIDA}")
