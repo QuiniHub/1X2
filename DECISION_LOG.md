@@ -142,3 +142,59 @@ archivo) y se verificó una lección suya (versionado de resultados / bloqueo de
 fase ante correcciones) contra nuestro `aplicar_correcciones_resultados.py` — ya
 estamos cubiertos (dejamos rastro con `corregido_en`/`correccion_motivo` y el
 script corre antes que el aprendizaje en cada pasada del pipeline).
+
+### 2026-07-06 -- El Historial llevaba semanas mostrando aciertos y premios equivocados
+
+Marc reporto que la jornada 70 mostraba 9 aciertos/0e cuando en realidad fueron
+12 aciertos/41,90e. La causa raiz: calcular_premios.py ya tenia la logica para
+priorizar data/quinielas_jugadas.json (lo realmente jugado) sobre la
+prediccion cruda del motor, pero main() nunca recalculaba un registro ya
+existente si tenia los 14 partidos completos, sin importar de que fuente
+habia salido. Si un registro se calculo ANTES de que la jugada real llegara a
+quinielas_jugadas.json (el orden temporal real en casi todas las jornadas
+59-70), se quedaba protegido para siempre con el dato equivocado. Este mismo
+bug ya se habia arreglado una vez a mano el 29 de junio (commit e76264eba) y
+habia regresado silenciosamente.
+Fix: nuevo campo origen_prediccion en cada registro + funcion
+puede_mejorarse_con_jugada_real() que fuerza el recalculo cuando el registro
+existente no viene de la jugada real aunque esta ya exista. Autocurativo: si
+vuelve a pasar, se corrige solo en la siguiente ejecucion.
+
+### 2026-07-06 -- El calculo multicolumna necesita limites de plausibilidad, y el Pleno al 15 necesita uno distinto al resto
+
+Al arreglar lo anterior, la jornada 70 paso a mostrar un premio de
+244.034,14e (disparate). Causa: buscar_tabla_premios_loteriaanta() considera
+"premio de la categoria 12" a cualquier fila de tabla que contuviera el
+digito "12" en cualquier parte de una pagina con muchas tablas no
+relacionadas. La combinatoria multicolumna (correcta) multiplicaba ese numero
+erroneo por el numero de columnas ganadoras, amplificando el error.
+
+Verificacion real: Marc mostro el escrutinio oficial de eduardolosilla.es
+para la jornada 70 (15:17.119,56e 14:3.043,48e 13:63,17e 12:8,77e 11:2,03e
+10:0,00e). Con la distribucion real del boleto (30 columnas a 10 aciertos, 12
+a 11, 2 a 12): 30x0 + 12x2,03 + 2x8,77 = 41,90e exacto -- confirma que la
+matematica combinatoria multicolumna siempre fue correcta; el problema era
+solo la fuente de precios.
+
+Fixes: buscar_premio_losilla() usaba una URL equivocada desde siempre (le
+faltaba /ayudas/); nueva buscar_tabla_premios_losilla() como fuente principal
+(loteriaanta.com de respaldo); fila_contiene_categoria() comparaba etiquetas
+numericas ("11") como simple subcadena sin limites de palabra -"11" coincidia
+dentro de "17.119,56"- (detectado porque los tests nuevos fallaron en CI
+contra la tabla real); limite de plausibilidad por categoria (5.000e)
+separado para la categoria 15 (3.000.000e, es un bote acumulable que puede
+ser legitimamente mucho mayor). Limite del total subido de 20.000e a 500.000e
+por la misma razon.
+Por que importa: cualquier limite de plausibilidad sobre datos scrapeados
+debe revisarse contra casos reales conocidos antes de darlo por bueno -un
+limite "razonable" a ojo puede rechazar un premio legitimo tan facil como
+aceptar uno absurdo.
+
+### 2026-07-06 -- Jornada 71: sin jugada real confirmada, Marc la dio directamente en el chat
+
+A diferencia de las jornadas 59-70 (ya en quinielas_jugadas.json), la 71
+nunca se confirmo (ni boton ni Issue de GitHub). Marc dio los 14 signos de
+memoria en el chat; se verificaron a mano contra data/jornadas/jornada_71.json
+antes de guardarlos (10 aciertos, coincide con lo que recordaba) y se
+anadieron directamente a data/quinielas_jugadas.json con origen
+"confirmado_por_marc_en_chat" para distinguirlo del origen normal via Issue.
