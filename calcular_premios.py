@@ -31,7 +31,7 @@ HEADERS_WEB = {
 }
 
 FUENTE_LABRUJA = "https://www.labrujadeoro.es/quiniela-premios.htm"
-FUENTE_LOSILLA = "https://www.eduardolosilla.es/quiniela/escrutinio/"
+FUENTE_LOSILLA = "https://www.eduardolosilla.es/quiniela/ayudas/escrutinio/jornada_{jornada}"
 FUENTE_QUINIELA15 = "https://www.quiniela15.com/jornada-{jornada}"
 
 CATEGORIAS_WEB = {
@@ -255,6 +255,31 @@ def buscar_tabla_premios_loteriaanta(jornada):
                 return tabla
         except Exception as e:
             print(f"Error tabla loteriaanta J{jornada}: {e}")
+    return {}
+
+
+def buscar_tabla_premios_losilla(jornada):
+    """Obtiene la tabla completa de premios por categoria desde el escrutinio
+    oficial de eduardolosilla.es (URL directa por jornada, con la tabla de
+    aciertos/acertantes/euros limpia y bien estructurada). Se prueba antes
+    que loteriaanta.com por ser una fuente mas fiable y bien anclada al
+    escrutinio real de cada jornada.
+    """
+    url = FUENTE_LOSILLA.format(jornada=int(jornada))
+    html = descargar_html(url)
+    if not html:
+        return {}
+    tabla = {}
+    for cat in (15, 14, 13, 12, 11, 10):
+        premio = extraer_premio_html(html, cat)
+        if premio is not None and 0 <= premio <= PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE:
+            tabla[str(cat)] = premio
+    premio_elige8 = extraer_premio_elige8_html(html)
+    if premio_elige8 is not None and 0 <= premio_elige8 <= PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE:
+        tabla["elige8"] = premio_elige8
+    if len(tabla) >= 3:
+        print(f"J{jornada}: tabla premios obtenida de eduardolosilla.es: {tabla}")
+        return tabla
     return {}
 
 
@@ -568,22 +593,11 @@ def buscar_premio_quiniela15(jornada, aciertos, gano_elige8):
 
 
 def buscar_premio_losilla(jornada, aciertos, gano_elige8):
-    intentos = [
-        (FUENTE_LOSILLA, {"jornada": int(jornada)}),
-        (f"{FUENTE_LOSILLA.rstrip('/')}/jornada-{int(jornada)}/", None),
-        (f"{FUENTE_LOSILLA.rstrip('/')}/{int(jornada)}/", None),
-        (FUENTE_LOSILLA, None),
-    ]
-    for url, params in intentos:
-        html = descargar_html(url, params=params)
-        if not html:
-            continue
-        if str(int(jornada)) not in html:
-            continue
-        premio = premio_desde_html(html, aciertos, gano_elige8, "eduardolosilla")
-        if premio is not None:
-            return premio
-    return None
+    url = FUENTE_LOSILLA.format(jornada=int(jornada))
+    html = descargar_html(url)
+    if not html:
+        return None
+    return premio_desde_html(html, aciertos, gano_elige8, "eduardolosilla")
 
 
 def buscar_premio_tavily(jornada, aciertos, gano_elige8):
@@ -668,15 +682,17 @@ def obtener_premio_real(jornada, aciertos, gano_elige8):
     if premio_lae > 0 and fuente_lae != "pendiente":
         return premio_lae, fuente_lae
 
+    # eduardolosilla.es (escrutinio oficial bien estructurado) antes que las
+    # demas fuentes de respaldo, cuya fiabilidad no esta tan verificada.
+    premio = buscar_premio_losilla(jornada, aciertos, gano_elige8)
+    if premio:
+        return premio
+
     premio = buscar_premio_labruja(jornada, aciertos, gano_elige8)
     if premio:
         return premio
 
     premio = buscar_premio_quiniela15(jornada, aciertos, gano_elige8)
-    if premio:
-        return premio
-
-    premio = buscar_premio_losilla(jornada, aciertos, gano_elige8)
     if premio:
         return premio
 
@@ -748,7 +764,8 @@ def registro_jornada(jornada):
     gano_elige8, seleccion = elige8_acertado(prediccion, jornada, detalle)
 
     # Intentar calcular premio multi-columna (dobles/triples generan múltiples apuestas)
-    tabla_premios = buscar_tabla_premios_loteriaanta(jornada)
+    # eduardolosilla.es primero (escrutinio oficial, mas fiable); loteriaanta.com de respaldo.
+    tabla_premios = buscar_tabla_premios_losilla(jornada) or buscar_tabla_premios_loteriaanta(jornada)
     desglose_columnas = None
     if tabla_premios and aciertos >= 10:
         resultado_multi = calcular_premio_multicolumna(prediccion, resultados, tabla_premios, gano_elige8, seleccion)

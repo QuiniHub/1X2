@@ -111,5 +111,49 @@ class PremioMulticolumnaImplausibleTests(unittest.TestCase):
         self.assertEqual(entry["fuente_premio"], "pendiente")
 
 
+class BuscarTablaPremiosLosillaTests(unittest.TestCase):
+    """Usa el HTML real (simplificado) del escrutinio de la jornada 70 de
+    eduardolosilla.es, con los importes oficiales reales de esa jornada."""
+
+    HTML_JORNADA_70 = """
+    <table>
+      <tr><th>Aciertos</th><th>Acertantes</th><th>Euros</th></tr>
+      <tr><td>15</td><td>4</td><td>17.119,56 €</td></tr>
+      <tr><td>14</td><td>48</td><td>3.043,48 €</td></tr>
+      <tr><td>13</td><td>1.084</td><td>63,17 €</td></tr>
+      <tr><td>12</td><td>7.805</td><td>8,77 €</td></tr>
+      <tr><td>11</td><td>33.788</td><td>2,03 €</td></tr>
+      <tr><td>10</td><td>99.928</td><td>0,00 €</td></tr>
+      <tr><td>Elige 8</td><td>775</td><td>25,73 €</td></tr>
+    </table>
+    """
+
+    def setUp(self):
+        self._original_descargar = cp.descargar_html
+        cp.descargar_html = lambda url, params=None: self.HTML_JORNADA_70
+
+    def tearDown(self):
+        cp.descargar_html = self._original_descargar
+
+    def test_extrae_los_importes_reales_de_todas_las_categorias(self):
+        tabla = cp.buscar_tabla_premios_losilla(70)
+        self.assertEqual(tabla.get("15"), 17119.56)
+        self.assertEqual(tabla.get("14"), 3043.48)
+        self.assertEqual(tabla.get("13"), 63.17)
+        self.assertEqual(tabla.get("12"), 8.77)
+        self.assertEqual(tabla.get("11"), 2.03)
+        self.assertEqual(tabla.get("10"), 0.0)
+        self.assertEqual(tabla.get("elige8"), 25.73)
+
+    def test_el_calculo_multicolumna_con_esta_tabla_da_el_premio_real(self):
+        """Con la distribucion real del boleto de J70 (30 columnas a 10
+        aciertos, 12 a 11 y 2 a 12) y estos precios oficiales, el total debe
+        ser 41.90e -el importe que realmente se cobro-."""
+        tabla = cp.buscar_tabla_premios_losilla(70)
+        dist_total = {10: 30, 11: 12, 12: 2}
+        total = sum(tabla.get(str(k), 0) * n for k, n in dist_total.items())
+        self.assertAlmostEqual(round(total, 2), 41.90, places=2)
+
+
 if __name__ == "__main__":
     unittest.main()

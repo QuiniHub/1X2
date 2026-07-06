@@ -120,6 +120,9 @@ Si los secrets no existen, el workflow no falla: genera un esqueleto auditable.
   - El cálculo multicolumna (dobles/triples) tiene límites de plausibilidad
     (5.000€ por columna, 20.000€ total): si el scrapeo de la tabla de premios
     devuelve un número irreal, se descarta y se revierte solo a pendiente
+  - La tabla de premios por categoría se busca primero en el escrutinio oficial
+    de eduardolosilla.es (`/quiniela/ayudas/escrutinio/jornada_N`, formato limpio
+    y fiable) y solo si falla se usa loteriaanta.com como respaldo
 
 ### Control de calidad
 - `guardar_snapshot_prediccion.py` — foto pre-cierre de prediccion
