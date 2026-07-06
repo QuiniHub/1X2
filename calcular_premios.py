@@ -204,7 +204,18 @@ def leer_resultados_jornada(jornada):
 
 
 PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE = 5000.0
-PREMIO_TOTAL_MAXIMO_PLAUSIBLE = 20000.0
+# El Pleno al 15 (categoria "especial") es un bote que puede acumularse
+# semana a semana y crecer mucho mas que el resto de categorias -no se le
+# puede aplicar el mismo limite bajo o se descartaria un premio real.
+PREMIO_CATEGORIA_15_MAXIMO_PLAUSIBLE = 3_000_000.0
+# Mas alto que antes porque el Pleno al 15 puede legitimamente ser grande;
+# esto sigue protegiendo contra datos mal extraidos sin descartar un bote
+# real ganado con varias columnas de triples.
+PREMIO_TOTAL_MAXIMO_PLAUSIBLE = 500000.0
+
+
+def limite_categoria(cat):
+    return PREMIO_CATEGORIA_15_MAXIMO_PLAUSIBLE if int(cat) == 15 else PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE
 
 
 def buscar_tabla_premios_loteriaanta(jornada):
@@ -241,7 +252,7 @@ def buscar_tabla_premios_loteriaanta(jornada):
                     if re.search(rf'(^|\D){cat}(\D|$)', texto):
                         importes = [float_o_none(m) for m in re.findall(
                             r'(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2}|\d+\.\d{2})', texto
-                        ) if float_o_none(m) is not None and 0 <= float_o_none(m) <= PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE]
+                        ) if float_o_none(m) is not None and 0 <= float_o_none(m) <= limite_categoria(cat)]
                         if importes:
                             tabla[str(cat)] = importes[-1]
                 if "elige" in texto_norm and "8" in texto:
@@ -272,7 +283,7 @@ def buscar_tabla_premios_losilla(jornada):
     tabla = {}
     for cat in (15, 14, 13, 12, 11, 10):
         premio = extraer_premio_html(html, cat)
-        if premio is not None and 0 <= premio <= PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE:
+        if premio is not None and 0 <= premio <= limite_categoria(cat):
             tabla[str(cat)] = premio
     premio_elige8 = extraer_premio_elige8_html(html)
     if premio_elige8 is not None and 0 <= premio_elige8 <= PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE:
@@ -436,8 +447,16 @@ def fila_contiene_categoria(texto, aciertos):
     t = texto_normalizado(texto)
     aciertos = int(aciertos)
     etiquetas = CATEGORIAS_WEB.get(aciertos, (str(aciertos),))
-    if any(etiqueta.lower() in t for etiqueta in etiquetas):
-        return True
+    for etiqueta in etiquetas:
+        etiqueta = etiqueta.lower()
+        if etiqueta.isdigit():
+            # Una etiqueta puramente numerica ("11", "15"...) necesita limites
+            # de palabra: si no, "11" coincide dentro de un numero mas grande
+            # que la contenga (p.ej. "17.119,56", el premio de otra categoria).
+            if re.search(rf"(^|\D){re.escape(etiqueta)}(\D|$)", t):
+                return True
+        elif etiqueta in t:
+            return True
     return bool(re.search(rf"(^|\D){aciertos}(\D|$)", t)) and "€" in t
 
 

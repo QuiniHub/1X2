@@ -89,7 +89,7 @@ class LeerPrediccionJornadaOrigenTests(unittest.TestCase):
 
 class PremioMulticolumnaImplausibleTests(unittest.TestCase):
     def test_true_si_supera_el_limite_plausible(self):
-        entry = {"fuente_premio": "multicolumna_loteriaanta", "premio_eur": 244034.14}
+        entry = {"fuente_premio": "multicolumna_loteriaanta", "premio_eur": 5000000.0}
         self.assertTrue(cp.premio_multicolumna_implausible(entry))
 
     def test_false_si_esta_dentro_del_limite(self):
@@ -102,7 +102,7 @@ class PremioMulticolumnaImplausibleTests(unittest.TestCase):
 
     def test_revertir_resetea_el_premio_implausible_a_pendiente(self):
         historial = {"jornadas": [
-            {"jornada": 70, "fuente_premio": "multicolumna_loteriaanta", "premio_eur": 244034.14, "aciertos": 12}
+            {"jornada": 70, "fuente_premio": "multicolumna_loteriaanta", "premio_eur": 5000000.0, "aciertos": 12}
         ]}
         cambios = cp.revertir_estimados_y_labruja_invalidos(historial)
         self.assertEqual(cambios, 1)
@@ -153,6 +153,27 @@ class BuscarTablaPremiosLosillaTests(unittest.TestCase):
         dist_total = {10: 30, 11: 12, 12: 2}
         total = sum(tabla.get(str(k), 0) * n for k, n in dist_total.items())
         self.assertAlmostEqual(round(total, 2), 41.90, places=2)
+
+
+class FilaContieneCategoriaTests(unittest.TestCase):
+    def test_no_confunde_categoria_con_un_numero_mayor_que_la_contiene(self):
+        """'11' no debe coincidir dentro de '17.119,56' (el premio de la
+        categoria 15), o se cogeria la fila equivocada de la tabla."""
+        self.assertFalse(cp.fila_contiene_categoria("15 4 17.119,56 €", 11))
+
+    def test_si_reconoce_la_fila_real_de_la_categoria(self):
+        self.assertTrue(cp.fila_contiene_categoria("11 33.788 2,03 €", 11))
+        self.assertTrue(cp.fila_contiene_categoria("15 4 17.119,56 €", 15))
+
+
+class LimiteCategoriaTests(unittest.TestCase):
+    def test_categoria_15_tiene_limite_mucho_mas_alto(self):
+        self.assertGreater(cp.limite_categoria(15), cp.limite_categoria(12))
+        self.assertGreaterEqual(cp.limite_categoria(15), 17119.56)
+
+    def test_otras_categorias_usan_el_limite_normal(self):
+        for cat in (10, 11, 12, 13, 14):
+            self.assertEqual(cp.limite_categoria(cat), cp.PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE)
 
 
 if __name__ == "__main__":
