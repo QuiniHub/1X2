@@ -203,8 +203,20 @@ def leer_resultados_jornada(jornada):
     return cargar_json(JORNADAS / f"jornada_{jornada}.json", {})
 
 
+PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE = 5000.0
+PREMIO_TOTAL_MAXIMO_PLAUSIBLE = 20000.0
+
+
 def buscar_tabla_premios_loteriaanta(jornada):
-    """Obtiene la tabla completa de premios por categoría desde loteriaanta.com."""
+    """Obtiene la tabla completa de premios por categoría desde loteriaanta.com.
+
+    La pagina tiene muchas filas de tabla que no son de premios (navegacion,
+    otras loterias, fechas...). Para no coger un numero cualquiera que
+    coincida por casualidad con el digito de una categoria, se exige que la
+    fila mencione "acierto(s)" Y un simbolo de moneda (€/euro), y se descarta
+    cualquier importe por columna que supere un limite realista -evita que
+    un falso positivo dispare el calculo multicolumna a cifras absurdas.
+    """
     import itertools
     urls = [
         "https://www.loteriaanta.com/resultados-quiniela",
@@ -220,17 +232,22 @@ def buscar_tabla_premios_loteriaanta(jornada):
             for tr in soup.find_all("tr"):
                 celdas = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
                 texto = " ".join(celdas)
+                texto_norm = texto.lower()
+                if "acierto" not in texto_norm:
+                    continue
+                if "€" not in texto and "euro" not in texto_norm:
+                    continue
                 for cat in (15, 14, 13, 12, 11, 10):
                     if re.search(rf'(^|\D){cat}(\D|$)', texto):
                         importes = [float_o_none(m) for m in re.findall(
                             r'(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2}|\d+\.\d{2})', texto
-                        ) if float_o_none(m) is not None and float_o_none(m) >= 0]
+                        ) if float_o_none(m) is not None and 0 <= float_o_none(m) <= PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE]
                         if importes:
                             tabla[str(cat)] = importes[-1]
-                if "elige" in texto.lower() and "8" in texto:
+                if "elige" in texto_norm and "8" in texto:
                     importes = [float_o_none(m) for m in re.findall(
                         r'(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2}|\d+\.\d{2})', texto
-                    ) if float_o_none(m) is not None]
+                    ) if float_o_none(m) is not None and 0 <= float_o_none(m) <= PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE]
                     if importes:
                         tabla["elige8"] = importes[-1]
             if len(tabla) >= 3:
@@ -735,12 +752,17 @@ def registro_jornada(jornada):
     desglose_columnas = None
     if tabla_premios and aciertos >= 10:
         resultado_multi = calcular_premio_multicolumna(prediccion, resultados, tabla_premios, gano_elige8, seleccion)
-        if resultado_multi and resultado_multi.get("total", 0) > 0:
+        if resultado_multi and resultado_multi.get("total", 0) > 0 and resultado_multi["total"] <= PREMIO_TOTAL_MAXIMO_PLAUSIBLE:
             premio = resultado_multi["total"]
             fuente = "multicolumna_loteriaanta"
             desglose_columnas = resultado_multi
             print(f"J{jornada}: premio multi-columna = {premio} EUR ({resultado_multi.get('columnas_totales')} columnas)")
         else:
+            if resultado_multi and resultado_multi.get("total", 0) > PREMIO_TOTAL_MAXIMO_PLAUSIBLE:
+                print(
+                    f"AVISO: J{jornada} premio multi-columna implausible "
+                    f"({resultado_multi['total']} EUR), se descarta y se usa la fuente alternativa."
+                )
             premio_real = obtener_premio_real(jornada, aciertos, gano_elige8)
             premio, fuente = premio_real if premio_real is not None else (0.0, "pendiente")
     else:
@@ -816,6 +838,18 @@ def premio_labruja_invalido(entry):
     )
 
 
+def premio_multicolumna_implausible(entry):
+    """Detecta un premio multicolumna ya guardado que sea irreal (p. ej. un
+    scrapeo antiguo que cogio un numero equivocado de la tabla de premios).
+    Se revierte a pendiente para que se recalcule con la tabla ya validada."""
+    if entry.get("fuente_premio") != "multicolumna_loteriaanta":
+        return False
+    try:
+        return float(entry.get("premio_eur") or 0.0) > PREMIO_TOTAL_MAXIMO_PLAUSIBLE
+    except (TypeError, ValueError):
+        return False
+
+
 def pendiente_premio(entry):
     if premio_confirmado_usuario(entry):
         return False
@@ -840,6 +874,13 @@ def revertir_estimados_y_labruja_invalidos(historial):
             cambios += 1
         elif premio_labruja_invalido(entry):
             resetear_premio_pendiente(entry, "Premio de Labruja revertido: no estaba verificado contra la jornada solicitada.")
+            cambios += 1
+        elif premio_multicolumna_implausible(entry):
+            resetear_premio_pendiente(
+                entry,
+                f"Premio multicolumna revertido: {entry.get('premio_eur')} EUR superaba el limite plausible "
+                f"({PREMIO_TOTAL_MAXIMO_PLAUSIBLE} EUR), probable dato mal extraido de la tabla de premios.",
+            )
             cambios += 1
     return cambios
 

@@ -87,5 +87,29 @@ class LeerPrediccionJornadaOrigenTests(unittest.TestCase):
         self.assertEqual(prediccion.get("origen_prediccion"), "data/predicciones/jornada_70.json")
 
 
+class PremioMulticolumnaImplausibleTests(unittest.TestCase):
+    def test_true_si_supera_el_limite_plausible(self):
+        entry = {"fuente_premio": "multicolumna_loteriaanta", "premio_eur": 244034.14}
+        self.assertTrue(cp.premio_multicolumna_implausible(entry))
+
+    def test_false_si_esta_dentro_del_limite(self):
+        entry = {"fuente_premio": "multicolumna_loteriaanta", "premio_eur": 123.45}
+        self.assertFalse(cp.premio_multicolumna_implausible(entry))
+
+    def test_false_si_no_viene_de_multicolumna(self):
+        entry = {"fuente_premio": "labrujadeoro", "premio_eur": 999999.0}
+        self.assertFalse(cp.premio_multicolumna_implausible(entry))
+
+    def test_revertir_resetea_el_premio_implausible_a_pendiente(self):
+        historial = {"jornadas": [
+            {"jornada": 70, "fuente_premio": "multicolumna_loteriaanta", "premio_eur": 244034.14, "aciertos": 12}
+        ]}
+        cambios = cp.revertir_estimados_y_labruja_invalidos(historial)
+        self.assertEqual(cambios, 1)
+        entry = historial["jornadas"][0]
+        self.assertEqual(entry["premio_eur"], 0.0)
+        self.assertEqual(entry["fuente_premio"], "pendiente")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -117,6 +117,9 @@ Si los secrets no existen, el workflow no falla: genera un esqueleto auditable.
     sobre la predicción cruda del motor para contar aciertos. Si un registro ya
     guardado no viene de ahí pero la jugada real llega despues, se recalcula
     automáticamente en la siguiente ejecución (`puede_mejorarse_con_jugada_real`)
+  - El cálculo multicolumna (dobles/triples) tiene límites de plausibilidad
+    (5.000€ por columna, 20.000€ total): si el scrapeo de la tabla de premios
+    devuelve un número irreal, se descarta y se revierte solo a pendiente
 
 ### Control de calidad
 - `guardar_snapshot_prediccion.py` — foto pre-cierre de prediccion
