@@ -194,6 +194,7 @@ def leer_prediccion_jornada(jornada):
     for path in candidatos:
         data = cargar_json(path, {})
         if data and (data.get("jornada") == jornada or not data.get("jornada")):
+            data.setdefault("origen_prediccion", f"data/predicciones/{path.name}")
             return data
     return {}
 
@@ -750,7 +751,12 @@ def registro_jornada(jornada):
         str(p.get("signo_final") or p.get("signo_base") or "?")
         for p in sorted(prediccion.get("partidos") or [], key=lambda x: x.get("num") or 0)
     )
-    fuente_aciertos = "quinielas_jugadas" if jugada_por_jornada(jornada) else "historial_quinielas"
+    origen_real = prediccion.get("origen_prediccion") or "desconocido"
+    fuente_aciertos = (
+        "quinielas_jugadas" if origen_real == "data/quinielas_jugadas.json"
+        else "historial_quinielas" if origen_real == "data/historial_quinielas.json"
+        else "prediccion_motor"
+    )
     reg = {
         "jornada": jornada,
         "aciertos": aciertos,
@@ -758,6 +764,7 @@ def registro_jornada(jornada):
         "premio_eur": premio,
         "fuente_premio": fuente,
         "fuente_aciertos": fuente_aciertos,
+        "origen_prediccion": origen_real,
         "aciertos_confirmados": True,
         "boleto": boleto,
         "elige8_jugado": bool(seleccion),
@@ -779,6 +786,23 @@ def registro_completo(entry):
 
 def aciertos_protegidos(entry):
     return bool(entry.get("aciertos_confirmados")) or str(entry.get("fuente_aciertos", "")) == "quinielas_jugadas"
+
+
+def puede_mejorarse_con_jugada_real(entry, jornada):
+    """True si ya existe una quiniela realmente jugada (confirmada por el
+    usuario) en data/quinielas_jugadas.json para esta jornada, pero el
+    registro guardado se calculo antes de que existiera ese dato -usando la
+    prediccion cruda del motor como aproximacion- y nunca se recalculo.
+
+    Sin esto, un registro con los 14 partidos ya rellenos (registro_completo)
+    se queda protegido para siempre aunque su origen sea mas debil que el
+    real disponible ahora, y los aciertos/premio quedan mal calculados de
+    forma permanente en cuanto la jugada real llega despues de cerrarse la
+    jornada.
+    """
+    if not jugada_por_jornada(jornada):
+        return False
+    return entry.get("origen_prediccion") != "data/quinielas_jugadas.json"
 
 
 def premio_confirmado_usuario(entry):
@@ -875,13 +899,16 @@ def main():
         existente = registros.get(jornada)
         if existente and premio_confirmado_usuario(existente):
             continue
+        mejorable = bool(existente) and puede_mejorarse_con_jugada_real(existente, jornada)
         # Si hay registro existente con aciertos protegidos, no recalcular
-        if existente and aciertos_protegidos(existente):
+        # (salvo que ahora exista la jugada realmente jugada y el registro
+        # guardado no viniera de ahi -entonces hay que actualizarlo-).
+        if existente and aciertos_protegidos(existente) and not mejorable:
             if pendiente_premio(existente) and refrescar_premio_real(existente):
                 actualizadas.append(existente)
                 print(f"Jornada {jornada}: premio actualizado manteniendo {existente['aciertos']} aciertos verificados")
             continue
-        if existente and registro_completo(existente):
+        if existente and registro_completo(existente) and not mejorable:
             if pendiente_premio(existente) and refrescar_premio_real(existente):
                 actualizadas.append(existente)
                 print(f"Jornada {jornada}: premio real actualizado a {existente['premio_eur']:.2f} EUR ({existente['fuente_premio']})")
@@ -889,6 +916,11 @@ def main():
 
         reg = registro_jornada(jornada)
         if reg:
+            if mejorable:
+                print(
+                    f"Jornada {jornada}: recalculado con la quiniela realmente jugada "
+                    f"(antes: {existente.get('aciertos')} aciertos desde {existente.get('origen_prediccion', 'desconocido')})"
+                )
             registros[jornada] = reg
             actualizadas.append(reg)
             print(f"Jornada {jornada}: {reg['aciertos']} aciertos, {reg['fallos']} fallos, {reg['premio_eur']:.2f} EUR ({reg['fuente_premio']})")

@@ -111,8 +111,12 @@ Si los secrets no existen, el workflow no falla: genera un esqueleto auditable.
 ### Premios
 - `calcular_premios.py` — calcula y persiste premios por jornada cerrada
   - Salida: `data/premios/historial_premios.json`
-  - Campos: jornada, aciertos, fallos, premio_eur, fuente_premio, boleto
+  - Campos: jornada, aciertos, fallos, premio_eur, fuente_premio, origen_prediccion, boleto
   - Si no hay dato oficial disponible, premio queda como 0.0 EUR y fuente como `pendiente`
+  - Prioriza siempre `data/quinielas_jugadas.json` (lo realmente jugado y confirmado)
+    sobre la predicción cruda del motor para contar aciertos. Si un registro ya
+    guardado no viene de ahí pero la jugada real llega despues, se recalcula
+    automáticamente en la siguiente ejecución (`puede_mejorarse_con_jugada_real`)
 
 ### Control de calidad
 - `guardar_snapshot_prediccion.py` — foto pre-cierre de prediccion
