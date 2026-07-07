@@ -208,14 +208,25 @@ PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE = 5000.0
 # semana a semana y crecer mucho mas que el resto de categorias -no se le
 # puede aplicar el mismo limite bajo o se descartaria un premio real.
 PREMIO_CATEGORIA_15_MAXIMO_PLAUSIBLE = 3_000_000.0
+# La categoria 14 (1a) no acumula bote como la 15, pero su premio tambien es
+# el fondo semanal repartido entre los acertantes de esa categoria -si una
+# jornada tiene muy pocos (p.ej. la jornada 71 real: 13 acertantes de 14,
+# 8.132,10e cada uno), el premio por acertante puede superar con creces el
+# limite generico sin que el dato este mal extraido.
+PREMIO_CATEGORIA_14_MAXIMO_PLAUSIBLE = 50_000.0
 # Mas alto que antes porque el Pleno al 15 puede legitimamente ser grande;
 # esto sigue protegiendo contra datos mal extraidos sin descartar un bote
 # real ganado con varias columnas de triples.
 PREMIO_TOTAL_MAXIMO_PLAUSIBLE = 500000.0
 
+LIMITES_POR_CATEGORIA = {
+    15: PREMIO_CATEGORIA_15_MAXIMO_PLAUSIBLE,
+    14: PREMIO_CATEGORIA_14_MAXIMO_PLAUSIBLE,
+}
+
 
 def limite_categoria(cat):
-    return PREMIO_CATEGORIA_15_MAXIMO_PLAUSIBLE if int(cat) == 15 else PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE
+    return LIMITES_POR_CATEGORIA.get(int(cat), PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE)
 
 
 def buscar_tabla_premios_loteriaanta(jornada):

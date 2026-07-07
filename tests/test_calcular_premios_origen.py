@@ -215,8 +215,14 @@ class LimiteCategoriaTests(unittest.TestCase):
         self.assertGreater(cp.limite_categoria(15), cp.limite_categoria(12))
         self.assertGreaterEqual(cp.limite_categoria(15), 17119.56)
 
+    def test_categoria_14_tiene_un_limite_mas_alto_que_las_demas(self):
+        """La jornada 71 real pago 8.132,10e en la categoria 14 (solo 13
+        acertantes); el limite generico (5.000e) la habria descartado."""
+        self.assertGreater(cp.limite_categoria(14), cp.limite_categoria(13))
+        self.assertGreaterEqual(cp.limite_categoria(14), 8132.10)
+
     def test_otras_categorias_usan_el_limite_normal(self):
-        for cat in (10, 11, 12, 13, 14):
+        for cat in (10, 11, 12, 13):
             self.assertEqual(cp.limite_categoria(cat), cp.PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE)
 
 

@@ -238,3 +238,30 @@ valor correcto que uno incorrecto congelado antes de arreglar el bug que lo
 genero -por eso siempre hay que revisar a mano los datos ya guardados tras
 corregir un bug de extraccion, no solo confiar en que el proximo run los
 arregle solo.
+
+### 2026-07-06 -- Cuarta capa: el limite de plausibilidad de la categoria 14 tambien era demasiado bajo
+
+Al desplegar el fix anterior, el propio test nuevo lo detecto en CI: con la
+tabla real de la jornada 71, extraer_premio_html() encontraba bien el premio
+real de la categoria 14 (8.132,10e, solo 13 acertantes a nivel nacional) pero
+buscar_tabla_premios_losilla() lo descartaba por superar
+PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE (5.000e) -el mismo tipo de problema que ya
+habiamos resuelto para la categoria 15, sin darnos cuenta de que tambien
+afecta a la 14.
+
+Motivo real: a diferencia del Pleno al 15 (que es un bote acumulable), la
+categoria 14 no acumula, pero su premio tambien es el fondo semanal de esa
+categoria repartido entre los acertantes -si una jornada tiene muy pocos
+acertantes de 14 (13 en este caso), el premio por acertante puede dispararse
+muy por encima de lo habitual sin que haya ningun error de extraccion.
+
+Fix: nueva PREMIO_CATEGORIA_14_MAXIMO_PLAUSIBLE = 50.000e (10x el valor real
+observado, con margen, y muy por debajo del limite de la categoria 15 y del
+incidente original de 244.034e), gestionada junto con la de la categoria 15
+en un diccionario LIMITES_POR_CATEGORIA en vez de un if/else especial.
+Por que importa: un limite de plausibilidad "generico para todas menos la
+15" asumia sin comprobarlo que solo el Pleno al 15 podia dispersarse por
+pocos acertantes; los datos reales de la jornada 71 demuestran que esa
+suposicion era incorrecta tambien para la categoria 14 -de nuevo, cualquier
+limite heuristico necesita contrastarse con casos reales, no solo con la
+intuicion de "esta categoria no deberia crecer tanto".
