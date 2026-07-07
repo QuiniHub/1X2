@@ -698,11 +698,19 @@ def construir_registro_premios(jornada, pred_info, comparacion):
     }
 
 
+FUENTES_PREMIO_PROTEGIDAS = ("manual", "confirmado_usuario")
+# "manual" es el bloqueo propio de este script; "confirmado_usuario" es el
+# que usa calcular_premios.py para premios verificados a mano contra el
+# escrutinio oficial (p.ej. jornada 71). Sin esto, este script no reconocia
+# ese segundo bloqueo y sobrescribia un premio ya verificado con su propia
+# estimacion (mucho mas simple, sin la combinatoria multicolumna real).
+
+
 def debe_reemplazar_registro_premios(actual, nuevo):
     if not actual:
         return True
-    if actual.get("fuente_premio") == "manual":
-        # Conserva el premio manual, pero permite actualizar aciertos/fallos y detalle.
+    if actual.get("fuente_premio") in FUENTES_PREMIO_PROTEGIDAS:
+        # Conserva el premio protegido, pero permite actualizar aciertos/fallos y detalle.
         return True
     campos = ("aciertos", "fallos", "partidos_comparados", "boleto", "detalle_partidos")
     return any(actual.get(campo) != nuevo.get(campo) for campo in campos)
@@ -723,9 +731,9 @@ def actualizar_historial_premios(registros):
         actual = existentes.get(jornada)
         if not debe_reemplazar_registro_premios(actual, nuevo):
             continue
-        if actual and actual.get("fuente_premio") == "manual":
+        if actual and actual.get("fuente_premio") in FUENTES_PREMIO_PROTEGIDAS:
             nuevo["premio_eur"] = actual.get("premio_eur", nuevo["premio_eur"])
-            nuevo["fuente_premio"] = "manual"
+            nuevo["fuente_premio"] = actual.get("fuente_premio")
             nuevo["notas"] = actual.get("notas") or nuevo.get("notas", "")
         existentes[jornada] = nuevo
         cambios += 1

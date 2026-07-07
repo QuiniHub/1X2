@@ -265,3 +265,32 @@ pocos acertantes; los datos reales de la jornada 71 demuestran que esa
 suposicion era incorrecta tambien para la categoria 14 -de nuevo, cualquier
 limite heuristico necesita contrastarse con casos reales, no solo con la
 intuicion de "esta categoria no deberia crecer tanto".
+
+### 2026-07-06 -- Quinta capa: dos scripts distintos bloqueaban un premio "verificado a mano" con dos etiquetas distintas
+
+Al desplegar los fixes anteriores y comprobar el resultado real en produccion,
+la jornada 71 volvio a aparecer con fuente_premio="eduardolosilla" en vez de
+"confirmado_usuario" (aunque, por suerte, con el importe correcto: 0,00e).
+Causa: actualizar_aprendizaje_ia.py tambien escribe en
+data/premios/historial_premios.json (con su propia estimacion, mucho mas
+simple, basada en TABLA_PREMIOS_ESTIMADOS) y solo respetaba su propio
+bloqueo, fuente_premio=="manual" -no reconocia "confirmado_usuario", el
+bloqueo que usa calcular_premios.py para premios verificados a mano contra el
+escrutinio oficial. Al ejecutarse en la misma tanda de automatizacion, este
+script reemplazo el registro bloqueado por su propia estimacion (pendiente,
+por tener dobles/triples), y calcular_premios.py, al ejecutarse despues,
+volvio a recalcularlo el mismo dia -esta vez bien, porque el bug ya estaba
+arreglado, pero sin la proteccion "no lo vuelvas a tocar nunca" que se le
+habia puesto adrede.
+
+Fix: nueva constante compartida FUENTES_PREMIO_PROTEGIDAS = ("manual",
+"confirmado_usuario") en actualizar_aprendizaje_ia.py; debe_reemplazar_registro_premios()
+y actualizar_historial_premios() ahora reconocen ambas etiquetas y conservan
+la etiqueta original (no la fuerzan siempre a "manual").
+Por que importa: dos scripts que escriben el mismo archivo de datos con dos
+convenciones de "esto esta verificado, no lo toques" distintas es una trampa
+silenciosa -funciona mientras la causa raiz este arreglada, pero en cuanto
+vuelva a haber un bug de extraccion (o un valor que no se pueda re-derivar
+automaticamente), el bloqueo manual desaparece sin ningun aviso. Cualquier
+"flag de proteccion" nuevo debe revisarse en TODOS los sitios que escriben
+ese mismo archivo, no solo en el script donde se origino la idea.

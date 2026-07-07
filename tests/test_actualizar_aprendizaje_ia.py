@@ -1,6 +1,15 @@
+import tempfile
 import unittest
+from pathlib import Path
 
-from actualizar_aprendizaje_ia import generar_ajuste_motor, registrar_revision, resumen_vacio
+import actualizar_aprendizaje_ia as aa
+from actualizar_aprendizaje_ia import (
+    actualizar_historial_premios,
+    debe_reemplazar_registro_premios,
+    generar_ajuste_motor,
+    registrar_revision,
+    resumen_vacio,
+)
 
 
 class ActualizarAprendizajeIATest(unittest.TestCase):
@@ -55,6 +64,56 @@ class ActualizarAprendizajeIATest(unittest.TestCase):
         self.assertEqual(detalle["resultado_final"], "2-0")
         self.assertEqual(detalle["motivo_error"], "Fijo fallado")
         self.assertEqual(detalle["cuotas"]["1"], 1.8)
+
+
+class ProteccionPremiosConfirmadosTests(unittest.TestCase):
+    """calcular_premios.py bloquea premios verificados a mano con
+    fuente_premio="confirmado_usuario" (p.ej. jornada 71). Este script tiene
+    su propio bloqueo ("manual") pero debe respetar tambien ese otro, o
+    sobrescribe un premio ya comprobado contra el escrutinio oficial con su
+    propia estimacion generica (mucho mas simple)."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self._original = aa.HISTORIAL_PREMIOS
+        aa.HISTORIAL_PREMIOS = Path(self._tmp.name) / "historial_premios.json"
+
+    def tearDown(self):
+        aa.HISTORIAL_PREMIOS = self._original
+        self._tmp.cleanup()
+
+    def test_debe_reemplazar_es_true_para_confirmado_usuario(self):
+        """Se permite refrescar aciertos/detalle, pero el premio se conserva
+        (ver actualizar_historial_premios)."""
+        actual = {"fuente_premio": "confirmado_usuario", "aciertos": 10}
+        nuevo = {"aciertos": 10}
+        self.assertTrue(debe_reemplazar_registro_premios(actual, nuevo))
+
+    def test_actualizar_historial_premios_no_pisa_el_premio_confirmado(self):
+        aa.guardar_json(aa.HISTORIAL_PREMIOS, {"jornadas": [
+            {
+                "jornada": 71,
+                "aciertos": 10,
+                "premio_eur": 0.0,
+                "fuente_premio": "confirmado_usuario",
+                "notas": "Verificado a mano contra eduardolosilla.es",
+            }
+        ]})
+
+        registros = {71: {
+            "jornada": 71,
+            "aciertos": 10,
+            "premio_eur": 8132.1,
+            "fuente_premio": "eduardolosilla",
+            "notas": "Comparado automaticamente contra data/predicciones/jornada_71.json al cerrarse la jornada.",
+        }}
+
+        actualizar_historial_premios(registros)
+
+        historial = aa.cargar_json(aa.HISTORIAL_PREMIOS, {"jornadas": []})
+        entry = next(j for j in historial["jornadas"] if j["jornada"] == 71)
+        self.assertEqual(entry["premio_eur"], 0.0)
+        self.assertEqual(entry["fuente_premio"], "confirmado_usuario")
 
 
 if __name__ == "__main__":
