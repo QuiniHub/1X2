@@ -706,9 +706,25 @@ FUENTES_PREMIO_PROTEGIDAS = ("manual", "confirmado_usuario")
 # estimacion (mucho mas simple, sin la combinatoria multicolumna real).
 
 
+def aciertos_verificados_con_jugada_real(actual):
+    """True si el registro ya guardado refleja los aciertos de la quiniela
+    REALMENTE jugada (calcular_premios.py los marca asi al usar
+    data/quinielas_jugadas.json), no la comparacion generica prediccion-vs-
+    realidad que hace este script. Esos aciertos/boleto/detalle no se deben
+    tocar nunca desde aqui -aunque el premio si sea "manual"/
+    "confirmado_usuario"-, o se reproduce el mismo bug que ya se arreglo en
+    calcular_premios.py, pero por otra via.
+    """
+    return bool(actual) and (
+        bool(actual.get("aciertos_confirmados")) or actual.get("fuente_aciertos") == "quinielas_jugadas"
+    )
+
+
 def debe_reemplazar_registro_premios(actual, nuevo):
     if not actual:
         return True
+    if aciertos_verificados_con_jugada_real(actual):
+        return False
     if actual.get("fuente_premio") in FUENTES_PREMIO_PROTEGIDAS:
         # Conserva el premio protegido, pero permite actualizar aciertos/fallos y detalle.
         return True

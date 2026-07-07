@@ -294,3 +294,36 @@ vuelva a haber un bug de extraccion (o un valor que no se pueda re-derivar
 automaticamente), el bloqueo manual desaparece sin ningun aviso. Cualquier
 "flag de proteccion" nuevo debe revisarse en TODOS los sitios que escriben
 ese mismo archivo, no solo en el script donde se origino la idea.
+
+### 2026-07-07 -- Sexta capa: el mismo problema, pero con los ACIERTOS, no el premio
+
+El fix anterior (FUENTES_PREMIO_PROTEGIDAS) solo protegia premio_eur/
+fuente_premio/notas. En la siguiente tanda de automatizacion, la jornada 71
+volvio a mostrar 13 aciertos en vez de 10 en la web (Marc lo vio directamente
+en la pestaña Historial, con captura). Causa: actualizar_aprendizaje_ia.py
+SIEMPRE reconstruye aciertos/fallos/boleto/detalle_partidos comparando la
+prediccion CRUDA del motor contra el resultado real (13 aciertos, boleto
+"1X1XX11X1111X1X21X1X21") -esto es intencional para el aprendizaje general
+(ver la entrada del 2026-07-04 sobre "prediccion vs realidad, no lo jugado
+vs realidad")-, pero lo escribe en el MISMO archivo y las MISMAS claves
+(aciertos/boleto) que calcular_premios.py usa para los aciertos de la
+quiniela REALMENTE jugada (10, boleto "1X21X22111X2X2112221"). El bloqueo de
+premio protegia el importe pero dejaba pisar por completo los aciertos y el
+boleto reales con los del motor.
+
+Fix: nueva aciertos_verificados_con_jugada_real(actual), que devuelve True
+si el registro ya tiene aciertos_confirmados=true o
+fuente_aciertos=="quinielas_jugadas" (las mismas marcas que ya usa
+calcular_premios.py). debe_reemplazar_registro_premios() ahora devuelve
+False de entrada si esto es cierto -se salta el registro entero, ni premio
+ni aciertos ni boleto-, tomando prioridad sobre el bloqueo de premio
+"manual"/"confirmado_usuario" (que solo protege el importe, no los
+aciertos). Se corrigio tambien el dato ya corrompido en
+data/premios/historial_premios.json (jornada 71: aciertos 13->10, boleto y
+detalle_partidos restaurados a los de la quiniela realmente jugada).
+Por que importa: un "flag de proteccion" que protege un campo (premio) no
+protege automaticamente los demas campos relacionados (aciertos, boleto) si
+otro script los reconstruye por una via completamente distinta. Cada campo
+compartido entre dos scripts con semanticas distintas necesita su propia
+comprobacion explicita, revisada campo por campo -no basta con "ya arregle
+el archivo la vez pasada".
