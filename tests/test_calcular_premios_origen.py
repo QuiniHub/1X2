@@ -155,6 +155,50 @@ class BuscarTablaPremiosLosillaTests(unittest.TestCase):
         self.assertAlmostEqual(round(total, 2), 41.90, places=2)
 
 
+class BuscarTablaPremiosLosillaJornada71Tests(unittest.TestCase):
+    """La jornada 71 tiene una colision distinta: el premio real de la
+    categoria 14 es "8.132,10 €", cuya parte decimal ",10" coincide con la
+    etiqueta de la categoria 10 si no se mira la celda correcta."""
+
+    HTML_JORNADA_71 = """
+    <table>
+      <tr><th>Aciertos</th><th>Acertantes</th><th>Euros</th></tr>
+      <tr><td>15</td><td>2</td><td>24.777,51 €</td></tr>
+      <tr><td>14</td><td>13</td><td>8.132,10 €</td></tr>
+      <tr><td>13</td><td>313</td><td>158,32 €</td></tr>
+      <tr><td>12</td><td>2.899</td><td>17,09 €</td></tr>
+      <tr><td>11</td><td>16.107</td><td>3,08 €</td></tr>
+      <tr><td>10</td><td>55.814</td><td>0,00 €</td></tr>
+      <tr><td>Elige 8</td><td>502</td><td>28,82 €</td></tr>
+    </table>
+    """
+
+    def setUp(self):
+        self._original_descargar = cp.descargar_html
+        cp.descargar_html = lambda url, params=None: self.HTML_JORNADA_71
+
+    def tearDown(self):
+        cp.descargar_html = self._original_descargar
+
+    def test_categoria_10_no_se_confunde_con_la_decimal_de_la_14(self):
+        tabla = cp.buscar_tabla_premios_losilla(71)
+        self.assertEqual(tabla.get("10"), 0.0)
+        self.assertEqual(tabla.get("14"), 8132.10)
+
+
+class PrimeraCeldaEsCategoriaTests(unittest.TestCase):
+    def test_reconoce_la_categoria_en_la_primera_celda(self):
+        self.assertTrue(cp.primera_celda_es_categoria(["10", "55.814", "0,00 €"], 10))
+
+    def test_no_se_deja_enganar_por_la_decimal_de_otra_fila(self):
+        # Esta fila es la de la categoria 14 (8.132,10€); su celda de
+        # categoria es "14", no "10" -aunque el importe termine en ",10".
+        self.assertFalse(cp.primera_celda_es_categoria(["14", "13", "8.132,10 €"], 10))
+
+    def test_celdas_vacias_no_coinciden(self):
+        self.assertFalse(cp.primera_celda_es_categoria([], 10))
+
+
 class FilaContieneCategoriaTests(unittest.TestCase):
     def test_no_confunde_categoria_con_un_numero_mayor_que_la_contiene(self):
         """'11' no debe coincidir dentro de '17.119,56' (el premio de la

@@ -198,3 +198,43 @@ memoria en el chat; se verificaron a mano contra data/jornadas/jornada_71.json
 antes de guardarlos (10 aciertos, coincide con lo que recordaba) y se
 anadieron directamente a data/quinielas_jugadas.json con origen
 "confirmado_por_marc_en_chat" para distinguirlo del origen normal via Issue.
+
+### 2026-07-06 -- Tercera colision en la extraccion de precios: la parte decimal de OTRA fila
+
+Con los aciertos ya en 10, la jornada 71 seguia mostrando un premio de
+8.132,10e en vez de 0,00e. Causa nueva y distinta a las dos anteriores:
+extraer_premio_html() buscaba la categoria "10" con una regex de limites de
+palabra sobre el TEXTO COMPLETO de cada fila. Esa regex evita que "10"
+coincida dentro de un numero mayor como "110", pero no evita que coincida con
+la parte decimal de un importe de OTRA fila: "8.132,10 e" (el premio real de
+la categoria 14) tiene una coma antes del "10" y un espacio despues, asi que
+el limite de palabra se cumple igual.
+
+Verificacion real: escrutinio oficial de eduardolosilla.es para la jornada 71
+(15:24.777,51e 14:8.132,10e 13:158,32e 12:17,09e 11:3,08e 10:0,00e
+elige8:28,82e). Marc confirmo por chat: "en la 71 hemos hecho 10, 0 euros".
+
+Fix: nueva primera_celda_es_categoria(celdas, aciertos), que compara SOLO la
+primera celda <td>/<th> de la fila (la columna "Aciertos" de una tabla de
+escrutinio bien formada) contra la categoria buscada, sin mirar el resto de
+la fila. extraer_premio_html() la prueba primero, y solo si ninguna fila
+cumple ese criterio estricto cae a los metodos antiguos (mas laxos, por
+compatibilidad con tablas peor formadas). Esto evita de raiz cualquier
+colision con importes de otras filas, sean subcadenas o partes decimales.
+
+El registro ya guardado de la jornada 71 (con el 8.132,10e erroneo) no se
+autocorrige solo: aciertos_confirmados=true y origen_prediccion ya apuntaba a
+quinielas_jugadas.json, asi que el bucle principal lo trata como "protegido"
+y "no mejorable" (el mecanismo de auto-sanado existente solo recalcula por
+aciertos desactualizados o premios en estado "pendiente"/implausible-
+multicolumna, no por un premio ya "resuelto" con una fuente que en su momento
+parecia valida). Se corrigio el valor a mano en
+data/premios/historial_premios.json (premio_eur: 0.0, fuente_premio:
+"confirmado_usuario"), el mismo mecanismo ya usado en las jornadas 66 y 67
+para bloquear un valor verificado y evitar que se vuelva a tocar.
+Por que importa: un mecanismo de "proteccion contra recalculo" que solo mira
+si el dato esta "completo" o "confirmado" puede proteger igual de bien un
+valor correcto que uno incorrecto congelado antes de arreglar el bug que lo
+genero -por eso siempre hay que revisar a mano los datos ya guardados tras
+corregir un bug de extraccion, no solo confiar en que el proximo run los
+arregle solo.

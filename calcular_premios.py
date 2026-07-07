@@ -465,8 +465,29 @@ def importes_en_texto(texto):
     return [valor for valor in (float_o_none(m) for m in re.findall(patron, str(texto or ""))) if valor is not None]
 
 
+def primera_celda_es_categoria(celdas, aciertos):
+    """Comprobacion estricta: la PRIMERA celda de la fila (la columna
+    "Aciertos" de una tabla de escrutinio bien formada) debe ser justo la
+    categoria buscada, ni mas ni menos. Evita que la parte decimal de OTRA
+    fila (p.ej. el ",10" final de "8.132,10 €", el premio de la categoria 14)
+    se confunda con la etiqueta "10" de una categoria distinta.
+    """
+    if not celdas:
+        return False
+    primera = texto_normalizado(celdas[0])
+    etiquetas = {e.lower() for e in CATEGORIAS_WEB.get(int(aciertos), (str(aciertos),))}
+    return primera in etiquetas or primera == str(int(aciertos))
+
+
 def extraer_premio_html(html, aciertos):
     soup = BeautifulSoup(html, "html.parser")
+
+    for tr in soup.find_all("tr"):
+        celdas = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
+        if primera_celda_es_categoria(celdas, aciertos):
+            importes = importes_en_texto(" | ".join(celdas))
+            if importes:
+                return importes[-1]
 
     for tr in soup.find_all("tr"):
         celdas = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
