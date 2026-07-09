@@ -1293,7 +1293,7 @@
       const tData = temporadas[state._quinielaTabActiva] || {};
       const stats = tData.estadisticas || {};
       const f = stats.frecuencias_signos || {};
-      const jornadas = arr(tData.jornadas).sort((a, b) => (a.jornada || 0) - (b.jornada || 0));
+      const jornadas = arr(tData.jornadas).sort((a, b) => (b.jornada || 0) - (a.jornada || 0));
 
       let html = `<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
         <span style="font-size:13px;color:var(--muted,#888)">${stats.jornadas} jornadas · ${stats.partidos_totales} partidos con signo</span>
@@ -1421,7 +1421,7 @@
           ? `<span style="color:var(--yellow,#f59e0b);cursor:pointer;text-decoration:underline dotted" data-confirm-premio="${escapeHtml(String(r.jornada))}" title="Haz clic para introducir el premio manualmente">⏳ confirmar</span>`
           : `<span title="${escapeHtml(desgloseTitle || '')}">${eur(premio)}${e8Label}</span>`;
         return `<tr class="${premio > 0 ? 'prize' : pendientePremio ? 'highlight' : ''}"><td>${escapeHtml(r.jornada)}</td><td>${escapeHtml(historyAciertos(r))}</td><td>${premioCell}</td><td>${eur(acumulado)}</td></tr>`;
-      }).join('')}</tbody></table>` : '<div class="empty">Sin jornadas con predicción IA registradas todavía.</div>';
+      }).reverse().join('')}</tbody></table>` : '<div class="empty">Sin jornadas con predicción IA registradas todavía.</div>';
       qs('#historyBalance').innerHTML = `<div><span>Total premios cobrados</span><strong>${eur(totalCobrado)}</strong></div>`;
     }
 
