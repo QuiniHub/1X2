@@ -327,3 +327,53 @@ otro script los reconstruye por una via completamente distinta. Cada campo
 compartido entre dos scripts con semanticas distintas necesita su propia
 comprobacion explicita, revisada campo por campo -no basta con "ya arregle
 el archivo la vez pasada".
+
+### 2026-07-08 -- seleccionar_pleno15.py sustituia el Pleno al 15 por otro partido del boleto
+
+Detectado al comparar a mano un pronostico de la jornada 72 con el que genero
+el propio motor: el bloque `pleno15` de `data/predicciones/jornada_72.json`
+tenia `num: 8, local: "Fredrikstad", visitante: "Lillestrøm"` -el partido 8
+real- en vez del partido 15 (Sarpsborg 08 - Viking). Revisando jornadas
+anteriores, el mismo patron aparecia en la 70 (num: 2) y la 71 (num: 9); solo
+"acerto" por casualidad en la 65 y la 68.
+
+Causa: `candidatos_prediccion()` metia los 14 partidos normales de la jornada
+MAS el partido 15 real en una misma lista de "candidatos", los puntuaba a
+todos por seguridad (probabilidad, margen, incertidumbre, calidad de datos,
+riesgo de sorpresa) y `actualizar_pleno15()` sustituia num/local/visitante
+enteros por los del candidato que ganara esa puntuacion -aunque fuera un
+partido normal del boleto, no el 15. El Pleno al 15 en la Quiniela real
+SIEMPRE es el partido 15 del boleto oficial -no se puede jugar el marcador
+exacto de otro partido en esa casilla-, asi que esto no es una cuestion de
+gustos: cualquier resultado distinto de num=15 es, por definicion,
+imposible de apostar de verdad.
+
+El frontend (`extractPleno15()` en index.html) ya tenia un fallback
+defensivo que buscaba `num===15` dentro de `candidatos_evaluados`, asi que
+los NOMBRES de equipo mostrados en la web probablemente seguian siendo
+correctos (Sarpsborg-Viking) -pero el SIGNO recomendado
+(`pleno15Sign()` lee `pleno15Recommendation().signo_recomendado`, que es la
+recomendacion cruda sin filtrar por num) si quedaba mal: el de otro
+partido, no el del 15.
+
+Fix: `candidatos_prediccion()` ahora devuelve UNICAMENTE el partido 15 (desde
+`data.pleno15` si existe con equipos, si no desde `partidos` buscando
+`num==15`), nunca los partidos 1-14. Con un solo candidato posible,
+`evaluar_partido()` solo puede decidir que signo/marcador recomendar PARA el
+15, no sustituir su identidad. Test nuevo (`tests/test_seleccionar_pleno15.py`)
+reproduce el bug real: un partido normal con probabilidades mucho mas
+seguras que el 15 (igual que paso en la 70/71/72) y confirma que la
+recomendacion final sigue siendo siempre el partido 15.
+
+No hizo falta corregir a mano las jornadas 70/71 (ya cerradas, sin impacto
+en dinero real -el premio ya se calcula desde quinielas_jugadas.json, no
+desde este archivo de prediccion). La jornada 72 (abierta) se autosana sola
+en la siguiente ejecucion del pipeline, porque `seleccionar_pleno15.py`
+corre sin ningun flag de "protegido" que bloquee su recalculo.
+Por que importa: una funcion de "elegir el candidato mas seguro" es
+peligrosa en cuanto se generaliza a una lista con partidos de naturaleza
+distinta (un partido normal 1X2 y el marcador exacto del Pleno al 15 no son
+intercambiables, aunque ambos tengan forma de "partido con probabilidades").
+Cualquier funcion de seleccion/ranking debe preguntarse primero si TODOS
+los candidatos son realmente sustituibles entre si antes de puntuarlos
+juntos.

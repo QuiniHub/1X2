@@ -267,14 +267,20 @@ def calcular_probs_goles(partido):
 
 
 def candidatos_prediccion(data):
-    candidatos = []
-    for partido in data.get("partidos", []):
-        if int(partido.get("num") or 0) <= 14:
-            candidatos.append(partido)
+    """El Pleno al 15 es, por definicion del boleto oficial de la Quiniela,
+    siempre el partido numero 15 -no se puede jugar el marcador exacto de
+    otro partido en esa casilla. Esta funcion debe devolver UNICAMENTE ese
+    partido (nunca los partidos 1-14), para que evaluar_partido() solo decida
+    que signo/marcador recomendar PARA el 15, sin poder sustituir su
+    identidad por la de otro partido "mas seguro" del boleto.
+    """
     pleno = data.get("pleno15")
-    if isinstance(pleno, dict):
-        candidatos.append(pleno)
-    return candidatos
+    if isinstance(pleno, dict) and pleno.get("local") and pleno.get("visitante"):
+        return [pleno]
+    for partido in data.get("partidos", []):
+        if int(partido.get("num") or 0) == 15:
+            return [partido]
+    return []
 
 
 def construir_salida_sin_candidatos(data, motivo):
