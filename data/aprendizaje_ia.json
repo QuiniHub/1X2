@@ -1,22 +1,22 @@
 {
   "version": "1.2",
-  "precision": 62.64,
+  "precision": 62.3,
   "jornadas_revisadas": 14,
-  "partidos_revisados": 182,
+  "partidos_revisados": 183,
   "aciertos": 114,
-  "fallos": 68,
+  "fallos": 69,
   "fallos_por_tipo": {
     "Doble insuficiente": 13,
-    "Fijo fallado": 33,
+    "Fijo fallado": 34,
     "No cubrio empate": 22
   },
   "fallos_por_signo_real": {
-    "1": 18,
+    "1": 19,
     "2": 28,
     "X": 22
   },
   "signos_omitidos_en_fallo": {
-    "1": 18,
+    "1": 19,
     "2": 28,
     "X": 22
   },
@@ -28,10 +28,10 @@
       "precision": 66.67
     },
     "FIJO": {
-      "total": 123,
+      "total": 124,
       "aciertos": 68,
-      "fallos": 55,
-      "precision": 55.28
+      "fallos": 56,
+      "precision": 54.84
     },
     "TRIPLE": {
       "total": 20,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 83,
+      "total": 84,
       "aciertos": 65,
-      "fallos": 18,
-      "precision": 78.31
+      "fallos": 19,
+      "precision": 77.38
     },
     "2": {
       "total": 54,
@@ -12687,6 +12687,105 @@
     },
     {
       "jornada": 72,
+      "partido": "España - Bélgica",
+      "pronostico": "X",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-1",
+      "resultado_final": "2-1",
+      "signo_real": "1",
+      "signos_cubiertos": "X",
+      "signo_omitido": "1",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_72.json",
+      "probabilidades_usadas": {
+        "1": 33.4,
+        "X": 35.4,
+        "2": 31.1
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "España",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Bélgica",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (35.4%).",
+        "hipotesis_alternativa": "1 como alternativa (33.4%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO X: margen 2.0 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 16.4,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {
+        "equipo": "Bélgica",
+        "partidos_total": 4,
+        "puntos_por_partido": 2.029,
+        "empates_pct": 48.56,
+        "surprise_score_medio": 35.41,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 2.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 72,
       "partido": "vaasa PS - SJK",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -12699,9 +12798,9 @@
       "motivo_error": "",
       "origen": "data/predicciones/jornada_72.json",
       "probabilidades_usadas": {
-        "1": 38.0,
-        "X": 33.2,
-        "2": 28.7
+        "1": 39.8,
+        "X": 33.3,
+        "2": 26.9
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -12736,19 +12835,19 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (38.0%).",
-        "hipotesis_alternativa": "X como alternativa (33.2%).",
-        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "hipotesis_principal": "1 como signo dominante (39.8%).",
+        "hipotesis_alternativa": "X como alternativa (33.3%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
           "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 4.8 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision FIJO 1: margen 6.5 puntos, indice sorpresa 100.0."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 16.53,
+        "riesgo_extra": 16.4,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
@@ -12769,32 +12868,32 @@
         "riesgo_extra": 0.0,
         "lecturas": [
           "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local vaasa PS: ppp=3.00; perfil visitante SJK: ppp=2.00."
+          "Perfil local vaasa PS: ppp=3.00; perfil visitante SJK: ppp=0.99."
         ]
       },
       "perfil_autonomo_local": {
         "equipo": "vaasa PS",
-        "partidos_total": 1,
+        "partidos_total": 2,
         "puntos_por_partido": 3.0,
         "empates_pct": 0.0,
-        "surprise_score_medio": 36.33,
+        "surprise_score_medio": 37.39,
         "forma_5_ppp": 3.0,
         "forma_10_ppp": 3.0,
         "racha_actual": {
           "tipo": "G",
-          "partidos": 1
+          "partidos": 2
         }
       },
       "perfil_autonomo_visitante": {
         "equipo": "SJK",
-        "partidos_total": 1,
-        "puntos_por_partido": 3.0,
+        "partidos_total": 2,
+        "puntos_por_partido": 1.478,
         "empates_pct": 0.0,
-        "surprise_score_medio": 37.01,
-        "forma_5_ppp": 3.0,
-        "forma_10_ppp": 3.0,
+        "surprise_score_medio": 37.73,
+        "forma_5_ppp": 1.5,
+        "forma_10_ppp": 1.5,
         "racha_actual": {
-          "tipo": "G",
+          "tipo": "P",
           "partidos": 1
         }
       }
@@ -12811,19 +12910,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 182,
+    "partidos_base": 183,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 37.36,
-      "no_cubrio_empate_sobre_fallos_pct": 32.35,
-      "no_cubrio_empate_sobre_total_pct": 12.09,
-      "fijo_fallado_sobre_fallos_pct": 48.53,
-      "fijo_fallado_sobre_total_pct": 18.13,
-      "doble_insuficiente_sobre_total_pct": 7.14
+      "fallos_total_pct": 37.7,
+      "no_cubrio_empate_sobre_fallos_pct": 31.88,
+      "no_cubrio_empate_sobre_total_pct": 12.02,
+      "fijo_fallado_sobre_fallos_pct": 49.28,
+      "fijo_fallado_sobre_total_pct": 18.58,
+      "doble_insuficiente_sobre_total_pct": 7.1
     },
-    "boost_empate_zona_riesgo": 5.96,
-    "riesgo_extra_fijo_fragil": 7.61,
-    "riesgo_extra_triple_insuficiente": 2.83,
+    "boost_empate_zona_riesgo": 5.85,
+    "riesgo_extra_fijo_fragil": 8.12,
+    "riesgo_extra_triple_insuficiente": 2.79,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
