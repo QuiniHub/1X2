@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-10T18:02:14.303102+00:00",
+  "generado_en": "2026-07-10T19:48:48.949230+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 7,
-    "partidos_cerrados": 84,
+    "partidos_cerrados": 85,
     "aciertos": 48,
-    "precision": 57.14
+    "precision": 56.47
   },
   "jornadas": [
     {
@@ -1508,10 +1508,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_72.json",
       "creado_en": "2026-07-05T15:54:57.035599+00:00",
       "prediccion_generada_en": "2026-07-05T15:54:57.035103+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 1,
       "aciertos": 0,
-      "precision": null,
+      "precision": 0.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -1532,7 +1532,7 @@
       },
       "por_tipo": {
         "FIJO": {
-          "total": 0,
+          "total": 1,
           "aciertos": 0
         },
         "DOBLE": {
@@ -1544,7 +1544,23 @@
           "aciertos": 0
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 4,
+          "partido": "VPS - SJK",
+          "jugado": "X",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": false,
+          "probabilidades": {
+            "1": 33.1,
+            "X": 33.8,
+            "2": 33.1
+          },
+          "incertidumbre": 146.76,
+          "probabilidad_sorpresa": 70
+        }
+      ]
     }
   ]
 }
