@@ -1,23 +1,23 @@
 {
   "version": "1.2",
-  "precision": 62.84,
+  "precision": 62.7,
   "jornadas_revisadas": 14,
-  "partidos_revisados": 183,
-  "aciertos": 115,
-  "fallos": 68,
+  "partidos_revisados": 185,
+  "aciertos": 116,
+  "fallos": 69,
   "fallos_por_tipo": {
     "Doble insuficiente": 13,
-    "Fijo fallado": 33,
+    "Fijo fallado": 34,
     "No cubrio empate": 22
   },
   "fallos_por_signo_real": {
     "1": 18,
-    "2": 28,
+    "2": 29,
     "X": 22
   },
   "signos_omitidos_en_fallo": {
     "1": 18,
-    "2": 28,
+    "2": 29,
     "X": 22
   },
   "precision_por_tipo": {
@@ -28,30 +28,30 @@
       "precision": 66.67
     },
     "FIJO": {
-      "total": 124,
+      "total": 125,
       "aciertos": 69,
-      "fallos": 55,
-      "precision": 55.65
+      "fallos": 56,
+      "precision": 55.2
     },
     "TRIPLE": {
-      "total": 20,
-      "aciertos": 20,
+      "total": 21,
+      "aciertos": 21,
       "fallos": 0,
       "precision": 100.0
     }
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 84,
-      "aciertos": 66,
+      "total": 85,
+      "aciertos": 67,
       "fallos": 18,
-      "precision": 78.57
+      "precision": 78.82
     },
     "2": {
-      "total": 54,
+      "total": 55,
       "aciertos": 26,
-      "fallos": 28,
-      "precision": 48.15
+      "fallos": 29,
+      "precision": 47.27
     },
     "X": {
       "total": 45,
@@ -12912,6 +12912,235 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 72,
+      "partido": "FC Lahti - HJK Helsinki",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "2-0",
+      "resultado_final": "2-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_72.json",
+      "probabilidades_usadas": {
+        "1": 32.2,
+        "X": 34.3,
+        "2": 33.5
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "FC Lahti",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "HJK Helsinki",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (34.3%).",
+        "hipotesis_alternativa": "2 como alternativa (33.5%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO X: margen 0.8 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 16.25,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.64,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local FC Lahti: ppp=3.00; perfil visitante HJK Helsinki: ppp=3.00.",
+          "Memoria autonoma: historial de sorpresa medio elevado (48.6)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "FC Lahti",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 37.45,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "HJK Helsinki",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 59.7,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 72,
+      "partido": "Fredrikstad - Lillestrøm SK",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-2",
+      "resultado_final": "0-2",
+      "signo_real": "2",
+      "signos_cubiertos": "1",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_72.json",
+      "probabilidades_usadas": {
+        "1": 40.1,
+        "X": 33.7,
+        "2": 26.2
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Fredrikstad",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Lillestrøm SK",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (40.1%).",
+        "hipotesis_alternativa": "X como alternativa (33.7%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 1: margen 6.4 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 16.25,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Fredrikstad: ppp=2.00; perfil visitante Lille: ppp=0.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Fredrikstad",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Lille",
+        "partidos_total": 4,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 4
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -12925,19 +13154,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 183,
+    "partidos_base": 185,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 37.16,
-      "no_cubrio_empate_sobre_fallos_pct": 32.35,
-      "no_cubrio_empate_sobre_total_pct": 12.02,
-      "fijo_fallado_sobre_fallos_pct": 48.53,
-      "fijo_fallado_sobre_total_pct": 18.03,
-      "doble_insuficiente_sobre_total_pct": 7.1
+      "fallos_total_pct": 37.3,
+      "no_cubrio_empate_sobre_fallos_pct": 31.88,
+      "no_cubrio_empate_sobre_total_pct": 11.89,
+      "fijo_fallado_sobre_fallos_pct": 49.28,
+      "fijo_fallado_sobre_total_pct": 18.38,
+      "doble_insuficiente_sobre_total_pct": 7.03
     },
-    "boost_empate_zona_riesgo": 5.93,
-    "riesgo_extra_fijo_fragil": 7.53,
-    "riesgo_extra_triple_insuficiente": 2.79,
+    "boost_empate_zona_riesgo": 5.79,
+    "riesgo_extra_fijo_fragil": 7.96,
+    "riesgo_extra_triple_insuficiente": 2.73,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,

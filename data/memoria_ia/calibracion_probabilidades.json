@@ -1,28 +1,28 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-11T13:45:10.108306+00:00",
+  "generado_en": "2026-07-11T15:04:49.524130+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "muestra_baja",
   "global": {
-    "partidos": 86,
-    "precision_top": 36.05,
-    "brier_medio": 0.6612,
-    "logloss_medio": 1.0889,
+    "partidos": 88,
+    "precision_top": 35.23,
+    "brier_medio": 0.6633,
+    "logloss_medio": 1.0923,
     "muestra": "baja"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 75,
-      "prob_top_media": 35.38,
-      "precision_real": 33.33,
-      "desviacion_calibracion": -2.04,
+      "total": 76,
+      "prob_top_media": 35.36,
+      "precision_real": 32.89,
+      "desviacion_calibracion": -2.47,
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 10,
-      "prob_top_media": 48.11,
-      "precision_real": 60.0,
-      "desviacion_calibracion": 11.89,
+      "total": 11,
+      "prob_top_media": 47.38,
+      "precision_real": 54.55,
+      "desviacion_calibracion": 7.17,
       "muestra_suficiente": false
     },
     "50-60": {
@@ -35,10 +35,10 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 86,
-      "precision_top": 36.05,
-      "brier_medio": 0.6612,
-      "logloss_medio": 1.0889,
+      "partidos": 88,
+      "precision_top": 35.23,
+      "brier_medio": 0.6633,
+      "logloss_medio": 1.0923,
       "muestra": "baja",
       "muestra_suficiente": false
     }
@@ -1332,6 +1332,36 @@
       "bucket_top": "30-40",
       "brier": 0.671366,
       "logloss": 1.1056369036050742,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 72,
+      "num": 5,
+      "partido": "FC Lahti - HJK Helsinki",
+      "fuente": "data/backtesting/pre_cierre/jornada_72.json",
+      "real": "1",
+      "top": "X",
+      "acierto_top": false,
+      "prob_top": 34.4,
+      "prob_real": 32.2,
+      "bucket_top": "30-40",
+      "brier": 0.6895759999999999,
+      "logloss": 1.1332037334377287,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 72,
+      "num": 8,
+      "partido": "Fredrikstad - Lillestrøm",
+      "fuente": "data/backtesting/pre_cierre/jornada_72.json",
+      "real": "2",
+      "top": "1",
+      "acierto_top": false,
+      "prob_top": 40.1,
+      "prob_real": 26.2,
+      "bucket_top": "40-50",
+      "brier": 0.8190139999999999,
+      "logloss": 1.3394107752210405,
       "competicion": "desconocida"
     }
   ],
