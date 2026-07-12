@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 63.87,
+  "precision": 64.06,
   "jornadas_revisadas": 14,
-  "partidos_revisados": 191,
-  "aciertos": 122,
+  "partidos_revisados": 192,
+  "aciertos": 123,
   "fallos": 69,
   "fallos_por_tipo": {
     "Doble insuficiente": 14,
@@ -34,8 +34,8 @@
       "precision": 57.36
     },
     "TRIPLE": {
-      "total": 21,
-      "aciertos": 21,
+      "total": 22,
+      "aciertos": 22,
       "fallos": 0,
       "precision": 100.0
     }
@@ -48,10 +48,10 @@
       "precision": 79.78
     },
     "2": {
-      "total": 56,
-      "aciertos": 27,
+      "total": 57,
+      "aciertos": 28,
       "fallos": 29,
-      "precision": 48.21
+      "precision": 49.12
     },
     "X": {
       "total": 46,
@@ -13826,6 +13826,120 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 72,
+      "partido": "KFUM Oslo - Bodo-Glimt",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "0-2",
+      "resultado_final": "0-2",
+      "signo_real": "2",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_72.json",
+      "probabilidades_usadas": {
+        "1": 32.8,
+        "X": 34.0,
+        "2": 33.2
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "KFUM Oslo",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Bodo-Glimt",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (34.0%).",
+        "hipotesis_alternativa": "2 como alternativa (33.2%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO X: margen 0.8 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 15.44,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local KFUM: ppp=0.00; perfil visitante Bodo Glimt: ppp=1.83."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "KFUM",
+        "partidos_total": 1,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Bodo Glimt",
+        "partidos_total": 6,
+        "puntos_por_partido": 1.647,
+        "empates_pct": 15.49,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 1.8,
+        "forma_10_ppp": 1.667,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -13839,19 +13953,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 191,
+    "partidos_base": 192,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 36.13,
+      "fallos_total_pct": 35.94,
       "no_cubrio_empate_sobre_fallos_pct": 31.88,
-      "no_cubrio_empate_sobre_total_pct": 11.52,
+      "no_cubrio_empate_sobre_total_pct": 11.46,
       "fijo_fallado_sobre_fallos_pct": 47.83,
-      "fijo_fallado_sobre_total_pct": 17.28,
-      "doble_insuficiente_sobre_total_pct": 7.33
+      "fijo_fallado_sobre_total_pct": 17.19,
+      "doble_insuficiente_sobre_total_pct": 7.29
     },
-    "boost_empate_zona_riesgo": 5.65,
-    "riesgo_extra_fijo_fragil": 6.79,
-    "riesgo_extra_triple_insuficiente": 3.0,
+    "boost_empate_zona_riesgo": 5.62,
+    "riesgo_extra_fijo_fragil": 6.72,
+    "riesgo_extra_triple_insuficiente": 2.96,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
