@@ -1,24 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-12T17:10:09.488617+00:00",
-  "estado": "requiere_revision_datos",
-  "score_salud": 70,
+  "generado_en": "2026-07-12T18:33:32.055796+00:00",
+  "estado": "operativo_con_avisos",
+  "score_salud": 79,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 73,
     "jornada_actual": {
-      "jornada": 72,
-      "fecha": "Domingo, 12 de julio de 2026",
-      "estado": "cerrada",
-      "partidos": 14,
-      "cerrados": 14,
-      "pendientes": 0,
-      "pendientes_totales_con_pleno15": 1,
-      "pleno15_cerrado": false,
-      "ultima_actualizacion_partido": "2026-07-12T17:06:50Z",
-      "path": "data/jornadas/jornada_72.json"
-    },
-    "proxima_jornada": {
       "jornada": 73,
       "fecha": "Domingo, 19 de julio de 2026",
       "estado": "abierta",
@@ -30,6 +18,7 @@
       "ultima_actualizacion_partido": "",
       "path": "data/jornadas/jornada_73.json"
     },
+    "proxima_jornada": null,
     "ultimas": [
       {
         "jornada": 69,
@@ -95,8 +84,8 @@
   },
   "memoria_quinielas": {
     "jugadas_persistidas_json": 13,
-    "jornadas_validadas_historial": 13,
-    "jornadas_memoria_real_total": 36,
+    "jornadas_validadas_historial": 14,
+    "jornadas_memoria_real_total": 37,
     "jornadas_con_signo_nuestro": 10,
     "signos_nuestros_en_jornadas": 140,
     "estado": "memoria_propia_disponible",
@@ -108,15 +97,15 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 72,
-    "generado_en": "2026-07-12T17:10:03.889235+00:00",
+    "jornada": 73,
+    "generado_en": "2026-07-12T18:33:26.761313+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 8,
       "dobles": 4,
       "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 10,
+      "favoritos_atacables": 5,
       "indice_sorpresa_max": 100.0,
       "calidad_datos": {
         "alta": 0,
@@ -179,7 +168,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 5.81,
+    "contexto_equipos_horas": 0.02,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -249,18 +238,19 @@
   },
   "backtesting_pre_cierre": {
     "estado": "operativo",
-    "jornadas_snapshot": 7,
+    "jornadas_snapshot": 8,
     "partidos_cerrados": 98,
     "aciertos": 54,
     "precision": 55.1,
-    "generado_en": "2026-07-12T17:10:09.316562+00:00",
+    "generado_en": "2026-07-12T18:33:31.879605+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
     {
-      "nivel": "alta",
-      "titulo": "Predicción de jornada antigua",
-      "detalle": "La jornada activa es 73 pero la última predicción dice 72."
+      "nivel": "media",
+      "titulo": "Jornada actual incompleta",
+      "detalle": "La jornada 73 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
     },
     {
       "nivel": "media",
@@ -284,16 +274,10 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-07-12T17:10:09.488617+00:00",
-    "estado": "revisar",
-    "score": 65,
-    "alertas": [
-      {
-        "nivel": "alta",
-        "titulo": "Predicción de jornada antigua",
-        "detalle": "La jornada activa es 73 pero la última predicción dice 72."
-      }
-    ],
+    "generado_en": "2026-07-12T18:33:32.055796+00:00",
+    "estado": "operativo",
+    "score": 100,
+    "alertas": [],
     "jornadas": {
       "total": 73,
       "actual": {
@@ -442,18 +426,18 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-07-12T17:09:36.234823+00:00"
+      "generado_en": "2026-07-12T18:32:57.364422+00:00"
     },
     "prediccion": {
-      "jornada": 72,
-      "generado_en": "2026-07-12T17:10:03.889235+00:00",
+      "jornada": 73,
+      "generado_en": "2026-07-12T18:33:26.761313+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 8,
         "dobles": 4,
         "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 10,
+        "favoritos_atacables": 5,
         "indice_sorpresa_max": 100.0,
         "calidad_datos": {
           "alta": 0,
@@ -615,6 +599,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-07-12T17:09:36.234823+00:00"
+    "generado_en": "2026-07-12T18:32:57.364422+00:00"
   }
 }
