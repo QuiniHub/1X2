@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-14T09:12:40.223294+00:00",
-  "estado": "operativo_con_avisos",
-  "score_salud": 79,
+  "generado_en": "2026-07-14T11:13:07.646674+00:00",
+  "estado": "requiere_revision_datos",
+  "score_salud": 70,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
-    "total_jornadas": 73,
+    "total_jornadas": 74,
     "jornada_actual": {
       "jornada": 73,
       "fecha": "Domingo, 19 de julio de 2026",
@@ -18,20 +18,19 @@
       "ultima_actualizacion_partido": "",
       "path": "data/jornadas/jornada_73.json"
     },
-    "proxima_jornada": null,
+    "proxima_jornada": {
+      "jornada": 74,
+      "fecha": "Domingo, 26 de julio de 2026",
+      "estado": "abierta",
+      "partidos": 14,
+      "cerrados": 0,
+      "pendientes": 14,
+      "pendientes_totales_con_pleno15": 15,
+      "pleno15_cerrado": false,
+      "ultima_actualizacion_partido": "",
+      "path": "data/jornadas/jornada_74.json"
+    },
     "ultimas": [
-      {
-        "jornada": 69,
-        "fecha": "Miércoles, 24 de junio de 2026",
-        "estado": "cerrada",
-        "partidos": 14,
-        "cerrados": 14,
-        "pendientes": 0,
-        "pendientes_totales_con_pleno15": 0,
-        "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "2026-06-27T10:33:03Z",
-        "path": "data/jornadas/jornada_69.json"
-      },
       {
         "jornada": 70,
         "fecha": "Domingo, 28 de junio de 2026",
@@ -79,6 +78,18 @@
         "pleno15_cerrado": false,
         "ultima_actualizacion_partido": "",
         "path": "data/jornadas/jornada_73.json"
+      },
+      {
+        "jornada": 74,
+        "fecha": "Domingo, 26 de julio de 2026",
+        "estado": "abierta",
+        "partidos": 14,
+        "cerrados": 0,
+        "pendientes": 14,
+        "pendientes_totales_con_pleno15": 15,
+        "pleno15_cerrado": false,
+        "ultima_actualizacion_partido": "",
+        "path": "data/jornadas/jornada_74.json"
       }
     ]
   },
@@ -98,7 +109,7 @@
   },
   "prediccion": {
     "jornada": 73,
-    "generado_en": "2026-07-14T09:12:39.378738+00:00",
+    "generado_en": "2026-07-14T11:13:06.891659+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 8,
@@ -168,7 +179,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 2.55,
+    "contexto_equipos_horas": 0.02,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -210,7 +221,7 @@
     "datos_profesionales": {
       "estado_global": "sin_datos_profesionales",
       "temporada_objetivo": "2026/2027",
-      "generado_en": "2026-07-12T19:48:14Z",
+      "generado_en": "2026-07-14T11:12:50Z",
       "resumen": {
         "partidos_enriquecidos": 0,
         "cuotas": 0,
@@ -242,10 +253,15 @@
     "partidos_cerrados": 98,
     "aciertos": 54,
     "precision": 55.1,
-    "generado_en": "2026-07-14T09:12:40.031885+00:00",
+    "generado_en": "2026-07-14T11:13:07.460023+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
+    {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 74 pero la última predicción dice 73."
+    },
     {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
@@ -274,37 +290,35 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-07-14T09:12:40.223294+00:00",
-    "estado": "operativo",
-    "score": 100,
-    "alertas": [],
+    "generado_en": "2026-07-14T11:13:07.646674+00:00",
+    "estado": "revisar",
+    "score": 65,
+    "alertas": [
+      {
+        "nivel": "alta",
+        "titulo": "Predicción de jornada antigua",
+        "detalle": "La jornada activa es 74 pero la última predicción dice 73."
+      }
+    ],
     "jornadas": {
-      "total": 73,
+      "total": 74,
       "actual": {
-        "jornada": 73,
-        "fecha": "Domingo, 19 de julio de 2026",
+        "jornada": 74,
+        "fecha": "Domingo, 26 de julio de 2026",
         "partidos": 14,
         "cerrados": 0,
         "pendientes": 14,
-        "path": "data/jornadas/jornada_73.json"
+        "path": "data/jornadas/jornada_74.json"
       },
       "ultima": {
-        "jornada": 73,
-        "fecha": "Domingo, 19 de julio de 2026",
+        "jornada": 74,
+        "fecha": "Domingo, 26 de julio de 2026",
         "partidos": 14,
         "cerrados": 0,
         "pendientes": 14,
-        "path": "data/jornadas/jornada_73.json"
+        "path": "data/jornadas/jornada_74.json"
       },
       "ultimas_5": [
-        {
-          "jornada": 69,
-          "fecha": "Miércoles, 24 de junio de 2026",
-          "partidos": 14,
-          "cerrados": 14,
-          "pendientes": 0,
-          "path": "data/jornadas/jornada_69.json"
-        },
         {
           "jornada": 70,
           "fecha": "Domingo, 28 de junio de 2026",
@@ -336,6 +350,14 @@
           "cerrados": 0,
           "pendientes": 14,
           "path": "data/jornadas/jornada_73.json"
+        },
+        {
+          "jornada": 74,
+          "fecha": "Domingo, 26 de julio de 2026",
+          "partidos": 14,
+          "cerrados": 0,
+          "pendientes": 14,
+          "path": "data/jornadas/jornada_74.json"
         }
       ]
     },
@@ -426,11 +448,11 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-07-14T09:12:08.841304+00:00"
+      "generado_en": "2026-07-14T11:12:40.800863+00:00"
     },
     "prediccion": {
       "jornada": 73,
-      "generado_en": "2026-07-14T09:12:39.378738+00:00",
+      "generado_en": "2026-07-14T11:13:06.891659+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 8,
@@ -452,32 +474,24 @@
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
   "jornadas_control": {
-    "total": 73,
+    "total": 74,
     "actual": {
-      "jornada": 73,
-      "fecha": "Domingo, 19 de julio de 2026",
+      "jornada": 74,
+      "fecha": "Domingo, 26 de julio de 2026",
       "partidos": 14,
       "cerrados": 0,
       "pendientes": 14,
-      "path": "data/jornadas/jornada_73.json"
+      "path": "data/jornadas/jornada_74.json"
     },
     "ultima": {
-      "jornada": 73,
-      "fecha": "Domingo, 19 de julio de 2026",
+      "jornada": 74,
+      "fecha": "Domingo, 26 de julio de 2026",
       "partidos": 14,
       "cerrados": 0,
       "pendientes": 14,
-      "path": "data/jornadas/jornada_73.json"
+      "path": "data/jornadas/jornada_74.json"
     },
     "ultimas_5": [
-      {
-        "jornada": 69,
-        "fecha": "Miércoles, 24 de junio de 2026",
-        "partidos": 14,
-        "cerrados": 14,
-        "pendientes": 0,
-        "path": "data/jornadas/jornada_69.json"
-      },
       {
         "jornada": 70,
         "fecha": "Domingo, 28 de junio de 2026",
@@ -509,6 +523,14 @@
         "cerrados": 0,
         "pendientes": 14,
         "path": "data/jornadas/jornada_73.json"
+      },
+      {
+        "jornada": 74,
+        "fecha": "Domingo, 26 de julio de 2026",
+        "partidos": 14,
+        "cerrados": 0,
+        "pendientes": 14,
+        "path": "data/jornadas/jornada_74.json"
       }
     ]
   },
@@ -599,6 +621,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-07-14T09:12:08.841304+00:00"
+    "generado_en": "2026-07-14T11:12:40.800863+00:00"
   }
 }
