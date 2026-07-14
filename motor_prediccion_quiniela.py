@@ -2449,6 +2449,8 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "ajuste_pesos_dinamicos": partido["ajuste_pesos_dinamicos"],
             "datos_profesionales": partido["datos_profesionales"],
             "ajuste_datos_profesionales": partido["ajuste_datos_profesionales"],
+            "mercado_losilla": partido["mercado_losilla"],
+            "ajuste_mercado_losilla": partido["ajuste_mercado_losilla"],
             "ajuste_motivacion": partido["ajuste_motivacion"],
             "alertas_motivacion": partido["alertas_motivacion"],
             "sorpresa_potencial": partido["sorpresa_potencial"],

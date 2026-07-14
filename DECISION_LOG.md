@@ -452,3 +452,32 @@ Por que importa: es la via barata y ya verificada (sin depender de una
 cuenta externa rota) para que el motor aproveche una señal que ya
 demostro ser mejor que sus propias probabilidades en ligas sin datos
 propios -en vez de dejarla usada solo para un disparador de cobertura.
+
+### 2026-07-14 -- El fix anterior no se veia en produccion: segundo dict de salida con lista fija de campos
+
+Al desplegar el fix de `ajustar_por_mercado_losilla` y comprobar el
+resultado real en `data/predicciones/ultima_prediccion.json`, los campos
+nuevos (`mercado_losilla`, `ajuste_mercado_losilla`) no aparecian en
+absoluto, aunque el codigo estaba bien subido, los tests pasaban, y el
+campo hermano `ajuste_datos_profesionales` (añadido junto al mio) si
+aparecia con contenido real.
+
+Causa: dentro de la misma `predecir()`, hay DOS diccionarios distintos por
+partido. El primero (`evaluado`, donde añadi mis campos) solo se usa para
+calculos internos (cobertura automatica, prioridad de dobles/triples,
+etc.) -nunca se guarda en disco tal cual-. Un SEGUNDO bucle mas adelante
+reconstruye el objeto que de verdad se serializa a `partidos[i]` copiando
+campo a campo, uno a uno, con una lista fija de ~45 claves escritas a
+mano. Cualquier campo nuevo que no se añada tambien en esa segunda lista
+se descarta en silencio, sin error ni aviso.
+
+Fix: añadidas las mismas dos claves (`partido["mercado_losilla"]`,
+`partido["ajuste_mercado_losilla"]`) en esa segunda lista, justo donde ya
+estaba `ajuste_datos_profesionales`.
+Por que importa: en este archivo, un campo nuevo en el diccionario de
+trabajo NO llega automaticamente a la prediccion final -hay que añadirlo
+tambien en la lista de salida de la segunda pasada-. Cualquier campo
+nuevo que se añada a `evaluado` en el futuro debe revisarse contra esta
+segunda lista antes de darlo por conectado, y conviene verificar contra el
+archivo real generado en produccion, no solo contra el codigo o los tests
+unitarios (que no ejercitan `predecir()` de punta a punta).
