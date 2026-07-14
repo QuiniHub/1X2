@@ -1121,6 +1121,40 @@ def resumen_datos_profesionales_partido(datos_partido):
     }
 
 
+def ajustar_por_mercado_losilla(probs, mercado):
+    """Integra el consenso publico de eduardolosilla.es (% de boletos
+    jugados / probables) como señal de mercado independiente, con un peso
+    fijo y moderado (0.18) -entre el nivel bajo y medio que ya usamos para
+    las cuotas de bookmaker en ajustar_por_datos_profesionales-. No es una
+    cuota en firme, es un proxy de dinero jugado, pero ya verificamos con
+    datos reales (jornada 72, DECISION_LOG.md 2026-07-13/14) que este
+    consenso acierta un 71.4% en ligas donde el motor no tiene datos
+    propios (memoria_estadistica/noticias/contexto en false), frente al
+    ~35% practicamente plano que da el motor sin señal real ahi.
+    """
+    total = sum(float((mercado or {}).get(s) or 0) for s in ("1", "X", "2"))
+    if total <= 0:
+        return probs, 0.0, []
+
+    p = dict(probs)
+    peso = 0.18
+    top_motor = signo_top(p)
+    top_mercado = signo_top(mercado)
+    p = {
+        signo: float(p.get(signo, 0)) * (1 - peso) + float(mercado.get(signo, 0)) * peso
+        for signo in ("1", "X", "2")
+    }
+    riesgo_extra = 0.0
+    lecturas = []
+    if top_motor != top_mercado:
+        riesgo_extra += 6.0
+        lecturas.append(
+            f"Mercado Losilla: el consenso publico ({top_mercado}) no coincide con el favorito del motor ({top_motor})."
+        )
+    lecturas.append(f"Mercado Losilla: consenso publico integrado con peso {peso:.2f}.")
+    return normalizar_probs(p), round(riesgo_extra, 2), lecturas
+
+
 def ajustar_por_datos_profesionales(probs, datos_partido):
     if not datos_partido:
         return probs, 0.0, [], resumen_datos_profesionales_partido(None)
@@ -2227,6 +2261,9 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             datos_profesionales_partido,
         )
         lecturas_motivacion.extend(lecturas_datos_profesionales)
+        mercado_losilla_partido = mercado_losilla_signos(fuente_losilla, partido)
+        probs, riesgo_mercado_losilla, lecturas_mercado_losilla = ajustar_por_mercado_losilla(probs, mercado_losilla_partido)
+        lecturas_motivacion.extend(lecturas_mercado_losilla)
         ajuste_motivacion_competitiva = calcular_ajuste_motivacion({**partido, "probabilidades": probs}, clasificaciones_mundial, fuente_losilla)
         probs = aplicar_ajuste_motivacion_competitiva(probs, ajuste_motivacion_competitiva)
         riesgo_motivacion_competitiva = 0.0
@@ -2245,6 +2282,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             + riesgo_aprendizaje
             + riesgo_pesos_dinamicos
             + riesgo_datos_profesionales
+            + riesgo_mercado_losilla
             + riesgo_motivacion_competitiva,
         )
         sorpresa = probabilidad_sorpresa(probs, inc)
@@ -2296,6 +2334,12 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
                 "activo": bool(lecturas_datos_profesionales),
                 "riesgo_extra": riesgo_datos_profesionales,
                 "lecturas": lecturas_datos_profesionales,
+            },
+            "mercado_losilla": mercado_losilla_partido,
+            "ajuste_mercado_losilla": {
+                "activo": bool(lecturas_mercado_losilla),
+                "riesgo_extra": riesgo_mercado_losilla,
+                "lecturas": lecturas_mercado_losilla,
             },
             "ajuste_motivacion": ajuste_motivacion_competitiva,
             "alertas_motivacion": ajuste_motivacion_competitiva.get("alertas", []),

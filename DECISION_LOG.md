@@ -407,3 +407,48 @@ configurarse, ver pendientes).
 Por que importa: antes de automatizar una señal nueva, conviene acumular
 varios casos reales confirmados a mano (como este) para saber si de verdad
 aporta antes de invertir en conectarla al pipeline.
+
+### 2026-07-14 -- Se decidio conectar fuente_losilla.json de verdad, con peso real en las probabilidades
+
+Se investigo primero (sin tocar codigo) que haria falta para dar mas peso
+real al consenso de mercado en el motor. Hallazgos clave:
+- El pipeline de `datos_profesionales.py` (API-Football) ya esta completo,
+  probado y conectado de punta a punta -pero los secrets SI estan
+  configurados (desde el 12 de julio) y aun asi todas las peticiones fallan
+  con 403 Forbidden (token invalido/plan que no cubre temporada 2026 o
+  estas ligas), y ademas `QUINIHUB_PRO_DATA_LEAGUES` sigue con los valores
+  por defecto (La Liga/Segunda/Mundial) mientras se juegan ligas nordicas
+  de verano -asi que aunque se arreglara el 403, tampoco encontraria los
+  partidos correctos. Arreglar esto requiere que Marc revise su cuenta de
+  API-Football; queda pendiente, fuera del alcance de este cambio.
+- En cambio, `actualizar_fuente_losilla.py` YA scrapea automaticamente los
+  mismos % de jugados/probables/cuotas de eduardolosilla.es que usamos a
+  mano para la jornada 72, y el motor YA carga ese archivo
+  (`FUENTE_LOSILLA`, motor_prediccion_quiniela.py) -pero solo lo usaba para
+  un disparador estrecho (`calcular_ajuste_motivacion`: si el consenso
+  supera 80% Y ya hay una alerta motivacional, fuerza doble/triple). Nunca
+  se mezclaba con las probabilidades 1X2 en si, a diferencia de las cuotas
+  de API-Football (que si se integran con `ajustar_por_datos_profesionales`,
+  peso 0.14-0.30 segun el overround).
+
+Fix: nueva `ajustar_por_mercado_losilla(probs, mercado)`, mismo patron que
+`ajustar_por_datos_profesionales` pero para el consenso publico de Losilla:
+mezcla las probabilidades del motor con las de mercado con peso fijo 0.18
+(entre el nivel bajo y medio de las cuotas de bookmaker), y suma riesgo
+extra si el favorito de mercado no coincide con el del motor. Se llama en
+el bucle principal de `predecir()` justo despues de
+`ajustar_por_datos_profesionales` y antes de `calcular_ajuste_motivacion`
+(que sigue haciendo, ademas, su disparador de cobertura ya existente sobre
+las probs ya mezcladas). El riesgo extra se suma a la incertidumbre total
+del partido, y se guarda un bloque `mercado_losilla`/`ajuste_mercado_losilla`
+en cada partido evaluado, igual que ya se hace con `datos_profesionales`.
+
+Peso de 0.18 elegido por analogia con las cuotas de bookmaker (0.14-0.30
+segun calidad), no por un calculo estadistico formal -es un punto de
+partida razonable dado el 71.4% de acierto verificado en la jornada 72, se
+puede recalibrar con mas jornadas de datos reales (ver el archivo de
+comparativa de la entrada anterior).
+Por que importa: es la via barata y ya verificada (sin depender de una
+cuenta externa rota) para que el motor aproveche una señal que ya
+demostro ser mejor que sus propias probabilidades en ligas sin datos
+propios -en vez de dejarla usada solo para un disparador de cobertura.

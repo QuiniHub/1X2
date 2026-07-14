@@ -9,6 +9,7 @@ sys.path.insert(0, str(ROOT))
 from motor_prediccion_quiniela import (
     ajustar_por_datos_profesionales,
     ajustar_por_aprendizaje_propio,
+    ajustar_por_mercado_losilla,
     cobertura_automatica,
     coste,
     indice_sorpresa_quinielistica,
@@ -329,6 +330,36 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertTrue(resumen["activo"])
         self.assertTrue(any("Cuotas mercado" in lectura for lectura in lecturas))
         self.assertTrue(any("Bajas local" in lectura for lectura in lecturas))
+
+    def test_mercado_losilla_acerca_las_probs_al_consenso_publico(self):
+        probs = {"1": 34.0, "X": 33.0, "2": 33.0}
+        mercado = {"1": 6.0, "X": 10.0, "2": 84.0}
+
+        nuevas, riesgo, lecturas = ajustar_por_mercado_losilla(probs, mercado)
+
+        self.assertLess(nuevas["1"], probs["1"])
+        self.assertGreater(nuevas["2"], probs["2"])
+        self.assertGreater(riesgo, 0)
+        self.assertTrue(any("no coincide" in lectura for lectura in lecturas))
+        self.assertTrue(any("integrado con peso" in lectura for lectura in lecturas))
+
+    def test_mercado_losilla_sin_datos_no_cambia_nada(self):
+        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
+
+        nuevas, riesgo, lecturas = ajustar_por_mercado_losilla(probs, {"1": 0.0, "X": 0.0, "2": 0.0})
+
+        self.assertEqual(nuevas, probs)
+        self.assertEqual(riesgo, 0.0)
+        self.assertEqual(lecturas, [])
+
+    def test_mercado_losilla_de_acuerdo_con_el_motor_no_suma_riesgo(self):
+        probs = {"1": 60.0, "X": 25.0, "2": 15.0}
+        mercado = {"1": 88.0, "X": 8.0, "2": 4.0}
+
+        nuevas, riesgo, lecturas = ajustar_por_mercado_losilla(probs, mercado)
+
+        self.assertEqual(riesgo, 0.0)
+        self.assertFalse(any("no coincide" in lectura for lectura in lecturas))
 
     def test_trazabilidad_sube_calidad_con_datos_profesionales(self):
         trazabilidad = trazabilidad_datos_partido(
