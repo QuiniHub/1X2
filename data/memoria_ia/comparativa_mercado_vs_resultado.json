@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "descripcion": "Registro manual, jornada a jornada, de los porcentajes de mercado (jugados/LAE/probables de eduardolosilla.es) capturados ANTES de que empezaran los partidos, comparados contra el resultado real. Sirve para valorar con datos reales si el consenso del publico o el modelo de LAE son una señal fiable -sobre todo en ligas donde el motor propio (motor_prediccion_quiniela.py) no tiene datos reales (memoria_estadistica/noticias/contexto/datos_profesionales en false, ver DECISION_LOG.md). No esta conectado a ningun script todavia; es un punto de partida para decidir mas adelante si merece la pena integrar datos de mercado en vivo como señal real del motor.",
+  "actualizado_en": "2026-07-13T00:00:00.000000+00:00",
+  "jornadas": [
+    {
+      "jornada": 72,
+      "fuente_porcentajes": "https://www.eduardolosilla.es (capturado en pantalla antes del cierre de apuestas)",
+      "nuestra_jugada": {
+        "signos": ["1X2","1X2","1","1","12","1","1","1X2","2","1","2","1","1","1"],
+        "pleno15": "M-M",
+        "elige8": [1, 2, 7, 8, 10, 11, 12, 14]
+      },
+      "partidos": [
+        {"num": 1, "local": "España", "visitante": "Bélgica", "porcentaje_jugados": {"1": 66, "X": 22, "2": 12}, "porcentaje_lae": {"1": 52, "X": 25, "2": 23}, "porcentaje_probables": {"1": 59, "X": 24, "2": 17}, "resultado": "2-1", "signo_real": "1", "acierto_jugados": true, "acierto_lae": true, "acierto_probables": true},
+        {"num": 2, "local": "Noruega", "visitante": "Inglaterra", "porcentaje_jugados": {"1": 30, "X": 23, "2": 47}, "porcentaje_lae": {"1": 43, "X": 28, "2": 29}, "porcentaje_probables": {"1": 23, "X": 26, "2": 51}, "resultado": "1-2", "signo_real": "2", "acierto_jugados": true, "acierto_lae": false, "acierto_probables": true},
+        {"num": 3, "local": "Argentina", "visitante": "Suiza", "porcentaje_jugados": {"1": 59, "X": 22, "2": 19}, "porcentaje_lae": {"1": 45, "X": 27, "2": 28}, "porcentaje_probables": {"1": 55, "X": 27, "2": 18}, "resultado": "3-1", "signo_real": "1", "acierto_jugados": true, "acierto_lae": true, "acierto_probables": true},
+        {"num": 4, "local": "VPS", "visitante": "SJK", "porcentaje_jugados": {"1": 66, "X": 24, "2": 10}, "porcentaje_lae": {"1": 52, "X": 25, "2": 23}, "porcentaje_probables": {"1": 46, "X": 26, "2": 28}, "resultado": "1-0", "signo_real": "1", "acierto_jugados": true, "acierto_lae": true, "acierto_probables": true},
+        {"num": 5, "local": "FC Lahti", "visitante": "HJK Helsinki", "porcentaje_jugados": {"1": 26, "X": 21, "2": 53}, "porcentaje_lae": {"1": 35, "X": 28, "2": 37}, "porcentaje_probables": {"1": 30, "X": 26, "2": 44}, "resultado": "2-0", "signo_real": "1", "acierto_jugados": false, "acierto_lae": false, "acierto_probables": false, "nota": "El favorito claro del publico y de LAE (HJK, visitante) perdio en casa de Lahti. Cubierto con doble 12, asi que la jugada acerto igualmente."},
+        {"num": 6, "local": "TPS", "visitante": "AC Oulu", "porcentaje_jugados": {"1": 34, "X": 22, "2": 44}, "porcentaje_lae": {"1": 42, "X": 28, "2": 30}, "porcentaje_probables": {"1": 33, "X": 28, "2": 39}, "resultado": "3-0", "signo_real": "1", "acierto_jugados": false, "acierto_lae": true, "acierto_probables": false, "nota": "Caso claro de LAE contra el publico: la gente jugaba mayoritariamente el 2 (44%), pero el modelo de LAE favorecia el 1 (42%) y acerto. Senal de que el modelo de LAE no siempre va a remolque del dinero jugado."},
+        {"num": 7, "local": "IF Gnistan", "visitante": "IFK Mariehamn", "porcentaje_jugados": {"1": 88, "X": 8, "2": 4}, "porcentaje_lae": {"1": 53, "X": 25, "2": 22}, "porcentaje_probables": {"1": 69, "X": 19, "2": 12}, "resultado": "4-2", "signo_real": "1", "acierto_jugados": true, "acierto_lae": true, "acierto_probables": true},
+        {"num": 8, "local": "Fredrikstad", "visitante": "Lillestrøm", "porcentaje_jugados": {"1": 34, "X": 24, "2": 42}, "porcentaje_lae": {"1": 37, "X": 30, "2": 33}, "porcentaje_probables": {"1": 33, "X": 28, "2": 39}, "resultado": "0-2", "signo_real": "2", "acierto_jugados": true, "acierto_lae": false, "acierto_probables": true, "nota": "Partido casi empatado a tres bandas en los tres indicadores; se cubrio con triple 1X2 precisamente por esta incertidumbre real."},
+        {"num": 9, "local": "Aalesund", "visitante": "Molde", "porcentaje_jugados": {"1": 27, "X": 17, "2": 56}, "porcentaje_lae": {"1": 36, "X": 26, "2": 38}, "porcentaje_probables": {"1": 31, "X": 25, "2": 44}, "resultado": "2-2", "signo_real": "X", "acierto_jugados": false, "acierto_lae": false, "acierto_probables": false, "nota": "Empate no anticipado por ningun indicador (los tres favorecian el 2 con claridad). Fallo real de nuestra jugada (marcamos 2)."},
+        {"num": 10, "local": "Tromsø", "visitante": "Vålerenga", "porcentaje_jugados": {"1": 77, "X": 19, "2": 4}, "porcentaje_lae": {"1": 52, "X": 26, "2": 22}, "porcentaje_probables": {"1": 53, "X": 25, "2": 22}, "resultado": "4-0", "signo_real": "1", "acierto_jugados": true, "acierto_lae": true, "acierto_probables": true},
+        {"num": 11, "local": "KFUM Oslo", "visitante": "Bodø/Glimt", "porcentaje_jugados": {"1": 6, "X": 10, "2": 84}, "porcentaje_lae": {"1": 31, "X": 26, "2": 43}, "porcentaje_probables": {"1": 17, "X": 20, "2": 63}, "resultado": "0-2", "signo_real": "2", "acierto_jugados": true, "acierto_lae": true, "acierto_probables": true},
+        {"num": 12, "local": "Rosenborg", "visitante": "Kristiansund", "porcentaje_jugados": {"1": 78, "X": 14, "2": 8}, "porcentaje_lae": {"1": 50, "X": 27, "2": 23}, "porcentaje_probables": {"1": 58, "X": 23, "2": 19}, "resultado": "3-0", "signo_real": "1", "acierto_jugados": true, "acierto_lae": true, "acierto_probables": true},
+        {"num": 13, "local": "Sandefjord", "visitante": "HamKam", "porcentaje_jugados": {"1": 53, "X": 31, "2": 16}, "porcentaje_lae": {"1": 43, "X": 31, "2": 26}, "porcentaje_probables": {"1": 50, "X": 25, "2": 25}, "resultado": "2-2", "signo_real": "X", "acierto_jugados": false, "acierto_lae": false, "acierto_probables": false, "nota": "Segundo y ultimo empate de la jornada, tampoco anticipado por ningun indicador. Fallo real de nuestra jugada (marcamos 1)."},
+        {"num": 14, "local": "Brann", "visitante": "Start", "porcentaje_jugados": {"1": 91, "X": 6, "2": 3}, "porcentaje_lae": {"1": 54, "X": 24, "2": 22}, "porcentaje_probables": {"1": 71, "X": 18, "2": 11}, "resultado": "2-1", "signo_real": "1", "acierto_jugados": true, "acierto_lae": true, "acierto_probables": true}
+      ],
+      "pleno15": {
+        "num": 15, "local": "Sarpsborg", "visitante": "Viking",
+        "nota": "Viking llegaba con 9 victorias en sus ultimos 10 partidos (favorito aplastante de toda la jornada) y perdio 1-0 en casa de Sarpsborg. Marcado de antemano como el partido de mas riesgo de sorpresa de toda la jornada; se jugo M-M (apuesta contraria al favorito) y aun asi fallo el marcador exacto, pero confirma que el riesgo señalado era real.",
+        "resultado": "1-0",
+        "nuestra_jugada": "M-M",
+        "acierto": false
+      },
+      "resumen": {
+        "total_partidos_1_14": 14,
+        "aciertos_consenso_jugados": 10,
+        "aciertos_consenso_lae": 9,
+        "aciertos_consenso_probables": 10,
+        "aciertos_nuestra_jugada": 12,
+        "conclusion": "El consenso de jugados/probables (10/14, 71.4%) supero ligeramente al modelo propio de LAE (9/14, 64.3%) esta jornada. Los 2 unicos fallos de nuestra jugada (partidos 9 y 13) fueron empates que NINGUNO de los tres indicadores de mercado anticipo -el empate sigue siendo la categoria mas dificil de prever con datos de consenso porcentual, se necesitaria otra señal (forma reciente, contexto) para detectarlos. El caso del partido 6 muestra que el modelo de LAE puede acertar CONTRA el consenso del publico, no es solo un reflejo del dinero jugado."
+      }
+    }
+  ]
+}

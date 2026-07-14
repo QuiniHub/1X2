@@ -377,3 +377,33 @@ intercambiables, aunque ambos tengan forma de "partido con probabilidades").
 Cualquier funcion de seleccion/ranking debe preguntarse primero si TODOS
 los candidatos son realmente sustituibles entre si antes de puntuarlos
 juntos.
+
+### 2026-07-13 -- Nuevo archivo: comparativa manual de % de mercado vs resultado real (jornada 72)
+
+Marc y yo armamos a mano una quiniela para la jornada 72 usando los
+porcentajes reales de eduardolosilla.es (jugados/LAE/probables) en vez de
+fiarnos del motor -precisamente porque ya sabiamos que el motor no tiene
+datos reales para ligas nordicas/Mundial esta temporada baja. Acerto 12 de
+14 (fallando solo en dos empates, partidos 9 y 13, que ningun indicador de
+mercado anticipo). Se guardo como jugada real en `data/quinielas_jugadas.json`
+(confirmado por Marc, incluido el Elige 8: 1,2,7,8,10,11,12,14, los 8
+aciertos).
+
+Ademas, a peticion explicita de Marc ("por si le sirve de aprendizaje"), se
+creo `data/memoria_ia/comparativa_mercado_vs_resultado.json`: guarda, partido
+a partido, los 3 porcentajes de mercado capturados ANTES del partido junto
+al resultado real y si cada indicador acerto. Primera conclusion real:
+jugados/probables acertaron 10/14 (71.4%), el modelo propio de LAE 9/14
+(64.3%) -pero en el partido 6 el modelo de LAE acerto CONTRA el consenso
+del publico, asi que no es simplemente "peor que la gente" en todos los
+casos.
+
+Este archivo NO esta conectado a ningun script todavia -es un punto de
+partida manual, no un pipeline automatico-. Si con mas jornadas se confirma
+que el consenso de mercado es una señal fiable, seria la base para decidir
+si merece la pena integrar datos de mercado en vivo como señal real del
+motor (la fuente `QUINIHUB_PRO_DATA_URL` de cuotas profesionales sigue sin
+configurarse, ver pendientes).
+Por que importa: antes de automatizar una señal nueva, conviene acumular
+varios casos reales confirmados a mano (como este) para saber si de verdad
+aporta antes de invertir en conectarla al pipeline.
