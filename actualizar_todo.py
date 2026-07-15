@@ -82,6 +82,10 @@ SCRIPTS_ACTIVOS = [
 
     # --- Datos base ---
     "actualizar_jornadas_detalle.py",
+    # actualizar_resultados_libres.py corre aqui (antes de actualizar_boleto_vivo.py)
+    # para que este pueda usar ESPN/TheSportsDB como respaldo con datos frescos
+    # del mismo ciclo, no del ciclo anterior.
+    "actualizar_resultados_libres.py",
     "actualizar_boleto_vivo.py",
     "asegurar_proxima_jornada.py",
     "buscar_resultados_google.py",
@@ -115,8 +119,6 @@ SCRIPTS_ACTIVOS = [
     "construir_fuente_verdad_competitiva.py",
 
     # --- Competiciones internacionales y datos profesionales ---
-    # --- Resultados via fuentes libres (ESPN, TheSportsDB, OpenFootball — sin key) ---
-    "actualizar_resultados_libres.py",
     # --- Resultados via APIs (BallDontLie, API-Football, openfootball) ---
     "actualizar_resultados_apis.py",
     "actualizar_datos_profesionales.py",

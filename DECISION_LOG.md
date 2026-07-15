@@ -542,3 +542,52 @@ siendo HTML renderizado en servidor de verdad, o ha cambiado de
 arquitectura". Aqui cambiar a SPA no rompio el dato -lo escondio del
 scraper- pero dejo un atajo mucho mas fiable (el estado embebido) que ni
 siquiera existia cuando se escribio el scraper original.
+
+### 2026-07-15 -- Auditoria de todas las fuentes externas: resultados de liga sin respaldo real
+
+Marc pidio que ninguna fuente de datos (memoria del motor, chat, web
+predictiva) dependa de un solo sitio sin alternativa. Auditoria completa de
+las ~22 fuentes externas que usa el pipeline: la mayoria de categorias ya
+tienen un fallback real (calendario, clasificacion domestica, contexto/
+lesiones via Google News->Bing News, premios con hasta 5 fuentes), pero se
+encontraron 2 huecos reales:
+
+1. **Resultados de liga**: en la practica dependen solo de quiniela15.com
+   (`actualizar_boleto_vivo.py`, `FUENTES` con una unica entrada). La fuente
+   "oficial" (`actualizar_fuente_lae.py`, loteriasyapuestas.es), aunque
+   corre primero y esta etiquetada como prioritaria, no tiene ni un solo
+   resultado marcado como `lae_oficial` en todo el historico -no hay
+   evidencia de que funcione nunca-.
+2. Descubrimiento colateral: `actualizar_resultados_libres.py` ya descarga
+   resultados de ESPN + TheSportsDB + OpenFootball cada ciclo
+   (`data/resultados_libres.json`), pero **nada en el resto del sistema lee
+   ese archivo** -pura redundancia ya pagada en tiempo de ejecucion y nunca
+   aprovechada-.
+
+Fix: nuevo respaldo en `actualizar_boleto_vivo.py` -
+`aplicar_resultados_libres_a_jornada()`- que, tras la pasada normal de
+quiniela15.com, revisa las casillas que sigan sin `signo_oficial` valido y
+las completa con `data/resultados_libres.json` si encuentra el partido por
+nombre de equipo (`coincide_equipo()`: coincidencia por token, exige >=60%
+de cobertura del nombre MAS CORTO para no penalizar sufijos genericos como
+"CF"/"FC", y descarta un solo token compartido si es una palabra ambigua de
+club -"real", "athletic", "united"...-, para no aplicar nunca un resultado
+por una coincidencia de nombre falsa). Solo toca casillas ya resueltas por
+quiniela15 si estas quedan en "Pendiente"; nunca sobrescribe un resultado ya
+bueno.
+
+Se reordeno `SCRIPTS_ACTIVOS` en `actualizar_todo.py`: `actualizar_resultados_libres.py`
+corria muy despues de `actualizar_boleto_vivo.py` en el pipeline (con datos
+del ciclo anterior, no del actual). Se movio justo antes.
+
+Tests nuevos en `tests/test_actualizar_boleto_vivo.py`: coincidencia de
+nombres (con sufijo, con token ambiguo, sin relacion), busqueda del
+resultado correcto entre varios candidatos, y el caso completo -una casilla
+pendiente se completa con el respaldo, una ya resuelta por quiniela15 NO se
+sobrescribe aunque el respaldo traiga un marcador distinto, y un placeholder
+sin equipos reales se ignora-.
+Por que importa: una fuente de respaldo que ya se descarga pero no se usa
+da una falsa sensacion de redundancia -parece que hay 2 fuentes, pero solo
+una esta conectada de verdad-. Antes de dar por bueno "esto tiene
+fallback", hay que comprobar que el dato de respaldo realmente llega a
+alguna parte que lo consuma.

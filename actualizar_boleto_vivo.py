@@ -27,6 +27,15 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 JORNADAS = DATA / "jornadas"
 DIAGNOSTICO = DATA / "diagnostico_boleto_vivo.json"
+RESULTADOS_LIBRES = DATA / "resultados_libres.json"
+
+# Palabras genericas de nombre de club: si dos equipos solo comparten una de
+# estas, no cuenta como coincidencia real (evita falsos positivos como
+# "Real Madrid" vs "Real Sociedad", ambos con "real").
+TOKENS_AMBIGUOS_EQUIPO = {
+    "real", "athletic", "atletico", "atlético", "united", "city", "fc", "cf",
+    "cd", "ud", "sd", "rc", "rcd", "club", "deportivo", "sporting", "afc",
+}
 
 FUENTES = [
     {
@@ -284,6 +293,86 @@ def leer_boleto_vivo():
     return {"jornada": None, "items": [], "errores": errores}
 
 
+def leer_resultados_libres():
+    """Resultados ya descargados por actualizar_resultados_libres.py (ESPN +
+    TheSportsDB + OpenFootball). No tienen numero de casilla de quiniela -se
+    emparejan por nombre de equipo-, se usan solo como respaldo cuando
+    quiniela15.com no ha resuelto una casilla.
+    """
+    data = cargar_json(RESULTADOS_LIBRES, {})
+    return data.get("partidos") or []
+
+
+def _tokens_equipo(nombre):
+    return set(normalizar(canonico(nombre)).split())
+
+
+def coincide_equipo(nombre_a, nombre_b):
+    tokens_a = _tokens_equipo(nombre_a)
+    tokens_b = _tokens_equipo(nombre_b)
+    if not tokens_a or not tokens_b:
+        return False
+    if tokens_a == tokens_b:
+        return True
+    comunes = tokens_a & tokens_b
+    if not comunes:
+        return False
+    if len(comunes) == 1 and next(iter(comunes)) in TOKENS_AMBIGUOS_EQUIPO:
+        return False
+    # Cobertura del nombre MAS CORTO: un sufijo generico de mas en uno de los
+    # dos ("Villarreal" vs "Villarreal CF") no debe diluir la coincidencia,
+    # mientras la palabra distintiva compartida no sea ambigua (ya filtrado
+    # arriba).
+    return len(comunes) / min(len(tokens_a), len(tokens_b)) >= 0.6
+
+
+def buscar_resultado_libre(partidos_libres, local, visitante):
+    for item in partidos_libres:
+        if not item.get("resultado"):
+            continue
+        if coincide_equipo(item.get("local", ""), local) and coincide_equipo(item.get("visitante", ""), visitante):
+            return item
+    return None
+
+
+def aplicar_resultados_libres_a_jornada(data, partidos_libres):
+    """Segunda pasada, solo para casillas que quiniela15.com no resolvio:
+    intenta completarlas con ESPN/TheSportsDB (ya descargados en
+    data/resultados_libres.json) para que un fallo de la fuente principal no
+    deje la jornada pendiente sin necesidad.
+    """
+    if not partidos_libres:
+        return []
+    cambios = []
+    for partido in data.get("partidos", []):
+        if signo_valido(partido.get("signo_oficial")):
+            continue
+        try:
+            num = int(partido.get("num"))
+        except (TypeError, ValueError):
+            continue
+        local = partido.get("local")
+        visitante = partido.get("visitante")
+        if es_placeholder(local) or es_placeholder(visitante):
+            continue
+        item = buscar_resultado_libre(partidos_libres, local, visitante)
+        if not item:
+            continue
+        origen = CasillaViva(
+            num=num,
+            local=local,
+            visitante=visitante,
+            resultado=item.get("resultado", ""),
+            fuente=f"resultados_libres_{item.get('fuente', 'espn')}",
+        )
+        cambios_casilla = aplicar_casilla(partido, origen, pleno=False)
+        if cambios_casilla:
+            cambios.append({"num": num, "cambios": cambios_casilla})
+    if cambios:
+        recalcular_estado(data)
+    return cambios
+
+
 def es_placeholder(nombre):
     texto = normalizar(nombre)
     return (
@@ -397,13 +486,14 @@ def jornada_objetivo(boleto):
     return max(nums) if nums else None
 
 
-def guardar_diagnostico(boleto, cambios, jornada=None):
+def guardar_diagnostico(boleto, cambios, jornada=None, casillas_via_respaldo=0):
     guardar_json(DIAGNOSTICO, {
         "generado_en": ahora_iso(),
         "jornada": jornada or boleto.get("jornada"),
         "fuente": boleto.get("fuente", ""),
         "casillas_leidas": len(boleto.get("items", [])),
         "cambios": cambios,
+        "casillas_via_respaldo_resultados_libres": casillas_via_respaldo,
         "errores": boleto.get("errores", []),
         "estado": "actualizado" if cambios else "sin_cambios",
     })
@@ -425,9 +515,16 @@ def main():
         return
 
     cambios = aplicar_boleto_a_jornada(data, boleto)
+
+    partidos_libres = leer_resultados_libres()
+    cambios_libres = aplicar_resultados_libres_a_jornada(data, partidos_libres)
+    if cambios_libres:
+        cambios.extend(cambios_libres)
+        print(f"Boleto vivo jornada {jornada}: {len(cambios_libres)} casilla(s) completadas de respaldo (ESPN/TheSportsDB).")
+
     if cambios:
         guardar_json(path, data)
-    guardar_diagnostico(boleto, cambios, jornada)
+    guardar_diagnostico(boleto, cambios, jornada, casillas_via_respaldo=len(cambios_libres))
     print(f"Boleto vivo jornada {jornada}: {len(cambios)} casillas actualizadas.")
 
 

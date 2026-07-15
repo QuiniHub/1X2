@@ -106,10 +106,12 @@ class ActualizarBoletoVivoTests(unittest.TestCase):
             )
             original_jornadas = actualizar_boleto_vivo.JORNADAS
             original_diag = actualizar_boleto_vivo.DIAGNOSTICO
+            original_resultados_libres = actualizar_boleto_vivo.RESULTADOS_LIBRES
             original_leer = actualizar_boleto_vivo.leer_boleto_vivo
             try:
                 actualizar_boleto_vivo.JORNADAS = jornadas
                 actualizar_boleto_vivo.DIAGNOSTICO = tmp / "diagnostico.json"
+                actualizar_boleto_vivo.RESULTADOS_LIBRES = tmp / "resultados_libres.json"
                 actualizar_boleto_vivo.leer_boleto_vivo = lambda: {
                     "jornada": 67,
                     "items": [],
@@ -122,6 +124,7 @@ class ActualizarBoletoVivoTests(unittest.TestCase):
             finally:
                 actualizar_boleto_vivo.JORNADAS = original_jornadas
                 actualizar_boleto_vivo.DIAGNOSTICO = original_diag
+                actualizar_boleto_vivo.RESULTADOS_LIBRES = original_resultados_libres
                 actualizar_boleto_vivo.leer_boleto_vivo = original_leer
 
     def test_fusion_jornada_no_regresa_a_placeholder(self):
@@ -159,6 +162,73 @@ class ActualizarBoletoVivoTests(unittest.TestCase):
         self.assertEqual(fusionada["partidos"][0]["fuente_resultado"], "quiniela15_resultados")
         self.assertEqual(fusionada["partidos"][1]["local"], "Malaga CF")
         self.assertEqual(fusionada["partidos"][1]["visitante"], "UD Almeria")
+
+    def test_coincide_equipo_nombres_parecidos(self):
+        self.assertTrue(actualizar_boleto_vivo.coincide_equipo("Real Madrid", "Real Madrid CF"))
+        self.assertTrue(actualizar_boleto_vivo.coincide_equipo("Malaga", "Malaga CF"))
+
+    def test_coincide_equipo_token_ambiguo_no_basta(self):
+        # "Real Madrid" y "Real Sociedad" solo comparten "real" -no es un
+        # acierto real, y aplicar este resultado seria un dato corrompido.
+        self.assertFalse(actualizar_boleto_vivo.coincide_equipo("Real Madrid", "Real Sociedad"))
+
+    def test_coincide_equipo_sin_relacion(self):
+        self.assertFalse(actualizar_boleto_vivo.coincide_equipo("Brann", "Sandefjord"))
+
+    def test_buscar_resultado_libre_encuentra_el_partido_correcto(self):
+        partidos_libres = [
+            {"local": "Real Sociedad de Futbol", "visitante": "CA Osasuna", "resultado": "2-1", "fuente": "espn"},
+            {"local": "Real Madrid CF", "visitante": "Villarreal CF", "resultado": "3-0", "fuente": "espn"},
+        ]
+        item = actualizar_boleto_vivo.buscar_resultado_libre(partidos_libres, "Real Madrid", "Villarreal")
+        self.assertIsNotNone(item)
+        self.assertEqual(item["resultado"], "3-0")
+
+    def test_aplica_resultados_libres_solo_a_casillas_pendientes(self):
+        data = {
+            "estado": "abierta",
+            "partidos": [
+                {
+                    "num": 1,
+                    "local": "Real Madrid",
+                    "visitante": "Villarreal",
+                    "resultado": "Pendiente",
+                    "signo_oficial": "Pendiente",
+                },
+                {
+                    "num": 2,
+                    "local": "Barcelona",
+                    "visitante": "Sevilla",
+                    "resultado": "2-1",
+                    "signo_oficial": "1",
+                    "fuente_resultado": "quiniela15_resultados",
+                },
+                {
+                    "num": 3,
+                    "local": "F1 Hypermotion",
+                    "visitante": "F2 Hypermotion",
+                    "resultado": "Pendiente",
+                    "signo_oficial": "Pendiente",
+                },
+            ],
+        }
+        partidos_libres = [
+            {"local": "Real Madrid CF", "visitante": "Villarreal CF", "resultado": "3-0", "fuente": "espn"},
+            {"local": "Barcelona", "visitante": "Sevilla", "resultado": "9-9", "fuente": "espn"},
+        ]
+
+        cambios = actualizar_boleto_vivo.aplicar_resultados_libres_a_jornada(data, partidos_libres)
+
+        self.assertEqual({c["num"] for c in cambios}, {1})
+        self.assertEqual(data["partidos"][0]["resultado"], "3-0")
+        self.assertEqual(data["partidos"][0]["signo_oficial"], "1")
+        self.assertEqual(data["partidos"][0]["fuente_resultado"], "resultados_libres_espn")
+        # Ya resuelto por quiniela15: el resultado libre (con marcador
+        # distinto en este test) NO debe sobrescribirlo.
+        self.assertEqual(data["partidos"][1]["resultado"], "2-1")
+        self.assertEqual(data["partidos"][1]["fuente_resultado"], "quiniela15_resultados")
+        # Placeholder sin resolver: no hay equipos reales con los que emparejar.
+        self.assertEqual(data["partidos"][2]["signo_oficial"], "Pendiente")
 
     def test_boleto_vivo_recupera_fuente_si_resultado_ya_coincide(self):
         destino = {
