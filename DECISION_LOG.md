@@ -591,3 +591,33 @@ da una falsa sensacion de redundancia -parece que hay 2 fuentes, pero solo
 una esta conectada de verdad-. Antes de dar por bueno "esto tiene
 fallback", hay que comprobar que el dato de respaldo realmente llega a
 alguna parte que lo consuma.
+
+### 2026-07-15 -- El chat no encontraba los horarios de LaLiga porque no tenia query propia para ella
+
+Marc pregunto en el chat "YA HAY LOS HORARIOS DE LA 1A JORNADA DE LIGA DE 1A
+Y 2A DE ESPAÑA?" (LaLiga ya los habia publicado, confirmado con busqueda
+real) y la IA contesto que no habia informacion, remitiendo a Marca/AS en
+vez de mirarlo ella misma.
+
+Causa: `necesitaBusquedaWeb()` SI detectaba la intencion de busqueda
+(matchea "horario"), pero `construirQueryBusqueda()` (index.html) tiene
+casos especiales para Mundial, Allsvenskan, Veikkausliiga, Eliteserien,
+Superligaen, Premier, Bundesliga, Serie A, Ligue 1 y Champions -pero NINGUNO
+para La Liga/Segunda de España, la competicion principal de esta app-. Sin
+un caso propio, la consulta caia al fallback generico
+(`futbol {texto} {fecha}`), una query demasiado debil y ruidosa para que
+Tavily encontrara algo tan especifico como unos horarios recien publicados.
+
+Fix: nuevo caso especial `esLigaEspanola` en `construirQueryBusqueda()`,
+detectado por marca (laliga/hypermotion/"ea sports"/"1a division"/"2a
+division") o por la combinacion generica liga+division+jornada+calendario+
+horario junto con "españa" (porque el usuario no siempre nombra la marca
+oficial). Genera `LaLiga EA Sports Hypermotion España calendario horarios
+{texto} {fecha}`, mucho mas especifico. Verificado en el navegador real
+(sin servidor, funcion pura): la consulta de Marc ahora genera esa query
+especifica; consultas de equipos concretos (Real Madrid) y de otras ligas
+(Veikkausliiga) siguen sin verse afectadas, sin falsos positivos.
+Por que importa: la competicion mas importante de la app (La Liga/Segunda)
+era la unica sin ruta de busqueda dedicada -un descuido facil de cometer
+cuando se van añadiendo ligas extranjeras una a una y se da por hecho que
+"la de casa" ya esta cubierta-.

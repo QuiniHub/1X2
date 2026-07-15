@@ -2309,6 +2309,18 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
       if (/champions/i.test(t))
         return `Champions League ${texto.slice(0, 50)} ${fechaHoy}`;
 
+      // La Liga / Segunda española (LaLiga EA Sports / Hypermotion) — la
+      // competición principal de esta app, pero antes no tenía query propia
+      // y caía al fallback genérico ("futbol {texto} {fecha}"), demasiado
+      // débil para encontrar cosas como horarios de jornada recién
+      // publicados. Se detecta tanto por marca (laliga/hypermotion/ea
+      // sports) como por combinación liga+división+España, ya que el
+      // usuario no siempre nombra la marca oficial.
+      const esLigaEspanola = /laliga|la liga|hypermotion|\bea sports\b|1[aª]\s*divisi[oó]n|2[aª]\s*divisi[oó]n|primera divisi[oó]n|segunda divisi[oó]n/i.test(t)
+        || (/espa[ñn]a/i.test(t) && /liga|divisi[oó]n|jornada|calendario|horario/i.test(t));
+      if (esLigaEspanola)
+        return `LaLiga EA Sports Hypermotion España calendario horarios ${texto.slice(0, 60)} ${fechaHoy}`;
+
       const equipos = [
         'real madrid', 'barcelona', 'atletico', 'sevilla', 'valencia',
         'betis', 'villarreal', 'athletic', 'sociedad', 'osasuna',
