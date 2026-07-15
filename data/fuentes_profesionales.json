@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-15T19:28:01.240954+00:00",
+  "generado_en": "2026-07-15T19:38:13.371975+00:00",
   "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
   "estado_global": "en_construccion",
   "fuentes": {
@@ -11,10 +11,10 @@
       "siguiente_paso": "comparar fuente actual contra segunda fuente o API oficial/licenciada"
     },
     "cuotas_mercado": {
-      "estado": "pendiente_api",
+      "estado": "error_conexion",
       "prioridad": "critica",
       "uso": "transformar mercado en probabilidad base y detectar favoritos mal valorados",
-      "siguiente_paso": "conectar proveedor de cuotas 1X2 con snapshots antes del cierre"
+      "siguiente_paso": "token/URL configurados pero la API no responde datos (ej: fixtures Bodø/Glimt - Fredrikstad: 403 Client Error: Forbidden for url: https://v3.football.api-sports.io/fixtures?date=2026-07-17&league=140&season=2026&timezone=Europe%2FMadrid); revisar validez del token o si el plan cubre la temporada/ligas actuales."
     },
     "movimiento_cuotas": {
       "estado": "pendiente_api",
@@ -29,13 +29,13 @@
       "siguiente_paso": "cargar xG/xGA por equipo, condicion local/visitante y ultimos partidos"
     },
     "lesiones_sanciones": {
-      "estado": "parcial_no_estructurado",
+      "estado": "error_conexion",
       "prioridad": "critica",
       "uso": "evitar fijos debiles por bajas clave o sanciones",
       "siguiente_paso": "estructurar parte medico y sanciones por jugador e impacto"
     },
     "alineaciones_probables": {
-      "estado": "pendiente_fuente",
+      "estado": "error_conexion",
       "prioridad": "alta",
       "uso": "detectar rotaciones y titulares dudosos",
       "siguiente_paso": "cargar once probable y probabilidad de titularidad"
@@ -83,10 +83,10 @@
       "siguiente_paso": "conectar asignaciones arbitrales y clima/sede"
     },
     "porcentajes_publicos_quiniela": {
-      "estado": "pendiente_fuente",
+      "estado": "conectado_scraper",
       "prioridad": "alta",
       "uso": "detectar signos populares y sorpresas con mayor valor estrategico",
-      "siguiente_paso": "guardar distribucion publica 1/X/2 por casilla si la fuente existe"
+      "siguiente_paso": "ya integrado como señal directa (ajustar_por_mercado_losilla, peso 0.18); recalibrar el peso con mas jornadas reales."
     }
   },
   "datos_profesionales": {
@@ -121,17 +121,19 @@
     "total": 14,
     "estados": {
       "conectado_fragil": 1,
-      "pendiente_api": 2,
-      "pendiente_fuente": 4,
-      "parcial_no_estructurado": 1,
+      "error_conexion": 3,
+      "pendiente_api": 1,
+      "pendiente_fuente": 2,
       "pendiente_publicacion_o_api": 1,
       "pendiente_dataset": 1,
       "pendiente_modelado": 2,
       "conectado_parcial": 1,
-      "parcial": 1
+      "parcial": 1,
+      "conectado_scraper": 1
     },
     "criticas_pendientes": [
       "cuotas_mercado",
+      "lesiones_sanciones",
       "calendario_oficial_2026_2027"
     ],
     "lectura": "Mientras existan fuentes criticas pendientes, las probabilidades deben marcarse como no plenamente calibradas."
