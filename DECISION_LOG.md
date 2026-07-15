@@ -649,3 +649,46 @@ Por que importa: no toda referencia a un archivo que "nunca se genera" es
 un bug que arreglar -a veces es una funcionalidad que ya cumplio su
 proposito y esperar a que la temporada real la haga irrelevante es mas
 seguro que tocar codigo sin necesidad.
+
+### 2026-07-15 -- auditar_fuentes_profesionales.py: dos diagnosticos desactualizados corregidos
+
+Ultimo punto de la auditoria de fuentes: `auditar_fuentes_profesionales.py`
+(el propio panel de diagnostico del sistema) tenia dos inexactitudes:
+
+1. `porcentajes_publicos_quiniela` seguia marcada a mano como
+   "pendiente_fuente" sin comprobar nunca el estado real de
+   `fuente_losilla.json` -que ya lleva desde el 2026-07-08 scrapeando datos
+   reales y desde el 2026-07-14 integrada de verdad en el motor
+   (`ajustar_por_mercado_losilla`)-. El diagnostico decia "pendiente" de
+   algo que ya estaba en produccion.
+2. Cuando API-Football falla con 403 (token configurado pero rechazado,
+   ver entrada de "conectar Losilla" mas arriba), `cuotas_mercado`,
+   `lesiones_sanciones` y `alineaciones_probables` se quedaban en su estado
+   por defecto ("pendiente_api"/"pendiente_fuente") -identico a como se ven
+   cuando nunca se configuro nada-. Un token roto y un token nunca puesto
+   eran indistinguibles en este diagnostico.
+
+Fix: `aplicar_estado_conector()` ahora recibe tambien `fuente_losilla` y
+marca `porcentajes_publicos_quiniela` como "conectado_scraper" si hay al
+menos 10 partidos reales. Nuevo estado `error_conexion` (token/URL
+configurados pero la API no entrega ni un partido, con el error real de
+API-Football en el mensaje) para las 3 fuentes que dependen de ella,
+distinto de "pendiente_secret" (nunca configurado).
+
+Bug de paso, encontrado al escribir el test: `criticas_pendientes` en
+`main()` solo miraba si el estado empezaba por "pendiente" -con el nuevo
+`error_conexion`, una fuente critica rota (token invalido) desaparecia de
+esa lista sin estar resuelta, y `estado_global` podia decir
+"base_critica_cubierta" con API-Football completamente caida. Corregido
+para que `error_conexion` tambien cuente como pendiente.
+
+Tests nuevos en `tests/test_auditar_fuentes_profesionales.py` (antes sin
+ningun test): estado correcto con/sin datos reales de Losilla, distincion
+error_conexion vs pendiente_secret vs conectado, y el caso que reproduce
+el bug de `criticas_pendientes` encontrado de paso.
+Por que importa: un panel de diagnostico que dice "todo pendiente" cuando
+en realidad ya funciona (o dice "todo cubierto" cuando en realidad esta
+roto) es peor que no tener panel -genera confianza falsa en cualquier
+direccion. Cualquier cambio en como una fuente se marca como
+resuelta/rota debe revisarse tambien contra los resumenes agregados que
+dependen de ese estado, no solo contra el campo individual.

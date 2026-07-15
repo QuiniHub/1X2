@@ -8,6 +8,7 @@ DATA = ROOT / "data"
 MEMORIA = DATA / "memoria_ia"
 OUT = DATA / "fuentes_profesionales.json"
 DATOS_PROFESIONALES = DATA / "datos_profesionales.json"
+FUENTE_LOSILLA = MEMORIA / "fuente_losilla.json"
 
 FUENTES = {
     "resultados_directo_consenso": {
@@ -121,9 +122,35 @@ def copiar_fuentes():
     return json.loads(json.dumps(FUENTES, ensure_ascii=False))
 
 
-def aplicar_estado_conector(fuentes, datos):
+def aplicar_estado_conector(fuentes, datos, fuente_losilla=None):
     resumen = datos.get("resumen") or {}
     estado_global = str(datos.get("estado_global") or "").lower()
+    configuracion = datos.get("configuracion") or {}
+    errores_api_football = (((datos.get("proveedores") or {}).get("api_football") or {}).get("errores") or [])
+    # Token/URL configurados pero la API sigue sin dar ni un solo partido: es
+    # un fallo de conexion real (token invalido, plan sin cobertura de la
+    # temporada/liga...), muy distinto de "pendiente_secret" (nunca
+    # configurado). Sin distinguirlos, un token roto se ve identico a un
+    # token que nunca se puso.
+    error_conexion_api_football = (
+        bool(configuracion.get("token_configurado"))
+        and not int(resumen.get("cuotas") or 0)
+        and bool(errores_api_football)
+    )
+
+    # porcentajes_publicos_quiniela venia marcada "pendiente_fuente" a mano y
+    # nunca se comprobaba contra el estado real de fuente_losilla.json -que
+    # ya lleva desde el 2026-07-08 scrapeando el % de jugados/probables/LAE
+    # de eduardolosilla.es (ajustar_por_mercado_losilla lo usa desde el
+    # 2026-07-14)-. Sin esto, este diagnostico decia "pendiente" de una
+    # fuente que ya estaba conectada y en uso real.
+    partidos_porcentaje = (((fuente_losilla or {}).get("probabilidades") or {}).get("partidos") or [])
+    if len(partidos_porcentaje) >= 10:
+        fuentes["porcentajes_publicos_quiniela"]["estado"] = "conectado_scraper"
+        fuentes["porcentajes_publicos_quiniela"]["siguiente_paso"] = (
+            "ya integrado como señal directa (ajustar_por_mercado_losilla, peso 0.18); "
+            "recalibrar el peso con mas jornadas reales."
+        )
 
     if int(resumen.get("cuotas") or 0) > 0:
         fuentes["cuotas_mercado"]["estado"] = "conectado_api"
@@ -131,18 +158,29 @@ def aplicar_estado_conector(fuentes, datos):
         fuentes["movimiento_cuotas"]["estado"] = "base_snapshot"
     elif estado_global == "pendiente_secrets":
         fuentes["cuotas_mercado"]["estado"] = "pendiente_secret"
+    elif error_conexion_api_football:
+        fuentes["cuotas_mercado"]["estado"] = "error_conexion"
+        fuentes["cuotas_mercado"]["siguiente_paso"] = (
+            f"token/URL configurados pero la API no responde datos "
+            f"(ej: {errores_api_football[0]}); revisar validez del token o "
+            f"si el plan cubre la temporada/ligas actuales."
+        )
 
     if int(resumen.get("bajas_estructuradas") or 0) > 0:
         fuentes["lesiones_sanciones"]["estado"] = "conectado_estructurado"
         fuentes["lesiones_sanciones"]["siguiente_paso"] = "medir impacto por titularidad y minutos esperados"
     elif estado_global == "pendiente_secrets":
         fuentes["lesiones_sanciones"]["estado"] = "pendiente_secret"
+    elif error_conexion_api_football:
+        fuentes["lesiones_sanciones"]["estado"] = "error_conexion"
 
     if int(resumen.get("alineaciones_probables") or 0) > 0:
         fuentes["alineaciones_probables"]["estado"] = "conectado_estructurado"
         fuentes["alineaciones_probables"]["siguiente_paso"] = "comparar once probable contra once confirmado y aprender errores"
     elif estado_global == "pendiente_secrets":
         fuentes["alineaciones_probables"]["estado"] = "pendiente_secret"
+    elif error_conexion_api_football:
+        fuentes["alineaciones_probables"]["estado"] = "error_conexion"
 
     if int(resumen.get("calendario_oficial") or 0) > 0:
         fuentes["calendario_oficial_2026_2027"]["estado"] = "conectado_normalizado"
@@ -157,11 +195,18 @@ def aplicar_estado_conector(fuentes, datos):
 
 def main():
     datos = cargar_json(DATOS_PROFESIONALES, {})
-    fuentes = aplicar_estado_conector(copiar_fuentes(), datos)
+    fuente_losilla = cargar_json(FUENTE_LOSILLA, {})
+    fuentes = aplicar_estado_conector(copiar_fuentes(), datos, fuente_losilla)
     estados = Counter(item["estado"] for item in fuentes.values())
+    # "error_conexion" tampoco cuenta como resuelto: es una fuente critica
+    # configurada pero que no entrega datos, no menos urgente que una que
+    # nunca se configuro -si solo se mirara el prefijo "pendiente", una API
+    # rota desaparecia de esta lista y el estado global diria erroneamente
+    # que las fuentes criticas ya estan cubiertas.
     criticas_pendientes = [
         clave for clave, item in fuentes.items()
-        if item.get("prioridad") == "critica" and str(item.get("estado", "")).startswith("pendiente")
+        if item.get("prioridad") == "critica"
+        and (str(item.get("estado", "")).startswith("pendiente") or item.get("estado") == "error_conexion")
     ]
     salida = {
         "version": "1.0",
