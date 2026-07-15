@@ -621,3 +621,31 @@ Por que importa: la competicion mas importante de la app (La Liga/Segunda)
 era la unica sin ruta de busqueda dedicada -un descuido facil de cometer
 cuando se van añadiendo ligas extranjeras una a una y se da por hecho que
 "la de casa" ya esta cubierta-.
+
+### 2026-07-15 -- clasificaciones_mundial_2026.json: confirmado inerte y sin riesgo, no se toca
+
+`motor_prediccion_quiniela.py` espera `data/memoria_ia/clasificaciones_mundial_2026.json`
+pero ningun script lo genera nunca. Comprobado que esto NO es un bug activo:
+`buscar_equipo_mundial()`/`es_ya_clasificada()`/`es_eliminada()` degradan
+con total seguridad a `{}`/`None`/`False` sin excepciones, asi que el unico
+efecto es que los ajustes de motivacion especificos del Mundial (casos A y
+C de `calcular_ajuste_motivacion`) nunca se disparan.
+
+Comprobado tambien que ya no hace falta: las jornadas 73 y 74 (las unicas
+con partidos reales pendientes) son 100% ligas nordicas, sin ningun partido
+de Mundial real -las menciones a "Mundial" que aparecen en esos JSON son
+solo texto fijo del clasificador de competicion ("No encaja en
+Primera/Segunda ni en Mundial..."), no partidos reales-. Ademas
+`data/estado_temporada_2026_2027.json` ya tiene `modo_pretemporada_activo:
+true`, confirmando que el sistema ya esta en modo de transicion a Liga
+26/27.
+
+Decision: no invertir en construir un scraper de clasificaciones del
+Mundial para una funcionalidad que ya no tiene partidos reales que cubrir.
+Tampoco se retira el codigo que la usa -esta inerte, no roto, y quitarlo
+significaria tocar varias funciones de motor_prediccion_quiniela.py sin
+ningun beneficio real ahora mismo-.
+Por que importa: no toda referencia a un archivo que "nunca se genera" es
+un bug que arreglar -a veces es una funcionalidad que ya cumplio su
+proposito y esperar a que la temporada real la haga irrelevante es mas
+seguro que tocar codigo sin necesidad.
