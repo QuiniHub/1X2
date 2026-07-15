@@ -1,6 +1,6 @@
 {
   "version": "1.4",
-  "generado_en": "2026-07-15T05:58:38.594161+00:00",
+  "generado_en": "2026-07-15T07:59:42.566393+00:00",
   "jornada": 73,
   "temporada_base": "2025/2026",
   "estado": "lista_para_publicar",
@@ -20,7 +20,7 @@
     "en_espera": false,
     "resultados_completos_anterior": true,
     "aprendizaje_aplicado_anterior": true,
-    "actualizado_en": "2026-07-15T05:58:38.495598+00:00",
+    "actualizado_en": "2026-07-15T07:59:42.467848+00:00",
     "detalle_cierre_anterior": {
       "ok": true,
       "total": 14,
@@ -63,51 +63,48 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 32.2,
-        "X": 34.8,
-        "2": 33.0
+        "1": 43.0,
+        "X": 29.6,
+        "2": 27.4
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 32.2,
-          "nivel": "baja"
+          "probabilidad": 43.0,
+          "nivel": "media"
         },
         "X": {
-          "probabilidad": 34.8,
+          "probabilidad": 29.6,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 33.0,
+          "probabilidad": 27.4,
           "nivel": "baja"
         }
       },
-      "signo_base": "X",
-      "signo_final": "X",
-      "tipo": "FIJO",
-      "incertidumbre": 144.92,
-      "probabilidad_sorpresa": 70,
-      "probabilidad_top": 34.8,
-      "margen_probabilidad": 1.8,
-      "tercera_probabilidad": 32.2,
+      "signo_base": "1",
+      "signo_final": "1X",
+      "tipo": "DOBLE",
+      "incertidumbre": 137.5,
+      "probabilidad_sorpresa": 68.9,
+      "probabilidad_top": 43.0,
+      "margen_probabilidad": 13.4,
+      "tercera_probabilidad": 27.4,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 100.0,
-      "surprise_score": 100.0,
-      "categoria_sorpresa": "partido_muy_abierto",
-      "favorito_atacable": false,
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "signo_sorpresa_principal": "2",
+      "indice_sorpresa_quinielistica": 83.3,
+      "surprise_score": 83.3,
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito_atacable": true,
+      "favorito": "1",
+      "favorito_nombre": "Bodø/Glimt",
+      "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
-        "2",
-        "1"
+        "X",
+        "2"
       ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "cobertura_sorpresa_sugerida": "DOBLE",
       "motivos_sorpresa": [
-        "margen minimo entre primer y segundo signo",
         "ningun signo supera claramente el 45%",
-        "empate con peso alto",
-        "tercer signo vivo: partido candidato a triple",
-        "el signo base es X: no hay favorito limpio"
+        "tercer signo vivo: partido candidato a triple"
       ],
       "origen_probabilidades": "fallback_posicion+modelo_entrenado",
       "calidad_datos": "baja",
@@ -146,7 +143,7 @@
             "X": 35.4,
             "2": 30.9
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -204,7 +201,7 @@
           "X": 35.4,
           "2": 30.9
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -240,14 +237,17 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 92.0,
+        "X": 6.0,
+        "2": 2.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 6.0,
+        "lecturas": [
+          "Mercado Losilla: el consenso publico (1) no coincide con el favorito del motor (X).",
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -262,9 +262,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 92.0,
+          "X": 6.0,
+          "2": 2.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -284,41 +284,42 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=32.2%, X=34.8%, 2=33.0%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (X) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: X.",
+      "elige8": true,
+      "razonamiento": "Probabilidades IA: 1=43.0%, X=29.6%, 2=27.4%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=83.3/100, sorpresa=68.9%, incertidumbre=137.5 y margen=13.4. Favorito o signo de referencia: Bodø/Glimt. Motivos principales: ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decision final: 1X.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "X como signo dominante (34.8%).",
-        "hipotesis_alternativa": "2 como alternativa (33.0%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "hipotesis_principal": "1 como signo dominante (43.0%).",
+        "hipotesis_alternativa": "X como alternativa (29.6%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
         "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
-          "probabilidad": 70.0,
-          "favorito_atacable": false
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 68.9,
+          "favorito_atacable": true
         },
-        "justificacion_final": "Decision FIJO X: margen 1.8 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision DOBLE 1X: margen 13.4 puntos, indice sorpresa 83.3."
       },
-      "hipotesis_principal": "X como signo dominante (34.8%).",
-      "hipotesis_alternativa": "2 como alternativa (33.0%).",
-      "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+      "hipotesis_principal": "1 como signo dominante (43.0%).",
+      "hipotesis_alternativa": "X como alternativa (29.6%).",
+      "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
       "riesgo_de_sorpresa": {
-        "categoria": "partido_muy_abierto",
-        "probabilidad": 70.0,
-        "favorito_atacable": false
+        "categoria": "favorito_muy_atacable",
+        "probabilidad": 68.9,
+        "favorito_atacable": true
       },
-      "justificacion_final": "Decision FIJO X: margen 1.8 puntos, indice sorpresa 100.0.",
-      "en_elige8": false,
+      "justificacion_final": "Decision DOBLE 1X: margen 13.4 puntos, indice sorpresa 83.3.",
+      "en_elige8": true,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 34.8,
-      "elige8_probabilidad_acierto": 34.8,
-      "elige8_probabilidad_cubierta": 34.8,
-      "elige8_seguro_score": 34.8,
-      "elige8_confianza_real": 34.8,
-      "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 13,
+      "probabilidad_acierto_elige8": 72.6,
+      "elige8_probabilidad_acierto": 72.6,
+      "elige8_probabilidad_cubierta": 72.6,
+      "elige8_seguro_score": 72.6,
+      "elige8_confianza_real": 72.6,
+      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_seguro_posicion": 5,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 34.8,
-      "elige8_seguro_margen": 1.8
+      "elige8_seguro_probabilidad_top": 43.0,
+      "elige8_seguro_margen": 13.4,
+      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto."
     },
     {
       "num": 2,
@@ -327,32 +328,32 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 35.2,
-        "X": 34.3,
-        "2": 30.5
+        "1": 34.1,
+        "X": 33.2,
+        "2": 32.8
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 35.2,
-          "nivel": "media"
+          "probabilidad": 34.07,
+          "nivel": "baja"
         },
         "X": {
-          "probabilidad": 34.3,
+          "probabilidad": 33.17,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 30.5,
+          "probabilidad": 32.77,
           "nivel": "baja"
         }
       },
       "signo_base": "1",
-      "signo_final": "1",
-      "tipo": "FIJO",
-      "incertidumbre": 144.88,
+      "signo_final": "1X2",
+      "tipo": "TRIPLE",
+      "incertidumbre": 150.49,
       "probabilidad_sorpresa": 70,
-      "probabilidad_top": 35.2,
+      "probabilidad_top": 34.1,
       "margen_probabilidad": 0.9,
-      "tercera_probabilidad": 30.5,
+      "tercera_probabilidad": 32.8,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
       "surprise_score": 100.0,
@@ -409,7 +410,7 @@
             "X": 33.6,
             "2": 29.6
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -451,7 +452,7 @@
           "X": 33.6,
           "2": 29.6
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -487,14 +488,17 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 29.0,
+        "X": 28.0,
+        "2": 43.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 6.0,
+        "lecturas": [
+          "Mercado Losilla: el consenso publico (2) no coincide con el favorito del motor (1).",
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -509,9 +513,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 29.0,
+          "X": 28.0,
+          "2": 43.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -531,41 +535,42 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=35.2%, X=34.3%, 2=30.5%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: HamKam. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1.",
+      "elige8": true,
+      "razonamiento": "Probabilidades IA: 1=34.1%, X=33.2%, 2=32.8%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=150.5 y margen=0.9. Favorito o signo de referencia: HamKam. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X2.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "1 como signo dominante (35.2%).",
-        "hipotesis_alternativa": "X como alternativa (34.3%).",
-        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "hipotesis_principal": "1 como signo dominante (34.1%).",
+        "hipotesis_alternativa": "X como alternativa (33.2%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
         "riesgo_de_sorpresa": {
           "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 0.9 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision TRIPLE 1X2: margen 0.9 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "1 como signo dominante (35.2%).",
-      "hipotesis_alternativa": "X como alternativa (34.3%).",
-      "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+      "hipotesis_principal": "1 como signo dominante (34.1%).",
+      "hipotesis_alternativa": "X como alternativa (33.2%).",
+      "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
       "riesgo_de_sorpresa": {
         "categoria": "favorito_muy_atacable",
         "probabilidad": 70.0,
         "favorito_atacable": true
       },
-      "justificacion_final": "Decision DOBLE 1X: margen 0.9 puntos, indice sorpresa 100.0.",
-      "en_elige8": false,
+      "justificacion_final": "Decision TRIPLE 1X2: margen 0.9 puntos, indice sorpresa 100.0.",
+      "en_elige8": true,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 35.2,
-      "elige8_probabilidad_acierto": 35.2,
-      "elige8_probabilidad_cubierta": 35.2,
-      "elige8_seguro_score": 35.2,
-      "elige8_confianza_real": 35.2,
-      "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 10,
+      "probabilidad_acierto_elige8": 100.0,
+      "elige8_probabilidad_acierto": 100.0,
+      "elige8_probabilidad_cubierta": 100.0,
+      "elige8_seguro_score": 100.0,
+      "elige8_confianza_real": 100.0,
+      "elige8_tipo_cobertura": "TRIPLE",
+      "elige8_seguro_posicion": 2,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 35.2,
-      "elige8_seguro_margen": 0.9
+      "elige8_seguro_probabilidad_top": 34.1,
+      "elige8_seguro_margen": 0.9,
+      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto."
     },
     {
       "num": 3,
@@ -574,36 +579,36 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 39.0,
-        "X": 33.3,
-        "2": 27.7
+        "1": 46.9,
+        "X": 29.5,
+        "2": 23.6
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 39.0,
+          "probabilidad": 46.9,
           "nivel": "media"
         },
         "X": {
-          "probabilidad": 33.3,
+          "probabilidad": 29.5,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 27.7,
+          "probabilidad": 23.6,
           "nivel": "baja"
         }
       },
       "signo_base": "1",
-      "signo_final": "1",
-      "tipo": "FIJO",
-      "incertidumbre": 140.5,
-      "probabilidad_sorpresa": 70,
-      "probabilidad_top": 39.0,
-      "margen_probabilidad": 5.7,
-      "tercera_probabilidad": 27.7,
+      "signo_final": "1X",
+      "tipo": "DOBLE",
+      "incertidumbre": 127.47,
+      "probabilidad_sorpresa": 62.5,
+      "probabilidad_top": 46.9,
+      "margen_probabilidad": 17.4,
+      "tercera_probabilidad": 23.6,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 100.0,
-      "surprise_score": 100.0,
-      "categoria_sorpresa": "favorito_muy_atacable",
+      "indice_sorpresa_quinielistica": 69.2,
+      "surprise_score": 69.2,
+      "categoria_sorpresa": "favorito_atacable",
       "favorito_atacable": true,
       "favorito": "1",
       "favorito_nombre": "Lillestrøm",
@@ -612,11 +617,9 @@
         "X",
         "2"
       ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "cobertura_sorpresa_sugerida": "DOBLE",
       "motivos_sorpresa": [
-        "margen corto entre favorito y alternativa",
-        "ningun signo supera claramente el 45%",
-        "empate con peso alto",
+        "favorito por debajo del 50%",
         "tercer signo vivo: partido candidato a triple"
       ],
       "origen_probabilidades": "fallback_posicion+modelo_entrenado",
@@ -656,7 +659,7 @@
             "X": 33.4,
             "2": 31.6
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -714,7 +717,7 @@
           "X": 33.4,
           "2": 31.6
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -750,14 +753,16 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 83.0,
+        "X": 12.0,
+        "2": 5.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
+        "activo": true,
         "riesgo_extra": 0.0,
-        "lecturas": []
+        "lecturas": [
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -772,9 +777,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 83.0,
+          "X": 12.0,
+          "2": 5.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -795,40 +800,40 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=39.0%, X=33.3%, 2=27.7%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Lillestrøm. Motivos principales: margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1.",
+      "razonamiento": "Probabilidades IA: 1=46.9%, X=29.5%, 2=23.6%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=69.2/100, sorpresa=62.5%, incertidumbre=127.5 y margen=17.4. Favorito o signo de referencia: Lillestrøm. Motivos principales: favorito por debajo del 50%; tercer signo vivo: partido candidato a triple. Decision final: 1X.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "1 como signo dominante (39.0%).",
-        "hipotesis_alternativa": "X como alternativa (33.3%).",
+        "hipotesis_principal": "1 como signo dominante (46.9%).",
+        "hipotesis_alternativa": "X como alternativa (29.5%).",
         "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
         "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
-          "probabilidad": 70.0,
+          "categoria": "favorito_atacable",
+          "probabilidad": 62.5,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 5.7 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision DOBLE 1X: margen 17.4 puntos, indice sorpresa 69.2."
       },
-      "hipotesis_principal": "1 como signo dominante (39.0%).",
-      "hipotesis_alternativa": "X como alternativa (33.3%).",
+      "hipotesis_principal": "1 como signo dominante (46.9%).",
+      "hipotesis_alternativa": "X como alternativa (29.5%).",
       "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
       "riesgo_de_sorpresa": {
-        "categoria": "favorito_muy_atacable",
-        "probabilidad": 70.0,
+        "categoria": "favorito_atacable",
+        "probabilidad": 62.5,
         "favorito_atacable": true
       },
-      "justificacion_final": "Decision DOBLE 1X: margen 5.7 puntos, indice sorpresa 100.0.",
+      "justificacion_final": "Decision DOBLE 1X: margen 17.4 puntos, indice sorpresa 69.2.",
       "en_elige8": true,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 39.0,
-      "elige8_probabilidad_acierto": 39.0,
-      "elige8_probabilidad_cubierta": 39.0,
-      "elige8_seguro_score": 39.0,
-      "elige8_confianza_real": 39.0,
-      "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 7,
+      "probabilidad_acierto_elige8": 76.4,
+      "elige8_probabilidad_acierto": 76.4,
+      "elige8_probabilidad_cubierta": 76.4,
+      "elige8_seguro_score": 76.4,
+      "elige8_confianza_real": 76.4,
+      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_seguro_posicion": 3,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 39.0,
-      "elige8_seguro_margen": 5.7,
+      "elige8_seguro_probabilidad_top": 46.9,
+      "elige8_seguro_margen": 17.4,
       "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto."
     },
     {
@@ -838,43 +843,43 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 34.0,
-        "X": 34.0,
-        "2": 32.0
+        "1": 32.4,
+        "X": 33.1,
+        "2": 34.5
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 34.0,
+          "probabilidad": 32.4,
           "nivel": "baja"
         },
         "X": {
-          "probabilidad": 34.0,
+          "probabilidad": 33.1,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 32.0,
+          "probabilidad": 34.5,
           "nivel": "baja"
         }
       },
-      "signo_base": "1",
-      "signo_final": "1X",
-      "tipo": "DOBLE",
-      "incertidumbre": 145.67,
+      "signo_base": "2",
+      "signo_final": "1X2",
+      "tipo": "TRIPLE",
+      "incertidumbre": 149.95,
       "probabilidad_sorpresa": 70,
-      "probabilidad_top": 34.0,
-      "margen_probabilidad": 0.0,
-      "tercera_probabilidad": 32.0,
+      "probabilidad_top": 34.5,
+      "margen_probabilidad": 1.4,
+      "tercera_probabilidad": 32.4,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
       "surprise_score": 100.0,
       "categoria_sorpresa": "favorito_muy_atacable",
       "favorito_atacable": true,
-      "favorito": "1",
-      "favorito_nombre": "Kristiansund",
+      "favorito": "2",
+      "favorito_nombre": "Sarpsborg 08",
       "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
         "X",
-        "2"
+        "1"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivos_sorpresa": [
@@ -920,7 +925,7 @@
             "X": 33.2,
             "2": 31.1
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -962,7 +967,7 @@
           "X": 33.2,
           "2": 31.1
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -998,14 +1003,17 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 25.0,
+        "X": 29.0,
+        "2": 46.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 6.0,
+        "lecturas": [
+          "Mercado Losilla: el consenso publico (2) no coincide con el favorito del motor (1).",
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -1020,9 +1028,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 25.0,
+          "X": 29.0,
+          "2": 46.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -1043,40 +1051,40 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=34.0%, X=34.0%, 2=32.0%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=145.7 y margen=0.0. Favorito o signo de referencia: Kristiansund. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X.",
+      "razonamiento": "Probabilidades IA: 1=32.4%, X=33.1%, 2=34.5%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=149.9 y margen=1.4. Favorito o signo de referencia: Sarpsborg 08. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X2.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "1 como signo dominante (34.0%).",
-        "hipotesis_alternativa": "X como alternativa (34.0%).",
-        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "hipotesis_principal": "2 como signo dominante (34.5%).",
+        "hipotesis_alternativa": "X como alternativa (33.1%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
         "riesgo_de_sorpresa": {
           "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision TRIPLE 1X2: margen 0.0 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision DOBLE X2: margen 1.4 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "1 como signo dominante (34.0%).",
-      "hipotesis_alternativa": "X como alternativa (34.0%).",
-      "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+      "hipotesis_principal": "2 como signo dominante (34.5%).",
+      "hipotesis_alternativa": "X como alternativa (33.1%).",
+      "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
       "riesgo_de_sorpresa": {
         "categoria": "favorito_muy_atacable",
         "probabilidad": 70.0,
         "favorito_atacable": true
       },
-      "justificacion_final": "Decision TRIPLE 1X2: margen 0.0 puntos, indice sorpresa 100.0.",
+      "justificacion_final": "Decision DOBLE X2: margen 1.4 puntos, indice sorpresa 100.0.",
       "en_elige8": true,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 68.0,
-      "elige8_probabilidad_acierto": 68.0,
-      "elige8_probabilidad_cubierta": 68.0,
-      "elige8_seguro_score": 68.0,
-      "elige8_confianza_real": 68.0,
-      "elige8_tipo_cobertura": "DOBLE",
-      "elige8_seguro_posicion": 6,
+      "probabilidad_acierto_elige8": 100.0,
+      "elige8_probabilidad_acierto": 100.0,
+      "elige8_probabilidad_cubierta": 100.0,
+      "elige8_seguro_score": 100.0,
+      "elige8_confianza_real": 100.0,
+      "elige8_tipo_cobertura": "TRIPLE",
+      "elige8_seguro_posicion": 1,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 34.0,
-      "elige8_seguro_margen": 0.0,
+      "elige8_seguro_probabilidad_top": 34.5,
+      "elige8_seguro_margen": 1.4,
       "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto."
     },
     {
@@ -1086,51 +1094,50 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 33.1,
-        "X": 34.0,
-        "2": 32.9
+        "1": 31.6,
+        "X": 33.6,
+        "2": 34.7
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 33.1,
+          "probabilidad": 31.63,
           "nivel": "baja"
         },
         "X": {
-          "probabilidad": 34.0,
+          "probabilidad": 33.63,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 32.9,
+          "probabilidad": 34.73,
           "nivel": "baja"
         }
       },
-      "signo_base": "X",
-      "signo_final": "1X2",
-      "tipo": "TRIPLE",
-      "incertidumbre": 144.77,
+      "signo_base": "2",
+      "signo_final": "X2",
+      "tipo": "DOBLE",
+      "incertidumbre": 150.43,
       "probabilidad_sorpresa": 70,
-      "probabilidad_top": 34.0,
-      "margen_probabilidad": 0.9,
-      "tercera_probabilidad": 32.9,
+      "probabilidad_top": 34.7,
+      "margen_probabilidad": 1.1,
+      "tercera_probabilidad": 31.6,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
       "surprise_score": 100.0,
-      "categoria_sorpresa": "partido_muy_abierto",
-      "favorito_atacable": false,
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "signo_sorpresa_principal": "1",
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito_atacable": true,
+      "favorito": "2",
+      "favorito_nombre": "Rosenborg",
+      "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
-        "1",
-        "2"
+        "X",
+        "1"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivos_sorpresa": [
         "margen minimo entre primer y segundo signo",
         "ningun signo supera claramente el 45%",
         "empate con peso alto",
-        "tercer signo vivo: partido candidato a triple",
-        "el signo base es X: no hay favorito limpio"
+        "tercer signo vivo: partido candidato a triple"
       ],
       "origen_probabilidades": "fallback_posicion+modelo_entrenado",
       "calidad_datos": "baja",
@@ -1169,7 +1176,7 @@
             "X": 34.7,
             "2": 30.7
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -1226,7 +1233,7 @@
           "X": 34.7,
           "2": 30.7
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -1262,14 +1269,17 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 25.0,
+        "X": 32.0,
+        "2": 43.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 6.0,
+        "lecturas": [
+          "Mercado Losilla: el consenso publico (2) no coincide con el favorito del motor (X).",
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -1284,9 +1294,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 25.0,
+          "X": 32.0,
+          "2": 43.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -1307,40 +1317,40 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=33.1%, X=34.0%, 2=32.9%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=144.8 y margen=0.9. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X2.",
+      "razonamiento": "Probabilidades IA: 1=31.6%, X=33.6%, 2=34.7%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (X2) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=150.4 y margen=1.1. Favorito o signo de referencia: Rosenborg. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: X2.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "X como signo dominante (34.0%).",
-        "hipotesis_alternativa": "1 como alternativa (33.1%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "hipotesis_principal": "2 como signo dominante (34.7%).",
+        "hipotesis_alternativa": "X como alternativa (33.6%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
         "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
+          "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
-          "favorito_atacable": false
+          "favorito_atacable": true
         },
-        "justificacion_final": "Decision FIJO X: margen 0.9 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision TRIPLE 1X2: margen 1.1 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "X como signo dominante (34.0%).",
-      "hipotesis_alternativa": "1 como alternativa (33.1%).",
-      "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+      "hipotesis_principal": "2 como signo dominante (34.7%).",
+      "hipotesis_alternativa": "X como alternativa (33.6%).",
+      "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
       "riesgo_de_sorpresa": {
-        "categoria": "partido_muy_abierto",
+        "categoria": "favorito_muy_atacable",
         "probabilidad": 70.0,
-        "favorito_atacable": false
+        "favorito_atacable": true
       },
-      "justificacion_final": "Decision FIJO X: margen 0.9 puntos, indice sorpresa 100.0.",
+      "justificacion_final": "Decision TRIPLE 1X2: margen 1.1 puntos, indice sorpresa 100.0.",
       "en_elige8": true,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 100.0,
-      "elige8_probabilidad_acierto": 100.0,
-      "elige8_probabilidad_cubierta": 100.0,
-      "elige8_seguro_score": 100.0,
-      "elige8_confianza_real": 100.0,
-      "elige8_tipo_cobertura": "TRIPLE",
-      "elige8_seguro_posicion": 1,
+      "probabilidad_acierto_elige8": 68.3,
+      "elige8_probabilidad_acierto": 68.3,
+      "elige8_probabilidad_cubierta": 68.3,
+      "elige8_seguro_score": 68.3,
+      "elige8_confianza_real": 68.3,
+      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_seguro_posicion": 6,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 34.0,
-      "elige8_seguro_margen": 0.9,
+      "elige8_seguro_probabilidad_top": 34.7,
+      "elige8_seguro_margen": 1.1,
       "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto."
     },
     {
@@ -1350,51 +1360,50 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 32.5,
-        "X": 36.5,
-        "2": 31.0
+        "1": 39.8,
+        "X": 33.2,
+        "2": 27.0
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 32.5,
-          "nivel": "baja"
-        },
-        "X": {
-          "probabilidad": 36.5,
+          "probabilidad": 39.8,
           "nivel": "media"
         },
+        "X": {
+          "probabilidad": 33.2,
+          "nivel": "baja"
+        },
         "2": {
-          "probabilidad": 31.0,
+          "probabilidad": 27.0,
           "nivel": "baja"
         }
       },
-      "signo_base": "X",
-      "signo_final": "X",
+      "signo_base": "1",
+      "signo_final": "1",
       "tipo": "FIJO",
-      "incertidumbre": 142.55,
+      "incertidumbre": 144.79,
       "probabilidad_sorpresa": 70,
-      "probabilidad_top": 36.5,
-      "margen_probabilidad": 4.0,
-      "tercera_probabilidad": 31.0,
+      "probabilidad_top": 39.8,
+      "margen_probabilidad": 6.6,
+      "tercera_probabilidad": 27.0,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
       "surprise_score": 100.0,
-      "categoria_sorpresa": "partido_muy_abierto",
-      "favorito_atacable": false,
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "signo_sorpresa_principal": "1",
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito_atacable": true,
+      "favorito": "1",
+      "favorito_nombre": "Molde",
+      "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
-        "1",
+        "X",
         "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivos_sorpresa": [
-        "margen minimo entre primer y segundo signo",
+        "margen corto entre favorito y alternativa",
         "ningun signo supera claramente el 45%",
         "empate con peso alto",
-        "tercer signo vivo: partido candidato a triple",
-        "el signo base es X: no hay favorito limpio"
+        "tercer signo vivo: partido candidato a triple"
       ],
       "origen_probabilidades": "fallback_posicion+modelo_entrenado",
       "calidad_datos": "baja",
@@ -1433,7 +1442,7 @@
             "X": 33.9,
             "2": 30.0
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -1491,7 +1500,7 @@
           "X": 33.9,
           "2": 30.0
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -1527,14 +1536,17 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 73.0,
+        "X": 18.0,
+        "2": 9.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 6.0,
+        "lecturas": [
+          "Mercado Losilla: el consenso publico (1) no coincide con el favorito del motor (X).",
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -1549,9 +1561,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 73.0,
+          "X": 18.0,
+          "2": 9.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -1571,42 +1583,41 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=32.5%, X=36.5%, 2=31.0%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (X) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: X.",
+      "elige8": false,
+      "razonamiento": "Probabilidades IA: 1=39.8%, X=33.2%, 2=27.0%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Molde. Motivos principales: margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "X como signo dominante (36.5%).",
-        "hipotesis_alternativa": "1 como alternativa (32.5%).",
+        "hipotesis_principal": "1 como signo dominante (39.8%).",
+        "hipotesis_alternativa": "X como alternativa (33.2%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
+          "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
-          "favorito_atacable": false
+          "favorito_atacable": true
         },
-        "justificacion_final": "Decision FIJO X: margen 4.0 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision FIJO 1: margen 6.6 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "X como signo dominante (36.5%).",
-      "hipotesis_alternativa": "1 como alternativa (32.5%).",
+      "hipotesis_principal": "1 como signo dominante (39.8%).",
+      "hipotesis_alternativa": "X como alternativa (33.2%).",
       "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
-        "categoria": "partido_muy_abierto",
+        "categoria": "favorito_muy_atacable",
         "probabilidad": 70.0,
-        "favorito_atacable": false
+        "favorito_atacable": true
       },
-      "justificacion_final": "Decision FIJO X: margen 4.0 puntos, indice sorpresa 100.0.",
-      "en_elige8": true,
+      "justificacion_final": "Decision FIJO 1: margen 6.6 puntos, indice sorpresa 100.0.",
+      "en_elige8": false,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 36.5,
-      "elige8_probabilidad_acierto": 36.5,
-      "elige8_probabilidad_cubierta": 36.5,
-      "elige8_seguro_score": 36.5,
-      "elige8_confianza_real": 36.5,
+      "probabilidad_acierto_elige8": 39.8,
+      "elige8_probabilidad_acierto": 39.8,
+      "elige8_probabilidad_cubierta": 39.8,
+      "elige8_seguro_score": 39.8,
+      "elige8_confianza_real": 39.8,
       "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 8,
+      "elige8_seguro_posicion": 9,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 36.5,
-      "elige8_seguro_margen": 4.0,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto."
+      "elige8_seguro_probabilidad_top": 39.8,
+      "elige8_seguro_margen": 6.6
     },
     {
       "num": 7,
@@ -1615,51 +1626,48 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 33.5,
-        "X": 34.5,
-        "2": 32.0
+        "1": 44.4,
+        "X": 29.0,
+        "2": 26.6
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 33.5,
-          "nivel": "baja"
+          "probabilidad": 44.4,
+          "nivel": "media"
         },
         "X": {
-          "probabilidad": 34.5,
+          "probabilidad": 29.0,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 32.0,
+          "probabilidad": 26.6,
           "nivel": "baja"
         }
       },
-      "signo_base": "X",
-      "signo_final": "X",
-      "tipo": "FIJO",
-      "incertidumbre": 144.84,
-      "probabilidad_sorpresa": 70,
-      "probabilidad_top": 34.5,
-      "margen_probabilidad": 1.0,
-      "tercera_probabilidad": 32.0,
+      "signo_base": "1",
+      "signo_final": "1X",
+      "tipo": "DOBLE",
+      "incertidumbre": 134.52,
+      "probabilidad_sorpresa": 66.7,
+      "probabilidad_top": 44.4,
+      "margen_probabilidad": 15.4,
+      "tercera_probabilidad": 26.6,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 100.0,
-      "surprise_score": 100.0,
-      "categoria_sorpresa": "partido_muy_abierto",
-      "favorito_atacable": false,
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "signo_sorpresa_principal": "1",
+      "indice_sorpresa_quinielistica": 80.7,
+      "surprise_score": 80.7,
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito_atacable": true,
+      "favorito": "1",
+      "favorito_nombre": "Viking",
+      "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
-        "1",
+        "X",
         "2"
       ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "cobertura_sorpresa_sugerida": "DOBLE",
       "motivos_sorpresa": [
-        "margen minimo entre primer y segundo signo",
         "ningun signo supera claramente el 45%",
-        "empate con peso alto",
-        "tercer signo vivo: partido candidato a triple",
-        "el signo base es X: no hay favorito limpio"
+        "tercer signo vivo: partido candidato a triple"
       ],
       "origen_probabilidades": "fallback_posicion+modelo_entrenado",
       "calidad_datos": "baja",
@@ -1698,7 +1706,7 @@
             "X": 34.1,
             "2": 30.5
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -1740,7 +1748,7 @@
           "X": 34.1,
           "2": 30.5
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -1776,14 +1784,17 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 94.0,
+        "X": 4.0,
+        "2": 2.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 6.0,
+        "lecturas": [
+          "Mercado Losilla: el consenso publico (1) no coincide con el favorito del motor (X).",
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -1798,9 +1809,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 94.0,
+          "X": 4.0,
+          "2": 2.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -1820,41 +1831,42 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=33.5%, X=34.5%, 2=32.0%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (X) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: X.",
+      "elige8": true,
+      "razonamiento": "Probabilidades IA: 1=44.4%, X=29.0%, 2=26.6%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=80.7/100, sorpresa=66.7%, incertidumbre=134.5 y margen=15.4. Favorito o signo de referencia: Viking. Motivos principales: ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decision final: 1X.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "X como signo dominante (34.5%).",
-        "hipotesis_alternativa": "1 como alternativa (33.5%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "hipotesis_principal": "1 como signo dominante (44.4%).",
+        "hipotesis_alternativa": "X como alternativa (29.0%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
         "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
-          "probabilidad": 70.0,
-          "favorito_atacable": false
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 66.7,
+          "favorito_atacable": true
         },
-        "justificacion_final": "Decision FIJO X: margen 1.0 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision DOBLE 1X: margen 15.4 puntos, indice sorpresa 80.7."
       },
-      "hipotesis_principal": "X como signo dominante (34.5%).",
-      "hipotesis_alternativa": "1 como alternativa (33.5%).",
-      "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+      "hipotesis_principal": "1 como signo dominante (44.4%).",
+      "hipotesis_alternativa": "X como alternativa (29.0%).",
+      "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
       "riesgo_de_sorpresa": {
-        "categoria": "partido_muy_abierto",
-        "probabilidad": 70.0,
-        "favorito_atacable": false
+        "categoria": "favorito_muy_atacable",
+        "probabilidad": 66.7,
+        "favorito_atacable": true
       },
-      "justificacion_final": "Decision FIJO X: margen 1.0 puntos, indice sorpresa 100.0.",
-      "en_elige8": false,
+      "justificacion_final": "Decision DOBLE 1X: margen 15.4 puntos, indice sorpresa 80.7.",
+      "en_elige8": true,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 34.5,
-      "elige8_probabilidad_acierto": 34.5,
-      "elige8_probabilidad_cubierta": 34.5,
-      "elige8_seguro_score": 34.5,
-      "elige8_confianza_real": 34.5,
-      "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 14,
+      "probabilidad_acierto_elige8": 73.4,
+      "elige8_probabilidad_acierto": 73.4,
+      "elige8_probabilidad_cubierta": 73.4,
+      "elige8_seguro_score": 73.4,
+      "elige8_confianza_real": 73.4,
+      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_seguro_posicion": 4,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 34.5,
-      "elige8_seguro_margen": 1.0
+      "elige8_seguro_probabilidad_top": 44.4,
+      "elige8_seguro_margen": 15.4,
+      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto."
     },
     {
       "num": 8,
@@ -1863,51 +1875,50 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 30.6,
-        "X": 36.1,
-        "2": 33.3
+        "1": 36.4,
+        "X": 33.0,
+        "2": 30.5
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 30.6,
-          "nivel": "baja"
-        },
-        "X": {
-          "probabilidad": 36.1,
+          "probabilidad": 36.44,
           "nivel": "media"
         },
+        "X": {
+          "probabilidad": 33.03,
+          "nivel": "baja"
+        },
         "2": {
-          "probabilidad": 33.3,
+          "probabilidad": 30.53,
           "nivel": "baja"
         }
       },
-      "signo_base": "X",
-      "signo_final": "X",
+      "signo_base": "1",
+      "signo_final": "1",
       "tipo": "FIJO",
-      "incertidumbre": 143.6,
+      "incertidumbre": 147.92,
       "probabilidad_sorpresa": 70,
-      "probabilidad_top": 36.1,
-      "margen_probabilidad": 2.8,
-      "tercera_probabilidad": 30.6,
+      "probabilidad_top": 36.4,
+      "margen_probabilidad": 3.4,
+      "tercera_probabilidad": 30.5,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
       "surprise_score": 100.0,
-      "categoria_sorpresa": "partido_muy_abierto",
-      "favorito_atacable": false,
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "signo_sorpresa_principal": "2",
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito_atacable": true,
+      "favorito": "1",
+      "favorito_nombre": "Mjällby",
+      "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
-        "2",
-        "1"
+        "X",
+        "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivos_sorpresa": [
         "margen minimo entre primer y segundo signo",
         "ningun signo supera claramente el 45%",
         "empate con peso alto",
-        "tercer signo vivo: partido candidato a triple",
-        "el signo base es X: no hay favorito limpio"
+        "tercer signo vivo: partido candidato a triple"
       ],
       "origen_probabilidades": "fallback_posicion+modelo_entrenado",
       "calidad_datos": "baja",
@@ -1946,7 +1957,7 @@
             "X": 33.4,
             "2": 31.1
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -2004,7 +2015,7 @@
           "X": 33.4,
           "2": 31.1
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -2040,14 +2051,17 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 63.0,
+        "X": 19.0,
+        "2": 18.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 6.0,
+        "lecturas": [
+          "Mercado Losilla: el consenso publico (1) no coincide con el favorito del motor (X).",
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -2062,9 +2076,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 63.0,
+          "X": 19.0,
+          "2": 18.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -2085,40 +2099,40 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=30.6%, X=36.1%, 2=33.3%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (X) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: X.",
+      "razonamiento": "Probabilidades IA: 1=36.4%, X=33.0%, 2=30.5%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Mjällby. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "X como signo dominante (36.1%).",
-        "hipotesis_alternativa": "2 como alternativa (33.3%).",
+        "hipotesis_principal": "1 como signo dominante (36.4%).",
+        "hipotesis_alternativa": "X como alternativa (33.0%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
+          "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
-          "favorito_atacable": false
+          "favorito_atacable": true
         },
-        "justificacion_final": "Decision FIJO X: margen 2.8 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision FIJO 1: margen 3.4 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "X como signo dominante (36.1%).",
-      "hipotesis_alternativa": "2 como alternativa (33.3%).",
+      "hipotesis_principal": "1 como signo dominante (36.4%).",
+      "hipotesis_alternativa": "X como alternativa (33.0%).",
       "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
-        "categoria": "partido_muy_abierto",
+        "categoria": "favorito_muy_atacable",
         "probabilidad": 70.0,
-        "favorito_atacable": false
+        "favorito_atacable": true
       },
-      "justificacion_final": "Decision FIJO X: margen 2.8 puntos, indice sorpresa 100.0.",
+      "justificacion_final": "Decision FIJO 1: margen 3.4 puntos, indice sorpresa 100.0.",
       "en_elige8": false,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 36.1,
-      "elige8_probabilidad_acierto": 36.1,
-      "elige8_probabilidad_cubierta": 36.1,
-      "elige8_seguro_score": 36.1,
-      "elige8_confianza_real": 36.1,
+      "probabilidad_acierto_elige8": 36.4,
+      "elige8_probabilidad_acierto": 36.4,
+      "elige8_probabilidad_cubierta": 36.4,
+      "elige8_seguro_score": 36.4,
+      "elige8_confianza_real": 36.4,
       "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 9,
+      "elige8_seguro_posicion": 10,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 36.1,
-      "elige8_seguro_margen": 2.8
+      "elige8_seguro_probabilidad_top": 36.4,
+      "elige8_seguro_margen": 3.4
     },
     {
       "num": 9,
@@ -2127,42 +2141,42 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 34.5,
-        "X": 35.1,
-        "2": 30.4
+        "1": 36.4,
+        "X": 33.5,
+        "2": 30.1
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 34.5,
-          "nivel": "baja"
-        },
-        "X": {
-          "probabilidad": 35.1,
+          "probabilidad": 36.4,
           "nivel": "media"
         },
+        "X": {
+          "probabilidad": 33.5,
+          "nivel": "baja"
+        },
         "2": {
-          "probabilidad": 30.4,
+          "probabilidad": 30.1,
           "nivel": "baja"
         }
       },
-      "signo_base": "X",
-      "signo_final": "1X",
-      "tipo": "DOBLE",
-      "incertidumbre": 145.46,
+      "signo_base": "1",
+      "signo_final": "1",
+      "tipo": "FIJO",
+      "incertidumbre": 148.59,
       "probabilidad_sorpresa": 70,
-      "probabilidad_top": 35.1,
-      "margen_probabilidad": 0.6,
-      "tercera_probabilidad": 30.4,
+      "probabilidad_top": 36.4,
+      "margen_probabilidad": 2.9,
+      "tercera_probabilidad": 30.1,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
       "surprise_score": 100.0,
-      "categoria_sorpresa": "partido_muy_abierto",
-      "favorito_atacable": false,
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "signo_sorpresa_principal": "1",
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito_atacable": true,
+      "favorito": "1",
+      "favorito_nombre": "AIK",
+      "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
-        "1",
+        "X",
         "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
@@ -2170,8 +2184,7 @@
         "margen minimo entre primer y segundo signo",
         "ningun signo supera claramente el 45%",
         "empate con peso alto",
-        "tercer signo vivo: partido candidato a triple",
-        "el signo base es X: no hay favorito limpio"
+        "tercer signo vivo: partido candidato a triple"
       ],
       "origen_probabilidades": "fallback_posicion+modelo_entrenado",
       "calidad_datos": "baja",
@@ -2210,7 +2223,7 @@
             "X": 34.3,
             "2": 30.9
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -2252,7 +2265,7 @@
           "X": 34.3,
           "2": 30.9
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -2288,14 +2301,17 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 45.0,
+        "X": 26.0,
+        "2": 29.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 6.0,
+        "lecturas": [
+          "Mercado Losilla: el consenso publico (1) no coincide con el favorito del motor (X).",
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -2310,9 +2326,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 45.0,
+          "X": 26.0,
+          "2": 29.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -2332,42 +2348,41 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=34.5%, X=35.1%, 2=30.4%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=145.5 y margen=0.6. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X.",
+      "elige8": false,
+      "razonamiento": "Probabilidades IA: 1=36.4%, X=33.5%, 2=30.1%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: AIK. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "X como signo dominante (35.1%).",
-        "hipotesis_alternativa": "1 como alternativa (34.5%).",
-        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "hipotesis_principal": "1 como signo dominante (36.4%).",
+        "hipotesis_alternativa": "X como alternativa (33.5%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
+          "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
-          "favorito_atacable": false
+          "favorito_atacable": true
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 0.6 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision FIJO 1: margen 2.9 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "X como signo dominante (35.1%).",
-      "hipotesis_alternativa": "1 como alternativa (34.5%).",
-      "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+      "hipotesis_principal": "1 como signo dominante (36.4%).",
+      "hipotesis_alternativa": "X como alternativa (33.5%).",
+      "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
-        "categoria": "partido_muy_abierto",
+        "categoria": "favorito_muy_atacable",
         "probabilidad": 70.0,
-        "favorito_atacable": false
+        "favorito_atacable": true
       },
-      "justificacion_final": "Decision DOBLE 1X: margen 0.6 puntos, indice sorpresa 100.0.",
-      "en_elige8": true,
+      "justificacion_final": "Decision FIJO 1: margen 2.9 puntos, indice sorpresa 100.0.",
+      "en_elige8": false,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 69.6,
-      "elige8_probabilidad_acierto": 69.6,
-      "elige8_probabilidad_cubierta": 69.6,
-      "elige8_seguro_score": 69.6,
-      "elige8_confianza_real": 69.6,
-      "elige8_tipo_cobertura": "DOBLE",
-      "elige8_seguro_posicion": 4,
+      "probabilidad_acierto_elige8": 36.4,
+      "elige8_probabilidad_acierto": 36.4,
+      "elige8_probabilidad_cubierta": 36.4,
+      "elige8_seguro_score": 36.4,
+      "elige8_confianza_real": 36.4,
+      "elige8_tipo_cobertura": "FIJO",
+      "elige8_seguro_posicion": 11,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 35.1,
-      "elige8_seguro_margen": 0.6,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto."
+      "elige8_seguro_probabilidad_top": 36.4,
+      "elige8_seguro_margen": 2.9
     },
     {
       "num": 10,
@@ -2376,42 +2391,42 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 33.2,
-        "X": 34.8,
-        "2": 32.0
+        "1": 35.7,
+        "X": 33.4,
+        "2": 30.9
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 33.2,
-          "nivel": "baja"
+          "probabilidad": 35.7,
+          "nivel": "media"
         },
         "X": {
-          "probabilidad": 34.8,
+          "probabilidad": 33.4,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 32.0,
+          "probabilidad": 30.9,
           "nivel": "baja"
         }
       },
-      "signo_base": "X",
-      "signo_final": "X",
+      "signo_base": "1",
+      "signo_final": "1",
       "tipo": "FIJO",
-      "incertidumbre": 144.35,
+      "incertidumbre": 149.16,
       "probabilidad_sorpresa": 70,
-      "probabilidad_top": 34.8,
-      "margen_probabilidad": 1.6,
-      "tercera_probabilidad": 32.0,
+      "probabilidad_top": 35.7,
+      "margen_probabilidad": 2.3,
+      "tercera_probabilidad": 30.9,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
       "surprise_score": 100.0,
-      "categoria_sorpresa": "partido_muy_abierto",
-      "favorito_atacable": false,
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "signo_sorpresa_principal": "1",
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito_atacable": true,
+      "favorito": "1",
+      "favorito_nombre": "Göteborg",
+      "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
-        "1",
+        "X",
         "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
@@ -2419,8 +2434,7 @@
         "margen minimo entre primer y segundo signo",
         "ningun signo supera claramente el 45%",
         "empate con peso alto",
-        "tercer signo vivo: partido candidato a triple",
-        "el signo base es X: no hay favorito limpio"
+        "tercer signo vivo: partido candidato a triple"
       ],
       "origen_probabilidades": "fallback_posicion+modelo_entrenado",
       "calidad_datos": "baja",
@@ -2459,7 +2473,7 @@
             "X": 34.3,
             "2": 31.6
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -2501,7 +2515,7 @@
           "X": 34.3,
           "2": 31.6
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -2537,14 +2551,17 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 47.0,
+        "X": 27.0,
+        "2": 26.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 6.0,
+        "lecturas": [
+          "Mercado Losilla: el consenso publico (1) no coincide con el favorito del motor (X).",
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -2559,9 +2576,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 47.0,
+          "X": 27.0,
+          "2": 26.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -2582,40 +2599,40 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=33.2%, X=34.8%, 2=32.0%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (X) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: X.",
+      "razonamiento": "Probabilidades IA: 1=35.7%, X=33.4%, 2=30.9%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Göteborg. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "X como signo dominante (34.8%).",
-        "hipotesis_alternativa": "1 como alternativa (33.2%).",
+        "hipotesis_principal": "1 como signo dominante (35.7%).",
+        "hipotesis_alternativa": "X como alternativa (33.4%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
+          "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
-          "favorito_atacable": false
+          "favorito_atacable": true
         },
-        "justificacion_final": "Decision FIJO X: margen 1.6 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision FIJO 1: margen 2.3 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "X como signo dominante (34.8%).",
-      "hipotesis_alternativa": "1 como alternativa (33.2%).",
+      "hipotesis_principal": "1 como signo dominante (35.7%).",
+      "hipotesis_alternativa": "X como alternativa (33.4%).",
       "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
-        "categoria": "partido_muy_abierto",
+        "categoria": "favorito_muy_atacable",
         "probabilidad": 70.0,
-        "favorito_atacable": false
+        "favorito_atacable": true
       },
-      "justificacion_final": "Decision FIJO X: margen 1.6 puntos, indice sorpresa 100.0.",
+      "justificacion_final": "Decision FIJO 1: margen 2.3 puntos, indice sorpresa 100.0.",
       "en_elige8": false,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 34.8,
-      "elige8_probabilidad_acierto": 34.8,
-      "elige8_probabilidad_cubierta": 34.8,
-      "elige8_seguro_score": 34.8,
-      "elige8_confianza_real": 34.8,
+      "probabilidad_acierto_elige8": 35.7,
+      "elige8_probabilidad_acierto": 35.7,
+      "elige8_probabilidad_cubierta": 35.7,
+      "elige8_seguro_score": 35.7,
+      "elige8_confianza_real": 35.7,
       "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 11,
+      "elige8_seguro_posicion": 14,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 34.8,
-      "elige8_seguro_margen": 1.6
+      "elige8_seguro_probabilidad_top": 35.7,
+      "elige8_seguro_margen": 2.3
     },
     {
       "num": 11,
@@ -2624,51 +2641,49 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 31.9,
-        "X": 34.8,
-        "2": 33.3
+        "1": 31.4,
+        "X": 32.9,
+        "2": 35.8
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 31.9,
+          "probabilidad": 31.37,
           "nivel": "baja"
         },
         "X": {
-          "probabilidad": 34.8,
+          "probabilidad": 32.87,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 33.3,
-          "nivel": "baja"
+          "probabilidad": 35.76,
+          "nivel": "media"
         }
       },
-      "signo_base": "X",
-      "signo_final": "X",
+      "signo_base": "2",
+      "signo_final": "2",
       "tipo": "FIJO",
-      "incertidumbre": 144.45,
+      "incertidumbre": 148.38,
       "probabilidad_sorpresa": 70,
-      "probabilidad_top": 34.8,
-      "margen_probabilidad": 1.5,
-      "tercera_probabilidad": 31.9,
+      "probabilidad_top": 35.8,
+      "margen_probabilidad": 2.9,
+      "tercera_probabilidad": 31.4,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
       "surprise_score": 100.0,
-      "categoria_sorpresa": "partido_muy_abierto",
-      "favorito_atacable": false,
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "signo_sorpresa_principal": "2",
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito_atacable": true,
+      "favorito": "2",
+      "favorito_nombre": "Sirius",
+      "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
-        "2",
+        "X",
         "1"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivos_sorpresa": [
         "margen minimo entre primer y segundo signo",
         "ningun signo supera claramente el 45%",
-        "empate con peso alto",
-        "tercer signo vivo: partido candidato a triple",
-        "el signo base es X: no hay favorito limpio"
+        "tercer signo vivo: partido candidato a triple"
       ],
       "origen_probabilidades": "fallback_posicion+modelo_entrenado",
       "calidad_datos": "baja",
@@ -2707,7 +2722,7 @@
             "X": 34.3,
             "2": 31.6
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -2749,7 +2764,7 @@
           "X": 34.3,
           "2": 31.6
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -2785,14 +2800,17 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 29.0,
+        "X": 24.0,
+        "2": 47.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 6.0,
+        "lecturas": [
+          "Mercado Losilla: el consenso publico (2) no coincide con el favorito del motor (X).",
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -2807,9 +2825,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 29.0,
+          "X": 24.0,
+          "2": 47.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -2830,40 +2848,40 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=31.9%, X=34.8%, 2=33.3%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (X) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: X.",
+      "razonamiento": "Probabilidades IA: 1=31.4%, X=32.9%, 2=35.8%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (2) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Sirius. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decision final: 2.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "X como signo dominante (34.8%).",
-        "hipotesis_alternativa": "2 como alternativa (33.3%).",
+        "hipotesis_principal": "2 como signo dominante (35.8%).",
+        "hipotesis_alternativa": "X como alternativa (32.9%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
+          "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
-          "favorito_atacable": false
+          "favorito_atacable": true
         },
-        "justificacion_final": "Decision FIJO X: margen 1.5 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision FIJO 2: margen 2.9 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "X como signo dominante (34.8%).",
-      "hipotesis_alternativa": "2 como alternativa (33.3%).",
+      "hipotesis_principal": "2 como signo dominante (35.8%).",
+      "hipotesis_alternativa": "X como alternativa (32.9%).",
       "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
-        "categoria": "partido_muy_abierto",
+        "categoria": "favorito_muy_atacable",
         "probabilidad": 70.0,
-        "favorito_atacable": false
+        "favorito_atacable": true
       },
-      "justificacion_final": "Decision FIJO X: margen 1.5 puntos, indice sorpresa 100.0.",
+      "justificacion_final": "Decision FIJO 2: margen 2.9 puntos, indice sorpresa 100.0.",
       "en_elige8": false,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 34.8,
-      "elige8_probabilidad_acierto": 34.8,
-      "elige8_probabilidad_cubierta": 34.8,
-      "elige8_seguro_score": 34.8,
-      "elige8_confianza_real": 34.8,
+      "probabilidad_acierto_elige8": 35.8,
+      "elige8_probabilidad_acierto": 35.8,
+      "elige8_probabilidad_cubierta": 35.8,
+      "elige8_seguro_score": 35.8,
+      "elige8_confianza_real": 35.8,
       "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 12,
+      "elige8_seguro_posicion": 13,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 34.8,
-      "elige8_seguro_margen": 1.5
+      "elige8_seguro_probabilidad_top": 35.8,
+      "elige8_seguro_margen": 2.9
     },
     {
       "num": 12,
@@ -2872,51 +2890,48 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 34.5,
-        "X": 35.2,
-        "2": 30.3
+        "1": 44.7,
+        "X": 30.1,
+        "2": 25.2
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 34.5,
-          "nivel": "baja"
-        },
-        "X": {
-          "probabilidad": 35.2,
+          "probabilidad": 44.7,
           "nivel": "media"
         },
+        "X": {
+          "probabilidad": 30.1,
+          "nivel": "baja"
+        },
         "2": {
-          "probabilidad": 30.3,
+          "probabilidad": 25.2,
           "nivel": "baja"
         }
       },
-      "signo_base": "X",
-      "signo_final": "1X",
-      "tipo": "DOBLE",
-      "incertidumbre": 145.39,
-      "probabilidad_sorpresa": 70,
-      "probabilidad_top": 35.2,
-      "margen_probabilidad": 0.7,
-      "tercera_probabilidad": 30.3,
+      "signo_base": "1",
+      "signo_final": "1",
+      "tipo": "FIJO",
+      "incertidumbre": 135.71,
+      "probabilidad_sorpresa": 66.7,
+      "probabilidad_top": 44.7,
+      "margen_probabilidad": 14.6,
+      "tercera_probabilidad": 25.2,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 100.0,
-      "surprise_score": 100.0,
-      "categoria_sorpresa": "partido_muy_abierto",
-      "favorito_atacable": false,
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "signo_sorpresa_principal": "1",
+      "indice_sorpresa_quinielistica": 81.3,
+      "surprise_score": 81.3,
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito_atacable": true,
+      "favorito": "1",
+      "favorito_nombre": "Hammarby",
+      "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
-        "1",
+        "X",
         "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivos_sorpresa": [
-        "margen minimo entre primer y segundo signo",
         "ningun signo supera claramente el 45%",
-        "empate con peso alto",
-        "tercer signo vivo: partido candidato a triple",
-        "el signo base es X: no hay favorito limpio"
+        "tercer signo vivo: partido candidato a triple"
       ],
       "origen_probabilidades": "fallback_posicion+modelo_entrenado",
       "calidad_datos": "baja",
@@ -2955,7 +2970,7 @@
             "X": 34.7,
             "2": 29.4
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -2997,7 +3012,7 @@
           "X": 34.7,
           "2": 29.4
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -3033,14 +3048,17 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 91.0,
+        "X": 7.0,
+        "2": 2.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 6.0,
+        "lecturas": [
+          "Mercado Losilla: el consenso publico (1) no coincide con el favorito del motor (X).",
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -3055,9 +3073,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 91.0,
+          "X": 7.0,
+          "2": 2.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -3078,40 +3096,40 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=34.5%, X=35.2%, 2=30.3%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=145.4 y margen=0.7. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X.",
+      "razonamiento": "Probabilidades IA: 1=44.7%, X=30.1%, 2=25.2%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=81.3/100 o sorpresa=66.7%. Favorito o signo de referencia: Hammarby. Motivos principales: ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decision final: 1.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "X como signo dominante (35.2%).",
-        "hipotesis_alternativa": "1 como alternativa (34.5%).",
+        "hipotesis_principal": "1 como signo dominante (44.7%).",
+        "hipotesis_alternativa": "X como alternativa (30.1%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
-          "probabilidad": 70.0,
-          "favorito_atacable": false
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 66.7,
+          "favorito_atacable": true
         },
-        "justificacion_final": "Decision FIJO X: margen 0.7 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision FIJO 1: margen 14.6 puntos, indice sorpresa 81.3."
       },
-      "hipotesis_principal": "X como signo dominante (35.2%).",
-      "hipotesis_alternativa": "1 como alternativa (34.5%).",
+      "hipotesis_principal": "1 como signo dominante (44.7%).",
+      "hipotesis_alternativa": "X como alternativa (30.1%).",
       "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
-        "categoria": "partido_muy_abierto",
-        "probabilidad": 70.0,
-        "favorito_atacable": false
+        "categoria": "favorito_muy_atacable",
+        "probabilidad": 66.7,
+        "favorito_atacable": true
       },
-      "justificacion_final": "Decision FIJO X: margen 0.7 puntos, indice sorpresa 100.0.",
+      "justificacion_final": "Decision FIJO 1: margen 14.6 puntos, indice sorpresa 81.3.",
       "en_elige8": true,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 69.7,
-      "elige8_probabilidad_acierto": 69.7,
-      "elige8_probabilidad_cubierta": 69.7,
-      "elige8_seguro_score": 69.7,
-      "elige8_confianza_real": 69.7,
-      "elige8_tipo_cobertura": "DOBLE",
-      "elige8_seguro_posicion": 3,
+      "probabilidad_acierto_elige8": 44.7,
+      "elige8_probabilidad_acierto": 44.7,
+      "elige8_probabilidad_cubierta": 44.7,
+      "elige8_seguro_score": 44.7,
+      "elige8_confianza_real": 44.7,
+      "elige8_tipo_cobertura": "FIJO",
+      "elige8_seguro_posicion": 7,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 35.2,
-      "elige8_seguro_margen": 0.7,
+      "elige8_seguro_probabilidad_top": 44.7,
+      "elige8_seguro_margen": 14.6,
       "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto."
     },
     {
@@ -3121,49 +3139,48 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 33.9,
-        "X": 33.3,
-        "2": 32.8
+        "1": 29.1,
+        "X": 30.9,
+        "2": 40.0
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 33.9,
+          "probabilidad": 29.1,
           "nivel": "baja"
         },
         "X": {
-          "probabilidad": 33.3,
+          "probabilidad": 30.9,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 32.8,
-          "nivel": "baja"
+          "probabilidad": 40.0,
+          "nivel": "media"
         }
       },
-      "signo_base": "1",
-      "signo_final": "1X2",
-      "tipo": "TRIPLE",
-      "incertidumbre": 144.83,
+      "signo_base": "2",
+      "signo_final": "2",
+      "tipo": "FIJO",
+      "incertidumbre": 141.49,
       "probabilidad_sorpresa": 70,
-      "probabilidad_top": 33.9,
-      "margen_probabilidad": 0.6,
-      "tercera_probabilidad": 32.8,
+      "probabilidad_top": 40.0,
+      "margen_probabilidad": 9.1,
+      "tercera_probabilidad": 29.1,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 100.0,
-      "surprise_score": 100.0,
+      "indice_sorpresa_quinielistica": 90.7,
+      "surprise_score": 90.7,
       "categoria_sorpresa": "favorito_muy_atacable",
       "favorito_atacable": true,
-      "favorito": "1",
-      "favorito_nombre": "Halmstad",
+      "favorito": "2",
+      "favorito_nombre": "Häcken",
       "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
         "X",
-        "2"
+        "1"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivos_sorpresa": [
-        "margen minimo entre primer y segundo signo",
+        "favorito con ventaja moderada, no dominante",
         "ningun signo supera claramente el 45%",
-        "empate con peso alto",
         "tercer signo vivo: partido candidato a triple"
       ],
       "origen_probabilidades": "fallback_posicion+modelo_entrenado",
@@ -3203,7 +3220,7 @@
             "X": 33.4,
             "2": 32.4
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -3260,7 +3277,7 @@
           "X": 33.4,
           "2": 32.4
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -3296,14 +3313,17 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 7.0,
+        "X": 20.0,
+        "2": 73.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 6.0,
+        "lecturas": [
+          "Mercado Losilla: el consenso publico (2) no coincide con el favorito del motor (1).",
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -3318,9 +3338,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 7.0,
+          "X": 20.0,
+          "2": 73.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -3341,40 +3361,40 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=33.9%, X=33.3%, 2=32.8%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=144.8 y margen=0.6. Favorito o signo de referencia: Halmstad. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X2.",
+      "razonamiento": "Probabilidades IA: 1=29.1%, X=30.9%, 2=40.0%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (2) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=90.7/100 o sorpresa=70.0%. Favorito o signo de referencia: Häcken. Motivos principales: favorito con ventaja moderada, no dominante; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decision final: 2.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "1 como signo dominante (33.9%).",
-        "hipotesis_alternativa": "X como alternativa (33.3%).",
-        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "hipotesis_principal": "2 como signo dominante (40.0%).",
+        "hipotesis_alternativa": "X como alternativa (30.9%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
           "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 0.6 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision FIJO 2: margen 9.1 puntos, indice sorpresa 90.7."
       },
-      "hipotesis_principal": "1 como signo dominante (33.9%).",
-      "hipotesis_alternativa": "X como alternativa (33.3%).",
-      "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+      "hipotesis_principal": "2 como signo dominante (40.0%).",
+      "hipotesis_alternativa": "X como alternativa (30.9%).",
+      "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
         "categoria": "favorito_muy_atacable",
         "probabilidad": 70.0,
         "favorito_atacable": true
       },
-      "justificacion_final": "Decision DOBLE 1X: margen 0.6 puntos, indice sorpresa 100.0.",
+      "justificacion_final": "Decision FIJO 2: margen 9.1 puntos, indice sorpresa 90.7.",
       "en_elige8": true,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 100.0,
-      "elige8_probabilidad_acierto": 100.0,
-      "elige8_probabilidad_cubierta": 100.0,
-      "elige8_seguro_score": 100.0,
-      "elige8_confianza_real": 100.0,
-      "elige8_tipo_cobertura": "TRIPLE",
-      "elige8_seguro_posicion": 2,
+      "probabilidad_acierto_elige8": 40.0,
+      "elige8_probabilidad_acierto": 40.0,
+      "elige8_probabilidad_cubierta": 40.0,
+      "elige8_seguro_score": 40.0,
+      "elige8_confianza_real": 40.0,
+      "elige8_tipo_cobertura": "FIJO",
+      "elige8_seguro_posicion": 8,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 33.9,
-      "elige8_seguro_margen": 0.6,
+      "elige8_seguro_probabilidad_top": 40.0,
+      "elige8_seguro_margen": 9.1,
       "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto."
     },
     {
@@ -3384,31 +3404,31 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 34.6,
-        "X": 34.2,
+        "1": 35.8,
+        "X": 33.1,
         "2": 31.2
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 34.6,
-          "nivel": "baja"
+          "probabilidad": 35.76,
+          "nivel": "media"
         },
         "X": {
-          "probabilidad": 34.2,
+          "probabilidad": 33.07,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 31.2,
+          "probabilidad": 31.17,
           "nivel": "baja"
         }
       },
       "signo_base": "1",
-      "signo_final": "1X",
-      "tipo": "DOBLE",
-      "incertidumbre": 145.76,
+      "signo_final": "1",
+      "tipo": "FIJO",
+      "incertidumbre": 143.07,
       "probabilidad_sorpresa": 70,
-      "probabilidad_top": 34.6,
-      "margen_probabilidad": 0.4,
+      "probabilidad_top": 35.8,
+      "margen_probabilidad": 2.7,
       "tercera_probabilidad": 31.2,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
@@ -3466,7 +3486,7 @@
             "X": 34.5,
             "2": 30.0
           },
-          "version_id": "20260715T055819Z",
+          "version_id": "20260715T075923Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
@@ -3524,7 +3544,7 @@
           "X": 34.5,
           "2": 30.0
         },
-        "version_id": "20260715T055819Z",
+        "version_id": "20260715T075923Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -3560,14 +3580,16 @@
         "lecturas": []
       },
       "mercado_losilla": {
-        "1": 0.0,
-        "X": 0.0,
-        "2": 0.0
+        "1": 41.0,
+        "X": 28.0,
+        "2": 31.0
       },
       "ajuste_mercado_losilla": {
-        "activo": false,
+        "activo": true,
         "riesgo_extra": 0.0,
-        "lecturas": []
+        "lecturas": [
+          "Mercado Losilla: consenso publico integrado con peso 0.18."
+        ]
       },
       "ajuste_motivacion": {
         "activo": false,
@@ -3582,9 +3604,9 @@
         "nivel_sorpresa": "",
         "forzar_cobertura": "",
         "mercado_losilla": {
-          "1": 0.0,
-          "X": 0.0,
-          "2": 0.0
+          "1": 41.0,
+          "X": 28.0,
+          "2": 31.0
         },
         "casos_aplicados": [],
         "clasificacion_losilla": {
@@ -3604,63 +3626,46 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=34.6%, X=34.2%, 2=31.2%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=145.8 y margen=0.4. Favorito o signo de referencia: Kalmar. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X.",
+      "elige8": false,
+      "razonamiento": "Probabilidades IA: 1=35.8%, X=33.1%, 2=31.2%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: Kalmar. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "1 como signo dominante (34.6%).",
-        "hipotesis_alternativa": "X como alternativa (34.2%).",
-        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "hipotesis_principal": "1 como signo dominante (35.8%).",
+        "hipotesis_alternativa": "X como alternativa (33.1%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
           "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision TRIPLE 1X2: margen 0.4 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision FIJO 1: margen 2.7 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "1 como signo dominante (34.6%).",
-      "hipotesis_alternativa": "X como alternativa (34.2%).",
-      "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+      "hipotesis_principal": "1 como signo dominante (35.8%).",
+      "hipotesis_alternativa": "X como alternativa (33.1%).",
+      "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
         "categoria": "favorito_muy_atacable",
         "probabilidad": 70.0,
         "favorito_atacable": true
       },
-      "justificacion_final": "Decision TRIPLE 1X2: margen 0.4 puntos, indice sorpresa 100.0.",
-      "en_elige8": true,
+      "justificacion_final": "Decision FIJO 1: margen 2.7 puntos, indice sorpresa 100.0.",
+      "en_elige8": false,
       "elige8_modo": "conservador",
       "elige8_modo_real": "probabilidad_real",
-      "probabilidad_acierto_elige8": 68.8,
-      "elige8_probabilidad_acierto": 68.8,
-      "elige8_probabilidad_cubierta": 68.8,
-      "elige8_seguro_score": 68.8,
-      "elige8_confianza_real": 68.8,
-      "elige8_tipo_cobertura": "DOBLE",
-      "elige8_seguro_posicion": 5,
+      "probabilidad_acierto_elige8": 35.8,
+      "elige8_probabilidad_acierto": 35.8,
+      "elige8_probabilidad_cubierta": 35.8,
+      "elige8_seguro_score": 35.8,
+      "elige8_confianza_real": 35.8,
+      "elige8_tipo_cobertura": "FIJO",
+      "elige8_seguro_posicion": 12,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 34.6,
-      "elige8_seguro_margen": 0.4,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto."
+      "elige8_seguro_probabilidad_top": 35.8,
+      "elige8_seguro_margen": 2.7
     }
   ],
   "criterio_cobertura": "Boleto alineado con analisis critico: triples para maxima incertidumbre, dobles para riesgos siguientes, y aviso explicito cuando un fijo queda sin cobertura por presupuesto.",
   "ataques_favorito_prioritarios": [
     {
-      "num": 1,
-      "partido": "Bodø/Glimt - Fredrikstad",
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "indice_sorpresa_quinielistica": 100.0,
-      "signo_sorpresa_principal": "2",
-      "signos_contra_favorito": [
-        "2",
-        "1"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "tipo_final": "FIJO",
-      "signo_final": "X",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
-    },
-    {
       "num": 2,
       "partido": "HamKam - Tromsø",
       "favorito": "1",
@@ -3672,15 +3677,47 @@
         "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
-      "tipo_final": "FIJO",
-      "signo_final": "1",
+      "tipo_final": "TRIPLE",
+      "signo_final": "1X2",
       "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
     },
     {
-      "num": 3,
-      "partido": "Lillestrøm - KFUM Oslo",
+      "num": 4,
+      "partido": "Kristiansund - Sarpsborg 08",
+      "favorito": "2",
+      "favorito_nombre": "Sarpsborg 08",
+      "indice_sorpresa_quinielistica": 100.0,
+      "signo_sorpresa_principal": "X",
+      "signos_contra_favorito": [
+        "X",
+        "1"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "tipo_final": "TRIPLE",
+      "signo_final": "1X2",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
+    },
+    {
+      "num": 5,
+      "partido": "Start - Rosenborg",
+      "favorito": "2",
+      "favorito_nombre": "Rosenborg",
+      "indice_sorpresa_quinielistica": 100.0,
+      "signo_sorpresa_principal": "X",
+      "signos_contra_favorito": [
+        "X",
+        "1"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "tipo_final": "DOBLE",
+      "signo_final": "X2",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
+    },
+    {
+      "num": 6,
+      "partido": "Molde - Brann",
       "favorito": "1",
-      "favorito_nombre": "Lillestrøm",
+      "favorito_nombre": "Molde",
       "indice_sorpresa_quinielistica": 100.0,
       "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
@@ -3693,10 +3730,10 @@
       "motivo_sorpresa": "margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto"
     },
     {
-      "num": 4,
-      "partido": "Kristiansund - Sarpsborg 08",
+      "num": 8,
+      "partido": "Mjällby - Västerås",
       "favorito": "1",
-      "favorito_nombre": "Kristiansund",
+      "favorito_nombre": "Mjällby",
       "indice_sorpresa_quinielistica": 100.0,
       "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
@@ -3704,165 +3741,149 @@
         "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
-      "tipo_final": "DOBLE",
-      "signo_final": "1X",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
-    },
-    {
-      "num": 5,
-      "partido": "Start - Rosenborg",
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "indice_sorpresa_quinielistica": 100.0,
-      "signo_sorpresa_principal": "1",
-      "signos_contra_favorito": [
-        "1",
-        "2"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "tipo_final": "TRIPLE",
-      "signo_final": "1X2",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
-    },
-    {
-      "num": 6,
-      "partido": "Molde - Brann",
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "indice_sorpresa_quinielistica": 100.0,
-      "signo_sorpresa_principal": "1",
-      "signos_contra_favorito": [
-        "1",
-        "2"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
       "tipo_final": "FIJO",
-      "signo_final": "X",
+      "signo_final": "1",
       "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
-    },
-    {
-      "num": 7,
-      "partido": "Viking - Sandefjord",
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "indice_sorpresa_quinielistica": 100.0,
-      "signo_sorpresa_principal": "1",
-      "signos_contra_favorito": [
-        "1",
-        "2"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "tipo_final": "FIJO",
-      "signo_final": "X",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
-    },
-    {
-      "num": 8,
-      "partido": "Mjällby - Västerås",
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "indice_sorpresa_quinielistica": 100.0,
-      "signo_sorpresa_principal": "2",
-      "signos_contra_favorito": [
-        "2",
-        "1"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "tipo_final": "FIJO",
-      "signo_final": "X",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
-    }
-  ],
-  "ranking_incertidumbre_coberturas": [
-    {
-      "num": 14,
-      "partido": "Kalmar - Malmö",
-      "tipo_final": "TRIPLE",
-      "incertidumbre": 145.76,
-      "probabilidad_sorpresa": 70,
-      "surprise_score": 100.0,
-      "margen_probabilidad": 0.4
-    },
-    {
-      "num": 4,
-      "partido": "Kristiansund - Sarpsborg 08",
-      "tipo_final": "TRIPLE",
-      "incertidumbre": 145.67,
-      "probabilidad_sorpresa": 70,
-      "surprise_score": 100.0,
-      "margen_probabilidad": 0.0
     },
     {
       "num": 9,
       "partido": "AIK - Gais",
-      "tipo_final": "DOBLE",
-      "incertidumbre": 145.46,
-      "probabilidad_sorpresa": 70,
-      "surprise_score": 100.0,
-      "margen_probabilidad": 0.6
+      "favorito": "1",
+      "favorito_nombre": "AIK",
+      "indice_sorpresa_quinielistica": 100.0,
+      "signo_sorpresa_principal": "X",
+      "signos_contra_favorito": [
+        "X",
+        "2"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "tipo_final": "FIJO",
+      "signo_final": "1",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
     },
     {
-      "num": 12,
-      "partido": "Hammarby - Degerfors",
+      "num": 10,
+      "partido": "Göteborg - Brommapojkarna",
+      "favorito": "1",
+      "favorito_nombre": "Göteborg",
+      "indice_sorpresa_quinielistica": 100.0,
+      "signo_sorpresa_principal": "X",
+      "signos_contra_favorito": [
+        "X",
+        "2"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
       "tipo_final": "FIJO",
-      "incertidumbre": 145.39,
-      "probabilidad_sorpresa": 70,
-      "surprise_score": 100.0,
-      "margen_probabilidad": 0.7
+      "signo_final": "1",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
     },
     {
-      "num": 1,
-      "partido": "Bodø/Glimt - Fredrikstad",
+      "num": 11,
+      "partido": "Elfsborg - Sirius",
+      "favorito": "2",
+      "favorito_nombre": "Sirius",
+      "indice_sorpresa_quinielistica": 100.0,
+      "signo_sorpresa_principal": "X",
+      "signos_contra_favorito": [
+        "X",
+        "1"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
       "tipo_final": "FIJO",
-      "incertidumbre": 144.92,
-      "probabilidad_sorpresa": 70,
-      "surprise_score": 100.0,
-      "margen_probabilidad": 1.8
-    },
+      "signo_final": "2",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple"
+    }
+  ],
+  "ranking_incertidumbre_coberturas": [
     {
       "num": 2,
       "partido": "HamKam - Tromsø",
-      "tipo_final": "DOBLE",
-      "incertidumbre": 144.88,
+      "tipo_final": "TRIPLE",
+      "incertidumbre": 150.49,
       "probabilidad_sorpresa": 70,
       "surprise_score": 100.0,
       "margen_probabilidad": 0.9
     },
     {
-      "num": 7,
-      "partido": "Viking - Sandefjord",
-      "tipo_final": "FIJO",
-      "incertidumbre": 144.84,
+      "num": 5,
+      "partido": "Start - Rosenborg",
+      "tipo_final": "TRIPLE",
+      "incertidumbre": 150.43,
       "probabilidad_sorpresa": 70,
       "surprise_score": 100.0,
-      "margen_probabilidad": 1.0
-    },
-    {
-      "num": 13,
-      "partido": "Halmstad - Häcken",
-      "tipo_final": "DOBLE",
-      "incertidumbre": 144.83,
-      "probabilidad_sorpresa": 70,
-      "surprise_score": 100.0,
-      "margen_probabilidad": 0.6
-    }
-  ],
-  "ranking_elige8_confianza_real": [
-    {
-      "num": 14,
-      "partido": "Kalmar - Malmö",
-      "signo_final": "1X2",
-      "probabilidad_top": 34.6,
-      "margen_probabilidad": 0.4,
-      "surprise_score": 100.0,
-      "elige8": false
+      "margen_probabilidad": 1.1
     },
     {
       "num": 4,
       "partido": "Kristiansund - Sarpsborg 08",
+      "tipo_final": "DOBLE",
+      "incertidumbre": 149.95,
+      "probabilidad_sorpresa": 70,
+      "surprise_score": 100.0,
+      "margen_probabilidad": 1.4
+    },
+    {
+      "num": 10,
+      "partido": "Göteborg - Brommapojkarna",
+      "tipo_final": "FIJO",
+      "incertidumbre": 149.16,
+      "probabilidad_sorpresa": 70,
+      "surprise_score": 100.0,
+      "margen_probabilidad": 2.3
+    },
+    {
+      "num": 9,
+      "partido": "AIK - Gais",
+      "tipo_final": "FIJO",
+      "incertidumbre": 148.59,
+      "probabilidad_sorpresa": 70,
+      "surprise_score": 100.0,
+      "margen_probabilidad": 2.9
+    },
+    {
+      "num": 11,
+      "partido": "Elfsborg - Sirius",
+      "tipo_final": "FIJO",
+      "incertidumbre": 148.38,
+      "probabilidad_sorpresa": 70,
+      "surprise_score": 100.0,
+      "margen_probabilidad": 2.9
+    },
+    {
+      "num": 8,
+      "partido": "Mjällby - Västerås",
+      "tipo_final": "FIJO",
+      "incertidumbre": 147.92,
+      "probabilidad_sorpresa": 70,
+      "surprise_score": 100.0,
+      "margen_probabilidad": 3.4
+    },
+    {
+      "num": 6,
+      "partido": "Molde - Brann",
+      "tipo_final": "FIJO",
+      "incertidumbre": 144.79,
+      "probabilidad_sorpresa": 70,
+      "surprise_score": 100.0,
+      "margen_probabilidad": 6.6
+    }
+  ],
+  "ranking_elige8_confianza_real": [
+    {
+      "num": 2,
+      "partido": "HamKam - Tromsø",
       "signo_final": "1X2",
-      "probabilidad_top": 34.0,
-      "margen_probabilidad": 0.0,
+      "probabilidad_top": 34.1,
+      "margen_probabilidad": 0.9,
+      "surprise_score": 100.0,
+      "elige8": false
+    },
+    {
+      "num": 5,
+      "partido": "Start - Rosenborg",
+      "signo_final": "1X2",
+      "probabilidad_top": 34.7,
+      "margen_probabilidad": 1.1,
       "surprise_score": 100.0,
       "elige8": false
     },
@@ -3870,109 +3891,67 @@
       "num": 3,
       "partido": "Lillestrøm - KFUM Oslo",
       "signo_final": "1X",
-      "probabilidad_top": 39.0,
-      "margen_probabilidad": 5.7,
+      "probabilidad_top": 46.9,
+      "margen_probabilidad": 17.4,
+      "surprise_score": 69.2,
+      "elige8": false
+    },
+    {
+      "num": 7,
+      "partido": "Viking - Sandefjord",
+      "signo_final": "1X",
+      "probabilidad_top": 44.4,
+      "margen_probabilidad": 15.4,
+      "surprise_score": 80.7,
+      "elige8": false
+    },
+    {
+      "num": 1,
+      "partido": "Bodø/Glimt - Fredrikstad",
+      "signo_final": "1X",
+      "probabilidad_top": 43.0,
+      "margen_probabilidad": 13.4,
+      "surprise_score": 83.3,
+      "elige8": false
+    },
+    {
+      "num": 4,
+      "partido": "Kristiansund - Sarpsborg 08",
+      "signo_final": "X2",
+      "probabilidad_top": 34.5,
+      "margen_probabilidad": 1.4,
       "surprise_score": 100.0,
       "elige8": false
     },
     {
-      "num": 9,
-      "partido": "AIK - Gais",
-      "signo_final": "1X",
-      "probabilidad_top": 35.1,
-      "margen_probabilidad": 0.6,
-      "surprise_score": 100.0,
-      "elige8": false
-    },
-    {
-      "num": 2,
-      "partido": "HamKam - Tromsø",
-      "signo_final": "1X",
-      "probabilidad_top": 35.2,
-      "margen_probabilidad": 0.9,
-      "surprise_score": 100.0,
+      "num": 12,
+      "partido": "Hammarby - Degerfors",
+      "signo_final": "1",
+      "probabilidad_top": 44.7,
+      "margen_probabilidad": 14.6,
+      "surprise_score": 81.3,
       "elige8": false
     },
     {
       "num": 13,
       "partido": "Halmstad - Häcken",
-      "signo_final": "1X",
-      "probabilidad_top": 33.9,
-      "margen_probabilidad": 0.6,
-      "surprise_score": 100.0,
-      "elige8": false
-    },
-    {
-      "num": 6,
-      "partido": "Molde - Brann",
-      "signo_final": "X",
-      "probabilidad_top": 36.5,
-      "margen_probabilidad": 4.0,
-      "surprise_score": 100.0,
-      "elige8": false
-    },
-    {
-      "num": 8,
-      "partido": "Mjällby - Västerås",
-      "signo_final": "X",
-      "probabilidad_top": 36.1,
-      "margen_probabilidad": 2.8,
-      "surprise_score": 100.0,
+      "signo_final": "2",
+      "probabilidad_top": 40.0,
+      "margen_probabilidad": 9.1,
+      "surprise_score": 90.7,
       "elige8": false
     }
   ],
   "riesgos_detectados": [
     {
-      "num": 14,
-      "partido": "Kalmar - Malmö",
-      "incertidumbre": 145.76,
-      "probabilidad_sorpresa": 70.0,
-      "probabilidad_top": 34.6,
-      "margen": 0.4,
-      "tercera_probabilidad": 31.2,
-      "prioridad_cobertura": 333.76,
-      "indice_sorpresa_quinielistica": 100.0,
-      "categoria_sorpresa": "favorito_muy_atacable",
-      "favorito": "1",
-      "favorito_nombre": "Kalmar",
-      "favorito_atacable": true,
-      "signos_contra_favorito": [
-        "X",
-        "2"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
-    },
-    {
-      "num": 4,
-      "partido": "Kristiansund - Sarpsborg 08",
-      "incertidumbre": 145.67,
-      "probabilidad_sorpresa": 70.0,
-      "probabilidad_top": 34.0,
-      "margen": 0.0,
-      "tercera_probabilidad": 32.0,
-      "prioridad_cobertura": 333.67,
-      "indice_sorpresa_quinielistica": 100.0,
-      "categoria_sorpresa": "favorito_muy_atacable",
-      "favorito": "1",
-      "favorito_nombre": "Kristiansund",
-      "favorito_atacable": true,
-      "signos_contra_favorito": [
-        "X",
-        "2"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
-    },
-    {
       "num": 2,
       "partido": "HamKam - Tromsø",
-      "incertidumbre": 144.88,
+      "incertidumbre": 150.49,
       "probabilidad_sorpresa": 70.0,
-      "probabilidad_top": 35.2,
+      "probabilidad_top": 34.1,
       "margen": 0.9,
-      "tercera_probabilidad": 30.5,
-      "prioridad_cobertura": 332.88,
+      "tercera_probabilidad": 32.8,
+      "prioridad_cobertura": 338.49,
       "indice_sorpresa_quinielistica": 100.0,
       "categoria_sorpresa": "favorito_muy_atacable",
       "favorito": "1",
@@ -3986,18 +3965,60 @@
       "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
     },
     {
-      "num": 13,
-      "partido": "Halmstad - Häcken",
-      "incertidumbre": 144.83,
+      "num": 5,
+      "partido": "Start - Rosenborg",
+      "incertidumbre": 150.43,
       "probabilidad_sorpresa": 70.0,
-      "probabilidad_top": 33.9,
-      "margen": 0.6,
-      "tercera_probabilidad": 32.8,
-      "prioridad_cobertura": 332.83,
+      "probabilidad_top": 34.7,
+      "margen": 1.1,
+      "tercera_probabilidad": 31.6,
+      "prioridad_cobertura": 338.43,
+      "indice_sorpresa_quinielistica": 100.0,
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito": "2",
+      "favorito_nombre": "Rosenborg",
+      "favorito_atacable": true,
+      "signos_contra_favorito": [
+        "X",
+        "1"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
+    },
+    {
+      "num": 4,
+      "partido": "Kristiansund - Sarpsborg 08",
+      "incertidumbre": 149.95,
+      "probabilidad_sorpresa": 70.0,
+      "probabilidad_top": 34.5,
+      "margen": 1.4,
+      "tercera_probabilidad": 32.4,
+      "prioridad_cobertura": 337.95,
+      "indice_sorpresa_quinielistica": 100.0,
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito": "2",
+      "favorito_nombre": "Sarpsborg 08",
+      "favorito_atacable": true,
+      "signos_contra_favorito": [
+        "X",
+        "1"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
+    },
+    {
+      "num": 10,
+      "partido": "Göteborg - Brommapojkarna",
+      "incertidumbre": 149.16,
+      "probabilidad_sorpresa": 70.0,
+      "probabilidad_top": 35.7,
+      "margen": 2.3,
+      "tercera_probabilidad": 30.9,
+      "prioridad_cobertura": 337.16,
       "indice_sorpresa_quinielistica": 100.0,
       "categoria_sorpresa": "favorito_muy_atacable",
       "favorito": "1",
-      "favorito_nombre": "Halmstad",
+      "favorito_nombre": "Göteborg",
       "favorito_atacable": true,
       "signos_contra_favorito": [
         "X",
@@ -4007,18 +4028,81 @@
       "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
     },
     {
-      "num": 3,
-      "partido": "Lillestrøm - KFUM Oslo",
-      "incertidumbre": 140.5,
+      "num": 9,
+      "partido": "AIK - Gais",
+      "incertidumbre": 148.59,
       "probabilidad_sorpresa": 70.0,
-      "probabilidad_top": 39.0,
-      "margen": 5.7,
-      "tercera_probabilidad": 27.7,
-      "prioridad_cobertura": 328.5,
+      "probabilidad_top": 36.4,
+      "margen": 2.9,
+      "tercera_probabilidad": 30.1,
+      "prioridad_cobertura": 336.59,
       "indice_sorpresa_quinielistica": 100.0,
       "categoria_sorpresa": "favorito_muy_atacable",
       "favorito": "1",
-      "favorito_nombre": "Lillestrøm",
+      "favorito_nombre": "AIK",
+      "favorito_atacable": true,
+      "signos_contra_favorito": [
+        "X",
+        "2"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
+    },
+    {
+      "num": 11,
+      "partido": "Elfsborg - Sirius",
+      "incertidumbre": 148.38,
+      "probabilidad_sorpresa": 70.0,
+      "probabilidad_top": 35.8,
+      "margen": 2.9,
+      "tercera_probabilidad": 31.4,
+      "prioridad_cobertura": 336.38,
+      "indice_sorpresa_quinielistica": 100.0,
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito": "2",
+      "favorito_nombre": "Sirius",
+      "favorito_atacable": true,
+      "signos_contra_favorito": [
+        "X",
+        "1"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple"
+    },
+    {
+      "num": 8,
+      "partido": "Mjällby - Västerås",
+      "incertidumbre": 147.92,
+      "probabilidad_sorpresa": 70.0,
+      "probabilidad_top": 36.4,
+      "margen": 3.4,
+      "tercera_probabilidad": 30.5,
+      "prioridad_cobertura": 335.92,
+      "indice_sorpresa_quinielistica": 100.0,
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito": "1",
+      "favorito_nombre": "Mjällby",
+      "favorito_atacable": true,
+      "signos_contra_favorito": [
+        "X",
+        "2"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
+    },
+    {
+      "num": 6,
+      "partido": "Molde - Brann",
+      "incertidumbre": 144.79,
+      "probabilidad_sorpresa": 70.0,
+      "probabilidad_top": 39.8,
+      "margen": 6.6,
+      "tercera_probabilidad": 27.0,
+      "prioridad_cobertura": 332.79,
+      "indice_sorpresa_quinielistica": 100.0,
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito": "1",
+      "favorito_nombre": "Molde",
       "favorito_atacable": true,
       "signos_contra_favorito": [
         "X",
@@ -4026,104 +4110,29 @@
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivo_sorpresa": "margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto"
-    },
-    {
-      "num": 9,
-      "partido": "AIK - Gais",
-      "incertidumbre": 145.46,
-      "probabilidad_sorpresa": 70.0,
-      "probabilidad_top": 35.1,
-      "margen": 0.6,
-      "tercera_probabilidad": 30.4,
-      "prioridad_cobertura": 298.46,
-      "indice_sorpresa_quinielistica": 100.0,
-      "categoria_sorpresa": "partido_muy_abierto",
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "favorito_atacable": false,
-      "signos_contra_favorito": [
-        "1",
-        "2"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
-    },
-    {
-      "num": 12,
-      "partido": "Hammarby - Degerfors",
-      "incertidumbre": 145.39,
-      "probabilidad_sorpresa": 70.0,
-      "probabilidad_top": 35.2,
-      "margen": 0.7,
-      "tercera_probabilidad": 30.3,
-      "prioridad_cobertura": 298.39,
-      "indice_sorpresa_quinielistica": 100.0,
-      "categoria_sorpresa": "partido_muy_abierto",
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "favorito_atacable": false,
-      "signos_contra_favorito": [
-        "1",
-        "2"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
-    },
-    {
-      "num": 1,
-      "partido": "Bodø/Glimt - Fredrikstad",
-      "incertidumbre": 144.92,
-      "probabilidad_sorpresa": 70.0,
-      "probabilidad_top": 34.8,
-      "margen": 1.8,
-      "tercera_probabilidad": 32.2,
-      "prioridad_cobertura": 297.92,
-      "indice_sorpresa_quinielistica": 100.0,
-      "categoria_sorpresa": "partido_muy_abierto",
-      "favorito": null,
-      "favorito_nombre": "Empate",
-      "favorito_atacable": false,
-      "signos_contra_favorito": [
-        "2",
-        "1"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
     }
   ],
   "riesgos_no_cubiertos_por_presupuesto": [
     {
-      "num": 5,
-      "partido": "Start - Rosenborg",
+      "num": 11,
+      "partido": "Elfsborg - Sirius",
       "tipo_final": "FIJO",
-      "signo_final": "X",
+      "signo_final": "2",
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "indice_sorpresa_quinielistica": 100.0,
-      "tercera_probabilidad": 32.9,
+      "tercera_probabilidad": 31.4,
       "probabilidad_sorpresa": 70,
       "calidad_datos": "baja",
       "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
     },
     {
-      "num": 1,
-      "partido": "Bodø/Glimt - Fredrikstad",
+      "num": 14,
+      "partido": "Kalmar - Malmö",
       "tipo_final": "FIJO",
-      "signo_final": "X",
+      "signo_final": "1",
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "indice_sorpresa_quinielistica": 100.0,
-      "tercera_probabilidad": 32.2,
-      "probabilidad_sorpresa": 70,
-      "calidad_datos": "baja",
-      "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
-    },
-    {
-      "num": 7,
-      "partido": "Viking - Sandefjord",
-      "tipo_final": "FIJO",
-      "signo_final": "X",
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "indice_sorpresa_quinielistica": 100.0,
-      "tercera_probabilidad": 32.0,
+      "tercera_probabilidad": 31.2,
       "probabilidad_sorpresa": 70,
       "calidad_datos": "baja",
       "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
@@ -4132,34 +4141,10 @@
       "num": 10,
       "partido": "Göteborg - Brommapojkarna",
       "tipo_final": "FIJO",
-      "signo_final": "X",
+      "signo_final": "1",
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "indice_sorpresa_quinielistica": 100.0,
-      "tercera_probabilidad": 32.0,
-      "probabilidad_sorpresa": 70,
-      "calidad_datos": "baja",
-      "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
-    },
-    {
-      "num": 11,
-      "partido": "Elfsborg - Sirius",
-      "tipo_final": "FIJO",
-      "signo_final": "X",
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "indice_sorpresa_quinielistica": 100.0,
-      "tercera_probabilidad": 31.9,
-      "probabilidad_sorpresa": 70,
-      "calidad_datos": "baja",
-      "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
-    },
-    {
-      "num": 6,
-      "partido": "Molde - Brann",
-      "tipo_final": "FIJO",
-      "signo_final": "X",
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "indice_sorpresa_quinielistica": 100.0,
-      "tercera_probabilidad": 31.0,
+      "tercera_probabilidad": 30.9,
       "probabilidad_sorpresa": 70,
       "calidad_datos": "baja",
       "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
@@ -4168,10 +4153,46 @@
       "num": 8,
       "partido": "Mjällby - Västerås",
       "tipo_final": "FIJO",
-      "signo_final": "X",
+      "signo_final": "1",
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "indice_sorpresa_quinielistica": 100.0,
-      "tercera_probabilidad": 30.6,
+      "tercera_probabilidad": 30.5,
+      "probabilidad_sorpresa": 70,
+      "calidad_datos": "baja",
+      "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
+    },
+    {
+      "num": 9,
+      "partido": "AIK - Gais",
+      "tipo_final": "FIJO",
+      "signo_final": "1",
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "indice_sorpresa_quinielistica": 100.0,
+      "tercera_probabilidad": 30.1,
+      "probabilidad_sorpresa": 70,
+      "calidad_datos": "baja",
+      "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
+    },
+    {
+      "num": 6,
+      "partido": "Molde - Brann",
+      "tipo_final": "FIJO",
+      "signo_final": "1",
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "indice_sorpresa_quinielistica": 100.0,
+      "tercera_probabilidad": 27.0,
+      "probabilidad_sorpresa": 70,
+      "calidad_datos": "baja",
+      "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
+    },
+    {
+      "num": 13,
+      "partido": "Halmstad - Häcken",
+      "tipo_final": "FIJO",
+      "signo_final": "2",
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "indice_sorpresa_quinielistica": 90.7,
+      "tercera_probabilidad": 29.1,
       "probabilidad_sorpresa": 70,
       "calidad_datos": "baja",
       "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
@@ -4180,11 +4201,11 @@
       "num": 12,
       "partido": "Hammarby - Degerfors",
       "tipo_final": "FIJO",
-      "signo_final": "X",
+      "signo_final": "1",
       "cobertura_sorpresa_sugerida": "TRIPLE",
-      "indice_sorpresa_quinielistica": 100.0,
-      "tercera_probabilidad": 30.3,
-      "probabilidad_sorpresa": 70,
+      "indice_sorpresa_quinielistica": 81.3,
+      "tercera_probabilidad": 25.2,
+      "probabilidad_sorpresa": 66.7,
       "calidad_datos": "baja",
       "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
     }
@@ -4197,7 +4218,7 @@
     }
   ],
   "contexto_equipos": {
-    "generado_en": "2026-07-15T00:01:01.797259+00:00",
+    "generado_en": "2026-07-15T07:58:42.640470+00:00",
     "fuentes": [
       "Google News RSS (principal)",
       "Bing News RSS (respaldo si Google no da resultados)",
@@ -4206,7 +4227,7 @@
     ]
   },
   "contexto_competitivo": {
-    "generado_en": "2026-07-15T05:58:09.258770+00:00",
+    "generado_en": "2026-07-15T07:59:12.429226+00:00",
     "reglas": {
       "primera": {
         "nombre": "LALIGA EA SPORTS",
@@ -4261,7 +4282,7 @@
       ]
     },
     "pesos_dinamicos": {
-      "generado_en": "2026-07-15T05:58:08.877102+00:00",
+      "generado_en": "2026-07-15T07:59:12.056234+00:00",
       "pesos": {
         "forma_reciente": 0.1055,
         "casa_fuera": 0.0915,
@@ -4361,9 +4382,9 @@
     "activo": true,
     "motivo": "ok",
     "manifest": {
-      "version_id": "20260715T055819Z",
+      "version_id": "20260715T075923Z",
       "dataset_hash": "5d0e27ea3b06edc438231825d4959c9acb3a34c8dc88f224c587cc59cafde99d",
-      "generado_en": "2026-07-15T05:58:36.714788+00:00",
+      "generado_en": "2026-07-15T07:59:40.736997+00:00",
       "estado": "modelo_calibrado_entrenado",
       "muestras": 1005,
       "modelo_calibrado": true,
@@ -4373,8 +4394,8 @@
         "rutas": [
           "data/modelo_predictivo/modelo_entrenado.joblib",
           "data/modelo_predictivo/modelo_calibrado.joblib",
-          "data/modelo_predictivo/versiones/20260715T055819Z/modelo_entrenado.joblib",
-          "data/modelo_predictivo/versiones/20260715T055819Z/modelo_calibrado.joblib"
+          "data/modelo_predictivo/versiones/20260715T075923Z/modelo_entrenado.joblib",
+          "data/modelo_predictivo/versiones/20260715T075923Z/modelo_calibrado.joblib"
         ]
       }
     }
@@ -4425,6 +4446,12 @@
         "visitante": "ganador sf2"
       }
     },
+    "marcador_probable_losilla": {
+      "local": "1",
+      "visitante": "1",
+      "fuente": "fuente_losilla.pleno_al_15"
+    },
+    "pronostico_marcador": "1-1",
     "estado_prediccion": "pendiente_probabilidades_pleno15",
     "razonamiento_pleno15": "La jornada existe, pero ningun partido tiene probabilidades 1/X/2 disponibles. Probablemente la prediccion esta bloqueada por aprendizaje pendiente."
   },
@@ -4433,7 +4460,7 @@
     "dobles": 4,
     "triples": 2,
     "elige8_seleccionados": 8,
-    "favoritos_atacables": 5,
+    "favoritos_atacables": 14,
     "indice_sorpresa_max": 100.0,
     "calidad_datos": {
       "alta": 0,
@@ -4534,7 +4561,7 @@
       74
     ],
     "jornadas_intermedias_faltantes": [],
-    "generado_en": "2026-07-15T05:58:38.368985+00:00",
+    "generado_en": "2026-07-15T07:59:42.353370+00:00",
     "jornada_anterior": 72,
     "prediccion_permitida": true,
     "motivo": "",
@@ -4545,7 +4572,7 @@
     "en_espera": false,
     "resultados_completos_anterior": true,
     "aprendizaje_aplicado_anterior": true,
-    "actualizado_en": "2026-07-15T05:58:38.391744+00:00",
+    "actualizado_en": "2026-07-15T07:59:42.375720+00:00",
     "detalle_cierre_anterior": {
       "ok": true,
       "total": 14,
@@ -4563,7 +4590,7 @@
     "motivo_bloqueo": ""
   },
   "calibracion_probabilidades": {
-    "generado_en": "2026-07-15T05:58:39.193373+00:00",
+    "generado_en": "2026-07-15T07:59:43.140276+00:00",
     "estado": "muestra_baja",
     "muestra": "baja",
     "partidos_evaluados": 98,
@@ -4573,34 +4600,34 @@
   },
   "elige8_seguro": {
     "version": "2.2",
-    "generado_en": "2026-07-15T05:58:39.879836+00:00",
+    "generado_en": "2026-07-15T07:59:43.819169+00:00",
     "modo": "conservador",
     "modo_real": "probabilidad_real_de_acierto",
     "regla_activa": "Elige 8 se selecciona por probabilidad real de acertar el signo jugado: TRIPLE=100%, DOBLE=suma de sus dos signos jugados, FIJO=probabilidad de su unico signo.",
     "recomendado": true,
     "seleccionados": [
+      1,
+      2,
       3,
       4,
       5,
-      6,
-      9,
+      7,
       12,
-      13,
-      14
+      13
     ],
     "ranking": [
       {
-        "num": 5,
-        "partido": "Start - Rosenborg",
+        "num": 4,
+        "partido": "Kristiansund - Sarpsborg 08",
         "signo_final": "1X2",
         "tipo_cobertura": "TRIPLE",
-        "signo_mas_probable": "X",
-        "probabilidad_top": 34.0,
+        "signo_mas_probable": "2",
+        "probabilidad_top": 34.5,
         "probabilidad_acierto": 100.0,
         "probabilidad_cubierta": 100.0,
-        "margen": 0.9,
-        "tercera_probabilidad": 32.9,
-        "incertidumbre": 144.77,
+        "margen": 1.4,
+        "tercera_probabilidad": 32.4,
+        "incertidumbre": 149.95,
         "probabilidad_sorpresa": 70.0,
         "indice_sorpresa_quinielistica": 100.0,
         "calidad_datos": "baja",
@@ -4611,17 +4638,17 @@
         "seleccionado": true
       },
       {
-        "num": 13,
-        "partido": "Halmstad - Häcken",
+        "num": 2,
+        "partido": "HamKam - Tromsø",
         "signo_final": "1X2",
         "tipo_cobertura": "TRIPLE",
         "signo_mas_probable": "1",
-        "probabilidad_top": 33.9,
+        "probabilidad_top": 34.1,
         "probabilidad_acierto": 100.0,
         "probabilidad_cubierta": 100.0,
-        "margen": 0.6,
+        "margen": 0.9,
         "tercera_probabilidad": 32.8,
-        "incertidumbre": 144.83,
+        "incertidumbre": 150.49,
         "probabilidad_sorpresa": 70.0,
         "indice_sorpresa_quinielistica": 100.0,
         "calidad_datos": "baja",
@@ -4632,253 +4659,253 @@
         "seleccionado": true
       },
       {
-        "num": 12,
-        "partido": "Hammarby - Degerfors",
+        "num": 3,
+        "partido": "Lillestrøm - KFUM Oslo",
         "signo_final": "1X",
         "tipo_cobertura": "DOBLE",
-        "signo_mas_probable": "X",
-        "probabilidad_top": 35.2,
-        "probabilidad_acierto": 69.7,
-        "probabilidad_cubierta": 69.7,
-        "margen": 0.7,
-        "tercera_probabilidad": 30.3,
-        "incertidumbre": 145.39,
-        "probabilidad_sorpresa": 70.0,
-        "indice_sorpresa_quinielistica": 100.0,
+        "signo_mas_probable": "1",
+        "probabilidad_top": 46.9,
+        "probabilidad_acierto": 76.4,
+        "probabilidad_cubierta": 76.4,
+        "margen": 17.4,
+        "tercera_probabilidad": 23.6,
+        "incertidumbre": 127.47,
+        "probabilidad_sorpresa": 62.5,
+        "indice_sorpresa_quinielistica": 69.2,
         "calidad_datos": "baja",
-        "score_seguridad": 69.7,
-        "confianza_real": 69.7,
+        "score_seguridad": 76.4,
+        "confianza_real": 76.4,
         "cumple_umbral_seguro": true,
         "posicion": 3,
         "seleccionado": true
       },
       {
-        "num": 9,
-        "partido": "AIK - Gais",
+        "num": 7,
+        "partido": "Viking - Sandefjord",
         "signo_final": "1X",
         "tipo_cobertura": "DOBLE",
-        "signo_mas_probable": "X",
-        "probabilidad_top": 35.1,
-        "probabilidad_acierto": 69.6,
-        "probabilidad_cubierta": 69.6,
-        "margen": 0.6,
-        "tercera_probabilidad": 30.4,
-        "incertidumbre": 145.46,
-        "probabilidad_sorpresa": 70.0,
-        "indice_sorpresa_quinielistica": 100.0,
+        "signo_mas_probable": "1",
+        "probabilidad_top": 44.4,
+        "probabilidad_acierto": 73.4,
+        "probabilidad_cubierta": 73.4,
+        "margen": 15.4,
+        "tercera_probabilidad": 26.6,
+        "incertidumbre": 134.52,
+        "probabilidad_sorpresa": 66.7,
+        "indice_sorpresa_quinielistica": 80.7,
         "calidad_datos": "baja",
-        "score_seguridad": 69.6,
-        "confianza_real": 69.6,
+        "score_seguridad": 73.4,
+        "confianza_real": 73.4,
         "cumple_umbral_seguro": true,
         "posicion": 4,
         "seleccionado": true
       },
       {
-        "num": 14,
-        "partido": "Kalmar - Malmö",
+        "num": 1,
+        "partido": "Bodø/Glimt - Fredrikstad",
         "signo_final": "1X",
         "tipo_cobertura": "DOBLE",
         "signo_mas_probable": "1",
-        "probabilidad_top": 34.6,
-        "probabilidad_acierto": 68.8,
-        "probabilidad_cubierta": 68.8,
-        "margen": 0.4,
-        "tercera_probabilidad": 31.2,
-        "incertidumbre": 145.76,
-        "probabilidad_sorpresa": 70.0,
-        "indice_sorpresa_quinielistica": 100.0,
+        "probabilidad_top": 43.0,
+        "probabilidad_acierto": 72.6,
+        "probabilidad_cubierta": 72.6,
+        "margen": 13.4,
+        "tercera_probabilidad": 27.4,
+        "incertidumbre": 137.5,
+        "probabilidad_sorpresa": 68.9,
+        "indice_sorpresa_quinielistica": 83.3,
         "calidad_datos": "baja",
-        "score_seguridad": 68.8,
-        "confianza_real": 68.8,
+        "score_seguridad": 72.6,
+        "confianza_real": 72.6,
         "cumple_umbral_seguro": true,
         "posicion": 5,
         "seleccionado": true
       },
       {
-        "num": 4,
-        "partido": "Kristiansund - Sarpsborg 08",
-        "signo_final": "1X",
+        "num": 5,
+        "partido": "Start - Rosenborg",
+        "signo_final": "X2",
         "tipo_cobertura": "DOBLE",
-        "signo_mas_probable": "1",
-        "probabilidad_top": 34.0,
-        "probabilidad_acierto": 68.0,
-        "probabilidad_cubierta": 68.0,
-        "margen": 0.0,
-        "tercera_probabilidad": 32.0,
-        "incertidumbre": 145.67,
+        "signo_mas_probable": "2",
+        "probabilidad_top": 34.7,
+        "probabilidad_acierto": 68.3,
+        "probabilidad_cubierta": 68.3,
+        "margen": 1.1,
+        "tercera_probabilidad": 31.6,
+        "incertidumbre": 150.43,
         "probabilidad_sorpresa": 70.0,
         "indice_sorpresa_quinielistica": 100.0,
         "calidad_datos": "baja",
-        "score_seguridad": 68.0,
-        "confianza_real": 68.0,
+        "score_seguridad": 68.3,
+        "confianza_real": 68.3,
         "cumple_umbral_seguro": true,
         "posicion": 6,
         "seleccionado": true
       },
       {
-        "num": 3,
-        "partido": "Lillestrøm - KFUM Oslo",
+        "num": 12,
+        "partido": "Hammarby - Degerfors",
         "signo_final": "1",
         "tipo_cobertura": "FIJO",
         "signo_mas_probable": "1",
-        "probabilidad_top": 39.0,
-        "probabilidad_acierto": 39.0,
-        "probabilidad_cubierta": 39.0,
-        "margen": 5.7,
-        "tercera_probabilidad": 27.7,
-        "incertidumbre": 140.5,
-        "probabilidad_sorpresa": 70.0,
-        "indice_sorpresa_quinielistica": 100.0,
+        "probabilidad_top": 44.7,
+        "probabilidad_acierto": 44.7,
+        "probabilidad_cubierta": 44.7,
+        "margen": 14.6,
+        "tercera_probabilidad": 25.2,
+        "incertidumbre": 135.71,
+        "probabilidad_sorpresa": 66.7,
+        "indice_sorpresa_quinielistica": 81.3,
         "calidad_datos": "baja",
-        "score_seguridad": 39.0,
-        "confianza_real": 39.0,
+        "score_seguridad": 44.7,
+        "confianza_real": 44.7,
         "cumple_umbral_seguro": true,
         "posicion": 7,
         "seleccionado": true
       },
       {
-        "num": 6,
-        "partido": "Molde - Brann",
-        "signo_final": "X",
+        "num": 13,
+        "partido": "Halmstad - Häcken",
+        "signo_final": "2",
         "tipo_cobertura": "FIJO",
-        "signo_mas_probable": "X",
-        "probabilidad_top": 36.5,
-        "probabilidad_acierto": 36.5,
-        "probabilidad_cubierta": 36.5,
-        "margen": 4.0,
-        "tercera_probabilidad": 31.0,
-        "incertidumbre": 142.55,
+        "signo_mas_probable": "2",
+        "probabilidad_top": 40.0,
+        "probabilidad_acierto": 40.0,
+        "probabilidad_cubierta": 40.0,
+        "margen": 9.1,
+        "tercera_probabilidad": 29.1,
+        "incertidumbre": 141.49,
         "probabilidad_sorpresa": 70.0,
-        "indice_sorpresa_quinielistica": 100.0,
+        "indice_sorpresa_quinielistica": 90.7,
         "calidad_datos": "baja",
-        "score_seguridad": 36.5,
-        "confianza_real": 36.5,
+        "score_seguridad": 40.0,
+        "confianza_real": 40.0,
         "cumple_umbral_seguro": true,
         "posicion": 8,
         "seleccionado": true
       },
       {
-        "num": 8,
-        "partido": "Mjällby - Västerås",
-        "signo_final": "X",
+        "num": 6,
+        "partido": "Molde - Brann",
+        "signo_final": "1",
         "tipo_cobertura": "FIJO",
-        "signo_mas_probable": "X",
-        "probabilidad_top": 36.1,
-        "probabilidad_acierto": 36.1,
-        "probabilidad_cubierta": 36.1,
-        "margen": 2.8,
-        "tercera_probabilidad": 30.6,
-        "incertidumbre": 143.6,
+        "signo_mas_probable": "1",
+        "probabilidad_top": 39.8,
+        "probabilidad_acierto": 39.8,
+        "probabilidad_cubierta": 39.8,
+        "margen": 6.6,
+        "tercera_probabilidad": 27.0,
+        "incertidumbre": 144.79,
         "probabilidad_sorpresa": 70.0,
         "indice_sorpresa_quinielistica": 100.0,
         "calidad_datos": "baja",
-        "score_seguridad": 36.1,
-        "confianza_real": 36.1,
+        "score_seguridad": 39.8,
+        "confianza_real": 39.8,
         "cumple_umbral_seguro": true,
         "posicion": 9,
         "seleccionado": false
       },
       {
-        "num": 2,
-        "partido": "HamKam - Tromsø",
+        "num": 8,
+        "partido": "Mjällby - Västerås",
         "signo_final": "1",
         "tipo_cobertura": "FIJO",
         "signo_mas_probable": "1",
-        "probabilidad_top": 35.2,
-        "probabilidad_acierto": 35.2,
-        "probabilidad_cubierta": 35.2,
-        "margen": 0.9,
+        "probabilidad_top": 36.4,
+        "probabilidad_acierto": 36.4,
+        "probabilidad_cubierta": 36.4,
+        "margen": 3.4,
         "tercera_probabilidad": 30.5,
-        "incertidumbre": 144.88,
+        "incertidumbre": 147.92,
         "probabilidad_sorpresa": 70.0,
         "indice_sorpresa_quinielistica": 100.0,
         "calidad_datos": "baja",
-        "score_seguridad": 35.2,
-        "confianza_real": 35.2,
+        "score_seguridad": 36.4,
+        "confianza_real": 36.4,
         "cumple_umbral_seguro": true,
         "posicion": 10,
         "seleccionado": false
       },
       {
-        "num": 10,
-        "partido": "Göteborg - Brommapojkarna",
-        "signo_final": "X",
+        "num": 9,
+        "partido": "AIK - Gais",
+        "signo_final": "1",
         "tipo_cobertura": "FIJO",
-        "signo_mas_probable": "X",
-        "probabilidad_top": 34.8,
-        "probabilidad_acierto": 34.8,
-        "probabilidad_cubierta": 34.8,
-        "margen": 1.6,
-        "tercera_probabilidad": 32.0,
-        "incertidumbre": 144.35,
+        "signo_mas_probable": "1",
+        "probabilidad_top": 36.4,
+        "probabilidad_acierto": 36.4,
+        "probabilidad_cubierta": 36.4,
+        "margen": 2.9,
+        "tercera_probabilidad": 30.1,
+        "incertidumbre": 148.59,
         "probabilidad_sorpresa": 70.0,
         "indice_sorpresa_quinielistica": 100.0,
         "calidad_datos": "baja",
-        "score_seguridad": 34.8,
-        "confianza_real": 34.8,
+        "score_seguridad": 36.4,
+        "confianza_real": 36.4,
         "cumple_umbral_seguro": true,
         "posicion": 11,
         "seleccionado": false
       },
       {
-        "num": 11,
-        "partido": "Elfsborg - Sirius",
-        "signo_final": "X",
+        "num": 14,
+        "partido": "Kalmar - Malmö",
+        "signo_final": "1",
         "tipo_cobertura": "FIJO",
-        "signo_mas_probable": "X",
-        "probabilidad_top": 34.8,
-        "probabilidad_acierto": 34.8,
-        "probabilidad_cubierta": 34.8,
-        "margen": 1.5,
-        "tercera_probabilidad": 31.9,
-        "incertidumbre": 144.45,
+        "signo_mas_probable": "1",
+        "probabilidad_top": 35.8,
+        "probabilidad_acierto": 35.8,
+        "probabilidad_cubierta": 35.8,
+        "margen": 2.7,
+        "tercera_probabilidad": 31.2,
+        "incertidumbre": 143.07,
         "probabilidad_sorpresa": 70.0,
         "indice_sorpresa_quinielistica": 100.0,
         "calidad_datos": "baja",
-        "score_seguridad": 34.8,
-        "confianza_real": 34.8,
+        "score_seguridad": 35.8,
+        "confianza_real": 35.8,
         "cumple_umbral_seguro": true,
         "posicion": 12,
         "seleccionado": false
       },
       {
-        "num": 1,
-        "partido": "Bodø/Glimt - Fredrikstad",
-        "signo_final": "X",
+        "num": 11,
+        "partido": "Elfsborg - Sirius",
+        "signo_final": "2",
         "tipo_cobertura": "FIJO",
-        "signo_mas_probable": "X",
-        "probabilidad_top": 34.8,
-        "probabilidad_acierto": 34.8,
-        "probabilidad_cubierta": 34.8,
-        "margen": 1.8,
-        "tercera_probabilidad": 32.2,
-        "incertidumbre": 144.92,
+        "signo_mas_probable": "2",
+        "probabilidad_top": 35.8,
+        "probabilidad_acierto": 35.8,
+        "probabilidad_cubierta": 35.8,
+        "margen": 2.9,
+        "tercera_probabilidad": 31.4,
+        "incertidumbre": 148.38,
         "probabilidad_sorpresa": 70.0,
         "indice_sorpresa_quinielistica": 100.0,
         "calidad_datos": "baja",
-        "score_seguridad": 34.8,
-        "confianza_real": 34.8,
+        "score_seguridad": 35.8,
+        "confianza_real": 35.8,
         "cumple_umbral_seguro": true,
         "posicion": 13,
         "seleccionado": false
       },
       {
-        "num": 7,
-        "partido": "Viking - Sandefjord",
-        "signo_final": "X",
+        "num": 10,
+        "partido": "Göteborg - Brommapojkarna",
+        "signo_final": "1",
         "tipo_cobertura": "FIJO",
-        "signo_mas_probable": "X",
-        "probabilidad_top": 34.5,
-        "probabilidad_acierto": 34.5,
-        "probabilidad_cubierta": 34.5,
-        "margen": 1.0,
-        "tercera_probabilidad": 32.0,
-        "incertidumbre": 144.84,
+        "signo_mas_probable": "1",
+        "probabilidad_top": 35.7,
+        "probabilidad_acierto": 35.7,
+        "probabilidad_cubierta": 35.7,
+        "margen": 2.3,
+        "tercera_probabilidad": 30.9,
+        "incertidumbre": 149.16,
         "probabilidad_sorpresa": 70.0,
         "indice_sorpresa_quinielistica": 100.0,
         "calidad_datos": "baja",
-        "score_seguridad": 34.5,
-        "confianza_real": 34.5,
+        "score_seguridad": 35.7,
+        "confianza_real": 35.7,
         "cumple_umbral_seguro": true,
         "posicion": 14,
         "seleccionado": false
@@ -4893,34 +4920,34 @@
   },
   "elige8_modos": {
     "version": "2.2",
-    "generado_en": "2026-07-15T05:58:39.880080+00:00",
+    "generado_en": "2026-07-15T07:59:43.819400+00:00",
     "modo_activo": "conservador",
     "regla_activa": "Elige 8 se selecciona por probabilidad real de acertar el signo jugado: TRIPLE=100%, DOBLE=suma de sus dos signos jugados, FIJO=probabilidad de su unico signo.",
     "modos": {
       "conservador": {
         "seleccionados": [
+          1,
+          2,
           3,
           4,
           5,
-          6,
-          9,
+          7,
           12,
-          13,
-          14
+          13
         ],
         "ranking": [
           {
-            "num": 5,
-            "partido": "Start - Rosenborg",
+            "num": 4,
+            "partido": "Kristiansund - Sarpsborg 08",
             "signo_final": "1X2",
             "tipo_cobertura": "TRIPLE",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 34.0,
+            "signo_mas_probable": "2",
+            "probabilidad_top": 34.5,
             "probabilidad_acierto": 100.0,
             "probabilidad_cubierta": 100.0,
-            "margen": 0.9,
-            "tercera_probabilidad": 32.9,
-            "incertidumbre": 144.77,
+            "margen": 1.4,
+            "tercera_probabilidad": 32.4,
+            "incertidumbre": 149.95,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
@@ -4931,17 +4958,17 @@
             "seleccionado": true
           },
           {
-            "num": 13,
-            "partido": "Halmstad - Häcken",
+            "num": 2,
+            "partido": "HamKam - Tromsø",
             "signo_final": "1X2",
             "tipo_cobertura": "TRIPLE",
             "signo_mas_probable": "1",
-            "probabilidad_top": 33.9,
+            "probabilidad_top": 34.1,
             "probabilidad_acierto": 100.0,
             "probabilidad_cubierta": 100.0,
-            "margen": 0.6,
+            "margen": 0.9,
             "tercera_probabilidad": 32.8,
-            "incertidumbre": 144.83,
+            "incertidumbre": 150.49,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
@@ -4952,253 +4979,253 @@
             "seleccionado": true
           },
           {
-            "num": 12,
-            "partido": "Hammarby - Degerfors",
+            "num": 3,
+            "partido": "Lillestrøm - KFUM Oslo",
             "signo_final": "1X",
             "tipo_cobertura": "DOBLE",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 35.2,
-            "probabilidad_acierto": 69.7,
-            "probabilidad_cubierta": 69.7,
-            "margen": 0.7,
-            "tercera_probabilidad": 30.3,
-            "incertidumbre": 145.39,
-            "probabilidad_sorpresa": 70.0,
-            "indice_sorpresa_quinielistica": 100.0,
+            "signo_mas_probable": "1",
+            "probabilidad_top": 46.9,
+            "probabilidad_acierto": 76.4,
+            "probabilidad_cubierta": 76.4,
+            "margen": 17.4,
+            "tercera_probabilidad": 23.6,
+            "incertidumbre": 127.47,
+            "probabilidad_sorpresa": 62.5,
+            "indice_sorpresa_quinielistica": 69.2,
             "calidad_datos": "baja",
-            "score_seguridad": 69.7,
-            "confianza_real": 69.7,
+            "score_seguridad": 76.4,
+            "confianza_real": 76.4,
             "cumple_umbral_seguro": true,
             "posicion": 3,
             "seleccionado": true
           },
           {
-            "num": 9,
-            "partido": "AIK - Gais",
+            "num": 7,
+            "partido": "Viking - Sandefjord",
             "signo_final": "1X",
             "tipo_cobertura": "DOBLE",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 35.1,
-            "probabilidad_acierto": 69.6,
-            "probabilidad_cubierta": 69.6,
-            "margen": 0.6,
-            "tercera_probabilidad": 30.4,
-            "incertidumbre": 145.46,
-            "probabilidad_sorpresa": 70.0,
-            "indice_sorpresa_quinielistica": 100.0,
+            "signo_mas_probable": "1",
+            "probabilidad_top": 44.4,
+            "probabilidad_acierto": 73.4,
+            "probabilidad_cubierta": 73.4,
+            "margen": 15.4,
+            "tercera_probabilidad": 26.6,
+            "incertidumbre": 134.52,
+            "probabilidad_sorpresa": 66.7,
+            "indice_sorpresa_quinielistica": 80.7,
             "calidad_datos": "baja",
-            "score_seguridad": 69.6,
-            "confianza_real": 69.6,
+            "score_seguridad": 73.4,
+            "confianza_real": 73.4,
             "cumple_umbral_seguro": true,
             "posicion": 4,
             "seleccionado": true
           },
           {
-            "num": 14,
-            "partido": "Kalmar - Malmö",
+            "num": 1,
+            "partido": "Bodø/Glimt - Fredrikstad",
             "signo_final": "1X",
             "tipo_cobertura": "DOBLE",
             "signo_mas_probable": "1",
-            "probabilidad_top": 34.6,
-            "probabilidad_acierto": 68.8,
-            "probabilidad_cubierta": 68.8,
-            "margen": 0.4,
-            "tercera_probabilidad": 31.2,
-            "incertidumbre": 145.76,
-            "probabilidad_sorpresa": 70.0,
-            "indice_sorpresa_quinielistica": 100.0,
+            "probabilidad_top": 43.0,
+            "probabilidad_acierto": 72.6,
+            "probabilidad_cubierta": 72.6,
+            "margen": 13.4,
+            "tercera_probabilidad": 27.4,
+            "incertidumbre": 137.5,
+            "probabilidad_sorpresa": 68.9,
+            "indice_sorpresa_quinielistica": 83.3,
             "calidad_datos": "baja",
-            "score_seguridad": 68.8,
-            "confianza_real": 68.8,
+            "score_seguridad": 72.6,
+            "confianza_real": 72.6,
             "cumple_umbral_seguro": true,
             "posicion": 5,
             "seleccionado": true
           },
           {
-            "num": 4,
-            "partido": "Kristiansund - Sarpsborg 08",
-            "signo_final": "1X",
+            "num": 5,
+            "partido": "Start - Rosenborg",
+            "signo_final": "X2",
             "tipo_cobertura": "DOBLE",
-            "signo_mas_probable": "1",
-            "probabilidad_top": 34.0,
-            "probabilidad_acierto": 68.0,
-            "probabilidad_cubierta": 68.0,
-            "margen": 0.0,
-            "tercera_probabilidad": 32.0,
-            "incertidumbre": 145.67,
+            "signo_mas_probable": "2",
+            "probabilidad_top": 34.7,
+            "probabilidad_acierto": 68.3,
+            "probabilidad_cubierta": 68.3,
+            "margen": 1.1,
+            "tercera_probabilidad": 31.6,
+            "incertidumbre": 150.43,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 68.0,
-            "confianza_real": 68.0,
+            "score_seguridad": 68.3,
+            "confianza_real": 68.3,
             "cumple_umbral_seguro": true,
             "posicion": 6,
             "seleccionado": true
           },
           {
-            "num": 3,
-            "partido": "Lillestrøm - KFUM Oslo",
+            "num": 12,
+            "partido": "Hammarby - Degerfors",
             "signo_final": "1",
             "tipo_cobertura": "FIJO",
             "signo_mas_probable": "1",
-            "probabilidad_top": 39.0,
-            "probabilidad_acierto": 39.0,
-            "probabilidad_cubierta": 39.0,
-            "margen": 5.7,
-            "tercera_probabilidad": 27.7,
-            "incertidumbre": 140.5,
-            "probabilidad_sorpresa": 70.0,
-            "indice_sorpresa_quinielistica": 100.0,
+            "probabilidad_top": 44.7,
+            "probabilidad_acierto": 44.7,
+            "probabilidad_cubierta": 44.7,
+            "margen": 14.6,
+            "tercera_probabilidad": 25.2,
+            "incertidumbre": 135.71,
+            "probabilidad_sorpresa": 66.7,
+            "indice_sorpresa_quinielistica": 81.3,
             "calidad_datos": "baja",
-            "score_seguridad": 39.0,
-            "confianza_real": 39.0,
+            "score_seguridad": 44.7,
+            "confianza_real": 44.7,
             "cumple_umbral_seguro": true,
             "posicion": 7,
             "seleccionado": true
           },
           {
-            "num": 6,
-            "partido": "Molde - Brann",
-            "signo_final": "X",
+            "num": 13,
+            "partido": "Halmstad - Häcken",
+            "signo_final": "2",
             "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 36.5,
-            "probabilidad_acierto": 36.5,
-            "probabilidad_cubierta": 36.5,
-            "margen": 4.0,
-            "tercera_probabilidad": 31.0,
-            "incertidumbre": 142.55,
+            "signo_mas_probable": "2",
+            "probabilidad_top": 40.0,
+            "probabilidad_acierto": 40.0,
+            "probabilidad_cubierta": 40.0,
+            "margen": 9.1,
+            "tercera_probabilidad": 29.1,
+            "incertidumbre": 141.49,
             "probabilidad_sorpresa": 70.0,
-            "indice_sorpresa_quinielistica": 100.0,
+            "indice_sorpresa_quinielistica": 90.7,
             "calidad_datos": "baja",
-            "score_seguridad": 36.5,
-            "confianza_real": 36.5,
+            "score_seguridad": 40.0,
+            "confianza_real": 40.0,
             "cumple_umbral_seguro": true,
             "posicion": 8,
             "seleccionado": true
           },
           {
-            "num": 8,
-            "partido": "Mjällby - Västerås",
-            "signo_final": "X",
+            "num": 6,
+            "partido": "Molde - Brann",
+            "signo_final": "1",
             "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 36.1,
-            "probabilidad_acierto": 36.1,
-            "probabilidad_cubierta": 36.1,
-            "margen": 2.8,
-            "tercera_probabilidad": 30.6,
-            "incertidumbre": 143.6,
+            "signo_mas_probable": "1",
+            "probabilidad_top": 39.8,
+            "probabilidad_acierto": 39.8,
+            "probabilidad_cubierta": 39.8,
+            "margen": 6.6,
+            "tercera_probabilidad": 27.0,
+            "incertidumbre": 144.79,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 36.1,
-            "confianza_real": 36.1,
+            "score_seguridad": 39.8,
+            "confianza_real": 39.8,
             "cumple_umbral_seguro": true,
             "posicion": 9,
             "seleccionado": false
           },
           {
-            "num": 2,
-            "partido": "HamKam - Tromsø",
+            "num": 8,
+            "partido": "Mjällby - Västerås",
             "signo_final": "1",
             "tipo_cobertura": "FIJO",
             "signo_mas_probable": "1",
-            "probabilidad_top": 35.2,
-            "probabilidad_acierto": 35.2,
-            "probabilidad_cubierta": 35.2,
-            "margen": 0.9,
+            "probabilidad_top": 36.4,
+            "probabilidad_acierto": 36.4,
+            "probabilidad_cubierta": 36.4,
+            "margen": 3.4,
             "tercera_probabilidad": 30.5,
-            "incertidumbre": 144.88,
+            "incertidumbre": 147.92,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 35.2,
-            "confianza_real": 35.2,
+            "score_seguridad": 36.4,
+            "confianza_real": 36.4,
             "cumple_umbral_seguro": true,
             "posicion": 10,
             "seleccionado": false
           },
           {
-            "num": 10,
-            "partido": "Göteborg - Brommapojkarna",
-            "signo_final": "X",
+            "num": 9,
+            "partido": "AIK - Gais",
+            "signo_final": "1",
             "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 34.8,
-            "probabilidad_acierto": 34.8,
-            "probabilidad_cubierta": 34.8,
-            "margen": 1.6,
-            "tercera_probabilidad": 32.0,
-            "incertidumbre": 144.35,
+            "signo_mas_probable": "1",
+            "probabilidad_top": 36.4,
+            "probabilidad_acierto": 36.4,
+            "probabilidad_cubierta": 36.4,
+            "margen": 2.9,
+            "tercera_probabilidad": 30.1,
+            "incertidumbre": 148.59,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 34.8,
-            "confianza_real": 34.8,
+            "score_seguridad": 36.4,
+            "confianza_real": 36.4,
             "cumple_umbral_seguro": true,
             "posicion": 11,
             "seleccionado": false
           },
           {
-            "num": 11,
-            "partido": "Elfsborg - Sirius",
-            "signo_final": "X",
+            "num": 14,
+            "partido": "Kalmar - Malmö",
+            "signo_final": "1",
             "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 34.8,
-            "probabilidad_acierto": 34.8,
-            "probabilidad_cubierta": 34.8,
-            "margen": 1.5,
-            "tercera_probabilidad": 31.9,
-            "incertidumbre": 144.45,
+            "signo_mas_probable": "1",
+            "probabilidad_top": 35.8,
+            "probabilidad_acierto": 35.8,
+            "probabilidad_cubierta": 35.8,
+            "margen": 2.7,
+            "tercera_probabilidad": 31.2,
+            "incertidumbre": 143.07,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 34.8,
-            "confianza_real": 34.8,
+            "score_seguridad": 35.8,
+            "confianza_real": 35.8,
             "cumple_umbral_seguro": true,
             "posicion": 12,
             "seleccionado": false
           },
           {
-            "num": 1,
-            "partido": "Bodø/Glimt - Fredrikstad",
-            "signo_final": "X",
+            "num": 11,
+            "partido": "Elfsborg - Sirius",
+            "signo_final": "2",
             "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 34.8,
-            "probabilidad_acierto": 34.8,
-            "probabilidad_cubierta": 34.8,
-            "margen": 1.8,
-            "tercera_probabilidad": 32.2,
-            "incertidumbre": 144.92,
+            "signo_mas_probable": "2",
+            "probabilidad_top": 35.8,
+            "probabilidad_acierto": 35.8,
+            "probabilidad_cubierta": 35.8,
+            "margen": 2.9,
+            "tercera_probabilidad": 31.4,
+            "incertidumbre": 148.38,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 34.8,
-            "confianza_real": 34.8,
+            "score_seguridad": 35.8,
+            "confianza_real": 35.8,
             "cumple_umbral_seguro": true,
             "posicion": 13,
             "seleccionado": false
           },
           {
-            "num": 7,
-            "partido": "Viking - Sandefjord",
-            "signo_final": "X",
+            "num": 10,
+            "partido": "Göteborg - Brommapojkarna",
+            "signo_final": "1",
             "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 34.5,
-            "probabilidad_acierto": 34.5,
-            "probabilidad_cubierta": 34.5,
-            "margen": 1.0,
-            "tercera_probabilidad": 32.0,
-            "incertidumbre": 144.84,
+            "signo_mas_probable": "1",
+            "probabilidad_top": 35.7,
+            "probabilidad_acierto": 35.7,
+            "probabilidad_cubierta": 35.7,
+            "margen": 2.3,
+            "tercera_probabilidad": 30.9,
+            "incertidumbre": 149.16,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 34.5,
-            "confianza_real": 34.5,
+            "score_seguridad": 35.7,
+            "confianza_real": 35.7,
             "cumple_umbral_seguro": true,
             "posicion": 14,
             "seleccionado": false
@@ -5207,28 +5234,28 @@
       },
       "rentable": {
         "seleccionados": [
+          1,
+          2,
           3,
           4,
           5,
-          6,
-          9,
+          7,
           12,
-          13,
-          14
+          13
         ],
         "ranking": [
           {
-            "num": 5,
-            "partido": "Start - Rosenborg",
+            "num": 4,
+            "partido": "Kristiansund - Sarpsborg 08",
             "signo_final": "1X2",
             "tipo_cobertura": "TRIPLE",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 34.0,
+            "signo_mas_probable": "2",
+            "probabilidad_top": 34.5,
             "probabilidad_acierto": 100.0,
             "probabilidad_cubierta": 100.0,
-            "margen": 0.9,
-            "tercera_probabilidad": 32.9,
-            "incertidumbre": 144.77,
+            "margen": 1.4,
+            "tercera_probabilidad": 32.4,
+            "incertidumbre": 149.95,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
@@ -5239,17 +5266,17 @@
             "seleccionado": true
           },
           {
-            "num": 13,
-            "partido": "Halmstad - Häcken",
+            "num": 2,
+            "partido": "HamKam - Tromsø",
             "signo_final": "1X2",
             "tipo_cobertura": "TRIPLE",
             "signo_mas_probable": "1",
-            "probabilidad_top": 33.9,
+            "probabilidad_top": 34.1,
             "probabilidad_acierto": 100.0,
             "probabilidad_cubierta": 100.0,
-            "margen": 0.6,
+            "margen": 0.9,
             "tercera_probabilidad": 32.8,
-            "incertidumbre": 144.83,
+            "incertidumbre": 150.49,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
@@ -5260,253 +5287,253 @@
             "seleccionado": true
           },
           {
-            "num": 12,
-            "partido": "Hammarby - Degerfors",
+            "num": 3,
+            "partido": "Lillestrøm - KFUM Oslo",
             "signo_final": "1X",
             "tipo_cobertura": "DOBLE",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 35.2,
-            "probabilidad_acierto": 69.7,
-            "probabilidad_cubierta": 69.7,
-            "margen": 0.7,
-            "tercera_probabilidad": 30.3,
-            "incertidumbre": 145.39,
-            "probabilidad_sorpresa": 70.0,
-            "indice_sorpresa_quinielistica": 100.0,
+            "signo_mas_probable": "1",
+            "probabilidad_top": 46.9,
+            "probabilidad_acierto": 76.4,
+            "probabilidad_cubierta": 76.4,
+            "margen": 17.4,
+            "tercera_probabilidad": 23.6,
+            "incertidumbre": 127.47,
+            "probabilidad_sorpresa": 62.5,
+            "indice_sorpresa_quinielistica": 69.2,
             "calidad_datos": "baja",
-            "score_seguridad": 69.7,
-            "confianza_real": 69.7,
+            "score_seguridad": 76.4,
+            "confianza_real": 76.4,
             "cumple_umbral_seguro": true,
             "posicion": 3,
             "seleccionado": true
           },
           {
-            "num": 9,
-            "partido": "AIK - Gais",
+            "num": 7,
+            "partido": "Viking - Sandefjord",
             "signo_final": "1X",
             "tipo_cobertura": "DOBLE",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 35.1,
-            "probabilidad_acierto": 69.6,
-            "probabilidad_cubierta": 69.6,
-            "margen": 0.6,
-            "tercera_probabilidad": 30.4,
-            "incertidumbre": 145.46,
-            "probabilidad_sorpresa": 70.0,
-            "indice_sorpresa_quinielistica": 100.0,
+            "signo_mas_probable": "1",
+            "probabilidad_top": 44.4,
+            "probabilidad_acierto": 73.4,
+            "probabilidad_cubierta": 73.4,
+            "margen": 15.4,
+            "tercera_probabilidad": 26.6,
+            "incertidumbre": 134.52,
+            "probabilidad_sorpresa": 66.7,
+            "indice_sorpresa_quinielistica": 80.7,
             "calidad_datos": "baja",
-            "score_seguridad": 69.6,
-            "confianza_real": 69.6,
+            "score_seguridad": 73.4,
+            "confianza_real": 73.4,
             "cumple_umbral_seguro": true,
             "posicion": 4,
             "seleccionado": true
           },
           {
-            "num": 14,
-            "partido": "Kalmar - Malmö",
+            "num": 1,
+            "partido": "Bodø/Glimt - Fredrikstad",
             "signo_final": "1X",
             "tipo_cobertura": "DOBLE",
             "signo_mas_probable": "1",
-            "probabilidad_top": 34.6,
-            "probabilidad_acierto": 68.8,
-            "probabilidad_cubierta": 68.8,
-            "margen": 0.4,
-            "tercera_probabilidad": 31.2,
-            "incertidumbre": 145.76,
-            "probabilidad_sorpresa": 70.0,
-            "indice_sorpresa_quinielistica": 100.0,
+            "probabilidad_top": 43.0,
+            "probabilidad_acierto": 72.6,
+            "probabilidad_cubierta": 72.6,
+            "margen": 13.4,
+            "tercera_probabilidad": 27.4,
+            "incertidumbre": 137.5,
+            "probabilidad_sorpresa": 68.9,
+            "indice_sorpresa_quinielistica": 83.3,
             "calidad_datos": "baja",
-            "score_seguridad": 68.8,
-            "confianza_real": 68.8,
+            "score_seguridad": 72.6,
+            "confianza_real": 72.6,
             "cumple_umbral_seguro": true,
             "posicion": 5,
             "seleccionado": true
           },
           {
-            "num": 4,
-            "partido": "Kristiansund - Sarpsborg 08",
-            "signo_final": "1X",
+            "num": 5,
+            "partido": "Start - Rosenborg",
+            "signo_final": "X2",
             "tipo_cobertura": "DOBLE",
-            "signo_mas_probable": "1",
-            "probabilidad_top": 34.0,
-            "probabilidad_acierto": 68.0,
-            "probabilidad_cubierta": 68.0,
-            "margen": 0.0,
-            "tercera_probabilidad": 32.0,
-            "incertidumbre": 145.67,
+            "signo_mas_probable": "2",
+            "probabilidad_top": 34.7,
+            "probabilidad_acierto": 68.3,
+            "probabilidad_cubierta": 68.3,
+            "margen": 1.1,
+            "tercera_probabilidad": 31.6,
+            "incertidumbre": 150.43,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 68.0,
-            "confianza_real": 68.0,
+            "score_seguridad": 68.3,
+            "confianza_real": 68.3,
             "cumple_umbral_seguro": true,
             "posicion": 6,
             "seleccionado": true
           },
           {
-            "num": 3,
-            "partido": "Lillestrøm - KFUM Oslo",
+            "num": 12,
+            "partido": "Hammarby - Degerfors",
             "signo_final": "1",
             "tipo_cobertura": "FIJO",
             "signo_mas_probable": "1",
-            "probabilidad_top": 39.0,
-            "probabilidad_acierto": 39.0,
-            "probabilidad_cubierta": 39.0,
-            "margen": 5.7,
-            "tercera_probabilidad": 27.7,
-            "incertidumbre": 140.5,
-            "probabilidad_sorpresa": 70.0,
-            "indice_sorpresa_quinielistica": 100.0,
+            "probabilidad_top": 44.7,
+            "probabilidad_acierto": 44.7,
+            "probabilidad_cubierta": 44.7,
+            "margen": 14.6,
+            "tercera_probabilidad": 25.2,
+            "incertidumbre": 135.71,
+            "probabilidad_sorpresa": 66.7,
+            "indice_sorpresa_quinielistica": 81.3,
             "calidad_datos": "baja",
-            "score_seguridad": 39.0,
-            "confianza_real": 39.0,
+            "score_seguridad": 44.7,
+            "confianza_real": 44.7,
             "cumple_umbral_seguro": true,
             "posicion": 7,
             "seleccionado": true
           },
           {
-            "num": 6,
-            "partido": "Molde - Brann",
-            "signo_final": "X",
+            "num": 13,
+            "partido": "Halmstad - Häcken",
+            "signo_final": "2",
             "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 36.5,
-            "probabilidad_acierto": 36.5,
-            "probabilidad_cubierta": 36.5,
-            "margen": 4.0,
-            "tercera_probabilidad": 31.0,
-            "incertidumbre": 142.55,
+            "signo_mas_probable": "2",
+            "probabilidad_top": 40.0,
+            "probabilidad_acierto": 40.0,
+            "probabilidad_cubierta": 40.0,
+            "margen": 9.1,
+            "tercera_probabilidad": 29.1,
+            "incertidumbre": 141.49,
             "probabilidad_sorpresa": 70.0,
-            "indice_sorpresa_quinielistica": 100.0,
+            "indice_sorpresa_quinielistica": 90.7,
             "calidad_datos": "baja",
-            "score_seguridad": 36.5,
-            "confianza_real": 36.5,
+            "score_seguridad": 40.0,
+            "confianza_real": 40.0,
             "cumple_umbral_seguro": true,
             "posicion": 8,
             "seleccionado": true
           },
           {
-            "num": 8,
-            "partido": "Mjällby - Västerås",
-            "signo_final": "X",
+            "num": 6,
+            "partido": "Molde - Brann",
+            "signo_final": "1",
             "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 36.1,
-            "probabilidad_acierto": 36.1,
-            "probabilidad_cubierta": 36.1,
-            "margen": 2.8,
-            "tercera_probabilidad": 30.6,
-            "incertidumbre": 143.6,
+            "signo_mas_probable": "1",
+            "probabilidad_top": 39.8,
+            "probabilidad_acierto": 39.8,
+            "probabilidad_cubierta": 39.8,
+            "margen": 6.6,
+            "tercera_probabilidad": 27.0,
+            "incertidumbre": 144.79,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 36.1,
-            "confianza_real": 36.1,
+            "score_seguridad": 39.8,
+            "confianza_real": 39.8,
             "cumple_umbral_seguro": true,
             "posicion": 9,
             "seleccionado": false
           },
           {
-            "num": 2,
-            "partido": "HamKam - Tromsø",
+            "num": 8,
+            "partido": "Mjällby - Västerås",
             "signo_final": "1",
             "tipo_cobertura": "FIJO",
             "signo_mas_probable": "1",
-            "probabilidad_top": 35.2,
-            "probabilidad_acierto": 35.2,
-            "probabilidad_cubierta": 35.2,
-            "margen": 0.9,
+            "probabilidad_top": 36.4,
+            "probabilidad_acierto": 36.4,
+            "probabilidad_cubierta": 36.4,
+            "margen": 3.4,
             "tercera_probabilidad": 30.5,
-            "incertidumbre": 144.88,
+            "incertidumbre": 147.92,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 35.2,
-            "confianza_real": 35.2,
+            "score_seguridad": 36.4,
+            "confianza_real": 36.4,
             "cumple_umbral_seguro": true,
             "posicion": 10,
             "seleccionado": false
           },
           {
-            "num": 10,
-            "partido": "Göteborg - Brommapojkarna",
-            "signo_final": "X",
+            "num": 9,
+            "partido": "AIK - Gais",
+            "signo_final": "1",
             "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 34.8,
-            "probabilidad_acierto": 34.8,
-            "probabilidad_cubierta": 34.8,
-            "margen": 1.6,
-            "tercera_probabilidad": 32.0,
-            "incertidumbre": 144.35,
+            "signo_mas_probable": "1",
+            "probabilidad_top": 36.4,
+            "probabilidad_acierto": 36.4,
+            "probabilidad_cubierta": 36.4,
+            "margen": 2.9,
+            "tercera_probabilidad": 30.1,
+            "incertidumbre": 148.59,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 34.8,
-            "confianza_real": 34.8,
+            "score_seguridad": 36.4,
+            "confianza_real": 36.4,
             "cumple_umbral_seguro": true,
             "posicion": 11,
             "seleccionado": false
           },
           {
-            "num": 11,
-            "partido": "Elfsborg - Sirius",
-            "signo_final": "X",
+            "num": 14,
+            "partido": "Kalmar - Malmö",
+            "signo_final": "1",
             "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 34.8,
-            "probabilidad_acierto": 34.8,
-            "probabilidad_cubierta": 34.8,
-            "margen": 1.5,
-            "tercera_probabilidad": 31.9,
-            "incertidumbre": 144.45,
+            "signo_mas_probable": "1",
+            "probabilidad_top": 35.8,
+            "probabilidad_acierto": 35.8,
+            "probabilidad_cubierta": 35.8,
+            "margen": 2.7,
+            "tercera_probabilidad": 31.2,
+            "incertidumbre": 143.07,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 34.8,
-            "confianza_real": 34.8,
+            "score_seguridad": 35.8,
+            "confianza_real": 35.8,
             "cumple_umbral_seguro": true,
             "posicion": 12,
             "seleccionado": false
           },
           {
-            "num": 1,
-            "partido": "Bodø/Glimt - Fredrikstad",
-            "signo_final": "X",
+            "num": 11,
+            "partido": "Elfsborg - Sirius",
+            "signo_final": "2",
             "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 34.8,
-            "probabilidad_acierto": 34.8,
-            "probabilidad_cubierta": 34.8,
-            "margen": 1.8,
-            "tercera_probabilidad": 32.2,
-            "incertidumbre": 144.92,
+            "signo_mas_probable": "2",
+            "probabilidad_top": 35.8,
+            "probabilidad_acierto": 35.8,
+            "probabilidad_cubierta": 35.8,
+            "margen": 2.9,
+            "tercera_probabilidad": 31.4,
+            "incertidumbre": 148.38,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 34.8,
-            "confianza_real": 34.8,
+            "score_seguridad": 35.8,
+            "confianza_real": 35.8,
             "cumple_umbral_seguro": true,
             "posicion": 13,
             "seleccionado": false
           },
           {
-            "num": 7,
-            "partido": "Viking - Sandefjord",
-            "signo_final": "X",
+            "num": 10,
+            "partido": "Göteborg - Brommapojkarna",
+            "signo_final": "1",
             "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "X",
-            "probabilidad_top": 34.5,
-            "probabilidad_acierto": 34.5,
-            "probabilidad_cubierta": 34.5,
-            "margen": 1.0,
-            "tercera_probabilidad": 32.0,
-            "incertidumbre": 144.84,
+            "signo_mas_probable": "1",
+            "probabilidad_top": 35.7,
+            "probabilidad_acierto": 35.7,
+            "probabilidad_cubierta": 35.7,
+            "margen": 2.3,
+            "tercera_probabilidad": 30.9,
+            "incertidumbre": 149.16,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "baja",
-            "score_seguridad": 34.5,
-            "confianza_real": 34.5,
+            "score_seguridad": 35.7,
+            "confianza_real": 35.7,
             "cumple_umbral_seguro": true,
             "posicion": 14,
             "seleccionado": false
