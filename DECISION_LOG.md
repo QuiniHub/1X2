@@ -481,3 +481,64 @@ nuevo que se añada a `evaluado` en el futuro debe revisarse contra esta
 segunda lista antes de darlo por conectado, y conviene verificar contra el
 archivo real generado en produccion, no solo contra el codigo o los tests
 unitarios (que no ejercitan `predecir()` de punta a punta).
+
+### 2026-07-15 -- Por que `fuente_losilla.json` estaba vacio: eduardolosilla.es paso a ser una SPA de Angular
+
+Con el blend de mercado ya conectado, `data/memoria_ia/fuente_losilla.json`
+seguia con `"probabilidades": {}` en produccion real. Investigado a fondo
+(sin tocar codigo primero): `actualizar_fuente_losilla.py` descarga HTML
+estatico con `requests.get()`, pero la parrilla de partidos y porcentajes
+de la pagina de boletos ahora se pinta enteramente en el cliente
+(Angular) -el HTML que devuelve el servidor no contiene esas filas en
+absoluto, asi que ningun scraper de HTML estatico puede verlas. Confirmado
+descargando la pagina real con curl (mismos headers que el scraper) y
+comparando contra el HTML real.
+
+Buena noticia encontrada en la misma investigacion: tanto la pagina de
+boletos como la de cuotas incrustan el estado inicial completo (equipos,
+jornada, y los porcentajes jugados/LAE/probables de los 14 partidos + Pleno
+al 15) en un `<script id="eduardo-losilla-state" type="application/json">`
+server-renderizado, con un escapado propio no estandar (`&q;` -> `"`,
+`&l;` -> `<`, `&g;` -> `>`, `&a;` -> `&`) en vez de entidades HTML
+normales. Leer este bloque es mas fiable que raspar el DOM.
+
+Tambien se confirmo la causa exacta del desfase "jornada 76 en vez de 73"
+que ya habiamos visto: `extraer_jornada()` hace `max()` sobre TODAS las
+apariciones de "JORNADA N" en el texto entero de la pagina, incluido el
+selector de temporada (que lista las jornadas 1-76 de toda la temporada) -
+siempre devuelve el numero total de jornadas de la temporada, no la que se
+esta mostrando. El propio JSON embebido trae `datosGeneralesQuiniela.jornada`
+sin ninguna ambiguedad.
+
+Fix: nueva `extraer_estado_embebido()` (decodifica y parsea el JSON
+incrustado) + `extraer_probabilidades_desde_estado()` (construye los
+partidos 1X2 y el Pleno al 15 directamente desde ahi). `extraer_probabilidades()`
+la intenta primero y solo cae al scraping de HTML antiguo si el bloque
+no esta disponible -mismo espiritu defensivo que ya tenia el archivo.
+`extraer_cuotas()` usa la misma jornada fiable (aunque las cuotas de
+bookmaker en si siguen sin publicarse para esta jornada -confirmado en la
+propia web, "Todavia no se dispone de las cuotas de los partidos"- eso no
+es un bug, es que Winvictus.com aun no las tiene).
+
+Bug secundario corregido de paso: los valores del JSON embebido son
+numeros nativos (no texto con "%"), y la funcion `numero()` existente trata
+un 0 legitimo como vacio (`str(0 or "") == ""`) y lo convierte en None -se
+usa `float()` directo en vez de `numero()` para estos valores, para no
+perder un porcentaje real de 0%.
+
+Bug secundario mas: `fusionar_con_anterior()` reemplazaba TODO el bloque de
+`cuotas` en cuanto el scrape nuevo devolvia cualquier cosa truthy (aunque
+fueran solo nombres de equipo sin ninguna cuota real), pudiendo borrar
+datos buenos de una semana anterior. Nueva `fusionar_cuotas()`, con el
+mismo patron partido-a-partido que ya usaba `fusionar_probabilidades()`.
+
+Tests nuevos en `tests/test_actualizar_fuente_losilla.py` (antes esta parte
+del scraper no tenia ningun test) con HTML sintetico que reproduce el
+escapado real y el bug del "JORNADA 76", verificando que la jornada activa
+se lee del JSON y no del texto de la pagina.
+Por que importa: cuando una fuente externa deja de funcionar, la primera
+pregunta no es "como reparo el scraper de HTML" sino "esta pagina sigue
+siendo HTML renderizado en servidor de verdad, o ha cambiado de
+arquitectura". Aqui cambiar a SPA no rompio el dato -lo escondio del
+scraper- pero dejo un atajo mucho mas fiable (el estado embebido) que ni
+siquiera existia cuando se escribio el scraper original.

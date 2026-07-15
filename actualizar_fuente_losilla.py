@@ -157,6 +157,57 @@ def soup_de(html):
     return soup
 
 
+ESTADO_EMBEBIDO_PATRON = re.compile(
+    r'<script id="eduardo-losilla-state"[^>]*>(.*?)</script>', re.S
+)
+
+
+def extraer_estado_embebido(html):
+    """eduardolosilla.es es una SPA de Angular: la parrilla de partidos y los
+    porcentajes de la pagina de boletos se pintan enteramente en cliente, asi
+    que un scraper de HTML estatico nunca ve esas filas. Pero el propio
+    servidor incrusta el estado inicial (equipos, jornada, porcentajes
+    jugados/LAE/probables...) en un <script id="eduardo-losilla-state"> como
+    JSON, con un escapado minimo propio (&q; -> ", &l; -> <, &g; -> >,
+    &a; -> &) en vez de las entidades HTML estandar. Leer este bloque
+    directamente es mucho mas fiable que raspar el DOM renderizado.
+    """
+    if not html:
+        return None
+    m = ESTADO_EMBEBIDO_PATRON.search(html)
+    if not m:
+        return None
+    bruto = m.group(1)
+    decodificado = (
+        bruto.replace("&q;", '"').replace("&l;", "<").replace("&g;", ">").replace("&a;", "&")
+    )
+    try:
+        return json.loads(decodificado)
+    except (json.JSONDecodeError, ValueError):
+        return None
+
+
+def jornada_y_temporada_activas(estado):
+    datos = (estado or {}).get("datosGeneralesQuiniela") or {}
+    jornada = entero(datos.get("jornada"))
+    temporada = entero(datos.get("temporada"))
+    if not jornada or not temporada:
+        return None, None
+    return jornada, temporada
+
+
+def partidos_de_jornada_embebida(estado, jornada, temporada):
+    bloque = (estado or {}).get(f"jornada_{jornada}_{temporada}") or {}
+    equipos = {}
+    for partido in bloque.get("partidos") or []:
+        num = entero(partido.get("num") if partido.get("num") is not None else partido.get("numero"))
+        local = normalizar_texto(partido.get("local") or "")
+        visitante = normalizar_texto(partido.get("visitante") or "")
+        if num and local and visitante:
+            equipos[num] = (local, visitante)
+    return equipos
+
+
 def texto_soup(soup):
     return normalizar_texto(soup.get_text(" "))
 
@@ -361,8 +412,72 @@ def extraer_pleno_desde_texto(texto, partidos_texto):
     return None
 
 
+def extraer_probabilidades_desde_estado(estado):
+    """Lee jornada, equipos y porcentajes 1/X/2 (jugados/quinielista) y del
+    Pleno al 15 directamente del JSON de estado embebido -sin depender del
+    HTML renderizado por Angular en cliente. Devuelve None si el bloque no
+    tiene la forma esperada, para que el llamador pueda caer al scraping de
+    HTML como respaldo.
+    """
+    jornada, temporada = jornada_y_temporada_activas(estado)
+    if not jornada:
+        return None
+    equipos = partidos_de_jornada_embebida(estado, jornada, temporada)
+    if not equipos:
+        return None
+    filas = (
+        ((estado.get(f"probabilidades_{jornada}_{temporada}") or {}).get("partidos") or {}).get("quinielista")
+        or []
+    )
+    partidos_1x2 = []
+    pleno_al_15 = None
+    for fila in filas:
+        numero_partido = entero(fila.get("numero"))
+        if not numero_partido or numero_partido not in equipos:
+            continue
+        local, visitante = equipos[numero_partido]
+        if numero_partido == 15:
+            valores = [
+                fila.get("porc_15L_0"), fila.get("porc_15L_1"), fila.get("porc_15L_2"), fila.get("porc_15L_M"),
+                fila.get("porc_15V_0"), fila.get("porc_15V_1"), fila.get("porc_15V_2"), fila.get("porc_15V_M"),
+            ]
+            if all(v is not None for v in valores):
+                # Estos valores ya son numeros nativos del JSON (no texto con
+                # "%"), asi que se convierten con float() directo -numero()
+                # esta pensado para texto y trata un 0 legitimo como vacio
+                # (str(0 or "") == ""), lo que perderia un porcentaje real de
+                # 0% en vez de conservarlo.
+                pleno_al_15 = construir_pleno_al_15(local, visitante, [float(v) for v in valores], "estado_embebido")
+            continue
+        if 1 <= numero_partido <= 14:
+            valores = [fila.get("porc_1"), fila.get("porc_X"), fila.get("porc_2")]
+            if all(v is not None for v in valores):
+                partidos_1x2.append(
+                    construir_partido_1x2(numero_partido, local, visitante, [float(v) for v in valores])
+                )
+
+    if not partidos_1x2 and not pleno_al_15:
+        return None
+
+    partidos_1x2 = sorted(partidos_1x2, key=lambda p: p["numero"])[:14]
+    partidos = partidos_1x2 + ([pleno_al_15] if pleno_al_15 else [])
+    return {
+        "url": URL_BOLETOS,
+        "jornada": jornada,
+        "partidos": partidos,
+        "partidos_1x2": partidos_1x2,
+        "pleno_al_15": pleno_al_15,
+        "extraido_en": ahora_iso(),
+    }
+
+
 def extraer_probabilidades():
     html = descargar(URL_BOLETOS)
+    estado = extraer_estado_embebido(html)
+    desde_estado = extraer_probabilidades_desde_estado(estado)
+    if desde_estado:
+        return desde_estado
+
     soup = soup_de(html)
     texto = texto_soup(soup)
     jornada = extraer_jornada(texto)
@@ -441,9 +556,23 @@ def extraer_probabilidades():
 
 def extraer_cuotas():
     html = descargar(URL_CUOTAS)
+    estado = extraer_estado_embebido(html)
+    jornada_embebida, temporada_embebida = jornada_y_temporada_activas(estado)
+    equipos_embebidos = (
+        partidos_de_jornada_embebida(estado, jornada_embebida, temporada_embebida)
+        if jornada_embebida
+        else {}
+    )
+
     soup = soup_de(html)
     texto = texto_soup(soup)
-    jornada = extraer_jornada(texto)
+    # extraer_jornada() hace max() sobre TODAS las apariciones de "JORNADA N"
+    # en el texto de la pagina, incluido el selector de temporada (que lista
+    # todas las jornadas del año) -acaba devolviendo el numero total de
+    # jornadas de la temporada, no la que se esta mostrando. El estado
+    # embebido trae la jornada real sin ambiguedad; solo se cae al regex
+    # viejo si ese bloque no esta disponible.
+    jornada = jornada_embebida or extraer_jornada(texto)
     partidos_texto = extraer_partidos_desde_texto(texto)
     partidos = []
 
@@ -452,9 +581,11 @@ def extraer_cuotas():
         valores = [numero(c) for c in celdas]
         valores = [v for v in valores if v is not None and 1.0 <= v <= 99.0]
         if local and visitante and len(valores) >= 3:
+            numero_partido = len(partidos) + 1
+            local, visitante = equipos_embebidos.get(numero_partido, (local, visitante))
             partidos.append(
                 {
-                    "numero": len(partidos) + 1,
+                    "numero": numero_partido,
                     "local": local,
                     "visitante": visitante,
                     "cuota_media_1": valores[-3],
@@ -465,7 +596,22 @@ def extraer_cuotas():
         if len(partidos) >= 14:
             break
 
-    if not partidos and partidos_texto:
+    if not partidos and equipos_embebidos:
+        for numero_partido in sorted(equipos_embebidos):
+            if numero_partido > 14:
+                continue
+            local, visitante = equipos_embebidos[numero_partido]
+            partidos.append(
+                {
+                    "numero": numero_partido,
+                    "local": local,
+                    "visitante": visitante,
+                    "cuota_media_1": None,
+                    "cuota_media_X": None,
+                    "cuota_media_2": None,
+                }
+            )
+    elif not partidos and partidos_texto:
         for partido in partidos_texto[:14]:
             partidos.append({**partido, "cuota_media_1": None, "cuota_media_X": None, "cuota_media_2": None})
 
@@ -731,6 +877,35 @@ def fusionar_probabilidades(anterior, nuevo):
     return nuevo
 
 
+def cuota_partido_con_dato(partido):
+    if not isinstance(partido, dict):
+        return False
+    return any(partido.get(k) is not None for k in ("cuota_media_1", "cuota_media_X", "cuota_media_2"))
+
+
+def fusionar_cuotas(anterior, nuevo):
+    """Igual que fusionar_probabilidades: si el scrape nuevo no trae cuotas
+    reales para un partido (todo None -Winvictus aun no las ha publicado-),
+    se conserva el valor anterior de ESE partido en vez de sobrescribir el
+    diccionario entero con nulos. Antes, "cuotas": nuevo or anterior
+    reemplazaba TODO el bloque en cuanto el scrape devolvia cualquier cosa
+    truthy, aunque fueran solo nombres de equipo sin ninguna cuota real.
+    """
+    previo = anterior.get("cuotas", {}) if isinstance(anterior, dict) else {}
+    if not nuevo:
+        return previo
+    previos_por_numero = {p.get("numero"): p for p in (previo.get("partidos") or []) if p.get("numero")}
+    partidos = []
+    for partido in nuevo.get("partidos") or []:
+        if cuota_partido_con_dato(partido):
+            partidos.append(partido)
+            continue
+        anterior_partido = previos_por_numero.get(partido.get("numero"))
+        partidos.append(anterior_partido if cuota_partido_con_dato(anterior_partido) else partido)
+    nuevo["partidos"] = partidos
+    return nuevo
+
+
 def normalizar_registro_legacy(registro):
     if not isinstance(registro, dict):
         return None
@@ -828,13 +1003,14 @@ def fusionar_escrutinio(anterior, nuevo):
 
 def fusionar_con_anterior(anterior, nuevo, avisos):
     probabilidades = fusionar_probabilidades(anterior, nuevo.get("probabilidades"))
+    cuotas = fusionar_cuotas(anterior, nuevo.get("cuotas"))
     salida = {
         "version": "1.2",
         "fuente": "eduardolosilla.es + labrujadeoro.es",
         "actualizado_en": ahora_iso(),
         "avisos": avisos,
         "probabilidades": probabilidades,
-        "cuotas": nuevo.get("cuotas") or anterior.get("cuotas", {}),
+        "cuotas": cuotas,
         "escrutinio": fusionar_escrutinio(anterior, nuevo.get("escrutinio")),
         "clasificaciones": nuevo.get("clasificaciones") or anterior.get("clasificaciones", {}),
     }
