@@ -692,3 +692,39 @@ roto) es peor que no tener panel -genera confianza falsa en cualquier
 direccion. Cualquier cambio en como una fuente se marca como
 resuelta/rota debe revisarse tambien contra los resumenes agregados que
 dependen de ese estado, no solo contra el campo individual.
+
+### 2026-07-15 -- El fix de La Liga en el chat se quedaba corto: Marc reprodujo el mismo bug con otra frase
+
+Justo despues de desplegar el fix de `esLigaEspanola`, Marc probo en la web
+real con una frase ligeramente distinta ("sabes los horarios de los
+partidos de 1a y 2a de la 1a jornada?") y volvio a fallar igual -sin decir
+"España" ni "LaLiga" en ningun momento, solo "1a"/"2a"/"jornada"/"horarios".
+
+Causa: la primera version de `esLigaEspanola` exigia o bien el nombre de
+marca, o bien la palabra "España" junto a un termino de calendario. No
+cubria el caso, muy real, de preguntar por "1a y 2a" sin mencionar el pais
+-logico en una app que ya es enteramente sobre fútbol español-.
+
+Fix: nueva condicion `mencionaDivisionEspanola` (frase completa "primera/
+segunda división" o "1a/2a división", inequivoca por si sola) + condicion
+mas laxa "1a"/"2a"/"primera"/"segunda" sueltos junto a un termino de
+calendario (liga/jornada/calendario/horario/clasificacion/tabla/posicion).
+Verificado en el navegador real, con recarga forzada tras cada cambio (el
+primer intento de verificacion dio un falso positivo de bug por cache del
+navegador, no del codigo -lo confirme ejecutando el mismo regex aislado
+antes de tocar nada, y solo tras un reload real coincidio con el resultado
+de la funcion completa-), contra las dos frases reales de Marc y contra
+todos los casos ya cubiertos antes (Real Madrid, Veikkausliiga, Champions,
+bajas/lesionados, generico).
+
+Efecto secundario detectado y corregido en el mismo pase: la version
+anterior de esta condicion (con "españa" obligatorio) SI cubria
+"clasificacion de segunda division" gracias a un patron de marca que
+luego quite al reescribirla -sin querer, deje de cubrir ese caso al
+endurecer el fix. Se recupero con la nueva `mencionaDivisionEspanola`,
+que no depende de ningun otro termino.
+Por que importa: verificar con UNA frase real no es suficiente cuando el
+usuario puede reformular la misma pregunta de varias formas -y cualquier
+endurecimiento de una condicion de deteccion debe re-probarse contra TODOS
+los casos ya cubiertos antes, no solo contra el caso nuevo que se esta
+arreglando.

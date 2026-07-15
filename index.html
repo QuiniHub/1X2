@@ -2313,11 +2313,18 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
       // competición principal de esta app, pero antes no tenía query propia
       // y caía al fallback genérico ("futbol {texto} {fecha}"), demasiado
       // débil para encontrar cosas como horarios de jornada recién
-      // publicados. Se detecta tanto por marca (laliga/hypermotion/ea
-      // sports) como por combinación liga+división+España, ya que el
-      // usuario no siempre nombra la marca oficial.
-      const esLigaEspanola = /laliga|la liga|hypermotion|\bea sports\b|1[aª]\s*divisi[oó]n|2[aª]\s*divisi[oó]n|primera divisi[oó]n|segunda divisi[oó]n/i.test(t)
-        || (/espa[ñn]a/i.test(t) && /liga|divisi[oó]n|jornada|calendario|horario/i.test(t));
+      // publicados. Tres formas de detectarla, de mas a menos explicita:
+      // marca (laliga/hypermotion/ea sports); frase completa de division
+      // española ("primera división", "1a división" — inequívoca, no hace
+      // falta nada mas); o "españa"/"1a"/"2a"/primera/segunda sueltos +
+      // termino de calendario, porque el usuario casi nunca dice "división"
+      // ni "España" explícitamente ("horarios de la 1a y 2a jornada?").
+      const mencionaDivisionEspanola = /1[aª]\s*divisi[oó]n|2[aª]\s*divisi[oó]n|primera divisi[oó]n|segunda divisi[oó]n/i.test(t);
+      const terminoCalendarioLiga = /liga|jornada|calendario|horario|clasificaci[oó]n|tabla|posici[oó]n/i.test(t);
+      const esLigaEspanola = /laliga|la liga|hypermotion|\bea sports\b/i.test(t)
+        || mencionaDivisionEspanola
+        || (/espa[ñn]a/i.test(t) && terminoCalendarioLiga)
+        || (/1[aª]\b|2[aª]\b|primera|segunda/i.test(t) && terminoCalendarioLiga);
       if (esLigaEspanola)
         return `LaLiga EA Sports Hypermotion España calendario horarios ${texto.slice(0, 60)} ${fechaHoy}`;
 
