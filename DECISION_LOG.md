@@ -728,3 +728,48 @@ usuario puede reformular la misma pregunta de varias formas -y cualquier
 endurecimiento de una condicion de deteccion debe re-probarse contra TODOS
 los casos ya cubiertos antes, no solo contra el caso nuevo que se esta
 arreglando.
+
+### 2026-07-16 -- El Pleno al 15 no se autorellenaba al generar quiniela (España-Argentina, jornada 73)
+
+Marc genero la quiniela con "Automática IA" y las 14 casillas normales se
+rellenaron bien, pero el Pleno al 15 (partido 15, España vs Argentina -un
+amistoso de selecciones, no una liga) se quedo sin ningun 0/1/2/M
+seleccionado en ninguno de los dos lados.
+
+Dos causas distintas, encontradas y arregladas juntas:
+
+1. `pleno15Sign()` (la funcion que decidia que casilla marcar) buscaba un
+   signo generico 1/X/2 -pensado para partidos normales de liga-, pero este
+   partido es una "seleccion" fuera del pipeline habitual y nunca llega a
+   tener probabilidades 1/X/2 calculadas por el motor (confirmado en
+   `data/predicciones/pleno15_jornada_actual.json`: `"recomendacion": null`,
+   `"candidatos_evaluados": []`). El pronostico real SI existia, pero en
+   otro campo que nadie leia:
+   `marcador_probable_losilla: {local:"1", visitante:"1"}` (estimacion via
+   eduardolosilla.es) y `pronostico_marcador: "1-1"`.
+2. Al arreglar el punto 1 y seguir sin funcionar en el navegador real, se
+   encontro una segunda causa: `extractPleno15()` prioriza
+   `state.jornadaActual` (el fixture crudo: equipos/fecha/resultado) sobre
+   `state.prediccion`, y como el primero YA tiene un pleno15 valido (aunque
+   incompleto, sin `marcador_probable_losilla`), el operador `||` nunca
+   llegaba a mirar la prediccion, que es donde vive el pronostico real.
+
+Fix: nueva `pleno15AutoCategoria(pleno, teamKey, probsTeam)` -POR LADO, no
+un signo compartido-, con prioridad probabilidades_goles ya calculadas >
+marcador_probable_losilla > pronostico_marcador "X-Y" > pleno15Sign() como
+ultimo recurso. Y en `renderPleno15()`, un `plenoCompleto` que rellena
+`marcador_probable_losilla`/`pronostico_marcador`/`probabilidades_goles`
+desde `state.prediccion` si el pleno15 resuelto por `jornadaActual` no los
+trae, sin perder los datos (equipos/fecha) que si trae ese primero.
+
+Verificado en navegador real con los datos reales de la jornada 73: antes
+del fix, ninguna celda se marcaba tras generar; despues, ambos lados
+(España y Argentina) marcan correctamente "1", igual que el pronostico real
+de la predicción.
+Por que importa: cuando un mismo dato (aqui, el pleno15 de un partido)
+vive en mas de un objeto de estado con contenido parcialmente distinto, un
+`||` que se queda con el "primero que encuentre" puede devolver
+silenciosamente una version incompleta -verificar solo con datos de
+prueba en consola (que usan un solo objeto plano) no habria detectado
+este segundo bug; hizo falta reproducir el flujo completo en el
+navegador real con el estado real cargado.

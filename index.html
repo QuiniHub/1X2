@@ -1057,19 +1057,67 @@
       return topSignFromProbabilities(recommendedMatch?.probabilidades || recommendation.probabilidades || pleno.probabilidades || {});
     }
 
+    function topGoalCategory(probs = {}) {
+      return ['0','1','2','M'].reduce((best, cat) => Number(probs[cat]) > Number(probs[best] ?? -Infinity) ? cat : best, '');
+    }
+
+    // Categoría de goles (0/1/2/M) para el Pleno al 15, POR LADO -local y
+    // visitante tienen su propia categoría, no un único signo 1/X/2
+    // compartido (ese era el bug: pleno15Sign() busca un signo genérico que
+    // partidos fuera del pipeline normal de ligas -selecciones, sin
+    // probabilidades 1/X/2 calculadas- nunca llegan a tener, así que no
+    // seleccionaba nada). Prioridad: probabilidades_goles ya calculadas >
+    // marcador_probable_losilla (estimación de eduardolosilla.es) >
+    // pronostico_marcador "X-Y" > pleno15Sign() como último recurso.
+    function pleno15AutoCategoria(pleno, teamKey, probsTeam) {
+      const desdeProbs = topGoalCategory(probsTeam);
+      if (desdeProbs) return desdeProbs;
+
+      const marcador = pleno.marcador_probable_losilla || pleno15Recommendation().marcador_probable_losilla;
+      if (marcador && marcador[teamKey] != null) {
+        const valor = String(marcador[teamKey]).trim().toUpperCase();
+        if (['0', '1', '2', 'M'].includes(valor)) return valor;
+      }
+
+      const pronostico = pleno.pronostico_marcador || pleno15Recommendation().pronostico_marcador;
+      if (pronostico) {
+        const partes = String(pronostico).split('-').map(p => p.trim());
+        if (partes.length === 2) {
+          const n = parseInt(partes[teamKey === 'local' ? 0 : 1], 10);
+          if (!Number.isNaN(n)) return n >= 3 ? 'M' : String(n);
+        }
+      }
+
+      return pleno15Sign(pleno);
+    }
+
     function renderPleno15() {
       const pleno = extractPleno15(state.jornadaActual) || extractPleno15(state.prediccion) || extractPleno15(state.pleno15Data) || pleno15Recommendation() || {};
-      const local = pleno.local || pleno.equipo_local || pleno.local_nombre || 'Equipo local';
-      const visitante = pleno.visitante || pleno.equipo_visitante || pleno.visitante_nombre || 'Equipo visitante';
-      const aiSign = state.generated ? pleno15Sign(pleno) : '';
-      const probGoles = pleno.probabilidades_goles || pleno15Recommendation().probabilidades_goles || {};
+      // extractPleno15() prioriza jornadaActual (equipos/fecha/resultado en
+      // vivo) sobre prediccion, y devuelve el primero que encuentre -pero el
+      // pronostico (marcador_probable_losilla/pronostico_marcador/
+      // probabilidades_goles) solo vive en el pleno15 de la predicción. Sin
+      // completar esto, un partido resuelto por jornadaActual (p.ej. una
+      // selección fuera del pipeline normal de ligas) se queda sin
+      // pronostico aunque la predicción sí lo tenga calculado.
+      const plenoPrediccion = extractPleno15(state.prediccion) || {};
+      const plenoCompleto = {
+        ...pleno,
+        marcador_probable_losilla: pleno.marcador_probable_losilla || plenoPrediccion.marcador_probable_losilla,
+        pronostico_marcador: pleno.pronostico_marcador || plenoPrediccion.pronostico_marcador,
+        probabilidades_goles: pleno.probabilidades_goles || plenoPrediccion.probabilidades_goles,
+      };
+      const local = plenoCompleto.local || plenoCompleto.equipo_local || plenoCompleto.local_nombre || 'Equipo local';
+      const visitante = plenoCompleto.visitante || plenoCompleto.equipo_visitante || plenoCompleto.visitante_nombre || 'Equipo visitante';
+      const probGoles = plenoCompleto.probabilidades_goles || pleno15Recommendation().probabilidades_goles || {};
       const probLocal = probGoles.local || {};
       const probVisitante = probGoles.visitante || {};
       const cells = ['0','1','2','M'];
 
       const renderRow = (team, teamKey, probsTeam) => {
-        // Recuperar selección manual si existe, si no usar la de la IA
-        const sel = state.pleno15Manual?.[teamKey] ?? (state.generated ? aiSign : '');
+        // Recuperar selección manual si existe, si no usar la de la IA (por lado)
+        const aiSignTeam = state.generated ? pleno15AutoCategoria(plenoCompleto, teamKey, probsTeam) : '';
+        const sel = state.pleno15Manual?.[teamKey] ?? aiSignTeam;
         return `<div class="pleno-row" data-team="${teamKey}">
           <strong>${escapeHtml(team)}</strong>
           ${cells.map(s => {
