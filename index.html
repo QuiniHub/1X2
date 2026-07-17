@@ -2170,9 +2170,26 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       const jugadasReales = arr((state.quinielasJugadas || {}).jugadas).slice()
         .sort((a, b) => (Number(b.jornada) || 0) - (Number(a.jornada) || 0)).slice(0, 5);
       if (jugadasReales.length) {
-        const lineasJugadas = jugadasReales.map(j =>
-          `J${j.jornada} (validado ${j.validado_en || '?'}, origen=${j.origen || '?'}): signos=${arr(j.signos).join(' ')} | Elige8=${arr(j.elige8).join(',') || 'no'} | Pleno15=${j.pleno15 || '?'}`
-        );
+        const lineasJugadas = jugadasReales.map(j => {
+          const cabecera = `J${j.jornada} (validado ${j.validado_en || '?'}, origen=${j.origen || '?'}) | Elige8=${arr(j.elige8).join(',') || 'no'} | Pleno15=${j.pleno15 || '?'}`;
+          // Solo para la ULTIMA jornada jugada tenemos los equipos cargados
+          // (state.ultimaJornadaJugadaDatos) — sin esto, el chat sabia que
+          // signo jugamos por partido pero no contra quien, y acababa
+          // dando analisis generico ("ventaja del local en LaLiga") aunque
+          // la jornada fuera de Noruega/Suecia o del Mundial.
+          const esUltima = Number(j.jornada) === Number(state.ultimaJornadaJugadaNum);
+          const partidosConEquipo = esUltima ? arr((state.ultimaJornadaJugadaDatos || {}).partidos) : [];
+          if (partidosConEquipo.length === arr(j.signos).length) {
+            const lineasPartido = arr(j.signos).map((signo, idx) => {
+              const p = partidosConEquipo[idx] || {};
+              return `  P${idx + 1} ${p.local || '?'} vs ${p.visitante || '?'}: ${signo}`;
+            });
+            const pleno = (state.ultimaJornadaJugadaDatos || {}).pleno15 || {};
+            const lineaPleno = pleno.local ? `  P15 Pleno al 15: ${pleno.local} vs ${pleno.visitante} → ${j.pleno15 || '?'}` : '';
+            return `${cabecera}\n${lineasPartido.join('\n')}${lineaPleno ? '\n' + lineaPleno : ''}`;
+          }
+          return `${cabecera} | signos=${arr(j.signos).join(' ')}`;
+        });
         bloqueQuinielasJugadas = `\nLO QUE REALMENTE HEMOS JUGADO (boletos reales confirmados por Marc — ESTO NO ES la predicción automática que aparece más abajo, son cosas distintas):\n${lineasJugadas.join('\n')}`;
       }
 
