@@ -1,24 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-17T12:48:40.735497+00:00",
-  "estado": "requiere_revision_datos",
-  "score_salud": 70,
+  "generado_en": "2026-07-17T14:33:04.748846+00:00",
+  "estado": "operativo_con_avisos",
+  "score_salud": 72,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 74,
     "jornada_actual": {
-      "jornada": 73,
-      "fecha": "Domingo, 19 de julio de 2026",
-      "estado": "abierta",
-      "partidos": 14,
-      "cerrados": 0,
-      "pendientes": 14,
-      "pendientes_totales_con_pleno15": 15,
-      "pleno15_cerrado": false,
-      "ultima_actualizacion_partido": "",
-      "path": "data/jornadas/jornada_73.json"
-    },
-    "proxima_jornada": {
       "jornada": 74,
       "fecha": "Domingo, 26 de julio de 2026",
       "estado": "abierta",
@@ -30,6 +18,7 @@
       "ultima_actualizacion_partido": "",
       "path": "data/jornadas/jornada_74.json"
     },
+    "proxima_jornada": null,
     "ultimas": [
       {
         "jornada": 70,
@@ -94,9 +83,9 @@
     ]
   },
   "memoria_quinielas": {
-    "jugadas_persistidas_json": 14,
-    "jornadas_validadas_historial": 14,
-    "jornadas_memoria_real_total": 38,
+    "jugadas_persistidas_json": 15,
+    "jornadas_validadas_historial": 15,
+    "jornadas_memoria_real_total": 40,
     "jornadas_con_signo_nuestro": 10,
     "signos_nuestros_en_jornadas": 140,
     "estado": "memoria_propia_disponible",
@@ -108,25 +97,25 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 73,
-    "generado_en": "2026-07-17T12:48:40.026683+00:00",
+    "jornada": 74,
+    "generado_en": "2026-07-17T14:33:04.087653+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 8,
-      "dobles": 4,
-      "triples": 2,
+      "fijos": 14,
+      "dobles": 0,
+      "triples": 0,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 13,
-      "indice_sorpresa_max": 100.0,
+      "favoritos_atacables": 0,
+      "indice_sorpresa_max": 0.0,
       "calidad_datos": {
         "alta": 0,
         "media": 0,
         "media_baja": 0,
-        "baja": 14
+        "baja": 0
       }
     },
-    "retenida_por_compuerta": false,
-    "motivo_bloqueo": null
+    "retenida_por_compuerta": true,
+    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 73 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 74 hasta cerrar y aprender la 73."
   },
   "clasificaciones": {
     "primera": {
@@ -179,7 +168,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 5.37,
+    "contexto_equipos_horas": 0.02,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -253,20 +242,21 @@
     "partidos_cerrados": 98,
     "aciertos": 54,
     "precision": 55.1,
-    "generado_en": "2026-07-17T12:48:40.558940+00:00",
+    "generado_en": "2026-07-17T14:33:04.580540+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
     {
-      "nivel": "alta",
-      "titulo": "Predicción de jornada antigua",
-      "detalle": "La jornada activa es 74 pero la última predicción dice 73."
+      "nivel": "media",
+      "titulo": "Jornada actual incompleta",
+      "detalle": "La jornada 74 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
     },
     {
       "nivel": "media",
-      "titulo": "Jornada actual incompleta",
-      "detalle": "La jornada 73 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
-      "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
+      "titulo": "Prediccion demasiado rigida",
+      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
+      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
     },
     {
       "nivel": "media",
@@ -290,16 +280,10 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-07-17T12:48:40.735497+00:00",
-    "estado": "revisar",
-    "score": 65,
-    "alertas": [
-      {
-        "nivel": "alta",
-        "titulo": "Predicción de jornada antigua",
-        "detalle": "La jornada activa es 74 pero la última predicción dice 73."
-      }
-    ],
+    "generado_en": "2026-07-17T14:33:04.748846+00:00",
+    "estado": "operativo",
+    "score": 100,
+    "alertas": [],
     "jornadas": {
       "total": 74,
       "actual": {
@@ -448,28 +432,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-07-17T12:48:15.653137+00:00"
+      "generado_en": "2026-07-17T14:32:39.386073+00:00"
     },
     "prediccion": {
-      "jornada": 73,
-      "generado_en": "2026-07-17T12:48:40.026683+00:00",
+      "jornada": 74,
+      "generado_en": "2026-07-17T14:33:04.087653+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 8,
-        "dobles": 4,
-        "triples": 2,
+        "fijos": 14,
+        "dobles": 0,
+        "triples": 0,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 13,
-        "indice_sorpresa_max": 100.0,
+        "favoritos_atacables": 0,
+        "indice_sorpresa_max": 0.0,
         "calidad_datos": {
           "alta": 0,
           "media": 0,
           "media_baja": 0,
-          "baja": 14
+          "baja": 0
         }
       },
-      "retenida_por_compuerta": false,
-      "motivo_bloqueo": null
+      "retenida_por_compuerta": true,
+      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 73 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 74 hasta cerrar y aprender la 73."
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -621,6 +605,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-07-17T12:48:15.653137+00:00"
+    "generado_en": "2026-07-17T14:32:39.386073+00:00"
   }
 }
