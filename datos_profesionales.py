@@ -561,7 +561,7 @@ def estado_cuenta_api_football(base_url, token, requester=None):
     liga/temporada", y sin esto no se podia distinguir uno de otro.
     """
     try:
-        payload = api_football_get(base_url, token, "status")
+        payload = api_football_get(base_url, token, "status", requester=requester)
     except Exception as exc:
         return {"ok": False, "error": str(exc)}
     payload = payload or {}
