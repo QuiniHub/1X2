@@ -2266,7 +2266,14 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         if (lineas.length) bloqueDetallesH2H = `\nH2H EDUARDOLOSILLA J${detallesPart.jornada || jornadaActual}:\n${lineas.join('\n')}`;
       }
 
-      return `${resumenMem}
+      // bloqueQuinielasJugadas va PRIMERO, antes incluso de resumenMem: el
+      // contexto se recorta a 2500/4500 caracteres mas abajo
+      // (limiteContexto), y con este bloque a la mitad del texto (antes se
+      // media la posicion 3655) se cortaba siempre para preguntas que no
+      // calificaban como "consulta local previa" -el chat nunca llegaba a
+      // leer lo que jugamos de verdad, pese a estar bien construido.
+      return `${bloqueQuinielasJugadas}
+${resumenMem}
 ${bloqueHistoricoLigas}
 ${bloqueHistoricoQuinielas}
 ${bloqueSorpresas}
@@ -2274,8 +2281,6 @@ ${bloqueDetallesH2H}
 
 ${resumenMetricas}
 Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalCobrado.toFixed(2)}€
-
-${bloqueQuinielasJugadas}
 
 ${estadoActual}
 ${bloquePredActual}
@@ -2700,7 +2705,7 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
 
         // Detectar si es consulta local ANTES de truncar para ajustar el límite
         // Consultas locales no hacen fetch externo → podemos dar más contexto sin riesgo de 413
-        const esConsultaLocalPrevia = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|pesos|jornada actual|jornada anterior|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev|partidos.*jornada|quiniela.*jornada|dame.*partido|publica.*partido|lista.*partido|muestra.*partido|temporada|24.25|25.26|23.24|datos.*equipo|equipo.*datos|como.*fue|estadistica|clasificaci[oó]n.*liga|liga.*clasificaci[oó]n|1[aª] division|2[aª] division|primera.*division|segunda.*division|calendario|jugará|cuando juega|próximos partidos|fixtures/i.test(textoTotal);
+        const esConsultaLocalPrevia = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|pesos|jornada actual|jornada anterior|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev|partidos.*jornada|quiniela.*jornada|dame.*partido|publica.*partido|lista.*partido|muestra.*partido|temporada|24.25|25.26|23.24|datos.*equipo|equipo.*datos|como.*fue|estadistica|clasificaci[oó]n.*liga|liga.*clasificaci[oó]n|1[aª] division|2[aª] division|primera.*division|segunda.*division|calendario|jugará|cuando juega|próximos partidos|fixtures|hemos jugado|nuestra quiniela|jornada\s*\d+.*jugad|jugad.*jornada\s*\d+/i.test(textoTotal);
         const limiteContexto = esConsultaLocalPrevia ? 4500 : 2500;
         const contexto = contextoCompleto.slice(0, limiteContexto);
 
