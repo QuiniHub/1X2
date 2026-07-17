@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-17T17:43:16.351530+00:00",
+  "generado_en": "2026-07-17T19:23:20.230138+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 8,
-    "partidos_cerrados": 98,
-    "aciertos": 54,
-    "precision": 55.1
+    "partidos_cerrados": 101,
+    "aciertos": 55,
+    "precision": 54.46
   },
   "jornadas": [
     {
@@ -1762,10 +1762,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_73.json",
       "creado_en": "2026-07-12T18:33:26.761777+00:00",
       "prediccion_generada_en": "2026-07-12T18:33:26.761313+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
-      "aciertos": 0,
-      "precision": null,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 3,
+      "aciertos": 1,
+      "precision": 33.33,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -1786,8 +1786,8 @@
       },
       "por_tipo": {
         "FIJO": {
-          "total": 0,
-          "aciertos": 0
+          "total": 3,
+          "aciertos": 1
         },
         "DOBLE": {
           "total": 0,
@@ -1798,7 +1798,53 @@
           "aciertos": 0
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 1,
+          "partido": "Bodø/Glimt - Fredrikstad",
+          "jugado": "X",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": false,
+          "probabilidades": {
+            "1": 32.2,
+            "X": 34.8,
+            "2": 33.0
+          },
+          "incertidumbre": 144.92,
+          "probabilidad_sorpresa": 70
+        },
+        {
+          "num": 8,
+          "partido": "Mjällby - Västerås",
+          "jugado": "X",
+          "tipo": "FIJO",
+          "oficial": "X",
+          "acierto": true,
+          "probabilidades": {
+            "1": 30.6,
+            "X": 36.1,
+            "2": 33.3
+          },
+          "incertidumbre": 143.6,
+          "probabilidad_sorpresa": 70
+        },
+        {
+          "num": 10,
+          "partido": "Göteborg - Brommapojkarna",
+          "jugado": "X",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": false,
+          "probabilidades": {
+            "1": 33.2,
+            "X": 34.8,
+            "2": 32.0
+          },
+          "incertidumbre": 144.35,
+          "probabilidad_sorpresa": 70
+        }
+      ]
     }
   ]
 }
