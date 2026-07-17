@@ -114,6 +114,59 @@ class ExtraerProbabilidadesDesdeEstadoTests(unittest.TestCase):
         self.assertIsNone(afl.extraer_probabilidades_desde_estado({}))
 
 
+ESTADO_JSON_4_FUENTES = """{
+  "datosGeneralesQuiniela": {"jornada": 73, "temporada": 2026},
+  "jornada_73_2026": {
+    "partidos": [
+      {"num": 1, "local": "BODOGLIMT", "visitante": "FREDRIKSTAD"},
+      {"num": 2, "local": "HAMKAN", "visitante": "TROMSO"}
+    ]
+  },
+  "probabilidades_73_2026": {
+    "partidos": {
+      "tecnicos": [
+        {"numero": 1, "porc_1": 78, "porc_X": 16, "porc_2": 6}
+      ],
+      "quinielista": [
+        {"numero": 1, "porc_1": 93, "porc_X": 6, "porc_2": 1},
+        {"numero": 2, "porc_1": 22, "porc_X": 30, "porc_2": 48}
+      ],
+      "lae": [
+        {"numero": 1, "porc_1": 77, "porc_X": 13, "porc_2": 10}
+      ],
+      "real": [
+        {"numero": 1, "porc_1": 83, "porc_X": 10, "porc_2": 7}
+      ]
+    }
+  }
+}"""
+
+
+class PromediarFuentesLosillaTests(unittest.TestCase):
+    def test_promedia_las_4_fuentes_cuando_todas_traen_el_partido(self):
+        """Antes solo se leia "quinielista" (93/6/1) y se tiraban tecnicos
+        (78/16/6), lae (77/13/10) y real (83/10/7) aunque estuvieran en la
+        misma respuesta -la media real de las 4 es (78+93+77+83)/4=82.75,
+        (16+6+13+10)/4=11.25, (6+1+10+7)/4=6.0."""
+        estado = afl.extraer_estado_embebido(_html_con_estado(ESTADO_JSON_4_FUENTES))
+        resultado = afl.extraer_probabilidades_desde_estado(estado)
+        p1 = resultado["partidos_1x2"][0]
+        self.assertAlmostEqual(p1["probabilidades_signo"]["1"], 82.75)
+        self.assertAlmostEqual(p1["probabilidades_signo"]["X"], 11.25)
+        self.assertAlmostEqual(p1["probabilidades_signo"]["2"], 6.0)
+        self.assertEqual(set(p1["fuentes_detalle"].keys()), {"tecnicos", "quinielista", "lae", "real"})
+
+    def test_promedia_solo_con_las_fuentes_disponibles_para_ese_partido(self):
+        """El partido 2 solo tiene dato en "quinielista" (las otras 3 tablas
+        de este fixture no traen el partido 2) -debe usar ese unico valor
+        tal cual, sin fallar ni inventar datos de las fuentes ausentes."""
+        estado = afl.extraer_estado_embebido(_html_con_estado(ESTADO_JSON_4_FUENTES))
+        resultado = afl.extraer_probabilidades_desde_estado(estado)
+        p2 = resultado["partidos_1x2"][1]
+        self.assertEqual(p2["probabilidades_signo"], {"1": 22.0, "X": 30.0, "2": 48.0})
+        self.assertEqual(set(p2["fuentes_detalle"].keys()), {"quinielista"})
+
+
 class ExtraerProbabilidadesConMockTests(unittest.TestCase):
     def setUp(self):
         self._original_descargar = afl.descargar

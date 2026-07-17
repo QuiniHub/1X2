@@ -773,3 +773,51 @@ silenciosamente una version incompleta -verificar solo con datos de
 prueba en consola (que usan un solo objeto plano) no habria detectado
 este segundo bug; hizo falta reproducir el flujo completo en el
 navegador real con el estado real cargado.
+
+### 2026-07-17 — El scraper de Losilla solo leia 1 de 4 fuentes, y el peso al mercado era fijo (0.18) sin importar la calidad del prior propio
+
+Marc noto que el boleto publicado de la jornada 73 no se parecia a los
+porcentajes de eduardolosilla.es y pregunto si no convendria promediar
+directamente los indicadores de Losilla (tecnicos/jugados/LAE/probables).
+Se investigo con una peticion real a la web (no solo lectura de codigo):
+
+1. El bloque de estado embebido de eduardolosilla.es trae 4 tablas
+   independientes por partido: `tecnicos`, `quinielista`, `lae`, `real`.
+   Verificado en vivo para la jornada 73, partido 1 (Bodø/Glimt-
+   Fredrikstad): tecnicos 78/16/6, quinielista 93/6/1, LAE 77/13/10, real
+   83/10/7 -los 4 coinciden en algo contundente (77-93% para el "1").
+2. `actualizar_fuente_losilla.py` (`extraer_probabilidades_desde_estado()`)
+   solo leia `quinielista` y tiraba las otras 3 tablas, pese a venir en la
+   misma respuesta.
+3. `motor_prediccion_quiniela.py` (`ajustar_por_mercado_losilla()`)
+   mezclaba ese unico indicador con el prior propio del motor a un peso
+   FIJO de 0.18, sin importar si el prior propio era bueno o puro
+   "fallback". Para la jornada 73 (ligas noruega/sueca, casi sin
+   historico), el motor marcaba `calidad_datos: "baja"` en casi todos los
+   partidos, y con esa base tan floja el 18% de mercado real no bastaba
+   para corregir nada: el boleto publicado daba 43.0/29.6/27.4 para el
+   partido 1, muy lejos de los 4 indicadores reales de Losilla (todos
+   sobre 77% para el "1").
+
+Fix en dos partes:
+- `actualizar_fuente_losilla.py`: `extraer_probabilidades_desde_estado()`
+  ahora lee las 4 tablas y promedia aritmeticamente las que traigan dato
+  para cada partido concreto (no todas cubren siempre los 14 partidos),
+  tanto para el 1X2 como para el Pleno al 15. Se guarda ademas
+  `fuentes_detalle` por partido con los valores crudos de cada fuente, sin
+  consumirse todavia por nadie mas, por transparencia.
+- `motor_prediccion_quiniela.py`: `ajustar_por_mercado_losilla(probs,
+  mercado, calidad_datos=None)` ahora busca el peso en
+  `PESO_MERCADO_LOSILLA_POR_CALIDAD` (profesional=0.15, alta=0.20,
+  media=0.35, media_baja=0.45, baja=0.65), con 0.18 como valor de
+  seguridad si no se reconoce `calidad_datos`. El calculo de
+  `trazabilidad_datos_partido()` (que produce `calidad_datos`) se adelanto
+  en el bucle de `predecir()` para estar listo antes de la llamada a
+  `ajustar_por_mercado_losilla`, en vez de despues como estaba.
+
+Por que importa: un peso fijo de mercado tiene sentido si el prior propio
+del motor es siempre igual de bueno, pero no lo es -para ligas con poco
+historico (fallback puro) el mercado deberia pesar mucho mas que para
+LaLiga con datos ricos. Y usar solo 1 de 4 fuentes de Losilla tira
+señal real a la basura cuando las 4 suelen coincidir en lo esencial,
+como en este caso.

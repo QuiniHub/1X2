@@ -412,12 +412,46 @@ def extraer_pleno_desde_texto(texto, partidos_texto):
     return None
 
 
+FUENTES_PROBABILIDAD_LOSILLA = ("tecnicos", "quinielista", "lae", "real")
+
+
+def _promediar(valores):
+    """Media aritmetica de los valores no-None. None si no hay ninguno."""
+    presentes = [float(v) for v in valores if v is not None]
+    return sum(presentes) / len(presentes) if presentes else None
+
+
+def _filas_por_fuente(estado, jornada, temporada):
+    """Devuelve {fuente: {numero_partido: fila}} para las 4 tablas
+    independientes (tecnicos/quinielista/lae/real) que trae el bloque de
+    estado embebido -antes solo se leia "quinielista" y las otras 3 se
+    tiraban, pese a estar ahi mismo, en la misma peticion."""
+    bloque = (estado.get(f"probabilidades_{jornada}_{temporada}") or {}).get("partidos") or {}
+    por_fuente = {}
+    for fuente in FUENTES_PROBABILIDAD_LOSILLA:
+        filas_fuente = {}
+        for fila in bloque.get(fuente) or []:
+            numero_partido = entero(fila.get("numero"))
+            if numero_partido:
+                filas_fuente[numero_partido] = fila
+        if filas_fuente:
+            por_fuente[fuente] = filas_fuente
+    return por_fuente
+
+
 def extraer_probabilidades_desde_estado(estado):
-    """Lee jornada, equipos y porcentajes 1/X/2 (jugados/quinielista) y del
-    Pleno al 15 directamente del JSON de estado embebido -sin depender del
-    HTML renderizado por Angular en cliente. Devuelve None si el bloque no
-    tiene la forma esperada, para que el llamador pueda caer al scraping de
-    HTML como respaldo.
+    """Lee jornada, equipos y porcentajes 1/X/2 y del Pleno al 15
+    directamente del JSON de estado embebido -sin depender del HTML
+    renderizado por Angular en cliente. Devuelve None si el bloque no tiene
+    la forma esperada, para que el llamador pueda caer al scraping de HTML
+    como respaldo.
+
+    El estado embebido trae 4 tablas independientes por partido (tecnicos,
+    quinielista, lae, real). Se promedian aritmeticamente las que traigan
+    dato para cada partido concreto -no todas las tablas tienen por que
+    cubrir siempre los 14 partidos- en vez de usar solo una y descartar las
+    otras 3, que suelen coincidir en lo esencial y dan una señal de mercado
+    mas robusta que una sola fuente aislada.
     """
     jornada, temporada = jornada_y_temporada_activas(estado)
     if not jornada:
@@ -425,36 +459,45 @@ def extraer_probabilidades_desde_estado(estado):
     equipos = partidos_de_jornada_embebida(estado, jornada, temporada)
     if not equipos:
         return None
-    filas = (
-        ((estado.get(f"probabilidades_{jornada}_{temporada}") or {}).get("partidos") or {}).get("quinielista")
-        or []
-    )
+    filas_por_fuente = _filas_por_fuente(estado, jornada, temporada)
+    if not filas_por_fuente:
+        return None
+
     partidos_1x2 = []
     pleno_al_15 = None
-    for fila in filas:
-        numero_partido = entero(fila.get("numero"))
-        if not numero_partido or numero_partido not in equipos:
+    for numero_partido, (local, visitante) in equipos.items():
+        filas = {
+            fuente: filas_fuente[numero_partido]
+            for fuente, filas_fuente in filas_por_fuente.items()
+            if numero_partido in filas_fuente
+        }
+        if not filas:
             continue
-        local, visitante = equipos[numero_partido]
+
         if numero_partido == 15:
-            valores = [
-                fila.get("porc_15L_0"), fila.get("porc_15L_1"), fila.get("porc_15L_2"), fila.get("porc_15L_M"),
-                fila.get("porc_15V_0"), fila.get("porc_15V_1"), fila.get("porc_15V_2"), fila.get("porc_15V_M"),
-            ]
+            claves = (
+                "porc_15L_0", "porc_15L_1", "porc_15L_2", "porc_15L_M",
+                "porc_15V_0", "porc_15V_1", "porc_15V_2", "porc_15V_M",
+            )
+            valores = [_promediar(fila.get(clave) for fila in filas.values()) for clave in claves]
+            fuentes_detalle = {
+                fuente: {clave: fila.get(clave) for clave in claves} for fuente, fila in filas.items()
+            }
             if all(v is not None for v in valores):
-                # Estos valores ya son numeros nativos del JSON (no texto con
-                # "%"), asi que se convierten con float() directo -numero()
-                # esta pensado para texto y trata un 0 legitimo como vacio
-                # (str(0 or "") == ""), lo que perderia un porcentaje real de
-                # 0% en vez de conservarlo.
-                pleno_al_15 = construir_pleno_al_15(local, visitante, [float(v) for v in valores], "estado_embebido")
+                pleno_al_15 = construir_pleno_al_15(local, visitante, valores, "estado_embebido_promedio")
+                pleno_al_15["fuentes_detalle"] = fuentes_detalle
             continue
+
         if 1 <= numero_partido <= 14:
-            valores = [fila.get("porc_1"), fila.get("porc_X"), fila.get("porc_2")]
+            valores = [_promediar(fila.get(clave) for fila in filas.values()) for clave in ("porc_1", "porc_X", "porc_2")]
+            fuentes_detalle = {
+                fuente: {"1": fila.get("porc_1"), "X": fila.get("porc_X"), "2": fila.get("porc_2")}
+                for fuente, fila in filas.items()
+            }
             if all(v is not None for v in valores):
-                partidos_1x2.append(
-                    construir_partido_1x2(numero_partido, local, visitante, [float(v) for v in valores])
-                )
+                partido = construir_partido_1x2(numero_partido, local, visitante, valores)
+                partido["fuentes_detalle"] = fuentes_detalle
+                partidos_1x2.append(partido)
 
     if not partidos_1x2 and not pleno_al_15:
         return None

@@ -361,6 +361,59 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertEqual(riesgo, 0.0)
         self.assertFalse(any("no coincide" in lectura for lectura in lecturas))
 
+    def test_mercado_losilla_calidad_baja_pesa_mucho_mas_que_calidad_alta(self):
+        """Con un prior propio de calidad "baja" (fallback puro, sin
+        estadistica real), el mercado debe pesar 0.65 en vez del 0.18 fijo
+        de antes -motivado por la jornada 73 (2026-07-17): con peso fijo,
+        un consenso de mercado del 100% para el "1" solo movia el motor de
+        40% a 50.8%, sin corregir casi nada un prior de fallback."""
+        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
+        mercado = {"1": 100.0, "X": 0.0, "2": 0.0}
+
+        nuevas_baja, _, lecturas_baja = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="baja")
+        nuevas_alta, _, lecturas_alta = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="alta")
+
+        self.assertAlmostEqual(nuevas_baja["1"], 79.0)
+        self.assertAlmostEqual(nuevas_alta["1"], 52.0)
+        self.assertGreater(nuevas_baja["1"], nuevas_alta["1"])
+        self.assertTrue(any("peso 0.65" in lectura for lectura in lecturas_baja))
+        self.assertTrue(any("peso 0.20" in lectura for lectura in lecturas_alta))
+
+    def test_mercado_losilla_calidad_media_y_media_baja_intermedias(self):
+        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
+        mercado = {"1": 100.0, "X": 0.0, "2": 0.0}
+
+        nuevas_media, _, lecturas_media = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="media")
+        nuevas_media_baja, _, lecturas_media_baja = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="media_baja")
+
+        self.assertAlmostEqual(nuevas_media["1"], 61.0)
+        self.assertAlmostEqual(nuevas_media_baja["1"], 67.0)
+        self.assertTrue(any("peso 0.35" in lectura for lectura in lecturas_media))
+        self.assertTrue(any("peso 0.45" in lectura for lectura in lecturas_media_baja))
+
+    def test_mercado_losilla_calidad_profesional_pesa_menos_que_alta(self):
+        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
+        mercado = {"1": 100.0, "X": 0.0, "2": 0.0}
+
+        nuevas, _, lecturas = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="profesional")
+
+        self.assertAlmostEqual(nuevas["1"], 49.0)
+        self.assertTrue(any("peso 0.15" in lectura for lectura in lecturas))
+
+    def test_mercado_losilla_sin_calidad_datos_usa_peso_por_defecto(self):
+        """calidad_datos=None (o un valor no reconocido) conserva el peso
+        fijo anterior (0.18) como red de seguridad para llamadas que no lo
+        pasen todavia."""
+        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
+        mercado = {"1": 100.0, "X": 0.0, "2": 0.0}
+
+        nuevas_none, _, lecturas_none = ajustar_por_mercado_losilla(probs, mercado)
+        nuevas_desconocida, _, _ = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="valor_no_existente")
+
+        self.assertAlmostEqual(nuevas_none["1"], 50.8)
+        self.assertAlmostEqual(nuevas_desconocida["1"], 50.8)
+        self.assertTrue(any("peso 0.18" in lectura for lectura in lecturas_none))
+
     def test_trazabilidad_sube_calidad_con_datos_profesionales(self):
         trazabilidad = trazabilidad_datos_partido(
             local={"equipo": "Local"},

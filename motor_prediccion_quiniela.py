@@ -1121,23 +1121,45 @@ def resumen_datos_profesionales_partido(datos_partido):
     }
 
 
-def ajustar_por_mercado_losilla(probs, mercado):
-    """Integra el consenso publico de eduardolosilla.es (% de boletos
-    jugados / probables) como señal de mercado independiente, con un peso
-    fijo y moderado (0.18) -entre el nivel bajo y medio que ya usamos para
-    las cuotas de bookmaker en ajustar_por_datos_profesionales-. No es una
-    cuota en firme, es un proxy de dinero jugado, pero ya verificamos con
-    datos reales (jornada 72, DECISION_LOG.md 2026-07-13/14) que este
-    consenso acierta un 71.4% en ligas donde el motor no tiene datos
-    propios (memoria_estadistica/noticias/contexto en false), frente al
-    ~35% practicamente plano que da el motor sin señal real ahi.
+PESO_MERCADO_LOSILLA_POR_CALIDAD = {
+    "profesional": 0.15,
+    "alta": 0.20,
+    "media": 0.35,
+    "media_baja": 0.45,
+    "baja": 0.65,
+}
+PESO_MERCADO_LOSILLA_DEFECTO = 0.18
+
+
+def ajustar_por_mercado_losilla(probs, mercado, calidad_datos=None):
+    """Integra el consenso publico de eduardolosilla.es (promedio de
+    tecnicos/quinielista/LAE/real) como señal de mercado independiente.
+
+    El peso ya no es fijo: depende de "calidad_datos" (el mismo valor que
+    calcula trazabilidad_datos_partido -profesional/alta/media/media_baja/
+    baja). Si el motor tiene poco o nada propio (fallback puro, calidad
+    "baja"), el consenso de mercado pesa mucho mas (0.65) que si el motor
+    ya tiene estadistica real de ambos equipos (calidad "alta", 0.20): con
+    un prior propio de baja calidad, un peso fijo del 18% no bastaba para
+    corregir nada -verificado con datos reales de la jornada 73 (2026-07-17):
+    los 4 indicadores de Losilla coincidian en 77-93% para el favorito del
+    partido 1 y el motor publicaba igualmente un 43%, practicamente sin
+    moverse de su prior de fallback. Si "calidad_datos" no se pasa (o no es
+    un valor reconocido), se usa el peso fijo anterior (0.18) como red de
+    seguridad para no romper llamadas existentes.
+
+    Ya verificamos con datos reales (jornada 72, DECISION_LOG.md
+    2026-07-13/14) que este consenso acierta un 71.4% en ligas donde el
+    motor no tiene datos propios, frente al ~35% practicamente plano que da
+    el motor sin señal real ahi -de ahi que a menor calidad de dato propio,
+    mayor deba ser el peso del mercado.
     """
     total = sum(float((mercado or {}).get(s) or 0) for s in ("1", "X", "2"))
     if total <= 0:
         return probs, 0.0, []
 
     p = dict(probs)
-    peso = 0.18
+    peso = PESO_MERCADO_LOSILLA_POR_CALIDAD.get(calidad_datos, PESO_MERCADO_LOSILLA_DEFECTO)
     top_motor = signo_top(p)
     top_mercado = signo_top(mercado)
     p = {
@@ -1151,7 +1173,7 @@ def ajustar_por_mercado_losilla(probs, mercado):
         lecturas.append(
             f"Mercado Losilla: el consenso publico ({top_mercado}) no coincide con el favorito del motor ({top_motor})."
         )
-    lecturas.append(f"Mercado Losilla: consenso publico integrado con peso {peso:.2f}.")
+    lecturas.append(f"Mercado Losilla: consenso publico integrado con peso {peso:.2f} (calidad_datos={calidad_datos or 'desconocida'}).")
     return normalizar_probs(p), round(riesgo_extra, 2), lecturas
 
 
@@ -2261,8 +2283,27 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             datos_profesionales_partido,
         )
         lecturas_motivacion.extend(lecturas_datos_profesionales)
+        # trazabilidad se calcula aqui (antes de ajustar_por_mercado_losilla,
+        # no despues) porque su calidad_datos decide el peso que se le da al
+        # mercado Losilla frente al prior propio del motor -con un prior de
+        # "baja" calidad (fallback puro), el mercado debe pesar mucho mas que
+        # con uno de "alta" calidad (estadistica real de ambos equipos).
+        trazabilidad = trazabilidad_datos_partido(
+            local,
+            visitante,
+            contexto_local,
+            contexto_visitante,
+            local_comp,
+            visitante_comp,
+            datos_profesionales_partido,
+        )
+        trazabilidad["modelo_entrenado"] = ajuste_modelo_entrenado
+        if ajuste_modelo_entrenado.get("activo"):
+            trazabilidad["origen_probabilidades"] = f"{trazabilidad['origen_probabilidades']}+modelo_entrenado"
         mercado_losilla_partido = mercado_losilla_signos(fuente_losilla, partido)
-        probs, riesgo_mercado_losilla, lecturas_mercado_losilla = ajustar_por_mercado_losilla(probs, mercado_losilla_partido)
+        probs, riesgo_mercado_losilla, lecturas_mercado_losilla = ajustar_por_mercado_losilla(
+            probs, mercado_losilla_partido, calidad_datos=trazabilidad["calidad_datos"]
+        )
         lecturas_motivacion.extend(lecturas_mercado_losilla)
         ajuste_motivacion_competitiva = calcular_ajuste_motivacion({**partido, "probabilidades": probs}, clasificaciones_mundial, fuente_losilla)
         probs = aplicar_ajuste_motivacion_competitiva(probs, ajuste_motivacion_competitiva)
@@ -2286,18 +2327,6 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             + riesgo_motivacion_competitiva,
         )
         sorpresa = probabilidad_sorpresa(probs, inc)
-        trazabilidad = trazabilidad_datos_partido(
-            local,
-            visitante,
-            contexto_local,
-            contexto_visitante,
-            local_comp,
-            visitante_comp,
-            datos_profesionales_partido,
-        )
-        trazabilidad["modelo_entrenado"] = ajuste_modelo_entrenado
-        if ajuste_modelo_entrenado.get("activo"):
-            trazabilidad["origen_probabilidades"] = f"{trazabilidad['origen_probabilidades']}+modelo_entrenado"
         evaluado = {
             **partido,
             "probabilidades": probs,
