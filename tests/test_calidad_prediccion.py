@@ -31,6 +31,24 @@ class CalidadPrediccionTests(unittest.TestCase):
         self.prediccion = cargar_prediccion()
         if not self.prediccion or not self.prediccion.get("partidos"):
             self.skipTest("No hay prediccion real disponible para validar (sin partidos).")
+        # Misma deteccion de "bloqueada" que ya usa aplicar_elige8_seguro.py
+        # (prediccion_bloqueada()): cuando la jornada anterior no ha cerrado
+        # del todo, el pipeline deja los 14 partidos con num pero sin
+        # probabilidades/signo_final -a proposito, documentado en
+        # motivo_bloqueo-, no por un fallo real que estos tests deban
+        # atrapar.
+        estado = str(self.prediccion.get("estado") or "").lower()
+        bloqueada = (
+            self.prediccion.get("prediccion_disponible") is False
+            or "bloqueada" in estado
+            or "aprendiendo" in estado
+            or "pendiente_cierre" in estado
+        )
+        if bloqueada:
+            self.skipTest(
+                f"Prediccion bloqueada a proposito ({self.prediccion.get('motivo_bloqueo') or estado}); "
+                "no hay boleto real que validar todavia."
+            )
         self.partidos = self.prediccion["partidos"]
 
     def test_hay_exactamente_14_partidos_numerados_sin_huecos(self):
