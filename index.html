@@ -3050,7 +3050,11 @@ No inventes — solo lo que ves con fondo oscuro.`;
           ];
         }
 
-        const maxTok = esConsultaCalendario ? 800 : 500;
+        // Analizar los 14-15 partidos de una jornada jugada de verdad no
+        // cabe en 500 tokens -Marc probo en vivo y la respuesta se cortaba
+        // a mitad (llegaba a P10 y paraba). Con esSobreLoJugado damos
+        // presupuesto real para cubrir los 15 sin truncar a medias.
+        const maxTok = esSobreLoJugado ? 1800 : (esConsultaCalendario ? 800 : 500);
         const respuesta = await llamarGroq(messages, modeloGroq, maxTok);
         if (typing) typing.remove();
 
