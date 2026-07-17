@@ -552,6 +552,31 @@ def api_football_get(base_url, token, endpoint, params=None, requester=None):
     return payload.get("response") or []
 
 
+def estado_cuenta_api_football(base_url, token, requester=None):
+    """Consulta el endpoint /status de API-Football -barato y disponible
+    incluso en el plan gratuito- para saber el estado real de la cuenta
+    (plan, si esta activa, cuota de peticiones) en vez de tener que
+    inferirlo de un 403 generico en un fixture concreto. Un 403 en
+    /fixtures puede significar "token invalido" o "tu plan no cubre esta
+    liga/temporada", y sin esto no se podia distinguir uno de otro.
+    """
+    try:
+        payload = api_football_get(base_url, token, "status")
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+    payload = payload or {}
+    suscripcion = payload.get("subscription") or {}
+    peticiones = payload.get("requests") or {}
+    return {
+        "ok": True,
+        "plan": suscripcion.get("plan"),
+        "activa": suscripcion.get("active"),
+        "fin_plan": suscripcion.get("end"),
+        "peticiones_usadas": peticiones.get("current"),
+        "peticiones_limite": peticiones.get("limit_day"),
+    }
+
+
 def fixture_nombres(fixture):
     equipos = fixture.get("teams") or {}
     home = (equipos.get("home") or {}).get("name") or ""
@@ -825,6 +850,7 @@ def leer_api_football_payload(base_url, token, root=ROOT, requester=None):
                 "season": temporada_api_football(),
                 "fixtures_emparejados": fixtures_emparejados,
                 "errores": errores[:20],
+                "estado_cuenta": estado_cuenta_api_football(base_url, token, requester=requester),
             }
         },
         "jornadas": jornadas,

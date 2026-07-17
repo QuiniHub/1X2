@@ -122,11 +122,38 @@ def copiar_fuentes():
     return json.loads(json.dumps(FUENTES, ensure_ascii=False))
 
 
+def mensaje_error_conexion_api_football(errores_api_football, estado_cuenta):
+    """Construye un mensaje accionable para un 403/fallo de API-Football.
+    Antes solo se citaba el error crudo de un fixture concreto -no decia si
+    el token estaba mal, caducado, o si simplemente el plan (a menudo el
+    gratuito) no cubre esa liga/temporada. estado_cuenta viene de
+    datos_profesionales.estado_cuenta_api_football() (endpoint /status,
+    barato y disponible incluso en el plan gratuito)."""
+    ejemplo = errores_api_football[0] if errores_api_football else "sin detalle"
+    if not (estado_cuenta or {}).get("ok"):
+        error_status = (estado_cuenta or {}).get("error") or "sin respuesta"
+        return (
+            f"token/URL configurados pero la API no responde datos (ej: {ejemplo}); "
+            f"tampoco se pudo consultar /status ({error_status}) -revisar si el token es valido."
+        )
+    plan = estado_cuenta.get("plan") or "desconocido"
+    activa = estado_cuenta.get("activa")
+    usadas = estado_cuenta.get("peticiones_usadas")
+    limite = estado_cuenta.get("peticiones_limite")
+    return (
+        f"Cuenta API-Football: plan '{plan}', activa={activa}, "
+        f"peticiones hoy {usadas}/{limite}. El token es valido pero la API sigue "
+        f"sin dar datos de fixtures (ej: {ejemplo}) -revisar si el plan '{plan}' "
+        f"cubre la temporada/ligas configuradas (subir de plan si no)."
+    )
+
+
 def aplicar_estado_conector(fuentes, datos, fuente_losilla=None):
     resumen = datos.get("resumen") or {}
     estado_global = str(datos.get("estado_global") or "").lower()
     configuracion = datos.get("configuracion") or {}
     errores_api_football = (((datos.get("proveedores") or {}).get("api_football") or {}).get("errores") or [])
+    estado_cuenta_api_football = ((datos.get("proveedores") or {}).get("api_football") or {}).get("estado_cuenta") or {}
     # Token/URL configurados pero la API sigue sin dar ni un solo partido: es
     # un fallo de conexion real (token invalido, plan sin cobertura de la
     # temporada/liga...), muy distinto de "pendiente_secret" (nunca
@@ -160,10 +187,8 @@ def aplicar_estado_conector(fuentes, datos, fuente_losilla=None):
         fuentes["cuotas_mercado"]["estado"] = "pendiente_secret"
     elif error_conexion_api_football:
         fuentes["cuotas_mercado"]["estado"] = "error_conexion"
-        fuentes["cuotas_mercado"]["siguiente_paso"] = (
-            f"token/URL configurados pero la API no responde datos "
-            f"(ej: {errores_api_football[0]}); revisar validez del token o "
-            f"si el plan cubre la temporada/ligas actuales."
+        fuentes["cuotas_mercado"]["siguiente_paso"] = mensaje_error_conexion_api_football(
+            errores_api_football, estado_cuenta_api_football
         )
 
     if int(resumen.get("bajas_estructuradas") or 0) > 0:
@@ -173,6 +198,9 @@ def aplicar_estado_conector(fuentes, datos, fuente_losilla=None):
         fuentes["lesiones_sanciones"]["estado"] = "pendiente_secret"
     elif error_conexion_api_football:
         fuentes["lesiones_sanciones"]["estado"] = "error_conexion"
+        fuentes["lesiones_sanciones"]["siguiente_paso"] = mensaje_error_conexion_api_football(
+            errores_api_football, estado_cuenta_api_football
+        )
 
     if int(resumen.get("alineaciones_probables") or 0) > 0:
         fuentes["alineaciones_probables"]["estado"] = "conectado_estructurado"
@@ -181,6 +209,9 @@ def aplicar_estado_conector(fuentes, datos, fuente_losilla=None):
         fuentes["alineaciones_probables"]["estado"] = "pendiente_secret"
     elif error_conexion_api_football:
         fuentes["alineaciones_probables"]["estado"] = "error_conexion"
+        fuentes["alineaciones_probables"]["siguiente_paso"] = mensaje_error_conexion_api_football(
+            errores_api_football, estado_cuenta_api_football
+        )
 
     if int(resumen.get("calendario_oficial") or 0) > 0:
         fuentes["calendario_oficial_2026_2027"]["estado"] = "conectado_normalizado"

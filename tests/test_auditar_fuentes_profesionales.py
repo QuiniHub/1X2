@@ -57,7 +57,44 @@ class AuditarFuentesProfesionalesTests(unittest.TestCase):
         self.assertEqual(fuentes["cuotas_mercado"]["estado"], "error_conexion")
         self.assertIn("403", fuentes["cuotas_mercado"]["siguiente_paso"])
         self.assertEqual(fuentes["lesiones_sanciones"]["estado"], "error_conexion")
+        self.assertIn("403", fuentes["lesiones_sanciones"]["siguiente_paso"])
         self.assertEqual(fuentes["alineaciones_probables"]["estado"], "error_conexion")
+        self.assertIn("403", fuentes["alineaciones_probables"]["siguiente_paso"])
+
+    def test_cuotas_mercado_error_conexion_cita_plan_real_si_status_disponible(self):
+        """Con /status disponible (estado_cuenta_api_football), el mensaje
+        debe citar el plan/cuota reales en vez del generico -para que Marc
+        sepa si es un token roto o si su plan (a menudo el gratuito) no
+        cubre la temporada/liga configurada."""
+        datos = {
+            "estado_global": "sin_datos_profesionales",
+            "resumen": {"cuotas": 0, "bajas_estructuradas": 0, "alineaciones_probables": 0},
+            "configuracion": {"token_configurado": True, "url_configurada": True},
+            "proveedores": {
+                "api_football": {
+                    "errores": ["403 Client Error: Forbidden for url: ..."],
+                    "estado_cuenta": {
+                        "ok": True,
+                        "plan": "Free",
+                        "activa": True,
+                        "peticiones_usadas": 12,
+                        "peticiones_limite": 100,
+                    },
+                }
+            },
+        }
+        fuentes = afp.aplicar_estado_conector(afp.copiar_fuentes(), datos)
+        mensaje = fuentes["cuotas_mercado"]["siguiente_paso"]
+        self.assertIn("Free", mensaje)
+        self.assertIn("12/100", mensaje)
+
+    def test_mensaje_error_conexion_avisa_si_status_tambien_falla(self):
+        mensaje = afp.mensaje_error_conexion_api_football(
+            ["403 Client Error: Forbidden for url: ..."],
+            {"ok": False, "error": "401 Client Error: Unauthorized"},
+        )
+        self.assertIn("401", mensaje)
+        self.assertIn("token es valido", mensaje)
 
     def test_cuotas_mercado_pendiente_secret_si_nunca_se_configuro(self):
         datos = {"estado_global": "pendiente_secrets", "resumen": {}}

@@ -10,7 +10,13 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from datos_profesionales import buscar_partido, leer_api_football_payload, leer_payload_externo, normalizar_payload
+from datos_profesionales import (
+    buscar_partido,
+    estado_cuenta_api_football,
+    leer_api_football_payload,
+    leer_payload_externo,
+    normalizar_payload,
+)
 
 
 class FakeResponse:
@@ -94,6 +100,13 @@ class FakeApiFootball:
                         "player": {"name": "Mediocentro", "type": "Suspended", "reason": "Suspended"},
                     },
                 ]
+            })
+        if url.endswith("/status"):
+            return FakeResponse({
+                "response": {
+                    "subscription": {"plan": "Free", "end": "2027-01-01", "active": True},
+                    "requests": {"current": 47, "limit_day": 100},
+                }
             })
         if url.endswith("/standings"):
             return FakeResponse({
@@ -224,6 +237,49 @@ class DatosProfesionalesTests(unittest.TestCase):
         self.assertEqual(partido["calendario"]["fuente"], "API-Football oficial")
         self.assertEqual(partido["clasificacion"]["local"]["posicion"], 4)
         self.assertTrue(all(call["headers"]["x-apisports-key"] == "token-test" for call in cliente.calls))
+
+    def test_estado_cuenta_api_football_lee_plan_y_cuota(self):
+        """/status es barato y esta disponible incluso en el plan gratuito
+        -sirve para saber SI el token es valido y que cubre el plan, en vez
+        de solo ver un 403 generico en /fixtures."""
+        estado = estado_cuenta_api_football(
+            "https://v3.football.api-sports.io", "token-test", requester=FakeApiFootball()
+        )
+
+        self.assertTrue(estado["ok"])
+        self.assertEqual(estado["plan"], "Free")
+        self.assertTrue(estado["activa"])
+        self.assertEqual(estado["peticiones_usadas"], 47)
+        self.assertEqual(estado["peticiones_limite"], 100)
+
+    def test_estado_cuenta_api_football_maneja_fallo_de_conexion(self):
+        class RequesterRoto:
+            def get(self, *a, **k):
+                raise RuntimeError("connection refused")
+
+        estado = estado_cuenta_api_football(
+            "https://v3.football.api-sports.io", "token-invalido", requester=RequesterRoto()
+        )
+
+        self.assertFalse(estado["ok"])
+        self.assertIn("connection refused", estado["error"])
+
+    def test_leer_api_football_payload_incluye_estado_cuenta(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            jornadas = root / "data" / "jornadas"
+            jornadas.mkdir(parents=True)
+            (jornadas / "jornada_1.json").write_text(
+                json.dumps({"jornada": 1, "partidos": [{"num": 1, "local": "A", "visitante": "B"}]}),
+                encoding="utf-8",
+            )
+            payload = leer_api_football_payload(
+                "https://v3.football.api-sports.io", "token-test", root=root, requester=FakeApiFootball()
+            )
+
+        estado_cuenta = payload["proveedores"]["api_football"]["estado_cuenta"]
+        self.assertTrue(estado_cuenta["ok"])
+        self.assertEqual(estado_cuenta["plan"], "Free")
 
     def test_api_football_url_sin_token_espera_secret(self):
         with patch.dict(os.environ, {"QUINIHUB_PRO_DATA_URL": "https://v3.football.api-sports.io"}, clear=True):
