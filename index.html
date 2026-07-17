@@ -414,6 +414,7 @@
       <button class="tab-btn active" data-tab="prediccion">Predicción</button>
       <button class="tab-btn" data-tab="aprendizaje">Aprendizaje</button>
       <button class="tab-btn" data-tab="historial">Historial</button>
+      <button class="tab-btn" data-tab="jugadas">Quinielas Jugadas</button>
       <button class="tab-btn" data-tab="liga">Liga 26/27</button>
       <button class="tab-btn" data-tab="chat">🧠 IA</button>
     </nav>
@@ -526,6 +527,15 @@
         <div class="card-head"><h2>Historial de quinielas</h2><span class="tag">Premios y acumulado</span></div>
         <div class="card-body">
           <div class="history-wrap"><div id="historyTable"></div><div class="balance" id="historyBalance"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="jugadas" class="tab-panel">
+      <div class="card">
+        <div class="card-head"><h2>Quinielas Jugadas</h2><span class="tag">Boletos reales confirmados</span></div>
+        <div class="card-body">
+          <div id="jugadasTable"></div>
         </div>
       </div>
     </section>
@@ -1473,6 +1483,24 @@
       qs('#historyBalance').innerHTML = `<div><span>Total premios cobrados</span><strong>${eur(totalCobrado)}</strong></div>`;
     }
 
+    function formatoFechaValidado(valor) {
+      if (!valor) return '-';
+      const fecha = new Date(valor);
+      return Number.isNaN(fecha.getTime()) ? valor : fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function renderQuinielasJugadas() {
+      const jugadas = arr((state.quinielasJugadas || {}).jugadas).slice().sort((a, b) => (Number(b.jornada) || 0) - (Number(a.jornada) || 0));
+      qs('#jugadasTable').innerHTML = jugadas.length ? `<table><thead><tr><th>Jornada</th><th>Validado</th><th>Signos (1-14)</th><th>Elige 8</th><th>Pleno 15</th><th>Origen</th></tr></thead><tbody>${jugadas.map(j => `<tr>
+        <td>${escapeHtml(j.jornada)}</td>
+        <td>${escapeHtml(formatoFechaValidado(j.validado_en))}</td>
+        <td>${escapeHtml(arr(j.signos).join(', '))}</td>
+        <td>${escapeHtml(arr(j.elige8).join(', ') || '-')}</td>
+        <td>${escapeHtml(j.pleno15 || '-')}</td>
+        <td>${escapeHtml(j.origen || '-')}</td>
+      </tr>`).join('')}</tbody></table>` : '<div class="empty">Sin quinielas jugadas registradas todavía.</div>';
+    }
+
     function teamBadge(name, promoted, relegated) {
       const normalized = normalizeName(name);
       const isPromoted = promoted.some(t => normalized.includes(normalizeName(t)) || normalizeName(t).includes(normalized));
@@ -2132,6 +2160,22 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         bloqueSorpresasMercado = `\nSORPRESAS DE MERCADO (fijo jugado que falló, ${sorpresasM.length} casos registrados):\n${recientes.join('\n')}`;
       }
 
+      // Boletos REALES jugados a mano (quinielas_jugadas.json) — distintos
+      // de la PREDICCIÓN AUTOMÁTICA de mas abajo, que puede estar
+      // bloqueada esperando el cierre de otra jornada objetivo. Sin esto,
+      // el chat confundía "el motor no ha generado la jornada objetivo
+      // todavía" con "no sé qué jugamos nosotros", y encima nunca veía
+      // los signos/Elige8/Pleno15 reales que sí jugamos.
+      let bloqueQuinielasJugadas = '';
+      const jugadasReales = arr((state.quinielasJugadas || {}).jugadas).slice()
+        .sort((a, b) => (Number(b.jornada) || 0) - (Number(a.jornada) || 0)).slice(0, 5);
+      if (jugadasReales.length) {
+        const lineasJugadas = jugadasReales.map(j =>
+          `J${j.jornada} (validado ${j.validado_en || '?'}, origen=${j.origen || '?'}): signos=${arr(j.signos).join(' ')} | Elige8=${arr(j.elige8).join(',') || 'no'} | Pleno15=${j.pleno15 || '?'}`
+        );
+        bloqueQuinielasJugadas = `\nLO QUE REALMENTE HEMOS JUGADO (boletos reales confirmados por Marc — ESTO NO ES la predicción automática que aparece más abajo, son cosas distintas):\n${lineasJugadas.join('\n')}`;
+      }
+
       // Predicción actual — compacta para ahorrar tokens
       const partidos = arr(pred.partidos || []);
       const pleno15 = pred.pleno15 || null;
@@ -2230,6 +2274,8 @@ ${bloqueDetallesH2H}
 
 ${resumenMetricas}
 Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalCobrado.toFixed(2)}€
+
+${bloqueQuinielasJugadas}
 
 ${estadoActual}
 ${bloquePredActual}
@@ -2332,6 +2378,28 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
     function construirQueryBusqueda(texto) {
       const t = texto.toLowerCase();
       const fechaHoy = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+
+      // Preguntas sobre "lo que hemos jugado" (nuestro boleto real, no la
+      // predicción automática) generaban antes una query generica
+      // ("futbol {texto} {fecha}") que en Tavily devolvia ruido de fútbol
+      // grande (ej. Mundial) en vez de los partidos reales de nuestra
+      // quiniela. Se detecta primero, con prioridad sobre el resto de
+      // ramas, y se construye con los equipos reales de la ULTIMA jornada
+      // jugada (state.ultimaJornadaJugadaDatos, cargado en init()).
+      const ultimaJugada = state.ultimaJornadaJugadaNum || 0;
+      const preguntaPorLoJugado = ultimaJugada > 0 && (
+        new RegExp(`jornada\\s*${ultimaJugada}\\b`).test(t) ||
+        /nuestra quiniela|lo que (hemos )?jugado|boleto jugado|quiniela jugada|hemos jugado/i.test(t)
+      );
+      if (preguntaPorLoJugado) {
+        const datosJugada = state.ultimaJornadaJugadaDatos || {};
+        const equiposJugada = arr(datosJugada.partidos).flatMap(p => [p.local, p.visitante].filter(Boolean));
+        const plenoJugada = datosJugada.pleno15 || {};
+        if (plenoJugada.local) equiposJugada.push(plenoJugada.local);
+        if (plenoJugada.visitante) equiposJugada.push(plenoJugada.visitante);
+        if (equiposJugada.length)
+          return `${equiposJugada.slice(0, 10).join(' ')} resultados jornada ${ultimaJugada} quiniela ${fechaHoy}`;
+      }
 
       if (/mundial|copa del mundo|world cup/i.test(t)) {
         if (/hoy|partido|juegan|horario|cuando|cuándo|ahora/i.test(t))
@@ -2777,6 +2845,7 @@ REGLAS CRÍTICAS — LEE ANTES DE RESPONDER:
 3. La información web que recibes es complementaria. Si contradice los datos del sistema, prioriza SIEMPRE los datos del sistema.
 4. NUNCA digas que no tienes datos de esta temporada — los tienes en el bloque de abajo.
 5. Si los datos de fútbol en tiempo real (ESPN/TheSportsDB) o la búsqueda web te dan información sobre hoy, úsala sin dudar.
+6. "LO QUE REALMENTE HEMOS JUGADO" (boletos reales confirmados) y "PREDICCIÓN" (la predicción automática del motor para la SIGUIENTE jornada) son DOS COSAS DISTINTAS. La predicción automática puede estar bloqueada esperando que cierre la jornada anterior — eso NO significa que no sepas qué jugamos nosotros de verdad. Si preguntan por una jornada que ya jugamos, usa el bloque "LO QUE REALMENTE HEMOS JUGADO" y nunca respondas "no tengo acceso" solo porque la predicción automática de la jornada siguiente esté bloqueada.
 
 ═══════════════════════════════════════════════════════
 DOCUMENTO OFICIAL: REGLAS COMPLETAS DE LA QUINIELA LAE
@@ -2968,7 +3037,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado] = await Promise.all([
+      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -2983,7 +3052,8 @@ No inventes — solo lo que ves con fondo oscuro.`;
         getJson('data/memoria_ia/historico_quinielas_lae.json', null),
         getJson('data/memoria_ia/valor_de_senales.json', null),
         getJson('data/memoria_ia/aprendizaje_elige8.json', null),
-        getJson('data/memoria_ia/sorpresas_mercado.json', null)
+        getJson('data/memoria_ia/sorpresas_mercado.json', null),
+        getJson('data/quinielas_jugadas.json', null)
       ]);
       state.prediccion = pred;
       state.pleno15Data = pleno;
@@ -3000,15 +3070,25 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.valorSenales = valorSenales;
       state.aprendizajeElige8 = aprendizajeElige8;
       state.sorpresasMercado = sorpresasMercado;
+      state.quinielasJugadas = quinielasJugadas;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       state.detallesPartidos = jornadaNum ? await getJson(`data/jornadas/detalles_j${jornadaNum}.json`, null) : null;
+      // jornadaActual sigue al motor (la jornada OBJETIVO de prediccion,
+      // que puede estar bloqueada esperando cierre -ej. la 74 mientras la
+      // 73 sigue en juego). Para saber que equipos son los de la ULTIMA
+      // jornada que jugamos de verdad (quinielas_jugadas.json), hace falta
+      // cargar por separado su propio fixture -no coincide con jornadaNum.
+      const ultimaJugada = arr((quinielasJugadas || {}).jugadas).reduce((max, j) => Math.max(max, Number(j.jornada) || 0), 0);
+      state.ultimaJornadaJugadaNum = ultimaJugada;
+      state.ultimaJornadaJugadaDatos = ultimaJugada ? await getJson(`data/jornadas/jornada_${ultimaJugada}.json`, null) : null;
       qs('#updatedAt').textContent = pred.generado_en ? `Actualizado ${new Date(pred.generado_en).toLocaleString('es-ES')}` : 'Datos cargados';
       renderPredictionMetrics();
       renderTicket();
       renderPleno15();
       renderLearning();
       renderHistory();
+      renderQuinielasJugadas();
       renderLeague();
       restaurarHistorialChat();
     }
