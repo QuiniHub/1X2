@@ -874,3 +874,18 @@ Por que importa: es la unica de las 4 fuentes candidatas con alcance
 tecnico viable, valor real confirmado (llena un hueco que llevaba tiempo
 roto) y sin depender de un plan de pago -Sofascore esta bloqueado de raiz
 y BeSoccer es redundante con lo que ya funciona.
+
+Bug real detectado tras el primer run en produccion: `actualizar_fuente_
+lesiones_laliga.py` se habia colocado en `SCRIPTS_ACTIVOS` justo antes de
+`motor_prediccion_objetivo.py` (seccion "Motor predictivo"), pero
+`auditar_fuentes_profesionales.py` corre bastante antes, en la seccion de
+"datos profesionales". Resultado verificado en el primer
+`fuentes_profesionales.json` generado: 19 equipos reales ya en
+`fuente_lesiones_laliga.json`, pero `lesiones_sanciones` seguia en
+`error_conexion` porque el diagnostico habia leido el archivo ANTES de
+que el scraper lo escribiera en ese mismo ciclo. Fix: mover el scraper
+junto a `actualizar_fuente_losilla.py` (seccion "Datos base"), antes de
+`auditar_fuentes_profesionales.py` y por supuesto antes tambien de
+`motor_prediccion_objetivo.py` -mismo principio que Losilla: si otro
+script depende de tu salida en el mismo ciclo, tu posicion en
+`SCRIPTS_ACTIVOS` importa, no solo estar "antes del motor".

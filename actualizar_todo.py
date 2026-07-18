@@ -101,6 +101,7 @@ SCRIPTS_ACTIVOS = [
     "actualizar_detalles_partidos.py",
     "recalcular_dinamicas_calendario.py",
     "actualizar_fuente_losilla.py",
+    "actualizar_fuente_lesiones_laliga.py",
     "actualizar_contexto_equipos.py",
     "actualizar_analisis_ia.py",
     "construir_historial_quinielas.py",
@@ -136,7 +137,6 @@ SCRIPTS_ACTIVOS = [
     # --- Motor predictivo y salidas ---
     "aprender_patrones_competitivos.py",
     "alimentar_sorpresas_mercado.py",
-    "actualizar_fuente_lesiones_laliga.py",
     "motor_prediccion_objetivo.py",
     "alinear_boleto_con_analisis.py",
     "generar_estado_vivo_ia.py",
