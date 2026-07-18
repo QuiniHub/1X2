@@ -78,7 +78,11 @@ export default {
     // ── /api/openrouter ──────────────────────────────────────────────────────
     if (url.pathname === "/api/openrouter") {
       const body = await request.json();
-      body.model = "mistralai/mistral-7b-instruct:free";
+      // mistralai/mistral-7b-instruct:free fue retirado del catalogo de
+      // OpenRouter (404 "No endpoints found", detectado 2026-07-18).
+      // Verificado contra el catalogo real (openrouter.ai/api/v1/models)
+      // que este modelo esta activo hoy.
+      body.model = "meta-llama/llama-3.3-70b-instruct:free";
       const upstream = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method:  "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${env.OPENROUTER_KEY}` },
