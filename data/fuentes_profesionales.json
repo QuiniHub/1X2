@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-18T08:46:33.519877+00:00",
+  "generado_en": "2026-07-18T08:54:37.075102+00:00",
   "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
   "estado_global": "en_construccion",
   "fuentes": {
@@ -14,7 +14,7 @@
       "estado": "error_conexion",
       "prioridad": "critica",
       "uso": "transformar mercado en probabilidad base y detectar favoritos mal valorados",
-      "siguiente_paso": "Cuenta API-Football: plan 'Free', activa=True, peticiones hoy 0/100. El token es valido pero la API sigue sin dar datos de fixtures (ej: fixtures Kristiansund - Start: API-Football fixtures: {'plan': 'Free plans do not have access to this season, try from 2022 to 2024.'}) -revisar si el plan 'Free' cubre la temporada/ligas configuradas (subir de plan si no)."
+      "siguiente_paso": "token/URL configurados pero la API no responde datos (ej: fixtures Kristiansund - Start: API-Football fixtures: {'plan': 'Free plans do not have access to this season, try from 2022 to 2024.'}); tampoco se pudo consultar /status (API-Football status: {'rateLimit': 'Too many requests. You have exceeded the limit of requests per minute of your subscription.'}) -revisar si el token es valido."
     },
     "movimiento_cuotas": {
       "estado": "pendiente_api",
@@ -29,16 +29,16 @@
       "siguiente_paso": "cargar xG/xGA por equipo, condicion local/visitante y ultimos partidos"
     },
     "lesiones_sanciones": {
-      "estado": "error_conexion",
+      "estado": "conectado_scraper",
       "prioridad": "critica",
       "uso": "evitar fijos debiles por bajas clave o sanciones",
-      "siguiente_paso": "Cuenta API-Football: plan 'Free', activa=True, peticiones hoy 0/100. El token es valido pero la API sigue sin dar datos de fixtures (ej: fixtures Kristiansund - Start: API-Football fixtures: {'plan': 'Free plans do not have access to this season, try from 2022 to 2024.'}) -revisar si el plan 'Free' cubre la temporada/ligas configuradas (subir de plan si no)."
+      "siguiente_paso": "ya integrado como señal directa (ajustar_por_lesiones_laliga, LaLiga/Hypermotion); ampliar a otras ligas y pesar por titularidad real cuando haya alineaciones probables."
     },
     "alineaciones_probables": {
       "estado": "error_conexion",
       "prioridad": "alta",
       "uso": "detectar rotaciones y titulares dudosos",
-      "siguiente_paso": "Cuenta API-Football: plan 'Free', activa=True, peticiones hoy 0/100. El token es valido pero la API sigue sin dar datos de fixtures (ej: fixtures Kristiansund - Start: API-Football fixtures: {'plan': 'Free plans do not have access to this season, try from 2022 to 2024.'}) -revisar si el plan 'Free' cubre la temporada/ligas configuradas (subir de plan si no)."
+      "siguiente_paso": "token/URL configurados pero la API no responde datos (ej: fixtures Kristiansund - Start: API-Football fixtures: {'plan': 'Free plans do not have access to this season, try from 2022 to 2024.'}); tampoco se pudo consultar /status (API-Football status: {'rateLimit': 'Too many requests. You have exceeded the limit of requests per minute of your subscription.'}) -revisar si el token es valido."
     },
     "calendario_oficial_2026_2027": {
       "estado": "pendiente_publicacion_o_api",
@@ -92,7 +92,7 @@
   "datos_profesionales": {
     "estado_global": "sin_datos_profesionales",
     "temporada_objetivo": "2026/2027",
-    "generado_en": "2026-07-17T20:16:02Z",
+    "generado_en": "2026-07-18T08:54:36Z",
     "resumen": {
       "partidos_enriquecidos": 0,
       "cuotas": 0,
@@ -121,19 +121,18 @@
     "total": 14,
     "estados": {
       "conectado_fragil": 1,
-      "error_conexion": 3,
+      "error_conexion": 2,
       "pendiente_api": 1,
       "pendiente_fuente": 2,
+      "conectado_scraper": 2,
       "pendiente_publicacion_o_api": 1,
       "pendiente_dataset": 1,
       "pendiente_modelado": 2,
       "conectado_parcial": 1,
-      "parcial": 1,
-      "conectado_scraper": 1
+      "parcial": 1
     },
     "criticas_pendientes": [
       "cuotas_mercado",
-      "lesiones_sanciones",
       "calendario_oficial_2026_2027"
     ],
     "lectura": "Mientras existan fuentes criticas pendientes, las probabilidades deben marcarse como no plenamente calibradas."
