@@ -1399,18 +1399,29 @@ def probabilidad_cubierta(partido):
 
 
 def prioridad_elige8(partido):
-    signos = signos_jugados(partido)
-    prioridad_cobertura = 30000 if len(signos) == 3 else 20000 if len(signos) == 2 else 10000
+    """Prioriza por probabilidad REAL de que el resultado caiga dentro de
+    lo jugado -mismo criterio validado a mano por Marc en la jornada 73
+    (feedback_metodo_prediccion_manual.md, regla 1: "sumar el % real de
+    los signos marcados y ordenar por ese numero, no asumir que 'tiene
+    doble' = 'es mas seguro'") y ya descrito como regla_activa en
+    aprendizaje_elige8.json: "TRIPLE=100%, DOBLE=suma de probabilidades
+    de sus dos signos, FIJO=probabilidad de su unico signo".
+
+    Antes de este fix existia ademas un valor artificial gigante
+    (10000/20000/30000 segun fijo/doble/triple) que hacia ganar SIEMPRE
+    al tipo de cobertura, sin importar la probabilidad real: un doble
+    flojo cubriendo una sorpresa poco probable (ej. el propio caso de
+    Marc: "1X sobre un 76% de favorito") le ganaba siempre a un fijo
+    solido en otro partido -justo lo que esa regla dice que hay que
+    evitar, y ademas mas caro (apuestas_elige8_partidos multiplica el
+    coste del Elige8 por cada doble/triple incluido). Se quita: ahora
+    manda probabilidad_cubierta de verdad, sin bono artificial por tipo.
+    """
     incertidumbre_partido = float(partido.get("incertidumbre") or 0)
     sorpresa = float(partido.get("probabilidad_sorpresa") or 0)
     riesgo_necesidad = 1 if partido.get("riesgo_necesidad_real") or partido.get("riesgo_necesidad") else 0
     penalizacion = min(25, incertidumbre_partido * 0.05) + min(15, sorpresa * 0.05) + riesgo_necesidad
-    return (
-        prioridad_cobertura
-        + probabilidad_cubierta(partido) * 3
-        + probabilidad_signo(partido, partido.get("signo_base") or signos[0]) * 0.2
-        - penalizacion
-    )
+    return probabilidad_cubierta(partido) - penalizacion
 
 
 def incertidumbre(probs, local, visitante, diff, riesgo_contexto=0):

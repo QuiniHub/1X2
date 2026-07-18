@@ -271,6 +271,25 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertIn(11, seleccionados)
         self.assertNotEqual(seleccionados, set(range(1, 9)))
 
+    def test_elige8_no_prioriza_un_doble_flojo_sobre_un_fijo_solido(self):
+        """Caso real de la jornada 73 (feedback_metodo_prediccion_manual.md,
+        regla 1): un doble que cubre una sorpresa poco probable contra un
+        gran favorito (aqui, 76% para el "2") tiene MENOS probabilidad
+        real de acierto que un fijo solido en otro partido -antes de este
+        fix, el doble ganaba siempre por el simple hecho de ser doble."""
+        doble_flojo = {
+            **partido(20, {"1": 10.0, "X": 14.0, "2": 76.0}, incertidumbre=130, sorpresa=70),
+            "signo_base": "2",
+            "signo_final": "1X",
+        }
+        fijo_solido = {
+            **partido(21, {"1": 82.0, "X": 10.0, "2": 8.0}, incertidumbre=90, sorpresa=30),
+            "signo_base": "1",
+            "signo_final": "1",
+        }
+
+        self.assertGreater(prioridad_elige8(fijo_solido), prioridad_elige8(doble_flojo))
+
     def test_trazabilidad_marca_fallback_sin_memoria_de_equipos(self):
         trazabilidad = trazabilidad_datos_partido(
             local=None,

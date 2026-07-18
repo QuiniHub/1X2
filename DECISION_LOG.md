@@ -977,3 +977,47 @@ la contaminacion con la busqueda web, y la contaminacion con el turno
 anterior) solo salieron a la luz probando varios equipos reales en
 secuencia en el navegador, no leyendo el codigo ni probando un unico caso
 suelto.
+
+## 2026-07-18 (mismo dia) — `prioridad_elige8` en el motor: bug real pero codigo muerto en produccion
+
+Una auditoria externa (otra sesion de Claude Code, desde cero) encontro
+que `prioridad_elige8()` en `motor_prediccion_quiniela.py` sumaba un
+valor artificial gigante segun el tipo de cobertura del partido
+(`10000/20000/30000` para fijo/doble/triple) que hacia ganar SIEMPRE al
+tipo de cobertura sobre la probabilidad real (`probabilidad_cubierta`,
+que solo contribuia hasta ~300 puntos). Verificado en el propio codigo:
+cierto, y contradice directamente la regla que Marc valido a mano en la
+jornada 73 (`feedback_metodo_prediccion_manual.md`, regla 1: "sumar el %
+real de los signos marcados y ordenar por ese numero, no asumir que
+'tiene doble' = 'es mas seguro'").
+
+Pero antes de arreglarlo a ciegas, se rastreo la cadena completa del
+pipeline y aparecio un hecho que cambia la urgencia real:
+`motor_prediccion_objetivo.py` (el script que de verdad corre en el
+pipeline automatico) llama a `predecir(jornada=objetivo)` **sin pasar
+`elige8=True`** -y el valor por defecto de ese parametro en `predecir()`
+es `False`. El bloque que usa `prioridad_elige8()` esta dentro de un
+`if elige8:` que, con ese default, **nunca se ejecuta en produccion
+real** (confirmado que ningun otro script en `SCRIPTS_ACTIVOS` llama a
+`predecir(..., elige8=True)`). La seleccion de Elige8 que de verdad se
+publica siempre vino de `aplicar_elige8_seguro.py`, que corre despues
+en la seccion "Cierre final" y SOBRESCRIBE por completo la seleccion del
+motor con su propio ranking -uno que ya estaba bien hecho desde el
+principio (`probabilidad_acierto_elige8()`, sin ningun bono artificial
+por tipo de cobertura).
+
+Conclusion: el bug era real como defecto de codigo, pero no afectaba (ni
+ha afectado nunca) al Elige8 realmente jugado -de ahi que a Marc "le
+fuera perfecto" pese a que el otro informe lo describiera como el
+hallazgo mas urgente por dinero real en juego. Se arreglo igual
+(`prioridad_elige8()` ahora usa solo `probabilidad_cubierta -
+penalizacion`, sin el bono artificial, con test de regresion nuevo para
+el caso "doble flojo cubriendo una sorpresa contra un gran favorito vs
+fijo solido en otro partido") por higiene y para proteger cualquier uso
+futuro de ese parametro, pero sin la urgencia que se le atribuyo al
+principio.
+
+Leccion: antes de calificar un bug de codigo como "activo en produccion
+con dinero real en juego", rastrear si el camino de codigo donde vive
+realmente se ejecuta con los parametros que usa el pipeline automatico
+-no basta con encontrar la funcion y ver que su logica esta mal.
