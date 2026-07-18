@@ -2283,6 +2283,35 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         if (lineas.length) bloqueDetallesH2H = `\nH2H EDUARDOLOSILLA J${detallesPart.jornada || jornadaActual}:\n${lineas.join('\n')}`;
       }
 
+      // Lesionados/dudas de LaLiga (FutbolFantasy) — solo de los equipos que
+      // realmente aparecen en la predicción actual o en la última jornada
+      // jugada, para no volcar las 20 plantillas enteras y disparar el
+      // límite de contexto (mismo criterio que "lo jugado" más arriba).
+      let bloqueLesionesLaliga = '';
+      const equiposLesiones = (state.lesionesLaliga || {}).equipos || {};
+      if (Object.keys(equiposLesiones).length) {
+        const normEq = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z\s]/g, '').trim();
+        const mismoEquipo = (a, b) => {
+          const na = normEq(a), nb = normEq(b);
+          return !!na && !!nb && (na.includes(nb) || nb.includes(na));
+        };
+        const equiposRelevantes = new Set();
+        arr(pred.partidos).forEach(p => { if (p.local) equiposRelevantes.add(p.local); if (p.visitante) equiposRelevantes.add(p.visitante); });
+        arr((state.ultimaJornadaJugadaDatos || {}).partidos).forEach(p => { if (p.local) equiposRelevantes.add(p.local); if (p.visitante) equiposRelevantes.add(p.visitante); });
+        const lineasLesiones = [];
+        for (const nombre of equiposRelevantes) {
+          const clave = Object.keys(equiposLesiones).find(k => mismoEquipo(k, nombre));
+          if (!clave) continue;
+          const jugadores = arr(equiposLesiones[clave]);
+          if (!jugadores.length) continue;
+          const detalle = jugadores.map(j => `${j.jugador}(${j.categoria || '?'}${j.lesion ? ': ' + j.lesion : ''})`).join(', ');
+          lineasLesiones.push(`${clave}: ${detalle}`);
+        }
+        if (lineasLesiones.length) {
+          bloqueLesionesLaliga = `\nLESIONADOS/DUDAS LALIGA (FutbolFantasy, solo equipos de esta jornada):\n${lineasLesiones.join('\n')}`;
+        }
+      }
+
       // bloqueQuinielasJugadas va PRIMERO, antes incluso de resumenMem: el
       // contexto se recorta a 2500/4500 caracteres mas abajo
       // (limiteContexto), y con este bloque a la mitad del texto (antes se
@@ -2295,6 +2324,7 @@ ${bloqueHistoricoLigas}
 ${bloqueHistoricoQuinielas}
 ${bloqueSorpresas}
 ${bloqueDetallesH2H}
+${bloqueLesionesLaliga}
 
 ${resumenMetricas}
 Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalCobrado.toFixed(2)}€
@@ -3086,7 +3116,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas] = await Promise.all([
+      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -3102,7 +3132,8 @@ No inventes — solo lo que ves con fondo oscuro.`;
         getJson('data/memoria_ia/valor_de_senales.json', null),
         getJson('data/memoria_ia/aprendizaje_elige8.json', null),
         getJson('data/memoria_ia/sorpresas_mercado.json', null),
-        getJson('data/quinielas_jugadas.json', null)
+        getJson('data/quinielas_jugadas.json', null),
+        getJson('data/memoria_ia/fuente_lesiones_laliga.json', null)
       ]);
       state.prediccion = pred;
       state.pleno15Data = pleno;
@@ -3120,6 +3151,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.aprendizajeElige8 = aprendizajeElige8;
       state.sorpresasMercado = sorpresasMercado;
       state.quinielasJugadas = quinielasJugadas;
+      state.lesionesLaliga = lesionesLaliga;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       state.detallesPartidos = jornadaNum ? await getJson(`data/jornadas/detalles_j${jornadaNum}.json`, null) : null;

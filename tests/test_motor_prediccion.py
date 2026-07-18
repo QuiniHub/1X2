@@ -9,7 +9,9 @@ sys.path.insert(0, str(ROOT))
 from motor_prediccion_quiniela import (
     ajustar_por_datos_profesionales,
     ajustar_por_aprendizaje_propio,
+    ajustar_por_lesiones_laliga,
     ajustar_por_mercado_losilla,
+    buscar_lesiones_equipo,
     cobertura_automatica,
     coste,
     indice_sorpresa_quinielistica,
@@ -413,6 +415,63 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertAlmostEqual(nuevas_none["1"], 50.8)
         self.assertAlmostEqual(nuevas_desconocida["1"], 50.8)
         self.assertTrue(any("peso 0.18" in lectura for lectura in lecturas_none))
+
+    def test_buscar_lesiones_equipo_encuentra_por_nombre_difuso(self):
+        fuente = {"equipos": {"Athletic Club": [{"jugador": "X", "categoria": "lesionado"}]}}
+
+        encontrado = buscar_lesiones_equipo(fuente, "Athletic")
+
+        self.assertEqual(encontrado, [{"jugador": "X", "categoria": "lesionado"}])
+
+    def test_buscar_lesiones_equipo_sin_coincidencia_devuelve_vacio(self):
+        fuente = {"equipos": {"Athletic Club": [{"jugador": "X", "categoria": "lesionado"}]}}
+
+        self.assertEqual(buscar_lesiones_equipo(fuente, "Manchester United"), [])
+        self.assertEqual(buscar_lesiones_equipo({}, "Athletic"), [])
+
+    def test_lesiones_laliga_mas_bajas_en_visitante_favorece_al_local(self):
+        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
+        lesiones_local = [{"categoria": "lesionado"}]
+        lesiones_visitante = [{"categoria": "lesionado"}, {"categoria": "lesionado"}, {"categoria": "duda"}]
+
+        nuevas, riesgo, lecturas = ajustar_por_lesiones_laliga(probs, lesiones_local, lesiones_visitante)
+
+        self.assertGreater(nuevas["1"], probs["1"])
+        self.assertLess(nuevas["2"], probs["2"])
+        self.assertGreater(riesgo, 0)
+        self.assertTrue(any("favorece ligeramente al local" in lectura for lectura in lecturas))
+
+    def test_lesiones_laliga_mas_bajas_en_local_favorece_al_visitante(self):
+        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
+        lesiones_local = [{"categoria": "lesionado"}, {"categoria": "lesionado"}]
+        lesiones_visitante = []
+
+        nuevas, riesgo, lecturas = ajustar_por_lesiones_laliga(probs, lesiones_local, lesiones_visitante)
+
+        self.assertLess(nuevas["1"], probs["1"])
+        self.assertGreater(nuevas["2"], probs["2"])
+        self.assertGreater(riesgo, 0)
+        self.assertTrue(any("favorece ligeramente al visitante" in lectura for lectura in lecturas))
+
+    def test_lesiones_laliga_sin_datos_no_cambia_nada(self):
+        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
+
+        nuevas, riesgo, lecturas = ajustar_por_lesiones_laliga(probs, [], [])
+
+        self.assertEqual(nuevas, probs)
+        self.assertEqual(riesgo, 0.0)
+        self.assertEqual(lecturas, [])
+
+    def test_lesiones_laliga_mismas_bajas_no_cambia_nada(self):
+        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
+        lesiones_local = [{"categoria": "lesionado"}, {"categoria": "duda"}]
+        lesiones_visitante = [{"categoria": "lesionado"}]
+
+        nuevas, riesgo, lecturas = ajustar_por_lesiones_laliga(probs, lesiones_local, lesiones_visitante)
+
+        self.assertEqual(nuevas, probs)
+        self.assertEqual(riesgo, 0.0)
+        self.assertEqual(lecturas, [])
 
     def test_trazabilidad_sube_calidad_con_datos_profesionales(self):
         trazabilidad = trazabilidad_datos_partido(

@@ -22,6 +22,10 @@ def _fuente_losilla_con_partidos(n):
     }
 
 
+def _fuente_lesiones_laliga_con_equipos(n):
+    return {"equipos": {f"Equipo {i}": [{"jugador": f"Jugador {i}", "categoria": "lesionado"}] for i in range(1, n + 1)}}
+
+
 class AuditarFuentesProfesionalesTests(unittest.TestCase):
     def test_porcentajes_publicos_se_marca_conectado_con_datos_reales(self):
         fuentes = afp.aplicar_estado_conector(afp.copiar_fuentes(), {}, _fuente_losilla_con_partidos(14))
@@ -42,6 +46,41 @@ class AuditarFuentesProfesionalesTests(unittest.TestCase):
         """Llamada sin el tercer argumento (compatibilidad hacia atras)."""
         fuentes = afp.aplicar_estado_conector(afp.copiar_fuentes(), {})
         self.assertEqual(fuentes["porcentajes_publicos_quiniela"]["estado"], "pendiente_fuente")
+
+    def test_lesiones_sanciones_se_marca_conectado_scraper_con_datos_reales(self):
+        datos = {
+            "estado_global": "sin_datos_profesionales",
+            "resumen": {"cuotas": 0, "bajas_estructuradas": 0, "alineaciones_probables": 0},
+            "configuracion": {"token_configurado": True, "url_configurada": True},
+            "proveedores": {"api_football": {"errores": ["403 Client Error: Forbidden for url: ..."]}},
+        }
+        fuentes = afp.aplicar_estado_conector(
+            afp.copiar_fuentes(), datos, fuente_lesiones_laliga=_fuente_lesiones_laliga_con_equipos(20)
+        )
+        self.assertEqual(fuentes["lesiones_sanciones"]["estado"], "conectado_scraper")
+        self.assertIn("ajustar_por_lesiones_laliga", fuentes["lesiones_sanciones"]["siguiente_paso"])
+
+    def test_lesiones_sanciones_no_se_marca_con_muy_pocos_equipos(self):
+        """Un puñado suelto de equipos (scrape a medias o pagina cambiada)
+        no debe contar como "conectado" -exige al menos 10, cobertura real
+        de LaLiga/Hypermotion."""
+        fuentes = afp.aplicar_estado_conector(
+            afp.copiar_fuentes(), {}, fuente_lesiones_laliga=_fuente_lesiones_laliga_con_equipos(3)
+        )
+        self.assertNotEqual(fuentes["lesiones_sanciones"]["estado"], "conectado_scraper")
+
+    def test_lesiones_sanciones_sigue_error_conexion_sin_scraper_de_lesiones(self):
+        """Sin fuente_lesiones_laliga (compatibilidad hacia atras / scraper
+        aun sin ejecutar), el estado sigue dependiendo de API-Football como
+        antes."""
+        datos = {
+            "estado_global": "sin_datos_profesionales",
+            "resumen": {"cuotas": 0, "bajas_estructuradas": 0, "alineaciones_probables": 0},
+            "configuracion": {"token_configurado": True, "url_configurada": True},
+            "proveedores": {"api_football": {"errores": ["403 Client Error: Forbidden for url: ..."]}},
+        }
+        fuentes = afp.aplicar_estado_conector(afp.copiar_fuentes(), datos)
+        self.assertEqual(fuentes["lesiones_sanciones"]["estado"], "error_conexion")
 
     def test_cuotas_mercado_error_conexion_si_token_configurado_y_falla(self):
         """Reproduce el caso real: QUINIHUB_PRO_DATA_TOKEN configurado, pero
@@ -121,10 +160,12 @@ class AuditarFuentesProfesionalesTests(unittest.TestCase):
             original_out = afp.OUT
             original_datos = afp.DATOS_PROFESIONALES
             original_losilla = afp.FUENTE_LOSILLA
+            original_lesiones_laliga = afp.FUENTE_LESIONES_LALIGA
             try:
                 afp.OUT = tmp / "fuentes_profesionales.json"
                 afp.DATOS_PROFESIONALES = tmp / "datos_profesionales.json"
                 afp.FUENTE_LOSILLA = tmp / "fuente_losilla.json"
+                afp.FUENTE_LESIONES_LALIGA = tmp / "fuente_lesiones_laliga.json"
                 afp.DATOS_PROFESIONALES.write_text(json.dumps({
                     "estado_global": "sin_datos_profesionales",
                     "resumen": {"cuotas": 0, "bajas_estructuradas": 0, "alineaciones_probables": 0},
@@ -139,6 +180,7 @@ class AuditarFuentesProfesionalesTests(unittest.TestCase):
                 afp.OUT = original_out
                 afp.DATOS_PROFESIONALES = original_datos
                 afp.FUENTE_LOSILLA = original_losilla
+                afp.FUENTE_LESIONES_LALIGA = original_lesiones_laliga
 
     def test_main_genera_salida_valida(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -146,22 +188,31 @@ class AuditarFuentesProfesionalesTests(unittest.TestCase):
             original_out = afp.OUT
             original_datos = afp.DATOS_PROFESIONALES
             original_losilla = afp.FUENTE_LOSILLA
+            original_lesiones_laliga = afp.FUENTE_LESIONES_LALIGA
             try:
                 afp.OUT = tmp / "fuentes_profesionales.json"
                 afp.DATOS_PROFESIONALES = tmp / "datos_profesionales.json"
                 afp.FUENTE_LOSILLA = tmp / "fuente_losilla.json"
+                afp.FUENTE_LESIONES_LALIGA = tmp / "fuente_lesiones_laliga.json"
                 afp.FUENTE_LOSILLA.write_text(
                     json.dumps(_fuente_losilla_con_partidos(14), ensure_ascii=False), encoding="utf-8"
+                )
+                afp.FUENTE_LESIONES_LALIGA.write_text(
+                    json.dumps(_fuente_lesiones_laliga_con_equipos(20), ensure_ascii=False), encoding="utf-8"
                 )
                 afp.main()
                 salida = json.loads(afp.OUT.read_text(encoding="utf-8"))
                 self.assertEqual(
                     salida["fuentes"]["porcentajes_publicos_quiniela"]["estado"], "conectado_scraper"
                 )
+                self.assertEqual(
+                    salida["fuentes"]["lesiones_sanciones"]["estado"], "conectado_scraper"
+                )
             finally:
                 afp.OUT = original_out
                 afp.DATOS_PROFESIONALES = original_datos
                 afp.FUENTE_LOSILLA = original_losilla
+                afp.FUENTE_LESIONES_LALIGA = original_lesiones_laliga
 
 
 if __name__ == "__main__":

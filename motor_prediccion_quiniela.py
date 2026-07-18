@@ -36,6 +36,7 @@ PATRONES_COMPETITIVOS = DATA / "memoria_ia" / "patrones_competitivos.json"
 PERFILES_EQUIPOS = DATA / "memoria_ia" / "perfiles_equipos.json"
 CLASIFICACIONES_MUNDIAL = DATA / "memoria_ia" / "clasificaciones_mundial_2026.json"
 FUENTE_LOSILLA = DATA / "memoria_ia" / "fuente_losilla.json"
+FUENTE_LESIONES_LALIGA = DATA / "memoria_ia" / "fuente_lesiones_laliga.json"
 SORPRESAS_MERCADO = DATA / "memoria_ia" / "sorpresas_mercado.json"
 JORNADAS = DATA / "jornadas"
 PREDICCIONES = DATA / "predicciones"
@@ -1177,6 +1178,54 @@ def ajustar_por_mercado_losilla(probs, mercado, calidad_datos=None):
     return normalizar_probs(p), round(riesgo_extra, 2), lecturas
 
 
+def buscar_lesiones_equipo(fuente_lesiones, nombre):
+    """Busca las bajas de un equipo en fuente_lesiones_laliga.json por
+    nombre difuso (mismo matcher que buscar_equipo_losilla). Esta fuente
+    solo cubre LaLiga/Hypermotion -si el equipo no aparece (otra liga o
+    seleccion), no hay ajuste, sin necesidad de una comprobacion de
+    competicion aparte."""
+    equipos = (fuente_lesiones or {}).get("equipos") or {}
+    mejor = []
+    mejor_score = 0
+    for equipo, jugadores in equipos.items():
+        score = puntuacion_nombre_equipo(equipo, nombre)
+        if score > mejor_score:
+            mejor = jugadores
+            mejor_score = score
+    return mejor if mejor_score >= 55 else []
+
+
+def ajustar_por_lesiones_laliga(probs, lesiones_local, lesiones_visitante):
+    """Ajuste pequeño y acotado por bajas reales de LaLiga (FutbolFantasy,
+    ver DECISION_LOG.md 2026-07-18). Señal gruesa a proposito: contamos
+    jugadores en categoria "lesionado" por equipo, sin poder pesar por
+    titularidad/importancia real (no tenemos plantilla ni onces
+    probables) -por eso el desplazamiento es pequeño y con tope, no una
+    correccion fuerte.
+    """
+    contar = lambda lesiones: sum(1 for j in (lesiones or []) if (j or {}).get("categoria") == "lesionado")
+    bajas_local = contar(lesiones_local)
+    bajas_visitante = contar(lesiones_visitante)
+    diferencia = bajas_visitante - bajas_local
+    if diferencia == 0:
+        return probs, 0.0, []
+
+    p = dict(probs)
+    peso_por_baja = 1.5
+    tope = 6.0
+    desplazamiento = max(min(diferencia * peso_por_baja, tope), -tope)
+    p["1"] = float(p.get("1", 0)) + desplazamiento
+    p["2"] = float(p.get("2", 0)) - desplazamiento
+    lado_favorecido = "local" if desplazamiento > 0 else "visitante"
+    riesgo_extra = round(min(abs(diferencia) * 2.0, 8.0), 2)
+    lecturas = [
+        f"Lesiones LaLiga (FutbolFantasy): {bajas_local} baja(s) confirmada(s) en el local, "
+        f"{bajas_visitante} en el visitante -favorece ligeramente al {lado_favorecido}. "
+        f"Señal gruesa: cuenta bajas, no pesa la importancia real del jugador."
+    ]
+    return normalizar_probs(p), riesgo_extra, lecturas
+
+
 def ajustar_por_datos_profesionales(probs, datos_partido):
     if not datos_partido:
         return probs, 0.0, [], resumen_datos_profesionales_partido(None)
@@ -2240,6 +2289,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     perfiles_autonomos = cargar_json(PERFILES_EQUIPOS, {})
     clasificaciones_mundial = cargar_json(CLASIFICACIONES_MUNDIAL, {})
     fuente_losilla = cargar_json(FUENTE_LOSILLA, {})
+    fuente_lesiones_laliga = cargar_json(FUENTE_LESIONES_LALIGA, {})
     modelo_runtime = preparar_modelo_predictivo_runtime(ROOT)
     jornada = jornada or detectar_jornada_activa()
     data = cargar_json(JORNADAS / f"jornada_{jornada}.json", {})
@@ -2305,6 +2355,12 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             probs, mercado_losilla_partido, calidad_datos=trazabilidad["calidad_datos"]
         )
         lecturas_motivacion.extend(lecturas_mercado_losilla)
+        lesiones_laliga_local = buscar_lesiones_equipo(fuente_lesiones_laliga, partido.get("local", ""))
+        lesiones_laliga_visitante = buscar_lesiones_equipo(fuente_lesiones_laliga, partido.get("visitante", ""))
+        probs, riesgo_lesiones_laliga, lecturas_lesiones_laliga = ajustar_por_lesiones_laliga(
+            probs, lesiones_laliga_local, lesiones_laliga_visitante
+        )
+        lecturas_motivacion.extend(lecturas_lesiones_laliga)
         ajuste_motivacion_competitiva = calcular_ajuste_motivacion({**partido, "probabilidades": probs}, clasificaciones_mundial, fuente_losilla)
         probs = aplicar_ajuste_motivacion_competitiva(probs, ajuste_motivacion_competitiva)
         riesgo_motivacion_competitiva = 0.0
@@ -2324,6 +2380,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             + riesgo_pesos_dinamicos
             + riesgo_datos_profesionales
             + riesgo_mercado_losilla
+            + riesgo_lesiones_laliga
             + riesgo_motivacion_competitiva,
         )
         sorpresa = probabilidad_sorpresa(probs, inc)
@@ -2369,6 +2426,13 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
                 "activo": bool(lecturas_mercado_losilla),
                 "riesgo_extra": riesgo_mercado_losilla,
                 "lecturas": lecturas_mercado_losilla,
+            },
+            "lesiones_laliga_local": lesiones_laliga_local,
+            "lesiones_laliga_visitante": lesiones_laliga_visitante,
+            "ajuste_lesiones_laliga": {
+                "activo": bool(lecturas_lesiones_laliga),
+                "riesgo_extra": riesgo_lesiones_laliga,
+                "lecturas": lecturas_lesiones_laliga,
             },
             "ajuste_motivacion": ajuste_motivacion_competitiva,
             "alertas_motivacion": ajuste_motivacion_competitiva.get("alertas", []),
@@ -2480,6 +2544,9 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "ajuste_datos_profesionales": partido["ajuste_datos_profesionales"],
             "mercado_losilla": partido["mercado_losilla"],
             "ajuste_mercado_losilla": partido["ajuste_mercado_losilla"],
+            "lesiones_laliga_local": partido["lesiones_laliga_local"],
+            "lesiones_laliga_visitante": partido["lesiones_laliga_visitante"],
+            "ajuste_lesiones_laliga": partido["ajuste_lesiones_laliga"],
             "ajuste_motivacion": partido["ajuste_motivacion"],
             "alertas_motivacion": partido["alertas_motivacion"],
             "sorpresa_potencial": partido["sorpresa_potencial"],

@@ -9,6 +9,7 @@ MEMORIA = DATA / "memoria_ia"
 OUT = DATA / "fuentes_profesionales.json"
 DATOS_PROFESIONALES = DATA / "datos_profesionales.json"
 FUENTE_LOSILLA = MEMORIA / "fuente_losilla.json"
+FUENTE_LESIONES_LALIGA = MEMORIA / "fuente_lesiones_laliga.json"
 
 FUENTES = {
     "resultados_directo_consenso": {
@@ -148,7 +149,7 @@ def mensaje_error_conexion_api_football(errores_api_football, estado_cuenta):
     )
 
 
-def aplicar_estado_conector(fuentes, datos, fuente_losilla=None):
+def aplicar_estado_conector(fuentes, datos, fuente_losilla=None, fuente_lesiones_laliga=None):
     resumen = datos.get("resumen") or {}
     estado_global = str(datos.get("estado_global") or "").lower()
     configuracion = datos.get("configuracion") or {}
@@ -202,6 +203,20 @@ def aplicar_estado_conector(fuentes, datos, fuente_losilla=None):
             errores_api_football, estado_cuenta_api_football
         )
 
+    # lesiones_sanciones estaba atascada en "error_conexion" porque
+    # API-Football (de pago) no cubre la temporada en el plan Free -pero
+    # desde el 2026-07-18 tenemos actualizar_fuente_lesiones_laliga.py
+    # scrapeando futbolfantasy.com, una fuente real e independiente. Si
+    # tiene equipos con datos, la critica esta resuelta sin depender de
+    # que API-Football se arregle o se pague.
+    equipos_lesiones_laliga = ((fuente_lesiones_laliga or {}).get("equipos") or {})
+    if len(equipos_lesiones_laliga) >= 10:
+        fuentes["lesiones_sanciones"]["estado"] = "conectado_scraper"
+        fuentes["lesiones_sanciones"]["siguiente_paso"] = (
+            "ya integrado como señal directa (ajustar_por_lesiones_laliga, LaLiga/Hypermotion); "
+            "ampliar a otras ligas y pesar por titularidad real cuando haya alineaciones probables."
+        )
+
     if int(resumen.get("alineaciones_probables") or 0) > 0:
         fuentes["alineaciones_probables"]["estado"] = "conectado_estructurado"
         fuentes["alineaciones_probables"]["siguiente_paso"] = "comparar once probable contra once confirmado y aprender errores"
@@ -227,7 +242,8 @@ def aplicar_estado_conector(fuentes, datos, fuente_losilla=None):
 def main():
     datos = cargar_json(DATOS_PROFESIONALES, {})
     fuente_losilla = cargar_json(FUENTE_LOSILLA, {})
-    fuentes = aplicar_estado_conector(copiar_fuentes(), datos, fuente_losilla)
+    fuente_lesiones_laliga = cargar_json(FUENTE_LESIONES_LALIGA, {})
+    fuentes = aplicar_estado_conector(copiar_fuentes(), datos, fuente_losilla, fuente_lesiones_laliga)
     estados = Counter(item["estado"] for item in fuentes.values())
     # "error_conexion" tampoco cuenta como resuelto: es una fuente critica
     # configurada pero que no entrega datos, no menos urgente que una que

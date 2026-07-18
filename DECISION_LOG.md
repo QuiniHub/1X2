@@ -821,3 +821,56 @@ historico (fallback puro) el mercado deberia pesar mucho mas que para
 LaLiga con datos ricos. Y usar solo 1 de 4 fuentes de Losilla tira
 señal real a la basura cuando las 4 suelen coincidir en lo esencial,
 como en este caso.
+
+### 2026-07-18 — Nueva fuente real de lesionados de LaLiga (FutbolFantasy), tras descartar Sofascore y aparcar BeSoccer
+
+Marc compartio capturas de varias webs candidatas a nuevas fuentes de datos
+(Sofascore, FotMob, BeSoccer, FutbolFantasy) y pidio analizarlas a fondo
+antes de tocar nada ("no hagas nada hasta que te diga"). Se investigo con
+peticiones HTTP reales, no solo lectura de las paginas:
+
+- **Sofascore**: `robots.txt` devuelve 403 Forbidden incluso para esa
+  peticion basica -proteccion anti-bot activa. Descartado para scraping de
+  backend; solo tendria sentido como widget visual embebido (tarea de
+  interfaz, no de datos), fuera de alcance.
+- **BeSoccer**: `robots.txt` permite `Allow: /` y responde 200 con el mismo
+  patron de cabeceras que ya usa `actualizar_fuente_losilla.py`
+  (`User-Agent` + `Accept-Language`). Tecnicamente viable, pero su valor
+  añadido es menor porque ya hay cobertura de calendario/resultados -se
+  deja aparcado como fuente redundante futura, no se construyo.
+- **FutbolFantasy** (`futbolfantasy.com/laliga/lesionados`): `robots.txt`
+  permite todo, responde 200 con cabeceras minimas, y cubre exactamente el
+  hueco que `lesiones_sanciones` tenia roto desde hace sesiones porque
+  API-Football (de pago) no da datos en el plan Free para la temporada
+  configurada. Estructura HTML verificada byte a byte via `curl`.
+
+Se construyo solo esta ultima, siguiendo la disciplina de "un cambio a la
+vez":
+- `actualizar_fuente_lesiones_laliga.py` (nuevo): scraper que extrae, por
+  equipo, cada jugador lesionado/duda/disponible (categoria leida del
+  icono, no del texto -el texto varia mas que el icono-), con gravedad,
+  probabilidad de disponibilidad, tipo de lesion y dias de baja. Mismo
+  patron de resiliencia que Losilla: si la web falla, conserva el ultimo
+  dato local valido y nunca detiene el pipeline.
+- `motor_prediccion_quiniela.py`: `buscar_lesiones_equipo()` (reutiliza el
+  matcher difuso `puntuacion_nombre_equipo` ya usado por Losilla) y
+  `ajustar_por_lesiones_laliga()`, un ajuste pequeño y acotado (maximo
+  ±6 puntos, tope de riesgo 8) que cuenta bajas en categoria "lesionado"
+  por equipo y favorece ligeramente al que tiene menos -declarado a
+  proposito como señal gruesa, porque no hay forma de pesar por
+  titularidad/importancia real del jugador sin datos de alineaciones
+  probables.
+- `auditar_fuentes_profesionales.py`: `lesiones_sanciones` pasa a
+  `conectado_scraper` en cuanto `fuente_lesiones_laliga.json` tiene al
+  menos 10 equipos, independientemente de si API-Football sigue en
+  `error_conexion` -resuelve de verdad una de las 3 `criticas_pendientes`
+  sin depender de pagar el plan de API-Football.
+- `index.html`: el chat recibe un bloque de lesionados solo de los equipos
+  que aparecen en la prediccion actual o en la ultima jornada jugada (no
+  las 20 plantillas completas), mismo criterio de contexto selectivo ya
+  usado para "lo jugado".
+
+Por que importa: es la unica de las 4 fuentes candidatas con alcance
+tecnico viable, valor real confirmado (llena un hueco que llevaba tiempo
+roto) y sin depender de un plan de pago -Sofascore esta bloqueado de raiz
+y BeSoccer es redundante con lo que ya funciona.
