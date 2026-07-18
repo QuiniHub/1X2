@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 65.66,
+  "precision": 65.83,
   "jornadas_revisadas": 15,
-  "partidos_revisados": 198,
-  "aciertos": 130,
+  "partidos_revisados": 199,
+  "aciertos": 131,
   "fallos": 68,
   "fallos_por_tipo": {
     "Doble insuficiente": 13,
@@ -34,8 +34,8 @@
       "precision": 58.02
     },
     "TRIPLE": {
-      "total": 22,
-      "aciertos": 22,
+      "total": 23,
+      "aciertos": 23,
       "fallos": 0,
       "precision": 100.0
     }
@@ -48,10 +48,10 @@
       "precision": 80.65
     },
     "2": {
-      "total": 57,
-      "aciertos": 29,
+      "total": 58,
+      "aciertos": 30,
       "fallos": 28,
-      "precision": 50.88
+      "precision": 51.72
     },
     "X": {
       "total": 48,
@@ -14405,6 +14405,105 @@
     },
     {
       "jornada": 73,
+      "partido": "Ham-Kam - Tromsø IL",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "1-4",
+      "resultado_final": "1-4",
+      "signo_real": "2",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_73.json",
+      "probabilidades_usadas": {
+        "1": 33.0,
+        "X": 33.7,
+        "2": 33.3
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Ham-Kam",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Tromsø IL",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (33.7%).",
+        "hipotesis_alternativa": "2 como alternativa (33.3%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO X: margen 0.4 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.67,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {
+        "equipo": "Tromsø IL",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 36.7,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 73,
       "partido": "Mjällby - Vasteras SK FK",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
@@ -14629,19 +14728,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 198,
+    "partidos_base": 199,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 34.34,
+      "fallos_total_pct": 34.17,
       "no_cubrio_empate_sobre_fallos_pct": 32.35,
-      "no_cubrio_empate_sobre_total_pct": 11.11,
+      "no_cubrio_empate_sobre_total_pct": 11.06,
       "fijo_fallado_sobre_fallos_pct": 48.53,
-      "fijo_fallado_sobre_total_pct": 16.67,
-      "doble_insuficiente_sobre_total_pct": 6.57
+      "fijo_fallado_sobre_total_pct": 16.58,
+      "doble_insuficiente_sobre_total_pct": 6.53
     },
-    "boost_empate_zona_riesgo": 5.57,
-    "riesgo_extra_fijo_fragil": 6.44,
-    "riesgo_extra_triple_insuficiente": 2.31,
+    "boost_empate_zona_riesgo": 5.55,
+    "riesgo_extra_fijo_fragil": 6.37,
+    "riesgo_extra_triple_insuficiente": 2.28,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
