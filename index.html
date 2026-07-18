@@ -2900,8 +2900,19 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         const esConsultaLesionesEquipo = /lesion|lesionado|baja|bajas|sancionad|duda|dudas|parte medic/i.test(textoTotal);
         if (esConsultaLesionesEquipo) {
           const normEq = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z\s]/g, '').trim();
-          const textoN = normEq(textoTotal);
-          const buscarEquipo = (equiposDict) => {
+          // Buscar PRIMERO solo en el mensaje actual (texto), no en
+          // textoTotal (que incluye el historial reciente) -si no, un
+          // equipo mencionado en un turno anterior (p.ej. "Real Oviedo" en
+          // la respuesta previa del propio asistente) podia "ganar" al
+          // equipo de la pregunta actual por tener un nombre normalizado
+          // mas largo. Verificado en vivo el 2026-07-18: preguntar por el
+          // Espanyol justo despues de preguntar por el Real Oviedo hacia
+          // que el bloque citara al Real Oviedo, no al Espanyol. Solo se
+          // cae a textoTotal si el mensaje actual no menciona ningun
+          // equipo (para permitir un follow-up corto tipo "¿y del Espanyol?").
+          const textoNActual = normEq(texto);
+          const textoNTotal = normEq(textoTotal);
+          const buscarEquipoEn = (equiposDict, textoN) => {
             let claveEncontrada = null;
             let mejorLen = 0;
             for (const clave of Object.keys(equiposDict || {})) {
@@ -2913,6 +2924,8 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
             }
             return claveEncontrada;
           };
+          const buscarEquipo = (equiposDict) =>
+            buscarEquipoEn(equiposDict, textoNActual) || buscarEquipoEn(equiposDict, textoNTotal);
           // FutbolFantasy es la fuente principal (1a+2a); jornadaperfecta.com
           // es solo respaldo -se consulta unicamente si la principal no
           // conoce este equipo, para no duplicar ni contradecir datos.
