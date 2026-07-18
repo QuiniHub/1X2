@@ -2841,7 +2841,7 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         }
 
 
-        const bloqueWeb = contextoWeb
+        let bloqueWeb = contextoWeb
           ? `\n\n--- INFORMACIÓN ACTUALIZADA DE LA WEB ---\n${contextoWeb}--- FIN DATOS WEB ---`
           : '';
 
@@ -2931,7 +2931,16 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
             const detalle = jugadores.length
               ? jugadores.map(j => `- ${j.jugador}: ${j.categoria || '?'}${j.lesion ? ' (' + j.lesion + ')' : ''}${j.estado_texto ? ' — ' + j.estado_texto : ''}`).join('\n')
               : 'Sin jugadores en parte médico registrados ahora mismo.';
-            bloqueLesionesEquipo = `\n\n--- LESIONADOS/DUDAS REALES DE ${claveEncontrada.toUpperCase()} (fuente: ${fuenteUsada}) ---\n${detalle}\nIMPORTANTE: para responder sobre bajas de este equipo, cita EXCLUSIVAMENTE los jugadores de esta lista. No añadas nombres de la búsqueda web ni de tu conocimiento previo aunque te suenen — si crees recordar otra baja que no está aquí, no la menciones.\n--- FIN LESIONADOS ---`;
+            bloqueLesionesEquipo = `\n\n--- LESIONADOS/DUDAS REALES DE ${claveEncontrada.toUpperCase()} (fuente: ${fuenteUsada}, unica fuente valida para esta pregunta) ---\n${detalle}\nIMPORTANTE: esta es la UNICA lista valida de bajas de ${claveEncontrada}. Cita EXCLUSIVAMENTE estos jugadores, ni uno mas. IGNORA cualquier nombre de jugador lesionado que aparezca en "INFORMACIÓN ACTUALIZADA DE LA WEB" mas abajo si no esta tambien en esta lista -esa sección puede hablar de otro tema, no la uses para bajas.\n--- FIN LESIONADOS ---`;
+            // Se encontro un equipo real en nuestra fuente estructurada:
+            // quitamos el bloque de busqueda web generica para ESTA
+            // pregunta. Verificado en vivo el 2026-07-18 (pregunta sobre
+            // el Girona) que con ambos bloques presentes el modelo
+            // ignoraba la instruccion "cita exclusivamente" y mezclaba
+            // nombres reales de prensa (Reinier, Borja Garcia...) que no
+            // estan en FutbolFantasy -quitando el bloque web de raiz para
+            // este caso, no hay nada con lo que mezclar.
+            bloqueWeb = '';
           }
         }
 
