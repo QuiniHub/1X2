@@ -209,7 +209,11 @@ def main():
     salida = fusionar_con_anterior(anterior, equipos_nuevos, avisos)
     guardar_json(SALIDA, salida)
     total_jugadores = sum(len(v) for v in salida["equipos"].values())
-    print(f"Lesiones LaLiga actualizadas: {len(salida['equipos'])} equipos, {total_jugadores} jugadores en {SALIDA.relative_to(ROOT)}")
+    try:
+        ruta_mostrada = SALIDA.relative_to(ROOT)
+    except ValueError:
+        ruta_mostrada = SALIDA
+    print(f"Lesiones LaLiga actualizadas: {len(salida['equipos'])} equipos, {total_jugadores} jugadores en {ruta_mostrada}")
 
 
 if __name__ == "__main__":
