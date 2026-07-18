@@ -1,37 +1,37 @@
 {
   "version": "1.2",
-  "precision": 66.5,
+  "precision": 66.34,
   "jornadas_revisadas": 15,
-  "partidos_revisados": 203,
-  "aciertos": 135,
-  "fallos": 68,
+  "partidos_revisados": 205,
+  "aciertos": 136,
+  "fallos": 69,
   "fallos_por_tipo": {
     "Doble insuficiente": 13,
-    "Fijo fallado": 33,
+    "Fijo fallado": 34,
     "No cubrio empate": 22
   },
   "fallos_por_signo_real": {
     "1": 18,
-    "2": 28,
+    "2": 29,
     "X": 22
   },
   "signos_omitidos_en_fallo": {
     "1": 18,
-    "2": 28,
+    "2": 29,
     "X": 22
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 46,
-      "aciertos": 33,
+      "total": 47,
+      "aciertos": 34,
       "fallos": 13,
-      "precision": 71.74
+      "precision": 72.34
     },
     "FIJO": {
-      "total": 133,
+      "total": 134,
       "aciertos": 78,
-      "fallos": 55,
-      "precision": 58.65
+      "fallos": 56,
+      "precision": 58.21
     },
     "TRIPLE": {
       "total": 24,
@@ -42,16 +42,16 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 95,
-      "aciertos": 77,
+      "total": 96,
+      "aciertos": 78,
       "fallos": 18,
-      "precision": 81.05
+      "precision": 81.25
     },
     "2": {
-      "total": 59,
+      "total": 60,
       "aciertos": 31,
-      "fallos": 28,
-      "precision": 52.54
+      "fallos": 29,
+      "precision": 51.67
     },
     "X": {
       "total": 49,
@@ -14832,6 +14832,220 @@
     },
     {
       "jornada": 73,
+      "partido": "Molde FK - Brann",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-2",
+      "resultado_final": "1-2",
+      "signo_real": "2",
+      "signos_cubiertos": "1",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_73.json",
+      "probabilidades_usadas": {
+        "1": 39.4,
+        "X": 33.2,
+        "2": 27.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Molde FK",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Brann",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (39.4%).",
+        "hipotesis_alternativa": "X como alternativa (33.2%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 1: margen 6.2 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.67,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Molde FK: ppp=0.67; perfil visitante Brann: ppp=0.99.",
+          "Memoria autonoma: tendencia de empate conjunta alta (50.0%)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Molde FK",
+        "partidos_total": 1,
+        "puntos_por_partido": 1.0,
+        "empates_pct": 100.0,
+        "surprise_score_medio": 39.0,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Brann",
+        "partidos_total": 2,
+        "puntos_por_partido": 1.478,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 38.22,
+        "forma_5_ppp": 1.5,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 73,
+      "partido": "Viking - Sandefjord",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "2-1",
+      "resultado_final": "2-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_73.json",
+      "probabilidades_usadas": {
+        "1": 44.2,
+        "X": 29.2,
+        "2": 26.6
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Viking",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Sandefjord",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (44.2%).",
+        "hipotesis_alternativa": "X como alternativa (29.2%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 67.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 15.0 puntos, indice sorpresa 81.1."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.67,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {
+        "equipo": "Sandefjord",
+        "partidos_total": 2,
+        "puntos_por_partido": 2.014,
+        "empates_pct": 49.28,
+        "surprise_score_medio": 39.43,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 2.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 73,
       "partido": "Mjällby - Vasteras SK FK",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
@@ -15155,19 +15369,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 203,
+    "partidos_base": 205,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.5,
-      "no_cubrio_empate_sobre_fallos_pct": 32.35,
-      "no_cubrio_empate_sobre_total_pct": 10.84,
-      "fijo_fallado_sobre_fallos_pct": 48.53,
-      "fijo_fallado_sobre_total_pct": 16.26,
-      "doble_insuficiente_sobre_total_pct": 6.4
+      "fallos_total_pct": 33.66,
+      "no_cubrio_empate_sobre_fallos_pct": 31.88,
+      "no_cubrio_empate_sobre_total_pct": 10.73,
+      "fijo_fallado_sobre_fallos_pct": 49.28,
+      "fijo_fallado_sobre_total_pct": 16.59,
+      "doble_insuficiente_sobre_total_pct": 6.34
     },
-    "boost_empate_zona_riesgo": 5.46,
-    "riesgo_extra_fijo_fragil": 6.11,
-    "riesgo_extra_triple_insuficiente": 2.16,
+    "boost_empate_zona_riesgo": 5.33,
+    "riesgo_extra_fijo_fragil": 6.53,
+    "riesgo_extra_triple_insuficiente": 2.11,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
