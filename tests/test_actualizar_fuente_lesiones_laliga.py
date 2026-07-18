@@ -161,18 +161,42 @@ class ExtraerLesionadosTests(unittest.TestCase):
 
 
 class FusionarConAnteriorTests(unittest.TestCase):
-    def test_conserva_datos_previos_si_scrape_nuevo_vacio(self):
-        anterior = {"equipos": {"Athletic": [{"jugador": "X"}]}}
-        salida = afl.fusionar_con_anterior(anterior, {}, ["aviso de prueba"])
-        self.assertEqual(salida["equipos"], anterior["equipos"])
+    def test_conserva_datos_previos_si_ambas_divisiones_vacias(self):
+        anterior = {"equipos_por_division": {"primera": {"Athletic": [{"jugador": "X"}]}, "segunda": {}}}
+        salida = afl.fusionar_con_anterior(anterior, {"primera": {}, "segunda": {}}, ["aviso de prueba"])
+        self.assertEqual(salida["equipos"], {"Athletic": [{"jugador": "X"}]})
         self.assertTrue(salida["conserva_datos_previos"])
 
-    def test_usa_datos_nuevos_si_hay(self):
-        anterior = {"equipos": {"Athletic": [{"jugador": "Viejo"}]}}
-        nuevos = {"Barcelona": [{"jugador": "Nuevo"}]}
+    def test_usa_datos_nuevos_de_ambas_divisiones_si_hay(self):
+        anterior = {"equipos_por_division": {"primera": {"Athletic": [{"jugador": "Viejo"}]}, "segunda": {}}}
+        nuevos = {"primera": {"Barcelona": [{"jugador": "Nuevo"}]}, "segunda": {"Mallorca": [{"jugador": "Segunda"}]}}
         salida = afl.fusionar_con_anterior(anterior, nuevos, [])
-        self.assertEqual(salida["equipos"], nuevos)
+        self.assertEqual(salida["equipos"], {"Barcelona": [{"jugador": "Nuevo"}], "Mallorca": [{"jugador": "Segunda"}]})
         self.assertFalse(salida["conserva_datos_previos"])
+
+    def test_fallo_en_una_division_no_pierde_los_datos_buenos_de_la_otra(self):
+        """Si /laliga2/ falla pero /laliga/ responde bien (o al reves), la
+        division que si funciono no debe perder sus datos nuevos, y la que
+        fallo debe conservar SU propio dato previo, no el de la otra."""
+        anterior = {"equipos_por_division": {
+            "primera": {"Athletic": [{"jugador": "ViejoPrimera"}]},
+            "segunda": {"Mallorca": [{"jugador": "ViejoSegunda"}]},
+        }}
+        resultados = {"primera": {"Barcelona": [{"jugador": "NuevoPrimera"}]}, "segunda": {}}
+        salida = afl.fusionar_con_anterior(anterior, resultados, ["fallo en segunda"])
+        self.assertEqual(salida["equipos_por_division"]["primera"], {"Barcelona": [{"jugador": "NuevoPrimera"}]})
+        self.assertEqual(salida["equipos_por_division"]["segunda"], {"Mallorca": [{"jugador": "ViejoSegunda"}]})
+        self.assertEqual(salida["equipos"], {"Barcelona": [{"jugador": "NuevoPrimera"}], "Mallorca": [{"jugador": "ViejoSegunda"}]})
+        self.assertTrue(salida["conserva_datos_previos"])
+
+    def test_anterior_en_formato_antiguo_sin_equipos_por_division_no_falla(self):
+        """Datos previos de antes de cubrir 2a (solo 'equipos' plano, sin
+        'equipos_por_division') no deben romper el merge -simplemente no
+        hay nada que recuperar por division si el scrape nuevo falla."""
+        anterior = {"equipos": {"Athletic": [{"jugador": "X"}]}}
+        salida = afl.fusionar_con_anterior(anterior, {"primera": {}, "segunda": {}}, ["aviso"])
+        self.assertEqual(salida["equipos"], {})
+        self.assertTrue(salida["conserva_datos_previos"])
 
 
 class ExtraerConMockTests(unittest.TestCase):

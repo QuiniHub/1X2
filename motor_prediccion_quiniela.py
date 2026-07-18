@@ -37,6 +37,7 @@ PERFILES_EQUIPOS = DATA / "memoria_ia" / "perfiles_equipos.json"
 CLASIFICACIONES_MUNDIAL = DATA / "memoria_ia" / "clasificaciones_mundial_2026.json"
 FUENTE_LOSILLA = DATA / "memoria_ia" / "fuente_losilla.json"
 FUENTE_LESIONES_LALIGA = DATA / "memoria_ia" / "fuente_lesiones_laliga.json"
+FUENTE_LESIONES_RESPALDO = DATA / "memoria_ia" / "fuente_lesiones_jornadaperfecta.json"
 SORPRESAS_MERCADO = DATA / "memoria_ia" / "sorpresas_mercado.json"
 JORNADAS = DATA / "jornadas"
 PREDICCIONES = DATA / "predicciones"
@@ -2290,6 +2291,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     clasificaciones_mundial = cargar_json(CLASIFICACIONES_MUNDIAL, {})
     fuente_losilla = cargar_json(FUENTE_LOSILLA, {})
     fuente_lesiones_laliga = cargar_json(FUENTE_LESIONES_LALIGA, {})
+    fuente_lesiones_respaldo = cargar_json(FUENTE_LESIONES_RESPALDO, {})
     modelo_runtime = preparar_modelo_predictivo_runtime(ROOT)
     jornada = jornada or detectar_jornada_activa()
     data = cargar_json(JORNADAS / f"jornada_{jornada}.json", {})
@@ -2355,8 +2357,13 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             probs, mercado_losilla_partido, calidad_datos=trazabilidad["calidad_datos"]
         )
         lecturas_motivacion.extend(lecturas_mercado_losilla)
-        lesiones_laliga_local = buscar_lesiones_equipo(fuente_lesiones_laliga, partido.get("local", ""))
-        lesiones_laliga_visitante = buscar_lesiones_equipo(fuente_lesiones_laliga, partido.get("visitante", ""))
+        # jornadaperfecta.com es respaldo -solo se consulta cuando la
+        # fuente principal (FutbolFantasy) no tiene datos de ese equipo
+        # concreto (buscar_lesiones_equipo devuelve [] si no lo encuentra).
+        lesiones_laliga_local = buscar_lesiones_equipo(fuente_lesiones_laliga, partido.get("local", "")) or \
+            buscar_lesiones_equipo(fuente_lesiones_respaldo, partido.get("local", ""))
+        lesiones_laliga_visitante = buscar_lesiones_equipo(fuente_lesiones_laliga, partido.get("visitante", "")) or \
+            buscar_lesiones_equipo(fuente_lesiones_respaldo, partido.get("visitante", ""))
         probs, riesgo_lesiones_laliga, lecturas_lesiones_laliga = ajustar_por_lesiones_laliga(
             probs, lesiones_laliga_local, lesiones_laliga_visitante
         )

@@ -2885,6 +2885,56 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
           bloqueCalendario = buscarEnCal(state.calendario1a, '1ª') || buscarEnCal(state.calendario2a, '2ª');
         }
 
+        // Bloque de lesionados/dudas de un equipo concreto (FutbolFantasy).
+        // Se construye AQUI, con el texto real de la pregunta -no dentro de
+        // construirContextoIA(), que solo conoce los equipos de la jornada
+        // ACTIVA del motor (ahora mismo Noruega/Suecia) y de la ultima
+        // jugada de verdad (el Mundial). Con LaLiga sin empezar, ese filtro
+        // nunca incluye NINGUN equipo de LaLiga -Marc pregunto por el
+        // Athletic y el Espanyol y la IA no tenia ningun dato estructurado
+        // real en el contexto, así que para el Espanyol admitio "no tengo
+        // informacion" (correcto, no lo tenia) y para el Athletic mezclo un
+        // par de nombres reales que la busqueda web generica encontro por
+        // suerte con nombres inventados que no aparecen en FutbolFantasy.
+        let bloqueLesionesEquipo = '';
+        const esConsultaLesionesEquipo = /lesion|lesionado|baja|bajas|sancionad|duda|dudas|parte medic/i.test(textoTotal);
+        if (esConsultaLesionesEquipo) {
+          const normEq = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z\s]/g, '').trim();
+          const textoN = normEq(textoTotal);
+          const buscarEquipo = (equiposDict) => {
+            let claveEncontrada = null;
+            let mejorLen = 0;
+            for (const clave of Object.keys(equiposDict || {})) {
+              const claveN = normEq(clave);
+              if (claveN.length >= 4 && textoN.includes(claveN) && claveN.length > mejorLen) {
+                claveEncontrada = clave;
+                mejorLen = claveN.length;
+              }
+            }
+            return claveEncontrada;
+          };
+          // FutbolFantasy es la fuente principal (1a+2a); jornadaperfecta.com
+          // es solo respaldo -se consulta unicamente si la principal no
+          // conoce este equipo, para no duplicar ni contradecir datos.
+          const equiposPrincipal = (state.lesionesLaliga || {}).equipos || {};
+          const equiposRespaldo = (state.lesionesRespaldo || {}).equipos || {};
+          let claveEncontrada = buscarEquipo(equiposPrincipal);
+          let fuenteUsada = 'FutbolFantasy';
+          let equiposFuente = equiposPrincipal;
+          if (!claveEncontrada) {
+            claveEncontrada = buscarEquipo(equiposRespaldo);
+            fuenteUsada = 'jornadaperfecta.com (respaldo)';
+            equiposFuente = equiposRespaldo;
+          }
+          if (claveEncontrada) {
+            const jugadores = arr(equiposFuente[claveEncontrada]);
+            const detalle = jugadores.length
+              ? jugadores.map(j => `- ${j.jugador}: ${j.categoria || '?'}${j.lesion ? ' (' + j.lesion + ')' : ''}${j.estado_texto ? ' — ' + j.estado_texto : ''}`).join('\n')
+              : 'Sin jugadores en parte médico registrados ahora mismo.';
+            bloqueLesionesEquipo = `\n\n--- LESIONADOS/DUDAS REALES DE ${claveEncontrada.toUpperCase()} (fuente: ${fuenteUsada}) ---\n${detalle}\nIMPORTANTE: para responder sobre bajas de este equipo, cita EXCLUSIVAMENTE los jugadores de esta lista. No añadas nombres de la búsqueda web ni de tu conocimiento previo aunque te suenen — si crees recordar otra baja que no está aquí, no la menciones.\n--- FIN LESIONADOS ---`;
+          }
+        }
+
         // Bloque de resultados de fútbol en tiempo real
         let bloqueFootball = '';
         if (datosFootball) {
@@ -2921,6 +2971,7 @@ REGLAS CRÍTICAS — LEE ANTES DE RESPONDER:
 4. NUNCA digas que no tienes datos de esta temporada — los tienes en el bloque de abajo.
 5. Si los datos de fútbol en tiempo real (ESPN/TheSportsDB) o la búsqueda web te dan información sobre hoy, úsala sin dudar.
 6. "LO QUE REALMENTE HEMOS JUGADO" (boletos reales confirmados) y "PREDICCIÓN" (la predicción automática del motor para la SIGUIENTE jornada) son DOS COSAS DISTINTAS. La predicción automática puede estar bloqueada esperando que cierre la jornada anterior — eso NO significa que no sepas qué jugamos nosotros de verdad. Si preguntan por una jornada que ya jugamos, usa el bloque "LO QUE REALMENTE HEMOS JUGADO" y nunca respondas "no tengo acceso" solo porque la predicción automática de la jornada siguiente esté bloqueada.
+7. Si preguntan por lesionados/bajas/dudas de un equipo y aparece un bloque "LESIONADOS/DUDAS REALES DE [EQUIPO]" más abajo, cita EXCLUSIVAMENTE esos nombres — ni uno más, aunque la búsqueda web o tu conocimiento previo te sugieran otra baja "probable". Si ese bloque no aparece para el equipo preguntado, di explícitamente que no tienes datos estructurados de esa fuente para ese equipo, en vez de inventar o mezclar con suposiciones.
 
 ═══════════════════════════════════════════════════════
 DOCUMENTO OFICIAL: REGLAS COMPLETAS DE LA QUINIELA LAE
@@ -3040,7 +3091,7 @@ TU PERSONALIDAD:
 - Respuestas concisas y naturales. Sin bullets innecesarios. Como una conversación real.
 
 DATOS REALES DE TU SISTEMA — TEMPORADA 2026/2027:
-${contexto}${bloqueCalendario}${bloqueFootball}${bloqueClasif}${bloqueWeb}${bloqueURLs}${bloqueAdjunto}${quiereAprender ? `
+${contexto}${bloqueCalendario}${bloqueLesionesEquipo}${bloqueFootball}${bloqueClasif}${bloqueWeb}${bloqueURLs}${bloqueAdjunto}${quiereAprender ? `
 
 INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Responde normalmente y al final añade EXACTAMENTE esta línea (sin nada después):
 [MEMO]resumen breve de lo aprendido, máximo 250 caracteres, incluyendo info web si la hay[/MEMO]` : ''}`;
@@ -3116,7 +3167,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga] = await Promise.all([
+      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga, lesionesRespaldo] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -3133,7 +3184,8 @@ No inventes — solo lo que ves con fondo oscuro.`;
         getJson('data/memoria_ia/aprendizaje_elige8.json', null),
         getJson('data/memoria_ia/sorpresas_mercado.json', null),
         getJson('data/quinielas_jugadas.json', null),
-        getJson('data/memoria_ia/fuente_lesiones_laliga.json', null)
+        getJson('data/memoria_ia/fuente_lesiones_laliga.json', null),
+        getJson('data/memoria_ia/fuente_lesiones_jornadaperfecta.json', null)
       ]);
       state.prediccion = pred;
       state.pleno15Data = pleno;
@@ -3152,6 +3204,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.sorpresasMercado = sorpresasMercado;
       state.quinielasJugadas = quinielasJugadas;
       state.lesionesLaliga = lesionesLaliga;
+      state.lesionesRespaldo = lesionesRespaldo;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       state.detallesPartidos = jornadaNum ? await getJson(`data/jornadas/detalles_j${jornadaNum}.json`, null) : null;

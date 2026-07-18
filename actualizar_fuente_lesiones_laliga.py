@@ -1,4 +1,4 @@
-"""Scraper de lesionados/dudas de LaLiga desde futbolfantasy.com.
+"""Scraper de lesionados/dudas de LaLiga (1a y 2a) desde futbolfantasy.com.
 
 Llena el hueco real de "lesiones_sanciones" que API-Football (de pago) no
 cubre en el plan Free -confirmado en vivo el 2026-07-18: 403 en
@@ -6,9 +6,18 @@ cubre en el plan Free -confirmado en vivo el 2026-07-18: 403 en
 permite scraping segun su propio robots.txt (Disallow vacio) y responde
 200 con el mismo patron de cabeceras que ya usamos para eduardolosilla.es.
 
-Si la web falla o cambia su HTML, el script no detiene el flujo: conserva
-el ultimo dato local valido en data/memoria_ia/fuente_lesiones_laliga.json
-y deja avisos en la salida -mismo principio que actualizar_fuente_losilla.py.
+Cubre las DOS divisiones con la misma logica de extraccion -verificado en
+vivo el 2026-07-18 que /laliga2/lesionados (Hypermotion) usa exactamente
+el mismo HTML/CSS que /laliga/lesionados (EA Sports). La primera version
+de este scraper solo leia 1a division; Marc lo detecto en produccion
+preguntando por bajas de un equipo de 2a y viendo que el chat no tenia
+ningun dato de esa division.
+
+Si una de las dos webs falla o cambia su HTML, el script no detiene el
+flujo: conserva el ultimo dato local valido de esa division en
+data/memoria_ia/fuente_lesiones_laliga.json y deja avisos en la salida
+-mismo principio que actualizar_fuente_losilla.py. Un fallo en una
+division no debe perder los datos ya buenos de la otra.
 """
 
 import re
@@ -25,7 +34,12 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parent
 SALIDA = ROOT / "data" / "memoria_ia" / "fuente_lesiones_laliga.json"
 
-URL_LESIONADOS = "https://www.futbolfantasy.com/laliga/lesionados"
+URL_LESIONADOS_PRIMERA = "https://www.futbolfantasy.com/laliga/lesionados"
+URL_LESIONADOS_SEGUNDA = "https://www.futbolfantasy.com/laliga2/lesionados"
+DIVISIONES = (
+    ("primera", URL_LESIONADOS_PRIMERA),
+    ("segunda", URL_LESIONADOS_SEGUNDA),
+)
 
 TIMEOUT = 10
 HEADERS = {
@@ -180,40 +194,68 @@ def extraer_lesionados(html):
     return equipos
 
 
-def fusionar_con_anterior(anterior, equipos_nuevos, avisos):
-    equipos = equipos_nuevos if equipos_nuevos else (anterior.get("equipos") or {})
+def fusionar_con_anterior(anterior, resultados_por_division, avisos):
+    """resultados_por_division: {"primera": {equipo: [...]}, "segunda": {...}}
+    con dict vacio para la division que fallo/no dio datos en este scrape.
+    Cada division conserva SU PROPIO dato previo si falla -asi un fallo en
+    2a (p.ej. cambia el HTML de /laliga2/) no borra los datos buenos de 1a
+    ya guardados, ni al reves."""
+    anterior_por_division = anterior.get("equipos_por_division") or {}
+    equipos_por_division = {}
+    conserva_alguna = False
+    for division, equipos_nuevos in resultados_por_division.items():
+        if equipos_nuevos:
+            equipos_por_division[division] = equipos_nuevos
+        else:
+            equipos_por_division[division] = anterior_por_division.get(division) or {}
+            conserva_alguna = True
+
+    equipos = {}
+    for equipos_division in equipos_por_division.values():
+        equipos.update(equipos_division)
+
     return {
-        "version": "1.0",
-        "fuente": "futbolfantasy.com",
-        "url": URL_LESIONADOS,
+        "version": "1.1",
+        "fuente": "futbolfantasy.com (LaLiga EA Sports + Hypermotion)",
+        "urls": dict(DIVISIONES),
         "actualizado_en": ahora_iso(),
         "avisos": avisos,
         "equipos": equipos,
-        "conserva_datos_previos": not bool(equipos_nuevos),
+        "equipos_por_division": equipos_por_division,
+        "conserva_datos_previos": conserva_alguna,
     }
 
 
 def main():
     anterior = cargar_json(SALIDA, {})
     avisos = []
-    equipos_nuevos = {}
-    try:
-        html = descargar(URL_LESIONADOS)
-        equipos_nuevos = extraer_lesionados(html)
-        if not equipos_nuevos:
-            avisos.append("Scrape sin datos de lesionados; se conserva el dato previo.")
-    except Exception as exc:
-        avisos.append(f"Fallo al leer futbolfantasy.com: {type(exc).__name__}: {exc}. Se conserva el dato previo.")
-        print(f"AVISO fuente_lesiones_laliga: {exc}")
+    resultados_por_division = {}
+    for division, url in DIVISIONES:
+        try:
+            html = descargar(url)
+            equipos_nuevos = extraer_lesionados(html)
+            if not equipos_nuevos:
+                avisos.append(f"Scrape de {division} sin datos de lesionados; se conserva el dato previo de esa división.")
+            resultados_por_division[division] = equipos_nuevos
+        except Exception as exc:
+            avisos.append(f"Fallo al leer {division} ({url}): {type(exc).__name__}: {exc}. Se conserva el dato previo de esa división.")
+            print(f"AVISO fuente_lesiones_laliga ({division}): {exc}")
+            resultados_por_division[division] = {}
 
-    salida = fusionar_con_anterior(anterior, equipos_nuevos, avisos)
+    salida = fusionar_con_anterior(anterior, resultados_por_division, avisos)
     guardar_json(SALIDA, salida)
     total_jugadores = sum(len(v) for v in salida["equipos"].values())
     try:
         ruta_mostrada = SALIDA.relative_to(ROOT)
     except ValueError:
         ruta_mostrada = SALIDA
-    print(f"Lesiones LaLiga actualizadas: {len(salida['equipos'])} equipos, {total_jugadores} jugadores en {ruta_mostrada}")
+    resumen_divisiones = ", ".join(
+        f"{division}: {len(salida['equipos_por_division'].get(division, {}))} equipos" for division, _ in DIVISIONES
+    )
+    print(
+        f"Lesiones LaLiga actualizadas: {len(salida['equipos'])} equipos, {total_jugadores} jugadores "
+        f"({resumen_divisiones}) en {ruta_mostrada}"
+    )
 
 
 if __name__ == "__main__":

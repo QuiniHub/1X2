@@ -889,3 +889,55 @@ junto a `actualizar_fuente_losilla.py` (seccion "Datos base"), antes de
 `motor_prediccion_objetivo.py` -mismo principio que Losilla: si otro
 script depende de tu salida en el mismo ciclo, tu posicion en
 `SCRIPTS_ACTIVOS` importa, no solo estar "antes del motor".
+
+### 2026-07-18 (mismo dia) — El scraper de lesiones solo cubria 1a division, y el chat mezclaba datos reales con alucinaciones
+
+Marc probo el chat en produccion con dos preguntas reales ("que bajas
+tiene el Athletic" y "que lesionados tiene el Espanyol ahora mismo") y
+encontro dos fallos:
+
+1. Para el Athletic, la respuesta mezclaba nombres reales de
+   `fuente_lesiones_laliga.json` (Egiluz, Maroan) con nombres que NO
+   aparecen ahi (Nico Williams, Paredes, Beñat Prados) -verificado
+   comparando linea a linea con una captura real de
+   futbolfantasy.com/laliga/lesionados que Marc envio.
+2. Para el Espanyol, el chat dijo directamente "no tengo informacion
+   actualizada", pese a que Espanyol SI esta en `fuente_lesiones_laliga.json`.
+
+Causa raiz real (no la que se penso al principio): el bloque de
+lesionados que se añadio en `construirContextoIA()` solo incluia equipos
+que aparecieran en la prediccion ACTIVA del motor (ahora mismo Noruega/
+Suecia, jornada 74) o en la ultima jornada REALMENTE jugada (el Mundial,
+jornada 73). Con LaLiga sin empezar, ese filtro nunca incluye NINGUN
+equipo de LaLiga -el bloque llevaba siendo un no-op completo desde que se
+construyo, y la verificacion en vivo de esa misma tarde con el Athletic
+"parecio" funcionar solo porque la busqueda web generica encontro por
+suerte un par de nombres reales, mezclados con alucinaciones del modelo.
+Leccion: una respuesta que "suena bien" no prueba que el mecanismo
+disenado se este usando de verdad -habia que comprobar que el bloque de
+contexto realmente se poblaba, no solo leer la respuesta final.
+
+Fix (`index.html`): nuevo bloque `bloqueLesionesEquipo`, construido en
+`enviarMensajeChat()` con el texto real de la pregunta (no dentro de
+`construirContextoIA()`, que no lo conoce), buscando por nombre de equipo
+mencionado en el mensaje -mismo patron que `bloqueCalendario`. Se añadio
+tambien la regla critica #7 al system prompt: si aparece el bloque de
+lesionados, citar EXCLUSIVAMENTE esos nombres, nunca mezclar con la
+busqueda web o con "conocimiento previo" del modelo.
+
+Aprovechando esta investigacion, Marc pidio ademas cobertura completa de
+1a y 2a division y comparto 4 webs candidatas mas
+(jornadaperfecta.com/lesionados y /sancionados, comuniazo.com,
+futbolfantasy.com/laliga2/lesionados). Verificado en vivo con `curl` que
+`futbolfantasy.com/laliga2/lesionados` es la pagina de Hypermotion (2a)
+del mismo sitio, con el mismo HTML/CSS exacto -el scraper original solo
+pedia la URL de 1a. Decision (con Marc, eligiendo entre opciones): ampliar
+`actualizar_fuente_lesiones_laliga.py` para pedir tambien esa URL
+(cobertura real 1a+2a con el mismo codigo de extraccion), y añadir
+`actualizar_fuente_lesiones_jornadaperfecta.py` como fuente de RESPALDO
+(estructura HTML distinta, verificada por separado) -se consulta solo
+cuando la fuente principal no tiene datos de un equipo concreto
+(encadenado con `or` en `buscar_lesiones_equipo`, tanto en el motor como
+en el chat). jornadaperfecta.com/sancionados (dato nuevo: sanciones, no
+lesiones) y comuniazo.com quedaron fuera de esta ronda, documentados como
+opcion futura si hace falta.
