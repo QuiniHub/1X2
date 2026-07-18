@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 66.0,
+  "precision": 66.5,
   "jornadas_revisadas": 15,
-  "partidos_revisados": 200,
-  "aciertos": 132,
+  "partidos_revisados": 203,
+  "aciertos": 135,
   "fallos": 68,
   "fallos_por_tipo": {
     "Doble insuficiente": 13,
@@ -22,42 +22,42 @@
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 45,
-      "aciertos": 32,
+      "total": 46,
+      "aciertos": 33,
       "fallos": 13,
-      "precision": 71.11
+      "precision": 71.74
     },
     "FIJO": {
-      "total": 132,
-      "aciertos": 77,
+      "total": 133,
+      "aciertos": 78,
       "fallos": 55,
-      "precision": 58.33
+      "precision": 58.65
     },
     "TRIPLE": {
-      "total": 23,
-      "aciertos": 23,
+      "total": 24,
+      "aciertos": 24,
       "fallos": 0,
       "precision": 100.0
     }
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 94,
-      "aciertos": 76,
+      "total": 95,
+      "aciertos": 77,
       "fallos": 18,
-      "precision": 80.85
+      "precision": 81.05
     },
     "2": {
-      "total": 58,
-      "aciertos": 30,
+      "total": 59,
+      "aciertos": 31,
       "fallos": 28,
-      "precision": 51.72
+      "precision": 52.54
     },
     "X": {
-      "total": 48,
-      "aciertos": 26,
+      "total": 49,
+      "aciertos": 27,
       "fallos": 22,
-      "precision": 54.17
+      "precision": 55.1
     }
   },
   "detalle": [
@@ -14504,6 +14504,334 @@
     },
     {
       "jornada": 73,
+      "partido": "Lillestrøm SK - KFUM Oslo",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "2-1",
+      "resultado_final": "2-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_73.json",
+      "probabilidades_usadas": {
+        "1": 47.3,
+        "X": 29.3,
+        "2": 23.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Lillestrøm SK",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "KFUM Oslo",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (47.3%).",
+        "hipotesis_alternativa": "X como alternativa (29.3%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_atacable",
+          "probabilidad": 61.9,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 18.0 puntos, indice sorpresa 68.6."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.67,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.77,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Lillestrøm SK: ppp=2.00; perfil visitante KFUM Oslo: ppp=0.00.",
+          "Memoria autonoma: historial de sorpresa medio elevado (49.3)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Lillestrøm SK",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 49.85,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "KFUM Oslo",
+        "partidos_total": 1,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 48.66,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 73,
+      "partido": "Kristiansund - Sarpsborg",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "0-0",
+      "resultado_final": "0-0",
+      "signo_real": "X",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_73.json",
+      "probabilidades_usadas": {
+        "1": 32.7,
+        "X": 32.7,
+        "2": 34.5
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Kristiansund",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Sarpsborg",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (34.5%).",
+        "hipotesis_alternativa": "1 como alternativa (32.7%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 2: margen 1.8 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.67,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Kristiansund",
+        "partidos_total": 1,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 36.27,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 73,
+      "partido": "Start - Rosenborg",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-3",
+      "resultado_final": "0-3",
+      "signo_real": "2",
+      "signos_cubiertos": "2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_73.json",
+      "probabilidades_usadas": {
+        "1": 31.5,
+        "X": 33.3,
+        "2": 35.3
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Start",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Rosenborg",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (35.3%).",
+        "hipotesis_alternativa": "X como alternativa (33.3%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 2: margen 2.0 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.67,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Start: ppp=0.00; perfil visitante Rosenborg: ppp=2.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Start",
+        "partidos_total": 1,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 38.22,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Rosenborg",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 36.27,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 73,
       "partido": "Mjällby - Vasteras SK FK",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
@@ -14827,19 +15155,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 200,
+    "partidos_base": 203,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 34.0,
+      "fallos_total_pct": 33.5,
       "no_cubrio_empate_sobre_fallos_pct": 32.35,
-      "no_cubrio_empate_sobre_total_pct": 11.0,
+      "no_cubrio_empate_sobre_total_pct": 10.84,
       "fijo_fallado_sobre_fallos_pct": 48.53,
-      "fijo_fallado_sobre_total_pct": 16.5,
-      "doble_insuficiente_sobre_total_pct": 6.5
+      "fijo_fallado_sobre_total_pct": 16.26,
+      "doble_insuficiente_sobre_total_pct": 6.4
     },
-    "boost_empate_zona_riesgo": 5.52,
-    "riesgo_extra_fijo_fragil": 6.31,
-    "riesgo_extra_triple_insuficiente": 2.25,
+    "boost_empate_zona_riesgo": 5.46,
+    "riesgo_extra_fijo_fragil": 6.11,
+    "riesgo_extra_triple_insuficiente": 2.16,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
