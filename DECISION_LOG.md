@@ -941,3 +941,39 @@ cuando la fuente principal no tiene datos de un equipo concreto
 en el chat). jornadaperfecta.com/sancionados (dato nuevo: sanciones, no
 lesiones) y comuniazo.com quedaron fuera de esta ronda, documentados como
 opcion futura si hace falta.
+
+Verificacion en vivo tras el deploy (probando varios equipos, no solo
+Athletic/Espanyol, a peticion explicita de Marc) encontro 2 bugs reales
+mas de contaminacion cruzada, cada uno arreglado y reverificado antes de
+dar la tarea por cerrada:
+
+1. **La busqueda web generica pisaba la fuente estructurada.** Pregunta
+   real sobre el Girona: con el bloque de FutbolFantasy en el contexto Y
+   la busqueda web (Tavily) tambien disparada en paralelo, el modelo
+   ignoraba la instruccion "cita exclusivamente" y mezclaba nombres reales
+   de prensa (Reinier, Borja Garcia...) que no estan en nuestra fuente.
+   Fix: cuando se encuentra el equipo en la fuente estructurada, se vacia
+   el bloque de busqueda web del todo para esa pregunta -mas fiable que
+   confiar solo en una instruccion de "ignora la otra fuente" cuando
+   ambas conviven en el mismo prompt.
+2. **Un equipo del turno anterior "ganaba" al de la pregunta actual.**
+   El buscador de equipo miraba `textoTotal` (pregunta + historial
+   reciente de chat), quedandose con el nombre de equipo normalizado MAS
+   LARGO encontrado. Preguntar por el Espanyol justo despues del Real
+   Oviedo citaba al Real Oviedo ("real oviedo", con espacio, es mas largo
+   que "espanyol"). Peor aun: preguntar por el "Barça" (apodo que no es
+   substring de "Barcelona", el nombre oficial en FutbolFantasy) no
+   encontraba equipo en el mensaje actual y caia al historial, rescatando
+   por error el equipo de la pregunta ANTERIOR. Fix: se elimino el
+   fallback a historial por completo -es mas seguro que la IA admita "no
+   tengo datos de este equipo" a que cite el equipo equivocado con
+   confianza- y se añadio un mapa pequeño de apodos comunes (Barça/Barsa
+   -> Barcelona, Atleti -> Atletico) para que esos casos frecuentes si
+   encuentren el equipo correcto en el mensaje actual.
+
+Por que importa: una respuesta que "suena bien" no prueba que los datos
+sean correctos -los 3 bugs de esta tarea (el original de contexto vacio,
+la contaminacion con la busqueda web, y la contaminacion con el turno
+anterior) solo salieron a la luz probando varios equipos reales en
+secuencia en el navegador, no leyendo el codigo ni probando un unico caso
+suelto.
