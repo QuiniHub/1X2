@@ -2180,17 +2180,37 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
           const esUltima = Number(j.jornada) === Number(state.ultimaJornadaJugadaNum);
           const partidosConEquipo = esUltima ? arr((state.ultimaJornadaJugadaDatos || {}).partidos) : [];
           if (partidosConEquipo.length === arr(j.signos).length) {
+            // Aciertos/fallos se calculan AQUI comparando contra el signo
+            // oficial real -antes solo se listaba el signo jugado sin el
+            // resultado, y el chat se inventaba un numero de aciertos
+            // "que sonaba bien" (ej. dijo "10 de 14" cuando la realidad
+            // real, verificada, era 7 aciertos de 10 partidos ya cerrados).
+            let aciertos = 0, fallos = 0, pendientes = 0;
             const lineasPartido = arr(j.signos).map((signo, idx) => {
               const p = partidosConEquipo[idx] || {};
-              return `  P${idx + 1} ${p.local || '?'} vs ${p.visitante || '?'}: ${signo}`;
+              const oficial = p.signo_oficial;
+              let estado;
+              if (!oficial || oficial === 'Pendiente') {
+                estado = 'pendiente';
+                pendientes++;
+              } else if (String(signo).includes(oficial)) {
+                estado = `ACIERTO (oficial ${oficial}, ${p.resultado || '?'})`;
+                aciertos++;
+              } else {
+                estado = `FALLO (oficial ${oficial}, ${p.resultado || '?'})`;
+                fallos++;
+              }
+              return `  P${idx + 1} ${p.local || '?'} vs ${p.visitante || '?'}: jugado=${signo} → ${estado}`;
             });
+            const cerrados = aciertos + fallos;
+            const resumenReal = `  RESUMEN REAL (calculado, no lo cambies): ${aciertos} aciertos y ${fallos} fallos de ${cerrados} partidos con resultado oficial cerrado; ${pendientes} partidos todavia pendientes de resultado.`;
             const pleno = (state.ultimaJornadaJugadaDatos || {}).pleno15 || {};
             const lineaPleno = pleno.local ? `  P15 Pleno al 15: ${pleno.local} vs ${pleno.visitante} → ${j.pleno15 || '?'}` : '';
-            return `${cabecera}\n${lineasPartido.join('\n')}${lineaPleno ? '\n' + lineaPleno : ''}`;
+            return `${cabecera}\n${resumenReal}\n${lineasPartido.join('\n')}${lineaPleno ? '\n' + lineaPleno : ''}`;
           }
           return `${cabecera} | signos=${arr(j.signos).join(' ')}`;
         });
-        bloqueQuinielasJugadas = `\nLO QUE REALMENTE HEMOS JUGADO (boletos reales confirmados por Marc — ESTO NO ES la predicción automática que aparece más abajo, son cosas distintas):\n${lineasJugadas.join('\n')}`;
+        bloqueQuinielasJugadas = `\nLO QUE REALMENTE HEMOS JUGADO (boletos reales confirmados por Marc — ESTO NO ES la predicción automática que aparece más abajo, son cosas distintas):\n${lineasJugadas.join('\n')}\nIMPORTANTE: si aparece un "RESUMEN REAL", usa EXACTAMENTE esos numeros de aciertos/fallos/pendientes al hablar de esta jornada. No inventes ni redondees un numero distinto aunque te parezca mas natural.`;
       }
 
       // Predicción actual — compacta para ahorrar tokens
