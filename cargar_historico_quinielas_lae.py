@@ -195,6 +195,28 @@ def cargar_jornadas_locales():
             partidos.append(partido)
         if len(partidos) < 10:
             continue
+
+        # El Pleno al 15 vive en un campo separado (d["pleno15"]) en los
+        # archivos de data/jornadas/*.json, NO dentro de "partidos" -sin
+        # esto, cargar_jornadas_locales() nunca lo veia (confirmado: 0
+        # partidos con num=15 en todo historico_quinielas_lae.json pese a
+        # que parsear_jornada() -la otra fuente, webprincipal.com- si lo
+        # soporta). El resultado real del Pleno es el marcador ("1-0"),
+        # no un signo 1/X/2, igual que ya guarda parsear_jornada().
+        pleno15 = d.get("pleno15") or {}
+        if pleno15.get("local") and pleno15.get("visitante"):
+            entrada_p15 = {
+                "num": 15,
+                "local": pleno15.get("local", ""),
+                "visitante": pleno15.get("visitante", ""),
+                "resultado": pleno15.get("resultado", ""),
+                "fecha": pleno15.get("fecha", ""),
+            }
+            signo_p15 = str(pleno15.get("signo_oficial") or "").strip()
+            if signo_p15 and signo_p15 != "Pendiente":
+                entrada_p15["signo_oficial"] = signo_p15
+            partidos.append(entrada_p15)
+
         signos_str = "".join(
             p.get("signo_oficial", "?") for p in partidos[:14]
         )
