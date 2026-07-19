@@ -1021,3 +1021,85 @@ Leccion: antes de calificar un bug de codigo como "activo en produccion
 con dinero real en juego", rastrear si el camino de codigo donde vive
 realmente se ejecuta con los parametros que usa el pipeline automatico
 -no basta con encontrar la funcion y ver que su logica esta mal.
+
+### 2026-07-19 — Auditoria externa: 3 bugs reales en el chat, encontrados solo probando en vivo (pendientes de revision)
+
+Otra sesion de Claude Code (auditoria completa del repo y de la web
+pestaña por pestaña, a peticion de Marc, sin tocar codigo) encontro 3
+bugs reales en produccion, verificados en el navegador real -no solo
+leyendo codigo. Se documentan aqui para que la sesion principal los
+revise con su propio criterio antes de decidir como y cuando
+arreglarlos, mismo patron que ya funciono con el hallazgo de
+`prioridad_elige8()` de la entrada anterior.
+
+1. **El chat inventa partidos y equipos completos al preguntar por el
+   Elige 8.** Pregunta real probada: "De los 14 partidos de esta
+   jornada, ¿cuales elegirias para el Elige 8?" (jornada 74, solo
+   equipos nordicos: Kristiansund-Start, Brann-Valerenga, etc.).
+   Respuesta real del chat: recomendo los partidos "8, 9, 13 y 14"
+   describiendolos como "Celta vs Barcelona", "Huesca vs Andorra",
+   "Granada vs Real Zaragoza", "Cadiz vs Valladolid" -ninguno de estos
+   partidos existe en la jornada real, son equipos españoles inventados
+   con razonamiento plausible pero ficticio. Causa no confirmada (no se
+   toco codigo), pero encaja con el mismo patron ya documentado el
+   18/07: cuando el contexto estructurado no cubre lo preguntado, el
+   modelo rellena el hueco con conocimiento general en vez de admitir
+   que no lo tiene.
+
+2. **Esa invencion queda guardada como "memoria aprendida" permanente,
+   y el mecanismo que decide guardarla tiene un bug real.**
+   `esIntencionAprender(textoTotal)` (index.html) decide si el usuario
+   "quiere que la IA aprenda algo" buscando palabras como
+   "aprende"/"recuerda"/"memoriza" -pero `textoTotal` incluye el
+   historial reciente de la conversacion, incluidas las respuestas
+   ANTERIORES del propio chat. Verificado en vivo: una respuesta previa
+   del chat uso la palabra "aprender" de forma normal ("...para poder
+   aprender de ellos..."), y eso basto para autoactivar el guardado de
+   memoria en el turno siguiente, sin que Marc pidiera memorizar nada.
+   Confirmado en `localStorage['quinihub_ia_memoria']`: el Elige8
+   inventado del punto 1 quedo guardado como entrada real, tipo
+   "web+usuario". Esa memoria se reinyecta literal en el prompt de
+   TODAS las conversaciones futuras (`construirContextoIA()`, bloque
+   "MEMORIAS QUE HAS APRENDIDO (persistentes entre sesiones)") -la
+   fabricacion ya esta contaminando el contexto de cualquier chat
+   futuro en ese navegador.
+
+3. **Dos "jornada 73" distintas comparten el mismo numero, y el chat
+   las confunde.** `data/predicciones/ultima_prediccion.json` real:
+   `jornada: 74`, `estado: "bloqueada"`, `motivo_bloqueo: "...la
+   jornada 73 solo tiene 10 de 14 resultados oficiales..."` -esto es
+   correcto y esperado (el motor no debe predecir la jornada siguiente
+   sin cerrar y aprender de la anterior con la clasificacion ya
+   actualizada; confirmado con Marc que es diseño intencional, no bug).
+   Pero `data/jornadas/jornada_73.json` (la "jornada 73" que bloquea el
+   ciclo automatico) son partidos NORDICOS (Bodo/Glimt-Fredrikstad,
+   Ham-Kam-Tromsø...) -completamente distintos de la "jornada 73" que
+   Marc jugo de verdad y esta en `quinielas_jugadas.json`
+   (España-Argentina, final del Mundial, 10 partidos, ya cerrada, 7
+   aciertos/3 fallos). Son dos eventos reales distintos con el mismo
+   numero de jornada. Probado en vivo: preguntar "¿cuantos aciertos y
+   fallos llevamos en la jornada 73?" devolvio "10 aciertos y 4
+   fallos" -numero que no corresponde a ninguna de las dos jornadas
+   reales (la jugada por Marc es 7/3; la automatica es "10 conocidos,
+   4 pendientes", no "10 aciertos, 4 fallos"). El chat mezcla ambas
+   fuentes sin avisar de que hay ambiguedad.
+
+4. **"Analisis IA" (el boton que cruza ESPN/TheSportsDB/Losilla/
+   noticias y pide a la IA un analisis cualitativo partido a partido)
+   se cuelga sin avisar.** Probado en vivo: mas de 90 segundos en
+   "Analizando los 15 partidos..." sin resolver ni mostrar error. Cada
+   pieza individual probada por separado desde la propia pagina (fetch
+   directo) responde rapido: TheSportsDB 0.2s, el Worker de futbol
+   1.9s, Tavily 0.4s, y hasta la llamada real a Groq (70B, prompt
+   grande, 3500 tokens) responde en 3.6s -ninguna pieza individual es
+   lenta, asi que el problema esta en como se combinan las ~11 llamadas
+   en paralelo (`Promise.all` en `analizarJornada()`, index.html), no
+   en ningun proveedor externo. No se investigo la causa exacta linea a
+   linea (no se toco codigo).
+
+Por que importa: los 3 primeros bugs solo salieron a la luz probando la
+interfaz real con preguntas reales, no leyendo el codigo -mismo patron
+ya confirmado el 18/07 con los bugs de contaminacion cruzada del chat.
+El punto 2 es el mas urgente de los cuatro: la fabricacion del Elige8
+ya esta persistida y reinyectandose en conversaciones futuras,
+empeorando activamente con cada uso hasta que se corrija.
