@@ -1064,9 +1064,10 @@ arreglarlos, mismo patron que ya funciono con el hallazgo de
    fabricacion ya esta contaminando el contexto de cualquier chat
    futuro en ese navegador.
 
-3. **Dos "jornada 73" distintas comparten el mismo numero, y el chat
-   las confunde.** `data/predicciones/ultima_prediccion.json` real:
-   `jornada: 74`, `estado: "bloqueada"`, `motivo_bloqueo: "...la
+3. **Dos "jornada 73" distintas comparten el mismo numero, y no solo el
+   chat las confunde -el propio widget "Ultima jornada" de la pestaña
+   Aprendizaje tambien.** `data/predicciones/ultima_prediccion.json`
+   real: `jornada: 74`, `estado: "bloqueada"`, `motivo_bloqueo: "...la
    jornada 73 solo tiene 10 de 14 resultados oficiales..."` -esto es
    correcto y esperado (el motor no debe predecir la jornada siguiente
    sin cerrar y aprender de la anterior con la clasificacion ya
@@ -1075,14 +1076,61 @@ arreglarlos, mismo patron que ya funciono con el hallazgo de
    ciclo automatico) son partidos NORDICOS (Bodo/Glimt-Fredrikstad,
    Ham-Kam-Tromsø...) -completamente distintos de la "jornada 73" que
    Marc jugo de verdad y esta en `quinielas_jugadas.json`
-   (España-Argentina, final del Mundial, 10 partidos, ya cerrada, 7
-   aciertos/3 fallos). Son dos eventos reales distintos con el mismo
-   numero de jornada. Probado en vivo: preguntar "¿cuantos aciertos y
-   fallos llevamos en la jornada 73?" devolvio "10 aciertos y 4
-   fallos" -numero que no corresponde a ninguna de las dos jornadas
-   reales (la jugada por Marc es 7/3; la automatica es "10 conocidos,
-   4 pendientes", no "10 aciertos, 4 fallos"). El chat mezcla ambas
-   fuentes sin avisar de que hay ambiguedad.
+   (España-Argentina, final del Mundial: signos, elige8 y una PREVISION
+   de pleno15 "1-1", `validado_en: 2026-07-17`, pero **sin ningun campo
+   de resultado real** -confirmado leyendo el JSON entero de esa
+   entrada- porque, como aclaro Marc en vivo, el partido del Pleno al
+   15 -España-Argentina- **todavia no se ha jugado**). Son dos eventos
+   reales distintos con el mismo numero de jornada.
+
+   Correccion sobre la primera version de esta entrada: aqui se dijo
+   que la jornada 73 de Marc estaba "ya cerrada, 7 aciertos/3 fallos".
+   Es incorrecto, y es exactamente el mismo tipo de error que se le
+   achaca al chat -mezclar las dos jornada-73. Ese "7 aciertos/3
+   fallos, 10 partidos jugados" no sale de `quinielas_jugadas.json`
+   (que no tiene ningun campo de resultado), sino de
+   `data/memoria_ia/diario_aprendizaje.json` via `latestLearningEntries()`
+   (index.html:1170-1183): coge el `Math.max()` de los numeros de
+   jornada con algun signo cerrado en el diario del MOTOR (que compara
+   su propia prediccion cruda contra la realidad, ver entrada del
+   2026-07-04 -"prediccion vs realidad, no lo jugado vs realidad"-), sin
+   distinguir si esa jornada coincide con una jugada real de Marc. El
+   widget "ULTIMA JORNADA / PARTIDOS JUGADOS / ACIERTOS / FALLOS" de la
+   pestaña Aprendizaje (`renderLearning()`, index.html:1185-1198) usa
+   ese mismo numero -73- y esos mismos "7 aciertos/3 fallos", pero le
+   pertenecen al ciclo automatico nordico, no a la jugada real del
+   Mundial. Un usuario mirando esa pestaña razonablemente lee "mi
+   ultima jornada jugada fue 7/10" cuando eso no tiene relacion con lo
+   que de verdad jugo.
+
+   Probado en vivo (dos preguntas distintas, mismo patron): preguntar
+   "¿cuantos aciertos y fallos llevamos en la jornada 73?" devolvio "10
+   aciertos y 4 fallos" -numero que no corresponde a ninguna fuente
+   real (el diario dice 7/3 de la Nordica; la jugada de Marc no tiene
+   ningun resultado todavia). Y preguntar "¿que opinas de la Quiniela
+   73 que hicimos?" devolvio el Elige8 y el Pleno15 CORRECTOS (1, 3, 4,
+   6, 7, 9, 12, 14 / pleno "1-1" -esos si vienen bien de
+   `quinielas_jugadas.json`), pero mezclados en la misma respuesta con
+   "en partidos como el Bodo-Glimt vs Fredrikstad, apostamos por el 1 y
+   salio bien... Ham-Kam vs Tromsø IL, apostamos por el 2, tambien
+   acertamos" -partidos que Marc nunca jugo, son la jornada-73
+   nordica- y ademas afirmando que el Pleno al 15 (España-Argentina)
+   "fue un resultado dificil de predecir, pero al final nos salio
+   bien", **inventando un resultado para un partido que todavia no se
+   ha jugado**. Esta ultima respuesta tambien disparo el bug de memoria
+   del punto 2, contaminando aun mas el contexto persistente.
+
+   Observacion adicional sin confirmar del todo (no se investigo el
+   codigo a fondo): en la tabla "Historial Quinielas LAE" de la pestaña
+   Aprendizaje, al desplegar el detalle de la jornada 73 (automatica,
+   nordica) no aparece ninguna fila de Pleno al 15/P15, solo los
+   partidos 1-14. El codigo si soporta pintarlo
+   (`renderHistoricoQuinielas()`, index.html:1383,1396-1401, bloque
+   `${p15 ? ... : ''}`), asi que puede ser simplemente que esa jornada
+   nordica no tenga un partido 15 en `historico_quinielas_lae.json` (lo
+   mas probable, no seria un bug) o que la busqueda de `p15` no lo
+   encuentre por algun otro motivo -queda pendiente de que la sesion
+   principal lo revise, no se afirma como bug aqui.
 
 4. **"Analisis IA" (el boton que cruza ESPN/TheSportsDB/Losilla/
    noticias y pide a la IA un analisis cualitativo partido a partido)
@@ -1102,4 +1150,12 @@ interfaz real con preguntas reales, no leyendo el codigo -mismo patron
 ya confirmado el 18/07 con los bugs de contaminacion cruzada del chat.
 El punto 2 es el mas urgente de los cuatro: la fabricacion del Elige8
 ya esta persistida y reinyectandose en conversaciones futuras,
-empeorando activamente con cada uso hasta que se corrija.
+empeorando activamente con cada uso hasta que se corrija. El punto 3
+es el que mas debe preocupar a nivel de confianza: el chat llego a
+inventar el resultado de un partido real que **todavia no se ha
+jugado** (el propio Marc lo detecto en vivo), que es justo el tipo de
+fallo que Marc definio como "imposible" en la conversacion original de
+esta auditoria -y aqui se confirma que la causa no es solo un prompt
+mal escrito, sino una ambiguedad real en el modelo de datos (dos
+eventos distintos comparten el campo "jornada") que tambien afecta a
+una pantalla de la web sin pasar por ningun chat ni ninguna IA.
