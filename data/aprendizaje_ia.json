@@ -1,24 +1,24 @@
 {
   "version": "1.2",
-  "precision": 66.83,
+  "precision": 66.51,
   "jornadas_revisadas": 15,
-  "partidos_revisados": 208,
+  "partidos_revisados": 209,
   "aciertos": 139,
-  "fallos": 69,
+  "fallos": 70,
   "fallos_por_tipo": {
     "Doble insuficiente": 13,
     "Fijo fallado": 34,
-    "No cubrio empate": 22
+    "No cubrio empate": 23
   },
   "fallos_por_signo_real": {
     "1": 18,
     "2": 29,
-    "X": 22
+    "X": 23
   },
   "signos_omitidos_en_fallo": {
     "1": 18,
     "2": 29,
-    "X": 22
+    "X": 23
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,10 +28,10 @@
       "precision": 72.34
     },
     "FIJO": {
-      "total": 137,
+      "total": 138,
       "aciertos": 81,
-      "fallos": 56,
-      "precision": 59.12
+      "fallos": 57,
+      "precision": 58.7
     },
     "TRIPLE": {
       "total": 24,
@@ -54,10 +54,10 @@
       "precision": 53.23
     },
     "X": {
-      "total": 49,
+      "total": 50,
       "aciertos": 27,
-      "fallos": 22,
-      "precision": 55.1
+      "fallos": 23,
+      "precision": 54.0
     }
   },
   "detalle": [
@@ -15668,6 +15668,121 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 73,
+      "partido": "Kalmar FF - Malmoe",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-2",
+      "resultado_final": "2-2",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_73.json",
+      "probabilidades_usadas": {
+        "1": 34.7,
+        "X": 32.9,
+        "2": 32.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Kalmar FF",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Malmoe",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (34.7%).",
+        "hipotesis_alternativa": "X como alternativa (32.9%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision TRIPLE 1X2: margen 1.8 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.67,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.42,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Kalmar FF: ppp=3.00; perfil visitante Malmoe: ppp=3.00.",
+          "Memoria autonoma: historial de sorpresa medio elevado (47.4)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Kalmar FF",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 36.46,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Malmoe",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 58.25,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -15681,19 +15796,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 208,
+    "partidos_base": 209,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.17,
-      "no_cubrio_empate_sobre_fallos_pct": 31.88,
-      "no_cubrio_empate_sobre_total_pct": 10.58,
-      "fijo_fallado_sobre_fallos_pct": 49.28,
-      "fijo_fallado_sobre_total_pct": 16.35,
-      "doble_insuficiente_sobre_total_pct": 6.25
+      "fallos_total_pct": 33.49,
+      "no_cubrio_empate_sobre_fallos_pct": 32.86,
+      "no_cubrio_empate_sobre_total_pct": 11.0,
+      "fijo_fallado_sobre_fallos_pct": 48.57,
+      "fijo_fallado_sobre_total_pct": 16.27,
+      "doble_insuficiente_sobre_total_pct": 6.22
     },
-    "boost_empate_zona_riesgo": 5.27,
-    "riesgo_extra_fijo_fragil": 6.34,
-    "riesgo_extra_triple_insuficiente": 2.02,
+    "boost_empate_zona_riesgo": 5.61,
+    "riesgo_extra_fijo_fragil": 6.13,
+    "riesgo_extra_triple_insuficiente": 2.0,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,

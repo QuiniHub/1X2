@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-20T17:02:32.784970+00:00",
+  "generado_en": "2026-07-20T19:05:28.111392+00:00",
   "estado": "operativo_con_avisos",
-  "score_salud": 72,
+  "score_salud": 79,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 74,
@@ -59,13 +59,13 @@
       {
         "jornada": 73,
         "fecha": "Domingo, 19 de julio de 2026",
-        "estado": "en_juego",
+        "estado": "cerrada",
         "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
-        "pendientes_totales_con_pleno15": 1,
+        "cerrados": 14,
+        "pendientes": 0,
+        "pendientes_totales_con_pleno15": 0,
         "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "2026-07-19T17:05:39Z",
+        "ultima_actualizacion_partido": "2026-07-20T19:02:25Z",
         "path": "data/jornadas/jornada_73.json"
       },
       {
@@ -85,9 +85,9 @@
   "memoria_quinielas": {
     "jugadas_persistidas_json": 15,
     "jornadas_validadas_historial": 15,
-    "jornadas_memoria_real_total": 40,
-    "jornadas_con_signo_nuestro": 10,
-    "signos_nuestros_en_jornadas": 140,
+    "jornadas_memoria_real_total": 41,
+    "jornadas_con_signo_nuestro": 11,
+    "signos_nuestros_en_jornadas": 154,
     "estado": "memoria_propia_disponible",
     "fuentes_validas": [
       "data/quinielas_jugadas.json",
@@ -98,24 +98,24 @@
   },
   "prediccion": {
     "jornada": 74,
-    "generado_en": "2026-07-20T17:02:32.167049+00:00",
+    "generado_en": "2026-07-20T19:05:23.796196+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 8,
+      "dobles": 4,
+      "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 6,
+      "indice_sorpresa_max": 95.9,
       "calidad_datos": {
         "alta": 0,
         "media": 0,
         "media_baja": 0,
-        "baja": 0
+        "baja": 14
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 73 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 74 hasta cerrar y aprender la 73."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "clasificaciones": {
     "primera": {
@@ -168,7 +168,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.02,
+    "contexto_equipos_horas": 2.07,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -238,11 +238,11 @@
   },
   "backtesting_pre_cierre": {
     "estado": "operativo",
-    "jornadas_snapshot": 8,
-    "partidos_cerrados": 111,
-    "aciertos": 58,
-    "precision": 52.25,
-    "generado_en": "2026-07-20T17:02:32.620558+00:00",
+    "jornadas_snapshot": 9,
+    "partidos_cerrados": 112,
+    "aciertos": 59,
+    "precision": 52.68,
+    "generado_en": "2026-07-20T19:05:27.916991+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -254,14 +254,8 @@
     },
     {
       "nivel": "media",
-      "titulo": "Prediccion demasiado rigida",
-      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
-      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
-    },
-    {
-      "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 11 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -280,7 +274,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-07-20T17:02:32.784970+00:00",
+    "generado_en": "2026-07-20T19:05:28.111392+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
@@ -331,8 +325,8 @@
           "jornada": 73,
           "fecha": "Domingo, 19 de julio de 2026",
           "partidos": 14,
-          "cerrados": 13,
-          "pendientes": 1,
+          "cerrados": 14,
+          "pendientes": 0,
           "path": "data/jornadas/jornada_73.json"
         },
         {
@@ -432,28 +426,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-07-20T17:02:06.945002+00:00"
+      "generado_en": "2026-07-20T19:04:59.813757+00:00"
     },
     "prediccion": {
       "jornada": 74,
-      "generado_en": "2026-07-20T17:02:32.167049+00:00",
+      "generado_en": "2026-07-20T19:05:23.796196+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 14,
-        "dobles": 0,
-        "triples": 0,
+        "fijos": 8,
+        "dobles": 4,
+        "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 0,
-        "indice_sorpresa_max": 0.0,
+        "favoritos_atacables": 6,
+        "indice_sorpresa_max": 95.9,
         "calidad_datos": {
           "alta": 0,
           "media": 0,
           "media_baja": 0,
-          "baja": 0
+          "baja": 14
         }
       },
-      "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 73 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 74 hasta cerrar y aprender la 73."
+      "retenida_por_compuerta": false,
+      "motivo_bloqueo": null
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -504,8 +498,8 @@
         "jornada": 73,
         "fecha": "Domingo, 19 de julio de 2026",
         "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_73.json"
       },
       {
@@ -605,6 +599,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-07-20T17:02:06.945002+00:00"
+    "generado_en": "2026-07-20T19:04:59.813757+00:00"
   }
 }

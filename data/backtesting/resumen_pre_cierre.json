@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-20T17:02:32.620558+00:00",
+  "generado_en": "2026-07-20T19:05:27.916991+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
-    "jornadas_snapshot": 8,
-    "partidos_cerrados": 111,
-    "aciertos": 58,
-    "precision": 52.25
+    "jornadas_snapshot": 9,
+    "partidos_cerrados": 112,
+    "aciertos": 59,
+    "precision": 52.68
   },
   "jornadas": [
     {
@@ -1763,9 +1763,9 @@
       "creado_en": "2026-07-12T18:33:26.761777+00:00",
       "prediccion_generada_en": "2026-07-12T18:33:26.761313+00:00",
       "estado": "cerrada_o_parcial",
-      "partidos_cerrados": 13,
-      "aciertos": 4,
-      "precision": 30.77,
+      "partidos_cerrados": 14,
+      "aciertos": 5,
+      "precision": 35.71,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -1794,8 +1794,8 @@
           "aciertos": 2
         },
         "TRIPLE": {
-          "total": 1,
-          "aciertos": 1
+          "total": 2,
+          "aciertos": 2
         }
       },
       "partidos": [
@@ -1993,8 +1993,66 @@
           },
           "incertidumbre": 144.83,
           "probabilidad_sorpresa": 70
+        },
+        {
+          "num": 14,
+          "partido": "Kalmar - Malmö",
+          "jugado": "1X2",
+          "tipo": "TRIPLE",
+          "oficial": "X",
+          "acierto": true,
+          "probabilidades": {
+            "1": 34.6,
+            "X": 34.2,
+            "2": 31.2
+          },
+          "incertidumbre": 145.76,
+          "probabilidad_sorpresa": 70
         }
       ]
+    },
+    {
+      "jornada": 74,
+      "snapshot": "data/backtesting/pre_cierre/jornada_74.json",
+      "creado_en": "2026-07-20T19:05:23.796686+00:00",
+      "prediccion_generada_en": "2026-07-20T19:05:23.796196+00:00",
+      "estado": "pendiente_resultados",
+      "partidos_cerrados": 0,
+      "aciertos": 0,
+      "precision": null,
+      "configuracion": {
+        "dobles": 4,
+        "triples": 2,
+        "elige8": false,
+        "elige8_modo": "desactivado",
+        "elige8_modos_disponibles": [
+          "conservador",
+          "rentable"
+        ],
+        "cobertura_auto": true
+      },
+      "coste": {
+        "apuestas": 144,
+        "apuestas_elige8": 0,
+        "importe_quiniela": 108.0,
+        "importe_elige8": 0.0,
+        "importe_total": 108.0
+      },
+      "por_tipo": {
+        "FIJO": {
+          "total": 0,
+          "aciertos": 0
+        },
+        "DOBLE": {
+          "total": 0,
+          "aciertos": 0
+        },
+        "TRIPLE": {
+          "total": 0,
+          "aciertos": 0
+        }
+      },
+      "partidos": []
     }
   ]
 }
