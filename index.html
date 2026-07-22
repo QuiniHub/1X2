@@ -1561,7 +1561,11 @@
         const filaReal = fila => `<tr><td>${fila.posicion}</td><td>${teamCell(fila.equipo)}</td><td>${fila.pj ?? 0}</td><td>${fila.g ?? 0}</td><td>${fila.e ?? 0}</td><td>${fila.p ?? 0}</td><td>${fila.gf ?? 0}</td><td>${fila.gc ?? 0}</td><td>${fila.dg ?? 0}</td><td>${fila.puntos ?? 0}</td></tr>`;
         const table = (title, equipos) => {
           const ordenados = arr(equipos).slice().sort((a, b) => (a.posicion || 999) - (b.posicion || 999));
-          return `<section style="grid-column:1/-1;display:grid;gap:12px"><div><h3>${escapeHtml(title)}</h3><p class="subtitle">Clasificación real, actualizada en directo.</p></div><table><thead><tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr></thead><tbody>${ordenados.map(filaReal).join('')}</tbody></table></section>`;
+          const yaHayPartidos = ordenados.some(e => Number(e.pj) > 0);
+          const subtitulo = yaHayPartidos
+            ? 'Clasificación real, actualizada en directo.'
+            : 'Roster confirmado de 2026/27 -la liga todavía no ha empezado a jugarse, todos a 0.';
+          return `<section style="grid-column:1/-1;display:grid;gap:12px"><div><h3>${escapeHtml(title)}</h3><p class="subtitle">${subtitulo}</p></div><table><thead><tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr></thead><tbody>${ordenados.map(filaReal).join('')}</tbody></table></section>`;
         };
         html = [
           table('LALIGA EA SPORTS 2026/27', clasif.primera),
