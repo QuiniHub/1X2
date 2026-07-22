@@ -214,14 +214,14 @@
       "resultado": "1-2",
       "signo_oficial": "2",
       "signo_nuestro": "No jugada",
-      "competicion_resuelta": "primera_division",
-      "modelo_datos_recomendado": "modelo_liga_espana_primera",
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
       "resolucion_competicion": {
-        "competicion": "primera_division",
-        "modelo_recomendado": "modelo_liga_espana_primera",
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
         "confianza": 0.94,
-        "motivo": "Ambos equipos estan en Primera.",
-        "lectura": "Usar clasificacion de Primera, forma, casa/fuera, objetivos y bajas.",
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
         "datos_minimos": [
           "resultados",
           "clasificacion",
@@ -244,22 +244,20 @@
       "resultado": "4-1",
       "signo_oficial": "1",
       "signo_nuestro": "No jugada",
-      "competicion_resuelta": "segunda_division",
-      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
       "resolucion_competicion": {
-        "competicion": "segunda_division",
-        "modelo_recomendado": "modelo_liga_espana_segunda",
-        "confianza": 0.94,
-        "motivo": "Ambos equipos estan en Segunda.",
-        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
         "datos_minimos": [
           "resultados",
-          "clasificacion",
+          "clasificacion_liga",
           "forma",
-          "casa_fuera",
-          "lesiones",
-          "alineaciones",
-          "xg"
+          "ranking_elo",
+          "lesiones"
         ],
         "equipos_normalizados": {
           "local": "castellon",
@@ -274,22 +272,20 @@
       "resultado": "1-1",
       "signo_oficial": "X",
       "signo_nuestro": "No jugada",
-      "competicion_resuelta": "segunda_division",
-      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
       "resolucion_competicion": {
-        "competicion": "segunda_division",
-        "modelo_recomendado": "modelo_liga_espana_segunda",
-        "confianza": 0.94,
-        "motivo": "Ambos equipos estan en Segunda.",
-        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
         "datos_minimos": [
           "resultados",
-          "clasificacion",
+          "clasificacion_liga",
           "forma",
-          "casa_fuera",
-          "lesiones",
-          "alineaciones",
-          "xg"
+          "ranking_elo",
+          "lesiones"
         ],
         "equipos_normalizados": {
           "local": "valladolid",
@@ -441,12 +437,12 @@
     }
   },
   "resolucion_competiciones": {
-    "generado_en": "2026-07-22T18:21:23.261031+00:00",
+    "generado_en": "2026-07-22T18:37:06.026690+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
-      "liga_extranjera": 6,
-      "primera_division": 5,
-      "segunda_division": 3
+      "liga_extranjera": 8,
+      "primera_division": 4,
+      "segunda_division": 2
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
   }
