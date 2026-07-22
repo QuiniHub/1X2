@@ -461,13 +461,36 @@ def validar_tabla(liga, equipos, jugados):
     return True
 
 
+def codigo_temporada_desde_url(url):
+    coincidencia = re.search(r"/mmz4281/(\d{4})/", str(url or ""))
+    return coincidencia.group(1) if coincidencia else None
+
+
+def es_retroceso_de_temporada(data, liga, fuentes):
+    """No dejar que el fallback a la temporada anterior de football-data.co.uk
+    pise el roster de 2026/2027 ya confirmado por actualizar_clasificaciones_oficiales.py
+    (via el "Racing de Santander" en Primera) cuando football-data.co.uk todavia
+    no tiene partidos reales de 2026/2027 y cae al CSV de 2025/2026."""
+    if data.get("temporada_detectada") != "2026/2027":
+        return False
+    codigo = codigo_temporada_desde_url(fuentes.get(liga, {}).get("url"))
+    return codigo is not None and codigo != "2627"
+
+
 def actualizar_clasificaciones(tablas, fuentes):
     ahora = ahora_iso()
     rutas = [ROOT / "clasificaciones.json", DATA / "clasificaciones_oficiales.json"]
     for ruta in rutas:
         data = cargar_json(ruta, {})
+        cambiado = False
         for liga, tabla in tablas.items():
+            if es_retroceso_de_temporada(data, liga, fuentes):
+                print(f"{liga}: se conserva el roster 2026/2027 ya confirmado; football-data.co.uk solo tiene datos de una temporada anterior.")
+                continue
             data[liga] = tabla
+            cambiado = True
+        if not cambiado:
+            continue
         data["actualizado_en"] = ahora
         data["validado_en"] = ahora
         data["dinamicas_recalculadas_en"] = ahora
