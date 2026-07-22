@@ -3031,10 +3031,13 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
           }
           if (equipoEncontrado) {
             const temporada = (state.contextoCompetitivo || {}).temporada_detectada;
-            const etiquetaTemporada = temporada === '2026/2027'
-              ? 'clasificación EN VIVO de 2026/2027'
-              : 'clasificación FINAL de 2025/2026 — la Liga 26/27 aún no ha empezado';
-            bloqueClasificacionEquipo = `\n\n--- SITUACIÓN REAL DE ${equipoEncontrado.equipo.toUpperCase()} EN LA LIGA (${etiquetaTemporada}) ---\nDivisión: ${equipoEncontrado.liga} · Posición: ${equipoEncontrado.posicion} · Puntos: ${equipoEncontrado.puntos} (${equipoEncontrado.pj} PJ) · DG: ${equipoEncontrado.dg}\n${equipoEncontrado.lectura_resumen || 'Sin lectura competitiva específica.'}\nIMPORTANTE: usa EXCLUSIVAMENTE estos datos para hablar de la situación en la liga de este equipo. Dile claramente al usuario si es la clasificación final de la temporada pasada o la actual en curso, según corresponda -no des a entender que la Liga 26/27 ya está en marcha si no lo está.\n--- FIN CLASIFICACIÓN ---`;
+            const pretemporada2627 = temporada === '2026/2027' && !(equipoEncontrado.pj > 0);
+            const etiquetaTemporada = temporada !== '2026/2027'
+              ? 'clasificación FINAL de 2025/2026 — la Liga 26/27 aún no ha empezado'
+              : pretemporada2627
+                ? 'roster confirmado de 2026/2027 — la Liga todavía NO ha empezado a jugarse, todos los equipos están a 0'
+                : 'clasificación EN VIVO de 2026/2027, con partidos ya jugados';
+            bloqueClasificacionEquipo = `\n\n--- SITUACIÓN REAL DE ${equipoEncontrado.equipo.toUpperCase()} EN LA LIGA (${etiquetaTemporada}) ---\nDivisión: ${equipoEncontrado.liga} · Posición: ${equipoEncontrado.posicion} · Puntos: ${equipoEncontrado.puntos} (${equipoEncontrado.pj} PJ) · DG: ${equipoEncontrado.dg}\n${equipoEncontrado.lectura_resumen || 'Sin lectura competitiva específica.'}\nIMPORTANTE: usa EXCLUSIVAMENTE estos datos para hablar de la situación en la liga de este equipo. Dile claramente al usuario cuál de las 3 situaciones aplica: (a) clasificación final de la temporada pasada, (b) roster ya confirmado de 2026/2027 pero SIN NINGÚN PARTIDO JUGADO todavía (no digas "acaba de empezar" ni inventes resultados), o (c) clasificación en vivo de 2026/2027 con partidos ya jugados.\n--- FIN CLASIFICACIÓN ---`;
             bloqueWeb = '';
           }
         }
