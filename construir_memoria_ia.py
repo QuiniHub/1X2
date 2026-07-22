@@ -1056,9 +1056,14 @@ def aplicar_clasificaciones_oficiales(ligas):
     return ligas
 
 
+def obtener_temporada_detectada():
+    return cargar_json(CLASIFICACIONES_OFICIALES, {}).get("temporada_detectada", "2025/2026")
+
+
 def main():
     ligas = {nombre: analizar_liga(nombre, path) for nombre, path in CALENDARIOS.items()}
     ligas = aplicar_clasificaciones_oficiales(ligas)
+    temporada_detectada = obtener_temporada_detectada()
     nuestras_quinielas = analizar_nuestras_quinielas()
     diario = nuestras_quinielas.pop("_diario_aprendizaje", [])
     quiniela = {
@@ -1106,7 +1111,9 @@ def main():
     guardar_json(PESOS_DINAMICOS, pesos_dinamicos)
     guardar_json(OUT_TEMPORADA / "resumen_temporada.json", memoria)
     guardar_json(OUT_MEMORIA / "aprendizaje_global.json", memoria)
-    guardar_json(ROOT / "clasificaciones.json", construir_clasificaciones(ligas))
+    clasificacion_final = construir_clasificaciones(ligas)
+    clasificacion_final["temporada_detectada"] = temporada_detectada
+    guardar_json(ROOT / "clasificaciones.json", clasificacion_final)
     print(f"Memoria IA construida: {OUT_MEMORIA / 'aprendizaje_global.json'}")
 
 
