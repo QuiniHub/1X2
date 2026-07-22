@@ -566,6 +566,11 @@ def main():
         "reglas": REGLAS,
         "primera": analizar_primera(clasificaciones.get("primera", [])),
         "segunda": analizar_segunda(clasificaciones.get("segunda", [])),
+        # Propagado desde clasificaciones.json (ver detectar_temporada() en
+        # actualizar_clasificaciones_oficiales.py) para que el chat sepa si
+        # esta viendo la clasificacion real de 2026/2027 en curso o la
+        # 2025/2026 ya terminada, sin tener que cargar un tercer archivo.
+        "temporada_detectada": clasificaciones.get("temporada_detectada"),
     }
     guardar_json(MEMORIA / "contexto_competitivo.json", salida)
     print(MEMORIA / "contexto_competitivo.json")

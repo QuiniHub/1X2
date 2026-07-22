@@ -1543,15 +1543,41 @@
       const days = Math.max(0, Math.ceil((start - today) / 86400000));
       qs('#daysToLeague').textContent = days;
 
-      const statCells = '<td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>';
       const teamCell = nombre => `<strong>${escapeHtml(nombre)}</strong>`;
-      const row = (nombre, idx) => `<tr><td>${idx + 1}</td><td>${teamCell(nombre)}</td>${statCells}</tr>`;
-      const table = (title, equipos) => `<section style="grid-column:1/-1;display:grid;gap:12px"><div><h3>${escapeHtml(title)}</h3><p class="subtitle">Clasificación inicial 2026/27 · todos los equipos arrancan con 0 puntos.</p></div><table><thead><tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr></thead><tbody>${equipos.map(row).join('')}</tbody></table></section>`;
 
-      qs('#leagueTeams').innerHTML = [
-        table('LALIGA EA SPORTS 2026/27', EQUIPOS_2627.primera),
-        table('LALIGA HYPERMOTION 2026/27', EQUIPOS_2627.segunda)
-      ].join('');
+      // "temporada_detectada" viene de actualizar_clasificaciones_oficiales.py
+      // (detectar_temporada): compara la tabla de Primera scrapeada de
+      // AS.com contra los ascensos/descensos ya confirmados (Racing sube en
+      // 26/27, Girona baja) para saber si son datos reales de la Liga
+      // 26/27 en curso o todavia la 25/26 recien terminada. Sin esto,
+      // mostrar clasificaciones.json tal cual seria tan enganoso como los
+      // ceros: datos reales, pero de la temporada equivocada.
+      const clasif = state.clasificacionesOficiales;
+      const temporadaReal = !!(clasif && clasif.temporada_detectada === '2026/2027'
+        && arr(clasif.primera).length >= 20 && arr(clasif.segunda).length >= 22);
+
+      let html;
+      if (temporadaReal) {
+        const filaReal = fila => `<tr><td>${fila.posicion}</td><td>${teamCell(fila.equipo)}</td><td>${fila.pj ?? 0}</td><td>${fila.g ?? 0}</td><td>${fila.e ?? 0}</td><td>${fila.p ?? 0}</td><td>${fila.gf ?? 0}</td><td>${fila.gc ?? 0}</td><td>${fila.dg ?? 0}</td><td>${fila.puntos ?? 0}</td></tr>`;
+        const table = (title, equipos) => {
+          const ordenados = arr(equipos).slice().sort((a, b) => (a.posicion || 999) - (b.posicion || 999));
+          return `<section style="grid-column:1/-1;display:grid;gap:12px"><div><h3>${escapeHtml(title)}</h3><p class="subtitle">Clasificación real, actualizada en directo.</p></div><table><thead><tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr></thead><tbody>${ordenados.map(filaReal).join('')}</tbody></table></section>`;
+        };
+        html = [
+          table('LALIGA EA SPORTS 2026/27', clasif.primera),
+          table('LALIGA HYPERMOTION 2026/27', clasif.segunda)
+        ].join('');
+      } else {
+        const statCells = '<td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>';
+        const row = (nombre, idx) => `<tr><td>${idx + 1}</td><td>${teamCell(nombre)}</td>${statCells}</tr>`;
+        const table = (title, equipos) => `<section style="grid-column:1/-1;display:grid;gap:12px"><div><h3>${escapeHtml(title)}</h3><p class="subtitle">Clasificación inicial 2026/27 · todos los equipos arrancan con 0 puntos.</p></div><table><thead><tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr></thead><tbody>${equipos.map(row).join('')}</tbody></table></section>`;
+        html = [
+          table('LALIGA EA SPORTS 2026/27', EQUIPOS_2627.primera),
+          table('LALIGA HYPERMOTION 2026/27', EQUIPOS_2627.segunda)
+        ].join('');
+      }
+
+      qs('#leagueTeams').innerHTML = html;
 
       renderCalendario();
     }
@@ -2977,6 +3003,42 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
           }
         }
 
+        // Bloque de clasificacion/situacion en la liga de un equipo
+        // concreto. contexto_competitivo.json ya calcula esto con logica
+        // real (titulo, Champions, descenso, ascenso...) a partir de la
+        // clasificacion que scrapea actualizar_clasificaciones_oficiales.py
+        // -pero el chat nunca leia este archivo hasta hoy. Se etiqueta la
+        // temporada (temporada_detectada) para no dar a entender que la
+        // Liga 26/27 ya esta en marcha cuando los datos que hay todavia
+        // son los de la 25/26 recien terminada.
+        let bloqueClasificacionEquipo = '';
+        const esConsultaClasificacion = /clasificaci|posici[oó]n en la liga|tabla|puntos|descenso|ascenso|playoff|c[oó]mo va|liga/i.test(textoTotal);
+        if (esConsultaClasificacion) {
+          const normEqClasif = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z\s]/g, '').trim();
+          const textoNClasif = normEqClasif(texto);
+          const equiposContexto = [
+            ...arr((state.contextoCompetitivo || {}).primera?.equipos).map(e => ({ ...e, liga: '1ª' })),
+            ...arr((state.contextoCompetitivo || {}).segunda?.equipos).map(e => ({ ...e, liga: '2ª' })),
+          ];
+          let equipoEncontrado = null;
+          let mejorLenClasif = 0;
+          for (const equipo of equiposContexto) {
+            const claveN = normEqClasif(equipo.equipo || '');
+            if (claveN.length >= 4 && textoNClasif.includes(claveN) && claveN.length > mejorLenClasif) {
+              equipoEncontrado = equipo;
+              mejorLenClasif = claveN.length;
+            }
+          }
+          if (equipoEncontrado) {
+            const temporada = (state.contextoCompetitivo || {}).temporada_detectada;
+            const etiquetaTemporada = temporada === '2026/2027'
+              ? 'clasificación EN VIVO de 2026/2027'
+              : 'clasificación FINAL de 2025/2026 — la Liga 26/27 aún no ha empezado';
+            bloqueClasificacionEquipo = `\n\n--- SITUACIÓN REAL DE ${equipoEncontrado.equipo.toUpperCase()} EN LA LIGA (${etiquetaTemporada}) ---\nDivisión: ${equipoEncontrado.liga} · Posición: ${equipoEncontrado.posicion} · Puntos: ${equipoEncontrado.puntos} (${equipoEncontrado.pj} PJ) · DG: ${equipoEncontrado.dg}\n${equipoEncontrado.lectura_resumen || 'Sin lectura competitiva específica.'}\nIMPORTANTE: usa EXCLUSIVAMENTE estos datos para hablar de la situación en la liga de este equipo. Dile claramente al usuario si es la clasificación final de la temporada pasada o la actual en curso, según corresponda -no des a entender que la Liga 26/27 ya está en marcha si no lo está.\n--- FIN CLASIFICACIÓN ---`;
+            bloqueWeb = '';
+          }
+        }
+
         // Bloque de resultados de fútbol en tiempo real
         let bloqueFootball = '';
         if (datosFootball) {
@@ -3014,6 +3076,7 @@ REGLAS CRÍTICAS — LEE ANTES DE RESPONDER:
 5. Si los datos de fútbol en tiempo real (ESPN/TheSportsDB) o la búsqueda web te dan información sobre hoy, úsala sin dudar.
 6. "LO QUE REALMENTE HEMOS JUGADO" (boletos reales confirmados) y "PREDICCIÓN" (la predicción automática del motor para la SIGUIENTE jornada) son DOS COSAS DISTINTAS. La predicción automática puede estar bloqueada esperando que cierre la jornada anterior — eso NO significa que no sepas qué jugamos nosotros de verdad. Si preguntan por una jornada que ya jugamos, usa el bloque "LO QUE REALMENTE HEMOS JUGADO" y nunca respondas "no tengo acceso" solo porque la predicción automática de la jornada siguiente esté bloqueada.
 7. Si preguntan por lesionados/bajas/dudas de un equipo y aparece un bloque "LESIONADOS/DUDAS REALES DE [EQUIPO]" más abajo, cita EXCLUSIVAMENTE esos nombres — ni uno más, aunque la búsqueda web o tu conocimiento previo te sugieran otra baja "probable". Si ese bloque no aparece para el equipo preguntado, di explícitamente que no tienes datos estructurados de esa fuente para ese equipo, en vez de inventar o mezclar con suposiciones.
+8. Si preguntan por la clasificación/situación en la liga de un equipo y aparece un bloque "SITUACIÓN REAL DE [EQUIPO] EN LA LIGA" más abajo, cita EXCLUSIVAMENTE esos datos (posición, puntos, lectura) y respeta SIEMPRE la etiqueta de temporada que incluye ese bloque — si dice que es la clasificación final de la temporada pasada, dilo así de claro, nunca des a entender que la Liga 26/27 ya está en marcha si el propio bloque dice que no. Si ese bloque no aparece, di que no tienes datos de clasificación de ese equipo, sin inventar posiciones ni puntos.
 
 ═══════════════════════════════════════════════════════
 DOCUMENTO OFICIAL: REGLAS COMPLETAS DE LA QUINIELA LAE
@@ -3133,7 +3196,7 @@ TU PERSONALIDAD:
 - Respuestas concisas y naturales. Sin bullets innecesarios. Como una conversación real.
 
 DATOS REALES DE TU SISTEMA — TEMPORADA 2026/2027:
-${contexto}${bloqueCalendario}${bloqueLesionesEquipo}${bloqueFootball}${bloqueClasif}${bloqueWeb}${bloqueURLs}${bloqueAdjunto}${quiereAprender ? `
+${contexto}${bloqueCalendario}${bloqueLesionesEquipo}${bloqueClasificacionEquipo}${bloqueFootball}${bloqueClasif}${bloqueWeb}${bloqueURLs}${bloqueAdjunto}${quiereAprender ? `
 
 INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Responde normalmente y al final añade EXACTAMENTE esta línea (sin nada después):
 [MEMO]resumen breve de lo aprendido, máximo 250 caracteres, incluyendo info web si la hay[/MEMO]` : ''}`;
@@ -3209,7 +3272,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga, lesionesRespaldo] = await Promise.all([
+      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga, lesionesRespaldo, clasificacionesOficiales, contextoCompetitivo] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -3227,7 +3290,9 @@ No inventes — solo lo que ves con fondo oscuro.`;
         getJson('data/memoria_ia/sorpresas_mercado.json', null),
         getJson('data/quinielas_jugadas.json', null),
         getJson('data/memoria_ia/fuente_lesiones_laliga.json', null),
-        getJson('data/memoria_ia/fuente_lesiones_jornadaperfecta.json', null)
+        getJson('data/memoria_ia/fuente_lesiones_jornadaperfecta.json', null),
+        getJson('data/clasificaciones_oficiales.json', null),
+        getJson('data/memoria_ia/contexto_competitivo.json', null)
       ]);
       state.prediccion = pred;
       state.pleno15Data = pleno;
@@ -3247,6 +3312,8 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.quinielasJugadas = quinielasJugadas;
       state.lesionesLaliga = lesionesLaliga;
       state.lesionesRespaldo = lesionesRespaldo;
+      state.clasificacionesOficiales = clasificacionesOficiales;
+      state.contextoCompetitivo = contextoCompetitivo;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       state.detallesPartidos = jornadaNum ? await getJson(`data/jornadas/detalles_j${jornadaNum}.json`, null) : null;

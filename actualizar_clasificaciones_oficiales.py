@@ -311,6 +311,23 @@ def extraer_tablas():
         return extraer_tablas_quiniela()
 
 
+def detectar_temporada(tabla_primera):
+    """Distingue si la tabla de Primera scrapeada es ya la real de
+    2026/2027 o todavia la 2025/2026 recien terminada -necesario porque
+    actualizar_clasificaciones_oficiales.py scrapea "lo que AS.com este
+    mostrando ahora mismo", sin saber de que temporada es.
+
+    Racing de Santander sube a Primera en 26/27 (Girona baja) -equipos
+    mutuamente excluyentes entre las dos tablas, asi que su presencia es
+    una señal limpia y determinista: si aparece, es la tabla real de
+    26/27; si la tabla sigue mostrando a Girona en Primera, sigue siendo
+    la 25/26 terminada."""
+    equipos = {normalizar(e.get("equipo", "")) for e in (tabla_primera or [])}
+    if any("racing" in equipo for equipo in equipos):
+        return "2026/2027"
+    return "2025/2026"
+
+
 def buscar_equipo(tabla, nombre):
     clave = normalizar(nombre)
     for equipo in tabla:
@@ -371,6 +388,7 @@ def fusionar_clasificacion_publica(oficial, publica):
     salida["actualizado_en"] = oficial.get("actualizado_en") or salida.get("actualizado_en")
     salida["validado_en"] = oficial.get("validado_en") or salida.get("validado_en")
     salida["fuentes"] = oficial.get("fuentes", salida.get("fuentes", {}))
+    salida["temporada_detectada"] = oficial.get("temporada_detectada", salida.get("temporada_detectada"))
     return salida
 
 
@@ -392,15 +410,17 @@ def main():
             "fuentes": FUENTES,
             "primera": tablas["primera"],
             "segunda": tablas["segunda"],
+            "temporada_detectada": detectar_temporada(tablas["primera"]),
         }
         guardar_json(OFICIALES, oficial)
-        print("Clasificacion descargada desde fuente externa vigente.")
+        print(f"Clasificacion descargada desde fuente externa vigente ({oficial['temporada_detectada']}).")
     except Exception as exc:
         oficial = cargar_json(OFICIALES, {})
         if not validar_guardada(oficial):
             oficial = cargar_json(PUBLICA, {})
         if not validar_guardada(oficial):
             raise SystemExit(f"No hay clasificacion valida para conservar: {exc}")
+        oficial["temporada_detectada"] = detectar_temporada(oficial.get("primera", []))
         oficial["validado_en"] = ahora
         oficial.setdefault("fuentes", FUENTES)
         guardar_json(OFICIALES, oficial)
