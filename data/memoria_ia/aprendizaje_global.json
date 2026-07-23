@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-23T17:40:03.385736+00:00",
+  "generado_en": "2026-07-23T17:44:53.358414+00:00",
   "temporada": "2025/2026",
   "estado": "base_real_en_construccion",
   "ligas": {
@@ -682,7 +682,7 @@
       },
       "clasificacion_oficial": true,
       "fuente_clasificacion": "",
-      "actualizado_en_clasificacion": "2026-07-23T17:36:43Z"
+      "actualizado_en_clasificacion": "2026-07-23T17:41:12Z"
     },
     "segunda": {
       "competicion": "segunda",
@@ -1428,7 +1428,7 @@
       },
       "clasificacion_oficial": true,
       "fuente_clasificacion": "",
-      "actualizado_en_clasificacion": "2026-07-23T17:36:43Z"
+      "actualizado_en_clasificacion": "2026-07-23T17:41:12Z"
     }
   },
   "quiniela": {
@@ -8669,7 +8669,7 @@
   },
   "pesos_dinamicos": {
     "archivo": "data/memoria_ia/pesos_dinamicos.json",
-    "generado_en": "2026-07-23T17:40:03.385717+00:00",
+    "generado_en": "2026-07-23T17:44:53.358399+00:00",
     "muestra": {
       "partidos_validados": 209,
       "fallos": 74,
@@ -8742,10 +8742,594 @@
     "historial_resultados_universal"
   ],
   "patrones_competitivos": {
-    "version": "1.0",
-    "generado_en": "2026-07-23T17:40:24.160888+00:00",
-    "descripcion": "Patrones aprendidos de resultados reales de 1a y 2a para no tratar como fijos tranquilos partidos con objetivos cerrados contra rivales necesitados.",
-    "patrones": {},
+    "version": "2.0",
+    "generado_en": "2026-07-23T17:45:12.153572+00:00",
+    "descripcion": "Patrones aprendidos de temporadas completas archivadas en data/historico/, reconstruyendo la situacion competitiva real de cada equipo jornada a jornada -no comparando contra la clasificacion de HOY, que en pretemporada no tiene nada que ver con la situacion en la que se jugo cada partido historico.",
+    "temporadas_analizadas": {
+      "primera": [
+        "calendario_primera_2025_2026"
+      ],
+      "segunda": [
+        "calendario_segunda_2025_2026"
+      ]
+    },
+    "patrones": {
+      "equipo_necesitado_vs_equipo_sin_objetivo": {
+        "casos": 31,
+        "sorpresas": 18,
+        "tasa_sorpresa": 58.1,
+        "ejemplos": [
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 38,
+            "partido": "RCD Mallorca - Real Oviedo",
+            "resultado": "3-0",
+            "signo_real": "1",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 38,
+            "partido": "Valencia CF - FC Barcelona",
+            "resultado": "3-1",
+            "signo_real": "1",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 40,
+            "partido": "AD Ceuta FC - Málaga CF",
+            "resultado": "1-4",
+            "signo_real": "2",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 40,
+            "partido": "Racing Santander - Real Valladolid",
+            "resultado": "4-1",
+            "signo_real": "1",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 40,
+            "partido": "Granada CF - Burgos CF",
+            "resultado": "0-1",
+            "signo_real": "2",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 41,
+            "partido": "Málaga CF - Racing Santander",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 41,
+            "partido": "Real Valladolid - Deportivo La Coruña",
+            "resultado": "0-2",
+            "signo_real": "2",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 41,
+            "partido": "CD Mirandés - Granada CF",
+            "resultado": "3-1",
+            "signo_real": "1",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 42,
+            "partido": "Deportivo La Coruña - UD Las Palmas",
+            "resultado": "1-2",
+            "signo_real": "2",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 42,
+            "partido": "UD Almería - Real Valladolid",
+            "resultado": "1-0",
+            "signo_real": "1",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 42,
+            "partido": "Real Zaragoza - Málaga CF",
+            "resultado": "0-2",
+            "signo_real": "2",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 42,
+            "partido": "Burgos CF - FC Andorra",
+            "resultado": "1-0",
+            "signo_real": "1",
+            "lectura": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+          }
+        ]
+      },
+      "local_descenso_vs_visitante_favorito": {
+        "casos": 244,
+        "sorpresas": 153,
+        "tasa_sorpresa": 62.7,
+        "ejemplos": [
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 34,
+            "partido": "Cultural Leonesa - Real Valladolid",
+            "resultado": "1-0",
+            "signo_real": "1",
+            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 34,
+            "partido": "FC Andorra - Racing Santander",
+            "resultado": "6-2",
+            "signo_real": "1",
+            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 35,
+            "partido": "CD Leganés - Albacete",
+            "resultado": "2-1",
+            "signo_real": "1",
+            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 35,
+            "partido": "CD Mirandés - CD Castellón",
+            "resultado": "2-2",
+            "signo_real": "X",
+            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 35,
+            "partido": "SD Huesca - Deportivo La Coruña",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 35,
+            "partido": "Real Valladolid - SD Eibar",
+            "resultado": "0-0",
+            "signo_real": "X",
+            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 36,
+            "partido": "Real Zaragoza - AD Ceuta FC",
+            "resultado": "2-2",
+            "signo_real": "X",
+            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 37,
+            "partido": "AD Ceuta FC - Racing Santander",
+            "resultado": "0-0",
+            "signo_real": "X",
+            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 38,
+            "partido": "Real Sociedad B - Burgos CF",
+            "resultado": "0-0",
+            "signo_real": "X",
+            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 38,
+            "partido": "Cultural Leonesa - Cádiz CF",
+            "resultado": "2-2",
+            "signo_real": "X",
+            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 40,
+            "partido": "Cultural Leonesa - SD Eibar",
+            "resultado": "2-1",
+            "signo_real": "1",
+            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 41,
+            "partido": "CD Mirandés - Granada CF",
+            "resultado": "3-1",
+            "signo_real": "1",
+            "lectura": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+          }
+        ]
+      },
+      "necesitado_local_vs_visitante_objetivo_cerrado": {
+        "casos": 15,
+        "sorpresas": 10,
+        "tasa_sorpresa": 66.7,
+        "ejemplos": [
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 35,
+            "partido": "RCD Mallorca - Villarreal CF",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 36,
+            "partido": "CA Osasuna - Club Atlético de Madrid",
+            "resultado": "1-2",
+            "signo_real": "2",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 36,
+            "partido": "Deportivo Alavés - FC Barcelona",
+            "resultado": "1-0",
+            "signo_real": "1",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 37,
+            "partido": "Rayo Vallecano de Madrid - Villarreal CF",
+            "resultado": "2-0",
+            "signo_real": "1",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 37,
+            "partido": "Sevilla FC - Real Madrid CF",
+            "resultado": "0-1",
+            "signo_real": "2",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 38,
+            "partido": "RCD Mallorca - Real Oviedo",
+            "resultado": "3-0",
+            "signo_real": "1",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 38,
+            "partido": "Valencia CF - FC Barcelona",
+            "resultado": "3-1",
+            "signo_real": "1",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 40,
+            "partido": "Racing Santander - Real Valladolid",
+            "resultado": "4-1",
+            "signo_real": "1",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 41,
+            "partido": "Málaga CF - Racing Santander",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 41,
+            "partido": "CD Mirandés - Granada CF",
+            "resultado": "3-1",
+            "signo_real": "1",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 42,
+            "partido": "UD Almería - Real Valladolid",
+            "resultado": "1-0",
+            "signo_real": "1",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 42,
+            "partido": "Burgos CF - FC Andorra",
+            "resultado": "1-0",
+            "signo_real": "1",
+            "lectura": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+          }
+        ]
+      },
+      "visitante_descenso_vs_local_favorito": {
+        "casos": 224,
+        "sorpresas": 82,
+        "tasa_sorpresa": 36.6,
+        "ejemplos": [
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 31,
+            "partido": "Racing Santander - Albacete",
+            "resultado": "0-4",
+            "signo_real": "2",
+            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 32,
+            "partido": "Córdoba CF - CD Mirandés",
+            "resultado": "2-2",
+            "signo_real": "X",
+            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 32,
+            "partido": "Málaga CF - CD Leganés",
+            "resultado": "0-0",
+            "signo_real": "X",
+            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 33,
+            "partido": "Burgos CF - AD Ceuta FC",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 33,
+            "partido": "CD Leganés - Real Zaragoza",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 34,
+            "partido": "Real Zaragoza - CD Mirandés",
+            "resultado": "1-2",
+            "signo_real": "2",
+            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 35,
+            "partido": "AD Ceuta FC - Real Sociedad B",
+            "resultado": "0-0",
+            "signo_real": "X",
+            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 38,
+            "partido": "FC Andorra - Albacete",
+            "resultado": "0-1",
+            "signo_real": "2",
+            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 40,
+            "partido": "CD Castellón - Cádiz CF",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 40,
+            "partido": "CD Leganés - SD Huesca",
+            "resultado": "0-0",
+            "signo_real": "X",
+            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 40,
+            "partido": "Real Sociedad B - CD Mirandés",
+            "resultado": "2-2",
+            "signo_real": "X",
+            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 41,
+            "partido": "UD Las Palmas - Real Zaragoza",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+          }
+        ]
+      },
+      "visitante_necesitado_vs_local_objetivo_cerrado": {
+        "casos": 16,
+        "sorpresas": 8,
+        "tasa_sorpresa": 50.0,
+        "ejemplos": [
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 35,
+            "partido": "Club Atlético de Madrid - RC Celta de Vigo",
+            "resultado": "0-1",
+            "signo_real": "2",
+            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 36,
+            "partido": "Villarreal CF - Sevilla FC",
+            "resultado": "2-3",
+            "signo_real": "2",
+            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 37,
+            "partido": "Club Atlético de Madrid - Girona FC",
+            "resultado": "1-0",
+            "signo_real": "1",
+            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 37,
+            "partido": "Real Oviedo - Deportivo Alavés",
+            "resultado": "0-1",
+            "signo_real": "2",
+            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 38,
+            "partido": "Real Betis Balompié - Levante UD",
+            "resultado": "2-1",
+            "signo_real": "1",
+            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 38,
+            "partido": "RC Celta de Vigo - Sevilla FC",
+            "resultado": "1-0",
+            "signo_real": "1",
+            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+          },
+          {
+            "liga": "primera",
+            "temporada": "?",
+            "jornada_liga": 38,
+            "partido": "Real Madrid CF - Athletic Club",
+            "resultado": "4-2",
+            "signo_real": "1",
+            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 40,
+            "partido": "AD Ceuta FC - Málaga CF",
+            "resultado": "1-4",
+            "signo_real": "2",
+            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 40,
+            "partido": "Granada CF - Burgos CF",
+            "resultado": "0-1",
+            "signo_real": "2",
+            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 41,
+            "partido": "Real Valladolid - Deportivo La Coruña",
+            "resultado": "0-2",
+            "signo_real": "2",
+            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 42,
+            "partido": "Deportivo La Coruña - UD Las Palmas",
+            "resultado": "1-2",
+            "signo_real": "2",
+            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "?",
+            "jornada_liga": 42,
+            "partido": "Real Zaragoza - Málaga CF",
+            "resultado": "0-2",
+            "signo_real": "2",
+            "lectura": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+          }
+        ]
+      }
+    },
     "regla_uso": "Si un patron supera el 30% de sorpresa, sube incertidumbre; si supera el 45%, recomienda cobertura cuando haya dobles/triples."
   }
 }

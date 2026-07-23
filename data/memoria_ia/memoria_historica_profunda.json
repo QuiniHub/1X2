@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "descripcion": "Memoria historica profunda de la IA — conocimiento acumulado sobre futbol y quinielas",
-  "generado_en": "2026-07-23T17:40:26.623897+00:00",
+  "generado_en": "2026-07-23T17:45:14.091587+00:00",
   "temporadas_analizadas": [
     "2025_2026"
   ],
@@ -316,6 +316,37 @@
     },
     "conclusion_pesos": "El sistema ha aprendido que la SORPRESA y el EMPATE pesan más de lo esperado. La FORMA RECIENTE y la CLASIFICACIÓN engañan más de lo que ayudan. Los GOLES y la MOTIVACIÓN COMPETITIVA son los factores más fiables."
   },
-  "factores_humanos_validados": {},
+  "factores_humanos_validados": {
+    "equipo_necesitado_vs_equipo_sin_objetivo": {
+      "casos": 31,
+      "tasa_sorpresa": 58.1,
+      "fiabilidad": "media",
+      "conclusion": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+    },
+    "local_descenso_vs_visitante_favorito": {
+      "casos": 244,
+      "tasa_sorpresa": 62.7,
+      "fiabilidad": "media",
+      "conclusion": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+    },
+    "necesitado_local_vs_visitante_objetivo_cerrado": {
+      "casos": 15,
+      "tasa_sorpresa": 66.7,
+      "fiabilidad": "alta",
+      "conclusion": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+    },
+    "visitante_descenso_vs_local_favorito": {
+      "casos": 224,
+      "tasa_sorpresa": 36.6,
+      "fiabilidad": "baja",
+      "conclusion": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+    },
+    "visitante_necesitado_vs_local_objetivo_cerrado": {
+      "casos": 16,
+      "tasa_sorpresa": 50.0,
+      "fiabilidad": "media",
+      "conclusion": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+    }
+  },
   "resumen_para_chat": "SOY LA IA DE QUINIHUB. ESTO ES LO QUE SÉ Y HE APRENDIDO:\n\nSOBRE EL FÚTBOL (basado en 1021 partidos analizados):\n- Gana el local el 45.7% de las veces. Hay empate el 24.2%. Gana el visitante el 30.1%.\n- El 30.1% de los partidos son sorpresas para el pronóstico habitual.\n- Las jornadas de La Quiniela tienen de media un 54.3% de sorpresa.\n\nSOBRE LO QUE HE APRENDIDO DE LOS PESOS:\n- el EMPATE pesa más de lo esperado — ha subido un 75% sobre mi referencia base.\n- la SORPRESA pesa más de lo esperado — ha subido un 73% sobre mi referencia base.\n- la FORMA RECIENTE la he reducido un 50% — engañaba más de lo que ayudaba.\n- la CLASIFICACIÓN la he reducido un 50% — engañaba más de lo que ayudaba.\n- la FATIGA y las BAJAS son los factores que menos he tenido que tocar — los más fiables desde el inicio.\n\nPATRONES COMPETITIVOS QUE HE VALIDADO:\n- Equipo necesitado vs sin objetivo: 66% de sorpresa (294 casos). MUY FIABLE.\n- Local desesperado (descenso) vs visitante objetivo cerrado: 79.6% sorpresa (147 casos). EL MÁS FIABLE.\n- Visitante necesitado vs local sin objetivos: 52.4% sorpresa (147 casos). MODERADO.\n\nMIS FALLOS MÁS HABITUALES:\n- Fijo fallado (42 veces): confío demasiado en el favorito sin cobertura.\n- No cubro empate (19 veces): el X me cuesta más de lo que debería.\n- Precisión en FIJOS: 60.4%. En DOBLES: 81.2%. En TRIPLES: 100.0%.\n\nSOBRE NUESTRAS QUINIELAS:\n- Llevamos 16 jornadas jugadas con IA.\n- Mejor resultado: J70 con 12 aciertos.\n- Total cobrado: 85.42€\n- Precisión media: 70.2%\n\nEQUIPOS QUE MÁS SORPRENDEN (dan la sorpresa con más frecuencia):\n- Cultural Leonesa: 54.5% de sorpresa en 11 partidos\n- Ajax: 42.9% de sorpresa en 7 partidos\n- R. Zaragoza: 38.1% de sorpresa en 21 partidos\n- Psv: 37.5% de sorpresa en 8 partidos\n- Benfica: 33.3% de sorpresa en 6 partidos\n\nESTADO ACTUAL: J75 en estado: bloqueada, esperando el cierre de la jornada anterior. Motivo: Cierre pendiente de la jornada anterior: la jornada 74 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 75 hasta cerrar y aprender la 74.."
 }
