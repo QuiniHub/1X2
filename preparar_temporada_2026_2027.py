@@ -418,6 +418,31 @@ def inicializar_clasificaciones():
     return salida
 
 
+def tiene_partidos_jugados(calendario):
+    return any(
+        partido.get("estado") == "Jugado"
+        for jornada in (calendario or {}).get("jornadas", [])
+        for partido in jornada.get("partidos", [])
+    )
+
+
+def archivar_calendario_saliente(liga, existente):
+    """Preserva el calendario de la temporada saliente antes de vaciarlo para
+    la nueva -sin esto, calendario_vacio() lo borra sin dejar rastro cada vez
+    que este script corre en pretemporada (encontrado el 2026-07-22: llevaba
+    desde el 2026-07-01 borrando el calendario real 2025/2026 en cada ciclo,
+    sin que aprender_patrones_competitivos.py pudiera usarlo nunca)."""
+    temporada_saliente = str(existente.get("temporada") or "").strip()
+    if not temporada_saliente or temporada_saliente == TEMPORADA:
+        return
+    if not tiene_partidos_jugados(existente):
+        return
+    destino = DATA / "historico" / f"calendario_{liga}_{temporada_saliente.replace('/', '_')}.json"
+    if destino.exists():
+        return
+    guardar_json(destino, existente)
+
+
 def inicializar_o_integrar_calendarios():
     resultados = {}
     for liga, equipos, path, ppj in (
@@ -436,6 +461,7 @@ def inicializar_o_integrar_calendarios():
                 existente["fuentes_monitorizadas"] = FUENTES_CALENDARIO[liga]
                 guardar_json(path, existente)
             else:
+                archivar_calendario_saliente(liga, existente)
                 guardar_json(path, calendario_vacio(liga, equipos, ppj))
             resultados[liga] = estado
     return resultados

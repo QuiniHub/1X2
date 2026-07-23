@@ -190,13 +190,26 @@ def procesar_diario():
     return sorpresas
 
 
+def es_entrada_esquema_actual(entrada):
+    """Descarta entradas de un mecanismo anterior (seguimiento de sorpresas de
+    mercado del Mundial 2026, con la clave "numero_partido" en vez de
+    "num_partido") que quedaron mezcladas en este mismo archivo: son de un
+    dominio distinto (partidos internacionales, no LaLiga) y con la clave
+    equivocada podian colisionar en la deduplicacion por (jornada, num_partido),
+    ademas de inflar el recuento sin poder participar nunca en
+    reforzar_ajuste_por_memoria_sorpresas() (que busca categorias de LaLiga)."""
+    return "num_partido" in entrada
+
+
 def main():
     print("=== Alimentando sorpresas_mercado.json ===")
 
     sorpresas_nuevas = procesar_diario()
 
     actual = cargar_json(SORPRESAS_MERCADO, {"version": "1.0", "sorpresas": []})
-    existentes = actual.get("sorpresas", [])
+    existentes_todas = actual.get("sorpresas", [])
+    existentes = [e for e in existentes_todas if es_entrada_esquema_actual(e)]
+    descartadas = len(existentes_todas) - len(existentes)
 
     claves_existentes = {
         (e.get("jornada"), e.get("num_partido")) for e in existentes
@@ -225,6 +238,8 @@ def main():
     guardar_json(SORPRESAS_MERCADO, resultado)
 
     print(f"  Casos nuevos añadidos: {len(nuevas_añadidas)}")
+    if descartadas:
+        print(f"  Entradas de un esquema/dominio anterior descartadas: {descartadas}")
     print(f"  Total sorpresas en memoria: {len(existentes)}")
     by_cat = {}
     for s in existentes:
@@ -233,7 +248,7 @@ def main():
     for cat, n in sorted(by_cat.items()):
         print(f"    {cat}: {n}")
 
-    if not nuevas_añadidas:
+    if not nuevas_añadidas and not descartadas:
         print("  Sin cambios: el archivo ya estaba actualizado.")
 
 
