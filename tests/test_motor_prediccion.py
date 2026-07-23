@@ -13,7 +13,9 @@ from motor_prediccion_quiniela import (
     ajustar_por_mercado_losilla,
     buscar_lesiones_equipo,
     cobertura_automatica,
+    construir_boleto_millonario,
     coste,
+    evaluar_riesgo_millonario,
     indice_sorpresa_quinielistica,
     normalizar_pesos_dinamicos,
     prioridad_elige8,
@@ -534,6 +536,76 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertLessEqual(pesos["pesos"]["sorpresa"], 0.16)
         self.assertAlmostEqual(sum(pesos["pesos"].values()), 1.0, places=3)
         self.assertTrue(pesos["normalizacion_runtime"]["aplicada"])
+
+    def test_riesgo_millonario_candidato_con_evidencia_contextual(self):
+        indice_sorpresa = {
+            "favorito": "1",
+            "favorito_atacable": True,
+            "signo_sorpresa_principal": "2",
+            "indice": 78.0,
+            "motivos": [
+                "margen minimo entre primer y segundo signo",
+                "rival del favorito con urgencia de descenso/permanencia",
+            ],
+        }
+
+        riesgo = evaluar_riesgo_millonario(indice_sorpresa)
+
+        self.assertTrue(riesgo["candidato"])
+        self.assertEqual(riesgo["signo_alternativo"], "2")
+        self.assertEqual(len(riesgo["motivos_contextuales"]), 1)
+
+    def test_riesgo_millonario_no_candidato_solo_con_ruido_estadistico(self):
+        indice_sorpresa = {
+            "favorito": "1",
+            "favorito_atacable": True,
+            "signo_sorpresa_principal": "X",
+            "indice": 65.0,
+            "motivos": [
+                "margen minimo entre primer y segundo signo",
+                "ningun signo supera claramente el 45%",
+            ],
+        }
+
+        riesgo = evaluar_riesgo_millonario(indice_sorpresa)
+
+        self.assertFalse(riesgo["candidato"])
+        self.assertEqual(riesgo["signo_alternativo"], "")
+
+    def test_riesgo_millonario_no_candidato_si_no_es_atacable(self):
+        indice_sorpresa = {
+            "favorito": "1",
+            "favorito_atacable": False,
+            "signo_sorpresa_principal": "2",
+            "indice": 40.0,
+            "motivos": ["rival con urgencia de descenso/permanencia"],
+        }
+
+        riesgo = evaluar_riesgo_millonario(indice_sorpresa)
+
+        self.assertFalse(riesgo["candidato"])
+
+    def test_construir_boleto_millonario_cambia_solo_los_candidatos(self):
+        evaluados = [
+            {
+                "num": 1, "local": "A", "visitante": "B", "signo_final": "1",
+                "riesgo_millonario": {"candidato": True, "signo_alternativo": "2", "justificacion": "..."},
+            },
+            {
+                "num": 2, "local": "C", "visitante": "D", "signo_final": "1X",
+                "riesgo_millonario": {"candidato": False, "signo_alternativo": ""},
+            },
+        ]
+
+        boleto = construir_boleto_millonario(evaluados)
+
+        self.assertEqual(boleto["total_cambios"], 1)
+        partido_1 = next(p for p in boleto["partidos"] if p["num"] == 1)
+        partido_2 = next(p for p in boleto["partidos"] if p["num"] == 2)
+        self.assertEqual(partido_1["signo"], "2")
+        self.assertTrue(partido_1["es_cambio_millonario"])
+        self.assertEqual(partido_2["signo"], "1X")
+        self.assertFalse(partido_2["es_cambio_millonario"])
 
 
 if __name__ == "__main__":

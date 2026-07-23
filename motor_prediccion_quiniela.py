@@ -1827,6 +1827,87 @@ def indice_sorpresa_quinielistica(partido, patrones=None):
     }
 
 
+MOTIVOS_CONTEXTUALES_CLAVE = (
+    "descenso", "necesita", "necesitado", "objetivo cerrado", "sin objetivos", "motivacional",
+)
+
+
+def evaluar_riesgo_millonario(indice_sorpresa):
+    """Distingue un partido "candidato a quiniela millonaria" de uno que
+    simplemente esta reñido por ruido estadistico. La cobertura conservadora
+    (DOBLE/TRIPLE) ya evita el riesgo de un toss-up; lo que pide una quiniela
+    "a por el bote" es lo contrario: jugar el signo contrario al favorito
+    como FIJO, pero solo cuando indice_sorpresa_quinielistica cita al menos
+    un motivo basado en evidencia real (descenso, necesidad competitiva,
+    patrones aprendidos de sorpresas historicas) -no basta con que el margen
+    entre signos sea corto o que el empate pese mucho, porque eso no es
+    evidencia de que el favorito vaya a fallar, es solo incertidumbre pura."""
+    motivos = indice_sorpresa.get("motivos") or []
+    motivos_contextuales = [
+        m for m in motivos if any(clave in m for clave in MOTIVOS_CONTEXTUALES_CLAVE)
+    ]
+    candidato = bool(indice_sorpresa.get("favorito_atacable")) and bool(motivos_contextuales)
+    signo_alternativo = indice_sorpresa.get("signo_sorpresa_principal") if candidato else ""
+
+    return {
+        "candidato": candidato,
+        "signo_favorito": indice_sorpresa.get("favorito"),
+        "signo_alternativo": signo_alternativo,
+        "indice_sorpresa": indice_sorpresa.get("indice"),
+        "motivos_contextuales": motivos_contextuales,
+        "justificacion": (
+            f"Evidencia contextual real, no solo estadistica: {'; '.join(motivos_contextuales)}."
+            if candidato else
+            "Sin evidencia contextual suficiente -ir contra el favorito aqui seria azar puro, no una apuesta informada."
+        ),
+    }
+
+
+def construir_boleto_millonario(evaluados):
+    """A partir de los partidos ya evaluados por predecir() (cada uno con su
+    "riesgo_millonario" ya calculado), construye el boleto alternativo "a por
+    el bote": mantiene el signo_final normal en todos los partidos salvo en
+    los marcados como candidatos, donde juega el signo contrario al favorito
+    como FIJO. Pensado para jugarse EN VEZ DEL boleto conservador en los
+    partidos que cambian, no además -jugar ambos signos en el mismo partido
+    no aporta nada a la busqueda de un boleto raro/unico."""
+    partidos = []
+    cambios = []
+    for partido in evaluados:
+        riesgo = partido.get("riesgo_millonario") or {}
+        num = partido.get("num") or partido.get("numero")
+        if riesgo.get("candidato") and riesgo.get("signo_alternativo"):
+            signo = riesgo["signo_alternativo"]
+            cambios.append({
+                "num": num,
+                "local": partido.get("local"),
+                "visitante": partido.get("visitante"),
+                "signo_conservador": partido.get("signo_final"),
+                "signo_millonario": signo,
+                "justificacion": riesgo.get("justificacion"),
+            })
+        else:
+            signo = partido.get("signo_final")
+        partidos.append({
+            "num": num,
+            "local": partido.get("local"),
+            "visitante": partido.get("visitante"),
+            "signo": signo,
+            "es_cambio_millonario": bool(riesgo.get("candidato") and riesgo.get("signo_alternativo")),
+        })
+
+    return {
+        "partidos": partidos,
+        "cambios_respecto_a_conservadora": cambios,
+        "total_cambios": len(cambios),
+        "resumen": (
+            f"{len(cambios)} partido(s) con evidencia contextual real para ir a por la sorpresa."
+            if cambios else
+            "Ningun partido con evidencia contextual suficiente esta jornada -la conservadora y la millonaria coinciden."
+        ),
+    }
+
+
 def indice_sorpresa_partido(partido):
     datos = partido.get("_indice_sorpresa_quinielistica") or partido.get("indice_sorpresa_detalle")
     if isinstance(datos, dict):
@@ -2224,6 +2305,7 @@ def prediccion_bloqueada_por_compuerta(jornada, data, compuerta, validar=False):
         "publicar_prediccion": False,
         "compuerta_maestra": compuerta,
         "partidos": partidos,
+        "boleto_millonario": construir_boleto_millonario(partidos),
         "pleno15": pleno_bloqueado,
         "configuracion": {
             "dobles": 0,
@@ -2473,6 +2555,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         evaluado["indice_sorpresa_quinielistica"] = indice_sorpresa["indice"]
         evaluado["categoria_sorpresa"] = indice_sorpresa["categoria"]
         evaluado["favorito_atacable"] = indice_sorpresa["favorito_atacable"]
+        evaluado["riesgo_millonario"] = evaluar_riesgo_millonario(indice_sorpresa)
         evaluados.append(evaluado)
 
     cobertura_auto = dobles is None and triples is None
@@ -2549,6 +2632,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "signos_contra_favorito": partido["_indice_sorpresa_quinielistica"].get("signos_contra_favorito", []),
             "cobertura_sorpresa_sugerida": partido["_indice_sorpresa_quinielistica"].get("cobertura_sugerida"),
             "motivos_sorpresa": partido["_indice_sorpresa_quinielistica"].get("motivos", []),
+            "riesgo_millonario": partido["riesgo_millonario"],
             "origen_probabilidades": partido["trazabilidad_datos"]["origen_probabilidades"],
             "calidad_datos": partido["trazabilidad_datos"]["calidad_datos"],
             "trazabilidad_datos": partido["trazabilidad_datos"],
@@ -2684,6 +2768,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         },
         "coste": coste(dobles, triples, elige8, partidos),
         "partidos": partidos,
+        "boleto_millonario": construir_boleto_millonario(partidos),
         "criterio_cobertura": criterio_cobertura,
         "ataques_favorito_prioritarios": ataques_favorito_prioritarios,
         "ranking_incertidumbre_coberturas": ranking_incertidumbre_coberturas[:8],
