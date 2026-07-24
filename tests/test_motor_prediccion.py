@@ -19,6 +19,7 @@ from motor_prediccion_quiniela import (
     evaluar_riesgo_millonario,
     historial_h2h_partido,
     indice_sorpresa_quinielistica,
+    tier_por_posicion,
     normalizar_pesos_dinamicos,
     prioridad_elige8,
     prioridad_doble,
@@ -647,6 +648,33 @@ class MotorPrediccionTests(unittest.TestCase):
         indice = indice_sorpresa_quinielistica(evaluado, None, historial_h2h)
 
         self.assertFalse(any("enfrentamientos directos" in m.lower() for m in indice["motivos"]))
+
+    def test_tier_por_posicion_corta_en_el_10(self):
+        self.assertEqual(tier_por_posicion({"posicion": 1}), "top10")
+        self.assertEqual(tier_por_posicion({"posicion": 10}), "top10")
+        self.assertEqual(tier_por_posicion({"posicion": 11}), "resto")
+        self.assertIsNone(tier_por_posicion(None))
+        self.assertIsNone(tier_por_posicion({}))
+
+    def test_indice_sorpresa_incluye_motivo_top10_vs_resto(self):
+        evaluado = partido(1, {"1": 56.0, "X": 24.0, "2": 20.0}, incertidumbre=104, sorpresa=48)
+        evaluado["contexto_competitivo_local"] = {**equipo_competitivo("Local 1", "asegurado_matematicamente"), "posicion": 1}
+        evaluado["contexto_competitivo_visitante"] = {**equipo_competitivo("Visitante 1", "asegurado_matematicamente"), "posicion": 15}
+        patrones = {"patrones": {"top10_local_vs_resto_visitante": {"tasa_sorpresa": 55.0}}}
+
+        indice = indice_sorpresa_quinielistica(evaluado, patrones)
+
+        self.assertTrue(any("segunda mitad de la tabla" in m.lower() for m in indice["motivos"]))
+
+    def test_indice_sorpresa_no_marca_top10_si_ambos_estan_en_el_top10(self):
+        evaluado = partido(1, {"1": 56.0, "X": 24.0, "2": 20.0}, incertidumbre=104, sorpresa=48)
+        evaluado["contexto_competitivo_local"] = {**equipo_competitivo("Local 1", "asegurado_matematicamente"), "posicion": 3}
+        evaluado["contexto_competitivo_visitante"] = {**equipo_competitivo("Visitante 1", "asegurado_matematicamente"), "posicion": 7}
+        patrones = {"patrones": {"top10_local_vs_resto_visitante": {"tasa_sorpresa": 55.0}}}
+
+        indice = indice_sorpresa_quinielistica(evaluado, patrones)
+
+        self.assertFalse(any("segunda mitad de la tabla" in m.lower() for m in indice["motivos"]))
 
 
 if __name__ == "__main__":

@@ -1669,6 +1669,18 @@ def historial_h2h_partido(partido, historial_h2h):
     return (historial_h2h.get("enfrentamientos") or {}).get(clave)
 
 
+def tier_por_posicion(equipo, corte=10):
+    """Mitad alta (1-10) contra el resto de la tabla -clase pura por posicion,
+    sin mirar objetivos. Un equipo del top 10 puede no tener nada "en juego"
+    y aun asi ser claramente mejor que uno de la segunda mitad de la tabla."""
+    if not equipo:
+        return None
+    posicion = equipo.get("posicion")
+    if not isinstance(posicion, int) or posicion <= 0:
+        return None
+    return "top10" if posicion <= corte else "resto"
+
+
 def indice_sorpresa_quinielistica(partido, patrones=None, historial_h2h=None):
     probs = partido.get("probabilidades", {})
     orden = signos_ordenados(probs)
@@ -1797,6 +1809,17 @@ def indice_sorpresa_quinielistica(partido, patrones=None, historial_h2h=None):
             f"de sorpresas en {h2h['casos_con_cuotas']} cruces con cuotas conocidas de las ultimas 3 temporadas."
         )
 
+    local_tier = tier_por_posicion(local_comp)
+    visitante_tier = tier_por_posicion(visitante_comp)
+    if local_tier == "top10" and visitante_tier == "resto":
+        tasa = tasa_patron(patrones, "top10_local_vs_resto_visitante")
+        score += tasa * 0.20
+        motivos.append(f"Local del top 10 frente a un visitante de la segunda mitad de la tabla: {tasa:.1f}% de sorpresas historicas.")
+    elif visitante_tier == "top10" and local_tier == "resto":
+        tasa = tasa_patron(patrones, "top10_visitante_vs_resto_local")
+        score += tasa * 0.20
+        motivos.append(f"Visitante del top 10 frente a un local de la segunda mitad de la tabla: {tasa:.1f}% de sorpresas historicas.")
+
     if racha_valor(favorito_memoria, "sin_ganar") >= 3:
         score += 10
         motivos.append("favorito con racha reciente sin ganar")
@@ -1850,7 +1873,7 @@ def indice_sorpresa_quinielistica(partido, patrones=None, historial_h2h=None):
 
 MOTIVOS_CONTEXTUALES_CLAVE = (
     "descenso", "necesita", "necesitado", "objetivo cerrado", "sin objetivos", "motivacional",
-    "enfrentamientos directos",
+    "enfrentamientos directos", "segunda mitad de la tabla",
 )
 
 

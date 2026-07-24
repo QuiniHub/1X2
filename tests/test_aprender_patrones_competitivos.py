@@ -17,6 +17,10 @@ def equipo_cerrado(nombre, puntos=10):
     return {"equipo": nombre, "objetivos_vivos": [], "situacion_competitiva": "no_se_juega_nada_clasificatorio", "puntos": puntos}
 
 
+def equipo_en_posicion(nombre, posicion):
+    return {"equipo": nombre, "objetivos_vivos": [], "situacion_competitiva": "no_se_juega_nada_clasificatorio", "puntos": 0, "posicion": posicion}
+
+
 def partido(local, visitante, gl, gv, fecha, temporada="2025/2026", **extra):
     signo = "1" if gl > gv else ("X" if gl == gv else "2")
     base = {
@@ -69,6 +73,16 @@ class ClasificacionHelpersTests(unittest.TestCase):
         self.assertFalse(apc.descenso_vivo(equipo_vivo("A", "defiende_liderato")))
         self.assertFalse(apc.descenso_vivo(equipo_cerrado("A")))
 
+    def test_tier_por_posicion_corta_en_el_10(self):
+        self.assertEqual(apc.tier_por_posicion(equipo_en_posicion("A", 1)), "top10")
+        self.assertEqual(apc.tier_por_posicion(equipo_en_posicion("A", 10)), "top10")
+        self.assertEqual(apc.tier_por_posicion(equipo_en_posicion("A", 11)), "resto")
+        self.assertEqual(apc.tier_por_posicion(equipo_en_posicion("A", 22)), "resto")
+
+    def test_tier_por_posicion_sin_posicion_devuelve_none(self):
+        self.assertIsNone(apc.tier_por_posicion(equipo_cerrado("A")))
+        self.assertIsNone(apc.tier_por_posicion(None))
+
 
 class AnalizarTemporadaHistoricaTests(unittest.TestCase):
     """Prueba el fix central: la situacion competitiva usada para juzgar cada
@@ -115,6 +129,54 @@ class AnalizarTemporadaHistoricaTests(unittest.TestCase):
         clave_general = "equipo_necesitado_vs_equipo_sin_objetivo"
         self.assertIn(clave_general, patrones)
         self.assertEqual(patrones[clave_general]["casos"], 1)
+
+
+class TopVsRestoPatronTests(unittest.TestCase):
+    """El analizador-espia aqui es un "paso a traves": conserva la posicion
+    real que ya calculo tabla_a_lista_ordenada(), sin objetivos vivos -asi
+    se aisla el patron top10-vs-resto de los patrones de objetivos."""
+
+    def setUp(self):
+        self._original = dict(apc.ANALIZADORES)
+
+        def analizador_pasa_posicion(tabla_previa):
+            equipos = [
+                {
+                    "equipo": e["equipo"],
+                    "objetivos_vivos": [],
+                    "situacion_competitiva": "no_se_juega_nada_clasificatorio",
+                    "puntos": e["puntos"],
+                    "posicion": e["posicion"],
+                }
+                for e in tabla_previa
+            ]
+            return {"equipos": equipos}
+
+        apc.ANALIZADORES = {"primera": analizador_pasa_posicion, "segunda": analizador_pasa_posicion}
+        self.addCleanup(lambda: setattr(apc, "ANALIZADORES", self._original))
+
+    def test_top10_local_vs_resto_visitante_se_registra(self):
+        # Dia 1: fija las 12 posiciones -Equipo01/02 con 3 pts, Equipo03..10
+        # con 1 pt (8 equipos, quedan en el top 10 junto a 01/02), Equipo11/12
+        # con 0 pts (los unicos fuera del top 10).
+        dia1 = [
+            partido("Equipo01", "Equipo11", 3, 0, "2026-01-01"),
+            partido("Equipo02", "Equipo12", 3, 0, "2026-01-01"),
+            partido("Equipo03", "Equipo04", 1, 1, "2026-01-01"),
+            partido("Equipo05", "Equipo06", 1, 1, "2026-01-01"),
+            partido("Equipo07", "Equipo08", 1, 1, "2026-01-01"),
+            partido("Equipo09", "Equipo10", 1, 1, "2026-01-01"),
+        ]
+        # Dia 2: el 1o de la tabla (Equipo01) recibe al 11o (Equipo11).
+        dia2 = [partido("Equipo01", "Equipo11", 1, 1, "2026-01-08")]
+
+        patrones = defaultdict(apc.base_patron)
+        apc.analizar_temporada_historica("primera", "2025/2026", dia1 + dia2, patrones)
+
+        clave = "top10_local_vs_resto_visitante"
+        self.assertIn(clave, patrones)
+        self.assertEqual(patrones[clave]["casos"], 1)
+        self.assertEqual(patrones[clave]["sorpresas"], 1)  # empate ("X"), no gana el local del top 10
 
 
 class CargarPartidosPorTemporadaTests(unittest.TestCase):

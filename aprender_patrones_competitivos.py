@@ -103,6 +103,21 @@ def puntos_de(equipo):
         return 0.0
 
 
+def tier_por_posicion(equipo, corte=10):
+    """Mitad alta (1-10) contra el resto de la tabla (11 en adelante, sea
+    Primera con 20 equipos o Segunda con 22) -clase pura por posicion en ESE
+    momento de la temporada, sin mirar objetivos ni si hay descenso/ascenso
+    en juego. Complementa a los patrones de objetivos: un equipo del top 10
+    puede no tener nada "en juego" segun evaluar_plaza/evaluar_descenso y
+    aun asi ser claramente mejor que uno de la zona baja."""
+    if not equipo:
+        return None
+    posicion = equipo.get("posicion")
+    if not isinstance(posicion, int) or posicion <= 0:
+        return None
+    return "top10" if posicion <= corte else "resto"
+
+
 def base_patron():
     return {"casos": 0, "sorpresas": 0, "tasa_sorpresa": 0.0, "ejemplos": []}
 
@@ -210,6 +225,21 @@ def analizar_temporada_historica(liga, temporada, partidos, patrones):
                         patrones, "equipo_necesitado_vs_equipo_sin_objetivo", sorpresa,
                         ejemplo(liga, temporada, fecha, partido, signo,
                                 "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."),
+                    )
+
+                local_tier = tier_por_posicion(local)
+                visitante_tier = tier_por_posicion(visitante)
+                if local_tier == "top10" and visitante_tier == "resto":
+                    registrar(
+                        patrones, "top10_local_vs_resto_visitante", signo != "1",
+                        ejemplo(liga, temporada, fecha, partido, signo,
+                                "Local del top 10 recibe a un equipo de la segunda mitad de la tabla."),
+                    )
+                elif visitante_tier == "top10" and local_tier == "resto":
+                    registrar(
+                        patrones, "top10_visitante_vs_resto_local", signo != "2",
+                        ejemplo(liga, temporada, fecha, partido, signo,
+                                "Visitante del top 10 viaja a un equipo de la segunda mitad de la tabla."),
                     )
 
             aplicar_partido(tabla, partido.get("local", ""), partido.get("visitante", ""), partido["gl"], partido["gv"])
