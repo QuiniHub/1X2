@@ -12,10 +12,12 @@ from motor_prediccion_quiniela import (
     ajustar_por_lesiones_laliga,
     ajustar_por_mercado_losilla,
     buscar_lesiones_equipo,
+    clave_par_equipos_h2h,
     cobertura_automatica,
     construir_boleto_millonario,
     coste,
     evaluar_riesgo_millonario,
+    historial_h2h_partido,
     indice_sorpresa_quinielistica,
     normalizar_pesos_dinamicos,
     prioridad_elige8,
@@ -606,6 +608,45 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertTrue(partido_1["es_cambio_millonario"])
         self.assertEqual(partido_2["signo"], "1X")
         self.assertFalse(partido_2["es_cambio_millonario"])
+
+    def test_clave_par_equipos_h2h_es_simetrica(self):
+        self.assertEqual(
+            clave_par_equipos_h2h("Real Madrid CF", "FC Barcelona"),
+            clave_par_equipos_h2h("Barcelona", "Real Madrid"),
+        )
+
+    def test_historial_h2h_partido_encuentra_por_clave(self):
+        clave = clave_par_equipos_h2h("Local 1", "Visitante 1")
+        historial = {"enfrentamientos": {clave: {"casos_con_cuotas": 4, "tasa_sorpresa_historica": 75.0}}}
+        p = partido(1, {"1": 55.0, "X": 25.0, "2": 20.0})
+
+        entrada = historial_h2h_partido(p, historial)
+
+        self.assertIsNotNone(entrada)
+        self.assertEqual(entrada["tasa_sorpresa_historica"], 75.0)
+
+    def test_historial_h2h_partido_sin_historial_devuelve_none(self):
+        p = partido(1, {"1": 55.0, "X": 25.0, "2": 20.0})
+        self.assertIsNone(historial_h2h_partido(p, {}))
+        self.assertIsNone(historial_h2h_partido(p, None))
+
+    def test_indice_sorpresa_incluye_motivo_h2h_cuando_hay_señal_historica(self):
+        evaluado = partido(1, {"1": 56.0, "X": 24.0, "2": 20.0}, incertidumbre=104, sorpresa=48)
+        clave = clave_par_equipos_h2h(evaluado["local"], evaluado["visitante"])
+        historial_h2h = {"enfrentamientos": {clave: {"casos_con_cuotas": 5, "tasa_sorpresa_historica": 80.0}}}
+
+        indice = indice_sorpresa_quinielistica(evaluado, None, historial_h2h)
+
+        self.assertTrue(any("enfrentamientos directos" in m.lower() for m in indice["motivos"]))
+
+    def test_indice_sorpresa_ignora_h2h_con_pocos_casos(self):
+        evaluado = partido(1, {"1": 56.0, "X": 24.0, "2": 20.0}, incertidumbre=104, sorpresa=48)
+        clave = clave_par_equipos_h2h(evaluado["local"], evaluado["visitante"])
+        historial_h2h = {"enfrentamientos": {clave: {"casos_con_cuotas": 1, "tasa_sorpresa_historica": 100.0}}}
+
+        indice = indice_sorpresa_quinielistica(evaluado, None, historial_h2h)
+
+        self.assertFalse(any("enfrentamientos directos" in m.lower() for m in indice["motivos"]))
 
 
 if __name__ == "__main__":

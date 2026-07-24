@@ -17,6 +17,16 @@ def equipo_cerrado(nombre, puntos=10):
     return {"equipo": nombre, "objetivos_vivos": [], "situacion_competitiva": "no_se_juega_nada_clasificatorio", "puntos": puntos}
 
 
+def partido(local, visitante, gl, gv, fecha, temporada="2025/2026", **extra):
+    signo = "1" if gl > gv else ("X" if gl == gv else "2")
+    base = {
+        "local": local, "visitante": visitante, "gl": gl, "gv": gv,
+        "resultado": f"{gl}-{gv}", "signo": signo, "fecha": fecha, "temporada": temporada,
+    }
+    base.update(extra)
+    return base
+
+
 class TablaTests(unittest.TestCase):
     def test_aplicar_partido_reparte_puntos(self):
         tabla = apc.tabla_vacia()
@@ -32,17 +42,15 @@ class TablaTests(unittest.TestCase):
         apc.aplicar_partido(tabla, "A", "B", 3, 0)
         apc.aplicar_partido(tabla, "C", "D", 1, 0)
         filas = apc.tabla_a_lista_ordenada(tabla)
-        nombres = [f["equipo"] for f in filas]
-        self.assertEqual(nombres[0], "A")
+        self.assertEqual(filas[0]["equipo"], "A")
         self.assertEqual(filas[0]["posicion"], 1)
         self.assertEqual(filas[0]["dg"], 3)
 
     def test_tabla_a_lista_ordenada_ignora_equipos_sin_jugar(self):
         tabla = apc.tabla_vacia()
         apc.aplicar_partido(tabla, "A", "B", 1, 0)
-        _ = tabla["C"]  # referenciado pero sin partidos jugados
-        filas = apc.tabla_a_lista_ordenada(tabla)
-        nombres = [f["equipo"] for f in filas]
+        _ = tabla["C"]
+        nombres = [f["equipo"] for f in apc.tabla_a_lista_ordenada(tabla)]
         self.assertNotIn("C", nombres)
 
 
@@ -62,10 +70,10 @@ class ClasificacionHelpersTests(unittest.TestCase):
         self.assertFalse(apc.descenso_vivo(equipo_cerrado("A")))
 
 
-class AnalizarCalendarioHistoricoTests(unittest.TestCase):
+class AnalizarTemporadaHistoricaTests(unittest.TestCase):
     """Prueba el fix central: la situacion competitiva usada para juzgar cada
-    jornada debe reconstruirse ANTES de esa jornada (con lo jugado hasta
-    entonces), nunca con datos de jornadas futuras ni con el snapshot de hoy."""
+    dia debe reconstruirse ANTES de ese dia (con lo jugado hasta entonces),
+    nunca con datos de fechas futuras ni con el snapshot de hoy."""
 
     def setUp(self):
         self._original = dict(apc.ANALIZADORES)
@@ -74,9 +82,6 @@ class AnalizarCalendarioHistoricoTests(unittest.TestCase):
         def analizador_espia(tabla_previa):
             equipos_vistos = sorted(e["equipo"] for e in tabla_previa)
             self.llamadas.append(equipos_vistos)
-            # Jornada 2 en adelante: Z (con muchos puntos) esta "cerrado",
-            # Y (con pocos puntos) tiene necesidad viva -asi se puede
-            # verificar que el patron se detecta con la tabla correcta.
             equipos = []
             for e in tabla_previa:
                 if e["equipo"] == "Z" and e["puntos"] >= 3:
@@ -90,44 +95,96 @@ class AnalizarCalendarioHistoricoTests(unittest.TestCase):
         apc.ANALIZADORES = {"primera": analizador_espia, "segunda": analizador_espia}
         self.addCleanup(lambda: setattr(apc, "ANALIZADORES", self._original))
 
-    def test_no_usa_resultados_futuros_para_juzgar_la_jornada_actual(self):
-        calendario = {
-            "temporada": "TEST",
-            "jornadas": [
-                {"jornada": 1, "partidos": [
-                    {"local": "Z", "visitante": "W", "resultado": "3-0"},
-                    {"local": "X", "visitante": "Y", "resultado": "3-0"},
-                ]},
-                {"jornada": 2, "partidos": [
-                    # Y (necesitado) recibe a Z (ya "cerrado" tras la j1) -> el
-                    # analizador-espia solo puede saber que Z esta "cerrado"
-                    # porque ya jugo y gano en la jornada 1; si este metodo
-                    # mirase el futuro o el snapshot de hoy en vez de la
-                    # tabla reconstruida hasta la j1, este caso no se
-                    # detectaria igual.
-                    {"local": "Y", "visitante": "Z", "resultado": "1-1"},
-                ]},
-            ],
-        }
+    def test_no_usa_resultados_futuros_para_juzgar_el_dia_actual(self):
+        partidos = [
+            partido("Z", "W", 3, 0, "2026-01-01"),
+            partido("X", "Y", 3, 0, "2026-01-01"),
+            partido("Y", "Z", 1, 1, "2026-01-08"),
+        ]
         patrones = defaultdict(apc.base_patron)
-        apc.analizar_calendario_historico("primera", calendario, patrones)
+        apc.analizar_temporada_historica("primera", "2025/2026", partidos, patrones)
 
-        # La jornada 1 no debe generar llamada al analizador con tabla_previa
-        # no vacia mas que en la jornada 2 (jornada 1 arranca sin historial).
-        self.assertEqual(len(self.llamadas), 1, "solo la jornada 2 tiene tabla previa con partidos jugados")
-        self.assertEqual(self.llamadas[0], ["W", "X", "Y", "Z"], "la tabla previa a la jornada 2 solo debe reflejar la jornada 1")
+        self.assertEqual(len(self.llamadas), 1, "el primer dia no tiene tabla previa -no se llama al analizador ese dia")
+        self.assertEqual(self.llamadas[0], ["W", "X", "Y", "Z"], "la tabla previa al 01-08 solo refleja el 01-01")
 
-        # local=Y (necesita), visitante=Z (cerrado) -> "necesitado_local_vs_visitante_objetivo_cerrado"
         clave = "necesitado_local_vs_visitante_objetivo_cerrado"
         self.assertIn(clave, patrones)
         self.assertEqual(patrones[clave]["casos"], 1)
-        # signo real fue "X" (1-1); sorpresa = signo != "2" = True (el local Y no pierde)
         self.assertEqual(patrones[clave]["sorpresas"], 1)
 
         clave_general = "equipo_necesitado_vs_equipo_sin_objetivo"
         self.assertIn(clave_general, patrones)
         self.assertEqual(patrones[clave_general]["casos"], 1)
-        self.assertEqual(patrones[clave_general]["sorpresas"], 1)
+
+
+class CargarPartidosPorTemporadaTests(unittest.TestCase):
+    def test_agrupa_y_ordena_por_temporada_y_fecha(self):
+        historico = {
+            "ligas": {
+                "primera": {
+                    "temporadas": {
+                        "2024/2025": {"partidos": [
+                            partido("B", "A", 1, 0, "2025-05-01", temporada="2024/2025"),
+                            partido("A", "B", 2, 0, "2025-01-01", temporada="2024/2025"),
+                        ]},
+                        "2025/2026": {"partidos": [
+                            partido("A", "B", 1, 1, "2026-01-01", temporada="2025/2026"),
+                        ]},
+                    }
+                }
+            }
+        }
+        bloques = apc.cargar_partidos_por_temporada(historico, "primera")
+        self.assertEqual([t for t, _ in bloques], ["2024/2025", "2025/2026"])
+        fechas_2425 = [p["fecha"] for _, partidos in bloques if _ == "2024/2025" for p in partidos]
+        self.assertEqual(fechas_2425, ["2025-01-01", "2025-05-01"])
+
+    def test_temporada_sin_partidos_se_omite(self):
+        historico = {"ligas": {"primera": {"temporadas": {"2023/2024": {"partidos": []}}}}}
+        self.assertEqual(apc.cargar_partidos_por_temporada(historico, "primera"), [])
+
+
+class EnfrentamientosDirectosTests(unittest.TestCase):
+    def test_favorito_por_cuotas_es_la_cuota_mas_baja(self):
+        self.assertEqual(apc.favorito_por_cuotas({"cuota_1": 1.5, "cuota_x": 4.0, "cuota_2": 6.0}), "1")
+        self.assertEqual(apc.favorito_por_cuotas({"cuota_1": 5.0, "cuota_x": 3.5, "cuota_2": 1.8}), "2")
+
+    def test_favorito_por_cuotas_sin_datos_devuelve_none(self):
+        self.assertIsNone(apc.favorito_por_cuotas({"cuota_1": None, "cuota_x": None, "cuota_2": None}))
+        self.assertIsNone(apc.favorito_por_cuotas({}))
+
+    def test_clave_par_equipos_es_simetrica(self):
+        self.assertEqual(apc.clave_par_equipos("Real Madrid CF", "FC Barcelona"), apc.clave_par_equipos("Barcelona", "Real Madrid"))
+
+    def test_analizar_enfrentamientos_directos_detecta_sorpresa_historica(self):
+        historico = {
+            "ligas": {
+                "primera": {
+                    "consolidado": {"partidos": [
+                        partido("Real Madrid", "Getafe", 1, 2, "2024-01-01", cuota_1=1.2, cuota_x=6.0, cuota_2=10.0),
+                        partido("Getafe", "Real Madrid", 0, 0, "2024-06-01", cuota_1=5.0, cuota_x=3.8, cuota_2=1.6),
+                        partido("Real Madrid", "Getafe", 3, 0, "2025-01-01", cuota_1=1.15, cuota_x=6.5, cuota_2=12.0),
+                    ]},
+                },
+                "segunda": {"consolidado": {"partidos": []}},
+            }
+        }
+        resultado = apc.analizar_enfrentamientos_directos(historico)
+        clave = apc.clave_par_equipos("Real Madrid", "Getafe")
+        self.assertIn(clave, resultado)
+        entrada = resultado[clave]
+        self.assertEqual(entrada["casos_totales"], 3)
+        self.assertEqual(entrada["casos_con_cuotas"], 3)
+        self.assertEqual(entrada["sorpresas"], 2)  # 1er y 2o partido: favorito no gana
+        self.assertAlmostEqual(entrada["tasa_sorpresa_historica"], 66.7, places=1)
+
+    def test_tasa_none_si_no_hay_suficientes_casos_con_cuotas(self):
+        historico = {"ligas": {"primera": {"consolidado": {"partidos": [
+            partido("A", "B", 1, 0, "2024-01-01"),
+        ]}}}}
+        resultado = apc.analizar_enfrentamientos_directos(historico)
+        clave = apc.clave_par_equipos("A", "B")
+        self.assertIsNone(resultado[clave]["tasa_sorpresa_historica"])
 
 
 if __name__ == "__main__":

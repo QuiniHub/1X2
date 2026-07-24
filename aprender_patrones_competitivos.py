@@ -1,4 +1,3 @@
-import re
 import json
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -8,7 +7,9 @@ import generar_contexto_competitivo as contexto_mod
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
+HISTORICO_LIGAS_ESPANA = DATA / "memoria_ia" / "historico_ligas_espana.json"
 OUT = DATA / "memoria_ia" / "patrones_competitivos.json"
+OUT_H2H = DATA / "memoria_ia" / "historial_enfrentamientos.json"
 MEMORIA = DATA / "memoria_ia" / "aprendizaje_global.json"
 CONTEXTO = DATA / "memoria_ia" / "contexto_competitivo.json"
 
@@ -17,17 +18,13 @@ ANALIZADORES = {
     "segunda": contexto_mod.analizar_segunda,
 }
 
-# Antes de la primera jornada de una temporada archivada no hay tabla previa
-# alguna -saltarla evita analizar un contexto vacio sin sentido.
+# Antes del primer dia de una temporada no hay tabla previa alguna -saltarlo
+# evita analizar un contexto vacio sin sentido.
 MIN_EQUIPOS_PARA_ANALIZAR = 1
 
-
-def calendarios_historicos_por_liga():
-    historico = DATA / "historico"
-    return {
-        "primera": sorted(historico.glob("calendario_primera_*.json")),
-        "segunda": sorted(historico.glob("calendario_segunda_*.json")),
-    }
+# Un cruce con menos de 2 partidos con cuotas conocidas no da una tasa fiable
+# -se guarda igualmente el historial, pero sin "tasa_sorpresa_historica".
+MIN_CASOS_CON_CUOTAS_PARA_TASA = 2
 
 
 def cargar_json(path, defecto=None):
@@ -41,18 +38,6 @@ def cargar_json(path, defecto=None):
 def guardar_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-
-
-def signo_resultado(resultado):
-    m = re.match(r"^\s*(\d+)\s*-\s*(\d+)\s*$", str(resultado or ""))
-    if not m:
-        return None
-    gl, gv = int(m.group(1)), int(m.group(2))
-    if gl > gv:
-        return "1"
-    if gl == gv:
-        return "X"
-    return "2"
 
 
 def tabla_vacia():
@@ -132,11 +117,11 @@ def registrar(patrones, clave, sorpresa, ejemplo):
         patron["ejemplos"] = patron["ejemplos"][-12:]
 
 
-def ejemplo(liga, temporada, jornada_num, partido, signo, lectura):
+def ejemplo(liga, temporada, fecha, partido, signo, lectura):
     return {
         "liga": liga,
         "temporada": temporada,
-        "jornada_liga": jornada_num,
+        "fecha": fecha,
         "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
         "resultado": partido.get("resultado"),
         "signo_real": signo,
@@ -144,19 +129,35 @@ def ejemplo(liga, temporada, jornada_num, partido, signo, lectura):
     }
 
 
-def analizar_calendario_historico(liga, calendario, patrones):
-    """Reconstruye la tabla jornada a jornada y usa la situacion competitiva
-    real de CADA MOMENTO (no la de hoy) para saber si un resultado fue una
-    sorpresa respecto a lo que la motivacion de cada equipo hacia esperar."""
+def cargar_partidos_por_temporada(historico, liga):
+    temporadas = ((historico.get("ligas") or {}).get(liga) or {}).get("temporadas") or {}
+    bloques = []
+    for temporada in sorted(temporadas.keys()):
+        partidos = sorted(
+            (temporadas[temporada].get("partidos") or []),
+            key=lambda p: p.get("fecha") or "",
+        )
+        if partidos:
+            bloques.append((temporada, partidos))
+    return bloques
+
+
+def analizar_temporada_historica(liga, temporada, partidos, patrones):
+    """Reconstruye la tabla dia a dia (no jornada a jornada, este origen de
+    datos no trae numero de jornada) y usa la situacion competitiva real de
+    CADA MOMENTO -nunca la de hoy, ni la de partidos futuros de esa misma
+    temporada- para saber si un resultado fue una sorpresa respecto a lo que
+    la motivacion de cada equipo hacia esperar."""
     analizador = ANALIZADORES[liga]
-    temporada = calendario.get("temporada", "?")
-    jornadas = sorted(calendario.get("jornadas", []), key=lambda j: int(j.get("jornada", 0) or 0))
     tabla = tabla_vacia()
 
-    for jornada in jornadas:
-        partidos_jugados = [p for p in jornada.get("partidos", []) if signo_resultado(p.get("resultado"))]
-        if not partidos_jugados:
-            continue
+    por_fecha = defaultdict(list)
+    for p in partidos:
+        if p.get("signo") in ("1", "X", "2") and p.get("local") and p.get("visitante"):
+            por_fecha[p.get("fecha") or ""].append(p)
+
+    for fecha in sorted(por_fecha.keys()):
+        partidos_del_dia = por_fecha[fecha]
 
         tabla_previa = tabla_a_lista_ordenada(tabla)
         mapa = {}
@@ -164,8 +165,8 @@ def analizar_calendario_historico(liga, calendario, patrones):
             analisis = analizador(tabla_previa)
             mapa = {e.get("clave", contexto_mod.normalizar_nombre(e.get("equipo"))): e for e in analisis.get("equipos", [])}
 
-        for partido in partidos_jugados:
-            signo = signo_resultado(partido.get("resultado"))
+        for partido in partidos_del_dia:
+            signo = partido.get("signo")
             local = mapa.get(contexto_mod.normalizar_nombre(partido.get("local", "")))
             visitante = mapa.get(contexto_mod.normalizar_nombre(partido.get("visitante", "")))
 
@@ -178,56 +179,126 @@ def analizar_calendario_historico(liga, calendario, patrones):
                 visitante_descenso = descenso_vivo(visitante)
                 local_favorito = puntos_de(local) >= puntos_de(visitante) + 5
                 visitante_favorito = puntos_de(visitante) >= puntos_de(local) + 5
-                jornada_num = jornada.get("jornada")
 
                 if visitante_cerrado and local_necesita:
                     registrar(
                         patrones, "necesitado_local_vs_visitante_objetivo_cerrado", signo != "2",
-                        ejemplo(liga, temporada, jornada_num, partido, signo,
+                        ejemplo(liga, temporada, fecha, partido, signo,
                                 "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."),
                     )
                 if local_cerrado and visitante_necesita:
                     registrar(
                         patrones, "visitante_necesitado_vs_local_objetivo_cerrado", signo != "1",
-                        ejemplo(liga, temporada, jornada_num, partido, signo,
+                        ejemplo(liga, temporada, fecha, partido, signo,
                                 "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."),
                     )
                 if visitante_descenso and local_favorito:
                     registrar(
                         patrones, "visitante_descenso_vs_local_favorito", signo != "1",
-                        ejemplo(liga, temporada, jornada_num, partido, signo,
+                        ejemplo(liga, temporada, fecha, partido, signo,
                                 "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."),
                     )
                 if local_descenso and visitante_favorito:
                     registrar(
                         patrones, "local_descenso_vs_visitante_favorito", signo != "2",
-                        ejemplo(liga, temporada, jornada_num, partido, signo,
+                        ejemplo(liga, temporada, fecha, partido, signo,
                                 "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."),
                     )
                 if (local_necesita and visitante_cerrado) or (visitante_necesita and local_cerrado):
                     sorpresa = (local_necesita and signo != "2") or (visitante_necesita and signo != "1")
                     registrar(
                         patrones, "equipo_necesitado_vs_equipo_sin_objetivo", sorpresa,
-                        ejemplo(liga, temporada, jornada_num, partido, signo,
+                        ejemplo(liga, temporada, fecha, partido, signo,
                                 "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."),
                     )
 
-            gl, gv = (int(x) for x in re.match(r"^\s*(\d+)\s*-\s*(\d+)\s*$", partido["resultado"]).groups())
-            aplicar_partido(tabla, partido.get("local", ""), partido.get("visitante", ""), gl, gv)
+            aplicar_partido(tabla, partido.get("local", ""), partido.get("visitante", ""), partido["gl"], partido["gv"])
+
+
+def normalizar_equipo_h2h(nombre):
+    return contexto_mod.normalizar_nombre(nombre)
+
+
+def clave_par_equipos(a, b):
+    return "__".join(sorted([normalizar_equipo_h2h(a), normalizar_equipo_h2h(b)]))
+
+
+def favorito_por_cuotas(partido):
+    """El favorito de mercado en AQUEL momento -la cuota mas baja gana-, no
+    la clasificacion de hoy. Es la señal que pide Marc: motivacion extra o
+    incomodidad especifica entre estos dos equipos en concreto, presente
+    durante toda la temporada y no solo cuando hay descenso/ascenso en juego."""
+    c1, cx, c2 = partido.get("cuota_1"), partido.get("cuota_x"), partido.get("cuota_2")
+    if not (c1 and cx and c2):
+        return None
+    cuotas = {"1": c1, "X": cx, "2": c2}
+    return min(cuotas, key=cuotas.get)
+
+
+def analizar_enfrentamientos_directos(historico):
+    pares = defaultdict(lambda: {
+        "equipos": [],
+        "casos_totales": 0,
+        "casos_con_cuotas": 0,
+        "sorpresas": 0,
+        "tasa_sorpresa_historica": None,
+        "ejemplos": [],
+    })
+
+    for liga, info in (historico.get("ligas") or {}).items():
+        for partido in ((info.get("consolidado") or {}).get("partidos") or []):
+            local = partido.get("local", "")
+            visitante = partido.get("visitante", "")
+            if not local or not visitante:
+                continue
+
+            clave = clave_par_equipos(local, visitante)
+            entrada = pares[clave]
+            if not entrada["equipos"]:
+                entrada["equipos"] = sorted([local, visitante])
+            entrada["casos_totales"] += 1
+
+            favorito = favorito_por_cuotas(partido)
+            es_sorpresa = bool(favorito) and partido.get("signo") != favorito
+            if favorito:
+                entrada["casos_con_cuotas"] += 1
+                if es_sorpresa:
+                    entrada["sorpresas"] += 1
+
+            registro = {
+                "liga": liga,
+                "temporada": partido.get("temporada"),
+                "fecha": partido.get("fecha"),
+                "local": local,
+                "visitante": visitante,
+                "resultado": partido.get("resultado"),
+                "signo": partido.get("signo"),
+                "favorito_cuotas": favorito,
+                "sorpresa": es_sorpresa,
+            }
+            if es_sorpresa or len(entrada["ejemplos"]) < 8:
+                entrada["ejemplos"].append(registro)
+                entrada["ejemplos"] = entrada["ejemplos"][-10:]
+
+    salida = {}
+    for clave, entrada in pares.items():
+        casos_cuotas = entrada["casos_con_cuotas"]
+        if casos_cuotas >= MIN_CASOS_CON_CUOTAS_PARA_TASA:
+            entrada["tasa_sorpresa_historica"] = round(entrada["sorpresas"] / casos_cuotas * 100, 1)
+        salida[clave] = entrada
+    return salida
 
 
 def analizar():
+    historico = cargar_json(HISTORICO_LIGAS_ESPANA, {})
     patrones = defaultdict(base_patron)
     temporadas_analizadas = {}
 
-    for liga, archivos in calendarios_historicos_por_liga().items():
+    for liga in ANALIZADORES:
         temporadas_analizadas[liga] = []
-        for archivo in archivos:
-            calendario = cargar_json(archivo, {})
-            if not calendario.get("jornadas"):
-                continue
-            analizar_calendario_historico(liga, calendario, patrones)
-            temporadas_analizadas[liga].append(calendario.get("temporada", archivo.stem))
+        for temporada, partidos in cargar_partidos_por_temporada(historico, liga):
+            analizar_temporada_historica(liga, temporada, partidos, patrones)
+            temporadas_analizadas[liga].append(temporada)
 
     salida_patrones = {}
     for clave, patron in sorted(patrones.items()):
@@ -236,13 +307,13 @@ def analizar():
         salida_patrones[clave] = dict(patron)
 
     salida = {
-        "version": "2.0",
+        "version": "3.0",
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "descripcion": (
-            "Patrones aprendidos de temporadas completas archivadas en data/historico/, "
-            "reconstruyendo la situacion competitiva real de cada equipo jornada a jornada "
-            "-no comparando contra la clasificacion de HOY, que en pretemporada no tiene "
-            "nada que ver con la situacion en la que se jugo cada partido historico."
+            "Patrones aprendidos de las 3 temporadas reales cargadas en "
+            "data/memoria_ia/historico_ligas_espana.json, reconstruyendo la "
+            "situacion competitiva real de cada equipo dia a dia -no "
+            "comparando contra la clasificacion de HOY."
         ),
         "temporadas_analizadas": temporadas_analizadas,
         "patrones": salida_patrones,
@@ -258,9 +329,29 @@ def analizar():
     contexto = cargar_json(CONTEXTO, {})
     contexto["patrones_aprendidos"] = salida
     guardar_json(CONTEXTO, contexto)
+
+    h2h = analizar_enfrentamientos_directos(historico)
+    salida_h2h = {
+        "version": "1.0",
+        "generado_en": datetime.now(timezone.utc).isoformat(),
+        "descripcion": (
+            "Historial de enfrentamientos directos entre cada par de equipos "
+            "en las 3 temporadas cargadas, usando el favorito de mercado de "
+            "cada partido (cuotas de aquel momento) para medir si ese cruce "
+            "concreto tiende a dar sorpresas -independiente de lo que se "
+            "juegue la clasificacion esta temporada."
+        ),
+        "minimo_casos_para_tasa": MIN_CASOS_CON_CUOTAS_PARA_TASA,
+        "enfrentamientos": h2h,
+    }
+    guardar_json(OUT_H2H, salida_h2h)
+
     print(f"Patrones competitivos aprendidos: {OUT}")
     for clave, patron in salida_patrones.items():
         print(f"  {clave}: {patron['casos']} casos, {patron['tasa_sorpresa']}% sorpresa")
+    print(f"Historial de enfrentamientos directos: {OUT_H2H}")
+    con_tasa = [e for e in h2h.values() if e["tasa_sorpresa_historica"] is not None]
+    print(f"  {len(h2h)} cruces distintos, {len(con_tasa)} con suficientes cuotas para tener tasa")
 
 
 if __name__ == "__main__":

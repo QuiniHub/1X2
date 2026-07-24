@@ -33,6 +33,7 @@ CONTEXTO_EQUIPOS = DATA / "contexto_equipos.json"
 DATOS_PROFESIONALES = DATA / "datos_profesionales.json"
 CONTEXTO_COMPETITIVO = DATA / "memoria_ia" / "contexto_competitivo.json"
 PATRONES_COMPETITIVOS = DATA / "memoria_ia" / "patrones_competitivos.json"
+HISTORIAL_ENFRENTAMIENTOS = DATA / "memoria_ia" / "historial_enfrentamientos.json"
 PERFILES_EQUIPOS = DATA / "memoria_ia" / "perfiles_equipos.json"
 CLASIFICACIONES_MUNDIAL = DATA / "memoria_ia" / "clasificaciones_mundial_2026.json"
 FUENTE_LOSILLA = DATA / "memoria_ia" / "fuente_losilla.json"
@@ -1657,7 +1658,18 @@ def clamp(valor, minimo=0.0, maximo=100.0):
     return max(min(float(valor), maximo), minimo)
 
 
-def indice_sorpresa_quinielistica(partido, patrones=None):
+def clave_par_equipos_h2h(a, b):
+    return "__".join(sorted([normalizar(a), normalizar(b)]))
+
+
+def historial_h2h_partido(partido, historial_h2h):
+    if not historial_h2h:
+        return None
+    clave = clave_par_equipos_h2h(partido.get("local", ""), partido.get("visitante", ""))
+    return (historial_h2h.get("enfrentamientos") or {}).get(clave)
+
+
+def indice_sorpresa_quinielistica(partido, patrones=None, historial_h2h=None):
     probs = partido.get("probabilidades", {})
     orden = signos_ordenados(probs)
     if not orden:
@@ -1776,6 +1788,15 @@ def indice_sorpresa_quinielistica(partido, patrones=None):
             score += tasa * 0.22
             score += tasa_patron(patrones, "equipo_necesitado_vs_equipo_sin_objetivo") * 0.14
 
+    h2h = historial_h2h_partido(partido, historial_h2h)
+    if h2h and h2h.get("casos_con_cuotas", 0) >= 2 and h2h.get("tasa_sorpresa_historica") is not None:
+        tasa_h2h = h2h["tasa_sorpresa_historica"]
+        score += tasa_h2h * 0.20
+        motivos.append(
+            f"Historial de enfrentamientos directos entre estos dos equipos: {tasa_h2h:.1f}% "
+            f"de sorpresas en {h2h['casos_con_cuotas']} cruces con cuotas conocidas de las ultimas 3 temporadas."
+        )
+
     if racha_valor(favorito_memoria, "sin_ganar") >= 3:
         score += 10
         motivos.append("favorito con racha reciente sin ganar")
@@ -1829,6 +1850,7 @@ def indice_sorpresa_quinielistica(partido, patrones=None):
 
 MOTIVOS_CONTEXTUALES_CLAVE = (
     "descenso", "necesita", "necesitado", "objetivo cerrado", "sin objetivos", "motivacional",
+    "enfrentamientos directos",
 )
 
 
@@ -2380,6 +2402,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     datos_profesionales = cargar_json(DATOS_PROFESIONALES, {})
     contexto_competitivo = cargar_json(CONTEXTO_COMPETITIVO, {})
     patrones_competitivos = cargar_json(PATRONES_COMPETITIVOS, {})
+    historial_h2h = cargar_json(HISTORIAL_ENFRENTAMIENTOS, {})
     perfiles_autonomos = cargar_json(PERFILES_EQUIPOS, {})
     clasificaciones_mundial = cargar_json(CLASIFICACIONES_MUNDIAL, {})
     fuente_losilla = cargar_json(FUENTE_LOSILLA, {})
@@ -2544,7 +2567,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "_visitante": visitante,
             "_diff": diff,
         }
-        indice_sorpresa = indice_sorpresa_quinielistica(evaluado, patrones_competitivos)
+        indice_sorpresa = indice_sorpresa_quinielistica(evaluado, patrones_competitivos, historial_h2h)
         if ajuste_motivacion_competitiva.get("sorpresa_potencial"):
             indice_sorpresa["indice"] = max(float(indice_sorpresa.get("indice") or 0), 60.0)
             indice_sorpresa["categoria"] = "alta"
