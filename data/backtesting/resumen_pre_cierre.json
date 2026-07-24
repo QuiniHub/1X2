@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-24T17:48:34.913839+00:00",
+  "generado_en": "2026-07-24T19:42:35.212207+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 9,
-    "partidos_cerrados": 112,
-    "aciertos": 59,
-    "precision": 52.68
+    "partidos_cerrados": 113,
+    "aciertos": 60,
+    "precision": 53.1
   },
   "jornadas": [
     {
@@ -2016,10 +2016,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_74.json",
       "creado_en": "2026-07-20T19:05:23.796686+00:00",
       "prediccion_generada_en": "2026-07-20T19:05:23.796196+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
-      "aciertos": 0,
-      "precision": null,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 1,
+      "aciertos": 1,
+      "precision": 100.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -2040,8 +2040,8 @@
       },
       "por_tipo": {
         "FIJO": {
-          "total": 0,
-          "aciertos": 0
+          "total": 1,
+          "aciertos": 1
         },
         "DOBLE": {
           "total": 0,
@@ -2052,7 +2052,23 @@
           "aciertos": 0
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 8,
+          "partido": "Västerås - Örgryte",
+          "jugado": "1",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 57.1,
+            "X": 24.7,
+            "2": 18.2
+          },
+          "incertidumbre": 109.08,
+          "probabilidad_sorpresa": 47.7
+        }
+      ]
     }
   ]
 }

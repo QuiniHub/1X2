@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-24T17:48:34.955273+00:00",
+  "generado_en": "2026-07-24T19:42:35.242779+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 112,
-    "precision_top": 33.04,
-    "brier_medio": 0.6626,
-    "logloss_medio": 1.0915,
+    "partidos": 113,
+    "precision_top": 33.63,
+    "brier_medio": 0.6592,
+    "logloss_medio": 1.0868,
     "muestra": "media"
   },
   "por_bucket_top": {
@@ -26,19 +26,19 @@
       "muestra_suficiente": false
     },
     "50-60": {
-      "total": 1,
-      "prob_top_media": 56.0,
-      "precision_real": 0.0,
-      "desviacion_calibracion": -56.0,
+      "total": 2,
+      "prob_top_media": 56.55,
+      "precision_real": 50.0,
+      "desviacion_calibracion": -6.55,
       "muestra_suficiente": false
     }
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 112,
-      "precision_top": 33.04,
-      "brier_medio": 0.6626,
-      "logloss_medio": 1.0915,
+      "partidos": 113,
+      "precision_top": 33.63,
+      "brier_medio": 0.6592,
+      "logloss_medio": 1.0868,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -1722,6 +1722,21 @@
       "bucket_top": "30-40",
       "brier": 0.650024,
       "logloss": 1.072944541919532,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 74,
+      "num": 8,
+      "partido": "Västerås - Örgryte",
+      "fuente": "data/backtesting/pre_cierre/jornada_74.json",
+      "real": "1",
+      "top": "1",
+      "acierto_top": true,
+      "prob_top": 57.1,
+      "prob_real": 57.1,
+      "bucket_top": "50-60",
+      "brier": 0.278174,
+      "logloss": 0.5603660693261268,
       "competicion": "desconocida"
     }
   ],
