@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 66.67,
+  "precision": 66.82,
   "jornadas_revisadas": 16,
-  "partidos_revisados": 210,
-  "aciertos": 140,
+  "partidos_revisados": 211,
+  "aciertos": 141,
   "fallos": 70,
   "fallos_por_tipo": {
     "Doble insuficiente": 13,
@@ -22,10 +22,10 @@
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 47,
-      "aciertos": 34,
+      "total": 48,
+      "aciertos": 35,
       "fallos": 13,
-      "precision": 72.34
+      "precision": 72.92
     },
     "FIJO": {
       "total": 139,
@@ -48,10 +48,10 @@
       "precision": 81.63
     },
     "2": {
-      "total": 62,
-      "aciertos": 33,
+      "total": 63,
+      "aciertos": 34,
       "fallos": 29,
-      "precision": 53.23
+      "precision": 53.97
     },
     "X": {
       "total": 50,
@@ -15897,6 +15897,105 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 74,
+      "partido": "Degerfors IF - Djurgårdens",
+      "pronostico": "X2",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "0-1",
+      "resultado_final": "0-1",
+      "signo_real": "2",
+      "signos_cubiertos": "X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_74.json",
+      "probabilidades_usadas": {
+        "1": 25.1,
+        "X": 28.6,
+        "2": 46.3
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Degerfors IF",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Djurgårdens",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (46.3%).",
+        "hipotesis_alternativa": "X como alternativa (28.6%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_atacable",
+          "probabilidad": 64.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE X2: margen 17.7 puntos, indice sorpresa 66.7."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.74,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Degerfors IF",
+        "partidos_total": 2,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 46.1,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {}
     }
   ],
   "ajustes_recomendados": [
@@ -15910,19 +16009,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 210,
+    "partidos_base": 211,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.33,
+      "fallos_total_pct": 33.18,
       "no_cubrio_empate_sobre_fallos_pct": 32.86,
-      "no_cubrio_empate_sobre_total_pct": 10.95,
+      "no_cubrio_empate_sobre_total_pct": 10.9,
       "fijo_fallado_sobre_fallos_pct": 48.57,
-      "fijo_fallado_sobre_total_pct": 16.19,
-      "doble_insuficiente_sobre_total_pct": 6.19
+      "fijo_fallado_sobre_total_pct": 16.11,
+      "doble_insuficiente_sobre_total_pct": 6.16
     },
-    "boost_empate_zona_riesgo": 5.59,
-    "riesgo_extra_fijo_fragil": 6.07,
-    "riesgo_extra_triple_insuficiente": 1.97,
+    "boost_empate_zona_riesgo": 5.57,
+    "riesgo_extra_fijo_fragil": 6.0,
+    "riesgo_extra_triple_insuficiente": 1.94,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
