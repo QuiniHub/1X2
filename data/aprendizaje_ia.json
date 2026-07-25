@@ -1,31 +1,31 @@
 {
   "version": "1.2",
-  "precision": 66.82,
+  "precision": 66.51,
   "jornadas_revisadas": 16,
-  "partidos_revisados": 211,
+  "partidos_revisados": 212,
   "aciertos": 141,
-  "fallos": 70,
+  "fallos": 71,
   "fallos_por_tipo": {
-    "Doble insuficiente": 13,
+    "Doble insuficiente": 14,
     "Fijo fallado": 34,
     "No cubrio empate": 23
   },
   "fallos_por_signo_real": {
     "1": 18,
-    "2": 29,
+    "2": 30,
     "X": 23
   },
   "signos_omitidos_en_fallo": {
     "1": 18,
-    "2": 29,
+    "2": 30,
     "X": 23
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 48,
+      "total": 49,
       "aciertos": 35,
-      "fallos": 13,
-      "precision": 72.92
+      "fallos": 14,
+      "precision": 71.43
     },
     "FIJO": {
       "total": 139,
@@ -48,10 +48,10 @@
       "precision": 81.63
     },
     "2": {
-      "total": 63,
+      "total": 64,
       "aciertos": 34,
-      "fallos": 29,
-      "precision": 53.97
+      "fallos": 30,
+      "precision": 53.12
     },
     "X": {
       "total": 50,
@@ -15786,6 +15786,120 @@
     },
     {
       "jornada": 74,
+      "partido": "Kristiansund - Start",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "1-2",
+      "resultado_final": "1-2",
+      "signo_real": "2",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Doble insuficiente",
+      "origen": "data/predicciones/jornada_74.json",
+      "probabilidades_usadas": {
+        "1": 44.4,
+        "X": 29.8,
+        "2": 25.9
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Kristiansund",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Start",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (44.4%).",
+        "hipotesis_alternativa": "X como alternativa (29.8%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 66.8,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 14.6 puntos, indice sorpresa 80.8."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.74,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Kristiansund: ppp=0.67; perfil visitante Start: ppp=0.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Kristiansund",
+        "partidos_total": 2,
+        "puntos_por_partido": 0.507,
+        "empates_pct": 50.72,
+        "surprise_score_medio": 43.09,
+        "forma_5_ppp": 0.5,
+        "forma_10_ppp": 0.5,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Start",
+        "partidos_total": 2,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 39.19,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 74,
       "partido": "Vasteras SK FK - Orgryte IS",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -16009,19 +16123,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 211,
+    "partidos_base": 212,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.18,
-      "no_cubrio_empate_sobre_fallos_pct": 32.86,
-      "no_cubrio_empate_sobre_total_pct": 10.9,
-      "fijo_fallado_sobre_fallos_pct": 48.57,
-      "fijo_fallado_sobre_total_pct": 16.11,
-      "doble_insuficiente_sobre_total_pct": 6.16
+      "fallos_total_pct": 33.49,
+      "no_cubrio_empate_sobre_fallos_pct": 32.39,
+      "no_cubrio_empate_sobre_total_pct": 10.85,
+      "fijo_fallado_sobre_fallos_pct": 47.89,
+      "fijo_fallado_sobre_total_pct": 16.04,
+      "doble_insuficiente_sobre_total_pct": 6.6
     },
-    "boost_empate_zona_riesgo": 5.57,
-    "riesgo_extra_fijo_fragil": 6.0,
-    "riesgo_extra_triple_insuficiente": 1.94,
+    "boost_empate_zona_riesgo": 5.47,
+    "riesgo_extra_fijo_fragil": 5.81,
+    "riesgo_extra_triple_insuficiente": 2.34,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
