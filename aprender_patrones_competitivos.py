@@ -229,18 +229,41 @@ def analizar_temporada_historica(liga, temporada, partidos, patrones):
 
                 local_tier = tier_por_posicion(local)
                 visitante_tier = tier_por_posicion(visitante)
+                tier_favorito_signo = None
                 if local_tier == "top10" and visitante_tier == "resto":
+                    tier_favorito_signo = "1"
                     registrar(
                         patrones, "top10_local_vs_resto_visitante", signo != "1",
                         ejemplo(liga, temporada, fecha, partido, signo,
                                 "Local del top 10 recibe a un equipo de la segunda mitad de la tabla."),
                     )
                 elif visitante_tier == "top10" and local_tier == "resto":
+                    tier_favorito_signo = "2"
                     registrar(
                         patrones, "top10_visitante_vs_resto_local", signo != "2",
                         ejemplo(liga, temporada, fecha, partido, signo,
                                 "Visitante del top 10 viaja a un equipo de la segunda mitad de la tabla."),
                     )
+
+                # Matiz pedido por Marc tras el fallo real de la jornada 74 (Brommapojkarna-Hammarby,
+                # 2026-07-26): una brecha de posicion en tabla (top10 vs resto) no siempre viene
+                # respaldada por el mercado -si las cuotas de aquel momento NO coinciden con el
+                # favorito que marca la tabla, ¿falla el favorito de tabla mas a menudo que cuando
+                # el mercado SI lo confirma? Se mide con las dos etiquetas para poder comparar.
+                if tier_favorito_signo:
+                    cuota_favorito_signo = favorito_por_cuotas(partido)
+                    if cuota_favorito_signo:
+                        clave_brecha = (
+                            "brecha_tabla_confirmada_por_mercado"
+                            if cuota_favorito_signo == tier_favorito_signo
+                            else "brecha_tabla_sin_respaldo_mercado"
+                        )
+                        registrar(
+                            patrones, clave_brecha, signo != tier_favorito_signo,
+                            ejemplo(liga, temporada, fecha, partido, signo,
+                                    f"Brecha de tabla top10 vs resto; favorito de tabla={tier_favorito_signo}, "
+                                    f"favorito de mercado={cuota_favorito_signo}."),
+                        )
 
             aplicar_partido(tabla, partido.get("local", ""), partido.get("visitante", ""), partido["gl"], partido["gv"])
 

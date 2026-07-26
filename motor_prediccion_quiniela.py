@@ -1705,6 +1705,7 @@ def indice_sorpresa_quinielistica(partido, patrones=None, historial_h2h=None):
     sorpresa = float(partido.get("probabilidad_sorpresa") or 0)
     x_prob = float(probs.get("X") or 0)
     patrones = patrones or {}
+    mercado_losilla = partido.get("mercado_losilla")
 
     local_comp = partido.get("contexto_competitivo_local")
     visitante_comp = partido.get("contexto_competitivo_visitante")
@@ -1811,14 +1812,31 @@ def indice_sorpresa_quinielistica(partido, patrones=None, historial_h2h=None):
 
     local_tier = tier_por_posicion(local_comp)
     visitante_tier = tier_por_posicion(visitante_comp)
+    tier_favorito_signo = None
     if local_tier == "top10" and visitante_tier == "resto":
+        tier_favorito_signo = "1"
         tasa = tasa_patron(patrones, "top10_local_vs_resto_visitante")
         score += tasa * 0.20
         motivos.append(f"Local del top 10 frente a un visitante de la segunda mitad de la tabla: {tasa:.1f}% de sorpresas historicas.")
     elif visitante_tier == "top10" and local_tier == "resto":
+        tier_favorito_signo = "2"
         tasa = tasa_patron(patrones, "top10_visitante_vs_resto_local")
         score += tasa * 0.20
         motivos.append(f"Visitante del top 10 frente a un local de la segunda mitad de la tabla: {tasa:.1f}% de sorpresas historicas.")
+
+    # Matiz pedido por Marc tras el fallo real de la jornada 74 (Brommapojkarna-Hammarby,
+    # 2026-07-26): la brecha de tabla (top10 vs resto) de arriba NO basta por si sola para
+    # tratar un partido como favorito claro -si el mercado real (Losilla) no confirma ese
+    # mismo favorito, la brecha de tabla es menos fiable de lo que parece sobre el papel.
+    if tier_favorito_signo and mercado_losilla and any(float(v or 0) > 0 for v in mercado_losilla.values()):
+        favorito_mercado = max(("1", "X", "2"), key=lambda s: float(mercado_losilla.get(s) or 0))
+        if favorito_mercado != tier_favorito_signo:
+            tasa_brecha = tasa_patron(patrones, "brecha_tabla_sin_respaldo_mercado")
+            score += tasa_brecha * 0.22
+            motivos.append(
+                f"Brecha de tabla (top10 vs resto) sin respaldo del mercado Losilla -favorito de tabla '{tier_favorito_signo}', "
+                f"favorito de mercado '{favorito_mercado}': {tasa_brecha:.1f}% de sorpresas historicas cuando esto pasa."
+            )
 
     if racha_valor(favorito_memoria, "sin_ganar") >= 3:
         score += 10

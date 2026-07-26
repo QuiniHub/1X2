@@ -676,6 +676,44 @@ class MotorPrediccionTests(unittest.TestCase):
 
         self.assertFalse(any("segunda mitad de la tabla" in m.lower() for m in indice["motivos"]))
 
+    def test_brecha_tabla_sin_respaldo_mercado_suma_riesgo_y_motivo(self):
+        # Caso real: jornada 74, Brommapojkarna-Hammarby (2026-07-26). Hammarby (visitante)
+        # es del top 10, Brommapojkarna (local) de la segunda mitad -favorito de tabla = "2".
+        # Pero el mercado Losilla real ese dia favorecia el empate/local, no el "2" de tabla.
+        evaluado = partido(12, {"1": 23.8, "X": 26.9, "2": 49.2}, incertidumbre=104, sorpresa=48)
+        evaluado["contexto_competitivo_local"] = {**equipo_competitivo("Local 12", "asegurado_matematicamente"), "posicion": 11}
+        evaluado["contexto_competitivo_visitante"] = {**equipo_competitivo("Visitante 12", "asegurado_matematicamente"), "posicion": 2}
+        evaluado["mercado_losilla"] = {"1": 18.75, "X": 23.0, "2": 58.25}
+        patrones = {"patrones": {
+            "top10_visitante_vs_resto_local": {"tasa_sorpresa": 62.5},
+            "brecha_tabla_sin_respaldo_mercado": {"tasa_sorpresa": 70.0},
+        }}
+
+        indice_con_mercado = indice_sorpresa_quinielistica(evaluado, patrones)
+        self.assertTrue(any("sin respaldo del mercado losilla" in m.lower() for m in indice_con_mercado["motivos"]))
+
+        evaluado_sin_mercado = dict(evaluado)
+        evaluado_sin_mercado.pop("mercado_losilla")
+        indice_sin_mercado = indice_sorpresa_quinielistica(evaluado_sin_mercado, patrones)
+        self.assertFalse(any("sin respaldo del mercado losilla" in m.lower() for m in indice_sin_mercado["motivos"]))
+        self.assertGreater(indice_con_mercado["indice"], indice_sin_mercado["indice"])
+
+    def test_brecha_tabla_confirmada_por_mercado_no_suma_motivo_de_alarma(self):
+        # Mismo tipo de brecha de tabla, pero esta vez el mercado SI confirma al
+        # favorito de tabla -no debe aparecer el motivo de "sin respaldo".
+        evaluado = partido(1, {"1": 70.0, "X": 18.0, "2": 12.0}, incertidumbre=90, sorpresa=20)
+        evaluado["contexto_competitivo_local"] = {**equipo_competitivo("Local 1", "asegurado_matematicamente"), "posicion": 2}
+        evaluado["contexto_competitivo_visitante"] = {**equipo_competitivo("Visitante 1", "asegurado_matematicamente"), "posicion": 18}
+        evaluado["mercado_losilla"] = {"1": 68.0, "X": 20.0, "2": 12.0}
+        patrones = {"patrones": {
+            "top10_local_vs_resto_visitante": {"tasa_sorpresa": 41.5},
+            "brecha_tabla_sin_respaldo_mercado": {"tasa_sorpresa": 70.0},
+        }}
+
+        indice = indice_sorpresa_quinielistica(evaluado, patrones)
+
+        self.assertFalse(any("sin respaldo del mercado losilla" in m.lower() for m in indice["motivos"]))
+
 
 if __name__ == "__main__":
     unittest.main()
