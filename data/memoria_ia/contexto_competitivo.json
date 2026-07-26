@@ -1,6 +1,6 @@
 {
   "version": "1.4",
-  "generado_en": "2026-07-26T14:44:42.566058+00:00",
+  "generado_en": "2026-07-26T16:24:34.866449+00:00",
   "descripcion": "Contexto de objetivos, puntos en juego y presión competitiva para calibrar predicciones de final de temporada.",
   "reglas": {
     "primera": {
@@ -4580,7 +4580,7 @@
   },
   "temporada_detectada": "2026/2027",
   "objetivos_oficiales_jornada": {
-    "aplicados_en": "2026-07-26T14:44:42.603404+00:00",
+    "aplicados_en": "2026-07-26T16:24:34.897287+00:00",
     "fuente": "data/memoria_ia/objetivos_jornada_actual.json",
     "equipos": [
       "Deportivo Alaves",
@@ -4595,7 +4595,7 @@
   },
   "patrones_aprendidos": {
     "version": "3.0",
-    "generado_en": "2026-07-26T14:45:04.132406+00:00",
+    "generado_en": "2026-07-26T16:24:53.502225+00:00",
     "descripcion": "Patrones aprendidos de las 3 temporadas reales cargadas en data/memoria_ia/historico_ligas_espana.json, reconstruyendo la situacion competitiva real de cada equipo dia a dia -no comparando contra la clasificacion de HOY.",
     "temporadas_analizadas": {
       "primera": [
@@ -4610,6 +4610,236 @@
       ]
     },
     "patrones": {
+      "brecha_tabla_margen_amplio_mercado": {
+        "casos": 363,
+        "sorpresas": 107,
+        "tasa_sorpresa": 29.5,
+        "ejemplos": [
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2025-12-08",
+            "partido": "Las Palmas - Mirandes",
+            "resultado": "0-0",
+            "signo_real": "X",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=1, probabilidad implicita de mercado para ese favorito=61.0%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2025-12-13",
+            "partido": "Valladolid - Andorra",
+            "resultado": "0-1",
+            "signo_real": "2",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=1, probabilidad implicita de mercado para ese favorito=57.4%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2025-12-13",
+            "partido": "La Coruna - Sociedad B",
+            "resultado": "0-3",
+            "signo_real": "2",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=1, probabilidad implicita de mercado para ese favorito=62.8%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-01-10",
+            "partido": "Racing Santander - Zaragoza",
+            "resultado": "2-3",
+            "signo_real": "2",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=1, probabilidad implicita de mercado para ese favorito=55.7%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-03-23",
+            "partido": "Castellon - Cultural Leonesa",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=1, probabilidad implicita de mercado para ese favorito=69.3%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-05-01",
+            "partido": "Andorra - Albacete",
+            "resultado": "0-1",
+            "signo_real": "2",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=1, probabilidad implicita de mercado para ese favorito=59.4%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-05-09",
+            "partido": "AD Ceuta - Castellon",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=57.4%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-05-15",
+            "partido": "Castellon - Cadiz",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=1, probabilidad implicita de mercado para ese favorito=74.4%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-05-15",
+            "partido": "Cordoba - Albacete",
+            "resultado": "1-2",
+            "signo_real": "2",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=1, probabilidad implicita de mercado para ese favorito=59.1%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-05-24",
+            "partido": "Andorra - AD Ceuta",
+            "resultado": "0-2",
+            "signo_real": "2",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=1, probabilidad implicita de mercado para ese favorito=62.6%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-05-24",
+            "partido": "Las Palmas - Zaragoza",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=1, probabilidad implicita de mercado para ese favorito=65.5%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-05-24",
+            "partido": "Sp Gijon - Almeria",
+            "resultado": "3-1",
+            "signo_real": "1",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=55.3%."
+          }
+        ]
+      },
+      "brecha_tabla_margen_estrecho_mercado": {
+        "casos": 905,
+        "sorpresas": 557,
+        "tasa_sorpresa": 61.5,
+        "ejemplos": [
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-03-29",
+            "partido": "Zaragoza - Racing Santander",
+            "resultado": "2-0",
+            "signo_real": "1",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=38.7%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-04-01",
+            "partido": "Andorra - Malaga",
+            "resultado": "3-3",
+            "signo_real": "X",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=31.1%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-04-05",
+            "partido": "Andorra - Racing Santander",
+            "resultado": "6-2",
+            "signo_real": "1",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=34.5%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-04-10",
+            "partido": "AD Ceuta - Sociedad B",
+            "resultado": "0-0",
+            "signo_real": "X",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=1, probabilidad implicita de mercado para ese favorito=51.4%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-04-12",
+            "partido": "Huesca - La Coruna",
+            "resultado": "1-1",
+            "signo_real": "X",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=44.2%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-04-12",
+            "partido": "Mirandes - Castellon",
+            "resultado": "2-2",
+            "signo_real": "X",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=47.6%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-04-13",
+            "partido": "Valladolid - Eibar",
+            "resultado": "0-0",
+            "signo_real": "X",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=29.5%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-04-26",
+            "partido": "Cordoba - Sp Gijon",
+            "resultado": "3-2",
+            "signo_real": "1",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=31.0%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-04-26",
+            "partido": "AD Ceuta - Racing Santander",
+            "resultado": "0-0",
+            "signo_real": "X",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=46.6%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-05-03",
+            "partido": "Sociedad B - Burgos CF",
+            "resultado": "0-0",
+            "signo_real": "X",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=38.8%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-05-16",
+            "partido": "Cultural Leonesa - Eibar",
+            "resultado": "2-1",
+            "signo_real": "1",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=39.6%."
+          },
+          {
+            "liga": "segunda",
+            "temporada": "2025/2026",
+            "fecha": "2026-05-30",
+            "partido": "AD Ceuta - Albacete",
+            "resultado": "1-0",
+            "signo_real": "1",
+            "lectura": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=30.2%."
+          }
+        ]
+      },
       "equipo_necesitado_vs_equipo_sin_objetivo": {
         "casos": 87,
         "sorpresas": 60,
