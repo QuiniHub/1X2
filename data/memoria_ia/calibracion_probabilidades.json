@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-26T12:44:45.385767+00:00",
+  "generado_en": "2026-07-26T14:45:05.920098+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 116,
-    "precision_top": 34.48,
-    "brier_medio": 0.6581,
-    "logloss_medio": 1.0854,
+    "partidos": 119,
+    "precision_top": 34.45,
+    "brier_medio": 0.659,
+    "logloss_medio": 1.0869,
     "muestra": "media"
   },
   "por_bucket_top": {
@@ -19,26 +19,26 @@
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 13,
-      "prob_top_media": 47.06,
-      "precision_real": 53.85,
-      "desviacion_calibracion": 6.78,
+      "total": 14,
+      "prob_top_media": 47.22,
+      "precision_real": 50.0,
+      "desviacion_calibracion": 2.78,
       "muestra_suficiente": false
     },
     "50-60": {
-      "total": 2,
-      "prob_top_media": 56.55,
+      "total": 4,
+      "prob_top_media": 55.57,
       "precision_real": 50.0,
-      "desviacion_calibracion": -6.55,
+      "desviacion_calibracion": -5.57,
       "muestra_suficiente": false
     }
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 116,
-      "precision_top": 34.48,
-      "brier_medio": 0.6581,
-      "logloss_medio": 1.0854,
+      "partidos": 119,
+      "precision_top": 34.45,
+      "brier_medio": 0.659,
+      "logloss_medio": 1.0869,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -1741,6 +1741,21 @@
     },
     {
       "jornada": 74,
+      "num": 2,
+      "partido": "Brann - Vålerenga",
+      "fuente": "data/backtesting/pre_cierre/jornada_74.json",
+      "real": "2",
+      "top": "1",
+      "acierto_top": false,
+      "prob_top": 52.7,
+      "prob_real": 21.3,
+      "bucket_top": "50-60",
+      "brier": 0.964698,
+      "logloss": 1.546463113272712,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 74,
       "num": 8,
       "partido": "Västerås - Örgryte",
       "fuente": "data/backtesting/pre_cierre/jornada_74.json",
@@ -1782,6 +1797,36 @@
       "bucket_top": "30-40",
       "brier": 0.552894,
       "logloss": 0.9339456671128757,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 74,
+      "num": 11,
+      "partido": "Sirius - Göteborg",
+      "fuente": "data/backtesting/pre_cierre/jornada_74.json",
+      "real": "1",
+      "top": "1",
+      "acierto_top": true,
+      "prob_top": 56.46,
+      "prob_real": 56.46,
+      "bucket_top": "50-60",
+      "brier": 0.2856089322555789,
+      "logloss": 0.5717005271504946,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 74,
+      "num": 12,
+      "partido": "Brommapojkarna - Hammarby",
+      "fuente": "data/backtesting/pre_cierre/jornada_74.json",
+      "real": "X",
+      "top": "2",
+      "acierto_top": false,
+      "prob_top": 49.25,
+      "prob_real": 26.93,
+      "bucket_top": "40-50",
+      "brier": 0.833273714154595,
+      "logloss": 1.3120433990467144,
       "competicion": "desconocida"
     }
   ],
