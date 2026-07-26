@@ -1705,7 +1705,6 @@ def indice_sorpresa_quinielistica(partido, patrones=None, historial_h2h=None):
     sorpresa = float(partido.get("probabilidad_sorpresa") or 0)
     x_prob = float(probs.get("X") or 0)
     patrones = patrones or {}
-    mercado_losilla = partido.get("mercado_losilla")
 
     local_comp = partido.get("contexto_competitivo_local")
     visitante_comp = partido.get("contexto_competitivo_visitante")
@@ -1826,16 +1825,24 @@ def indice_sorpresa_quinielistica(partido, patrones=None, historial_h2h=None):
 
     # Matiz pedido por Marc tras el fallo real de la jornada 74 (Brommapojkarna-Hammarby,
     # 2026-07-26): la brecha de tabla (top10 vs resto) de arriba NO basta por si sola para
-    # tratar un partido como favorito claro -si el mercado real (Losilla) no confirma ese
-    # mismo favorito, la brecha de tabla es menos fiable de lo que parece sobre el papel.
-    if tier_favorito_signo and mercado_losilla and any(float(v or 0) > 0 for v in mercado_losilla.values()):
-        favorito_mercado = max(("1", "X", "2"), key=lambda s: float(mercado_losilla.get(s) or 0))
-        if favorito_mercado != tier_favorito_signo:
-            tasa_brecha = tasa_patron(patrones, "brecha_tabla_sin_respaldo_mercado")
+    # tratar un partido como favorito claro. Version corregida tras un primer intento fallido
+    # (el propio test lo detecto antes de llegar a produccion): al principio se comparaba
+    # "direccion tabla vs direccion mercado Losilla", pero el caso real tenia tabla Y mercado
+    # de acuerdo (ambos favorecian al equipo del top 10, 58.25% para "2") -lo que de verdad
+    # bajaba la confianza era que la probabilidad FINAL del propio motor para ese favorito
+    # (ya mezclada con el resto de señales) seguia corta (49.2%, por debajo del umbral),
+    # no que el mercado señalara a otro signo. Por eso aqui se usa `probs` (la probabilidad
+    # final del motor para ESE signo concreto), no una comparacion de direccion con el mercado.
+    UMBRAL_MARGEN_ESTRECHO_BRECHA_TABLA = 55.0  # mismo umbral que aprender_patrones_competitivos.py
+    if tier_favorito_signo:
+        prob_favorito_tabla = float(probs.get(tier_favorito_signo) or 0)
+        if prob_favorito_tabla > 0 and prob_favorito_tabla < UMBRAL_MARGEN_ESTRECHO_BRECHA_TABLA:
+            tasa_brecha = tasa_patron(patrones, "brecha_tabla_margen_estrecho_mercado")
             score += tasa_brecha * 0.22
             motivos.append(
-                f"Brecha de tabla (top10 vs resto) sin respaldo del mercado Losilla -favorito de tabla '{tier_favorito_signo}', "
-                f"favorito de mercado '{favorito_mercado}': {tasa_brecha:.1f}% de sorpresas historicas cuando esto pasa."
+                f"Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '{tier_favorito_signo}' "
+                f"solo al {prob_favorito_tabla:.1f}% (por debajo del {UMBRAL_MARGEN_ESTRECHO_BRECHA_TABLA:.0f}%): "
+                f"{tasa_brecha:.1f}% de sorpresas historicas cuando esto pasa."
             )
 
     if racha_valor(favorito_memoria, "sin_ganar") >= 3:

@@ -26,6 +26,13 @@ MIN_EQUIPOS_PARA_ANALIZAR = 1
 # -se guarda igualmente el historial, pero sin "tasa_sorpresa_historica".
 MIN_CASOS_CON_CUOTAS_PARA_TASA = 2
 
+# Por debajo de este % de probabilidad implicita de mercado, una brecha de tabla
+# (top10 vs resto) se considera "sin margen real amplio" -ver caso Brommapojkarna-
+# Hammarby (jornada 74, 2026-07-26): favorito de tabla y de mercado coincidian, pero
+# la probabilidad implicita real (49-58%) no reflejaba una diferencia de clase tan
+# grande como sugeria la posicion en tabla.
+UMBRAL_MARGEN_ESTRECHO = 55.0
+
 
 def cargar_json(path, defecto=None):
     if defecto is None:
@@ -247,22 +254,27 @@ def analizar_temporada_historica(liga, temporada, partidos, patrones):
 
                 # Matiz pedido por Marc tras el fallo real de la jornada 74 (Brommapojkarna-Hammarby,
                 # 2026-07-26): una brecha de posicion en tabla (top10 vs resto) no siempre viene
-                # respaldada por el mercado -si las cuotas de aquel momento NO coinciden con el
-                # favorito que marca la tabla, ¿falla el favorito de tabla mas a menudo que cuando
-                # el mercado SI lo confirma? Se mide con las dos etiquetas para poder comparar.
+                # respaldada por un margen real amplio. Version corregida tras un primer intento
+                # fallido: al principio se comparo "direccion tabla vs direccion mercado", pero el
+                # caso real que motivo esto tenia mercado Y tabla de acuerdo (ambos favorecian al
+                # equipo del top 10) -lo que de verdad bajaba la confianza era que la PROBABILIDAD
+                # implicita de mercado para ese favorito de tabla era corta (no habia margen real),
+                # no que el mercado señalara a otro signo distinto. Por eso aqui se mide el MARGEN
+                # (probabilidad implicita de las cuotas para el signo de tabla), no solo la direccion.
                 if tier_favorito_signo:
-                    cuota_favorito_signo = favorito_por_cuotas(partido)
-                    if cuota_favorito_signo:
+                    probs_mercado = probabilidad_implicita_cuotas(partido)
+                    prob_favorito_mercado = probs_mercado.get(tier_favorito_signo)
+                    if prob_favorito_mercado is not None:
                         clave_brecha = (
-                            "brecha_tabla_confirmada_por_mercado"
-                            if cuota_favorito_signo == tier_favorito_signo
-                            else "brecha_tabla_sin_respaldo_mercado"
+                            "brecha_tabla_margen_estrecho_mercado"
+                            if prob_favorito_mercado < UMBRAL_MARGEN_ESTRECHO
+                            else "brecha_tabla_margen_amplio_mercado"
                         )
                         registrar(
                             patrones, clave_brecha, signo != tier_favorito_signo,
                             ejemplo(liga, temporada, fecha, partido, signo,
                                     f"Brecha de tabla top10 vs resto; favorito de tabla={tier_favorito_signo}, "
-                                    f"favorito de mercado={cuota_favorito_signo}."),
+                                    f"probabilidad implicita de mercado para ese favorito={prob_favorito_mercado:.1f}%."),
                         )
 
             aplicar_partido(tabla, partido.get("local", ""), partido.get("visitante", ""), partido["gl"], partido["gv"])
@@ -286,6 +298,23 @@ def favorito_por_cuotas(partido):
         return None
     cuotas = {"1": c1, "X": cx, "2": c2}
     return min(cuotas, key=cuotas.get)
+
+
+def probabilidad_implicita_cuotas(partido):
+    """Probabilidad implicita normalizada (100/cuota, repartida a que sume 100)
+    por signo, o {} si no hay las 3 cuotas. Es el margen REAL que el mercado
+    daba a cada signo en aquel momento -mas preciso que solo mirar "cual cuota
+    es mas baja" (favorito_por_cuotas), porque dos partidos pueden compartir
+    el mismo favorito y aun asi tener un margen muy distinto (60% no es lo
+    mismo que 35% aunque los dos sean "el mas probable")."""
+    c1, cx, c2 = partido.get("cuota_1"), partido.get("cuota_x"), partido.get("cuota_2")
+    if not (c1 and cx and c2):
+        return {}
+    inversas = {"1": 1.0 / c1, "X": 1.0 / cx, "2": 1.0 / c2}
+    total = sum(inversas.values())
+    if total <= 0:
+        return {}
+    return {signo: valor / total * 100 for signo, valor in inversas.items()}
 
 
 def analizar_enfrentamientos_directos(historico):

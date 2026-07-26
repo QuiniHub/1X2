@@ -179,10 +179,30 @@ class TopVsRestoPatronTests(unittest.TestCase):
         self.assertEqual(patrones[clave]["sorpresas"], 1)  # empate ("X"), no gana el local del top 10
 
 
+class ProbabilidadImplicitaCuotasTests(unittest.TestCase):
+    def test_normaliza_a_100_repartiendo_segun_1_sobre_cuota(self):
+        p = {"cuota_1": 2.00, "cuota_x": 3.30, "cuota_2": 4.20}
+        probs = apc.probabilidad_implicita_cuotas(p)
+        self.assertAlmostEqual(sum(probs.values()), 100.0, places=3)
+        # cuota mas baja (2.00) debe dar la probabilidad mas alta
+        self.assertGreater(probs["1"], probs["X"])
+        self.assertGreater(probs["X"], probs["2"])
+
+    def test_sin_las_3_cuotas_devuelve_vacio(self):
+        self.assertEqual(apc.probabilidad_implicita_cuotas({"cuota_1": 2.0}), {})
+
+
 class BrechaTablaVsMercadoTests(unittest.TestCase):
     """Matiz pedido por Marc tras el fallo real de la jornada 74
     (Brommapojkarna-Hammarby, 2026-07-26): una brecha de tabla (top10 vs
-    resto) no siempre viene respaldada por el mercado. Reusa el mismo
+    resto) no siempre viene con un margen real amplio detras. Version
+    corregida tras un primer intento fallido (ver commit siguiente): al
+    principio se comparaba "direccion tabla vs direccion mercado", pero el
+    caso real tenia tabla Y mercado de acuerdo (los dos favorecian al equipo
+    del top 10) -lo que de verdad bajaba la confianza era que la probabilidad
+    implicita de mercado para ese favorito era corta (49-58%, no un margen
+    amplio), no que el mercado señalara a otro signo. Por eso aqui se mide
+    el MARGEN (probabilidad implicita), no la direccion. Reusa el mismo
     analizador-espia de TopVsRestoPatronTests para aislar el patron."""
 
     def setUp(self):
@@ -216,38 +236,41 @@ class BrechaTablaVsMercadoTests(unittest.TestCase):
             partido("Equipo09", "Equipo10", 1, 1, "2026-01-01"),
         ]
 
-    def test_brecha_confirmada_por_mercado_cuando_cuota_mas_baja_coincide_con_tabla(self):
+    def test_margen_amplio_cuando_probabilidad_implicita_supera_el_umbral(self):
         # Equipo01 (top10, local) recibe a Equipo11 (resto) -favorito de tabla = "1".
-        # Cuota mas baja es cuota_1 -mercado tambien confirma al Equipo01 como favorito.
+        # Cuotas dan ~66% de probabilidad implicita a "1" -margen amplio, por encima
+        # del umbral (55%).
         dia2 = [partido("Equipo01", "Equipo11", 1, 1, "2026-01-08", cuota_1=1.40, cuota_x=4.50, cuota_2=7.00)]
         patrones = defaultdict(apc.base_patron)
         apc.analizar_temporada_historica("primera", "2025/2026", self._dia1() + dia2, patrones)
 
-        self.assertIn("brecha_tabla_confirmada_por_mercado", patrones)
-        self.assertEqual(patrones["brecha_tabla_confirmada_por_mercado"]["casos"], 1)
-        self.assertEqual(patrones["brecha_tabla_confirmada_por_mercado"]["sorpresas"], 1)  # empate, no gano el favorito
-        self.assertNotIn("brecha_tabla_sin_respaldo_mercado", patrones)
+        self.assertIn("brecha_tabla_margen_amplio_mercado", patrones)
+        self.assertEqual(patrones["brecha_tabla_margen_amplio_mercado"]["casos"], 1)
+        self.assertEqual(patrones["brecha_tabla_margen_amplio_mercado"]["sorpresas"], 1)  # empate, no gano el favorito
+        self.assertNotIn("brecha_tabla_margen_estrecho_mercado", patrones)
 
-    def test_brecha_sin_respaldo_de_mercado_cuando_cuota_mas_baja_no_coincide_con_tabla(self):
+    def test_margen_estrecho_cuando_probabilidad_implicita_no_llega_al_umbral(self):
         # Mismo enfrentamiento (Equipo01 top10 vs Equipo11 resto, favorito de tabla = "1"),
-        # pero esta vez la cuota mas baja es la del empate -el mercado NO confirma al
-        # favorito de tabla. Este es el caso real de Brommapojkarna-Hammarby (J74).
-        dia2 = [partido("Equipo01", "Equipo11", 1, 2, "2026-01-08", cuota_1=2.20, cuota_x=2.05, cuota_2=3.40)]
+        # pero esta vez las cuotas dan solo ~48% de probabilidad implicita a "1" -mismo
+        # favorito de tabla y de mercado, pero SIN margen real amplio. Este es el patron
+        # del caso real de Brommapojkarna-Hammarby (J74): tabla y mercado de acuerdo,
+        # pero probabilidad corta (49-58%, no >=55% con holgura real).
+        dia2 = [partido("Equipo01", "Equipo11", 1, 2, "2026-01-08", cuota_1=2.00, cuota_x=3.30, cuota_2=4.20)]
         patrones = defaultdict(apc.base_patron)
         apc.analizar_temporada_historica("primera", "2025/2026", self._dia1() + dia2, patrones)
 
-        self.assertIn("brecha_tabla_sin_respaldo_mercado", patrones)
-        self.assertEqual(patrones["brecha_tabla_sin_respaldo_mercado"]["casos"], 1)
-        self.assertEqual(patrones["brecha_tabla_sin_respaldo_mercado"]["sorpresas"], 1)  # gano el visitante ("2"), no el favorito de tabla
-        self.assertNotIn("brecha_tabla_confirmada_por_mercado", patrones)
+        self.assertIn("brecha_tabla_margen_estrecho_mercado", patrones)
+        self.assertEqual(patrones["brecha_tabla_margen_estrecho_mercado"]["casos"], 1)
+        self.assertEqual(patrones["brecha_tabla_margen_estrecho_mercado"]["sorpresas"], 1)  # gano el visitante ("2"), no el favorito de tabla
+        self.assertNotIn("brecha_tabla_margen_amplio_mercado", patrones)
 
     def test_sin_cuotas_no_registra_ninguna_de_las_dos_claves_de_brecha(self):
         dia2 = [partido("Equipo01", "Equipo11", 1, 1, "2026-01-08")]  # sin cuota_1/x/2
         patrones = defaultdict(apc.base_patron)
         apc.analizar_temporada_historica("primera", "2025/2026", self._dia1() + dia2, patrones)
 
-        self.assertNotIn("brecha_tabla_sin_respaldo_mercado", patrones)
-        self.assertNotIn("brecha_tabla_confirmada_por_mercado", patrones)
+        self.assertNotIn("brecha_tabla_margen_estrecho_mercado", patrones)
+        self.assertNotIn("brecha_tabla_margen_amplio_mercado", patrones)
         # el patron base top10 si se registra siempre, con o sin cuotas
         self.assertIn("top10_local_vs_resto_visitante", patrones)
 
