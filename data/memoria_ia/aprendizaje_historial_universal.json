@@ -1,9 +1,9 @@
 {
   "version": "1.0",
-  "generado_en": "2026-07-20T19:04:59Z",
+  "generado_en": "2026-07-27T19:00:32Z",
   "estado_incremental": {
-    "ultima_jornada_cerrada": 73,
-    "total_jornadas_cerradas": 72,
+    "ultima_jornada_cerrada": 74,
+    "total_jornadas_cerradas": 73,
     "jornadas_cerradas": [
       1,
       2,
@@ -76,57 +76,58 @@
       70,
       71,
       72,
-      73
+      73,
+      74
     ],
     "half_life_jornadas": 18.0,
     "criterio_recalculo": "Solo recalcula cuando aparece una jornada cerrada nueva o cambia el conjunto de jornadas cerradas."
   },
   "resumen": {
-    "partidos_analizados": 1008,
-    "jornadas_analizadas": 72,
-    "sorpresas_detectadas": 477,
-    "sorpresas_pct": 47.32,
+    "partidos_analizados": 1022,
+    "jornadas_analizadas": 73,
+    "sorpresas_detectadas": 485,
+    "sorpresas_pct": 47.46,
     "fuente": "data/jornadas/jornada_*.json con signo_oficial 1/X/2"
   },
   "patrones_frecuencia": {
     "por_contexto": {
       "global": {
-        "partidos": 1008,
-        "peso_total": 338.4169,
+        "partidos": 1022,
+        "peso_total": 339.6328,
         "frecuencia_real": {
-          "1": 45.63,
-          "X": 24.21,
-          "2": 30.16
+          "1": 45.5,
+          "X": 24.17,
+          "2": 30.33
         },
         "frecuencia_ponderada_reciente": {
-          "1": 46.8,
-          "X": 24.0,
-          "2": 29.2
+          "1": 46.34,
+          "X": 23.9,
+          "2": 29.76
         },
-        "sorpresas": 477,
-        "sorpresas_pct": 47.32,
-        "sorpresas_ponderadas_pct": 49.24
+        "sorpresas": 485,
+        "sorpresas_pct": 47.46,
+        "sorpresas_ponderadas_pct": 49.56
       },
       "liga": {
-        "partidos": 970,
-        "peso_total": 307.1425,
+        "partidos": 984,
+        "peso_total": 309.5399,
         "frecuencia_real": {
-          "1": 45.46,
-          "X": 24.33,
-          "2": 30.21
+          "1": 45.33,
+          "X": 24.29,
+          "2": 30.39
         },
         "frecuencia_ponderada_reciente": {
-          "1": 46.24,
-          "X": 24.56,
-          "2": 29.2
+          "1": 45.76,
+          "X": 24.42,
+          "2": 29.82
         },
-        "sorpresas": 460,
-        "sorpresas_pct": 47.42,
-        "sorpresas_ponderadas_pct": 49.98
+        "sorpresas": 468,
+        "sorpresas_pct": 47.56,
+        "sorpresas_ponderadas_pct": 50.3
       },
       "selecciones": {
         "partidos": 38,
-        "peso_total": 31.2743,
+        "peso_total": 30.0929,
         "frecuencia_real": {
           "1": 50.0,
           "X": 21.05,
@@ -144,25 +145,25 @@
     },
     "por_fase": {
       "liga_regular": {
-        "partidos": 970,
-        "peso_total": 307.1425,
+        "partidos": 984,
+        "peso_total": 309.5399,
         "frecuencia_real": {
-          "1": 45.46,
-          "X": 24.33,
-          "2": 30.21
+          "1": 45.33,
+          "X": 24.29,
+          "2": 30.39
         },
         "frecuencia_ponderada_reciente": {
-          "1": 46.24,
-          "X": 24.56,
-          "2": 29.2
+          "1": 45.76,
+          "X": 24.42,
+          "2": 29.82
         },
-        "sorpresas": 460,
-        "sorpresas_pct": 47.42,
-        "sorpresas_ponderadas_pct": 49.98
+        "sorpresas": 468,
+        "sorpresas_pct": 47.56,
+        "sorpresas_ponderadas_pct": 50.3
       },
       "selecciones_sin_fase": {
         "partidos": 38,
-        "peso_total": 31.2743,
+        "peso_total": 30.0929,
         "frecuencia_real": {
           "1": 50.0,
           "X": 21.05,
@@ -182,147 +183,11 @@
   },
   "patrones_sorpresa": {
     "resumen": {
-      "total": 477,
-      "porcentaje": 47.32,
+      "total": 485,
+      "porcentaje": 47.46,
       "criterio": "Signo menos frecuente del contexto o resultado contrario al signo esperado por modelo rolling con margen suficiente."
     },
     "ultimas_120": [
-      {
-        "jornada": 55,
-        "num": 5,
-        "partido": "Sevilla - At. Madrid",
-        "competicion": "liga",
-        "fase": "liga_regular",
-        "signo_real": "1",
-        "signo_esperado": "2",
-        "margen_previo": 72.79,
-        "motivo": "rompe_signo_esperado_por_modelo_rolling",
-        "metodo_esperado": "fuerza_rolling_visitante",
-        "prior_contextual": {
-          "1": 45.38,
-          "X": 24.14,
-          "2": 30.47
-        }
-      },
-      {
-        "jornada": 55,
-        "num": 6,
-        "partido": "Osasuna - Betis",
-        "competicion": "liga",
-        "fase": "liga_regular",
-        "signo_real": "X",
-        "signo_esperado": "X",
-        "margen_previo": 1.87,
-        "motivo": "signo_menos_frecuente_del_contexto",
-        "metodo_esperado": "fuerza_rolling_equilibrada",
-        "prior_contextual": {
-          "1": 45.45,
-          "X": 24.11,
-          "2": 30.43
-        }
-      },
-      {
-        "jornada": 55,
-        "num": 8,
-        "partido": "Celta - R. Oviedo",
-        "competicion": "liga",
-        "fase": "liga_regular",
-        "signo_real": "2",
-        "signo_esperado": "1",
-        "margen_previo": 35.61,
-        "motivo": "rompe_signo_esperado_por_modelo_rolling",
-        "metodo_esperado": "fuerza_rolling_local",
-        "prior_contextual": {
-          "1": 45.47,
-          "X": 24.18,
-          "2": 30.35
-        }
-      },
-      {
-        "jornada": 55,
-        "num": 12,
-        "partido": "Huesca - Deportivo",
-        "competicion": "liga",
-        "fase": "liga_regular",
-        "signo_real": "X",
-        "signo_esperado": "2",
-        "margen_previo": 48.36,
-        "motivo": "signo_menos_frecuente_del_contexto",
-        "metodo_esperado": "fuerza_rolling_visitante",
-        "prior_contextual": {
-          "1": 45.49,
-          "X": 24.05,
-          "2": 30.46
-        }
-      },
-      {
-        "jornada": 55,
-        "num": 13,
-        "partido": "Mirandés - Castellón",
-        "competicion": "liga",
-        "fase": "liga_regular",
-        "signo_real": "X",
-        "signo_esperado": "2",
-        "margen_previo": 27.64,
-        "motivo": "signo_menos_frecuente_del_contexto",
-        "metodo_esperado": "fuerza_rolling_visitante",
-        "prior_contextual": {
-          "1": 45.43,
-          "X": 24.15,
-          "2": 30.42
-        }
-      },
-      {
-        "jornada": 55,
-        "num": 14,
-        "partido": "Racing de Santander - Almería",
-        "competicion": "liga",
-        "fase": "liga_regular",
-        "signo_real": "1",
-        "signo_esperado": "2",
-        "margen_previo": 17.5,
-        "motivo": "rompe_signo_esperado_por_modelo_rolling",
-        "metodo_esperado": "fuerza_rolling_visitante",
-        "prior_contextual": {
-          "1": 45.37,
-          "X": 24.25,
-          "2": 30.38
-        }
-      },
-      {
-        "jornada": 56,
-        "num": 3,
-        "partido": "Arsenal - Sporting Port.",
-        "competicion": "liga",
-        "fase": "liga_regular",
-        "signo_real": "X",
-        "signo_esperado": "1",
-        "margen_previo": 14.8,
-        "motivo": "signo_menos_frecuente_del_contexto",
-        "metodo_esperado": "frecuencia_contextual",
-        "prior_contextual": {
-          "1": 45.32,
-          "X": 24.16,
-          "2": 30.52
-        }
-      },
-      {
-        "jornada": 56,
-        "num": 4,
-        "partido": "Celta - Friburgo",
-        "competicion": "liga",
-        "fase": "liga_regular",
-        "signo_real": "2",
-        "signo_esperado": "1",
-        "margen_previo": 14.79,
-        "motivo": "rompe_signo_esperado_por_modelo_rolling",
-        "metodo_esperado": "frecuencia_contextual",
-        "prior_contextual": {
-          "1": 45.27,
-          "X": 24.25,
-          "2": 30.48
-        }
-      },
       {
         "jornada": 56,
         "num": 8,
@@ -2226,40 +2091,176 @@
           "X": 24.25,
           "2": 30.24
         }
+      },
+      {
+        "jornada": 74,
+        "num": 1,
+        "partido": "Kristiansund - Start",
+        "competicion": "liga",
+        "fase": "liga_regular",
+        "signo_real": "2",
+        "signo_esperado": "1",
+        "margen_previo": 15.25,
+        "motivo": "rompe_signo_esperado_por_modelo_rolling",
+        "metodo_esperado": "frecuencia_contextual",
+        "prior_contextual": {
+          "1": 45.46,
+          "X": 24.33,
+          "2": 30.21
+        }
+      },
+      {
+        "jornada": 74,
+        "num": 2,
+        "partido": "Brann - Vålerenga",
+        "competicion": "liga",
+        "fase": "liga_regular",
+        "signo_real": "2",
+        "signo_esperado": "1",
+        "margen_previo": 15.14,
+        "motivo": "rompe_signo_esperado_por_modelo_rolling",
+        "metodo_esperado": "frecuencia_contextual",
+        "prior_contextual": {
+          "1": 45.42,
+          "X": 24.3,
+          "2": 30.28
+        }
+      },
+      {
+        "jornada": 74,
+        "num": 5,
+        "partido": "KFUM Oslo - Molde FK",
+        "competicion": "liga",
+        "fase": "liga_regular",
+        "signo_real": "2",
+        "signo_esperado": "1",
+        "margen_previo": 14.99,
+        "motivo": "rompe_signo_esperado_por_modelo_rolling",
+        "metodo_esperado": "frecuencia_contextual",
+        "prior_contextual": {
+          "1": 45.38,
+          "X": 24.23,
+          "2": 30.39
+        }
+      },
+      {
+        "jornada": 74,
+        "num": 6,
+        "partido": "Aalesunds FK - Viking",
+        "competicion": "liga",
+        "fase": "liga_regular",
+        "signo_real": "X",
+        "signo_esperado": "1",
+        "margen_previo": 14.87,
+        "motivo": "signo_menos_frecuente_del_contexto",
+        "metodo_esperado": "frecuencia_contextual",
+        "prior_contextual": {
+          "1": 45.33,
+          "X": 24.21,
+          "2": 30.46
+        }
+      },
+      {
+        "jornada": 74,
+        "num": 9,
+        "partido": "Degerfors IF - Djurgårdens",
+        "competicion": "liga",
+        "fase": "liga_regular",
+        "signo_real": "2",
+        "signo_esperado": "1",
+        "margen_previo": 15.03,
+        "motivo": "rompe_signo_esperado_por_modelo_rolling",
+        "metodo_esperado": "frecuencia_contextual",
+        "prior_contextual": {
+          "1": 45.4,
+          "X": 24.23,
+          "2": 30.37
+        }
+      },
+      {
+        "jornada": 74,
+        "num": 12,
+        "partido": "Brommapojkarna - Hammarby",
+        "competicion": "liga",
+        "fase": "liga_regular",
+        "signo_real": "X",
+        "signo_esperado": "1",
+        "margen_previo": 15.08,
+        "motivo": "signo_menos_frecuente_del_contexto",
+        "metodo_esperado": "frecuencia_contextual",
+        "prior_contextual": {
+          "1": 45.46,
+          "X": 24.16,
+          "2": 30.38
+        }
+      },
+      {
+        "jornada": 74,
+        "num": 13,
+        "partido": "GAIS Göteborg - Halmstad",
+        "competicion": "liga",
+        "fase": "liga_regular",
+        "signo_real": "X",
+        "signo_esperado": "1",
+        "margen_previo": 15.07,
+        "motivo": "signo_menos_frecuente_del_contexto",
+        "metodo_esperado": "frecuencia_contextual",
+        "prior_contextual": {
+          "1": 45.42,
+          "X": 24.24,
+          "2": 30.35
+        }
+      },
+      {
+        "jornada": 74,
+        "num": 14,
+        "partido": "Malmoe - Elfsborg",
+        "competicion": "liga",
+        "fase": "liga_regular",
+        "signo_real": "2",
+        "signo_esperado": "1",
+        "margen_previo": 15.05,
+        "motivo": "rompe_signo_esperado_por_modelo_rolling",
+        "metodo_esperado": "frecuencia_contextual",
+        "prior_contextual": {
+          "1": 45.37,
+          "X": 24.31,
+          "2": 30.32
+        }
       }
     ]
   },
   "patrones_incertidumbre": {
     "tipos_enfrentamiento": {
       "favorito_discutido": {
-        "partidos": 420,
-        "peso_total": 148.4622,
+        "partidos": 428,
+        "peso_total": 150.8539,
         "frecuencia_real": {
-          "1": 20.24,
-          "X": 43.33,
-          "2": 36.43
+          "1": 19.86,
+          "X": 43.22,
+          "2": 36.92
         },
         "frecuencia_ponderada_reciente": {
-          "1": 17.99,
-          "X": 43.29,
-          "2": 38.72
+          "1": 17.04,
+          "X": 42.98,
+          "2": 39.98
         },
-        "sorpresas": 420,
+        "sorpresas": 428,
         "sorpresas_pct": 100.0,
         "sorpresas_ponderadas_pct": 100.0
       },
       "favorito_claro": {
-        "partidos": 348,
-        "peso_total": 130.5467,
+        "partidos": 354,
+        "peso_total": 131.6151,
         "frecuencia_real": {
-          "1": 74.71,
-          "X": 0.86,
-          "2": 24.43
+          "1": 74.86,
+          "X": 0.85,
+          "2": 24.29
         },
         "frecuencia_ponderada_reciente": {
-          "1": 77.68,
-          "X": 1.8,
-          "2": 20.52
+          "1": 77.94,
+          "X": 1.72,
+          "2": 20.34
         },
         "sorpresas": 0,
         "sorpresas_pct": 0.0,
@@ -2267,7 +2268,7 @@
       },
       "muy_equilibrado": {
         "partidos": 122,
-        "peso_total": 28.4381,
+        "peso_total": 27.3638,
         "frecuencia_real": {
           "1": 48.36,
           "X": 22.95,
@@ -2284,7 +2285,7 @@
       },
       "margen_corto": {
         "partidos": 118,
-        "peso_total": 30.9699,
+        "peso_total": 29.7999,
         "frecuencia_real": {
           "1": 47.46,
           "X": 26.27,
@@ -2308,20 +2309,9 @@
     "descripcion": "Las jornadas recientes pesan mas que las antiguas para reflejar evolucion tactica y competitiva del futbol.",
     "ultimas_jornadas": [
       {
-        "jornada": 53,
-        "archivo": "data/jornadas/jornada_53.json",
-        "peso_reciente": 0.462937,
-        "signos": {
-          "1": 8,
-          "X": 3,
-          "2": 3
-        },
-        "sorpresas": 7
-      },
-      {
         "jornada": 54,
         "archivo": "data/jornadas/jornada_54.json",
-        "peso_reciente": 0.481112,
+        "peso_reciente": 0.462937,
         "signos": {
           "1": 6,
           "X": 2,
@@ -2332,7 +2322,7 @@
       {
         "jornada": 55,
         "archivo": "data/jornadas/jornada_55.json",
-        "peso_reciente": 0.5,
+        "peso_reciente": 0.481112,
         "signos": {
           "1": 7,
           "X": 5,
@@ -2343,7 +2333,7 @@
       {
         "jornada": 56,
         "archivo": "data/jornadas/jornada_56.json",
-        "peso_reciente": 0.51963,
+        "peso_reciente": 0.5,
         "signos": {
           "1": 6,
           "X": 3,
@@ -2354,7 +2344,7 @@
       {
         "jornada": 57,
         "archivo": "data/jornadas/jornada_57.json",
-        "peso_reciente": 0.54003,
+        "peso_reciente": 0.51963,
         "signos": {
           "1": 8,
           "X": 3,
@@ -2365,7 +2355,7 @@
       {
         "jornada": 58,
         "archivo": "data/jornadas/jornada_58.json",
-        "peso_reciente": 0.561231,
+        "peso_reciente": 0.54003,
         "signos": {
           "1": 7,
           "X": 4,
@@ -2376,7 +2366,7 @@
       {
         "jornada": 59,
         "archivo": "data/jornadas/jornada_59.json",
-        "peso_reciente": 0.583265,
+        "peso_reciente": 0.561231,
         "signos": {
           "1": 6,
           "X": 4,
@@ -2387,7 +2377,7 @@
       {
         "jornada": 60,
         "archivo": "data/jornadas/jornada_60.json",
-        "peso_reciente": 0.606163,
+        "peso_reciente": 0.583265,
         "signos": {
           "1": 5,
           "X": 1,
@@ -2398,7 +2388,7 @@
       {
         "jornada": 61,
         "archivo": "data/jornadas/jornada_61.json",
-        "peso_reciente": 0.629961,
+        "peso_reciente": 0.606163,
         "signos": {
           "1": 4,
           "X": 7,
@@ -2409,7 +2399,7 @@
       {
         "jornada": 62,
         "archivo": "data/jornadas/jornada_62.json",
-        "peso_reciente": 0.654692,
+        "peso_reciente": 0.629961,
         "signos": {
           "1": 6,
           "X": 2,
@@ -2420,7 +2410,7 @@
       {
         "jornada": 63,
         "archivo": "data/jornadas/jornada_63.json",
-        "peso_reciente": 0.680395,
+        "peso_reciente": 0.654692,
         "signos": {
           "1": 6,
           "X": 3,
@@ -2431,7 +2421,7 @@
       {
         "jornada": 65,
         "archivo": "data/jornadas/jornada_65.json",
-        "peso_reciente": 0.734867,
+        "peso_reciente": 0.707107,
         "signos": {
           "1": 9,
           "X": 2,
@@ -2442,7 +2432,7 @@
       {
         "jornada": 66,
         "archivo": "data/jornadas/jornada_66.json",
-        "peso_reciente": 0.763718,
+        "peso_reciente": 0.734867,
         "signos": {
           "1": 7,
           "X": 4,
@@ -2453,7 +2443,7 @@
       {
         "jornada": 67,
         "archivo": "data/jornadas/jornada_67.json",
-        "peso_reciente": 0.793701,
+        "peso_reciente": 0.763718,
         "signos": {
           "1": 6,
           "X": 7,
@@ -2464,7 +2454,7 @@
       {
         "jornada": 68,
         "archivo": "data/jornadas/jornada_68.json",
-        "peso_reciente": 0.824861,
+        "peso_reciente": 0.793701,
         "signos": {
           "1": 6,
           "X": 3,
@@ -2475,7 +2465,7 @@
       {
         "jornada": 69,
         "archivo": "data/jornadas/jornada_69.json",
-        "peso_reciente": 0.857244,
+        "peso_reciente": 0.824861,
         "signos": {
           "1": 8,
           "X": 1,
@@ -2486,7 +2476,7 @@
       {
         "jornada": 70,
         "archivo": "data/jornadas/jornada_70.json",
-        "peso_reciente": 0.890899,
+        "peso_reciente": 0.857244,
         "signos": {
           "1": 3,
           "X": 6,
@@ -2497,7 +2487,7 @@
       {
         "jornada": 71,
         "archivo": "data/jornadas/jornada_71.json",
-        "peso_reciente": 0.925875,
+        "peso_reciente": 0.890899,
         "signos": {
           "1": 9,
           "X": 2,
@@ -2508,7 +2498,7 @@
       {
         "jornada": 72,
         "archivo": "data/jornadas/jornada_72.json",
-        "peso_reciente": 0.962224,
+        "peso_reciente": 0.925875,
         "signos": {
           "1": 9,
           "X": 2,
@@ -2519,11 +2509,22 @@
       {
         "jornada": 73,
         "archivo": "data/jornadas/jornada_73.json",
-        "peso_reciente": 1.0,
+        "peso_reciente": 0.962224,
         "signos": {
           "1": 6,
           "X": 3,
           "2": 5
+        },
+        "sorpresas": 8
+      },
+      {
+        "jornada": 74,
+        "archivo": "data/jornadas/jornada_74.json",
+        "peso_reciente": 1.0,
+        "signos": {
+          "1": 5,
+          "X": 3,
+          "2": 6
         },
         "sorpresas": 8
       }

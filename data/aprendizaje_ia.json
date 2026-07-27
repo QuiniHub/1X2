@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 65.77,
+  "precision": 65.92,
   "jornadas_revisadas": 16,
-  "partidos_revisados": 222,
-  "aciertos": 146,
+  "partidos_revisados": 223,
+  "aciertos": 147,
   "fallos": 76,
   "fallos_por_tipo": {
     "Doble insuficiente": 15,
@@ -28,10 +28,10 @@
       "precision": 70.59
     },
     "FIJO": {
-      "total": 145,
-      "aciertos": 84,
+      "total": 146,
+      "aciertos": 85,
       "fallos": 61,
-      "precision": 57.93
+      "precision": 58.22
     },
     "TRIPLE": {
       "total": 26,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 101,
-      "aciertos": 83,
+      "total": 102,
+      "aciertos": 84,
       "fallos": 18,
-      "precision": 82.18
+      "precision": 82.35
     },
     "2": {
       "total": 68,
@@ -16456,6 +16456,120 @@
     },
     {
       "jornada": 74,
+      "partido": "Rosenborg - Fredrikstad",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "4-0",
+      "resultado_final": "4-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_74.json",
+      "probabilidades_usadas": {
+        "1": 52.7,
+        "X": 27.6,
+        "2": 19.7
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Rosenborg",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Fredrikstad",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (52.7%).",
+        "hipotesis_alternativa": "X como alternativa (27.6%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 54.1,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 25.1 puntos, indice sorpresa 38.1."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.74,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Rosenborg: ppp=3.00; perfil visitante Fredrikstad: ppp=1.18."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Rosenborg",
+        "partidos_total": 2,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 38.23,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Fredrikstad",
+        "partidos_total": 3,
+        "puntos_por_partido": 1.029,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 42.49,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 74,
       "partido": "Vasteras SK FK - Orgryte IS",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -17252,19 +17366,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 222,
+    "partidos_base": 223,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 34.23,
+      "fallos_total_pct": 34.08,
       "no_cubrio_empate_sobre_fallos_pct": 34.21,
-      "no_cubrio_empate_sobre_total_pct": 11.71,
+      "no_cubrio_empate_sobre_total_pct": 11.66,
       "fijo_fallado_sobre_fallos_pct": 46.05,
-      "fijo_fallado_sobre_total_pct": 15.77,
-      "doble_insuficiente_sobre_total_pct": 6.76
+      "fijo_fallado_sobre_total_pct": 15.7,
+      "doble_insuficiente_sobre_total_pct": 6.73
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 5.23,
-    "riesgo_extra_triple_insuficiente": 2.48,
+    "riesgo_extra_fijo_fragil": 5.17,
+    "riesgo_extra_triple_insuficiente": 2.46,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
