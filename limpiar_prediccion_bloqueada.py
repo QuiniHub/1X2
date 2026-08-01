@@ -103,7 +103,7 @@ def limpiar(data):
     config["triples"] = 0
     config["elige8"] = False
     config["elige8_modo"] = "bloqueado"
-    config["elige8_modos_disponibles"] = ["conservador", "rentable"]
+    config["elige8_modos_disponibles"] = ["economico", "maxima_seguridad"]
     config["cobertura_auto"] = False
 
     data["coste"] = {

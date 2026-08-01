@@ -280,6 +280,69 @@ def clave_ranking_elige8(item):
     )
 
 
+def clave_ranking_maxima_seguridad(item):
+    """Ordena por probabilidad real de acierto CRUDA, sin descontar el
+    coste extra de doble/triple -la alternativa "pago lo que haga falta por
+    la mayor probabilidad posible" que pide Marc, frente al modo
+    'economico' (eficiencia_elige8, probabilidad por euro). Puede elegir
+    dobles/triples si su cobertura combinada compensa, aunque cuesten mas."""
+    return (
+        -float(item.get("probabilidad_acierto") or 0.0),
+        float(item.get("incertidumbre") or 0.0),
+        float(item.get("probabilidad_sorpresa") or 0.0),
+        int(item.get("num") or 0),
+    )
+
+
+def probabilidad_conjunta_estimada(ranking, seleccionados_nums):
+    """Estimacion de la probabilidad de acertar los 8 seleccionados a la
+    vez -asume independencia entre partidos (aproximacion estandar, la
+    correlacion real entre resultados de ligas distintas es minima).
+    Sirve para comparar modos, no como probabilidad exacta."""
+    producto = 1.0
+    for item in ranking:
+        if item["num"] in seleccionados_nums:
+            producto *= max(float(item.get("probabilidad_acierto") or 0.0), 0.0) / 100.0
+    return round(producto * 100, 4)
+
+
+def construir_aviso_modos(ranking, seleccion_economico, seleccion_seguridad, coste_economico, coste_seguridad):
+    """Aviso explicito comparando ambos modos -solo si de verdad difieren
+    (si no hay ningun doble/triple en la jornada, las 2 selecciones
+    coinciden y no hace falta avisar de nada)."""
+    if seleccion_economico == seleccion_seguridad:
+        return None
+
+    prob_economico = probabilidad_conjunta_estimada(ranking, seleccion_economico)
+    prob_seguridad = probabilidad_conjunta_estimada(ranking, seleccion_seguridad)
+    extra_coste = round(coste_seguridad - coste_economico, 2)
+    extra_prob = round(prob_seguridad - prob_economico, 2)
+
+    evaluacion_por_num = {item["num"]: item for item in ranking}
+    eslabon_debil = min(
+        (evaluacion_por_num[n] for n in seleccion_economico),
+        key=lambda item: float(item.get("probabilidad_acierto") or 0.0),
+    )
+
+    return {
+        "eslabon_mas_debil_economico": {
+            "num": eslabon_debil["num"],
+            "partido": eslabon_debil["partido"],
+            "probabilidad_acierto": eslabon_debil["probabilidad_acierto"],
+        },
+        "probabilidad_conjunta_economico": prob_economico,
+        "probabilidad_conjunta_maxima_seguridad": prob_seguridad,
+        "extra_coste_elige8": extra_coste,
+        "extra_probabilidad_conjunta": extra_prob,
+        "mensaje": (
+            f"Modo economico: {prob_economico:.1f}% de probabilidad conjunta estimada de acertar los 8 "
+            f"(eslabon mas debil: P{eslabon_debil['num']} {eslabon_debil['partido']} al {eslabon_debil['probabilidad_acierto']:.1f}%). "
+            f"Modo maxima seguridad: {prob_seguridad:.1f}% pagando {extra_coste:+.2f}€ mas de Elige8. "
+            f"Diferencia: {extra_prob:+.1f} puntos de probabilidad conjunta por {extra_coste:+.2f}€."
+        ),
+    }
+
+
 def metricas_historicas_modos():
     memoria = cargar_json(MEMORIA / "aprendizaje_elige8.json", {})
     resumen = memoria.get("resumen") or {}
@@ -294,16 +357,22 @@ def metricas_historicas_modos():
 def construir_resumen(ranking, seleccionados_nums):
     ranking_con_flags = [dict(item, posicion=idx, seleccionado=item["num"] in seleccionados_nums) for idx, item in enumerate(ranking, start=1)]
     return {
-        "version": "2.2",
+        "version": "2.3",
         "generado_en": ahora(),
-        "modo": "conservador",
-        "modo_real": "probabilidad_real_de_acierto",
+        "modo": "economico",
+        "modo_real": "probabilidad_real_de_acierto_por_coste",
         "regla_activa": REGLA_ELIGE8,
         "recomendado": len(seleccionados_nums) == UMBRAL_PARTIDOS_SEGUROS,
         "seleccionados": sorted(seleccionados_nums),
         "ranking": ranking_con_flags,
         "rendimiento": metricas_historicas_modos(),
     }
+
+
+def coste_elige8_seleccion(ranking, seleccionados_nums):
+    signos = [item["signo_final"] for item in ranking if item["num"] in seleccionados_nums]
+    apuestas = multiplicador(signos)
+    return apuestas, round(apuestas * PRECIO_ELIGE8, 2)
 
 
 def aplicar_elige8_seguro(prediccion):
@@ -314,10 +383,22 @@ def aplicar_elige8_seguro(prediccion):
     if len(partidos) < UMBRAL_PARTIDOS_SEGUROS:
         return False
 
-    ranking = sorted([evaluar_seguridad_elige8(p) for p in partidos], key=clave_ranking_elige8)
+    evaluaciones = [evaluar_seguridad_elige8(p) for p in partidos]
+    ranking = sorted(evaluaciones, key=clave_ranking_elige8)
     seleccionados_nums = {item["num"] for item in ranking[:UMBRAL_PARTIDOS_SEGUROS]}
     posicion_por_num = {item["num"]: idx for idx, item in enumerate(ranking, start=1)}
     evaluacion_por_num = {item["num"]: item for item in ranking}
+
+    # Modo alternativo "maxima seguridad": mismo ranking de partidos, pero
+    # ordenado por probabilidad real cruda -si un doble/triple compensa de
+    # verdad su coste extra, aqui es donde aparece como alternativa real,
+    # no automatica (igual que boleto_millonario: se ofrecen las 2, decide Marc).
+    ranking_seguridad = sorted(evaluaciones, key=clave_ranking_maxima_seguridad)
+    seleccionados_seguridad = {item["num"] for item in ranking_seguridad[:UMBRAL_PARTIDOS_SEGUROS]}
+
+    apuestas_economico, coste_economico = coste_elige8_seleccion(ranking, seleccionados_nums)
+    apuestas_seguridad, coste_seguridad = coste_elige8_seleccion(ranking, seleccionados_seguridad)
+    aviso = construir_aviso_modos(ranking, seleccionados_nums, seleccionados_seguridad, coste_economico, coste_seguridad)
 
     for partido in partidos:
         num = int(partido.get("num", 0) or 0)
@@ -326,11 +407,12 @@ def aplicar_elige8_seguro(prediccion):
         prob_acierto = evaluacion.get("probabilidad_acierto", 0.0)
         partido["elige8"] = elegido
         partido["en_elige8"] = elegido
-        partido["elige8_modo"] = "conservador"
-        partido["elige8_modo_real"] = "probabilidad_real"
+        partido["elige8_modo"] = "economico"
+        partido["elige8_modo_real"] = "probabilidad_real_de_acierto_por_coste"
         partido["probabilidad_acierto_elige8"] = prob_acierto
         partido["elige8_probabilidad_acierto"] = prob_acierto
         partido["elige8_probabilidad_cubierta"] = evaluacion.get("probabilidad_cubierta", 0.0)
+        partido["elige8_eficiencia"] = evaluacion.get("eficiencia_elige8")
         partido["elige8_seguro_score"] = evaluacion.get("score_seguridad")
         partido["elige8_confianza_real"] = evaluacion.get("confianza_real")
         partido["elige8_tipo_cobertura"] = evaluacion.get("tipo_cobertura")
@@ -338,34 +420,48 @@ def aplicar_elige8_seguro(prediccion):
         partido["elige8_seguro_cumple_umbral"] = True
         partido["elige8_seguro_probabilidad_top"] = evaluacion.get("probabilidad_top")
         partido["elige8_seguro_margen"] = evaluacion.get("margen")
+        partido["elige8_maxima_seguridad"] = num in seleccionados_seguridad
         if elegido:
-            partido["elige8_criterio"] = "Entra en Elige 8 por ranking de probabilidad real de acierto."
+            partido["elige8_criterio"] = "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
         else:
             partido.pop("elige8_criterio", None)
 
     resumen = construir_resumen(ranking, seleccionados_nums)
     prediccion["elige8_seguro"] = resumen
     prediccion["elige8_modos"] = {
-        "version": "2.2",
+        "version": "2.3",
         "generado_en": ahora(),
-        "modo_activo": "conservador",
+        "modo_activo": "economico",
         "regla_activa": REGLA_ELIGE8,
         "modos": {
-            "conservador": {"seleccionados": sorted(seleccionados_nums), "ranking": resumen["ranking"]},
-            "rentable": {"seleccionados": sorted(seleccionados_nums), "ranking": resumen["ranking"]},
+            "economico": {
+                "seleccionados": sorted(seleccionados_nums),
+                "ranking": resumen["ranking"],
+                "apuestas_elige8": apuestas_economico,
+                "importe_elige8": coste_economico,
+            },
+            "maxima_seguridad": {
+                "seleccionados": sorted(seleccionados_seguridad),
+                "ranking": [dict(item, seleccionado=item["num"] in seleccionados_seguridad) for item in ranking_seguridad],
+                "apuestas_elige8": apuestas_seguridad,
+                "importe_elige8": coste_seguridad,
+            },
         },
+        "aviso": aviso,
         "rendimiento": resumen["rendimiento"],
     }
     config = prediccion.setdefault("configuracion", {})
     config["elige8"] = True
-    config["elige8_modo"] = "conservador"
-    config["elige8_modo_real"] = "probabilidad_real"
-    config["elige8_modos_disponibles"] = ["conservador", "rentable"]
+    config["elige8_modo"] = "economico"
+    config["elige8_modo_real"] = "probabilidad_real_de_acierto_por_coste"
+    config["elige8_modos_disponibles"] = ["economico", "maxima_seguridad"]
     config["elige8_recomendado"] = True
     resumen_pred = prediccion.setdefault("resumen", {})
     resumen_pred["elige8_seleccionados"] = UMBRAL_PARTIDOS_SEGUROS
     resumen_pred["elige8_seguro_recomendado"] = True
-    resumen_pred["elige8_regla"] = "probabilidad_real_de_acierto"
+    resumen_pred["elige8_regla"] = "probabilidad_real_de_acierto_por_coste"
+    if aviso:
+        resumen_pred["elige8_aviso"] = aviso["mensaje"]
     recalcular_coste(prediccion, partidos)
     return True
 

@@ -39,7 +39,7 @@ class Elige8ModosTests(unittest.TestCase):
         self.assertFalse(prediccion["publicar_prediccion"])
         self.assertTrue(prediccion["publicar_solo_boleto"])
 
-    def test_crea_modos_conservador_y_rentable(self):
+    def test_crea_modos_economico_y_maxima_seguridad(self):
         prediccion = {
             "estado": "lista_para_publicar",
             "prediccion_disponible": True,
@@ -49,13 +49,55 @@ class Elige8ModosTests(unittest.TestCase):
 
         aplicar_elige8_seguro(prediccion)
 
-        self.assertEqual(prediccion["configuracion"]["elige8_modo"], "conservador")
-        self.assertEqual(prediccion["configuracion"]["elige8_modos_disponibles"], ["conservador", "rentable"])
-        self.assertIn("conservador", prediccion["elige8_modos"]["modos"])
-        self.assertIn("rentable", prediccion["elige8_modos"]["modos"])
-        self.assertEqual(len(prediccion["elige8_modos"]["modos"]["conservador"]["seleccionados"]), 8)
-        self.assertEqual(len(prediccion["elige8_modos"]["modos"]["rentable"]["seleccionados"]), 8)
-        self.assertTrue(all("confianza_real" in item for item in prediccion["elige8_modos"]["modos"]["conservador"]["ranking"]))
+        self.assertEqual(prediccion["configuracion"]["elige8_modo"], "economico")
+        self.assertEqual(prediccion["configuracion"]["elige8_modos_disponibles"], ["economico", "maxima_seguridad"])
+        self.assertIn("economico", prediccion["elige8_modos"]["modos"])
+        self.assertIn("maxima_seguridad", prediccion["elige8_modos"]["modos"])
+        self.assertEqual(len(prediccion["elige8_modos"]["modos"]["economico"]["seleccionados"]), 8)
+        self.assertEqual(len(prediccion["elige8_modos"]["modos"]["maxima_seguridad"]["seleccionados"]), 8)
+        self.assertTrue(all("confianza_real" in item for item in prediccion["elige8_modos"]["modos"]["economico"]["ranking"]))
+        # Los 14 partidos son fijos identicos -no hay ninguna doble/triple que
+        # pueda "comprar" mas probabilidad, asi que ambos modos deben coincidir
+        # y no hay aviso que dar.
+        self.assertEqual(
+            prediccion["elige8_modos"]["modos"]["economico"]["seleccionados"],
+            prediccion["elige8_modos"]["modos"]["maxima_seguridad"]["seleccionados"],
+        )
+        self.assertIsNone(prediccion["elige8_modos"]["aviso"])
+
+    def test_aviso_aparece_cuando_un_doble_fuerte_compensa_el_coste_extra(self):
+        """Caso pedido por Marc tras el fallo de P12 en la jornada 75: si hay
+        un doble con probabilidad conjunta alta que SI justifica pagar mas,
+        el modo maxima_seguridad debe recogerlo y el sistema debe avisar de
+        la diferencia real (coste extra vs probabilidad extra), no dejarlo
+        en silencio."""
+        partidos = [partido(i, top=55.0) for i in range(1, 15)]
+        # P1 mas debil de los fijos (partido con mas riesgo real) se sustituye
+        # por un doble muy solido (90% de cobertura combinada) que si compensa
+        # el coste x2 frente al fijo mas debil del ranking economico.
+        partidos[0] = {
+            **partidos[0],
+            "signo_final": "1X",
+            "probabilidades": {"1": 60.0, "X": 30.0, "2": 10.0},
+        }
+
+        prediccion = {
+            "estado": "lista_para_publicar",
+            "prediccion_disponible": True,
+            "configuracion": {"elige8": True},
+            "partidos": partidos,
+        }
+
+        aplicar_elige8_seguro(prediccion)
+
+        modos = prediccion["elige8_modos"]["modos"]
+        self.assertIn(1, modos["maxima_seguridad"]["seleccionados"])
+        self.assertNotIn(1, modos["economico"]["seleccionados"])
+        aviso = prediccion["elige8_modos"]["aviso"]
+        self.assertIsNotNone(aviso)
+        self.assertGreater(aviso["extra_coste_elige8"], 0)
+        self.assertIn("mensaje", aviso)
+        self.assertIn("elige8_aviso", prediccion["resumen"])
 
 
 class ProbabilidadAciertoElige8Tests(unittest.TestCase):
