@@ -14,8 +14,10 @@ UMBRAL_PARTIDOS_SEGUROS = 8
 SIGNOS = ("1", "X", "2")
 
 REGLA_ELIGE8 = (
-    "Elige 8 se selecciona por probabilidad real de acertar el signo jugado: "
-    "TRIPLE=100%, DOBLE=suma de sus dos signos jugados, FIJO=probabilidad de su unico signo."
+    "Elige 8 se selecciona por la probabilidad real de acierto NORMALIZADA por el coste "
+    "que ese partido añade al Elige8 (eficiencia_elige8 = probabilidad_acierto / "
+    "multiplicador) -un doble o un triple solo entra por delante de un fijo solido si su "
+    "probabilidad de acierto compensa de verdad pagar 2x o 3x mas caro, no por defecto."
 )
 
 
@@ -138,11 +140,48 @@ def tipo_cobertura(signos):
 
 
 def probabilidad_acierto_elige8(partido):
+    """Probabilidad real de que el resultado caiga dentro de lo marcado en
+    el boleto principal para este partido -TRIPLE=100% (cubre los 3 signos
+    posibles), DOBLE=suma de sus dos signos, FIJO=probabilidad de su unico
+    signo. Este numero es correcto tal cual para MOSTRAR al usuario -si el
+    partido esta marcado triple, ese resultado concreto SI esta garantizado.
+    No usar esto solo para decidir que 8 partidos entran por defecto en el
+    Elige8 -ver eficiencia_elige8, que es lo que de verdad hay que rankear."""
     signos = signos_jugados(partido)
     if len(signos) >= 3:
         return 100.0
     probs = probabilidades(partido)
     return round(min(100.0, sum(probs.get(signo, 0.0) for signo in signos)), 3)
+
+
+def multiplicador_signo(signos):
+    return max(len(signo_limpio(signos)), 1)
+
+
+def eficiencia_elige8(partido):
+    """Probabilidad de acierto normalizada por el coste real que ese
+    partido añade al Elige8 -jugarlo doble o triple en el boleto principal
+    multiplica el coste del Elige8 x2 o x3 (ver multiplicador en
+    recalcular_coste), asi que cubrir mas signos no hace ese partido "gratis"
+    de fiable para el ranking por defecto, solo lo hace ganar mas caro.
+
+    Fix 2026-08 (jornada 75): antes se rankeaba directamente por
+    probabilidad_acierto_elige8 (REGLA_ELIGE8 antigua), lo que repetia el
+    mismo sesgo que Marc ya habia identificado y corregido a mano en la
+    jornada 73 (feedback_metodo_prediccion_manual.md, regla 1: "sumar el %
+    real de los signos marcados y ordenar por ese numero, no asumir que
+    'tiene doble' = 'es mas seguro'"). Prueba real: jornada 75, P1
+    (VPS-Inter Turku, triple, empate a 3 bandas 34.1/31.1/34.8) puntuaba
+    100% con la formula vieja, por encima de P2 (TPS-Mariehamn, fijo,
+    favorito solido al 58.3%) -justo al reves de lo que Marc eligio a mano
+    para el Elige8 real de esa jornada. Con este ajuste, P1 baja a 33.3
+    (100/3) y P2 se queda en 58.3 (58.3/1): gana P2, como deberia.
+
+    Esto NO impide meter deliberadamente un triple/doble en el Elige8 -esa
+    sigue siendo una decision valida (pagar mas por garantizar un partido
+    muy incierto), solo evita que el sistema lo recomiende por defecto sin
+    que se haya elegido a proposito."""
+    return round(probabilidad_acierto_elige8(partido) / multiplicador_signo(signos_jugados(partido)), 3)
 
 
 def multiplicador(signos):
@@ -207,6 +246,7 @@ def evaluar_seguridad_elige8(partido):
     signos = signos_jugados(partido)
     tipo = tipo_cobertura(signos)
     prob_acierto = probabilidad_acierto_elige8(partido)
+    eficiencia = eficiencia_elige8(partido)
     return {
         "num": int(partido.get("num", 0) or 0),
         "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
@@ -216,6 +256,7 @@ def evaluar_seguridad_elige8(partido):
         "probabilidad_top": round(prob_top(probs), 2),
         "probabilidad_acierto": round(prob_acierto, 3),
         "probabilidad_cubierta": round(prob_acierto, 3),
+        "eficiencia_elige8": eficiencia,
         "margen": round(margen_top(probs), 2),
         "tercera_probabilidad": round(tercera_probabilidad(probs), 2),
         "incertidumbre": round(ffloat(partido.get("incertidumbre"), 0.0), 2),
@@ -230,7 +271,7 @@ def evaluar_seguridad_elige8(partido):
 
 def clave_ranking_elige8(item):
     return (
-        -float(item.get("probabilidad_acierto") or 0.0),
+        -float(item.get("eficiencia_elige8") or 0.0),
         float(item.get("incertidumbre") or 0.0),
         float(item.get("probabilidad_sorpresa") or 0.0),
         float(item.get("indice_sorpresa_quinielistica") or 0.0),

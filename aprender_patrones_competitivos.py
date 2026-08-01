@@ -33,6 +33,40 @@ MIN_CASOS_CON_CUOTAS_PARA_TASA = 2
 # grande como sugeria la posicion en tabla.
 UMBRAL_MARGEN_ESTRECHO = 55.0
 
+# Regla 11 (feedback_metodo_prediccion_manual.md): "el equipo que llega con
+# una racha de derrotas esta mas necesitado y por eso rinde mejor/reacciona"
+# es un mito, verificado con datos reales de 3 temporadas (2.526 partidos)
+# tras el caso Kristiansund 1-2 Start (jornada 74, 2026-07-25). Un equipo
+# con 3 derrotas seguidas SIN puntuar rinde PEOR de lo normal en el
+# siguiente partido, no mejor -3 es el mismo umbral que usa el campo
+# racha_actual.derrotas ya vivo en el pipeline (recalcular_dinamicas_calendario.py).
+UMBRAL_RACHA_DERROTAS_SIN_PUNTUAR = 3
+
+
+def racha_derrotas_previa(historial_puntos, equipo, umbral=UMBRAL_RACHA_DERROTAS_SIN_PUNTUAR):
+    """Replica la semantica de racha_actual.derrotas del pipeline en vivo:
+    derrotas CONSECUTIVAS que terminan en el partido mas reciente de ESE
+    equipo -0 si su ultimo partido registrado no fue una derrota. Se basa
+    solo en partidos YA jugados antes de la fecha actual (historial_puntos
+    se actualiza despues de procesar cada dia, nunca antes)."""
+    pasados = historial_puntos.get(equipo) or []
+    if not pasados or pasados[-1] != 0:
+        return 0
+    derrotas = 0
+    for puntos in reversed(pasados):
+        if puntos == 0:
+            derrotas += 1
+        else:
+            break
+    return derrotas
+
+
+def puntos_del_resultado(gl, gv, es_local):
+    if gl == gv:
+        return 1
+    gano_local = gl > gv
+    return 3 if (gano_local == es_local) else 0
+
 
 def cargar_json(path, defecto=None):
     if defecto is None:
@@ -172,6 +206,7 @@ def analizar_temporada_historica(liga, temporada, partidos, patrones):
     la motivacion de cada equipo hacia esperar."""
     analizador = ANALIZADORES[liga]
     tabla = tabla_vacia()
+    historial_puntos = defaultdict(list)
 
     por_fecha = defaultdict(list)
     for p in partidos:
@@ -277,7 +312,35 @@ def analizar_temporada_historica(liga, temporada, partidos, patrones):
                                     f"probabilidad implicita de mercado para ese favorito={prob_favorito_mercado:.1f}%."),
                         )
 
+            # Regla 11: "necesidad por racha de derrotas" -verificar si un equipo
+            # que llega con >=3 derrotas seguidas SIN puntuar de verdad "rebota"
+            # (gana) mas de lo esperable, o si -como confirmo el analisis manual
+            # con datos reales- sigue rindiendo peor. Se mide en TODOS los
+            # partidos con historial suficiente, no solo cuando hay contexto
+            # competitivo de tabla (local/visitante de arriba), porque esto es
+            # una propiedad de la racha reciente, no de la clasificacion.
+            clave_local = contexto_mod.normalizar_nombre(partido.get("local", ""))
+            clave_visitante = contexto_mod.normalizar_nombre(partido.get("visitante", ""))
+            visitante_racha = racha_derrotas_previa(historial_puntos, clave_visitante)
+            local_racha = racha_derrotas_previa(historial_puntos, clave_local)
+            if visitante_racha >= UMBRAL_RACHA_DERROTAS_SIN_PUNTUAR:
+                registrar(
+                    patrones, "racha_perdedora_visitante_no_rebota", signo == "2",
+                    ejemplo(liga, temporada, fecha, partido, signo,
+                            f"Visitante llega con {visitante_racha} derrotas seguidas sin puntuar: "
+                            "la 'necesidad' no predice un rebote, historicamente rinde peor."),
+                )
+            if local_racha >= UMBRAL_RACHA_DERROTAS_SIN_PUNTUAR:
+                registrar(
+                    patrones, "racha_perdedora_local_no_rebota", signo == "1",
+                    ejemplo(liga, temporada, fecha, partido, signo,
+                            f"Local llega con {local_racha} derrotas seguidas sin puntuar: "
+                            "la 'necesidad' no predice un rebote, historicamente rinde peor."),
+                )
+
             aplicar_partido(tabla, partido.get("local", ""), partido.get("visitante", ""), partido["gl"], partido["gv"])
+            historial_puntos[clave_local].append(puntos_del_resultado(partido["gl"], partido["gv"], es_local=True))
+            historial_puntos[clave_visitante].append(puntos_del_resultado(partido["gl"], partido["gv"], es_local=False))
 
 
 def normalizar_equipo_h2h(nombre):

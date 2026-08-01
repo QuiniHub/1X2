@@ -228,6 +228,23 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertEqual(indice["cobertura_sugerida"], "DOBLE")
         self.assertIn("X", indice["signos_contra_favorito"])
 
+    def test_racha_perdedora_del_rival_reduce_el_indice_en_vez_de_subirlo(self):
+        """Regla 11: el rival del favorito con >=3 derrotas seguidas sin
+        puntuar NO es una señal de sorpresa -al reves, la 'necesidad' es un
+        mito verificado con datos reales, asi que debe RESTAR indice, no
+        sumarlo (caso real: Kristiansund-Start, jornada 74)."""
+        base = partido(1, {"1": 50.0, "X": 26.0, "2": 24.0}, incertidumbre=90, sorpresa=40)
+        patrones = {"patrones": {"racha_perdedora_visitante_no_rebota": {"tasa_sorpresa": 16.5}}}
+
+        sin_racha = indice_sorpresa_quinielistica(dict(base), patrones)
+
+        con_racha = dict(base)
+        con_racha["_visitante"] = {"racha_actual": {"derrotas": 3}}
+        indice_con_racha = indice_sorpresa_quinielistica(con_racha, patrones)
+
+        self.assertLess(indice_con_racha["indice"], sin_racha["indice"])
+        self.assertTrue(any("derrotas seguidas" in m for m in indice_con_racha["motivos"]))
+
     def test_prioridad_doble_prioriza_favorito_atacable(self):
         favorito_atacable = partido(1, {"1": 56.0, "X": 24.0, "2": 20.0}, incertidumbre=104, sorpresa=48)
         favorito_atacable["contexto_competitivo_local"] = equipo_competitivo(

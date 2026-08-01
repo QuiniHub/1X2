@@ -1851,6 +1851,32 @@ def indice_sorpresa_quinielistica(partido, patrones=None, historial_h2h=None):
     if racha_valor(rival_memoria, "sin_perder") >= 3:
         score += 8
         motivos.append("rival del favorito llega sin perder")
+
+    # Regla 11 (feedback_metodo_prediccion_manual.md): "el equipo que llega
+    # con racha de derrotas esta mas necesitado y por eso rebota" es un mito,
+    # verificado con datos reales de 3 temporadas (2.526 partidos) tras el
+    # caso Kristiansund 1-2 Start (jornada 74). Si el RIVAL del favorito (el
+    # que podria dar la sorpresa) llega con >=3 derrotas seguidas sin
+    # puntuar, esa racha NO aumenta el riesgo de sorpresa -al contrario, la
+    # tasa real de rebote es mucho mas baja de lo que la intuicion de
+    # "necesidad" sugiere (~16-34% segun patrones_competitivos.json), asi
+    # que se resta riesgo en vez de sumarlo.
+    UMBRAL_RACHA_DERROTAS_SIN_PUNTUAR = 3
+    derrotas_rival = racha_valor(rival_memoria, "derrotas")
+    if derrotas_rival >= UMBRAL_RACHA_DERROTAS_SIN_PUNTUAR and favorito_signo in {"1", "2"}:
+        clave_racha = (
+            "racha_perdedora_visitante_no_rebota" if favorito_signo == "1"
+            else "racha_perdedora_local_no_rebota"
+        )
+        tasa_rebote = tasa_patron(patrones, clave_racha)
+        alivio = tasa_rebote * 0.15
+        if alivio > 0:
+            score = max(0.0, score - alivio)
+            motivos.append(
+                f"El no favorito llega con {int(derrotas_rival)} derrotas seguidas sin puntuar: "
+                f"historicamente solo remonta el {tasa_rebote:.1f}% de las veces (la mala racha "
+                "tiende a continuar, no hay 'rebote' real por necesidad)."
+            )
     if goles_por_partido(favorito_memoria, "goles_contra_por_partido") >= 1.35:
         score += 6
         motivos.append("favorito encaja demasiado para ser fijo limpio")

@@ -179,6 +179,76 @@ class TopVsRestoPatronTests(unittest.TestCase):
         self.assertEqual(patrones[clave]["sorpresas"], 1)  # empate ("X"), no gana el local del top 10
 
 
+class RachaPerdedoraPatronTests(unittest.TestCase):
+    """Regla 11 (feedback_metodo_prediccion_manual.md): un equipo con racha
+    de derrotas no "rebota" mas de lo normal, rinde peor. No depende del
+    contexto competitivo (objetivos/tier) -mismo truco de analizador vacio
+    que TopVsRestoPatronTests para aislarlo del resto de patrones."""
+
+    def setUp(self):
+        self._original = dict(apc.ANALIZADORES)
+
+        def analizador_vacio(tabla_previa):
+            return {"equipos": []}
+
+        apc.ANALIZADORES = {"primera": analizador_vacio, "segunda": analizador_vacio}
+        self.addCleanup(lambda: setattr(apc, "ANALIZADORES", self._original))
+
+    def test_visitante_con_3_derrotas_seguidas_que_pierde_otra_vez_no_es_sorpresa(self):
+        partidos = [
+            partido("Rival1", "Perdedor", 2, 0, "2026-01-01"),
+            partido("Rival2", "Perdedor", 1, 0, "2026-01-08"),
+            partido("Rival3", "Perdedor", 3, 0, "2026-01-15"),
+            partido("Rival4", "Perdedor", 1, 0, "2026-01-22"),
+        ]
+        patrones = defaultdict(apc.base_patron)
+        apc.analizar_temporada_historica("primera", "2025/2026", partidos, patrones)
+
+        clave = "racha_perdedora_visitante_no_rebota"
+        self.assertIn(clave, patrones)
+        self.assertEqual(patrones[clave]["casos"], 1)
+        self.assertEqual(patrones[clave]["sorpresas"], 0)
+
+    def test_visitante_con_3_derrotas_seguidas_que_gana_si_cuenta_como_sorpresa(self):
+        partidos = [
+            partido("Rival1", "Perdedor", 2, 0, "2026-01-01"),
+            partido("Rival2", "Perdedor", 1, 0, "2026-01-08"),
+            partido("Rival3", "Perdedor", 3, 0, "2026-01-15"),
+            partido("Rival4", "Perdedor", 0, 2, "2026-01-22"),
+        ]
+        patrones = defaultdict(apc.base_patron)
+        apc.analizar_temporada_historica("primera", "2025/2026", partidos, patrones)
+
+        clave = "racha_perdedora_visitante_no_rebota"
+        self.assertEqual(patrones[clave]["casos"], 1)
+        self.assertEqual(patrones[clave]["sorpresas"], 1)
+
+    def test_local_con_3_derrotas_seguidas_se_registra_por_separado(self):
+        partidos = [
+            partido("Perdedor", "Rival1", 0, 2, "2026-01-01"),
+            partido("Perdedor", "Rival2", 0, 1, "2026-01-08"),
+            partido("Perdedor", "Rival3", 0, 3, "2026-01-15"),
+            partido("Perdedor", "Rival4", 1, 1, "2026-01-22"),
+        ]
+        patrones = defaultdict(apc.base_patron)
+        apc.analizar_temporada_historica("primera", "2025/2026", partidos, patrones)
+
+        clave = "racha_perdedora_local_no_rebota"
+        self.assertEqual(patrones[clave]["casos"], 1)
+        self.assertEqual(patrones[clave]["sorpresas"], 0)  # empata, no gana -> no es rebote
+
+    def test_menos_de_3_derrotas_seguidas_no_activa_el_patron(self):
+        partidos = [
+            partido("Rival1", "Equipo", 2, 0, "2026-01-01"),
+            partido("Rival2", "Equipo", 1, 0, "2026-01-08"),
+            partido("Rival3", "Equipo", 1, 1, "2026-01-15"),
+        ]
+        patrones = defaultdict(apc.base_patron)
+        apc.analizar_temporada_historica("primera", "2025/2026", partidos, patrones)
+
+        self.assertNotIn("racha_perdedora_visitante_no_rebota", patrones)
+
+
 class ProbabilidadImplicitaCuotasTests(unittest.TestCase):
     def test_normaliza_a_100_repartiendo_segun_1_sobre_cuota(self):
         p = {"cuota_1": 2.00, "cuota_x": 3.30, "cuota_2": 4.20}
