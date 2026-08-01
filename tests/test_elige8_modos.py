@@ -6,7 +6,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from aplicar_elige8_seguro import aplicar_elige8_seguro, probabilidad_acierto_elige8, eficiencia_elige8
+from aplicar_elige8_seguro import (
+    aplicar_elige8_seguro,
+    probabilidad_acierto_elige8,
+    eficiencia_elige8,
+    tipo_jornada_elige8,
+    PREMIO_TIPICO_ELIGE8,
+)
 
 
 def partido(num, top=62.0, sorpresa=20.0, indice=20.0):
@@ -98,6 +104,80 @@ class Elige8ModosTests(unittest.TestCase):
         self.assertGreater(aviso["extra_coste_elige8"], 0)
         self.assertIn("mensaje", aviso)
         self.assertIn("elige8_aviso", prediccion["resumen"])
+
+    def test_aviso_usa_premio_domestico_si_la_jornada_es_primera_segunda(self):
+        """Investigado a peticion de Marc (2026-08): el premio tipico real
+        del Elige8 depende de si la jornada es domestica (Primera+Segunda,
+        mediana real 578,70€) o internacional (Champions/selecciones/ligas
+        extranjeras, mediana real 32,62€) -no de si hay "Primera pura"
+        (eso no existe, Primera solo da 10 partidos de los 14 que hacen falta)."""
+        partidos = [partido(i, top=55.0) for i in range(1, 15)]
+        for p in partidos:
+            p["competicion_resuelta"] = "primera_division" if p["num"] <= 10 else "segunda_division"
+        partidos[0] = {
+            **partidos[0],
+            "signo_final": "1X",
+            "probabilidades": {"1": 60.0, "X": 30.0, "2": 10.0},
+        }
+
+        prediccion = {
+            "estado": "lista_para_publicar",
+            "prediccion_disponible": True,
+            "configuracion": {"elige8": True},
+            "partidos": partidos,
+        }
+
+        aplicar_elige8_seguro(prediccion)
+
+        aviso = prediccion["elige8_modos"]["aviso"]
+        self.assertEqual(aviso["tipo_jornada"], "domestica")
+        self.assertAlmostEqual(aviso["premio_tipico_elige8"], PREMIO_TIPICO_ELIGE8["domestica"])
+
+    def test_aviso_usa_premio_internacional_si_la_jornada_es_liga_extranjera(self):
+        partidos = [partido(i, top=55.0) for i in range(1, 15)]
+        for p in partidos:
+            p["competicion_resuelta"] = "liga_extranjera"
+        partidos[0] = {
+            **partidos[0],
+            "signo_final": "1X",
+            "probabilidades": {"1": 60.0, "X": 30.0, "2": 10.0},
+        }
+
+        prediccion = {
+            "estado": "lista_para_publicar",
+            "prediccion_disponible": True,
+            "configuracion": {"elige8": True},
+            "partidos": partidos,
+        }
+
+        aplicar_elige8_seguro(prediccion)
+
+        aviso = prediccion["elige8_modos"]["aviso"]
+        self.assertEqual(aviso["tipo_jornada"], "internacional")
+        self.assertAlmostEqual(aviso["premio_tipico_elige8"], PREMIO_TIPICO_ELIGE8["internacional"])
+        # Con premio tipico bajo (32,62€), pagar 71,50€ extra no puede compensar.
+        self.assertFalse(aviso["compensa_pagar_mas"])
+
+
+class TipoJornadaElige8Tests(unittest.TestCase):
+    def test_mayoria_primera_segunda_es_domestica(self):
+        partidos = (
+            [{"competicion_resuelta": "primera_division"}] * 8
+            + [{"competicion_resuelta": "segunda_division"}] * 2
+            + [{"competicion_resuelta": "liga_extranjera"}] * 4
+        )
+        self.assertEqual(tipo_jornada_elige8(partidos), "domestica")
+
+    def test_mayoria_liga_extranjera_es_internacional(self):
+        partidos = (
+            [{"competicion_resuelta": "liga_extranjera"}] * 12
+            + [{"competicion_resuelta": "primera_division"}] * 2
+        )
+        self.assertEqual(tipo_jornada_elige8(partidos), "internacional")
+
+    def test_sin_competicion_resuelta_es_internacional_por_defecto(self):
+        partidos = [{} for _ in range(14)]
+        self.assertEqual(tipo_jornada_elige8(partidos), "internacional")
 
 
 class ProbabilidadAciertoElige8Tests(unittest.TestCase):

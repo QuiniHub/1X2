@@ -20,6 +20,36 @@ REGLA_ELIGE8 = (
     "probabilidad de acierto compensa de verdad pagar 2x o 3x mas caro, no por defecto."
 )
 
+# Premio TIPICO (mediana real) por ganador del 8/8 de Elige8, segun el tipo de
+# jornada -investigado el 2026-08 tras una pregunta de Marc: el premio NO
+# depende de si la jornada es "Primera pura" (eso ni existe: Primera solo
+# tiene 20 equipos = 10 partidos, Quiniela necesita 14, siempre se rellena
+# con Segunda) sino de si es una jornada DOMESTICA de fin de semana
+# (Primera+Segunda, mas sorpresas reales, menos gente acierta el 8/8 limpio,
+# premio mucho mas alto por cabeza) o INTERNACIONAL/de relleno (Champions,
+# clasificacion de selecciones, ligas nordicas de verano -favoritos mas
+# obvios para el publico, miles de aciertos de 8/8, premio diluido). Datos
+# reales verificados via eduardolosilla.es, temporada 2025/26: domestica
+# mediana 578,70€ (13 jornadas, rango 16-3.635€), internacional mediana
+# 32,62€ (5 jornadas, rango 1-118€). Se usa la MEDIANA, no la media -la
+# media queda muy inflada por semanas puntuales con pocos acertantes.
+PREMIO_TIPICO_ELIGE8 = {
+    "domestica": 578.70,
+    "internacional": 32.62,
+}
+COMPETICIONES_DOMESTICAS = {"primera_division", "segunda_division"}
+
+
+def tipo_jornada_elige8(partidos):
+    """'domestica' si la mayoria de los partidos son Primera/Segunda
+    espanola, 'internacional' en cualquier otro caso (Champions, selecciones,
+    Mundial, ligas extranjeras/nordicas, o sin dato)."""
+    domesticos = sum(
+        1 for p in partidos
+        if str(p.get("competicion_resuelta") or "").lower() in COMPETICIONES_DOMESTICAS
+    )
+    return "domestica" if partidos and domesticos > len(partidos) / 2 else "internacional"
+
 
 def ahora():
     return datetime.now(timezone.utc).isoformat()
@@ -306,10 +336,15 @@ def probabilidad_conjunta_estimada(ranking, seleccionados_nums):
     return round(producto * 100, 4)
 
 
-def construir_aviso_modos(ranking, seleccion_economico, seleccion_seguridad, coste_economico, coste_seguridad):
+def construir_aviso_modos(ranking, seleccion_economico, seleccion_seguridad, coste_economico, coste_seguridad, tipo_jornada):
     """Aviso explicito comparando ambos modos -solo si de verdad difieren
     (si no hay ningun doble/triple en la jornada, las 2 selecciones
-    coinciden y no hace falta avisar de nada)."""
+    coinciden y no hace falta avisar de nada). Incluye una estimacion de
+    valor esperado en euros usando el premio TIPICO real segun el tipo de
+    jornada (domestica vs internacional, ver PREMIO_TIPICO_ELIGE8) -es una
+    estimacion basada en la mediana historica, no una prediccion exacta del
+    premio real de esta semana concreta (el premio real depende de cuantos
+    acierten, algo que no se puede saber de antemano)."""
     if seleccion_economico == seleccion_seguridad:
         return None
 
@@ -317,6 +352,12 @@ def construir_aviso_modos(ranking, seleccion_economico, seleccion_seguridad, cos
     prob_seguridad = probabilidad_conjunta_estimada(ranking, seleccion_seguridad)
     extra_coste = round(coste_seguridad - coste_economico, 2)
     extra_prob = round(prob_seguridad - prob_economico, 2)
+
+    premio_tipico = PREMIO_TIPICO_ELIGE8[tipo_jornada]
+    valor_esperado_economico = round(prob_economico / 100 * premio_tipico, 2)
+    valor_esperado_seguridad = round(prob_seguridad / 100 * premio_tipico, 2)
+    extra_valor_esperado = round(valor_esperado_seguridad - valor_esperado_economico, 2)
+    compensa = extra_valor_esperado > extra_coste
 
     evaluacion_por_num = {item["num"]: item for item in ranking}
     eslabon_debil = min(
@@ -334,11 +375,20 @@ def construir_aviso_modos(ranking, seleccion_economico, seleccion_seguridad, cos
         "probabilidad_conjunta_maxima_seguridad": prob_seguridad,
         "extra_coste_elige8": extra_coste,
         "extra_probabilidad_conjunta": extra_prob,
+        "tipo_jornada": tipo_jornada,
+        "premio_tipico_elige8": premio_tipico,
+        "valor_esperado_economico": valor_esperado_economico,
+        "valor_esperado_maxima_seguridad": valor_esperado_seguridad,
+        "extra_valor_esperado": extra_valor_esperado,
+        "compensa_pagar_mas": compensa,
         "mensaje": (
             f"Modo economico: {prob_economico:.1f}% de probabilidad conjunta estimada de acertar los 8 "
             f"(eslabon mas debil: P{eslabon_debil['num']} {eslabon_debil['partido']} al {eslabon_debil['probabilidad_acierto']:.1f}%). "
             f"Modo maxima seguridad: {prob_seguridad:.1f}% pagando {extra_coste:+.2f}€ mas de Elige8. "
-            f"Diferencia: {extra_prob:+.1f} puntos de probabilidad conjunta por {extra_coste:+.2f}€."
+            f"Jornada {tipo_jornada} (premio tipico Elige8 ≈{premio_tipico:.2f}€ segun mediana historica real): "
+            f"valor esperado extra ≈{extra_valor_esperado:+.2f}€ por {extra_coste:+.2f}€ de coste extra -"
+            f"{'SI compensa en valor esperado' if compensa else 'NO compensa en valor esperado'} "
+            "(estimacion basada en la mediana historica de esta temporada, no una prediccion del premio real de esta semana)."
         ),
     }
 
@@ -398,7 +448,10 @@ def aplicar_elige8_seguro(prediccion):
 
     apuestas_economico, coste_economico = coste_elige8_seleccion(ranking, seleccionados_nums)
     apuestas_seguridad, coste_seguridad = coste_elige8_seleccion(ranking, seleccionados_seguridad)
-    aviso = construir_aviso_modos(ranking, seleccionados_nums, seleccionados_seguridad, coste_economico, coste_seguridad)
+    tipo_jornada = tipo_jornada_elige8(partidos)
+    aviso = construir_aviso_modos(
+        ranking, seleccionados_nums, seleccionados_seguridad, coste_economico, coste_seguridad, tipo_jornada,
+    )
 
     for partido in partidos:
         num = int(partido.get("num", 0) or 0)
