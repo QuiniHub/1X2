@@ -1,24 +1,24 @@
 {
   "version": "1.2",
-  "precision": 65.92,
-  "jornadas_revisadas": 16,
-  "partidos_revisados": 223,
-  "aciertos": 147,
-  "fallos": 76,
+  "precision": 65.78,
+  "jornadas_revisadas": 17,
+  "partidos_revisados": 225,
+  "aciertos": 148,
+  "fallos": 77,
   "fallos_por_tipo": {
     "Doble insuficiente": 15,
     "Fijo fallado": 35,
-    "No cubrio empate": 26
+    "No cubrio empate": 27
   },
   "fallos_por_signo_real": {
     "1": 18,
     "2": 32,
-    "X": 26
+    "X": 27
   },
   "signos_omitidos_en_fallo": {
     "1": 18,
     "2": 32,
-    "X": 26
+    "X": 27
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,10 +28,10 @@
       "precision": 70.59
     },
     "FIJO": {
-      "total": 146,
-      "aciertos": 85,
-      "fallos": 61,
-      "precision": 58.22
+      "total": 148,
+      "aciertos": 86,
+      "fallos": 62,
+      "precision": 58.11
     },
     "TRIPLE": {
       "total": 26,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 102,
-      "aciertos": 84,
+      "total": 103,
+      "aciertos": 85,
       "fallos": 18,
-      "precision": 82.35
+      "precision": 82.52
     },
     "2": {
       "total": 68,
@@ -54,10 +54,10 @@
       "precision": 52.94
     },
     "X": {
-      "total": 53,
+      "total": 54,
       "aciertos": 27,
-      "fallos": 26,
-      "precision": 50.94
+      "fallos": 27,
+      "precision": 50.0
     }
   },
   "detalle": [
@@ -17353,6 +17353,219 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 75,
+      "partido": "Turku PS - IFK Mariehamn",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "3-0",
+      "resultado_final": "3-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_75.json",
+      "probabilidades_usadas": {
+        "1": 58.3,
+        "X": 23.4,
+        "2": 18.3
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Turku PS",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "IFK Mariehamn",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (58.3%).",
+        "hipotesis_alternativa": "X como alternativa (23.4%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 45.7,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 34.9 puntos, indice sorpresa 23.3."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.63,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {
+        "equipo": "IFK Mariehamn",
+        "partidos_total": 3,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 44.09,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 3
+        }
+      }
+    },
+    {
+      "jornada": 75,
+      "partido": "Häcken - Kalmar FF",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_75.json",
+      "probabilidades_usadas": {
+        "1": 51.9,
+        "X": 25.7,
+        "2": 22.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Häcken",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Kalmar FF",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (51.9%).",
+        "hipotesis_alternativa": "X como alternativa (25.7%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 56.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 26.2 puntos, indice sorpresa 41.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.63,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Hacken: ppp=0.99; perfil visitante Kalmar FF: ppp=1.56."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Hacken",
+        "partidos_total": 2,
+        "puntos_por_partido": 1.478,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 37.08,
+        "forma_5_ppp": 1.5,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Kalmar FF",
+        "partidos_total": 3,
+        "puntos_por_partido": 2.334,
+        "empates_pct": 33.32,
+        "surprise_score_medio": 44.19,
+        "forma_5_ppp": 2.333,
+        "forma_10_ppp": 2.333,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -17366,19 +17579,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 223,
+    "partidos_base": 225,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 34.08,
-      "no_cubrio_empate_sobre_fallos_pct": 34.21,
-      "no_cubrio_empate_sobre_total_pct": 11.66,
-      "fijo_fallado_sobre_fallos_pct": 46.05,
-      "fijo_fallado_sobre_total_pct": 15.7,
-      "doble_insuficiente_sobre_total_pct": 6.73
+      "fallos_total_pct": 34.22,
+      "no_cubrio_empate_sobre_fallos_pct": 35.06,
+      "no_cubrio_empate_sobre_total_pct": 12.0,
+      "fijo_fallado_sobre_fallos_pct": 45.45,
+      "fijo_fallado_sobre_total_pct": 15.56,
+      "doble_insuficiente_sobre_total_pct": 6.67
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 5.17,
-    "riesgo_extra_triple_insuficiente": 2.46,
+    "riesgo_extra_fijo_fragil": 4.94,
+    "riesgo_extra_triple_insuficiente": 2.4,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
