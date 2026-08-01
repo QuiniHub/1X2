@@ -249,6 +249,65 @@ class RachaPerdedoraPatronTests(unittest.TestCase):
         self.assertNotIn("racha_perdedora_visitante_no_rebota", patrones)
 
 
+class RachaPerdedoraVsMotivacionRivalTests(unittest.TestCase):
+    """Matiz pedido por Marc (2026-08) tras comprobar con datos reales que el
+    Barcelona -ya campeon de LaLiga 2025/26 en la jornada 35- jugo con
+    alineacion alternativa y perdio 2 de sus 3 ultimos partidos sin nada en
+    juego: un "rebote" de la racha perdedora contra un rival SIN objetivo
+    (que puede rotar) no prueba lo mismo que contra uno que se lo juega
+    todo. El analizador-espia marca "RivalCerrado" con objetivo cerrado y
+    cualquier otro equipo con objetivo vivo."""
+
+    def setUp(self):
+        self._original = dict(apc.ANALIZADORES)
+
+        def analizador_espia(tabla_previa):
+            equipos = []
+            for e in tabla_previa:
+                if e["equipo"] == "RivalCerrado":
+                    equipos.append(equipo_cerrado("RivalCerrado", puntos=e["puntos"]))
+                else:
+                    equipos.append(equipo_vivo(e["equipo"]))
+            return {"equipos": equipos}
+
+        apc.ANALIZADORES = {"primera": analizador_espia, "segunda": analizador_espia}
+        self.addCleanup(lambda: setattr(apc, "ANALIZADORES", self._original))
+
+    def test_visitante_en_racha_ante_rival_local_sin_objetivo_se_separa(self):
+        partidos = [
+            partido("RivalCerrado", "Otro", 1, 1, "2025-12-25"),  # RivalCerrado ya jugo antes -aparece en tabla_previa del dia decisivo
+            partido("Rival1", "Perdedor", 2, 0, "2026-01-01"),
+            partido("Rival2", "Perdedor", 1, 0, "2026-01-08"),
+            partido("Rival3", "Perdedor", 3, 0, "2026-01-15"),
+            partido("RivalCerrado", "Perdedor", 0, 2, "2026-01-22"),  # gana el visitante -"rebote"
+        ]
+        patrones = defaultdict(apc.base_patron)
+        apc.analizar_temporada_historica("primera", "2025/2026", partidos, patrones)
+
+        clave = "racha_perdedora_visitante_no_rebota_rival_sin_objetivo"
+        self.assertIn(clave, patrones)
+        self.assertEqual(patrones[clave]["casos"], 1)
+        self.assertEqual(patrones[clave]["sorpresas"], 1)  # rebota, pero el rival podia rotar
+        self.assertNotIn("racha_perdedora_visitante_no_rebota_rival_motivado", patrones)
+
+    def test_visitante_en_racha_ante_rival_local_motivado_se_separa(self):
+        partidos = [
+            partido("RivalMotivado", "Otro", 1, 1, "2025-12-25"),  # RivalMotivado ya jugo antes -aparece en tabla_previa del dia decisivo
+            partido("Rival1", "Perdedor", 2, 0, "2026-01-01"),
+            partido("Rival2", "Perdedor", 1, 0, "2026-01-08"),
+            partido("Rival3", "Perdedor", 3, 0, "2026-01-15"),
+            partido("RivalMotivado", "Perdedor", 1, 0, "2026-01-22"),  # pierde otra vez, rival se lo jugaba todo
+        ]
+        patrones = defaultdict(apc.base_patron)
+        apc.analizar_temporada_historica("primera", "2025/2026", partidos, patrones)
+
+        clave = "racha_perdedora_visitante_no_rebota_rival_motivado"
+        self.assertIn(clave, patrones)
+        self.assertEqual(patrones[clave]["casos"], 1)
+        self.assertEqual(patrones[clave]["sorpresas"], 0)
+        self.assertNotIn("racha_perdedora_visitante_no_rebota_rival_sin_objetivo", patrones)
+
+
 class ProbabilidadImplicitaCuotasTests(unittest.TestCase):
     def test_normaliza_a_100_repartiendo_segun_1_sobre_cuota(self):
         p = {"cuota_1": 2.00, "cuota_x": 3.30, "cuota_2": 4.20}

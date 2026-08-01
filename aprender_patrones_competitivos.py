@@ -227,6 +227,11 @@ def analizar_temporada_historica(liga, temporada, partidos, patrones):
             local = mapa.get(contexto_mod.normalizar_nombre(partido.get("local", "")))
             visitante = mapa.get(contexto_mod.normalizar_nombre(partido.get("visitante", "")))
 
+            clave_local = contexto_mod.normalizar_nombre(partido.get("local", ""))
+            clave_visitante = contexto_mod.normalizar_nombre(partido.get("visitante", ""))
+            visitante_racha = racha_derrotas_previa(historial_puntos, clave_visitante)
+            local_racha = racha_derrotas_previa(historial_puntos, clave_local)
+
             if local and visitante:
                 local_cerrado = objetivo_cerrado(local)
                 visitante_cerrado = objetivo_cerrado(visitante)
@@ -312,6 +317,37 @@ def analizar_temporada_historica(liga, temporada, partidos, patrones):
                                     f"probabilidad implicita de mercado para ese favorito={prob_favorito_mercado:.1f}%."),
                         )
 
+                # Matiz pedido por Marc (2026-08), a raiz de comprobar con datos reales
+                # que el Barcelona -ya campeon en la jornada 35 de LaLiga 2025/26- jugo con
+                # alineacion alternativa y perdio 2 de los 3 partidos sin nada en juego que
+                # le quedaban (Alaves 1-0, Valencia 3-1): un "rebote" de la racha perdedora
+                # contra un rival SIN objetivo (que puede rotar/no exigirse al maximo) no
+                # prueba lo mismo que un rebote contra un rival que SI se lo juega todo. Se
+                # cruza aqui, no en el bloque de mas abajo, porque necesita el contexto
+                # competitivo del rival (objetivo_cerrado), que solo existe dentro de este if.
+                if visitante_racha >= UMBRAL_RACHA_DERROTAS_SIN_PUNTUAR:
+                    clave_rival = (
+                        "racha_perdedora_visitante_no_rebota_rival_sin_objetivo" if local_cerrado
+                        else "racha_perdedora_visitante_no_rebota_rival_motivado"
+                    )
+                    registrar(
+                        patrones, clave_rival, signo == "2",
+                        ejemplo(liga, temporada, fecha, partido, signo,
+                                f"Visitante con {visitante_racha} derrotas seguidas; rival local con objetivo "
+                                f"{'cerrado (puede rotar)' if local_cerrado else 'vivo (se lo juega)'}."),
+                    )
+                if local_racha >= UMBRAL_RACHA_DERROTAS_SIN_PUNTUAR:
+                    clave_rival = (
+                        "racha_perdedora_local_no_rebota_rival_sin_objetivo" if visitante_cerrado
+                        else "racha_perdedora_local_no_rebota_rival_motivado"
+                    )
+                    registrar(
+                        patrones, clave_rival, signo == "1",
+                        ejemplo(liga, temporada, fecha, partido, signo,
+                                f"Local con {local_racha} derrotas seguidas; rival visitante con objetivo "
+                                f"{'cerrado (puede rotar)' if visitante_cerrado else 'vivo (se lo juega)'}."),
+                    )
+
             # Regla 11: "necesidad por racha de derrotas" -verificar si un equipo
             # que llega con >=3 derrotas seguidas SIN puntuar de verdad "rebota"
             # (gana) mas de lo esperable, o si -como confirmo el analisis manual
@@ -319,10 +355,6 @@ def analizar_temporada_historica(liga, temporada, partidos, patrones):
             # partidos con historial suficiente, no solo cuando hay contexto
             # competitivo de tabla (local/visitante de arriba), porque esto es
             # una propiedad de la racha reciente, no de la clasificacion.
-            clave_local = contexto_mod.normalizar_nombre(partido.get("local", ""))
-            clave_visitante = contexto_mod.normalizar_nombre(partido.get("visitante", ""))
-            visitante_racha = racha_derrotas_previa(historial_puntos, clave_visitante)
-            local_racha = racha_derrotas_previa(historial_puntos, clave_local)
             if visitante_racha >= UMBRAL_RACHA_DERROTAS_SIN_PUNTUAR:
                 registrar(
                     patrones, "racha_perdedora_visitante_no_rebota", signo == "2",
