@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 65.78,
+  "precision": 65.93,
   "jornadas_revisadas": 17,
-  "partidos_revisados": 225,
-  "aciertos": 148,
+  "partidos_revisados": 226,
+  "aciertos": 149,
   "fallos": 77,
   "fallos_por_tipo": {
     "Doble insuficiente": 15,
@@ -34,18 +34,18 @@
       "precision": 58.11
     },
     "TRIPLE": {
-      "total": 26,
-      "aciertos": 26,
+      "total": 27,
+      "aciertos": 27,
       "fallos": 0,
       "precision": 100.0
     }
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 103,
-      "aciertos": 85,
+      "total": 104,
+      "aciertos": 86,
       "fallos": 18,
-      "precision": 82.52
+      "precision": 82.69
     },
     "2": {
       "total": 68,
@@ -17455,6 +17455,120 @@
     },
     {
       "jornada": 75,
+      "partido": "Fredrikstad - Sandefjord",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "1-0",
+      "resultado_final": "1-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_75.json",
+      "probabilidades_usadas": {
+        "1": 39.3,
+        "X": 31.3,
+        "2": 29.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Fredrikstad",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Sandefjord",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (39.3%).",
+        "hipotesis_alternativa": "X como alternativa (31.3%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision TRIPLE 1X2: margen 8.0 puntos, indice sorpresa 95.8."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.63,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Fredrikstad: ppp=0.51; perfil visitante Sandefjord: ppp=1.19."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Fredrikstad",
+        "partidos_total": 4,
+        "puntos_por_partido": 0.783,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 37.98,
+        "forma_5_ppp": 0.75,
+        "forma_10_ppp": 0.75,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Sandefjord",
+        "partidos_total": 4,
+        "puntos_por_partido": 1.022,
+        "empates_pct": 23.93,
+        "surprise_score_medio": 33.9,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 75,
       "partido": "Häcken - Kalmar FF",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -17579,19 +17693,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 225,
+    "partidos_base": 226,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 34.22,
+      "fallos_total_pct": 34.07,
       "no_cubrio_empate_sobre_fallos_pct": 35.06,
-      "no_cubrio_empate_sobre_total_pct": 12.0,
+      "no_cubrio_empate_sobre_total_pct": 11.95,
       "fijo_fallado_sobre_fallos_pct": 45.45,
-      "fijo_fallado_sobre_total_pct": 15.56,
-      "doble_insuficiente_sobre_total_pct": 6.67
+      "fijo_fallado_sobre_total_pct": 15.49,
+      "doble_insuficiente_sobre_total_pct": 6.64
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 4.94,
-    "riesgo_extra_triple_insuficiente": 2.4,
+    "riesgo_extra_fijo_fragil": 4.88,
+    "riesgo_extra_triple_insuficiente": 2.38,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
