@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 66.08,
+  "precision": 66.38,
   "jornadas_revisadas": 17,
-  "partidos_revisados": 227,
-  "aciertos": 150,
+  "partidos_revisados": 229,
+  "aciertos": 152,
   "fallos": 77,
   "fallos_por_tipo": {
     "Doble insuficiente": 15,
@@ -22,16 +22,16 @@
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 51,
-      "aciertos": 36,
+      "total": 52,
+      "aciertos": 37,
       "fallos": 15,
-      "precision": 70.59
+      "precision": 71.15
     },
     "FIJO": {
-      "total": 149,
-      "aciertos": 87,
+      "total": 150,
+      "aciertos": 88,
       "fallos": 62,
-      "precision": 58.39
+      "precision": 58.67
     },
     "TRIPLE": {
       "total": 27,
@@ -48,10 +48,10 @@
       "precision": 82.86
     },
     "2": {
-      "total": 68,
-      "aciertos": 36,
+      "total": 70,
+      "aciertos": 38,
       "fallos": 32,
-      "precision": 52.94
+      "precision": 54.29
     },
     "X": {
       "total": 54,
@@ -17569,6 +17569,121 @@
     },
     {
       "jornada": 75,
+      "partido": "IF Gnistan - KuPS Kuopio",
+      "pronostico": "X2",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "0-1",
+      "resultado_final": "0-1",
+      "signo_real": "2",
+      "signos_cubiertos": "X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_75.json",
+      "probabilidades_usadas": {
+        "1": 29.7,
+        "X": 29.9,
+        "2": 40.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "IF Gnistan",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "KuPS Kuopio",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (40.4%).",
+        "hipotesis_alternativa": "X como alternativa (29.9%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE X2: margen 10.5 puntos, indice sorpresa 89.4."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.63,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local IF Gnistan: ppp=2.01; perfil visitante Kups Kuopio: ppp=1.00.",
+          "Memoria autonoma: tendencia de empate conjunta alta (50.0%)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "IF Gnistan",
+        "partidos_total": 2,
+        "puntos_por_partido": 1.522,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 37.17,
+        "forma_5_ppp": 1.5,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Kups Kuopio",
+        "partidos_total": 1,
+        "puntos_por_partido": 1.0,
+        "empates_pct": 100.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 75,
       "partido": "Fredrikstad - Sandefjord",
       "pronostico": "1X2",
       "tipo_pronostico": "TRIPLE",
@@ -17677,6 +17792,121 @@
         "forma_10_ppp": 1.0,
         "racha_actual": {
           "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 75,
+      "partido": "Start - Viking",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-3",
+      "resultado_final": "0-3",
+      "signo_real": "2",
+      "signos_cubiertos": "2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_75.json",
+      "probabilidades_usadas": {
+        "1": 20.6,
+        "X": 23.0,
+        "2": 56.3
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Start",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Viking",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (56.3%).",
+        "hipotesis_alternativa": "X como alternativa (23.0%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 49.8,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 2: margen 33.3 puntos, indice sorpresa 29.4."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.63,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 1.03,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Start: ppp=0.68; perfil visitante Viking: ppp=1.66.",
+          "Memoria autonoma: historial de sorpresa medio elevado (50.7)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Start",
+        "partidos_total": 3,
+        "puntos_por_partido": 1.029,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 48.6,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Viking",
+        "partidos_total": 2,
+        "puntos_por_partido": 1.986,
+        "empates_pct": 50.72,
+        "surprise_score_medio": 52.88,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 2.0,
+        "racha_actual": {
+          "tipo": "E",
           "partidos": 1
         }
       }
@@ -17807,19 +18037,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 227,
+    "partidos_base": 229,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.92,
+      "fallos_total_pct": 33.62,
       "no_cubrio_empate_sobre_fallos_pct": 35.06,
-      "no_cubrio_empate_sobre_total_pct": 11.89,
+      "no_cubrio_empate_sobre_total_pct": 11.79,
       "fijo_fallado_sobre_fallos_pct": 45.45,
-      "fijo_fallado_sobre_total_pct": 15.42,
-      "doble_insuficiente_sobre_total_pct": 6.61
+      "fijo_fallado_sobre_total_pct": 15.28,
+      "doble_insuficiente_sobre_total_pct": 6.55
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 4.83,
-    "riesgo_extra_triple_insuficiente": 2.35,
+    "riesgo_extra_fijo_fragil": 4.71,
+    "riesgo_extra_triple_insuficiente": 2.29,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
