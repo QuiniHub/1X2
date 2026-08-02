@@ -1,28 +1,28 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-02T12:40:57.541887+00:00",
+  "generado_en": "2026-08-02T14:43:24.364883+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 132,
-    "precision_top": 37.88,
-    "brier_medio": 0.65,
-    "logloss_medio": 1.0741,
+    "partidos": 135,
+    "precision_top": 37.78,
+    "brier_medio": 0.6485,
+    "logloss_medio": 1.0719,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 103,
-      "prob_top_media": 35.4,
-      "precision_real": 33.01,
-      "desviacion_calibracion": -2.39,
+      "total": 105,
+      "prob_top_media": 35.42,
+      "precision_real": 32.38,
+      "desviacion_calibracion": -3.04,
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 17,
-      "prob_top_media": 46.78,
-      "precision_real": 52.94,
-      "desviacion_calibracion": 6.16,
+      "total": 18,
+      "prob_top_media": 46.82,
+      "precision_real": 55.56,
+      "desviacion_calibracion": 8.74,
       "muestra_suficiente": false
     },
     "50-60": {
@@ -35,10 +35,10 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 132,
-      "precision_top": 37.88,
-      "brier_medio": 0.65,
-      "logloss_medio": 1.0741,
+      "partidos": 135,
+      "precision_top": 37.78,
+      "brier_medio": 0.6485,
+      "logloss_medio": 1.0719,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -1936,6 +1936,21 @@
     },
     {
       "jornada": 75,
+      "num": 1,
+      "partido": "VPS - FC Inter Turku",
+      "fuente": "data/backtesting/pre_cierre/jornada_75.json",
+      "real": "2",
+      "top": "1",
+      "acierto_top": false,
+      "prob_top": 37.2,
+      "prob_real": 32.2,
+      "bucket_top": "30-40",
+      "brier": 0.6917039999999999,
+      "logloss": 1.1332037334377287,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 75,
       "num": 2,
       "partido": "TPS - IFK Mariehamn",
       "fuente": "data/backtesting/pre_cierre/jornada_75.json",
@@ -2022,6 +2037,36 @@
       "bucket_top": "50-60",
       "brier": 0.8640319999999999,
       "logloss": 1.3470736479666092,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 75,
+      "num": 13,
+      "partido": "Göteborg - Degerfors",
+      "fuente": "data/backtesting/pre_cierre/jornada_75.json",
+      "real": "1",
+      "top": "1",
+      "acierto_top": true,
+      "prob_top": 47.4,
+      "prob_real": 47.4,
+      "bucket_top": "40-50",
+      "brier": 0.41607200000000005,
+      "logloss": 0.7465479572870606,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 75,
+      "num": 14,
+      "partido": "Brommapojkarna - Malmö",
+      "fuente": "data/backtesting/pre_cierre/jornada_75.json",
+      "real": "2",
+      "top": "1",
+      "acierto_top": false,
+      "prob_top": 35.8,
+      "prob_real": 34.8,
+      "bucket_top": "30-40",
+      "brier": 0.6397039999999999,
+      "logloss": 1.0555527992076625,
       "competicion": "desconocida"
     }
   ],

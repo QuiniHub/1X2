@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 66.38,
+  "precision": 66.81,
   "jornadas_revisadas": 17,
-  "partidos_revisados": 229,
-  "aciertos": 152,
+  "partidos_revisados": 232,
+  "aciertos": 155,
   "fallos": 77,
   "fallos_por_tipo": {
     "Doble insuficiente": 15,
@@ -22,36 +22,36 @@
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 52,
-      "aciertos": 37,
+      "total": 53,
+      "aciertos": 38,
       "fallos": 15,
-      "precision": 71.15
+      "precision": 71.7
     },
     "FIJO": {
-      "total": 150,
-      "aciertos": 88,
+      "total": 151,
+      "aciertos": 89,
       "fallos": 62,
-      "precision": 58.67
+      "precision": 58.94
     },
     "TRIPLE": {
-      "total": 27,
-      "aciertos": 27,
+      "total": 28,
+      "aciertos": 28,
       "fallos": 0,
       "precision": 100.0
     }
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 105,
-      "aciertos": 87,
+      "total": 106,
+      "aciertos": 88,
       "fallos": 18,
-      "precision": 82.86
+      "precision": 83.02
     },
     "2": {
-      "total": 70,
-      "aciertos": 38,
+      "total": 72,
+      "aciertos": 40,
       "fallos": 32,
-      "precision": 54.29
+      "precision": 55.56
     },
     "X": {
       "total": 54,
@@ -17356,6 +17356,105 @@
     },
     {
       "jornada": 75,
+      "partido": "vaasa PS - Inter Turku",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "0-1",
+      "resultado_final": "0-1",
+      "signo_real": "2",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_75.json",
+      "probabilidades_usadas": {
+        "1": 34.1,
+        "X": 31.1,
+        "2": 34.8
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "vaasa PS",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Inter Turku",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (34.8%).",
+        "hipotesis_alternativa": "1 como alternativa (34.1%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision TRIPLE 1X2: margen 0.7 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.63,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {
+        "equipo": "Inter Milan",
+        "partidos_total": 7,
+        "puntos_por_partido": 1.728,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 1.8,
+        "forma_10_ppp": 1.714,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 75,
       "partido": "Turku PS - IFK Mariehamn",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -18024,6 +18123,237 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 75,
+      "partido": "IFK Göteborg - Degerfors IF",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-0",
+      "resultado_final": "2-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_75.json",
+      "probabilidades_usadas": {
+        "1": 52.6,
+        "X": 26.3,
+        "2": 21.1
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "IFK Göteborg",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Degerfors IF",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (52.6%).",
+        "hipotesis_alternativa": "X como alternativa (26.3%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 54.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 26.3 puntos, indice sorpresa 37.6."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.63,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.8,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local GAIS Göteborg: ppp=0.67; perfil visitante Degerfors IF: ppp=0.00.",
+          "Memoria autonoma: historial de sorpresa medio elevado (49.5)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "GAIS Göteborg",
+        "partidos_total": 2,
+        "puntos_por_partido": 0.507,
+        "empates_pct": 50.72,
+        "surprise_score_medio": 57.22,
+        "forma_5_ppp": 0.5,
+        "forma_10_ppp": 0.5,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Degerfors IF",
+        "partidos_total": 3,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 41.7,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 3
+        }
+      }
+    },
+    {
+      "jornada": 75,
+      "partido": "Brommapojkarna - Malmoe",
+      "pronostico": "X2",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "1-2",
+      "resultado_final": "1-2",
+      "signo_real": "2",
+      "signos_cubiertos": "X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_75.json",
+      "probabilidades_usadas": {
+        "1": 28.4,
+        "X": 30.5,
+        "2": 41.1
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Brommapojkarna",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Malmoe",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (41.1%).",
+        "hipotesis_alternativa": "X como alternativa (30.5%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 2: margen 10.6 puntos, indice sorpresa 90.5."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.63,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 2.41,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Brommapojkarna: ppp=0.67; perfil visitante Malmoe: ppp=1.54.",
+          "Memoria autonoma: tendencia de empate conjunta alta (42.0%).",
+          "Memoria autonoma: historial de sorpresa medio elevado (58.4)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Brommapojkarna",
+        "partidos_total": 2,
+        "puntos_por_partido": 0.507,
+        "empates_pct": 50.72,
+        "surprise_score_medio": 54.12,
+        "forma_5_ppp": 0.5,
+        "forma_10_ppp": 0.5,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Malmoe",
+        "partidos_total": 3,
+        "puntos_por_partido": 1.305,
+        "empates_pct": 33.32,
+        "surprise_score_medio": 62.63,
+        "forma_5_ppp": 1.333,
+        "forma_10_ppp": 1.333,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -18037,19 +18367,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 229,
+    "partidos_base": 232,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.62,
+      "fallos_total_pct": 33.19,
       "no_cubrio_empate_sobre_fallos_pct": 35.06,
-      "no_cubrio_empate_sobre_total_pct": 11.79,
+      "no_cubrio_empate_sobre_total_pct": 11.64,
       "fijo_fallado_sobre_fallos_pct": 45.45,
-      "fijo_fallado_sobre_total_pct": 15.28,
-      "doble_insuficiente_sobre_total_pct": 6.55
+      "fijo_fallado_sobre_total_pct": 15.09,
+      "doble_insuficiente_sobre_total_pct": 6.47
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 4.71,
-    "riesgo_extra_triple_insuficiente": 2.29,
+    "riesgo_extra_fijo_fragil": 4.56,
+    "riesgo_extra_triple_insuficiente": 2.22,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
