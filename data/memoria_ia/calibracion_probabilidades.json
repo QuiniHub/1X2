@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-02T16:08:27.203787+00:00",
+  "generado_en": "2026-08-02T17:38:31.757732+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 136,
-    "precision_top": 38.24,
-    "brier_medio": 0.6475,
-    "logloss_medio": 1.0705,
+    "partidos": 139,
+    "precision_top": 38.85,
+    "brier_medio": 0.6462,
+    "logloss_medio": 1.0685,
     "muestra": "media"
   },
   "por_bucket_top": {
@@ -19,10 +19,10 @@
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 19,
-      "prob_top_media": 46.55,
-      "precision_real": 57.89,
-      "desviacion_calibracion": 11.35,
+      "total": 22,
+      "prob_top_media": 46.43,
+      "precision_real": 59.09,
+      "desviacion_calibracion": 12.66,
       "muestra_suficiente": false
     },
     "50-60": {
@@ -35,10 +35,10 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 136,
-      "precision_top": 38.24,
-      "brier_medio": 0.6475,
-      "logloss_medio": 1.0705,
+      "partidos": 139,
+      "precision_top": 38.85,
+      "brier_medio": 0.6462,
+      "logloss_medio": 1.0685,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -2037,6 +2037,51 @@
       "bucket_top": "50-60",
       "brier": 0.332766,
       "logloss": 0.6367668471238376,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 75,
+      "num": 8,
+      "partido": "Molde - Sarpsborg 08",
+      "fuente": "data/backtesting/pre_cierre/jornada_75.json",
+      "real": "X",
+      "top": "1",
+      "acierto_top": false,
+      "prob_top": 49.2,
+      "prob_real": 27.6,
+      "bucket_top": "40-50",
+      "brier": 0.8200639999999999,
+      "logloss": 1.2873544132649872,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 75,
+      "num": 9,
+      "partido": "KFUM Oslo - Kristiansund",
+      "fuente": "data/backtesting/pre_cierre/jornada_75.json",
+      "real": "1",
+      "top": "1",
+      "acierto_top": true,
+      "prob_top": 47.3,
+      "prob_real": 47.3,
+      "bucket_top": "40-50",
+      "brier": 0.417354,
+      "logloss": 0.7486598904902041,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 75,
+      "num": 10,
+      "partido": "Aalesund - Tromsø",
+      "fuente": "data/backtesting/pre_cierre/jornada_75.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 40.66,
+      "prob_real": 40.66,
+      "bucket_top": "40-50",
+      "brier": 0.5282469777974272,
+      "logloss": 0.8999415938726255,
       "competicion": "desconocida"
     },
     {
