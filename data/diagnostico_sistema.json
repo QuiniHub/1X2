@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-02T17:38:31.892008+00:00",
+  "generado_en": "2026-08-02T19:22:40.748458+00:00",
   "estado": "operativo_con_avisos",
-  "score_salud": 72,
+  "score_salud": 79,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
@@ -59,13 +59,13 @@
       {
         "jornada": 75,
         "fecha": "Domingo, 2 de agosto de 2026",
-        "estado": "en_juego",
+        "estado": "cerrada",
         "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
-        "pendientes_totales_con_pleno15": 1,
+        "cerrados": 14,
+        "pendientes": 0,
+        "pendientes_totales_con_pleno15": 0,
         "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "2026-08-02T17:34:12Z",
+        "ultima_actualizacion_partido": "2026-08-02T19:19:30Z",
         "path": "data/jornadas/jornada_75.json"
       },
       {
@@ -85,9 +85,9 @@
   "memoria_quinielas": {
     "jugadas_persistidas_json": 17,
     "jornadas_validadas_historial": 17,
-    "jornadas_memoria_real_total": 46,
-    "jornadas_con_signo_nuestro": 12,
-    "signos_nuestros_en_jornadas": 168,
+    "jornadas_memoria_real_total": 47,
+    "jornadas_con_signo_nuestro": 13,
+    "signos_nuestros_en_jornadas": 182,
     "estado": "memoria_propia_disponible",
     "fuentes_validas": [
       "data/quinielas_jugadas.json",
@@ -98,24 +98,24 @@
   },
   "prediccion": {
     "jornada": 76,
-    "generado_en": "2026-08-02T17:38:31.232534+00:00",
+    "generado_en": "2026-08-02T19:22:34.992179+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 8,
+      "dobles": 4,
+      "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 6,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
         "alta": 0,
         "media": 0,
         "media_baja": 0,
-        "baja": 0
+        "baja": 14
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 75 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 76 hasta cerrar y aprender la 75."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "clasificaciones": {
     "primera": {
@@ -168,7 +168,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.02,
+    "contexto_equipos_horas": 1.75,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -238,11 +238,11 @@
   },
   "backtesting_pre_cierre": {
     "estado": "operativo",
-    "jornadas_snapshot": 10,
-    "partidos_cerrados": 139,
-    "aciertos": 79,
-    "precision": 56.83,
-    "generado_en": "2026-08-02T17:38:31.717393+00:00",
+    "jornadas_snapshot": 11,
+    "partidos_cerrados": 140,
+    "aciertos": 80,
+    "precision": 57.14,
+    "generado_en": "2026-08-02T19:22:40.558904+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -251,12 +251,6 @@
       "titulo": "Jornada actual incompleta",
       "detalle": "La jornada 76 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
       "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
-    },
-    {
-      "nivel": "media",
-      "titulo": "Prediccion demasiado rigida",
-      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
-      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
     },
     {
       "nivel": "media",
@@ -280,7 +274,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-08-02T17:38:31.892008+00:00",
+    "generado_en": "2026-08-02T19:22:40.748458+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
@@ -331,8 +325,8 @@
           "jornada": 75,
           "fecha": "Domingo, 2 de agosto de 2026",
           "partidos": 14,
-          "cerrados": 13,
-          "pendientes": 1,
+          "cerrados": 14,
+          "pendientes": 0,
           "path": "data/jornadas/jornada_75.json"
         },
         {
@@ -370,28 +364,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-08-02T17:38:03.508436+00:00"
+      "generado_en": "2026-08-02T19:22:08.097619+00:00"
     },
     "prediccion": {
       "jornada": 76,
-      "generado_en": "2026-08-02T17:38:31.232534+00:00",
+      "generado_en": "2026-08-02T19:22:34.992179+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 14,
-        "dobles": 0,
-        "triples": 0,
+        "fijos": 8,
+        "dobles": 4,
+        "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 0,
-        "indice_sorpresa_max": 0.0,
+        "favoritos_atacables": 6,
+        "indice_sorpresa_max": 100.0,
         "calidad_datos": {
           "alta": 0,
           "media": 0,
           "media_baja": 0,
-          "baja": 0
+          "baja": 14
         }
       },
-      "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 75 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 76 hasta cerrar y aprender la 75."
+      "retenida_por_compuerta": false,
+      "motivo_bloqueo": null
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -442,8 +436,8 @@
         "jornada": 75,
         "fecha": "Domingo, 2 de agosto de 2026",
         "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_75.json"
       },
       {
@@ -481,6 +475,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-08-02T17:38:03.508436+00:00"
+    "generado_en": "2026-08-02T19:22:08.097619+00:00"
   }
 }

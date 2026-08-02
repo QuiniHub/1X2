@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-02T17:38:31.717393+00:00",
+  "generado_en": "2026-08-02T19:22:40.558904+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
-    "jornadas_snapshot": 10,
-    "partidos_cerrados": 139,
-    "aciertos": 79,
-    "precision": 56.83
+    "jornadas_snapshot": 11,
+    "partidos_cerrados": 140,
+    "aciertos": 80,
+    "precision": 57.14
   },
   "jornadas": [
     {
@@ -2271,9 +2271,9 @@
       "creado_en": "2026-07-27T19:00:55.875452+00:00",
       "prediccion_generada_en": "2026-07-27T19:00:55.874978+00:00",
       "estado": "cerrada_o_parcial",
-      "partidos_cerrados": 13,
-      "aciertos": 11,
-      "precision": 84.62,
+      "partidos_cerrados": 14,
+      "aciertos": 12,
+      "precision": 85.71,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -2298,8 +2298,8 @@
           "aciertos": 6
         },
         "DOBLE": {
-          "total": 3,
-          "aciertos": 3
+          "total": 4,
+          "aciertos": 4
         },
         "TRIPLE": {
           "total": 2,
@@ -2458,6 +2458,21 @@
           "probabilidad_sorpresa": 70
         },
         {
+          "num": 11,
+          "partido": "Brann - Rosenborg",
+          "jugado": "1X",
+          "tipo": "DOBLE",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 45.5,
+            "X": 28.0,
+            "2": 26.5
+          },
+          "incertidumbre": 131.4,
+          "probabilidad_sorpresa": 64.8
+        },
+        {
           "num": 12,
           "partido": "Häcken - Kalmar",
           "jugado": "1",
@@ -2503,6 +2518,49 @@
           "probabilidad_sorpresa": 70
         }
       ]
+    },
+    {
+      "jornada": 76,
+      "snapshot": "data/backtesting/pre_cierre/jornada_76.json",
+      "creado_en": "2026-08-02T19:22:34.992611+00:00",
+      "prediccion_generada_en": "2026-08-02T19:22:34.992179+00:00",
+      "estado": "pendiente_resultados",
+      "partidos_cerrados": 0,
+      "aciertos": 0,
+      "precision": null,
+      "configuracion": {
+        "dobles": 4,
+        "triples": 2,
+        "elige8": false,
+        "elige8_modo": "desactivado",
+        "elige8_modos_disponibles": [
+          "economico",
+          "maxima_seguridad"
+        ],
+        "cobertura_auto": true
+      },
+      "coste": {
+        "apuestas": 144,
+        "apuestas_elige8": 0,
+        "importe_quiniela": 108.0,
+        "importe_elige8": 0.0,
+        "importe_total": 108.0
+      },
+      "por_tipo": {
+        "FIJO": {
+          "total": 0,
+          "aciertos": 0
+        },
+        "DOBLE": {
+          "total": 0,
+          "aciertos": 0
+        },
+        "TRIPLE": {
+          "total": 0,
+          "aciertos": 0
+        }
+      },
+      "partidos": []
     }
   ]
 }
