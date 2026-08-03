@@ -918,6 +918,40 @@ def premio_multicolumna_implausible(entry):
         return False
 
 
+def boleto_tiene_multiples_columnas(entry):
+    """True si el boleto jugado tenia al menos un doble o triple -genera mas
+    de 1 columna/apuesta real, y por tanto el premio de una sola categoria
+    no basta para saber cuanto se cobro de verdad."""
+    return any(
+        str(p.get("tipo") or "").upper() in ("DOBLE", "TRIPLE")
+        for p in (entry.get("detalle_partidos") or [])
+    )
+
+
+def premio_multicolumna_pendiente(entry):
+    """True si el boleto tenia varias columnas (dobles/triples), la
+    categoria de aciertos ya da premio (>=10), pero el premio guardado NO
+    viene de calcular_premio_multicolumna -normalmente porque la tabla de
+    premios por categoria (eduardolosilla.es/loteriaanta.com) aun no estaba
+    publicada cuando se calculo por primera vez, asi que se uso el valor de
+    una sola columna (obtener_premio_real) como si el boleto no tuviera
+    dobles/triples. Sin esto, un boleto con 48 columnas se queda cobrando el
+    premio de 1 sola columna para siempre en cuanto ese valor deja de ser 0
+    -caso real detectado por Marc: jornada 75, 4,60EUR guardado en vez de
+    los 11,92EUR reales (1 columna a 12 aciertos + 6 columnas a 11)."""
+    if premio_confirmado_usuario(entry):
+        return False
+    try:
+        aciertos = int(entry.get("aciertos"))
+    except (TypeError, ValueError):
+        return False
+    if aciertos < 10:
+        return False
+    if not boleto_tiene_multiples_columnas(entry):
+        return False
+    return entry.get("fuente_premio") != "multicolumna_loteriaanta"
+
+
 def pendiente_premio(entry):
     if premio_confirmado_usuario(entry):
         return False
@@ -925,7 +959,12 @@ def pendiente_premio(entry):
         premio_cero = float(entry.get("premio_eur") or 0.0) == 0.0
     except (TypeError, ValueError):
         premio_cero = True
-    return premio_cero or entry.get("fuente_premio") in ("pendiente", "estimado", "fallback") or premio_labruja_invalido(entry)
+    return (
+        premio_cero
+        or entry.get("fuente_premio") in ("pendiente", "estimado", "fallback")
+        or premio_labruja_invalido(entry)
+        or premio_multicolumna_pendiente(entry)
+    )
 
 
 def resetear_premio_pendiente(entry, motivo):
@@ -975,6 +1014,27 @@ def refrescar_premio_real(entry):
         entry["elige8_acertado"] = gano_elige8
     else:
         gano_elige8 = bool(entry.get("elige8_acertado"))
+
+    # Boleto con dobles/triples -> intentar SIEMPRE el calculo multicolumna
+    # real primero (la tabla de premios por categoria puede no haber estado
+    # publicada la primera vez que se calculo esta jornada). Sin esto, un
+    # boleto de 48 columnas se quedaba cobrando el premio de una sola
+    # columna en cuanto ese valor dejaba de ser 0 (ver premio_multicolumna_pendiente).
+    if boleto_tiene_multiples_columnas(entry):
+        prediccion = leer_prediccion_jornada(jornada)
+        resultados = leer_resultados_jornada(jornada)
+        tabla_premios = buscar_tabla_premios_losilla(jornada) or buscar_tabla_premios_loteriaanta(jornada)
+        if tabla_premios:
+            resultado_multi = calcular_premio_multicolumna(
+                prediccion, resultados, tabla_premios, gano_elige8, entry.get("elige8_seleccion") or []
+            )
+            if resultado_multi and resultado_multi.get("total", 0) > 0 and resultado_multi["total"] <= PREMIO_TOTAL_MAXIMO_PLAUSIBLE:
+                entry["premio_eur"] = resultado_multi["total"]
+                entry["fuente_premio"] = "multicolumna_loteriaanta"
+                entry["tabla_premios"] = tabla_premios
+                entry["desglose_columnas"] = resultado_multi
+                entry["notas"] = "Premio real actualizado con calculo multicolumna (boleto con dobles/triples)."
+                return True
 
     premio_real = obtener_premio_real(jornada, aciertos, gano_elige8)
     if premio_real is None:

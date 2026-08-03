@@ -186,6 +186,149 @@ class BuscarTablaPremiosLosillaJornada71Tests(unittest.TestCase):
         self.assertEqual(tabla.get("14"), 8132.10)
 
 
+class BoletoTieneMultiplesColumnasTests(unittest.TestCase):
+    def test_true_si_algun_partido_es_doble_o_triple(self):
+        entry = {"detalle_partidos": [{"tipo": "FIJO"}, {"tipo": "DOBLE"}]}
+        self.assertTrue(cp.boleto_tiene_multiples_columnas(entry))
+
+    def test_false_si_todos_son_fijo(self):
+        entry = {"detalle_partidos": [{"tipo": "FIJO"}, {"tipo": "FIJO"}]}
+        self.assertFalse(cp.boleto_tiene_multiples_columnas(entry))
+
+    def test_false_sin_detalle_partidos(self):
+        self.assertFalse(cp.boleto_tiene_multiples_columnas({}))
+
+
+class PremioMulticolumnaPendienteTests(unittest.TestCase):
+    """Caso real detectado por Marc (jornada 75): un boleto con dobles/triples
+    (48 columnas) se quedo cobrando el premio de UNA sola columna (4,60EUR)
+    para siempre, porque la tabla de premios por categoria no estaba
+    publicada la primera vez que se calculo, y premio_eur dejo de ser 0 en
+    cuanto obtener_premio_real encontro el valor de la categoria 12 sola."""
+
+    def _entry_multicolumna(self, **overrides):
+        base = {
+            "aciertos": 12,
+            "fuente_premio": "eduardolosilla",
+            "premio_eur": 4.6,
+            "detalle_partidos": [{"tipo": "FIJO"}] * 9 + [{"tipo": "DOBLE"}] * 4 + [{"tipo": "TRIPLE"}],
+        }
+        base.update(overrides)
+        return base
+
+    def test_true_para_el_caso_real_de_j75(self):
+        self.assertTrue(cp.premio_multicolumna_pendiente(self._entry_multicolumna()))
+
+    def test_false_si_ya_viene_de_multicolumna(self):
+        entry = self._entry_multicolumna(fuente_premio="multicolumna_loteriaanta")
+        self.assertFalse(cp.premio_multicolumna_pendiente(entry))
+
+    def test_false_si_aciertos_no_llega_a_10(self):
+        entry = self._entry_multicolumna(aciertos=8)
+        self.assertFalse(cp.premio_multicolumna_pendiente(entry))
+
+    def test_false_si_el_boleto_no_tiene_dobles_ni_triples(self):
+        entry = self._entry_multicolumna(detalle_partidos=[{"tipo": "FIJO"}] * 14)
+        self.assertFalse(cp.premio_multicolumna_pendiente(entry))
+
+    def test_false_si_el_premio_esta_confirmado_por_el_usuario(self):
+        entry = self._entry_multicolumna(fuente_premio="confirmado_usuario")
+        self.assertFalse(cp.premio_multicolumna_pendiente(entry))
+
+    def test_pendiente_premio_lo_recoge_aunque_el_importe_no_sea_cero(self):
+        entry = self._entry_multicolumna()
+        self.assertNotEqual(entry["premio_eur"], 0.0)
+        self.assertTrue(cp.pendiente_premio(entry))
+
+
+class RefrescarPremioRealMulticolumnaTests(unittest.TestCase):
+    """Reproduce el caso real de la jornada 75 de principio a fin: boleto de
+    48 columnas (1 triple + 4 dobles), guardado con 4,60EUR (el precio de
+    UNA sola columna a 12 aciertos), y confirma que refrescar_premio_real lo
+    corrige a 11,92EUR (1 columna a 12 + 6 columnas a 11) usando la tabla de
+    premios real."""
+
+    HTML_ESCRUTINIO_J75 = """
+    <table>
+      <tr><th>Aciertos</th><th>Acertantes</th><th>Euros</th></tr>
+      <tr><td>15</td><td>0</td><td>0,00 €</td></tr>
+      <tr><td>14</td><td>34</td><td>2.530,47 €</td></tr>
+      <tr><td>13</td><td>858</td><td>47,00 €</td></tr>
+      <tr><td>12</td><td>8.775</td><td>4,60 €</td></tr>
+      <tr><td>11</td><td>33.024</td><td>1,22 €</td></tr>
+      <tr><td>10</td><td>71.074</td><td>0,00 €</td></tr>
+      <tr><td>Elige 8</td><td>404</td><td>31,45 €</td></tr>
+    </table>
+    """
+
+    SIGNOS_JUGADOS = ["1X2", "1", "1", "1", "12", "1X", "2", "1", "1", "X2", "1X", "1", "1", "2"]
+    OFICIALES = ["2", "1", "1", "1", "2", "1", "2", "X", "1", "2", "1", "X", "1", "2"]
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        tmp = Path(self._tmp.name)
+        self._originales = {
+            "QUINIELAS_JUGADAS": cp.QUINIELAS_JUGADAS,
+            "HISTORIAL_QUINIELAS": cp.HISTORIAL_QUINIELAS,
+            "PREDICCIONES": cp.PREDICCIONES,
+            "JORNADAS": cp.JORNADAS,
+            "descargar_html": cp.descargar_html,
+        }
+        cp.QUINIELAS_JUGADAS = tmp / "quinielas_jugadas.json"
+        cp.HISTORIAL_QUINIELAS = tmp / "historial_quinielas.json"
+        cp.PREDICCIONES = tmp / "predicciones"
+        cp.PREDICCIONES.mkdir()
+        cp.JORNADAS = tmp / "jornadas"
+        cp.JORNADAS.mkdir()
+        cp.HISTORIAL_QUINIELAS.write_text(json.dumps({"jornadas": []}), encoding="utf-8")
+
+        cp.QUINIELAS_JUGADAS.write_text(
+            json.dumps({"jugadas": [{"jornada": 75, "signos": self.SIGNOS_JUGADOS, "elige8": [2, 4, 7, 8, 9, 12, 13]}]}),
+            encoding="utf-8",
+        )
+        (cp.JORNADAS / "jornada_75.json").write_text(
+            json.dumps({
+                "jornada": 75,
+                "partidos": [
+                    {"num": i + 1, "signo_oficial": signo}
+                    for i, signo in enumerate(self.OFICIALES)
+                ],
+            }),
+            encoding="utf-8",
+        )
+        cp.descargar_html = lambda url, params=None: self.HTML_ESCRUTINIO_J75
+
+    def tearDown(self):
+        for clave, valor in self._originales.items():
+            setattr(cp, clave, valor)
+        self._tmp.cleanup()
+
+    def _entry_stale(self):
+        tipos = ["TRIPLE", "FIJO", "FIJO", "FIJO", "DOBLE", "DOBLE", "FIJO", "FIJO", "FIJO", "DOBLE", "DOBLE", "FIJO", "FIJO", "FIJO"]
+        return {
+            "jornada": 75,
+            "aciertos": 12,
+            "fallos": 2,
+            "premio_eur": 4.6,
+            "fuente_premio": "eduardolosilla",
+            "elige8_acertado": False,
+            "elige8_seleccion": [2, 4, 7, 8, 9, 12, 13],
+            "detalle_partidos": [{"num": i + 1, "tipo": tipos[i]} for i in range(14)],
+        }
+
+    def test_corrige_el_premio_de_una_columna_al_premio_multicolumna_real(self):
+        entry = self._entry_stale()
+
+        ok = cp.refrescar_premio_real(entry)
+
+        self.assertTrue(ok)
+        self.assertAlmostEqual(entry["premio_eur"], 11.92, places=2)
+        self.assertEqual(entry["fuente_premio"], "multicolumna_loteriaanta")
+        self.assertEqual(entry["desglose_columnas"]["columnas_totales"], 48)
+        self.assertEqual(entry["desglose_columnas"]["desglose"]["12"]["columnas"], 1)
+        self.assertEqual(entry["desglose_columnas"]["desglose"]["11"]["columnas"], 6)
+
+
 class PrimeraCeldaEsCategoriaTests(unittest.TestCase):
     def test_reconoce_la_categoria_en_la_primera_celda(self):
         self.assertTrue(cp.primera_celda_es_categoria(["10", "55.814", "0,00 €"], 10))
