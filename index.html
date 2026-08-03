@@ -2316,6 +2316,22 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         bloqueSorpresas = `\nALERTAS SORPRESA J${jornadaActual}:\n${lineas.join('\n')}`;
       }
 
+      // Riesgos que el motor detecto pero el boleto no llego a cubrir por
+      // limite de presupuesto (dobles/triples) -existia en el backend
+      // (riesgos_no_cubiertos_por_presupuesto en motor_prediccion_quiniela.py)
+      // pero nunca llegaba al chat ni a la web; detectado el 2026-08-03 tras
+      // el caso real de J75 (P8 Molde-Sarpsborg ya aparecia aqui, y aun asi
+      // se quedo en fijo por presupuesto, y acabo fallando).
+      let bloqueRiesgosPresupuesto = '';
+      const riesgosPresupuesto = arr(pred.riesgos_no_cubiertos_por_presupuesto);
+      if (riesgosPresupuesto.length) {
+        const lineas = riesgosPresupuesto.map(r => {
+          const idx = Math.round(Number(r.indice_sorpresa_quinielistica || 0));
+          return `P${r.num} ${r.partido}: jugado ${r.tipo_final} "${r.signo_final}" pero el motor pedia ${r.cobertura_sorpresa_sugerida} (riesgo=${idx}) -no cubierto por limite de presupuesto del boleto.`;
+        });
+        bloqueRiesgosPresupuesto = `\nRIESGOS DETECTADOS PERO NO CUBIERTOS POR PRESUPUESTO J${jornadaActual} (el motor queria mas cobertura de la que dio el boleto final):\n${lineas.join('\n')}`;
+      }
+
       // H2H y datos destacados de eduardolosilla por partido (solo si hay datos reales)
       let bloqueDetallesH2H = '';
       if (arr(detallesPart.partidos).length) {
@@ -2373,6 +2389,7 @@ ${resumenMem}
 ${bloqueHistoricoLigas}
 ${bloqueHistoricoQuinielas}
 ${bloqueSorpresas}
+${bloqueRiesgosPresupuesto}
 ${bloqueDetallesH2H}
 ${bloqueLesionesLaliga}
 
