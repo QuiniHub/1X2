@@ -1963,7 +1963,12 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         const renderAnalisis = (resp) => {
           loading.style.display = 'none';
           content.style.display = 'block';
-          content.innerHTML = resp
+          // Seguridad (auditoria externa 2026-08-03, XSS confirmado): resp es
+          // texto libre de un modelo de IA -escapar SIEMPRE antes de aplicar
+          // el formato, igual que ya hace el chat normal con escapeHtml().
+          // Los marcadores de formato (**, 📊, ⚡, 💬) no son caracteres que
+          // escapeHtml() toque, asi que el resaltado sigue funcionando igual.
+          content.innerHTML = escapeHtml(resp)
             .replace(/\*\*(.+?)\*\*/g, '<strong style="display:block;margin-top:16px;font-size:15px;color:var(--text,#111)">$1</strong>')
             .replace(/📊(.+)/g, '<span style="color:#0891b2;font-weight:700;display:block">📊$1</span>')
             .replace(/⚡(.+)/g, '<span style="color:#d97706;font-weight:600;display:block">⚡$1</span>')
@@ -1982,9 +1987,9 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
               const gL = plenoPartido.probabilidades_goles?.local || {};
               const gV = plenoPartido.probabilidades_goles?.visitante || {};
               content.innerHTML += `
-                <span style="color:var(--text);font-weight:600;display:block;margin-top:8px">Partido: ${plenoPartido.local} vs ${plenoPartido.visitante}</span>
-                <span style="color:var(--muted,#555);display:block;font-size:13px">${plenoPartido.local}: 0g=${gL['0']||'?'}% · 1g=${gL['1']||'?'}% · 2g=${gL['2']||'?'}% · M=${gL['M']||'?'}%</span>
-                <span style="color:var(--muted,#555);display:block;font-size:13px">${plenoPartido.visitante}: 0g=${gV['0']||'?'}% · 1g=${gV['1']||'?'}% · 2g=${gV['2']||'?'}% · M=${gV['M']||'?'}%</span>`;
+                <span style="color:var(--text);font-weight:600;display:block;margin-top:8px">Partido: ${escapeHtml(plenoPartido.local)} vs ${escapeHtml(plenoPartido.visitante)}</span>
+                <span style="color:var(--muted,#555);display:block;font-size:13px">${escapeHtml(plenoPartido.local)}: 0g=${gL['0']||'?'}% · 1g=${gL['1']||'?'}% · 2g=${gL['2']||'?'}% · M=${gL['M']||'?'}%</span>
+                <span style="color:var(--muted,#555);display:block;font-size:13px">${escapeHtml(plenoPartido.visitante)}: 0g=${gV['0']||'?'}% · 1g=${gV['1']||'?'}% · 2g=${gV['2']||'?'}% · M=${gV['M']||'?'}%</span>`;
             }
             // Recomendacion motor (cual de los 14 apostar)
             if (motorRec.local) {
@@ -1993,9 +1998,9 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
               const pX2 = parseFloat(pProbs['X'] || 0).toFixed(1);
               const pV2 = parseFloat(pProbs['2'] || 0).toFixed(1);
               content.innerHTML += `
-                <span style="color:#059669;font-weight:600;display:block;margin-top:10px">✅ Motor recomienda apostar por: ${motorRec.local} vs ${motorRec.visitante} — Signo ${motorRec.signo_recomendado} (${motorRec.probabilidad}%)</span>
+                <span style="color:#059669;font-weight:600;display:block;margin-top:10px">✅ Motor recomienda apostar por: ${escapeHtml(motorRec.local)} vs ${escapeHtml(motorRec.visitante)} — Signo ${escapeHtml(motorRec.signo_recomendado)} (${motorRec.probabilidad}%)</span>
                 <span style="color:#0891b2;display:block;font-size:13px">1=${pL2}% · X=${pX2}% · 2=${pV2}%</span>
-                <span style="color:var(--muted,#555);display:block;margin-top:4px;font-size:12px;line-height:1.4">${(motorRec.razonamiento||'').slice(0,250)}…</span>`;
+                <span style="color:var(--muted,#555);display:block;margin-top:4px;font-size:12px;line-height:1.4">${escapeHtml((motorRec.razonamiento||'').slice(0,250))}…</span>`;
             }
           }
         };
@@ -2332,6 +2337,58 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         bloqueRiesgosPresupuesto = `\nRIESGOS DETECTADOS PERO NO CUBIERTOS POR PRESUPUESTO J${jornadaActual} (el motor queria mas cobertura de la que dio el boleto final):\n${lineas.join('\n')}`;
       }
 
+      // Boleto millonario -"a por el bote": el motor lo calcula siempre
+      // (construir_boleto_millonario en motor_prediccion_quiniela.py), pero
+      // solo esta activo de verdad (total_cambios>0) con senal 100% LaLiga
+      // -en jornadas nordicas sale dormido a proposito, no es un fallo.
+      let bloqueBoletoMillonario = '';
+      const boletoMillonario = state.prediccion?.boleto_millonario || {};
+      if (Number(boletoMillonario.total_cambios) > 0) {
+        const cambios = arr(boletoMillonario.cambios_respecto_a_conservadora).map(c =>
+          `P${c.num} ${c.local} vs ${c.visitante}: conservadora=${c.signo_conservador||'?'} -> millonaria=${c.signo_millonario||c.signo||'?'} (${c.justificacion||'sin justificacion registrada'})`
+        );
+        bloqueBoletoMillonario = `\nBOLETO MILLONARIO J${jornadaActual} ("a por el bote", ${boletoMillonario.total_cambios} cambio(s) respecto a la recomendacion conservadora):\n${cambios.join('\n')}`;
+      } else {
+        bloqueBoletoMillonario = `\nBOLETO MILLONARIO J${jornadaActual}: sin cambios respecto a la conservadora (0 cambios) -normal en jornadas de ligas nordicas/no LaLiga, esa señal solo esta activa con datos de Primera/Segunda.`;
+      }
+
+      // Aviso Elige8 economico vs maxima seguridad (valor esperado en euros
+      // segun el premio tipico real de esta jornada, domestica o
+      // internacional) -calculado en aplicar_elige8_seguro.py pero nunca
+      // mostrado hasta ahora.
+      let bloqueAvisoElige8 = '';
+      const avisoElige8 = state.prediccion?.elige8_modos?.aviso;
+      if (avisoElige8 && avisoElige8.mensaje) {
+        bloqueAvisoElige8 = `\nAVISO ELIGE8 J${jornadaActual} (economico vs maxima seguridad):\n${avisoElige8.mensaje}`;
+      }
+
+      // Calibracion real de las probabilidades del motor -honestidad sobre
+      // cuanto acierta de verdad el signo "top" (generado por
+      // calcular_calibracion_probabilidades / metricas_probabilisticas),
+      // nunca mostrado al usuario hasta ahora.
+      let bloqueCalibracion = '';
+      const calibGlobal = (state.calibracionProbabilidades || {}).global;
+      if (calibGlobal && calibGlobal.partidos >= 20) {
+        bloqueCalibracion = `\nCALIBRACION REAL DE PROBABILIDADES (honestidad sobre fiabilidad, ${calibGlobal.partidos} partidos evaluados, muestra=${calibGlobal.muestra}):\nEl signo "top" del motor acierta el ${calibGlobal.precision_real ?? calibGlobal.precision_top}% de las veces en la practica (Brier=${calibGlobal.brier_medio}, logloss=${calibGlobal.logloss_medio}). Si preguntan por la fiabilidad de las probabilidades, cita este numero real en vez de asumir que un 50-60% de probabilidad del motor equivale a acertar ese % de veces.`;
+      }
+
+      // Estado vivo IA -autocritica y clasificacion propia del motor sobre
+      // esta misma jornada (generar_estado_vivo_ia.py +
+      // ajustar_estado_vivo_motivacion.py), calculado pero nunca conectado
+      // al chat hasta ahora.
+      let bloqueEstadoVivo = '';
+      const estadoVivo = state.estadoVivo || {};
+      if (arr(estadoVivo.partidos_mas_seguros).length || arr(estadoVivo.partidos_trampa_o_sorpresa).length || arr(estadoVivo.dudas_abiertas).length) {
+        const seguros = arr(estadoVivo.partidos_mas_seguros).slice(0, 5).map(p => `P${p.num} ${p.partido}: ${p.signo_base||''} (${Math.round(p.probabilidad_top||0)}%)`);
+        const trampas = arr(estadoVivo.partidos_trampa_o_sorpresa).slice(0, 8).map(p => `P${p.num} ${p.partido}: riesgo=${Math.round(p.riesgo_ajustado||p.probabilidad_sorpresa||0)} -${p.motivo||''}`);
+        const dudas = arr(estadoVivo.dudas_abiertas).slice(0, 7).map(p => `P${p.num||''} ${p.partido||p.duda||JSON.stringify(p)}`);
+        bloqueEstadoVivo = `\nESTADO VIVO IA J${jornadaActual} (autocritica propia del motor sobre esta jornada):\n` +
+          (seguros.length ? `Mas seguros:\n${seguros.join('\n')}\n` : '') +
+          (trampas.length ? `Trampa/sorpresa:\n${trampas.join('\n')}\n` : '') +
+          (dudas.length ? `Dudas abiertas:\n${dudas.join('\n')}\n` : '') +
+          (estadoVivo.autocritica ? `Autocritica: ${String(estadoVivo.autocritica).slice(0, 400)}\n` : '');
+      }
+
       // H2H y datos destacados de eduardolosilla por partido (solo si hay datos reales)
       let bloqueDetallesH2H = '';
       if (arr(detallesPart.partidos).length) {
@@ -2390,6 +2447,10 @@ ${bloqueHistoricoLigas}
 ${bloqueHistoricoQuinielas}
 ${bloqueSorpresas}
 ${bloqueRiesgosPresupuesto}
+${bloqueEstadoVivo}
+${bloqueBoletoMillonario}
+${bloqueAvisoElige8}
+${bloqueCalibracion}
 ${bloqueDetallesH2H}
 ${bloqueLesionesLaliga}
 
@@ -3296,7 +3357,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga, lesionesRespaldo, clasificacionesOficiales, contextoCompetitivo] = await Promise.all([
+      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga, lesionesRespaldo, clasificacionesOficiales, contextoCompetitivo, estadoVivo, calibracionProbabilidades] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -3316,7 +3377,9 @@ No inventes — solo lo que ves con fondo oscuro.`;
         getJson('data/memoria_ia/fuente_lesiones_laliga.json', null),
         getJson('data/memoria_ia/fuente_lesiones_jornadaperfecta.json', null),
         getJson('data/clasificaciones_oficiales.json', null),
-        getJson('data/memoria_ia/contexto_competitivo.json', null)
+        getJson('data/memoria_ia/contexto_competitivo.json', null),
+        getJson('data/memoria_ia/estado_vivo.json', null),
+        getJson('data/memoria_ia/calibracion_probabilidades.json', null)
       ]);
       state.prediccion = pred;
       state.pleno15Data = pleno;
@@ -3338,6 +3401,8 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.lesionesRespaldo = lesionesRespaldo;
       state.clasificacionesOficiales = clasificacionesOficiales;
       state.contextoCompetitivo = contextoCompetitivo;
+      state.estadoVivo = estadoVivo;
+      state.calibracionProbabilidades = calibracionProbabilidades;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       state.detallesPartidos = jornadaNum ? await getJson(`data/jornadas/detalles_j${jornadaNum}.json`, null) : null;

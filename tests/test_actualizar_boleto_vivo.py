@@ -175,6 +175,15 @@ class ActualizarBoletoVivoTests(unittest.TestCase):
     def test_coincide_equipo_sin_relacion(self):
         self.assertFalse(actualizar_boleto_vivo.coincide_equipo("Brann", "Sandefjord"))
 
+    def test_coincide_equipo_malmo_con_y_sin_dieresis(self):
+        """Bug real confirmado en la jornada 74 (2026-07-26) y reconfirmado
+        por auditoria externa el 2026-08-03: 'Malmö' y 'Malmoe' no
+        coincidian, dejando el resultado real de ese partido sin
+        fuente_resultado -hubo que corregirlo a mano."""
+        self.assertTrue(actualizar_boleto_vivo.coincide_equipo("Malmö", "Malmoe"))
+        self.assertTrue(actualizar_boleto_vivo.coincide_equipo("Malmö FF", "Malmoe"))
+        self.assertEqual(actualizar_boleto_vivo.canonico("Malmö"), actualizar_boleto_vivo.canonico("Malmoe"))
+
     def test_buscar_resultado_libre_encuentra_el_partido_correcto(self):
         partidos_libres = [
             {"local": "Real Sociedad de Futbol", "visitante": "CA Osasuna", "resultado": "2-1", "fuente": "espn"},

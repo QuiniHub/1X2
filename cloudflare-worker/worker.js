@@ -1,5 +1,28 @@
 // Cloudflare Worker — QuiniHub IA Proxy
-// Rutas: /api/groq, /api/tavily, /api/football
+// Rutas: /api/groq, /api/gemini, /api/openrouter, /api/tavily, /api/football
+//
+// NOTA DE SEGURIDAD (auditoria externa 2026-08-03, hallazgo P0): antes, el
+// header CORS era solo cosmetico -controla si el NAVEGADOR deja leer la
+// respuesta a JS de otro origen, pero no impide que un script (curl, otro
+// servidor) llame directamente a estas rutas y gaste la cuota real de
+// Groq/Gemini/OpenRouter/Tavily sin pasar por la web. Este repo es publico,
+// asi que cualquier "secreto compartido" escrito aqui seria visible para
+// cualquiera que lea el codigo -no serviria de proteccion real, solo daria
+// una falsa sensacion de seguridad. Lo que SI se puede hacer desde el propio
+// codigo:
+//   1. Verificar Origin/Referer de verdad (rechazar, no solo reflejar).
+//   2. Fijar el modelo permitido en cada proveedor (evita que alguien pida
+//      un modelo mas caro directamente al proxy).
+//   3. Poner un limite de tamano al cuerpo de la peticion.
+// Esto detiene el abuso automatizado/casual (la inmensa mayoria de trafico
+// no deseado a un endpoint publico), pero NO a un atacante dirigido que
+// falsifique headers. Para eso hace falta algo fuera de este archivo -
+// Turnstile o una regla de Rate Limiting del propio panel de Cloudflare
+// (Security > WAF > Rate limiting rules, sin tocar codigo, unos clics)-
+// que Marc tendria que activar el mismo con acceso a su cuenta.
+
+const ALLOWED_ORIGIN = "https://quinihub.github.io";
+const MAX_BODY_BYTES = 200000; // 200 KB -de sobra para el contexto real del chat, bloquea payloads absurdos
 
 const ESPN_LIGAS = {
   "esp.1":                  "La Liga",
@@ -33,12 +56,34 @@ const THESPORTSDB_LIGAS = {
   "Veikkausliiga":    "4430",
 };
 
+// Modelos realmente usados por index.html -cualquier otro valor que llegue
+// en el body se sobreescribe con el primero de la lista, igual que ya se
+// hacia con gemini/openrouter (evita pedir un modelo mas caro directamente
+// al proxy sin pasar por la web).
+const MODELOS_GROQ_PERMITIDOS = ["llama-3.3-70b-versatile", "meta-llama/llama-4-scout-17b-16e-instruct"];
+
+function origenValido(request) {
+  const origin = request.headers.get("Origin") || "";
+  const referer = request.headers.get("Referer") || "";
+  if (origin) return origin === ALLOWED_ORIGIN;
+  // Las peticiones GET simples (p.ej. /api/football desde <script> antiguo)
+  // pueden no llevar Origin -en ese caso, exigir que el Referer empiece por
+  // el origen permitido en su lugar.
+  if (referer) return referer.startsWith(ALLOWED_ORIGIN + "/");
+  return false;
+}
+
+async function cuerpoDentroDelLimite(request) {
+  const declarado = request.headers.get("Content-Length");
+  if (declarado && Number(declarado) > MAX_BODY_BYTES) return false;
+  return true;
+}
+
 export default {
   async fetch(request, env) {
-    const origin  = request.headers.get("Origin") || "";
-    const allowed = "https://quinihub.github.io";
+    const origin = request.headers.get("Origin") || "";
     const corsHeaders = {
-      "Access-Control-Allow-Origin":  origin.startsWith(allowed) ? origin : allowed,
+      "Access-Control-Allow-Origin":  origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN,
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
@@ -48,13 +93,33 @@ export default {
     }
 
     const url = new URL(request.url);
+    const esEndpointDeIA = ["/api/groq", "/api/gemini", "/api/openrouter", "/api/tavily"].includes(url.pathname);
+
+    if (esEndpointDeIA) {
+      if (!origenValido(request)) {
+        return new Response(JSON.stringify({ error: "Origen no permitido" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (!(await cuerpoDentroDelLimite(request))) {
+        return new Response(JSON.stringify({ error: "Peticion demasiado grande" }), {
+          status: 413,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
 
     // ── /api/groq ────────────────────────────────────────────────────────────
     if (url.pathname === "/api/groq") {
+      const body = await request.json().catch(() => ({}));
+      if (!MODELOS_GROQ_PERMITIDOS.includes(body.model)) {
+        body.model = MODELOS_GROQ_PERMITIDOS[0];
+      }
       const upstream = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method:  "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${env.GROQ_KEY}` },
-        body:    request.body,
+        body:    JSON.stringify(body),
       });
       const res = new Response(upstream.body, upstream);
       Object.entries(corsHeaders).forEach(([k, v]) => res.headers.set(k, v));
@@ -63,7 +128,7 @@ export default {
 
     // ── /api/gemini ──────────────────────────────────────────────────────────
     if (url.pathname === "/api/gemini") {
-      const body = await request.json();
+      const body = await request.json().catch(() => ({}));
       body.model = "gemini-2.0-flash";
       const upstream = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
         method:  "POST",
@@ -77,7 +142,7 @@ export default {
 
     // ── /api/openrouter ──────────────────────────────────────────────────────
     if (url.pathname === "/api/openrouter") {
-      const body = await request.json();
+      const body = await request.json().catch(() => ({}));
       // mistralai/mistral-7b-instruct:free fue retirado del catalogo de
       // OpenRouter (404 "No endpoints found", detectado 2026-07-18).
       // Verificado contra el catalogo real (openrouter.ai/api/v1/models)
@@ -95,7 +160,7 @@ export default {
 
     // ── /api/tavily ──────────────────────────────────────────────────────────
     if (url.pathname === "/api/tavily") {
-      const body = await request.json();
+      const body = await request.json().catch(() => ({}));
       body.api_key = env.TAVILY_KEY;
       const upstream = await fetch("https://api.tavily.com/search", {
         method:  "POST",

@@ -71,6 +71,16 @@ CANONICOS = {
     "málaga": "Malaga CF",
     "almeria": "UD Almeria",
     "almería": "UD Almeria",
+    # Bug real confirmado (jornada 74, 2026-07-26, auditoria externa
+    # 2026-08-03): "Malmö" (con dieresis, normaliza a "malmo") y "Malmoe"
+    # (deletreo alternativo sin dieresis, normaliza a "malmoe") no
+    # coincidian en coincide_equipo() -el resultado de ese partido se quedo
+    # sin fuente_resultado y hubo que corregirlo a mano. Cubre las 4
+    # variantes reales (con/sin "FF", con/sin dieresis).
+    "malmo": "Malmö FF",
+    "malmoe": "Malmö FF",
+    "malmo ff": "Malmö FF",
+    "malmoe ff": "Malmö FF",
 }
 
 
