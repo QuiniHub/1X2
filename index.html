@@ -970,6 +970,33 @@
       </div>`;
     }
 
+    // Insignia "millonaria": solo aparece en el partido concreto que
+    // boleto_millonario cambia respecto a la conservadora (construir_boleto_millonario
+    // en motor_prediccion_quiniela.py) -en jornadas nordicas/no LaLiga esto no
+    // devuelve nada (cambios_respecto_a_conservadora vacio), asi que la
+    // insignia queda "dormida" sola, sin tocar nada aqui.
+    function boletoMillonarioCambio(match) {
+      const num = Number(match.num ?? match.numero ?? match.partido);
+      const cambios = arr(state.prediccion?.boleto_millonario?.cambios_respecto_a_conservadora);
+      return cambios.find(c => Number(c.num) === num) || null;
+    }
+
+    function boletoMillonarioBadge(match) {
+      const cambio = boletoMillonarioCambio(match);
+      if (!cambio) return '';
+      const id = `mill_${match.num ?? match.numero ?? ''}`;
+      const color = '#b8860b';
+      return `<span style="position:relative;display:inline-block">
+        <button type="button" onclick="document.querySelectorAll('.mill-pop').forEach(e=>{if(e.id!=='${id}')e.style.display='none'});const d=document.getElementById('${id}');d.style.display=d.style.display!=='block'?'block':'none'"
+          title="Alternativa millonaria disponible en este partido"
+          style="font-size:10px;padding:2px 7px;border-radius:6px;background:${color}15;color:${color};font-weight:700;border:1px solid ${color}30;cursor:pointer;line-height:1.4">💰 millonaria</button>
+        <div class="mill-pop" id="${id}" style="display:none;position:absolute;z-index:6;top:24px;left:0;min-width:220px;max-width:280px;padding:8px 10px;background:var(--surface2,#fff);border:1px solid ${color}55;border-radius:8px;font-size:11px;line-height:1.5;color:var(--text,#333);box-shadow:0 4px 14px rgba(0,0,0,.18)">
+          <strong style="color:${color}">Alternativa: ${escapeHtml(cambio.signo_conservador || '')} → ${escapeHtml(cambio.signo_millonario || '')}</strong>
+          <div style="margin-top:4px;color:var(--muted,#666)">${escapeHtml(cambio.justificacion || '')}</div>
+        </div>
+      </span>`;
+    }
+
     function renderTicket() {
       const matches = predictionMatches();
       // Do NOT reset state.generated here — only the generate button controls it.
@@ -1003,7 +1030,7 @@
           <div class="match-num">${escapeHtml(num)}</div>
           <div class="teams">
             <strong>${escapeHtml(match.local || match.equipo_local)} <span style="color:var(--muted);font-weight:700">vs</span> ${escapeHtml(match.visitante || match.equipo_visitante)}</strong>
-            <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8Label}${probabilityText(match)}${surpriseBadge(match)}</div>
+            <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8Label}${probabilityText(match)}${surpriseBadge(match)}${boletoMillonarioBadge(match)}</div>
             ${analisisExpansible(match)}
           </div>
           <div class="signs" data-selected="${escapeHtml(chosen)}">
