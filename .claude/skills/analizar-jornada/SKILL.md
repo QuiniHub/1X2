@@ -109,8 +109,10 @@ con "tirar un dado". Esa evidencia viene de 3 fuentes reales, ampliadas el
 que no quiere esto para las quinielas de ligas nórdicas (Noruega/Suecia) que se
 juegan mientras LaLiga está de vacaciones. Con partidos no españoles, `boleto_millonario`
 saldrá siempre con `total_cambios: 0` -eso es lo esperado, no un fallo. Se activará
-de verdad en cuanto La Quiniela vuelva a tener partidos de LaLiga (arranque
-16/08/2026).
+de verdad en cuanto La Quiniela vuelva a tener partidos de LaLiga -arranque real
+verificado el 15/08/2026 (no 16, corregido), con la jornada 1 repartida de forma
+asimétrica hasta el 27/08 por el Mundial 2026 recién acabado, así que puede que la
+primera Quiniela con partidos de LaLiga no tenga los 14 partidos españoles de golpe.
 
 Al presentar la recomendación, mencionar si `boleto_millonario.total_cambios > 0`:
 qué partidos cambiarían, por qué (`justificacion` de cada cambio), y dejar que Marc
