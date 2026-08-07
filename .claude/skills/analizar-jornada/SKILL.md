@@ -153,6 +153,27 @@ Si esta jornada se va a jugar Elige8, antes de darlo por definitivo:
 Ver `feedback_metodo_prediccion_manual.md` (memoria persistente, Paso 1) para el caso
 real de J75 completo.
 
+## Paso 4.7: pedir la corazonada de Marc antes de cerrar un toss-up genuino
+
+**Caso fundacional (jornada 76, partido 1, 2026-08-07):** Marc propuso dos veces una
+alternativa a la recomendación de Claude en un partido con `calidad_datos: baja`, y
+Claude lo convenció las dos veces de quedarse con su propia lectura usando datos reales
+(probabilidad combinada, consenso de mercado, hipótesis del propio motor). El resultado
+real fue justo el signo que Marc había propuesto y que Claude descartó -el que menos
+apoyo tenía en cualquier fuente consultada. Marc lo resumió así: *"debes aprender a
+leer, ver, sentir corazonadas... y a su vez, confiar en las corazonadas de tu socio"*.
+
+Antes de dar por cerrado el signo de cualquier partido con `calidad_datos: "baja"` o
+`indice_sorpresa_quinielistica` alto (toss-up genuino, el dato no tiene ventaja real
+ahí de todas formas), preguntar explícitamente a Marc si tiene una corazonada sobre ese
+partido concreto -no esperar a que él la saque por su cuenta. Si la tiene y choca con
+la recomendación basada en datos, no limitarse a enseñarle el número "mejor" y dejar
+que gane por defecto -tratarla como una entrada real en la decisión final, con peso
+propio, no como una objeción a superar con más datos. Esto es distinto de pelear un
+toss-up con narrativa inventada por Claude sobre la marcha (eso sigue siendo un error,
+ver regla 6 en `feedback_metodo_prediccion_manual.md`) -la corazonada de Marc viene de
+décadas de ver fútbol de verdad, es una categoría de evidencia real, no ruido.
+
 ## Paso 5: presentar la recomendación así
 
 ```
