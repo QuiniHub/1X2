@@ -1,31 +1,31 @@
 {
   "version": "1.2",
-  "precision": 67.09,
-  "jornadas_revisadas": 17,
-  "partidos_revisados": 237,
+  "precision": 66.81,
+  "jornadas_revisadas": 18,
+  "partidos_revisados": 238,
   "aciertos": 159,
-  "fallos": 78,
+  "fallos": 79,
   "fallos_por_tipo": {
-    "Doble insuficiente": 15,
+    "Doble insuficiente": 16,
     "Fijo fallado": 35,
     "No cubrio empate": 28
   },
   "fallos_por_signo_real": {
     "1": 18,
-    "2": 32,
+    "2": 33,
     "X": 28
   },
   "signos_omitidos_en_fallo": {
     "1": 18,
-    "2": 32,
+    "2": 33,
     "X": 28
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 55,
+      "total": 56,
       "aciertos": 40,
-      "fallos": 15,
-      "precision": 72.73
+      "fallos": 16,
+      "precision": 71.43
     },
     "FIJO": {
       "total": 154,
@@ -48,10 +48,10 @@
       "precision": 83.49
     },
     "2": {
-      "total": 73,
+      "total": 74,
       "aciertos": 41,
-      "fallos": 32,
-      "precision": 56.16
+      "fallos": 33,
+      "precision": 55.41
     },
     "X": {
       "total": 55,
@@ -18927,6 +18927,120 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 76,
+      "partido": "Sandefjord - KFUM Oslo",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "0-1",
+      "resultado_final": "0-1",
+      "signo_real": "2",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Doble insuficiente",
+      "origen": "data/predicciones/jornada_76.json",
+      "probabilidades_usadas": {
+        "1": 43.8,
+        "X": 29.8,
+        "2": 26.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Sandefjord",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "KFUM Oslo",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (43.8%).",
+        "hipotesis_alternativa": "X como alternativa (29.8%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 67.2,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 14.0 puntos, indice sorpresa 80.7."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 12.29,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Sandefjord: ppp=0.70; perfil visitante KFUM Oslo: ppp=0.51."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Sandefjord",
+        "partidos_total": 5,
+        "puntos_por_partido": 0.824,
+        "empates_pct": 18.86,
+        "surprise_score_medio": 34.87,
+        "forma_5_ppp": 0.8,
+        "forma_10_ppp": 0.8,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "KFUM Oslo",
+        "partidos_total": 4,
+        "puntos_por_partido": 0.783,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 37.27,
+        "forma_5_ppp": 0.75,
+        "forma_10_ppp": 0.75,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -18940,19 +19054,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 237,
+    "partidos_base": 238,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 32.91,
-      "no_cubrio_empate_sobre_fallos_pct": 35.9,
-      "no_cubrio_empate_sobre_total_pct": 11.81,
-      "fijo_fallado_sobre_fallos_pct": 44.87,
-      "fijo_fallado_sobre_total_pct": 14.77,
-      "doble_insuficiente_sobre_total_pct": 6.33
+      "fallos_total_pct": 33.19,
+      "no_cubrio_empate_sobre_fallos_pct": 35.44,
+      "no_cubrio_empate_sobre_total_pct": 11.76,
+      "fijo_fallado_sobre_fallos_pct": 44.3,
+      "fijo_fallado_sobre_total_pct": 14.71,
+      "doble_insuficiente_sobre_total_pct": 6.72
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 4.19,
-    "riesgo_extra_triple_insuficiente": 2.1,
+    "riesgo_extra_fijo_fragil": 4.03,
+    "riesgo_extra_triple_insuficiente": 2.45,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,

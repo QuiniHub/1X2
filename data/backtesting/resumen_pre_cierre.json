@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-07T18:28:51.738572+00:00",
+  "generado_en": "2026-08-07T19:35:50.055850+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 11,
-    "partidos_cerrados": 140,
-    "aciertos": 80,
-    "precision": 57.14
+    "partidos_cerrados": 141,
+    "aciertos": 81,
+    "precision": 57.45
   },
   "jornadas": [
     {
@@ -2524,10 +2524,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_76.json",
       "creado_en": "2026-08-02T19:22:34.992611+00:00",
       "prediccion_generada_en": "2026-08-02T19:22:34.992179+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
-      "aciertos": 0,
-      "precision": null,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 1,
+      "aciertos": 1,
+      "precision": 100.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -2556,11 +2556,27 @@
           "aciertos": 0
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 1,
+          "aciertos": 1
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 1,
+          "partido": "Sandefjord - KFUM Oslo",
+          "jugado": "1X2",
+          "tipo": "TRIPLE",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 34.5,
+            "X": 30.5,
+            "2": 35.0
+          },
+          "incertidumbre": 147.56,
+          "probabilidad_sorpresa": 70
+        }
+      ]
     }
   ]
 }
