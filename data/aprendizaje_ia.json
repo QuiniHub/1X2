@@ -1,23 +1,23 @@
 {
   "version": "1.2",
-  "precision": 67.22,
+  "precision": 66.94,
   "jornadas_revisadas": 18,
-  "partidos_revisados": 241,
+  "partidos_revisados": 242,
   "aciertos": 162,
-  "fallos": 79,
+  "fallos": 80,
   "fallos_por_tipo": {
     "Doble insuficiente": 16,
-    "Fijo fallado": 35,
+    "Fijo fallado": 36,
     "No cubrio empate": 28
   },
   "fallos_por_signo_real": {
     "1": 18,
-    "2": 33,
+    "2": 34,
     "X": 28
   },
   "signos_omitidos_en_fallo": {
     "1": 18,
-    "2": 33,
+    "2": 34,
     "X": 28
   },
   "precision_por_tipo": {
@@ -28,10 +28,10 @@
       "precision": 71.93
     },
     "FIJO": {
-      "total": 156,
+      "total": 157,
       "aciertos": 93,
-      "fallos": 63,
-      "precision": 59.62
+      "fallos": 64,
+      "precision": 59.24
     },
     "TRIPLE": {
       "total": 28,
@@ -48,10 +48,10 @@
       "precision": 83.64
     },
     "2": {
-      "total": 76,
+      "total": 77,
       "aciertos": 43,
-      "fallos": 33,
-      "precision": 56.58
+      "fallos": 34,
+      "precision": 55.84
     },
     "X": {
       "total": 55,
@@ -19386,6 +19386,122 @@
           "partidos": 2
         }
       }
+    },
+    {
+      "jornada": 76,
+      "partido": "Mjällby - Elfsborg",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-1",
+      "resultado_final": "0-1",
+      "signo_real": "2",
+      "signos_cubiertos": "1",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_76.json",
+      "probabilidades_usadas": {
+        "1": 40.2,
+        "X": 30.7,
+        "2": 29.0
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Mjällby",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Elfsborg",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (40.2%).",
+        "hipotesis_alternativa": "X como alternativa (30.7%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 1: margen 9.5 puntos, indice sorpresa 89.7."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 12.29,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.7,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Mjällby: ppp=0.77; perfil visitante Elfsborg: ppp=2.01.",
+          "Memoria autonoma: tendencia de empate conjunta alta (32.9%).",
+          "Memoria autonoma: historial de sorpresa medio elevado (48.9)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Mjällby",
+        "partidos_total": 3,
+        "puntos_por_partido": 0.657,
+        "empates_pct": 65.7,
+        "surprise_score_medio": 42.13,
+        "forma_5_ppp": 0.667,
+        "forma_10_ppp": 0.667,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Elfsborg",
+        "partidos_total": 2,
+        "puntos_por_partido": 1.522,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 55.67,
+        "forma_5_ppp": 1.5,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -19399,19 +19515,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 241,
+    "partidos_base": 242,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 32.78,
-      "no_cubrio_empate_sobre_fallos_pct": 35.44,
-      "no_cubrio_empate_sobre_total_pct": 11.62,
-      "fijo_fallado_sobre_fallos_pct": 44.3,
-      "fijo_fallado_sobre_total_pct": 14.52,
-      "doble_insuficiente_sobre_total_pct": 6.64
+      "fallos_total_pct": 33.06,
+      "no_cubrio_empate_sobre_fallos_pct": 35.0,
+      "no_cubrio_empate_sobre_total_pct": 11.57,
+      "fijo_fallado_sobre_fallos_pct": 45.0,
+      "fijo_fallado_sobre_total_pct": 14.88,
+      "doble_insuficiente_sobre_total_pct": 6.61
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 3.88,
-    "riesgo_extra_triple_insuficiente": 2.38,
+    "riesgo_extra_fijo_fragil": 4.3,
+    "riesgo_extra_triple_insuficiente": 2.35,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,
