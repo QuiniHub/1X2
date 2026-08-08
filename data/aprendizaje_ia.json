@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 66.81,
+  "precision": 66.95,
   "jornadas_revisadas": 18,
-  "partidos_revisados": 238,
-  "aciertos": 159,
+  "partidos_revisados": 239,
+  "aciertos": 160,
   "fallos": 79,
   "fallos_por_tipo": {
     "Doble insuficiente": 16,
@@ -28,10 +28,10 @@
       "precision": 71.43
     },
     "FIJO": {
-      "total": 154,
-      "aciertos": 91,
+      "total": 155,
+      "aciertos": 92,
       "fallos": 63,
-      "precision": 59.09
+      "precision": 59.35
     },
     "TRIPLE": {
       "total": 28,
@@ -48,10 +48,10 @@
       "precision": 83.49
     },
     "2": {
-      "total": 74,
-      "aciertos": 41,
+      "total": 75,
+      "aciertos": 42,
       "fallos": 33,
-      "precision": 55.41
+      "precision": 56.0
     },
     "X": {
       "total": 55,
@@ -19041,6 +19041,121 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 76,
+      "partido": "Valerenga - Bodo-Glimt",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-3",
+      "resultado_final": "0-3",
+      "signo_real": "2",
+      "signos_cubiertos": "2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_76.json",
+      "probabilidades_usadas": {
+        "1": 21.2,
+        "X": 22.9,
+        "2": 55.9
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Valerenga",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Bodo-Glimt",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (55.9%).",
+        "hipotesis_alternativa": "X como alternativa (22.9%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 49.8,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 2: margen 33.0 puntos, indice sorpresa 28.6."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 12.29,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.23,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Valerenga: ppp=1.01; perfil visitante Bodo Glimt: ppp=2.12.",
+          "Memoria autonoma: historial de sorpresa medio elevado (46.3)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Valerenga",
+        "partidos_total": 2,
+        "puntos_por_partido": 1.522,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 55.47,
+        "forma_5_ppp": 1.5,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Bodo Glimt",
+        "partidos_total": 9,
+        "puntos_por_partido": 2.059,
+        "empates_pct": 10.76,
+        "surprise_score_medio": 37.13,
+        "forma_5_ppp": 1.8,
+        "forma_10_ppp": 2.111,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -19054,19 +19169,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 238,
+    "partidos_base": 239,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.19,
+      "fallos_total_pct": 33.05,
       "no_cubrio_empate_sobre_fallos_pct": 35.44,
-      "no_cubrio_empate_sobre_total_pct": 11.76,
+      "no_cubrio_empate_sobre_total_pct": 11.72,
       "fijo_fallado_sobre_fallos_pct": 44.3,
-      "fijo_fallado_sobre_total_pct": 14.71,
-      "doble_insuficiente_sobre_total_pct": 6.72
+      "fijo_fallado_sobre_total_pct": 14.64,
+      "doble_insuficiente_sobre_total_pct": 6.69
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 4.03,
-    "riesgo_extra_triple_insuficiente": 2.45,
+    "riesgo_extra_fijo_fragil": 3.97,
+    "riesgo_extra_triple_insuficiente": 2.42,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,
