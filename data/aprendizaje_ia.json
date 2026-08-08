@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 66.95,
+  "precision": 67.08,
   "jornadas_revisadas": 18,
-  "partidos_revisados": 239,
-  "aciertos": 160,
+  "partidos_revisados": 240,
+  "aciertos": 161,
   "fallos": 79,
   "fallos_por_tipo": {
     "Doble insuficiente": 16,
@@ -22,10 +22,10 @@
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 56,
-      "aciertos": 40,
+      "total": 57,
+      "aciertos": 41,
       "fallos": 16,
-      "precision": 71.43
+      "precision": 71.93
     },
     "FIJO": {
       "total": 155,
@@ -48,10 +48,10 @@
       "precision": 83.49
     },
     "2": {
-      "total": 75,
-      "aciertos": 42,
+      "total": 76,
+      "aciertos": 43,
       "fallos": 33,
-      "precision": 56.0
+      "precision": 56.58
     },
     "X": {
       "total": 55,
@@ -19156,6 +19156,120 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 76,
+      "partido": "Orgryte IS - AIK",
+      "pronostico": "12",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "3-4",
+      "resultado_final": "3-4",
+      "signo_real": "2",
+      "signos_cubiertos": "12",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_76.json",
+      "probabilidades_usadas": {
+        "1": 29.5,
+        "X": 27.1,
+        "2": 43.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Orgryte IS",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "AIK",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (43.4%).",
+        "hipotesis_alternativa": "1 como alternativa (29.5%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_atacable",
+          "probabilidad": 65.8,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 12: margen 13.9 puntos, indice sorpresa 71.8."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 12.29,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Orgryte IS: ppp=0.00; perfil visitante AIK: ppp=3.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Orgryte IS",
+        "partidos_total": 2,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 31.33,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "AIK",
+        "partidos_total": 2,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 40.35,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -19169,19 +19283,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 239,
+    "partidos_base": 240,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.05,
+      "fallos_total_pct": 32.92,
       "no_cubrio_empate_sobre_fallos_pct": 35.44,
-      "no_cubrio_empate_sobre_total_pct": 11.72,
+      "no_cubrio_empate_sobre_total_pct": 11.67,
       "fijo_fallado_sobre_fallos_pct": 44.3,
-      "fijo_fallado_sobre_total_pct": 14.64,
-      "doble_insuficiente_sobre_total_pct": 6.69
+      "fijo_fallado_sobre_total_pct": 14.58,
+      "doble_insuficiente_sobre_total_pct": 6.67
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 3.97,
-    "riesgo_extra_triple_insuficiente": 2.42,
+    "riesgo_extra_fijo_fragil": 3.92,
+    "riesgo_extra_triple_insuficiente": 2.4,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,
