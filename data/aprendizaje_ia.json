@@ -1,24 +1,24 @@
 {
   "version": "1.2",
-  "precision": 67.34,
+  "precision": 67.07,
   "jornadas_revisadas": 18,
-  "partidos_revisados": 248,
+  "partidos_revisados": 249,
   "aciertos": 167,
-  "fallos": 81,
+  "fallos": 82,
   "fallos_por_tipo": {
     "Doble insuficiente": 16,
     "Fijo fallado": 37,
-    "No cubrio empate": 28
+    "No cubrio empate": 29
   },
   "fallos_por_signo_real": {
     "1": 18,
     "2": 35,
-    "X": 28
+    "X": 29
   },
   "signos_omitidos_en_fallo": {
     "1": 18,
     "2": 35,
-    "X": 28
+    "X": 29
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,10 +28,10 @@
       "precision": 72.88
     },
     "FIJO": {
-      "total": 159,
+      "total": 160,
       "aciertos": 94,
-      "fallos": 65,
-      "precision": 59.12
+      "fallos": 66,
+      "precision": 58.75
     },
     "TRIPLE": {
       "total": 30,
@@ -54,10 +54,10 @@
       "precision": 56.79
     },
     "X": {
-      "total": 55,
+      "total": 56,
       "aciertos": 27,
-      "fallos": 28,
-      "precision": 49.09
+      "fallos": 29,
+      "precision": 48.21
     }
   },
   "detalle": [
@@ -19503,6 +19503,105 @@
     },
     {
       "jornada": 76,
+      "partido": "Ham-Kam - Aalesunds FK",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_76.json",
+      "probabilidades_usadas": {
+        "1": 47.4,
+        "X": 28.0,
+        "2": 24.5
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Ham-Kam",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Aalesunds FK",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (47.4%).",
+        "hipotesis_alternativa": "X como alternativa (28.0%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "sorpresa_vigilada",
+          "probabilidad": 60.5,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 19.4 puntos, indice sorpresa 54.6."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 12.29,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {
+        "equipo": "Aalesunds",
+        "partidos_total": 1,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 76,
       "partido": "Orgryte IS - AIK",
       "pronostico": "12",
       "tipo_pronostico": "DOBLE",
@@ -20206,19 +20305,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 248,
+    "partidos_base": 249,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 32.66,
-      "no_cubrio_empate_sobre_fallos_pct": 34.57,
-      "no_cubrio_empate_sobre_total_pct": 11.29,
-      "fijo_fallado_sobre_fallos_pct": 45.68,
-      "fijo_fallado_sobre_total_pct": 14.92,
-      "doble_insuficiente_sobre_total_pct": 6.45
+      "fallos_total_pct": 32.93,
+      "no_cubrio_empate_sobre_fallos_pct": 35.37,
+      "no_cubrio_empate_sobre_total_pct": 11.65,
+      "fijo_fallado_sobre_fallos_pct": 45.12,
+      "fijo_fallado_sobre_total_pct": 14.86,
+      "doble_insuficiente_sobre_total_pct": 6.43
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 4.47,
-    "riesgo_extra_triple_insuficiente": 2.21,
+    "riesgo_extra_fijo_fragil": 4.31,
+    "riesgo_extra_triple_insuficiente": 2.19,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,
