@@ -1,24 +1,24 @@
 {
   "version": "1.2",
-  "precision": 66.8,
+  "precision": 66.53,
   "jornadas_revisadas": 18,
-  "partidos_revisados": 250,
+  "partidos_revisados": 251,
   "aciertos": 167,
-  "fallos": 83,
+  "fallos": 84,
   "fallos_por_tipo": {
     "Doble insuficiente": 16,
     "Fijo fallado": 38,
-    "No cubrio empate": 29
+    "No cubrio empate": 30
   },
   "fallos_por_signo_real": {
     "1": 19,
     "2": 35,
-    "X": 29
+    "X": 30
   },
   "signos_omitidos_en_fallo": {
     "1": 19,
     "2": 35,
-    "X": 29
+    "X": 30
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,10 +28,10 @@
       "precision": 72.88
     },
     "FIJO": {
-      "total": 161,
+      "total": 162,
       "aciertos": 94,
-      "fallos": 67,
-      "precision": 58.39
+      "fallos": 68,
+      "precision": 58.02
     },
     "TRIPLE": {
       "total": 30,
@@ -54,64 +54,13 @@
       "precision": 56.79
     },
     "X": {
-      "total": 56,
+      "total": 57,
       "aciertos": 27,
-      "fallos": 29,
-      "precision": 48.21
+      "fallos": 30,
+      "precision": 47.37
     }
   },
   "detalle": [
-    {
-      "jornada": 59,
-      "partido": "Betis - R. Madrid",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Betis",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "R. Madrid",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 59,
       "partido": "Alavés - Mallorca",
@@ -20408,6 +20357,121 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 76,
+      "partido": "Sirius - Brommapojkarna",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-2",
+      "resultado_final": "2-2",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_76.json",
+      "probabilidades_usadas": {
+        "1": 63.8,
+        "X": 21.5,
+        "2": 14.8
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Sirius",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Brommapojkarna",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (63.8%).",
+        "hipotesis_alternativa": "X como alternativa (21.5%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 37.9,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 42.3 puntos, indice sorpresa 6.8."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 12.29,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Sirius: ppp=2.24; perfil visitante Brommapojkarna: ppp=0.22.",
+          "Memoria autonoma: tendencia de empate conjunta alta (32.9%)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Sirius",
+        "partidos_total": 3,
+        "puntos_por_partido": 2.352,
+        "empates_pct": 32.38,
+        "surprise_score_medio": 34.68,
+        "forma_5_ppp": 2.333,
+        "forma_10_ppp": 2.333,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Brommapojkarna",
+        "partidos_total": 3,
+        "puntos_por_partido": 0.333,
+        "empates_pct": 33.32,
+        "surprise_score_medio": 48.09,
+        "forma_5_ppp": 0.333,
+        "forma_10_ppp": 0.333,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -20421,19 +20485,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 250,
+    "partidos_base": 251,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.2,
-      "no_cubrio_empate_sobre_fallos_pct": 34.94,
-      "no_cubrio_empate_sobre_total_pct": 11.6,
-      "fijo_fallado_sobre_fallos_pct": 45.78,
-      "fijo_fallado_sobre_total_pct": 15.2,
-      "doble_insuficiente_sobre_total_pct": 6.4
+      "fallos_total_pct": 33.47,
+      "no_cubrio_empate_sobre_fallos_pct": 35.71,
+      "no_cubrio_empate_sobre_total_pct": 11.95,
+      "fijo_fallado_sobre_fallos_pct": 45.24,
+      "fijo_fallado_sobre_total_pct": 15.14,
+      "doble_insuficiente_sobre_total_pct": 6.37
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 4.72,
-    "riesgo_extra_triple_insuficiente": 2.16,
+    "riesgo_extra_fijo_fragil": 4.56,
+    "riesgo_extra_triple_insuficiente": 2.13,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
