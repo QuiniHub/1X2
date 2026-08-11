@@ -669,6 +669,23 @@ class MotorPrediccionTests(unittest.TestCase):
 
         self.assertFalse(any("enfrentamientos directos" in m.lower() for m in indice["motivos"]))
 
+    def test_indice_sorpresa_ignora_h2h_si_temporada_no_iniciada(self):
+        # Peticion explicita de Marc (2026-08-11, arranque LaLiga 26/27):
+        # "el historial de ligas pasadas... de nada sirve para esta
+        # temporada nueva -ahora mismo el unico soporte historico real son
+        # los resultados de los amistosos". El historial de enfrentamientos
+        # directos (plantillas de temporadas pasadas) no debe pesar en la
+        # sorpresa mientras el equipo no haya jugado ni un partido esta
+        # temporada, aunque haya cruces historicos con cuotas conocidas.
+        evaluado = partido(1, {"1": 56.0, "X": 24.0, "2": 20.0}, incertidumbre=104, sorpresa=48)
+        evaluado["contexto_competitivo_local"] = {"situacion_competitiva": "temporada_no_iniciada"}
+        clave = clave_par_equipos_h2h(evaluado["local"], evaluado["visitante"])
+        historial_h2h = {"enfrentamientos": {clave: {"casos_con_cuotas": 5, "tasa_sorpresa_historica": 80.0}}}
+
+        indice = indice_sorpresa_quinielistica(evaluado, None, historial_h2h)
+
+        self.assertFalse(any("enfrentamientos directos" in m.lower() for m in indice["motivos"]))
+
     def test_tier_por_posicion_corta_en_el_10(self):
         self.assertEqual(tier_por_posicion({"posicion": 1}), "top10")
         self.assertEqual(tier_por_posicion({"posicion": 10}), "top10")

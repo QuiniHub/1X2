@@ -1846,8 +1846,17 @@ def indice_sorpresa_quinielistica(partido, patrones=None, historial_h2h=None):
             score += tasa * 0.22
             score += tasa_patron(patrones, "equipo_necesitado_vs_equipo_sin_objetivo") * 0.14
 
+    temporada_no_iniciada = (
+        (local_comp or {}).get("situacion_competitiva") == "temporada_no_iniciada"
+        or (visitante_comp or {}).get("situacion_competitiva") == "temporada_no_iniciada"
+    )
     h2h = historial_h2h_partido(partido, historial_h2h)
-    if h2h and h2h.get("casos_con_cuotas", 0) >= 2 and h2h.get("tasa_sorpresa_historica") is not None:
+    if (
+        not temporada_no_iniciada
+        and h2h
+        and h2h.get("casos_con_cuotas", 0) >= 2
+        and h2h.get("tasa_sorpresa_historica") is not None
+    ):
         tasa_h2h = h2h["tasa_sorpresa_historica"]
         score += tasa_h2h * 0.20
         motivos.append(
