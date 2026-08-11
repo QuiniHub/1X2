@@ -200,30 +200,32 @@
     {
       "num": 7,
       "local": "Cadiz CF",
-      "visitante": "Celta B",
+      "visitante": "RC Celta Fortuna",
       "fecha": "2026-08-15",
       "hora": "19:00",
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "signo_nuestro": "No jugada",
-      "competicion_resuelta": "liga_extranjera",
-      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
       "resolucion_competicion": {
-        "competicion": "liga_extranjera",
-        "modelo_recomendado": "modelo_liga_extranjera",
-        "confianza": 0.62,
-        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
-        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
         "datos_minimos": [
           "resultados",
-          "clasificacion_liga",
+          "clasificacion",
           "forma",
-          "ranking_elo",
-          "lesiones"
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
         ],
         "equipos_normalizados": {
           "local": "cadiz",
-          "visitante": "celta b"
+          "visitante": "celta fortuna"
         }
       }
     },
@@ -422,26 +424,28 @@
     {
       "num": 14,
       "local": "Real Sporting de Gijon",
-      "visitante": "Sabadell",
+      "visitante": "CE Sabadell",
       "fecha": "2026-08-17",
       "hora": "19:00",
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "signo_nuestro": "No jugada",
-      "competicion_resuelta": "liga_extranjera",
-      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
       "resolucion_competicion": {
-        "competicion": "liga_extranjera",
-        "modelo_recomendado": "modelo_liga_extranjera",
-        "confianza": 0.62,
-        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
-        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
         "datos_minimos": [
           "resultados",
-          "clasificacion_liga",
+          "clasificacion",
           "forma",
-          "ranking_elo",
-          "lesiones"
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
         ],
         "equipos_normalizados": {
           "local": "sporting gijon",
@@ -487,8 +491,8 @@
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
       "primera_division": 5,
-      "segunda_division": 7,
-      "liga_extranjera": 2
+      "segunda_division": 9,
+      "liga_extranjera": 0
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
   }

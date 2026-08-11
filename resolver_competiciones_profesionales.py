@@ -43,6 +43,7 @@ ALIAS = {
     "espanyol": "espanyol barcelona",
     "dep coruna": "deportivo coruna",
     "deportivo la coruna": "deportivo coruna",
+    "celta b": "celta fortuna",
 }
 
 REQUISITOS = {
