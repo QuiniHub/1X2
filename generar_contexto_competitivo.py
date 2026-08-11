@@ -420,6 +420,32 @@ def ordenar_objetivos(objetivos, principal):
 
 
 def cerrar_equipo(equipo, objetivos):
+    if int_valor(equipo.get("pj")) == 0:
+        # Temporada sin empezar para este equipo: con 0 partidos jugados
+        # todos los equipos estan empatados a 0 puntos, asi que cualquier
+        # conclusion de "salvado matematicamente" o "riesgo de descenso" es
+        # matematicamente absurda todavia (bug real detectado en la
+        # jornada 1 de LaLiga 26/27, 2026-08-11 -antes de esto el motor
+        # marcaba a un equipo como "salvado" y a otro con "motivacion
+        # maxima" de descenso el mismo dia, sin haberse jugado ni un
+        # partido, distorsionando fuerte la probabilidad final). No
+        # calcular objetivos reales hasta que haya al menos un partido
+        # jugado.
+        equipo["objetivos"] = []
+        equipo["objetivos_vivos"] = []
+        equipo["objetivo_principal"] = {
+            "objetivo": "situacion_final",
+            "estado": "temporada_no_iniciada",
+            "vivo": False,
+            "terminal": False,
+            "lectura": "Temporada sin empezar para este equipo -sin partidos jugados, ningun objetivo es matematicamente real todavia.",
+        }
+        equipo["motivacion_competitiva"] = "baja"
+        equipo["motivacion"] = "baja"
+        equipo["lectura_resumen"] = equipo["objetivo_principal"]["lectura"]
+        equipo["situacion_competitiva"] = "temporada_no_iniciada"
+        return equipo
+
     visibles = [objetivo for objetivo in objetivos if objetivo]
     principal = elegir_objetivo_principal(visibles)
     visibles = ordenar_objetivos(visibles, principal)
