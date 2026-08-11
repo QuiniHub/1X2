@@ -16,7 +16,7 @@ def escribir_json(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
 
 
-def escribir_jornada(base, numero):
+def escribir_jornada(base, numero, fecha=None):
     escribir_json(
         base / f"jornada_{numero}.json",
         {
@@ -27,6 +27,7 @@ def escribir_jornada(base, numero):
                     "local": f"Local {idx + 1}",
                     "visitante": f"Visitante {idx + 1}",
                     "signo_oficial": "Pendiente",
+                    **({"fecha": fecha} if fecha else {}),
                 }
                 for idx in range(14)
             ],
@@ -126,6 +127,52 @@ class JornadaObjetivoQuinielaTests(unittest.TestCase):
             self.assertEqual(resumen["jornada_objetivo"], 70)
             self.assertTrue(resumen["jornada_objetivo_cargada"])
             self.assertEqual(resumen["jornadas_intermedias_faltantes"], [69])
+
+    def test_reinicio_de_temporada_vuelve_a_jornada_1(self):
+        # Caso real: jornada 76 (nordica, cierra el ciclo de verano) ya
+        # aprendida, y jornada 1 de la temporada 26/27 (LaLiga) ya cargada
+        # con fecha posterior -aunque su numero sea menor, es la jornada
+        # objetivo real, no "76 + 1" (que no existe en la numeracion de LAE).
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp = Path(tmp_dir)
+            jornadas = tmp / "data" / "jornadas"
+            escribir_jornada(jornadas, 76, fecha="2026-08-07")
+            escribir_jornada(jornadas, 1, fecha="2026-08-15")
+
+            historial = tmp / "data" / "historial_quinielas.json"
+            escribir_json(historial, {"jornadas": []})
+            quinielas = tmp / "data" / "quinielas_jugadas.json"
+            escribir_json(
+                quinielas,
+                {"jugadas": [{"jornada": 76, "signos": ["1"] * 14, "validada": True}]},
+            )
+
+            resumen = objetivo.resumen_jornada_objetivo(jornadas, historial, quinielas)
+            self.assertEqual(resumen["ultima_jornada_aprendida"], 76)
+            self.assertEqual(resumen["jornada_objetivo"], 1)
+            self.assertTrue(resumen["jornada_objetivo_cargada"])
+            self.assertEqual(resumen["jornadas_futuras_cargadas"], [])
+
+    def test_reinicio_de_temporada_sin_jornada_1_cargada_aun(self):
+        # Mismo escenario pero la jornada 1 todavia no se ha publicado en la
+        # fuente -debe seguir esperando, no inventar una jornada 77.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp = Path(tmp_dir)
+            jornadas = tmp / "data" / "jornadas"
+            escribir_jornada(jornadas, 76, fecha="2026-08-07")
+
+            historial = tmp / "data" / "historial_quinielas.json"
+            escribir_json(historial, {"jornadas": []})
+            quinielas = tmp / "data" / "quinielas_jugadas.json"
+            escribir_json(
+                quinielas,
+                {"jugadas": [{"jornada": 76, "signos": ["1"] * 14, "validada": True}]},
+            )
+
+            resumen = objetivo.resumen_jornada_objetivo(jornadas, historial, quinielas)
+            self.assertEqual(resumen["ultima_jornada_aprendida"], 76)
+            self.assertEqual(resumen["jornada_objetivo"], 77)
+            self.assertFalse(resumen["jornada_objetivo_cargada"])
 
 
 if __name__ == "__main__":

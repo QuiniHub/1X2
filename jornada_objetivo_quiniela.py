@@ -115,6 +115,23 @@ def ultima_jornada_aprendida(historial_path=HISTORIAL, quinielas_path=QUINIELAS_
     return max(aprendidas) if aprendidas else 0
 
 
+def fecha_mas_temprana(jornada_data):
+    """Primera fecha (ISO, comparable como texto) entre los partidos de una
+    jornada -el campo 'fecha' de nivel superior viene en formato verboso
+    ("Domingo, 9 de agosto de 2026") y no es comparable directamente."""
+    fechas = [
+        str(p.get("fecha") or "")
+        for p in (jornada_data.get("partidos") or [])
+        if isinstance(p, dict) and p.get("fecha")
+    ]
+    return min(fechas) if fechas else ""
+
+
+def fecha_jornada_cargada(numero, jornadas_dir=JORNADAS):
+    data = cargar_json(Path(jornadas_dir) / f"jornada_{numero}.json", {})
+    return fecha_mas_temprana(data) if isinstance(data, dict) else ""
+
+
 def jornada_objetivo_prediccion(
     jornadas_dir=JORNADAS,
     historial_path=HISTORIAL,
@@ -126,6 +143,29 @@ def jornada_objetivo_prediccion(
         siguientes_cargadas = [j for j in cargadas if j > ultima_aprendida]
         if siguientes_cargadas:
             return min(siguientes_cargadas)
+
+        # Reinicio de temporada: la Quiniela LAE numera sus jornadas del 1 al
+        # ~76 por temporada futbolistica (agosto a agosto) y vuelve a
+        # empezar en 1 -no existe una jornada real "ultima_aprendida + 1"
+        # cuando la ultima aprendida ya cerro el ciclo de esa temporada. Si
+        # ninguna jornada cargada tiene numero mayor, buscar por FECHA (no
+        # por numero) la que sea cronologicamente posterior -esa es la
+        # jornada 1 real de la temporada siguiente, aunque su numero sea mas
+        # bajo que el de la ultima aprendida.
+        fecha_ultima = fecha_jornada_cargada(ultima_aprendida, jornadas_dir)
+        if fecha_ultima:
+            candidatas = [
+                j
+                for j in cargadas
+                if j != ultima_aprendida
+                and fecha_jornada_cargada(j, jornadas_dir) > fecha_ultima
+            ]
+            if candidatas:
+                return min(
+                    candidatas,
+                    key=lambda j: fecha_jornada_cargada(j, jornadas_dir),
+                )
+
         return ultima_aprendida + 1
 
     return max(cargadas) if cargadas else 0
@@ -141,6 +181,18 @@ def resumen_jornada_objetivo(
     objetivo = jornada_objetivo_prediccion(jornadas_dir, historial_path, quinielas_path)
     max_cargada = max(cargadas) if cargadas else 0
     futuras_cargadas = [j for j in cargadas if objetivo and j > objetivo]
+    if objetivo and ultima_aprendida and objetivo <= ultima_aprendida:
+        # Reinicio de temporada (el objetivo tiene numero menor o igual a la
+        # ultima aprendida): las jornadas con numero "mayor" son en realidad
+        # de la temporada ANTERIOR ya aprendida, no futuras de verdad -filtrar
+        # solo las que ademas sean cronologicamente posteriores al objetivo.
+        fecha_objetivo = fecha_jornada_cargada(objetivo, jornadas_dir)
+        if fecha_objetivo:
+            futuras_cargadas = [
+                j
+                for j in futuras_cargadas
+                if fecha_jornada_cargada(j, jornadas_dir) > fecha_objetivo
+            ]
     cargadas_set = set(cargadas)
     primera_pendiente = (ultima_aprendida + 1) if ultima_aprendida else objetivo
     faltantes_intermedias = [
