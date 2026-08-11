@@ -37,6 +37,7 @@ HISTORIAL_ENFRENTAMIENTOS = DATA / "memoria_ia" / "historial_enfrentamientos.jso
 PERFILES_EQUIPOS = DATA / "memoria_ia" / "perfiles_equipos.json"
 CLASIFICACIONES_MUNDIAL = DATA / "memoria_ia" / "clasificaciones_mundial_2026.json"
 FUENTE_LOSILLA = DATA / "memoria_ia" / "fuente_losilla.json"
+PRETEMPORADA = DATA / "memoria_ia" / "pretemporada_2026_2027.json"
 FUENTE_LESIONES_LALIGA = DATA / "memoria_ia" / "fuente_lesiones_laliga.json"
 FUENTE_LESIONES_RESPALDO = DATA / "memoria_ia" / "fuente_lesiones_jornadaperfecta.json"
 SORPRESAS_MERCADO = DATA / "memoria_ia" / "sorpresas_mercado.json"
@@ -237,6 +238,39 @@ def fuerza(equipo, condicion):
         + aceleracion * 6
         + empates * 0.08
     )
+
+
+_PRETEMPORADA_CACHE = None
+
+
+def _pretemporada_equipos():
+    global _PRETEMPORADA_CACHE
+    if _PRETEMPORADA_CACHE is None:
+        datos = cargar_json(PRETEMPORADA, {})
+        _PRETEMPORADA_CACHE = datos.get("equipos") or {}
+    return _PRETEMPORADA_CACHE
+
+
+def fuerza_pretemporada(nombre_equipo):
+    """Estimacion de fuerza a partir de los amistosos de pretemporada -SOLO
+    se usa como respaldo cuando la temporada real todavia no tiene ningun
+    partido oficial jugado (pj=0 en aprendizaje_global.json). No es indicio
+    de nivel tactico real (rotaciones, pruebas), pero el balance V-E-D y la
+    dinamica/estado animico de pretemporada si tienen valor real -acordado
+    explicitamente con Marc el 2026-08-11 para el arranque de LaLiga 26/27.
+    Misma escala que fuerza() (ppg*30 + dg*12) para no descompensar el
+    reparto de pesos con el modelo entrenado."""
+    equipos = _pretemporada_equipos()
+    entradas = [{"equipo": nombre, **datos} for nombre, datos in equipos.items()]
+    mejor = mejor_coincidencia_equipo(entradas, nombre_equipo, lambda item: item.get("equipo", ""))
+    if not mejor:
+        return 0.0
+    partidos = max(
+        float(mejor.get("v", 0)) + float(mejor.get("e", 0)) + float(mejor.get("d", 0)), 1.0
+    )
+    ppg = (float(mejor.get("v", 0)) * 3 + float(mejor.get("e", 0))) / partidos
+    dg = (float(mejor.get("gf", 0)) - float(mejor.get("gc", 0))) / partidos
+    return ppg * 30 + dg * 12
 
 
 def dinamica_texto(equipo):
@@ -587,6 +621,18 @@ def calcular_probabilidades(memoria, partido):
     visitante = buscar_equipo(memoria, partido.get("visitante", ""))
     fl = fuerza(local, "local")
     fv = fuerza(visitante, "visitante")
+
+    # Reinicio de temporada: sin partidos oficiales jugados aun, fuerza() da
+    # 0 a todos los equipos por igual y el motor pierde toda capacidad de
+    # diferenciar -cae en un reparto casi neutro con el empate siempre
+    # inflado. Usar la pretemporada real como estimacion provisional
+    # mientras pj siga a 0; se sustituye solo en cuanto haya partidos
+    # oficiales de verdad.
+    if not local or float(local.get("pj") or 0) == 0:
+        fl = fuerza_pretemporada(partido.get("local", ""))
+    if not visitante or float(visitante.get("pj") or 0) == 0:
+        fv = fuerza_pretemporada(partido.get("visitante", ""))
+
     diff = fl - fv
 
     probs = {

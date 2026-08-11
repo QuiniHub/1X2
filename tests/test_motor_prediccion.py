@@ -6,17 +6,20 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+import motor_prediccion_quiniela as motor
 from motor_prediccion_quiniela import (
     ajustar_por_datos_profesionales,
     ajustar_por_aprendizaje_propio,
     ajustar_por_lesiones_laliga,
     ajustar_por_mercado_losilla,
     buscar_lesiones_equipo,
+    calcular_probabilidades,
     clave_par_equipos_h2h,
     cobertura_automatica,
     construir_boleto_millonario,
     coste,
     evaluar_riesgo_millonario,
+    fuerza_pretemporada,
     historial_h2h_partido,
     indice_sorpresa_quinielistica,
     tier_por_posicion,
@@ -728,6 +731,53 @@ class MotorPrediccionTests(unittest.TestCase):
         indice = indice_sorpresa_quinielistica(evaluado, patrones)
 
         self.assertFalse(any("sin margen real amplio" in m.lower() for m in indice["motivos"]))
+
+
+class FuerzaPretemporadaTests(unittest.TestCase):
+    """Reinicio de temporada (jornada 1 de LaLiga 26/27, 2026-08-11): con
+    pj=0 para todos los equipos, fuerza() daba 0 a todo el mundo por igual y
+    el motor perdia toda capacidad de diferenciar -caia en un reparto casi
+    neutro con el empate siempre inflado (~40%). Se añadio un respaldo con
+    los resultados reales de pretemporada (V-E-D, goles) mientras pj siga a
+    0, acordado explicitamente con Marc."""
+
+    def setUp(self):
+        motor._PRETEMPORADA_CACHE = {
+            "Equipo Fuerte": {"v": 5, "e": 1, "d": 1, "gf": 18, "gc": 6},
+            "Equipo Debil": {"v": 0, "e": 0, "d": 5, "gf": 3, "gc": 11},
+        }
+        self.addCleanup(setattr, motor, "_PRETEMPORADA_CACHE", None)
+
+    def test_fuerza_pretemporada_diferencia_equipos_reales(self):
+        fuerte = fuerza_pretemporada("Equipo Fuerte")
+        debil = fuerza_pretemporada("Equipo Debil")
+        self.assertGreater(fuerte, debil)
+
+    def test_fuerza_pretemporada_equipo_desconocido_es_neutra(self):
+        self.assertEqual(fuerza_pretemporada("Equipo Nunca Visto FC"), 0.0)
+
+    def test_calcular_probabilidades_usa_pretemporada_si_pj_es_cero(self):
+        # Memoria de la temporada real vacia (pj=0 para los dos, como pasa
+        # de verdad en jornada 1) -sin el respaldo de pretemporada, esto
+        # daria el mismo empate inflado para cualquier partido.
+        memoria = {
+            "ligas": {
+                "primera": {
+                    "equipos": [
+                        {"equipo": "Equipo Fuerte", "pj": 0, "pts": 0, "dg": 0, "local": {}, "visitante": {}, "tendencias": {}},
+                        {"equipo": "Equipo Debil", "pj": 0, "pts": 0, "dg": 0, "local": {}, "visitante": {}, "tendencias": {}},
+                    ]
+                },
+                "segunda": {"equipos": []},
+            }
+        }
+        partido_prueba = {"local": "Equipo Fuerte", "visitante": "Equipo Debil"}
+
+        probs, _, _, diff = calcular_probabilidades(memoria, partido_prueba)
+
+        self.assertGreater(diff, 0)
+        self.assertGreater(probs["1"], probs["2"])
+        self.assertGreater(probs["1"], probs["X"])
 
 
 if __name__ == "__main__":
