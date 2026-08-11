@@ -1,24 +1,35 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-11T10:08:09.928645+00:00",
-  "estado": "operativo_con_avisos",
-  "score_salud": 82,
+  "generado_en": "2026-08-11T10:47:40.725966+00:00",
+  "estado": "requiere_revision_datos",
+  "score_salud": 70,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
     "jornada_actual": {
-      "jornada": 76,
-      "fecha": "Domingo, 9 de agosto de 2026",
-      "estado": "cerrada",
+      "jornada": 1,
+      "fecha": "Domingo, 16 de agosto de 2026",
+      "estado": "abierta",
       "partidos": 14,
-      "cerrados": 14,
-      "pendientes": 0,
-      "pendientes_totales_con_pleno15": 0,
-      "pleno15_cerrado": true,
-      "ultima_actualizacion_partido": "2026-08-10T19:35:10Z",
-      "path": "data/jornadas/jornada_76.json"
+      "cerrados": 0,
+      "pendientes": 14,
+      "pendientes_totales_con_pleno15": 15,
+      "pleno15_cerrado": false,
+      "ultima_actualizacion_partido": "",
+      "path": "data/jornadas/jornada_1.json"
     },
-    "proxima_jornada": null,
+    "proxima_jornada": {
+      "jornada": 64,
+      "fecha": "Domingo, 24 de mayo de 2026",
+      "estado": "en_juego",
+      "partidos": 14,
+      "cerrados": 13,
+      "pendientes": 1,
+      "pendientes_totales_con_pleno15": 1,
+      "pleno15_cerrado": true,
+      "ultima_actualizacion_partido": "2026-05-24T19:56:48Z",
+      "path": "data/jornadas/jornada_64.json"
+    },
     "ultimas": [
       {
         "jornada": 72,
@@ -97,21 +108,21 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 76,
-    "generado_en": "2026-08-06T15:01:08.525555+00:00",
+    "jornada": 1,
+    "generado_en": "2026-08-11T10:47:40.126259+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 8,
       "dobles": 4,
       "triples": 2,
-      "elige8_seleccionados": 8,
-      "favoritos_atacables": 6,
+      "elige8_seleccionados": 0,
+      "favoritos_atacables": 4,
       "indice_sorpresa_max": 100.0,
       "calidad_datos": {
-        "alta": 0,
+        "alta": 14,
         "media": 0,
         "media_baja": 0,
-        "baja": 14
+        "baja": 0
       }
     },
     "retenida_por_compuerta": false,
@@ -168,7 +179,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 3.48,
+    "contexto_equipos_horas": 4.14,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -238,18 +249,29 @@
   },
   "backtesting_pre_cierre": {
     "estado": "operativo",
-    "jornadas_snapshot": 11,
+    "jornadas_snapshot": 12,
     "partidos_cerrados": 154,
     "aciertos": 85,
     "precision": 55.19,
-    "generado_en": "2026-08-11T10:08:09.788825+00:00",
+    "generado_en": "2026-08-11T10:47:40.569326+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
     {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 76 pero la última predicción dice 1."
+    },
+    {
+      "nivel": "media",
+      "titulo": "Jornada actual incompleta",
+      "detalle": "La jornada 1 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
+    },
+    {
       "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 11 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -268,10 +290,16 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-08-11T10:08:09.928645+00:00",
-    "estado": "operativo",
-    "score": 100,
-    "alertas": [],
+    "generado_en": "2026-08-11T10:47:40.725966+00:00",
+    "estado": "revisar",
+    "score": 65,
+    "alertas": [
+      {
+        "nivel": "alta",
+        "titulo": "Predicción de jornada antigua",
+        "detalle": "La jornada activa es 76 pero la última predicción dice 1."
+      }
+    ],
     "jornadas": {
       "total": 76,
       "actual": {
@@ -358,24 +386,24 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-08-11T10:07:50.494895+00:00"
+      "generado_en": "2026-08-11T10:47:18.258944+00:00"
     },
     "prediccion": {
-      "jornada": 76,
-      "generado_en": "2026-08-06T15:01:08.525555+00:00",
+      "jornada": 1,
+      "generado_en": "2026-08-11T10:47:40.126259+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 8,
         "dobles": 4,
         "triples": 2,
-        "elige8_seleccionados": 8,
-        "favoritos_atacables": 6,
+        "elige8_seleccionados": 0,
+        "favoritos_atacables": 4,
         "indice_sorpresa_max": 100.0,
         "calidad_datos": {
-          "alta": 0,
+          "alta": 14,
           "media": 0,
           "media_baja": 0,
-          "baja": 14
+          "baja": 0
         }
       },
       "retenida_por_compuerta": false,
@@ -469,6 +497,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-08-11T10:07:50.494895+00:00"
+    "generado_en": "2026-08-11T10:47:18.258944+00:00"
   }
 }
