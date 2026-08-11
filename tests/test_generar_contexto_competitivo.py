@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from generar_contexto_competitivo import cerrar_equipo
+from generar_contexto_competitivo import cerrar_equipo, preparar_tabla
 
 
 class CerrarEquipoReinicioTemporadaTests(unittest.TestCase):
@@ -45,6 +45,31 @@ class CerrarEquipoReinicioTemporadaTests(unittest.TestCase):
 
         self.assertEqual(resultado["situacion_competitiva"], "riesgo_descenso")
         self.assertEqual(resultado["objetivos_vivos"], [objetivo_real])
+
+
+class PrepararTablaPosicionReinicioTests(unittest.TestCase):
+    """Bug real relacionado (mismo dia, 2026-08-11): con pj=0 la "posicion"
+    del dato de origen es un artefacto de orden (alfabetico/roster), no una
+    clasificacion real -pero tier_por_posicion() en motor_prediccion_quiniela.py
+    (usado por boleto_millonario para el patron "top10 vs resto de la tabla")
+    la leia igual, dando avisos "millonaria" falsos en la Jornada 1 basados en
+    una posicion sin sentido. Marc: "el historial de ligas pasadas solo sirve
+    para entender el futbol en general, no para esta temporada nueva -ahora
+    mismo el unico soporte historico real son los resultados de amistosos"."""
+
+    def test_pj_cero_anula_la_posicion(self):
+        tabla = [{"equipo": "Equipo A", "posicion": 6, "pj": 0, "puntos": 0}]
+
+        equipos = preparar_tabla(tabla, total_partidos=38)
+
+        self.assertEqual(equipos[0]["posicion"], 0)
+
+    def test_pj_mayor_que_cero_conserva_la_posicion_real(self):
+        tabla = [{"equipo": "Equipo B", "posicion": 6, "pj": 10, "puntos": 18}]
+
+        equipos = preparar_tabla(tabla, total_partidos=38)
+
+        self.assertEqual(equipos[0]["posicion"], 6)
 
 
 if __name__ == "__main__":

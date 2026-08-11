@@ -109,10 +109,18 @@ def preparar_tabla(tabla, total_partidos):
         pj = int_valor(item.get("pj"))
         puntos = int_valor(item.get("puntos", item.get("pts")))
         restantes = max(total_partidos - pj, 0)
+        # Con pj=0 (reinicio de temporada) la "posicion" del dato de origen
+        # es un artefacto de orden (alfabetico o de roster), no una
+        # clasificacion real -todos los equipos estan empatados a 0 puntos.
+        # 0 hace que tier_por_posicion() en motor_prediccion_quiniela.py
+        # (usado por boleto_millonario) lo trate como "sin señal", en vez
+        # de leer una posicion falsa como si fuera clase real por tabla
+        # (bug real detectado en la Jornada 1 de LaLiga 26/27, 2026-08-11).
+        posicion = int_valor(item.get("posicion")) if pj > 0 else 0
         equipos.append({
             "clave": normalizar_nombre(item.get("equipo")),
             "equipo": item.get("equipo"),
-            "posicion": int_valor(item.get("posicion")),
+            "posicion": posicion,
             "pj": pj,
             "partidos_restantes": restantes,
             "puntos": puntos,
