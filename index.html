@@ -3441,7 +3441,19 @@ No inventes — solo lo que ves con fondo oscuro.`;
       const ultimaJugada = arr((quinielasJugadas || {}).jugadas).reduce((max, j) => Math.max(max, Number(j.jornada) || 0), 0);
       state.ultimaJornadaJugadaNum = ultimaJugada;
       state.ultimaJornadaJugadaDatos = ultimaJugada ? await getJson(`data/jornadas/jornada_${ultimaJugada}.json`, null) : null;
-      qs('#updatedAt').textContent = pred.generado_en ? `Actualizado ${new Date(pred.generado_en).toLocaleString('es-ES')}` : 'Datos cargados';
+      // generado_en solo se mueve cuando el motor regenera la PREDICCION -una
+      // vez la jornada empieza a jugarse no hace falta regenerarla, asi que
+      // se queda fijo aunque los resultados reales se sigan actualizando en
+      // jornada_N.json. Mostrar el mas reciente de los dos evita que la web
+      // parezca parada durante una jornada en juego.
+      const fechasActualizacion = [pred.generado_en, state.jornadaActual?.actualizado_en]
+        .filter(Boolean)
+        .map(f => new Date(f))
+        .filter(d => !isNaN(d));
+      const fechaMasReciente = fechasActualizacion.length
+        ? new Date(Math.max(...fechasActualizacion.map(d => d.getTime())))
+        : null;
+      qs('#updatedAt').textContent = fechaMasReciente ? `Actualizado ${fechaMasReciente.toLocaleString('es-ES')}` : 'Datos cargados';
       renderPredictionMetrics();
       renderTicket();
       renderPleno15();
