@@ -787,7 +787,8 @@
         confirmBtn.style.background = '#15803d';
         confirmMsg.style.display = 'block';
         confirmMsg.innerHTML = `✅ <strong>J${jornada} confirmada:</strong> ${escapeHtml(boleto)} · ${c.apuestas} apuestas · ${c.importeTotal.toFixed(2)}€`
-          + `<br><a href="${urlIssue}" target="_blank" rel="noopener" style="color:#2563eb;font-weight:600">📮 Guardar en el historial permanente (se abre un Issue ya relleno — solo hay que pulsar "Submit new issue")</a>`;
+          + `<br><span id="guardarHistorialAviso">📮 Se ha abierto un Issue en GitHub ya relleno en otra pestaña — solo falta pulsar allí "Submit new issue". `
+          + `<a href="${urlIssue}" target="_blank" rel="noopener" id="guardarHistorialLink" style="color:#2563eb;font-weight:600" onclick="this.outerHTML='✅ Guardado con éxito';">¿No se abrió? Ábrelo aquí</a></span>`;
         window.open(urlIssue, '_blank', 'noopener');
       } catch(err) {
         confirmBtn.disabled = false;
