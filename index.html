@@ -1002,12 +1002,14 @@
       const matches = predictionMatches();
       // Do NOT reset state.generated here — only the generate button controls it.
       // applyTicketVisibility() handles the body class correctly.
-      // renderTicket() reconstruye todo el HTML del listado. En modo manual el
-      // signo elegido solo vive en el DOM (data-selected), así que hay que
-      // conservarlo antes de destruirlo, o cualquier re-render (Elige8,
-      // dobles/triples...) borraría toda la quiniela marcada a mano.
+      // renderTicket() reconstruye todo el HTML del listado. En modo manual y
+      // en mixta·corrijo el signo elegido a mano solo vive en el DOM
+      // (data-selected), así que hay que conservarlo antes de destruirlo, o
+      // cualquier re-render (Elige8, dobles/triples...) borraría toda la
+      // quiniela marcada a mano.
+      const editableMode = ['mixta', 'manual'].includes(state.mode);
       const manualActual = {};
-      if (state.mode === 'manual') {
+      if (editableMode) {
         qsa('.match-row').forEach(row => {
           const sel = row.querySelector('.signs')?.dataset.selected;
           if (sel) manualActual[row.dataset.num] = sel;
@@ -1015,7 +1017,7 @@
       }
       const html = matches.map(match => {
         const num = match.num ?? match.numero ?? match.partido;
-        const chosen = state.mode === 'manual' ? (manualActual[String(num)] || '') : selectedSigns(match);
+        const chosen = editableMode ? (manualActual[String(num)] || selectedSigns(match)) : selectedSigns(match);
         const elige8 = isElige8Match(match);
         const matchType = betType(match);
         const elige8Prob = elige8ConfForMatch(match, matchType);
@@ -1518,7 +1520,10 @@
     }
 
     function renderQuinielasJugadas() {
-      const jugadas = arr((state.quinielasJugadas || {}).jugadas).slice().sort((a, b) => (Number(b.jornada) || 0) - (Number(a.jornada) || 0));
+      // Ordenar por fecha real (validado_en), no por numero de jornada: la
+      // Quiniela LAE reinicia su numeracion cada temporada (J76 de 25/26 ->
+      // J1 de 26/27), asi que "jornada mas alta" ya no es "mas reciente".
+      const jugadas = arr((state.quinielasJugadas || {}).jugadas).slice().sort((a, b) => new Date(b.validado_en || 0) - new Date(a.validado_en || 0));
       qs('#jugadasTable').innerHTML = jugadas.length ? `<table><thead><tr><th>Jornada</th><th>Validado</th><th>Signos (1-14)</th><th>Elige 8</th><th>Pleno 15</th><th>Origen</th></tr></thead><tbody>${jugadas.map(j => `<tr>
         <td>${escapeHtml(j.jornada)}</td>
         <td>${escapeHtml(formatoFechaValidado(j.validado_en))}</td>
@@ -2230,8 +2235,10 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       // todavía" con "no sé qué jugamos nosotros", y encima nunca veía
       // los signos/Elige8/Pleno15 reales que sí jugamos.
       let bloqueQuinielasJugadas = '';
+      // Igual que en renderQuinielasJugadas(): ordenar por fecha real, no por
+      // numero de jornada, porque la numeracion se reinicia cada temporada.
       const jugadasReales = arr((state.quinielasJugadas || {}).jugadas).slice()
-        .sort((a, b) => (Number(b.jornada) || 0) - (Number(a.jornada) || 0)).slice(0, 5);
+        .sort((a, b) => new Date(b.validado_en || 0) - new Date(a.validado_en || 0)).slice(0, 5);
       if (jugadasReales.length) {
         const lineasJugadas = jugadasReales.map(j => {
           const cabecera = `J${j.jornada} (validado ${j.validado_en || '?'}, origen=${j.origen || '?'}) | Elige8=${arr(j.elige8).join(',') || 'no'} | Pleno15=${j.pleno15 || '?'}`;
@@ -3439,7 +3446,13 @@ No inventes — solo lo que ves con fondo oscuro.`;
       // 73 sigue en juego). Para saber que equipos son los de la ULTIMA
       // jornada que jugamos de verdad (quinielas_jugadas.json), hace falta
       // cargar por separado su propio fixture -no coincide con jornadaNum.
-      const ultimaJugada = arr((quinielasJugadas || {}).jugadas).reduce((max, j) => Math.max(max, Number(j.jornada) || 0), 0);
+      // Por fecha real, no por numero de jornada (se reinicia cada temporada:
+      // la J76 de 25/26 numericamente es mayor que la J1 de 26/27, pero es
+      // mas vieja de verdad -sin esto, el chat mostraba la J76 como "la
+      // ultima jugada" al preguntar por la J1 recien confirmada).
+      const jugadasPorFecha = arr((quinielasJugadas || {}).jugadas).slice()
+        .sort((a, b) => new Date(b.validado_en || 0) - new Date(a.validado_en || 0));
+      const ultimaJugada = jugadasPorFecha.length ? (Number(jugadasPorFecha[0].jornada) || 0) : 0;
       state.ultimaJornadaJugadaNum = ultimaJugada;
       state.ultimaJornadaJugadaDatos = ultimaJugada ? await getJson(`data/jornadas/jornada_${ultimaJugada}.json`, null) : null;
       // generado_en solo se mueve cuando el motor regenera la PREDICCION -una
