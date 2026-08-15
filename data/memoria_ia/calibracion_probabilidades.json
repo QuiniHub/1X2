@@ -1,29 +1,29 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-15T18:41:33.099189+00:00",
+  "generado_en": "2026-08-15T19:30:14.082782+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 155,
-    "precision_top": 38.71,
-    "brier_medio": 0.6567,
-    "logloss_medio": 1.0841,
+    "partidos": 157,
+    "precision_top": 38.85,
+    "brier_medio": 0.6554,
+    "logloss_medio": 1.082,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 108,
-      "prob_top_media": 35.48,
-      "precision_real": 33.33,
-      "desviacion_calibracion": -2.15,
+      "total": 109,
+      "prob_top_media": 35.5,
+      "precision_real": 33.03,
+      "desviacion_calibracion": -2.47,
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 29,
-      "prob_top_media": 45.99,
-      "precision_real": 55.17,
-      "desviacion_calibracion": 9.19,
-      "muestra_suficiente": false
+      "total": 30,
+      "prob_top_media": 45.9,
+      "precision_real": 56.67,
+      "desviacion_calibracion": 10.76,
+      "muestra_suficiente": true
     },
     "50-60": {
       "total": 18,
@@ -35,10 +35,10 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 155,
-      "precision_top": 38.71,
-      "brier_medio": 0.6567,
-      "logloss_medio": 1.0841,
+      "partidos": 157,
+      "precision_top": 38.85,
+      "brier_medio": 0.6554,
+      "logloss_medio": 1.082,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -57,6 +57,36 @@
       "bucket_top": "40-50",
       "brier": 0.5027919133813239,
       "logloss": 0.8084358272951566,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 1,
+      "num": 7,
+      "partido": "Cadiz CF - Celta B",
+      "fuente": "data/backtesting/pre_cierre/jornada_1.json",
+      "real": "X",
+      "top": "1",
+      "acierto_top": false,
+      "prob_top": 37.6,
+      "prob_real": 36.2,
+      "bucket_top": "30-40",
+      "brier": 0.6170639999999998,
+      "logloss": 1.016111067156366,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 1,
+      "num": 8,
+      "partido": "Real Oviedo - Granada CF",
+      "fuente": "data/backtesting/pre_cierre/jornada_1.json",
+      "real": "X",
+      "top": "X",
+      "acierto_top": true,
+      "prob_top": 43.54,
+      "prob_real": 43.54,
+      "bucket_top": "40-50",
+      "brier": 0.4922399877354833,
+      "logloss": 0.8314087475598695,
       "competicion": "desconocida"
     },
     {
