@@ -10,76 +10,79 @@ sys.path.insert(0, str(ROOT))
 import cargar_historico_quinielas_lae as chq
 
 
-def jornada_local(num_jornada, con_pleno15=True, pleno15_resuelto=True):
-    partidos = [
-        {"num": i, "local": f"Local{i}", "visitante": f"Visitante{i}", "resultado": "1-0", "signo_oficial": "1", "fecha": "2026-07-01"}
-        for i in range(1, 15)
-    ]
-    data = {"jornada": num_jornada, "partidos": partidos, "fuente": "test"}
-    if con_pleno15:
-        data["pleno15"] = {
-            "num": 15,
-            "local": "España",
-            "visitante": "Argentina",
-            "fecha": "2026-07-19",
-            "resultado": "1-1" if pleno15_resuelto else "Pendiente",
-            "signo_oficial": "1-1" if pleno15_resuelto else "Pendiente",
-        }
-    return data
+class FechaIsoDesdeTextoTests(unittest.TestCase):
+    def test_fecha_de_la_temporada_nueva(self):
+        self.assertEqual(chq.fecha_iso_desde_texto("Domingo, 16 de agosto de 2026"), "2026-08-16")
+
+    def test_fecha_con_prefijo_libre(self):
+        self.assertEqual(
+            chq.fecha_iso_desde_texto("La Quiniela Domingo, 7 de septiembre de 2025"),
+            "2025-09-07",
+        )
+
+    def test_texto_sin_fecha_reconocible(self):
+        self.assertIsNone(chq.fecha_iso_desde_texto("sin fecha aqui"))
+        self.assertIsNone(chq.fecha_iso_desde_texto(""))
 
 
-class CargarJornadasLocalesTests(unittest.TestCase):
+class CargarJornadasLocalesTemporadaTests(unittest.TestCase):
+    """Bug real (16/08/2026): La Quiniela reinicia su numeracion cada
+    temporada, asi que jornada_1.json de 26/27 tiene el mismo nombre de
+    archivo que tendria una vieja J1 -cargar_jornadas_locales() etiquetaba
+    TODO lo que hubiera en data/jornadas/ como "2025/2026" sin mirar la
+    fecha real, y la pestaña "Aprendizaje" nunca mostraba una pestaña
+    2026/2027 aunque ya hubiera resultados reales de la jornada 1 nueva."""
+
     def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
+        self._tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmpdir.cleanup)
         self._original_jornadas_dir = chq.JORNADAS_DIR
-        chq.JORNADAS_DIR = Path(self._tmp.name)
+        self._original_clasificaciones = chq.CLASIFICACIONES_OFICIALES
+        chq.JORNADAS_DIR = Path(self._tmpdir.name) / "jornadas"
+        chq.JORNADAS_DIR.mkdir(parents=True, exist_ok=True)
+        clasif_path = Path(self._tmpdir.name) / "clasificaciones_oficiales.json"
+        clasif_path.write_text(json.dumps({"temporada_detectada": "2026/2027"}), encoding="utf-8")
+        chq.CLASIFICACIONES_OFICIALES = clasif_path
 
     def tearDown(self):
         chq.JORNADAS_DIR = self._original_jornadas_dir
-        self._tmp.cleanup()
+        chq.CLASIFICACIONES_OFICIALES = self._original_clasificaciones
 
-    def _escribir(self, num_jornada, data):
-        path = chq.JORNADAS_DIR / f"jornada_{num_jornada}.json"
-        path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    def _escribir_jornada(self, numero, fecha_texto, partidos=14):
+        datos = {
+            "jornada": numero,
+            "fecha": fecha_texto,
+            "partidos": [
+                {"num": i + 1, "local": f"Local{i}", "visitante": f"Visitante{i}", "signo_oficial": "1"}
+                for i in range(partidos)
+            ],
+        }
+        (chq.JORNADAS_DIR / f"jornada_{numero}.json").write_text(
+            json.dumps(datos, ensure_ascii=False), encoding="utf-8"
+        )
 
-    def test_incluye_el_pleno_al_15_resuelto_como_partido_num_15(self):
-        self._escribir(73, jornada_local(73, con_pleno15=True, pleno15_resuelto=True))
-
+    def test_jornada_de_temporada_vieja_se_queda_en_2025_2026(self):
+        self._escribir_jornada(76, "Domingo, 9 de agosto de 2026")
         jornadas = chq.cargar_jornadas_locales()
+        self.assertEqual(jornadas[0]["temporada"], "2025/2026")
 
-        self.assertEqual(len(jornadas), 1)
-        p15 = next((p for p in jornadas[0]["partidos"] if p["num"] == 15), None)
-        self.assertIsNotNone(p15)
-        self.assertEqual(p15["local"], "España")
-        self.assertEqual(p15["visitante"], "Argentina")
-        self.assertEqual(p15["resultado"], "1-1")
-        self.assertEqual(p15["signo_oficial"], "1-1")
-
-    def test_pleno_al_15_pendiente_no_lleva_signo_oficial(self):
-        self._escribir(74, jornada_local(74, con_pleno15=True, pleno15_resuelto=False))
-
+    def test_jornada_de_temporada_nueva_usa_la_temporada_detectada(self):
+        self._escribir_jornada(1, "Domingo, 16 de agosto de 2026")
         jornadas = chq.cargar_jornadas_locales()
+        self.assertEqual(jornadas[0]["temporada"], "2026/2027")
 
-        p15 = next((p for p in jornadas[0]["partidos"] if p["num"] == 15), None)
-        self.assertIsNotNone(p15)
-        self.assertEqual(p15["resultado"], "Pendiente")
-        self.assertNotIn("signo_oficial", p15)
-
-    def test_sin_pleno15_no_anade_partido_num_15(self):
-        self._escribir(75, jornada_local(75, con_pleno15=False))
-
+    def test_ambas_temporadas_conviven_en_la_misma_carpeta(self):
+        self._escribir_jornada(76, "Domingo, 9 de agosto de 2026")
+        self._escribir_jornada(1, "Domingo, 16 de agosto de 2026")
         jornadas = chq.cargar_jornadas_locales()
+        por_jornada = {j["jornada"]: j["temporada"] for j in jornadas}
+        self.assertEqual(por_jornada[76], "2025/2026")
+        self.assertEqual(por_jornada[1], "2026/2027")
 
-        nums = [p["num"] for p in jornadas[0]["partidos"]]
-        self.assertNotIn(15, nums)
-        self.assertEqual(len(nums), 14)
-
-    def test_signos_14_no_incluye_el_pleno15(self):
-        self._escribir(76, jornada_local(76, con_pleno15=True, pleno15_resuelto=True))
-
+    def test_sin_fecha_reconocible_cae_en_2025_2026_por_seguridad(self):
+        self._escribir_jornada(4, "La Quiniela Domingo, 7 de septiembre de 2025")
         jornadas = chq.cargar_jornadas_locales()
-
-        self.assertEqual(len(jornadas[0]["signos_14"]), 14)
+        self.assertEqual(jornadas[0]["temporada"], "2025/2026")
 
 
 if __name__ == "__main__":

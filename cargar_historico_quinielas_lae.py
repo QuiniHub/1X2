@@ -24,6 +24,50 @@ ROOT  = Path(__file__).resolve().parent
 DATA  = ROOT / "data"
 JORNADAS_DIR = DATA / "jornadas"
 SALIDA = DATA / "memoria_ia" / "historico_quinielas_lae.json"
+CLASIFICACIONES_OFICIALES = DATA / "clasificaciones_oficiales.json"
+
+# La Quiniela reinicia su numeracion cada temporada (J76 de 25/26 -> J1 de
+# 26/27), asi que data/jornadas/jornada_1.json ya NO es la J1 de 2025/2026
+# -es la J1 de la temporada que arranco este dia. cargar_jornadas_locales()
+# etiquetaba TODO lo que hubiera en esa carpeta como "2025/2026" a pelo, asi
+# que la J1 real de 26/27 se colaba mezclada bajo la temporada equivocada
+# (o desaparecia del historial "Aprendizaje" tal cual lo ve Marc en la web).
+FECHA_INICIO_TEMPORADA_ACTUAL = "2026-08-15"
+
+_MESES_ES = {
+    "enero": "01", "febrero": "02", "marzo": "03", "abril": "04",
+    "mayo": "05", "junio": "06", "julio": "07", "agosto": "08",
+    "septiembre": "09", "octubre": "10", "noviembre": "11", "diciembre": "12",
+}
+
+
+def _sin_acentos(texto):
+    return "".join(
+        c for c in unicodedata.normalize("NFD", texto)
+        if unicodedata.category(c) != "Mn"
+    )
+
+
+def fecha_iso_desde_texto(texto):
+    """Extrae una fecha "D de MES de AAAA" (en español, con o sin acentos)
+    del texto libre que trae el campo "fecha" de jornada_N.json y la
+    devuelve en ISO (AAAA-MM-DD). None si no encuentra nada reconocible."""
+    m = re.search(r"(\d{1,2})\s+de\s+([A-Za-zÀ-ÿ]+)\s+de\s+(\d{4})", texto or "")
+    if not m:
+        return None
+    dia, mes, anio = m.groups()
+    mes_num = _MESES_ES.get(_sin_acentos(mes).lower())
+    if not mes_num:
+        return None
+    return f"{anio}-{mes_num}-{int(dia):02d}"
+
+
+def temporada_actual_detectada():
+    try:
+        datos = json.loads(CLASIFICACIONES_OFICIALES.read_text(encoding="utf-8"))
+    except Exception:
+        return "2026/2027"
+    return datos.get("temporada_detectada") or "2026/2027"
 
 BASE = "https://www.webprincipal.com/quiniela/estadisticas/"
 HEADERS = {
@@ -167,7 +211,10 @@ def calcular_stats(jornadas):
 # ── Complemento temporada actual desde archivos locales ─────────────────────
 
 def cargar_jornadas_locales():
-    """Carga las jornadas de 2025/26 ya guardadas en data/jornadas/."""
+    """Carga las jornadas ya guardadas en data/jornadas/, etiquetando cada
+    una con su temporada REAL (por fecha, no a pelo) -ver comentario junto
+    a FECHA_INICIO_TEMPORADA_ACTUAL."""
+    temporada_nueva = temporada_actual_detectada()
     jornadas = []
     for path in sorted(
         JORNADAS_DIR.glob("jornada_*.json"),
@@ -220,11 +267,14 @@ def cargar_jornadas_locales():
         signos_str = "".join(
             p.get("signo_oficial", "?") for p in partidos[:14]
         )
+        fecha_texto = d.get("fecha", "")
+        fecha_iso = fecha_iso_desde_texto(fecha_texto)
+        es_temporada_nueva = bool(fecha_iso) and fecha_iso >= FECHA_INICIO_TEMPORADA_ACTUAL
         jornadas.append({
             "jornada": int(d.get("jornada") or re.search(r"\d+", path.stem).group()),
-            "temporada": "2025/2026",
-            "temporada_key": "2025",
-            "fecha": d.get("fecha", ""),
+            "temporada": temporada_nueva if es_temporada_nueva else "2025/2026",
+            "temporada_key": "actual" if es_temporada_nueva else "2025",
+            "fecha": fecha_texto,
             "fuente": d.get("fuente", str(path)),
             "partidos": partidos,
             "signos_14": signos_str,
@@ -285,7 +335,7 @@ def main():
             f = stats["frecuencias_signos"]
             print(f"  -> {len(jornadas)} jornadas | 1={f['1']}% X={f['X']}% 2={f['2']}%\n")
 
-    # ── Temporada actual: intentar webprincipal primero, luego local ──────────
+    # ── Temporada 2025/2026: intentar webprincipal primero, luego local ───────
     print("Temporada 2025/2026:")
     jornadas_2526 = []
     try:
@@ -304,14 +354,19 @@ def main():
             time.sleep(0.15)
     except Exception as e:
         print(f"  webprincipal error ({e}), usando archivos locales")
-        jornadas_2526 = cargar_jornadas_locales()
-        print(f"  {len(jornadas_2526)} jornadas desde data/jornadas/")
 
-    # Complementar con locales si webprincipal dio menos
-    if len(jornadas_2526) < len(list(JORNADAS_DIR.glob("jornada_*.json"))):
-        locales = cargar_jornadas_locales()
+    # webprincipal solo conoce temporadas ya cerradas -no tiene ni idea de
+    # la temporada en curso. Los archivos locales de data/jornadas/ son la
+    # unica fuente para eso, y cargar_jornadas_locales() ya etiqueta cada
+    # jornada con su temporada real (por fecha): separarlas aqui evita que
+    # la J1 de la temporada nueva se cuele mezclada bajo "2025/2026".
+    locales = cargar_jornadas_locales()
+    locales_2526 = [j for j in locales if j["temporada"] == "2025/2026"]
+    locales_actual = [j for j in locales if j["temporada"] != "2025/2026"]
+
+    if len(jornadas_2526) < len(locales_2526):
         ids_web = {j["jornada"] for j in jornadas_2526}
-        for jl in locales:
+        for jl in locales_2526:
             if jl["jornada"] not in ids_web:
                 jornadas_2526.append(jl)
         jornadas_2526.sort(key=lambda x: x["jornada"])
@@ -326,6 +381,21 @@ def main():
         }
         f = stats["frecuencias_signos"]
         print(f"  -> {len(jornadas_2526)} jornadas | 1={f['1']}% X={f['X']}% 2={f['2']}%\n")
+
+    # ── Temporada en curso (26/27): solo archivos locales, webprincipal no la tiene ──
+    if locales_actual:
+        nombre_actual = locales_actual[0]["temporada"]
+        locales_actual.sort(key=lambda x: x["jornada"])
+        stats_actual = calcular_stats(locales_actual)
+        historico["temporadas"][nombre_actual] = {
+            "temporada": nombre_actual,
+            "fuente": "local (data/jornadas/)",
+            "jornadas": locales_actual,
+            "estadisticas": stats_actual,
+        }
+        f = stats_actual["frecuencias_signos"]
+        print(f"Temporada {nombre_actual}:")
+        print(f"  -> {len(locales_actual)} jornadas | 1={f['1']}% X={f['X']}% 2={f['2']}%\n")
 
     guardar_json(SALIDA, historico)
     total = sum(len(t["jornadas"]) for t in historico["temporadas"].values())
