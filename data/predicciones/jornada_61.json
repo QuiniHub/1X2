@@ -359,22 +359,20 @@
       "incertidumbre": 115.6,
       "elige8": false,
       "razonamiento": "Probabilidades IA: 1=27.6%, X=34.0%, 2=38.3%. Burgos llega con 61 puntos, 6 puntos en los ultimos 5 y 1.077 goles a favor por partido. Almería llega con 72 puntos, 10 puntos en los ultimos 5 y 1.436 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Decision final: 2.",
-      "competicion_resuelta": "segunda_division",
-      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
       "resolucion_competicion": {
-        "competicion": "segunda_division",
-        "modelo_recomendado": "modelo_liga_espana_segunda",
-        "confianza": 0.94,
-        "motivo": "Ambos equipos estan en Segunda.",
-        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
         "datos_minimos": [
           "resultados",
-          "clasificacion",
+          "clasificacion_liga",
           "forma",
-          "casa_fuera",
-          "lesiones",
-          "alineaciones",
-          "xg"
+          "ranking_elo",
+          "lesiones"
         ],
         "equipos_normalizados": {
           "local": "burgos",
@@ -567,12 +565,12 @@
     "elige8_seleccionados": 0
   },
   "resolucion_competiciones": {
-    "generado_en": "2026-08-16T14:57:19.954477+00:00",
+    "generado_en": "2026-08-16T15:22:28.428081+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
-      "liga_extranjera": 9,
+      "liga_extranjera": 10,
       "primera_division": 2,
-      "segunda_division": 3
+      "segunda_division": 2
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
   }
