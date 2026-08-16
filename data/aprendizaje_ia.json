@@ -1,24 +1,24 @@
 {
   "version": "1.2",
-  "precision": 66.93,
+  "precision": 66.8,
   "jornadas_revisadas": 19,
-  "partidos_revisados": 257,
-  "aciertos": 172,
-  "fallos": 85,
+  "partidos_revisados": 259,
+  "aciertos": 173,
+  "fallos": 86,
   "fallos_por_tipo": {
-    "No cubrio empate": 31,
+    "Fijo fallado": 40,
     "Doble insuficiente": 16,
-    "Fijo fallado": 38
+    "No cubrio empate": 30
   },
   "fallos_por_signo_real": {
-    "X": 31,
-    "1": 19,
-    "2": 35
+    "1": 21,
+    "2": 35,
+    "X": 30
   },
   "signos_omitidos_en_fallo": {
-    "X": 31,
-    "1": 19,
-    "2": 35
+    "1": 21,
+    "2": 35,
+    "X": 30
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,14 +28,14 @@
       "precision": 73.77
     },
     "FIJO": {
-      "total": 164,
-      "aciertos": 95,
-      "fallos": 69,
-      "precision": 57.93
+      "total": 167,
+      "aciertos": 97,
+      "fallos": 70,
+      "precision": 58.08
     },
     "TRIPLE": {
-      "total": 32,
-      "aciertos": 32,
+      "total": 31,
+      "aciertos": 31,
       "fallos": 0,
       "precision": 100.0
     }
@@ -43,21 +43,21 @@
   "precision_por_signo_real": {
     "1": {
       "total": 117,
-      "aciertos": 98,
-      "fallos": 19,
-      "precision": 83.76
+      "aciertos": 96,
+      "fallos": 21,
+      "precision": 82.05
     },
     "2": {
-      "total": 81,
-      "aciertos": 46,
+      "total": 82,
+      "aciertos": 47,
       "fallos": 35,
-      "precision": 56.79
+      "precision": 57.32
     },
     "X": {
-      "total": 59,
-      "aciertos": 28,
-      "fallos": 31,
-      "precision": 47.46
+      "total": 60,
+      "aciertos": 30,
+      "fallos": 30,
+      "precision": 50.0
     }
   },
   "detalle": [
@@ -20485,22 +20485,22 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 257,
+    "partidos_base": 259,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.07,
-      "no_cubrio_empate_sobre_fallos_pct": 36.47,
-      "no_cubrio_empate_sobre_total_pct": 12.06,
-      "fijo_fallado_sobre_fallos_pct": 44.71,
-      "fijo_fallado_sobre_total_pct": 14.79,
-      "doble_insuficiente_sobre_total_pct": 6.23
+      "fallos_total_pct": 33.2,
+      "no_cubrio_empate_sobre_fallos_pct": 34.88,
+      "no_cubrio_empate_sobre_total_pct": 11.58,
+      "fijo_fallado_sobre_fallos_pct": 46.51,
+      "fijo_fallado_sobre_total_pct": 15.44,
+      "doble_insuficiente_sobre_total_pct": 6.18
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 4.17,
-    "riesgo_extra_triple_insuficiente": 2.01,
-    "min_dobles_auto": 0,
+    "riesgo_extra_fijo_fragil": 5.05,
+    "riesgo_extra_triple_insuficiente": 1.96,
+    "min_dobles_auto": 3,
     "min_triples_auto": 1,
-    "umbral_fijo_seguro": 54,
+    "umbral_fijo_seguro": 58,
     "reglas": [
       "Subir X en partidos de margen corto o tendencia de empate porque el historial propio dejo empates sin cubrir.",
       "Penalizar fijo limpio si el favorito no supera un umbral fuerte de probabilidad/margen.",
