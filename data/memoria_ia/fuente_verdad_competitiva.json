@@ -1,47 +1,13 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-16T18:41:00.679999+00:00",
+  "generado_en": "2026-08-16T19:28:12.575269+00:00",
   "fuente": "data/memoria_ia/contexto_competitivo.json",
   "descripcion": "Fuente unica de verdad competitiva para motor, quiniela, analisis y asistentes.",
   "equipos": {
-    "Deportivo Alaves": {
-      "equipo": "Deportivo Alaves",
-      "liga": "primera",
-      "posicion": 1,
-      "puntos": 3,
-      "puntos_en_juego": 111,
-      "maximo_puntos": 114,
-      "motivacion_competitiva": "baja",
-      "motivacion": "baja",
-      "situacion_competitiva": "salvado_matematicamente",
-      "lectura_resumen": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
-      "objetivo_principal": {
-        "objetivo": "situacion_final",
-        "estado": "salvado_matematicamente",
-        "vivo": false,
-        "terminal": true,
-        "override_oficial_jornada": true,
-        "lectura": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
-        "puntos_necesarios_para_asegurar": 0
-      },
-      "objetivos": [
-        {
-          "objetivo": "situacion_final",
-          "estado": "salvado_matematicamente",
-          "vivo": false,
-          "terminal": true,
-          "override_oficial_jornada": true,
-          "lectura": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
-          "puntos_necesarios_para_asegurar": 0
-        }
-      ],
-      "objetivos_vivos": [],
-      "override_oficial_jornada": true
-    },
     "RCD Espanyol de Barcelona": {
       "equipo": "RCD Espanyol de Barcelona",
       "liga": "primera",
-      "posicion": 2,
+      "posicion": 1,
       "puntos": 3,
       "puntos_en_juego": 111,
       "maximo_puntos": 114,
@@ -76,12 +42,12 @@
         },
         {
           "objetivo": "titulo_liga",
-          "estado": "aspira_matematicamente",
+          "estado": "defiende_liderato",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -1,
-          "puntos_necesarios_para_entrar": 1,
-          "lectura": "Aún puede pelear el título por puntos: necesita 1 punto para superar al líder Deportivo Alaves."
+          "distancia_o_colchon": 0,
+          "puntos_necesarios_para_asegurar": 112,
+          "lectura": "Lidera con 0 puntos sobre Deportivo Alaves y necesita 112 puntos para cerrar el título por puntos."
         },
         {
           "objetivo": "champions",
@@ -135,12 +101,12 @@
         },
         {
           "objetivo": "titulo_liga",
-          "estado": "aspira_matematicamente",
+          "estado": "defiende_liderato",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -1,
-          "puntos_necesarios_para_entrar": 1,
-          "lectura": "Aún puede pelear el título por puntos: necesita 1 punto para superar al líder Deportivo Alaves."
+          "distancia_o_colchon": 0,
+          "puntos_necesarios_para_asegurar": 112,
+          "lectura": "Lidera con 0 puntos sobre Deportivo Alaves y necesita 112 puntos para cerrar el título por puntos."
         },
         {
           "objetivo": "champions",
@@ -180,6 +146,40 @@
         }
       ],
       "override_oficial_jornada": false
+    },
+    "Deportivo Alaves": {
+      "equipo": "Deportivo Alaves",
+      "liga": "primera",
+      "posicion": 2,
+      "puntos": 3,
+      "puntos_en_juego": 111,
+      "maximo_puntos": 114,
+      "motivacion_competitiva": "baja",
+      "motivacion": "baja",
+      "situacion_competitiva": "salvado_matematicamente",
+      "lectura_resumen": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
+      "objetivo_principal": {
+        "objetivo": "situacion_final",
+        "estado": "salvado_matematicamente",
+        "vivo": false,
+        "terminal": true,
+        "override_oficial_jornada": true,
+        "lectura": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
+        "puntos_necesarios_para_asegurar": 0
+      },
+      "objetivos": [
+        {
+          "objetivo": "situacion_final",
+          "estado": "salvado_matematicamente",
+          "vivo": false,
+          "terminal": true,
+          "override_oficial_jornada": true,
+          "lectura": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
+          "puntos_necesarios_para_asegurar": 0
+        }
+      ],
+      "objetivos_vivos": [],
+      "override_oficial_jornada": true
     },
     "Sevilla FC": {
       "equipo": "Sevilla FC",
@@ -292,7 +292,7 @@
           "terminal": false,
           "distancia_o_colchon": -3,
           "puntos_necesarios_para_entrar": 3,
-          "lectura": "Aún puede pelear el título por puntos: necesita 3 puntos para superar al líder Deportivo Alaves."
+          "lectura": "Aún puede pelear el título por puntos: necesita 3 puntos para superar al líder RCD Espanyol de Barcelona."
         },
         {
           "objetivo": "champions",
@@ -351,7 +351,7 @@
           "terminal": false,
           "distancia_o_colchon": -3,
           "puntos_necesarios_para_entrar": 3,
-          "lectura": "Aún puede pelear el título por puntos: necesita 3 puntos para superar al líder Deportivo Alaves."
+          "lectura": "Aún puede pelear el título por puntos: necesita 3 puntos para superar al líder RCD Espanyol de Barcelona."
         },
         {
           "objetivo": "champions",
@@ -666,18 +666,18 @@
       "motivacion_competitiva": "maxima",
       "motivacion": "maxima",
       "situacion_competitiva": "en_descenso_con_opciones",
-      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Girona FC (0).",
+      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Cordoba CF (0).",
       "objetivo_principal": {
         "objetivo": "descenso_primera_federacion",
         "estado": "en_descenso_con_opciones",
         "vivo": true,
         "terminal": false,
         "distancia_o_colchon": -1,
-        "corte_equipo": "Girona FC",
+        "corte_equipo": "Cordoba CF",
         "corte_puntos_actuales": 0,
         "puntos_necesarios_para_salvarse": 1,
         "depende_de_rivales": false,
-        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Girona FC (0)."
+        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Cordoba CF (0)."
       },
       "objetivos": [
         {
@@ -686,11 +686,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Girona FC",
+          "corte_equipo": "Cordoba CF",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Girona FC (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Cordoba CF (0)."
         },
         {
           "objetivo": "ascenso_directo",
@@ -710,11 +710,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -2,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Girona FC."
         }
       ],
       "objetivos_vivos": [
@@ -724,11 +724,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Girona FC",
+          "corte_equipo": "Cordoba CF",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Girona FC (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Cordoba CF (0)."
         },
         {
           "objetivo": "ascenso_directo",
@@ -748,11 +748,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -2,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Girona FC."
         }
       ],
       "override_oficial_jornada": false
@@ -866,7 +866,7 @@
           "terminal": false,
           "distancia_o_colchon": -4,
           "puntos_necesarios_para_entrar": 4,
-          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Deportivo Alaves."
+          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder RCD Espanyol de Barcelona."
         },
         {
           "objetivo": "champions",
@@ -925,7 +925,7 @@
           "terminal": false,
           "distancia_o_colchon": -4,
           "puntos_necesarios_para_entrar": 4,
-          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Deportivo Alaves."
+          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder RCD Espanyol de Barcelona."
         },
         {
           "objetivo": "champions",
@@ -1009,7 +1009,7 @@
           "terminal": false,
           "distancia_o_colchon": -4,
           "puntos_necesarios_para_entrar": 4,
-          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Deportivo Alaves."
+          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder RCD Espanyol de Barcelona."
         },
         {
           "objetivo": "champions",
@@ -1068,7 +1068,7 @@
           "terminal": false,
           "distancia_o_colchon": -4,
           "puntos_necesarios_para_entrar": 4,
-          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Deportivo Alaves."
+          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder RCD Espanyol de Barcelona."
         },
         {
           "objetivo": "champions",
@@ -1163,11 +1163,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 2,
-          "corte_equipo": "Cordoba CF",
+          "corte_equipo": "CD Leganes",
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 124,
           "puntos_necesarios_para_asegurar": 122,
-          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre Cordoba CF. Para asegurarla por puntos necesita 122 puntos más."
+          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre CD Leganes. Para asegurarla por puntos necesita 122 puntos más."
         }
       ],
       "objetivos_vivos": [
@@ -1201,11 +1201,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 2,
-          "corte_equipo": "Cordoba CF",
+          "corte_equipo": "CD Leganes",
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 124,
           "puntos_necesarios_para_asegurar": 122,
-          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre Cordoba CF. Para asegurarla por puntos necesita 122 puntos más."
+          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre CD Leganes. Para asegurarla por puntos necesita 122 puntos más."
         }
       ],
       "override_oficial_jornada": false
@@ -1264,11 +1264,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 2,
-          "corte_equipo": "Cordoba CF",
+          "corte_equipo": "CD Leganes",
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 124,
           "puntos_necesarios_para_asegurar": 122,
-          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre Cordoba CF. Para asegurarla por puntos necesita 122 puntos más."
+          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre CD Leganes. Para asegurarla por puntos necesita 122 puntos más."
         }
       ],
       "objetivos_vivos": [
@@ -1302,11 +1302,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 2,
-          "corte_equipo": "Cordoba CF",
+          "corte_equipo": "CD Leganes",
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 124,
           "puntos_necesarios_para_asegurar": 122,
-          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre Cordoba CF. Para asegurarla por puntos necesita 122 puntos más."
+          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre CD Leganes. Para asegurarla por puntos necesita 122 puntos más."
         }
       ],
       "override_oficial_jornada": false
@@ -1365,11 +1365,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 2,
-          "corte_equipo": "Cordoba CF",
+          "corte_equipo": "CD Leganes",
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 124,
           "puntos_necesarios_para_asegurar": 122,
-          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre Cordoba CF. Para asegurarla por puntos necesita 122 puntos más."
+          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre CD Leganes. Para asegurarla por puntos necesita 122 puntos más."
         }
       ],
       "objetivos_vivos": [
@@ -1403,17 +1403,17 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 2,
-          "corte_equipo": "Cordoba CF",
+          "corte_equipo": "CD Leganes",
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 124,
           "puntos_necesarios_para_asegurar": 122,
-          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre Cordoba CF. Para asegurarla por puntos necesita 122 puntos más."
+          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre CD Leganes. Para asegurarla por puntos necesita 122 puntos más."
         }
       ],
       "override_oficial_jornada": false
     },
-    "CD Leganes": {
-      "equipo": "CD Leganes",
+    "Burgos C": {
+      "equipo": "Burgos C",
       "liga": "segunda",
       "posicion": 4,
       "puntos": 3,
@@ -1466,11 +1466,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 2,
-          "corte_equipo": "Cordoba CF",
+          "corte_equipo": "CD Leganes",
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 124,
           "puntos_necesarios_para_asegurar": 122,
-          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre Cordoba CF. Para asegurarla por puntos necesita 122 puntos más."
+          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre CD Leganes. Para asegurarla por puntos necesita 122 puntos más."
         }
       ],
       "objetivos_vivos": [
@@ -1504,11 +1504,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 2,
-          "corte_equipo": "Cordoba CF",
+          "corte_equipo": "CD Leganes",
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 124,
           "puntos_necesarios_para_asegurar": 122,
-          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre Cordoba CF. Para asegurarla por puntos necesita 122 puntos más."
+          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre CD Leganes. Para asegurarla por puntos necesita 122 puntos más."
         }
       ],
       "override_oficial_jornada": false
@@ -1567,11 +1567,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 2,
-          "corte_equipo": "Cordoba CF",
+          "corte_equipo": "CD Leganes",
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 124,
           "puntos_necesarios_para_asegurar": 122,
-          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre Cordoba CF. Para asegurarla por puntos necesita 122 puntos más."
+          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre CD Leganes. Para asegurarla por puntos necesita 122 puntos más."
         }
       ],
       "objetivos_vivos": [
@@ -1605,17 +1605,17 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 2,
-          "corte_equipo": "Cordoba CF",
+          "corte_equipo": "CD Leganes",
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 124,
           "puntos_necesarios_para_asegurar": 122,
-          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre Cordoba CF. Para asegurarla por puntos necesita 122 puntos más."
+          "lectura": "Defiende plaza de playoff ascenso con 2 puntos sobre CD Leganes. Para asegurarla por puntos necesita 122 puntos más."
         }
       ],
       "override_oficial_jornada": false
     },
-    "Burgos C": {
-      "equipo": "Burgos C",
+    "Girona FC": {
+      "equipo": "Girona FC",
       "liga": "segunda",
       "posicion": 6,
       "puntos": 1,
@@ -1668,11 +1668,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 0,
-          "corte_equipo": "Cordoba CF",
+          "corte_equipo": "CD Leganes",
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 124,
           "puntos_necesarios_para_asegurar": 124,
-          "lectura": "Defiende plaza de playoff ascenso con 0 puntos sobre Cordoba CF. Para asegurarla por puntos necesita 124 puntos más."
+          "lectura": "Defiende plaza de playoff ascenso con 0 puntos sobre CD Leganes. Para asegurarla por puntos necesita 124 puntos más."
         }
       ],
       "objetivos_vivos": [
@@ -1706,48 +1706,115 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 0,
-          "corte_equipo": "Cordoba CF",
+          "corte_equipo": "CD Leganes",
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 124,
           "puntos_necesarios_para_asegurar": 124,
-          "lectura": "Defiende plaza de playoff ascenso con 0 puntos sobre Cordoba CF. Para asegurarla por puntos necesita 124 puntos más."
+          "lectura": "Defiende plaza de playoff ascenso con 0 puntos sobre CD Leganes. Para asegurarla por puntos necesita 124 puntos más."
         }
       ],
       "override_oficial_jornada": false
     },
-    "Cordoba CF": {
-      "equipo": "Cordoba CF",
+    "CD Leganes": {
+      "equipo": "CD Leganes",
       "liga": "segunda",
       "posicion": 7,
       "puntos": 1,
       "puntos_en_juego": 123,
       "maximo_puntos": 124,
-      "motivacion_competitiva": "baja",
-      "motivacion": "baja",
-      "situacion_competitiva": "sin_opciones_matematicas",
-      "lectura_resumen": "Sin opciones reales de promocion/playoff. No debe salir como equipo con objetivo vivo.",
+      "motivacion_competitiva": "maxima",
+      "motivacion": "maxima",
+      "situacion_competitiva": "riesgo_descenso",
+      "lectura_resumen": "Riesgo de descenso: solo tiene 1 punto sobre Real Sociedad de Futbol. Necesita 123 puntos para salvarse por puntos sin depender de otros.",
       "objetivo_principal": {
-        "objetivo": "situacion_final",
-        "estado": "sin_opciones_matematicas",
-        "vivo": false,
-        "terminal": true,
-        "override_oficial_jornada": true,
-        "lectura": "Sin opciones reales de promocion/playoff. No debe salir como equipo con objetivo vivo.",
-        "puntos_necesarios_para_entrar": null
+        "objetivo": "descenso_primera_federacion",
+        "estado": "riesgo_descenso",
+        "vivo": true,
+        "terminal": false,
+        "distancia_o_colchon": 1,
+        "corte_equipo": "Real Sociedad de Futbol",
+        "corte_puntos_actuales": 0,
+        "corte_maximo_puntos": 123,
+        "puntos_necesarios_para_salvarse": 123,
+        "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Real Sociedad de Futbol. Necesita 123 puntos para salvarse por puntos sin depender de otros."
       },
       "objetivos": [
         {
-          "objetivo": "situacion_final",
-          "estado": "sin_opciones_matematicas",
-          "vivo": false,
-          "terminal": true,
-          "override_oficial_jornada": true,
-          "lectura": "Sin opciones reales de promocion/playoff. No debe salir como equipo con objetivo vivo.",
-          "puntos_necesarios_para_entrar": null
+          "objetivo": "descenso_primera_federacion",
+          "estado": "riesgo_descenso",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 1,
+          "corte_equipo": "Real Sociedad de Futbol",
+          "corte_puntos_actuales": 0,
+          "corte_maximo_puntos": 123,
+          "puntos_necesarios_para_salvarse": 123,
+          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Real Sociedad de Futbol. Necesita 123 puntos para salvarse por puntos sin depender de otros."
+        },
+        {
+          "objetivo": "ascenso_directo",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -3,
+          "corte_equipo": "Tenerife",
+          "corte_puntos_actuales": 3,
+          "puntos_necesarios_para_entrar": 3,
+          "depende_de_rivales": false,
+          "lectura": "Está fuera de ascenso directo, pero puede alcanzarlo: necesita 3 puntos para superar sin desempates el corte de Tenerife."
+        },
+        {
+          "objetivo": "playoff_ascenso",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -1,
+          "corte_equipo": "Girona FC",
+          "corte_puntos_actuales": 1,
+          "puntos_necesarios_para_entrar": 1,
+          "depende_de_rivales": false,
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Girona FC."
         }
       ],
-      "objetivos_vivos": [],
-      "override_oficial_jornada": true
+      "objetivos_vivos": [
+        {
+          "objetivo": "descenso_primera_federacion",
+          "estado": "riesgo_descenso",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 1,
+          "corte_equipo": "Real Sociedad de Futbol",
+          "corte_puntos_actuales": 0,
+          "corte_maximo_puntos": 123,
+          "puntos_necesarios_para_salvarse": 123,
+          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Real Sociedad de Futbol. Necesita 123 puntos para salvarse por puntos sin depender de otros."
+        },
+        {
+          "objetivo": "ascenso_directo",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -3,
+          "corte_equipo": "Tenerife",
+          "corte_puntos_actuales": 3,
+          "puntos_necesarios_para_entrar": 3,
+          "depende_de_rivales": false,
+          "lectura": "Está fuera de ascenso directo, pero puede alcanzarlo: necesita 3 puntos para superar sin desempates el corte de Tenerife."
+        },
+        {
+          "objetivo": "playoff_ascenso",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -1,
+          "corte_equipo": "Girona FC",
+          "corte_puntos_actuales": 1,
+          "puntos_necesarios_para_entrar": 1,
+          "depende_de_rivales": false,
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Girona FC."
+        }
+      ],
+      "override_oficial_jornada": false
     },
     "Real Oviedo": {
       "equipo": "Real Oviedo",
@@ -1803,11 +1870,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Girona FC."
         }
       ],
       "objetivos_vivos": [
@@ -1841,11 +1908,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Girona FC."
         }
       ],
       "override_oficial_jornada": false
@@ -1904,11 +1971,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Girona FC."
         }
       ],
       "objetivos_vivos": [
@@ -1942,11 +2009,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Girona FC."
         }
       ],
       "override_oficial_jornada": false
@@ -2005,11 +2072,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Girona FC."
         }
       ],
       "objetivos_vivos": [
@@ -2043,11 +2110,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Girona FC."
         }
       ],
       "override_oficial_jornada": false
@@ -2106,11 +2173,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Girona FC."
         }
       ],
       "objetivos_vivos": [
@@ -2144,11 +2211,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Girona FC."
         }
       ],
       "override_oficial_jornada": false
@@ -2285,106 +2352,39 @@
       "objetivos_vivos": [],
       "override_oficial_jornada": false
     },
-    "Girona FC": {
-      "equipo": "Girona FC",
+    "Cordoba CF": {
+      "equipo": "Cordoba CF",
       "liga": "segunda",
       "posicion": 18,
       "puntos": 0,
       "puntos_en_juego": 123,
       "maximo_puntos": 123,
-      "motivacion_competitiva": "maxima",
-      "motivacion": "maxima",
-      "situacion_competitiva": "riesgo_descenso",
-      "lectura_resumen": "Riesgo de descenso: solo tiene 0 puntos sobre Real Sociedad de Futbol. Necesita 124 puntos para salvarse por puntos sin depender de otros.",
+      "motivacion_competitiva": "baja",
+      "motivacion": "baja",
+      "situacion_competitiva": "sin_opciones_matematicas",
+      "lectura_resumen": "Sin opciones reales de promocion/playoff. No debe salir como equipo con objetivo vivo.",
       "objetivo_principal": {
-        "objetivo": "descenso_primera_federacion",
-        "estado": "riesgo_descenso",
-        "vivo": true,
-        "terminal": false,
-        "distancia_o_colchon": 0,
-        "corte_equipo": "Real Sociedad de Futbol",
-        "corte_puntos_actuales": 0,
-        "corte_maximo_puntos": 123,
-        "puntos_necesarios_para_salvarse": 124,
-        "lectura": "Riesgo de descenso: solo tiene 0 puntos sobre Real Sociedad de Futbol. Necesita 124 puntos para salvarse por puntos sin depender de otros."
+        "objetivo": "situacion_final",
+        "estado": "sin_opciones_matematicas",
+        "vivo": false,
+        "terminal": true,
+        "override_oficial_jornada": true,
+        "lectura": "Sin opciones reales de promocion/playoff. No debe salir como equipo con objetivo vivo.",
+        "puntos_necesarios_para_entrar": null
       },
       "objetivos": [
         {
-          "objetivo": "descenso_primera_federacion",
-          "estado": "riesgo_descenso",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": 0,
-          "corte_equipo": "Real Sociedad de Futbol",
-          "corte_puntos_actuales": 0,
-          "corte_maximo_puntos": 123,
-          "puntos_necesarios_para_salvarse": 124,
-          "lectura": "Riesgo de descenso: solo tiene 0 puntos sobre Real Sociedad de Futbol. Necesita 124 puntos para salvarse por puntos sin depender de otros."
-        },
-        {
-          "objetivo": "ascenso_directo",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -4,
-          "corte_equipo": "Tenerife",
-          "corte_puntos_actuales": 3,
-          "puntos_necesarios_para_entrar": 4,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de ascenso directo, pero puede alcanzarlo: necesita 4 puntos para superar sin desempates el corte de Tenerife."
-        },
-        {
-          "objetivo": "playoff_ascenso",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -2,
-          "corte_equipo": "Burgos C",
-          "corte_puntos_actuales": 1,
-          "puntos_necesarios_para_entrar": 2,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Burgos C."
+          "objetivo": "situacion_final",
+          "estado": "sin_opciones_matematicas",
+          "vivo": false,
+          "terminal": true,
+          "override_oficial_jornada": true,
+          "lectura": "Sin opciones reales de promocion/playoff. No debe salir como equipo con objetivo vivo.",
+          "puntos_necesarios_para_entrar": null
         }
       ],
-      "objetivos_vivos": [
-        {
-          "objetivo": "descenso_primera_federacion",
-          "estado": "riesgo_descenso",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": 0,
-          "corte_equipo": "Real Sociedad de Futbol",
-          "corte_puntos_actuales": 0,
-          "corte_maximo_puntos": 123,
-          "puntos_necesarios_para_salvarse": 124,
-          "lectura": "Riesgo de descenso: solo tiene 0 puntos sobre Real Sociedad de Futbol. Necesita 124 puntos para salvarse por puntos sin depender de otros."
-        },
-        {
-          "objetivo": "ascenso_directo",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -4,
-          "corte_equipo": "Tenerife",
-          "corte_puntos_actuales": 3,
-          "puntos_necesarios_para_entrar": 4,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de ascenso directo, pero puede alcanzarlo: necesita 4 puntos para superar sin desempates el corte de Tenerife."
-        },
-        {
-          "objetivo": "playoff_ascenso",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -2,
-          "corte_equipo": "Burgos C",
-          "corte_puntos_actuales": 1,
-          "puntos_necesarios_para_entrar": 2,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Burgos C."
-        }
-      ],
-      "override_oficial_jornada": false
+      "objetivos_vivos": [],
+      "override_oficial_jornada": true
     },
     "SD Eibar": {
       "equipo": "SD Eibar",
@@ -2440,18 +2440,18 @@
       "motivacion_competitiva": "maxima",
       "motivacion": "maxima",
       "situacion_competitiva": "en_descenso_con_opciones",
-      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Girona FC (0).",
+      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Cordoba CF (0).",
       "objetivo_principal": {
         "objetivo": "descenso_primera_federacion",
         "estado": "en_descenso_con_opciones",
         "vivo": true,
         "terminal": false,
         "distancia_o_colchon": -1,
-        "corte_equipo": "Girona FC",
+        "corte_equipo": "Cordoba CF",
         "corte_puntos_actuales": 0,
         "puntos_necesarios_para_salvarse": 1,
         "depende_de_rivales": false,
-        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Girona FC (0)."
+        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Cordoba CF (0)."
       },
       "objetivos": [
         {
@@ -2460,11 +2460,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Girona FC",
+          "corte_equipo": "Cordoba CF",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Girona FC (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Cordoba CF (0)."
         },
         {
           "objetivo": "ascenso_directo",
@@ -2484,11 +2484,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -2,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Girona FC."
         }
       ],
       "objetivos_vivos": [
@@ -2498,11 +2498,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Girona FC",
+          "corte_equipo": "Cordoba CF",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Girona FC (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Cordoba CF (0)."
         },
         {
           "objetivo": "ascenso_directo",
@@ -2522,11 +2522,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -2,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Girona FC."
         }
       ],
       "override_oficial_jornada": false
@@ -2541,18 +2541,18 @@
       "motivacion_competitiva": "maxima",
       "motivacion": "maxima",
       "situacion_competitiva": "en_descenso_con_opciones",
-      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Girona FC (0).",
+      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Cordoba CF (0).",
       "objetivo_principal": {
         "objetivo": "descenso_primera_federacion",
         "estado": "en_descenso_con_opciones",
         "vivo": true,
         "terminal": false,
         "distancia_o_colchon": -1,
-        "corte_equipo": "Girona FC",
+        "corte_equipo": "Cordoba CF",
         "corte_puntos_actuales": 0,
         "puntos_necesarios_para_salvarse": 1,
         "depende_de_rivales": false,
-        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Girona FC (0)."
+        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Cordoba CF (0)."
       },
       "objetivos": [
         {
@@ -2561,11 +2561,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Girona FC",
+          "corte_equipo": "Cordoba CF",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Girona FC (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Cordoba CF (0)."
         },
         {
           "objetivo": "ascenso_directo",
@@ -2585,11 +2585,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -2,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Girona FC."
         }
       ],
       "objetivos_vivos": [
@@ -2599,11 +2599,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Girona FC",
+          "corte_equipo": "Cordoba CF",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Girona FC (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Cordoba CF (0)."
         },
         {
           "objetivo": "ascenso_directo",
@@ -2623,11 +2623,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -2,
-          "corte_equipo": "Burgos C",
+          "corte_equipo": "Girona FC",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Burgos C."
+          "lectura": "Está fuera de playoff ascenso, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Girona FC."
         }
       ],
       "override_oficial_jornada": false
