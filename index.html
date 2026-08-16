@@ -1651,13 +1651,36 @@
         ? `<p class="subtitle" style="padding:4px 16px 0;color:#d97706">⚠️ ${cal._nota}</p>`
         : '';
 
-      const filas = jornada.partidos.map(p =>
-        `<tr>
+      // Este calendario (numeracion propia de LaLiga, 1-38/1-42) es solo
+      // fixture -sin resultados. Los resultados reales viven en
+      // state.jornadaActual (numeracion de La Quiniela, distinta), asi que
+      // se cruzan por nombre de equipo para poder pintar el marcador de
+      // los partidos ya jugados de la semana actual sin duplicar datos.
+      const resultadosJornada = arr(state.jornadaActual?.partidos);
+      const buscarResultado = (local, visitante) => {
+        const nl = normalizeName(local);
+        const nv = normalizeName(visitante);
+        const coincide = (a, b) => a.includes(b) || b.includes(a);
+        const encontrado = resultadosJornada.find(r => {
+          const rl = normalizeName(r.local || '');
+          const rv = normalizeName(r.visitante || '');
+          return coincide(nl, rl) && coincide(nv, rv);
+        });
+        const resultado = encontrado?.resultado;
+        return resultado && resultado !== 'Pendiente' ? resultado : null;
+      };
+
+      const filas = jornada.partidos.map(p => {
+        const resultado = buscarResultado(p.local, p.visitante);
+        const centro = resultado
+          ? `<strong style="color:var(--text,#111)">${escapeHtml(resultado)}</strong>`
+          : 'vs';
+        return `<tr>
           <td style="padding:7px 16px;font-size:13px;text-align:right;font-weight:600;color:var(--text,#111)">${escapeHtml(p.local)}</td>
-          <td style="padding:7px 6px;font-size:11px;color:var(--muted,#888);text-align:center;white-space:nowrap">vs</td>
+          <td style="padding:7px 6px;font-size:11px;color:var(--muted,#888);text-align:center;white-space:nowrap">${centro}</td>
           <td style="padding:7px 16px;font-size:13px;color:var(--text,#111)">${escapeHtml(p.visitante)}</td>
-        </tr>`
-      ).join('');
+        </tr>`;
+      }).join('');
 
       content.innerHTML = `
         ${notaParcial}
