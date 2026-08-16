@@ -163,29 +163,48 @@ def descargar_soup(url):
     return BeautifulSoup(respuesta.text, "html.parser")
 
 
-def limpiar_nombre_as(linea):
-    nombre = re.sub(r"\s+[A-Z]{2,4}$", "", linea).strip()
+def limpiar_nombre_as(nombre):
+    nombre = re.sub(r"\s+[A-Z]{2,4}$", "", nombre).strip()
     nombre = nombre.replace("A. D.", "AD").replace("R.", "Real")
     return canonico(nombre)
 
 
-def linea_equipo_as(linea):
-    if not linea or linea.isdigit():
-        return False
-    if "Image" in linea or linea.startswith("#"):
-        return False
-    if linea in {"Total Casa Fuera", "Totales En casa Fuera"}:
-        return False
-    if linea.startswith("Posición") or linea.startswith("Actualizado"):
-        return False
-    return bool(re.search(r"\s[A-Z]{2,4}$", linea))
+CELDA_POSICION_RE = re.compile(r"^(\d{1,2})(.+)$")
+CELDA_CODIGO_RE = re.compile(r"^(.+?)([A-Z]{2,4})$")
 
 
-def parsear_estadisticas_as(linea):
-    m = re.match(r"^(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(-?\d+)\b", linea)
+def parsear_celda_posicion_equipo(texto):
+    """La primera celda de cada fila viene como "1AlavésALA" (posicion +
+    nombre + codigo de 2-4 letras, todo pegado sin espacios) -asi es como
+    AS.com renderiza ahora esa columna; antes venia repartido en varias
+    lineas de texto sueltas, que es lo que el parser viejo esperaba.
+
+    Los equipos sin sigla corta conocida (p.ej. un filial recien ascendido
+    como "Celta Fortuna") no llevan codigo de 2-4 mayusculas: AS.com repite
+    el nombre completo dos veces seguidas en su lugar ("Celta FortunaCelta
+    Fortuna"). Ese caso se detecta aparte para no perder esas filas."""
+    m = CELDA_POSICION_RE.match(texto.strip())
     if not m:
         return None
-    puntos, pj, g, e, p, gf, gc, dg = map(int, m.groups())
+    posicion, resto = m.groups()
+
+    mitad = len(resto) // 2
+    if len(resto) % 2 == 0 and resto[:mitad] == resto[mitad:]:
+        return int(posicion), limpiar_nombre_as(resto[:mitad])
+
+    m_codigo = CELDA_CODIGO_RE.match(resto)
+    if not m_codigo:
+        return None
+    nombre, _codigo = m_codigo.groups()
+    return int(posicion), limpiar_nombre_as(nombre)
+
+
+def parsear_estadisticas_as(valores):
+    if len(valores) < 8:
+        return None
+    if not all(re.match(r"^-?\d+$", v) for v in valores[:8]):
+        return None
+    puntos, pj, g, e, p, gf, gc, dg = (int(v) for v in valores[:8])
     return {
         "pj": pj,
         "g": g,
@@ -199,46 +218,31 @@ def parsear_estadisticas_as(linea):
 
 
 def extraer_tabla_as(liga, esperado):
+    # AS.com renderiza la clasificacion como una <table> real con una fila
+    # por equipo: la primera celda trae "posicion+nombre+codigo" pegado, y
+    # las 9 celdas siguientes son PTS,PJ,G,E,P,GF,GC,DIF,Racha del grupo
+    # "Total" (luego se repiten para "Casa" y "Fuera", que no usamos).
+    # Leer la tabla por su estructura HTML es mas robusto que buscar texto
+    # suelto por patrones -un rediseno visual de AS.com (que ya paso una
+    # vez, dejando el parser de texto en 0 equipos) no cambia esta forma.
     soup = descargar_soup(FUENTES_AS[liga])
-    lineas = [linea.strip() for linea in soup.get_text("\n", strip=True).splitlines() if linea.strip()]
-    inicio = next((idx for idx, linea in enumerate(lineas) if linea.startswith("# Clasificación")), 0)
-    fin = next((idx for idx, linea in enumerate(lineas[inicio:], start=inicio) if linea.startswith("Actualizado")), len(lineas))
-    lineas = lineas[inicio:fin]
+    tabla_html = soup.find("table")
+    if tabla_html is None:
+        raise ValueError(f"AS {liga}: no se encontro ninguna tabla de clasificacion en la pagina.")
 
     filas = []
-    esperado_pos = 1
-    i = 0
-    while i < len(lineas) and len(filas) < esperado:
-        if lineas[i] != str(esperado_pos):
-            i += 1
+    for fila_html in tabla_html.find_all("tr"):
+        celdas = [c.get_text(strip=True) for c in fila_html.find_all(["td", "th"])]
+        if len(celdas) < 9:
             continue
-
-        i += 1
-        while i < len(lineas) and (lineas[i].isdigit() or "Image" in lineas[i]):
-            i += 1
-
-        if i >= len(lineas) or not linea_equipo_as(lineas[i]):
-            i += 1
+        pos_equipo = parsear_celda_posicion_equipo(celdas[0])
+        if not pos_equipo:
             continue
-
-        equipo = limpiar_nombre_as(lineas[i])
-        i += 1
-
-        stats = None
-        while i < len(lineas):
-            stats = parsear_estadisticas_as(lineas[i])
-            i += 1
-            if stats:
-                break
+        posicion, equipo = pos_equipo
+        stats = parsear_estadisticas_as(celdas[1:9])
         if not stats:
             continue
-
-        filas.append({
-            "posicion": esperado_pos,
-            "equipo": equipo,
-            **stats,
-        })
-        esperado_pos += 1
+        filas.append({"posicion": posicion, "equipo": equipo, **stats})
 
     if len(filas) != esperado:
         raise ValueError(f"AS {liga}: se esperaban {esperado} equipos y se encontraron {len(filas)}.")

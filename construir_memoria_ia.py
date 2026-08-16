@@ -1063,7 +1063,16 @@ def obtener_temporada_detectada():
 def main():
     ligas = {nombre: analizar_liga(nombre, path) for nombre, path in CALENDARIOS.items()}
     ligas = aplicar_clasificaciones_oficiales(ligas)
+    # TEMPORADA/TEMPORADA_LABEL de arriba eran una constante fija en
+    # "2025_2026" -temporada_detectada() ya sabia leer la temporada real
+    # (se usaba para clasificaciones.json), pero el propio resumen de
+    # memoria seguia escribiendose siempre como 2025/2026 y en la misma
+    # carpeta vieja, asi que "Aprendizaje" nunca mostraba una pestaña
+    # 2026/2027 aunque ya hubiera resultados reales de la nueva temporada.
     temporada_detectada = obtener_temporada_detectada()
+    temporada_label = temporada_detectada
+    carpeta_temporada = temporada_detectada.replace("/", "_")
+    out_temporada = DATA / "temporadas" / carpeta_temporada
     nuestras_quinielas = analizar_nuestras_quinielas()
     diario = nuestras_quinielas.pop("_diario_aprendizaje", [])
     quiniela = {
@@ -1076,7 +1085,7 @@ def main():
     memoria = {
         "version": "1.0",
         "generado_en": datetime.now(timezone.utc).isoformat(),
-        "temporada": TEMPORADA_LABEL,
+        "temporada": temporada_label,
         "estado": "base_real_en_construccion",
         "ligas": ligas,
         "quiniela": quiniela,
@@ -1109,7 +1118,7 @@ def main():
         "entradas": diario,
     })
     guardar_json(PESOS_DINAMICOS, pesos_dinamicos)
-    guardar_json(OUT_TEMPORADA / "resumen_temporada.json", memoria)
+    guardar_json(out_temporada / "resumen_temporada.json", memoria)
     guardar_json(OUT_MEMORIA / "aprendizaje_global.json", memoria)
     clasificacion_final = construir_clasificaciones(ligas)
     clasificacion_final["temporada_detectada"] = temporada_detectada

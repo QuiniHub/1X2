@@ -168,13 +168,32 @@ SCRIPTS_ACTIVOS = [
 ]
 
 
+def temporada_ya_iniciada():
+    """Comprueba si ya hay resultados reales de la jornada 1 de la temporada
+    nueva -antes esto se decidia solo por el mes (julio/agosto = pretemporada
+    siempre), pero LaLiga arranca DENTRO de agosto, asi que ese gatillo
+    seguia reiniciando la clasificacion a 0 cada ciclo del pipeline incluso
+    con partidos ya jugados y cerrados (ej. Alaves 3-0 Getafe el 15/08)."""
+    jornada1 = ROOT / "data" / "jornadas" / "jornada_1.json"
+    if not jornada1.exists():
+        return False
+    try:
+        datos = json.loads(jornada1.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    return any(
+        p.get("resultado") not in (None, "", "Pendiente")
+        for p in datos.get("partidos", [])
+    )
+
+
 def gestionar_mercado_y_temporada():
     mes = datetime.now().month
     year = datetime.now().year
-    if mes in {7, 8}:
+    if mes in {7, 8} and not temporada_ya_iniciada():
         print(f"Pretemporada detectada: preparar temporada {year}/{year + 1}.")
         ejecutar_script("preparar_temporada_2026_2027.py")
-    elif mes >= 9:
+    else:
         print(f"Temporada {year}/{year + 1} en marcha o mercado cerrado: flujo normal.")
 
 
