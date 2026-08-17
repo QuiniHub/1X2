@@ -37,7 +37,7 @@ ESPN_LIGAS = {
 
 THESPORTSDB_LIGAS = {
     "La Liga":            "4335",
-    "Segunda División":   "4336",
+    "Segunda División":   "4400",
     "Premier League":     "4328",
     "Bundesliga":         "4331",
     "Serie A":            "4332",
@@ -47,6 +47,17 @@ THESPORTSDB_LIGAS = {
     "Conference League":  "4348",
     "Mundial 2026":       "600614",
 }
+
+# eventspastleague.php (usado abajo) solo devuelve el ULTIMO partido de la
+# liga -util para "que paso mas reciente" pero inutil para "dame todos los
+# partidos de esta jornada", que es lo que necesita el calendario oficial
+# (ej. Real Sociedad B 0-1 Castellon, o cualquier partido que la Quiniela
+# no eligiera esa semana, se quedaba siempre sin resultado). eventsround.php
+# si da la jornada completa, y solo tiene sentido para ligas con jornadas
+# de liguilla normales (no copas ni fases de grupos/eliminatorias).
+LIGAS_CON_JORNADAS = {"La Liga": "4335", "Segunda División": "4400"}
+TEMPORADA_THESPORTSDB = "2026-2027"
+RONDAS_A_CONSULTAR = (1, 2)
 
 OPENFOOTBALL_URLS = {
     "La Liga 2025-26": "https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/es.1.json",
@@ -179,8 +190,38 @@ def obtener_espn():
 
 # ─── FUENTE 2: TheSportsDB ────────────────────────────────────────────────────
 
-def obtener_thesportsdb_liga(nombre_liga, league_id):
+def _parsear_eventos_thesportsdb(nombre_liga, events):
     resultados = []
+    for e in events:
+        status = str(e.get("strStatus") or "")
+        terminado = status in ("Match Finished", "FT", "AOT", "AP", "finished")
+        local = norm(e.get("strHomeTeam", ""))
+        visitante = norm(e.get("strAwayTeam", ""))
+        hg = e.get("intHomeScore")
+        ag = e.get("intAwayScore")
+        resultado = None
+        ganador = None
+        if terminado and hg is not None and ag is not None:
+            try:
+                gh, ga = int(hg), int(ag)
+                resultado = f"{gh}-{ga}"
+                ganador = local if gh > ga else (visitante if ga > gh else None)
+            except (ValueError, TypeError):
+                pass
+        resultados.append({
+            "liga": nombre_liga,
+            "local": local,
+            "visitante": visitante,
+            "resultado": resultado,
+            "ganador": ganador,
+            "fecha": e.get("dateEvent", ""),
+            "en_juego": False,
+            "fuente": "thesportsdb",
+        })
+    return resultados
+
+
+def obtener_thesportsdb_liga(nombre_liga, league_id):
     try:
         r = requests.get(
             "https://www.thesportsdb.com/api/v1/json/3/eventspastleague.php",
@@ -189,42 +230,40 @@ def obtener_thesportsdb_liga(nombre_liga, league_id):
             timeout=15,
         )
         if r.status_code == 200:
-            events = r.json().get("events") or []
-            for e in events:
-                status = str(e.get("strStatus") or "")
-                terminado = status in ("Match Finished", "FT", "AOT", "AP", "finished")
-                local = norm(e.get("strHomeTeam", ""))
-                visitante = norm(e.get("strAwayTeam", ""))
-                hg = e.get("intHomeScore")
-                ag = e.get("intAwayScore")
-                resultado = None
-                ganador = None
-                if terminado and hg is not None and ag is not None:
-                    try:
-                        gh, ga = int(hg), int(ag)
-                        resultado = f"{gh}-{ga}"
-                        ganador = local if gh > ga else (visitante if ga > gh else None)
-                    except (ValueError, TypeError):
-                        pass
-                resultados.append({
-                    "liga": nombre_liga,
-                    "local": local,
-                    "visitante": visitante,
-                    "resultado": resultado,
-                    "ganador": ganador,
-                    "fecha": e.get("dateEvent", ""),
-                    "en_juego": False,
-                    "fuente": "thesportsdb",
-                })
+            return _parsear_eventos_thesportsdb(nombre_liga, r.json().get("events") or [])
     except Exception as e:
         print(f"  TheSportsDB {nombre_liga}: {e}")
+    return []
+
+
+def obtener_thesportsdb_por_rondas(nombre_liga, league_id, rondas):
+    """Trae la jornada COMPLETA (todos los partidos, no solo el ultimo)
+    via eventsround.php -necesario para el calendario oficial, que tiene
+    que poder pintar el marcador de cualquier partido de la semana, no
+    solo de los que eligio La Quiniela para su boleto."""
+    resultados = []
+    for ronda in rondas:
+        try:
+            r = requests.get(
+                "https://www.thesportsdb.com/api/v1/json/3/eventsround.php",
+                params={"id": league_id, "r": ronda, "s": TEMPORADA_THESPORTSDB},
+                headers=HEADERS,
+                timeout=15,
+            )
+            if r.status_code == 200:
+                resultados.extend(_parsear_eventos_thesportsdb(nombre_liga, r.json().get("events") or []))
+        except Exception as e:
+            print(f"  TheSportsDB {nombre_liga} ronda {ronda}: {e}")
     return resultados
 
 def obtener_thesportsdb():
     print("TheSportsDB: consultando ligas...")
     todos = []
     for nombre, lid in THESPORTSDB_LIGAS.items():
-        partidos = obtener_thesportsdb_liga(nombre, lid)
+        if nombre in LIGAS_CON_JORNADAS:
+            partidos = obtener_thesportsdb_por_rondas(nombre, lid, RONDAS_A_CONSULTAR)
+        else:
+            partidos = obtener_thesportsdb_liga(nombre, lid)
         print(f"  {nombre}: {len(partidos)} partidos")
         todos.extend(partidos)
     return todos

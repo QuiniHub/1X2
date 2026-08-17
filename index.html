@@ -1652,11 +1652,18 @@
         : '';
 
       // Este calendario (numeracion propia de LaLiga, 1-38/1-42) es solo
-      // fixture -sin resultados. Los resultados reales viven en
-      // state.jornadaActual (numeracion de La Quiniela, distinta), asi que
-      // se cruzan por nombre de equipo para poder pintar el marcador de
-      // los partidos ya jugados de la semana actual sin duplicar datos.
-      const resultadosJornada = arr(state.jornadaActual?.partidos);
+      // fixture -sin resultados. Los resultados reales se cruzan por
+      // nombre de equipo desde dos fuentes: state.jornadaActual (los 14-15
+      // partidos que eligio La Quiniela esa semana) y state.resultadosLibres
+      // (ESPN/TheSportsDB, jornada completa de las dos ligas) -sin esta
+      // segunda fuente, un partido que la Quiniela no eligiera (ej. Real
+      // Sociedad B - Castellon) se quedaba sin marcador para siempre,
+      // aunque ya estuviera jugado y cerrado.
+      const nombreLigaLibre = liga === '1a' ? 'La Liga' : 'Segunda División';
+      const resultadosJornada = [
+        ...arr(state.jornadaActual?.partidos),
+        ...arr(state.resultadosLibres?.partidos).filter(p => p.liga === nombreLigaLibre),
+      ];
       const PARTICULAS_CLUB = new Set(['fc','cf','cd','sd','ud','rcd','rc','sad','club','real','de','del','la','el','futbol','balompie']);
       const palabrasClave = nombre => normalizeName(nombre)
         .replace(/[^a-z0-9]+/g, ' ')
@@ -3429,7 +3436,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga, lesionesRespaldo, clasificacionesOficiales, contextoCompetitivo, estadoVivo, calibracionProbabilidades] = await Promise.all([
+      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga, lesionesRespaldo, clasificacionesOficiales, contextoCompetitivo, estadoVivo, calibracionProbabilidades, resultadosLibres] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -3451,7 +3458,8 @@ No inventes — solo lo que ves con fondo oscuro.`;
         getJson('data/clasificaciones_oficiales.json', null),
         getJson('data/memoria_ia/contexto_competitivo.json', null),
         getJson('data/memoria_ia/estado_vivo.json', null),
-        getJson('data/memoria_ia/calibracion_probabilidades.json', null)
+        getJson('data/memoria_ia/calibracion_probabilidades.json', null),
+        getJson('data/resultados_libres.json', null)
       ]);
       state.prediccion = pred;
       state.pleno15Data = pleno;
@@ -3459,6 +3467,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.historial = hist;
       state.metricas = metricas;
       state.segunda = segunda;
+      state.resultadosLibres = resultadosLibres;
       state.memoriaHistorica = memoriaHistorica;
       state.pesosDinamicos = pesosDinamicos;
       state.calendario1a = cal1a;
