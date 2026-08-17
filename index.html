@@ -1657,10 +1657,24 @@
       // se cruzan por nombre de equipo para poder pintar el marcador de
       // los partidos ya jugados de la semana actual sin duplicar datos.
       const resultadosJornada = arr(state.jornadaActual?.partidos);
+      const PARTICULAS_CLUB = new Set(['fc','cf','cd','sd','ud','rcd','rc','sad','club','real','de','del','la','el','futbol','balompie']);
+      const palabrasClave = nombre => normalizeName(nombre)
+        .replace(/[^a-z0-9]+/g, ' ')
+        .split(' ')
+        .filter(w => w.length >= 4 && !PARTICULAS_CLUB.has(w));
       const buscarResultado = (local, visitante) => {
         const nl = normalizeName(local);
         const nv = normalizeName(visitante);
-        const coincide = (a, b) => a.includes(b) || b.includes(a);
+        // Comparacion doble: substring directo (rapido, cubre "Levante" vs
+        // "Levante UD") y solapamiento de palabras significativas tras
+        // quitar particulas de club (cubre abreviaturas como "R. Santander"
+        // vs "Racing de Santander", que no comparten ningun substring).
+        const coincide = (a, b) => {
+          if (a.includes(b) || b.includes(a)) return true;
+          const wa = palabrasClave(a);
+          const wb = palabrasClave(b);
+          return wa.length > 0 && wb.length > 0 && wa.some(w => wb.includes(w));
+        };
         const encontrado = resultadosJornada.find(r => {
           const rl = normalizeName(r.local || '');
           const rv = normalizeName(r.visitante || '');
