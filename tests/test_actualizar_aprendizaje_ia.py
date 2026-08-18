@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -179,6 +180,53 @@ class AciertosVerificadosConJugadaRealTests(unittest.TestCase):
         self.assertEqual(entry["aciertos"], 10)
         self.assertEqual(entry["boleto"], "1X21X22111X2X2112221")
         self.assertEqual(entry["fuente_aciertos"], "quinielas_jugadas")
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+class OrdenCronologicoJornadaTests(unittest.TestCase):
+    """Bug real (18/08/2026): el detalle de revisiones se recorta a las
+    ultimas 250 entradas dando por hecho que "ultimas" == "numero mas alto".
+    Con el reinicio de numeracion de La Quiniela, la J1 de 26/27 -la mas
+    reciente- quedaba la PRIMERA de la lista y era justo la que el recorte
+    tiraba. Sin sus 14 revisiones, la compuerta de aprendizaje dejaba la
+    prediccion de la J2 bloqueada indefinidamente."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.base = Path(self._tmp.name)
+
+    def _escribir(self, numero, fecha):
+        (self.base / f"jornada_{numero}.json").write_text(
+            json.dumps({
+                "jornada": numero,
+                "partidos": [{"num": 1, "fecha": fecha}],
+            }),
+            encoding="utf-8",
+        )
+        return self.base / f"jornada_{numero}.json"
+
+    def test_la_jornada_1_nueva_va_despues_de_la_76_vieja(self):
+        vieja = self._escribir(76, "2026-08-09")
+        nueva = self._escribir(1, "2026-08-15")
+        orden = sorted([nueva, vieja], key=aa.orden_cronologico_jornada)
+        self.assertEqual([p.stem for p in orden], ["jornada_76", "jornada_1"])
+
+    def test_dentro_de_la_misma_temporada_manda_la_fecha(self):
+        j2 = self._escribir(2, "2026-08-22")
+        j3 = self._escribir(3, "2026-08-29")
+        orden = sorted([j3, j2], key=aa.orden_cronologico_jornada)
+        self.assertEqual([p.stem for p in orden], ["jornada_2", "jornada_3"])
+
+    def test_sin_fecha_se_trata_como_lo_mas_antiguo(self):
+        sin_fecha = self.base / "jornada_9.json"
+        sin_fecha.write_text(json.dumps({"jornada": 9, "partidos": [{"num": 1}]}), encoding="utf-8")
+        con_fecha = self._escribir(1, "2026-08-15")
+        orden = sorted([con_fecha, sin_fecha], key=aa.orden_cronologico_jornada)
+        self.assertEqual([p.stem for p in orden], ["jornada_9", "jornada_1"])
 
 
 if __name__ == "__main__":

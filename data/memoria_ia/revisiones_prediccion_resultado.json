@@ -1,16 +1,16 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-18T10:38:23.027477+00:00",
+  "generado_en": "2026-08-18T12:31:40.786889+00:00",
   "fuente": "data/aprendizaje_ia.json",
   "total_revisiones": 250,
   "jornadas": {
-    "59": {
-      "revisiones": 13,
-      "completa_para_compuerta": false
-    },
-    "60": {
+    "1": {
       "revisiones": 14,
       "completa_para_compuerta": true
+    },
+    "60": {
+      "revisiones": 13,
+      "completa_para_compuerta": false
     },
     "61": {
       "revisiones": 14,
@@ -79,129 +79,254 @@
   },
   "revisiones": [
     {
-      "jornada": 59,
+      "jornada": 1,
       "num": 1,
-      "partido": "Alavés - Mallorca",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "2-1",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
-    },
-    {
-      "jornada": 59,
-      "num": 2,
-      "partido": "Getafe - Barcelona",
-      "pronostico": "X2",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "0-2",
-      "signo_real": "2",
-      "signos_cubiertos": "X2",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
-    },
-    {
-      "jornada": 59,
-      "num": 3,
-      "partido": "Valencia - Girona",
-      "pronostico": "X2",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "2-1",
-      "signo_real": "1",
-      "signos_cubiertos": "X2",
-      "acierto": false,
-      "motivo_error": "Doble insuficiente",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
-    },
-    {
-      "jornada": 59,
-      "num": 4,
-      "partido": "At. Madrid - Ath. Club",
+      "partido": "Deportivo Alaves - Getafe CF",
       "pronostico": "X",
       "tipo_pronostico": "FIJO",
-      "resultado": "3-2",
+      "resultado": "3-0",
       "signo_real": "1",
       "signos_cubiertos": "X",
       "acierto": false,
       "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 23.9,
+        "X": 42.7,
+        "2": 33.4
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ]
     },
     {
-      "jornada": 59,
+      "jornada": 1,
+      "num": 2,
+      "partido": "Sevilla FC - Rayo Vallecano de Madrid",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "2-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1X2",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 34.7,
+        "X": 34.4,
+        "2": 30.9
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ]
+    },
+    {
+      "jornada": 1,
+      "num": 3,
+      "partido": "R. Santander - Villarreal CF",
+      "pronostico": "X2",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "2-2",
+      "signo_real": "X",
+      "signos_cubiertos": "X2",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 12.8,
+        "X": 38.8,
+        "2": 48.4
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ]
+    },
+    {
+      "jornada": 1,
+      "num": 4,
+      "partido": "RCD Espanyol de Barcelona - Levante UD",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "3-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 30.7,
+        "X": 40.6,
+        "2": 28.7
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ]
+    },
+    {
+      "jornada": 1,
       "num": 5,
-      "partido": "Rayo - R. Sociedad",
+      "partido": "RC Celta de Vigo - CA Osasuna",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-0",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 36.4,
+        "X": 34.8,
+        "2": 28.7
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ]
+    },
+    {
+      "jornada": 1,
+      "num": 6,
+      "partido": "FC Andorra - AD Ceuta FC",
       "pronostico": "X",
       "tipo_pronostico": "FIJO",
-      "resultado": "3-3",
+      "resultado": "5-1",
+      "signo_real": "1",
+      "signos_cubiertos": "X",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 32.0,
+        "X": 39.7,
+        "2": 28.3
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ]
+    },
+    {
+      "jornada": 1,
+      "num": 7,
+      "partido": "Cadiz CF - Celta Fortuna",
+      "pronostico": "X",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-0",
       "signo_real": "X",
       "signos_cubiertos": "X",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 32.9,
+        "X": 40.2,
+        "2": 26.9
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ]
     },
     {
-      "jornada": 59,
-      "num": 6,
-      "partido": "R. Oviedo - Elche",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-2",
-      "signo_real": "2",
-      "signos_cubiertos": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
-    },
-    {
-      "jornada": 59,
-      "num": 7,
-      "partido": "Osasuna - Sevilla",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "2-1",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
-    },
-    {
-      "jornada": 59,
+      "jornada": 1,
       "num": 8,
-      "partido": "Villarreal - Celta",
-      "pronostico": "1",
+      "partido": "Real Oviedo - Granada CF",
+      "pronostico": "X",
       "tipo_pronostico": "FIJO",
-      "resultado": "2-1",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
+      "resultado": "0-0",
+      "signo_real": "X",
+      "signos_cubiertos": "X",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 36.3,
+        "X": 38.6,
+        "2": 25.1
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ]
     },
     {
-      "jornada": 59,
+      "jornada": 1,
       "num": 9,
-      "partido": "Burgos - Deportivo",
+      "partido": "RCD Mallorca - Real Valladolid CF",
+      "pronostico": "X2",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "2-0",
+      "signo_real": "1",
+      "signos_cubiertos": "X2",
+      "acierto": false,
+      "motivo_error": "Doble insuficiente",
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 25.0,
+        "X": 40.8,
+        "2": 34.2
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ]
+    },
+    {
+      "jornada": 1,
+      "num": 10,
+      "partido": "SD Eibar - Tenerife",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-3",
+      "signo_real": "2",
+      "signos_cubiertos": "2",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 22.2,
+        "X": 37.1,
+        "2": 40.8
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ]
+    },
+    {
+      "jornada": 1,
+      "num": 11,
+      "partido": "Burgos CF - Cordoba CF",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "3-2",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 56.1,
+        "X": 37.9,
+        "2": 6.0
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ]
+    },
+    {
+      "jornada": 1,
+      "num": 12,
+      "partido": "Girona FC - CD Leganes",
       "pronostico": "X",
       "tipo_pronostico": "FIJO",
       "resultado": "1-1",
@@ -209,88 +334,64 @@
       "signos_cubiertos": "X",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 22.8,
+        "X": 44.7,
+        "2": 32.5
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ]
     },
     {
-      "jornada": 59,
-      "num": 10,
-      "partido": "Málaga - Castellón",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "2-3",
-      "signo_real": "2",
-      "signos_cubiertos": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
-    },
-    {
-      "jornada": 59,
-      "num": 11,
-      "partido": "Granada - Almería",
-      "pronostico": "X2",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "2-4",
-      "signo_real": "2",
-      "signos_cubiertos": "X2",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
-    },
-    {
-      "jornada": 59,
-      "num": 12,
-      "partido": "Huesca - R. Zaragoza",
+      "jornada": 1,
+      "num": 13,
+      "partido": "UD Las Palmas - Albacete Balompie",
       "pronostico": "1X2",
       "tipo_pronostico": "TRIPLE",
-      "resultado": "1-0",
+      "resultado": "2-1",
       "signo_real": "1",
       "signos_cubiertos": "1X2",
       "acierto": true,
       "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 30.1,
+        "X": 40.5,
+        "2": 29.4
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ]
     },
     {
-      "jornada": 59,
-      "num": 13,
-      "partido": "Ceuta - Racing S.",
-      "pronostico": "2",
+      "jornada": 1,
+      "num": 14,
+      "partido": "Sporting Gijón - Sabadell",
+      "pronostico": "X",
       "tipo_pronostico": "FIJO",
       "resultado": "0-0",
       "signo_real": "X",
-      "signos_cubiertos": "2",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
+      "signos_cubiertos": "X",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_1.json",
+      "probabilidades_usadas": {
+        "1": 18.1,
+        "X": 45.6,
+        "2": 36.4
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ]
     },
     {
       "jornada": 60,
       "num": 1,
-      "partido": "Villarreal - Levante",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "5-1",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "fuentes_utilizadas": []
-    },
-    {
-      "jornada": 60,
-      "num": 2,
       "partido": "Valencia - At. Madrid",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
@@ -305,7 +406,7 @@
     },
     {
       "jornada": 60,
-      "num": 3,
+      "num": 2,
       "partido": "Alavés - Ath. Club",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
@@ -320,7 +421,7 @@
     },
     {
       "jornada": 60,
-      "num": 4,
+      "num": 3,
       "partido": "Osasuna - Barcelona",
       "pronostico": "2",
       "tipo_pronostico": "FIJO",
@@ -335,7 +436,7 @@
     },
     {
       "jornada": 60,
-      "num": 5,
+      "num": 4,
       "partido": "Celta - Elche",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
@@ -350,7 +451,7 @@
     },
     {
       "jornada": 60,
-      "num": 6,
+      "num": 5,
       "partido": "Getafe - Rayo",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -365,7 +466,7 @@
     },
     {
       "jornada": 60,
-      "num": 7,
+      "num": 6,
       "partido": "Betis - R. Oviedo",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -380,7 +481,7 @@
     },
     {
       "jornada": 60,
-      "num": 8,
+      "num": 7,
       "partido": "Espanyol - R. Madrid",
       "pronostico": "X2",
       "tipo_pronostico": "DOBLE",
@@ -395,7 +496,7 @@
     },
     {
       "jornada": 60,
-      "num": 9,
+      "num": 8,
       "partido": "C. Leonesa - Cádiz",
       "pronostico": "1X2",
       "tipo_pronostico": "TRIPLE",
@@ -410,7 +511,7 @@
     },
     {
       "jornada": 60,
-      "num": 10,
+      "num": 9,
       "partido": "Castellón - Córdoba",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
@@ -425,7 +526,7 @@
     },
     {
       "jornada": 60,
-      "num": 11,
+      "num": 10,
       "partido": "Eibar - Málaga",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -440,7 +541,7 @@
     },
     {
       "jornada": 60,
-      "num": 12,
+      "num": 11,
       "partido": "Racing S. - Huesca",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -455,7 +556,7 @@
     },
     {
       "jornada": 60,
-      "num": 13,
+      "num": 12,
       "partido": "Sporting - Ceuta",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
@@ -470,7 +571,7 @@
     },
     {
       "jornada": 60,
-      "num": 14,
+      "num": 13,
       "partido": "Las Palmas - Valladolid",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -1779,7 +1880,7 @@
     {
       "jornada": 66,
       "num": 3,
-      "partido": "Bélgica - Túnez",
+      "partido": "BÃ©lgica - TÃºnez",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
       "resultado": "5-0",
@@ -1855,7 +1956,7 @@
     {
       "jornada": 66,
       "num": 7,
-      "partido": "Rumanía - Gales",
+      "partido": "RumanÃ­a - Gales",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
       "resultado": "2-1",

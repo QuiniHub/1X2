@@ -276,6 +276,26 @@ def numero_jornada(path):
     return int(m.group(1)) if m else 0
 
 
+def orden_cronologico_jornada(path):
+    """Clave de orden por FECHA real de la jornada, con el numero solo como
+    desempate.
+
+    El detalle de revisiones se recorta a las ultimas 250 entradas, dando por
+    hecho que "ultimas" equivale a "numero mas alto". La Quiniela reinicia su
+    numeracion cada temporada, asi que la J1 de 26/27 -la mas reciente de
+    todas- se colocaba la PRIMERA de la lista y era justo la que el recorte
+    tiraba: sus 14 revisiones nunca llegaban a aprendizaje_ia.json y la
+    compuerta dejaba la prediccion de la J2 bloqueada para siempre.
+    """
+    data = cargar_json(path, {})
+    fechas = [
+        str(p.get("fecha") or "")
+        for p in (data.get("partidos") or [])
+        if isinstance(p, dict) and p.get("fecha")
+    ]
+    return (min(fechas) if fechas else "", numero_jornada(path))
+
+
 def porcentaje(parte, total):
     return round(float(parte) / max(float(total), 1.0) * 100, 2)
 
@@ -770,7 +790,7 @@ def main():
     registros_premios = {}
     jornadas_cerradas_actualizadas = 0
 
-    for path in sorted(JORNADAS.glob("jornada_*.json"), key=numero_jornada):
+    for path in sorted(JORNADAS.glob("jornada_*.json"), key=orden_cronologico_jornada):
         data = cargar_json(path, {})
         revisados_jornada = 0
         jornada_num = data.get("jornada") if str(data.get("jornada") or "").isdigit() else numero_jornada(path)
