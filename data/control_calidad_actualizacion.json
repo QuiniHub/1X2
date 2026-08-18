@@ -1,9 +1,15 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-18T16:41:16.905472+00:00",
-  "estado": "operativo",
-  "score": 100,
-  "alertas": [],
+  "generado_en": "2026-08-18T17:28:42.563484+00:00",
+  "estado": "revisar",
+  "score": 65,
+  "alertas": [
+    {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 76 pero la última predicción dice 2."
+    }
+  ],
   "jornadas": {
     "total": 76,
     "actual": {
@@ -95,28 +101,28 @@
     }
   },
   "contexto_competitivo": {
-    "generado_en": "2026-08-18T16:40:52.209628+00:00"
+    "generado_en": "2026-08-18T17:28:14.665950+00:00"
   },
   "prediccion": {
     "jornada": 2,
-    "generado_en": "2026-08-18T16:41:16.198791+00:00",
+    "generado_en": "2026-08-18T17:28:41.939637+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 8,
+      "dobles": 4,
+      "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 3,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
-        "alta": 0,
+        "alta": 14,
         "media": 0,
         "media_baja": 0,
         "baja": 0
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Aprendizaje pendiente de la jornada anterior: faltan revisiones_prediccion_resultado, metricas_probabilisticas."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
 }
