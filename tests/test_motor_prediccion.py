@@ -344,6 +344,40 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertEqual(trazabilidad["calidad_datos"], "media_baja")
         self.assertTrue(trazabilidad["noticias_recientes"]["local"])
 
+    def test_calidad_no_es_alta_si_un_equipo_tiene_pj_cero(self):
+        """Bug real detectado por Marc el 18/08/2026: Real Madrid, Barcelona,
+        Atletico y Athletic seguian con pj=0 en la J2 (su J1 real se aplazo
+        por el descanso del Mundial), y calcular_probabilidades() usaba
+        fuerza_pretemporada() como respaldo -pero calidad_datos seguia
+        marcando "alta" solo por encontrar al equipo en aprendizaje_global,
+        sin mirar si su fuerza salia de partidos reales o de amistagos de
+        verano. Eso escondia que el % estaba desvirtuado y no disparaba el
+        aviso de corazonada (Paso 4.7) que si deberia saltar aqui."""
+        trazabilidad = trazabilidad_datos_partido(
+            local={"equipo": "Espanyol", "pj": 1},
+            visitante={"equipo": "Real Madrid", "pj": 0},
+            contexto_local=None,
+            contexto_visitante=None,
+            local_comp=None,
+            visitante_comp=None,
+        )
+
+        self.assertNotEqual(trazabilidad["calidad_datos"], "alta")
+        self.assertFalse(trazabilidad["memoria_estadistica"]["visitante"])
+        self.assertTrue(trazabilidad["memoria_estadistica"]["local"])
+
+    def test_calidad_alta_si_ambos_equipos_tienen_partidos_jugados(self):
+        trazabilidad = trazabilidad_datos_partido(
+            local={"equipo": "Local", "pj": 3},
+            visitante={"equipo": "Visitante", "pj": 2},
+            contexto_local=None,
+            contexto_visitante=None,
+            local_comp=None,
+            visitante_comp=None,
+        )
+
+        self.assertEqual(trazabilidad["calidad_datos"], "alta")
+
     def test_datos_profesionales_mezclan_cuotas_y_penalizan_bajas(self):
         datos_partido = {
             "cuotas": {
@@ -519,8 +553,8 @@ class MotorPrediccionTests(unittest.TestCase):
 
     def test_trazabilidad_sube_calidad_con_datos_profesionales(self):
         trazabilidad = trazabilidad_datos_partido(
-            local={"equipo": "Local"},
-            visitante={"equipo": "Visitante"},
+            local={"equipo": "Local", "pj": 5},
+            visitante={"equipo": "Visitante", "pj": 5},
             contexto_local=None,
             contexto_visitante=None,
             local_comp=None,

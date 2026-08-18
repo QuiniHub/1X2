@@ -1595,8 +1595,15 @@ def trazabilidad_datos_partido(
     visitante_comp,
     datos_profesionales=None,
 ):
-    memoria_local = bool(local)
-    memoria_visitante = bool(visitante)
+    # "alta" calidad significa "fuerza real calculada con partidos oficiales
+    # de ESTA temporada" -no solo "el equipo existe en aprendizaje_global".
+    # Con pj=0 (Real Madrid, Barca, Atletico y Athletic todavia sin jugar su
+    # J1 real por el descanso del Mundial) calcular_probabilidades() usa
+    # fuerza_pretemporada() como respaldo, pero esto seguia marcando "alta"
+    # solo por encontrar al equipo -Marc detecto el efecto real (el % sale
+    # desvirtuado) sin que el sistema avisara de que la calidad era menor.
+    memoria_local = bool(local) and float((local or {}).get("pj") or 0) > 0
+    memoria_visitante = bool(visitante) and float((visitante or {}).get("pj") or 0) > 0
     noticias_local = bool((contexto_local or {}).get("noticias"))
     noticias_visitante = bool((contexto_visitante or {}).get("noticias"))
     competitivo_local = bool(local_comp)
