@@ -182,6 +182,59 @@ class AciertosVerificadosConJugadaRealTests(unittest.TestCase):
         self.assertEqual(entry["fuente_aciertos"], "quinielas_jugadas")
 
 
+class ProbabilidadesJornadaLosillaTests(unittest.TestCase):
+    """Bug real (18/08/2026): registrar_sorpresas_mercado() leia siempre
+    fuente_losilla["probabilidades"] (la jornada ACTIVA en Losilla en ese
+    momento) para puntuar la jornada que se estaba cerrando -en cuanto
+    Losilla avanzaba a la jornada siguiente, se comparaba la jornada cerrada
+    contra las cuotas de la jornada equivocada (o contra nada). Ahora debe
+    usar el historico por jornada que escribe actualizar_fuente_losilla.py."""
+
+    def test_usa_el_historico_de_la_jornada_pedida(self):
+        fuente_losilla = {
+            "probabilidades": {"jornada": 2, "partidos": [{"numero": 1, "probabilidad_1": 58.5}]},
+            "historico_probabilidades": {
+                "jornada_01": {"jornada": 1, "partidos": [{"numero": 1, "probabilidad_1": 44.6}]}
+            },
+        }
+        bloque = aa.probabilidades_jornada_losilla(fuente_losilla, 1)
+        self.assertEqual(bloque["partidos"][0]["probabilidad_1"], 44.6)
+
+    def test_no_usa_el_bloque_actual_si_es_de_otra_jornada(self):
+        """Sin historico para la jornada 1 y con "probabilidades" ya en la
+        jornada 2, no debe devolver por error las cuotas de la jornada 2
+        como si fueran de la 1."""
+        fuente_losilla = {
+            "probabilidades": {"jornada": 2, "partidos": [{"numero": 1, "probabilidad_1": 58.5}]},
+        }
+        bloque = aa.probabilidades_jornada_losilla(fuente_losilla, 1)
+        self.assertEqual(bloque, {})
+
+    def test_cae_al_bloque_actual_si_coincide_la_jornada(self):
+        fuente_losilla = {
+            "probabilidades": {"jornada": 1, "partidos": [{"numero": 1, "probabilidad_1": 44.6}]},
+        }
+        bloque = aa.probabilidades_jornada_losilla(fuente_losilla, 1)
+        self.assertEqual(bloque["partidos"][0]["probabilidad_1"], 44.6)
+
+    def test_mercado_partido_losilla_respeta_la_jornada(self):
+        fuente_losilla = {
+            "historico_probabilidades": {
+                "jornada_01": {
+                    "jornada": 1,
+                    "partidos": [{"numero": 5, "probabilidades_signo": {"1": 10.0, "X": 10.0, "2": 80.0}}],
+                },
+                "jornada_02": {
+                    "jornada": 2,
+                    "partidos": [{"numero": 5, "probabilidades_signo": {"1": 90.0, "X": 5.0, "2": 5.0}}],
+                },
+            }
+        }
+        favorito, prob, _ = aa.mercado_partido_losilla(fuente_losilla, 1, 5)
+        self.assertEqual(favorito, "2")
+        self.assertEqual(prob, 80.0)
+
+
 if __name__ == "__main__":
     unittest.main()
 

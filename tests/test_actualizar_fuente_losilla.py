@@ -232,5 +232,41 @@ class ExtraerCuotasJornadaTests(unittest.TestCase):
         self.assertEqual(resultado["jornada"], 73)
 
 
+class ArchivarProbabilidadesHistoricoTests(unittest.TestCase):
+    """Bug real (18/08/2026): fuente_losilla.json solo guardaba las
+    probabilidades de la jornada ACTIVA -en cuanto Losilla pasaba a la
+    jornada siguiente, las cuotas de la jornada recien cerrada desaparecian
+    para siempre y actualizar_aprendizaje_ia.registrar_sorpresas_mercado()
+    se quedaba sin poder detectar sorpresas de esa jornada."""
+
+    def test_archiva_la_jornada_nueva_bajo_su_propia_clave(self):
+        probabilidades = {"jornada": 1, "partidos": [{"numero": 1, "probabilidad_1": 44.6}]}
+        historico = afl.archivar_probabilidades_historico({}, probabilidades)
+        self.assertEqual(historico["jornada_01"]["partidos"][0]["probabilidad_1"], 44.6)
+
+    def test_conserva_la_jornada_vieja_cuando_llega_una_nueva(self):
+        anterior = {
+            "historico_probabilidades": {
+                "jornada_01": {"jornada": 1, "partidos": [{"numero": 1, "probabilidad_1": 44.6}]}
+            }
+        }
+        probabilidades_j2 = {"jornada": 2, "partidos": [{"numero": 1, "probabilidad_1": 58.5}]}
+
+        historico = afl.archivar_probabilidades_historico(anterior, probabilidades_j2)
+
+        self.assertEqual(historico["jornada_01"]["partidos"][0]["probabilidad_1"], 44.6)
+        self.assertEqual(historico["jornada_02"]["partidos"][0]["probabilidad_1"], 58.5)
+
+    def test_fusionar_con_anterior_incluye_el_historico(self):
+        anterior = {}
+        nuevo = {"probabilidades": {"jornada": 1, "partidos": [{"numero": 1, "probabilidad_1": 44.6}]}}
+        salida = afl.fusionar_con_anterior(anterior, nuevo, [])
+        self.assertIn("jornada_01", salida["historico_probabilidades"])
+
+    def test_sin_jornada_no_archiva_nada(self):
+        historico = afl.archivar_probabilidades_historico({}, {"partidos": [{"numero": 1}]})
+        self.assertEqual(historico, {})
+
+
 if __name__ == "__main__":
     unittest.main()

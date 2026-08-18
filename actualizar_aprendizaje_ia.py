@@ -458,8 +458,38 @@ def registrar_revision(resumen, jornada_num, partido, pron, real, origen, predic
 
 
 
-def mercado_partido_losilla(fuente_losilla, numero_partido):
-    partidos = (((fuente_losilla or {}).get("probabilidades") or {}).get("partidos") or [])
+def clave_jornada_losilla(jornada):
+    try:
+        return f"jornada_{int(jornada):02d}"
+    except (TypeError, ValueError):
+        return None
+
+
+def probabilidades_jornada_losilla(fuente_losilla, jornada_num):
+    """Devuelve el bloque de probabilidades de mercado de ESA jornada.
+
+    Prioriza el historico por jornada (`historico_probabilidades`, ver
+    actualizar_fuente_losilla.archivar_probabilidades_historico) y solo cae
+    al bloque "actual" si de verdad corresponde a la misma jornada -nunca lo
+    usa a ciegas, porque en cuanto Losilla pasa a la jornada siguiente ese
+    bloque deja de representar la jornada que se esta puntuando aqui.
+    """
+    historico = (fuente_losilla or {}).get("historico_probabilidades") or {}
+    clave = clave_jornada_losilla(jornada_num)
+    bloque = historico.get(clave) if clave else None
+    if bloque:
+        return bloque
+    actual = (fuente_losilla or {}).get("probabilidades") or {}
+    try:
+        if int(actual.get("jornada") or 0) == int(jornada_num):
+            return actual
+    except (TypeError, ValueError):
+        pass
+    return {}
+
+
+def mercado_partido_losilla(fuente_losilla, jornada_num, numero_partido):
+    partidos = probabilidades_jornada_losilla(fuente_losilla, jornada_num).get("partidos") or []
     for item in partidos:
         try:
             if int(item.get("numero") or 0) == int(numero_partido):
@@ -527,7 +557,7 @@ def registrar_sorpresas_mercado(jornada_num, jornada_data, pred_info):
         real = signo_oficial_partido(partido)
         if real not in SIGNOS_VALIDOS:
             continue
-        signo_fav, prob_fav, mercado = mercado_partido_losilla(fuente_losilla, num)
+        signo_fav, prob_fav, mercado = mercado_partido_losilla(fuente_losilla, jornada_num, num)
         if not signo_fav or prob_fav <= 75.0 or signo_fav == real:
             continue
         prediccion = pred_por_num.get(num, {})

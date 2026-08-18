@@ -1044,6 +1044,28 @@ def fusionar_escrutinio(anterior, nuevo):
     return dict(sorted(historico.items(), key=lambda item: int(re.search(r"\d+", item[0]).group(0)) if re.search(r"\d+", item[0]) else 0))
 
 
+def archivar_probabilidades_historico(anterior, probabilidades):
+    """Conserva una foto de las probabilidades de mercado por jornada.
+
+    `probabilidades` es deliberadamente un valor "actual" (la jornada que
+    este activa en eduardolosilla.es en cada scrape) porque el motor de
+    prediccion (motor_prediccion_quiniela.py) lo usa para la jornada EN
+    CURSO. Pero actualizar_aprendizaje_ia.registrar_sorpresas_mercado()
+    necesita esas mismas cuotas mas tarde, cuando esa jornada ya cerro y la
+    jornada activa en Losilla ya avanzo a la siguiente -momento en el que
+    "probabilidades" ya no es de la jornada que se esta puntuando. Bug real
+    (18/08/2026): sorpresas_mercado.json se quedaba sin poder detectar nada
+    de la jornada recien cerrada. Se guarda un histórico ligero por jornada
+    (mismo patron que `historico_escrutinio`) para que ese consumo posterior
+    no dependa de si el scrape llego a tiempo.
+    """
+    historico = dict((anterior or {}).get("historico_probabilidades") or {})
+    clave = clave_jornada((probabilidades or {}).get("jornada"))
+    if clave and probabilidades:
+        historico[clave] = probabilidades
+    return historico
+
+
 def fusionar_con_anterior(anterior, nuevo, avisos):
     probabilidades = fusionar_probabilidades(anterior, nuevo.get("probabilidades"))
     cuotas = fusionar_cuotas(anterior, nuevo.get("cuotas"))
@@ -1053,6 +1075,7 @@ def fusionar_con_anterior(anterior, nuevo, avisos):
         "actualizado_en": ahora_iso(),
         "avisos": avisos,
         "probabilidades": probabilidades,
+        "historico_probabilidades": archivar_probabilidades_historico(anterior, probabilidades),
         "cuotas": cuotas,
         "escrutinio": fusionar_escrutinio(anterior, nuevo.get("escrutinio")),
         "clasificaciones": nuevo.get("clasificaciones") or anterior.get("clasificaciones", {}),
