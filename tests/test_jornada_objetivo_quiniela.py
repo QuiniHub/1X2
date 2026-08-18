@@ -153,6 +153,61 @@ class JornadaObjetivoQuinielaTests(unittest.TestCase):
             self.assertTrue(resumen["jornada_objetivo_cargada"])
             self.assertEqual(resumen["jornadas_futuras_cargadas"], [])
 
+    def test_tras_jugar_la_jornada_1_nueva_avanza_a_la_2(self):
+        # Bug real (18/08/2026): con la J1 de 26/27 ya jugada y guardada, el
+        # objetivo se quedaba clavado en la propia J1 en bucle. La causa era
+        # que "ultima aprendida" se calculaba por NUMERO (max = 76, de la
+        # temporada vieja) en vez de por fecha, asi que el reinicio de
+        # temporada volvia a resolver "la primera posterior a la J76" = J1,
+        # jornada tras jornada, sin avanzar nunca.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp = Path(tmp_dir)
+            jornadas = tmp / "data" / "jornadas"
+            escribir_jornada(jornadas, 76, fecha="2026-08-09")
+            escribir_jornada(jornadas, 1, fecha="2026-08-15")
+            escribir_jornada(jornadas, 2, fecha="2026-08-22")
+
+            historial = tmp / "data" / "historial_quinielas.json"
+            escribir_json(historial, {"jornadas": []})
+            quinielas = tmp / "data" / "quinielas_jugadas.json"
+            escribir_json(
+                quinielas,
+                {
+                    "jugadas": [
+                        {"jornada": 76, "signos": ["1"] * 14, "validada": True},
+                        {"jornada": 1, "signos": ["1"] * 14, "validada": True},
+                    ]
+                },
+            )
+
+            resumen = objetivo.resumen_jornada_objetivo(jornadas, historial, quinielas)
+            self.assertEqual(resumen["ultima_jornada_aprendida"], 1)
+            self.assertEqual(resumen["jornada_objetivo"], 2)
+            self.assertTrue(resumen["jornada_objetivo_cargada"])
+
+    def test_prefiere_la_cronologicamente_siguiente_sobre_el_numero_menor(self):
+        # Con varias jornadas cargadas posteriores, debe elegir la mas
+        # proxima en el TIEMPO, no la de numero mas bajo.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp = Path(tmp_dir)
+            jornadas = tmp / "data" / "jornadas"
+            escribir_jornada(jornadas, 76, fecha="2026-08-09")
+            escribir_jornada(jornadas, 2, fecha="2026-08-22")
+            escribir_jornada(jornadas, 3, fecha="2026-08-29")
+
+            historial = tmp / "data" / "historial_quinielas.json"
+            escribir_json(historial, {"jornadas": []})
+            quinielas = tmp / "data" / "quinielas_jugadas.json"
+            escribir_json(
+                quinielas,
+                {"jugadas": [{"jornada": 76, "signos": ["1"] * 14, "validada": True}]},
+            )
+
+            self.assertEqual(
+                objetivo.jornada_objetivo_prediccion(jornadas, historial, quinielas),
+                2,
+            )
+
     def test_reinicio_de_temporada_sin_jornada_1_cargada_aun(self):
         # Mismo escenario pero la jornada 1 todavia no se ha publicado en la
         # fuente -debe seguir esperando, no inventar una jornada 77.

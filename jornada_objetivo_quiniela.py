@@ -110,9 +110,27 @@ def jornadas_con_memoria(historial_path=HISTORIAL, quinielas_path=QUINIELAS_JUGA
     return sorted(numeros)
 
 
-def ultima_jornada_aprendida(historial_path=HISTORIAL, quinielas_path=QUINIELAS_JUGADAS):
+def ultima_jornada_aprendida(
+    historial_path=HISTORIAL,
+    quinielas_path=QUINIELAS_JUGADAS,
+    jornadas_dir=JORNADAS,
+):
     aprendidas = jornadas_con_memoria(historial_path, quinielas_path)
-    return max(aprendidas) if aprendidas else 0
+    if not aprendidas:
+        return 0
+    # Por FECHA real, no por numero. La Quiniela LAE reinicia su numeracion
+    # cada temporada (J76 de 25/26 -> J1 de 26/27), asi que "el numero mas
+    # alto aprendido" se queda clavado en 76 para siempre: una vez jugada la
+    # J1 nueva, el objetivo seguia calculandose como "la primera posterior a
+    # la J76" y volvia a dar J1 en bucle, sin avanzar nunca a la J2.
+    con_fecha = [
+        (fecha_jornada_cargada(numero, jornadas_dir), numero)
+        for numero in aprendidas
+    ]
+    con_fecha = [(fecha, numero) for fecha, numero in con_fecha if fecha]
+    if con_fecha:
+        return max(con_fecha)[1]
+    return max(aprendidas)
 
 
 def fecha_mas_temprana(jornada_data):
@@ -137,21 +155,18 @@ def jornada_objetivo_prediccion(
     historial_path=HISTORIAL,
     quinielas_path=QUINIELAS_JUGADAS,
 ):
-    ultima_aprendida = ultima_jornada_aprendida(historial_path, quinielas_path)
+    ultima_aprendida = ultima_jornada_aprendida(
+        historial_path, quinielas_path, jornadas_dir
+    )
     cargadas = jornadas_cargadas(jornadas_dir)
     if ultima_aprendida:
-        siguientes_cargadas = [j for j in cargadas if j > ultima_aprendida]
-        if siguientes_cargadas:
-            return min(siguientes_cargadas)
-
-        # Reinicio de temporada: la Quiniela LAE numera sus jornadas del 1 al
-        # ~76 por temporada futbolistica (agosto a agosto) y vuelve a
-        # empezar en 1 -no existe una jornada real "ultima_aprendida + 1"
-        # cuando la ultima aprendida ya cerro el ciclo de esa temporada. Si
-        # ninguna jornada cargada tiene numero mayor, buscar por FECHA (no
-        # por numero) la que sea cronologicamente posterior -esa es la
-        # jornada 1 real de la temporada siguiente, aunque su numero sea mas
-        # bajo que el de la ultima aprendida.
+        # La FECHA manda sobre el numero: la Quiniela LAE reinicia su
+        # numeracion cada temporada (J76 de 25/26 -> J1 de 26/27), asi que
+        # "numero mayor" no significa "va despues". Ademas, arrancada ya la
+        # temporada nueva, los ficheros jornada_4..76 todavia pueden ser de
+        # la temporada ANTERIOR hasta que la fuente publique los nuevos, y
+        # coger el de numero siguiente sin mirar fecha llevaria a predecir
+        # una jornada vieja.
         fecha_ultima = fecha_jornada_cargada(ultima_aprendida, jornadas_dir)
         if fecha_ultima:
             candidatas = [
@@ -163,8 +178,14 @@ def jornada_objetivo_prediccion(
             if candidatas:
                 return min(
                     candidatas,
-                    key=lambda j: fecha_jornada_cargada(j, jornadas_dir),
+                    key=lambda j: (fecha_jornada_cargada(j, jornadas_dir), j),
                 )
+
+        # Sin fechas utilizables (datos antiguos o incompletos), el numero
+        # sigue siendo la mejor pista disponible.
+        siguientes_cargadas = [j for j in cargadas if j > ultima_aprendida]
+        if siguientes_cargadas:
+            return min(siguientes_cargadas)
 
         return ultima_aprendida + 1
 
@@ -177,7 +198,9 @@ def resumen_jornada_objetivo(
     quinielas_path=QUINIELAS_JUGADAS,
 ):
     cargadas = jornadas_cargadas(jornadas_dir)
-    ultima_aprendida = ultima_jornada_aprendida(historial_path, quinielas_path)
+    ultima_aprendida = ultima_jornada_aprendida(
+        historial_path, quinielas_path, jornadas_dir
+    )
     objetivo = jornada_objetivo_prediccion(jornadas_dir, historial_path, quinielas_path)
     max_cargada = max(cargadas) if cargadas else 0
     futuras_cargadas = [j for j in cargadas if objetivo and j > objetivo]

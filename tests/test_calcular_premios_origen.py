@@ -371,3 +371,69 @@ class LimiteCategoriaTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ResultadosOficialesCambiadosTests(unittest.TestCase):
+    """Bug real (J1 de 26/27, 18/08/2026): el Celta-Osasuna estaba aplazado
+    y se colo un 5-1 erroneo que daba signo "1"; nuestro boleto llevaba "1",
+    asi que el historial guardo 10 aciertos. Al resolverse el partido por
+    sorteo el signo real fue "X" (9 aciertos reales), pero como el recuento
+    estaba marcado como verificado, ninguna ejecucion posterior lo
+    recalculaba: se quedaba imprimiendo "manteniendo 10 aciertos
+    verificados" para siempre."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self._original_jornadas = cp.JORNADAS
+        cp.JORNADAS = Path(self._tmp.name)
+
+    def tearDown(self):
+        cp.JORNADAS = self._original_jornadas
+        self._tmp.cleanup()
+
+    def _escribir_resultados(self, jornada, signos):
+        (cp.JORNADAS / f"jornada_{jornada}.json").write_text(
+            json.dumps({
+                "jornada": jornada,
+                "partidos": [
+                    {"num": i + 1, "signo_oficial": s} for i, s in enumerate(signos)
+                ],
+            }),
+            encoding="utf-8",
+        )
+
+    def _entry(self, signos):
+        return {
+            "jornada": 1,
+            "detalle_partidos": [
+                {"num": i + 1, "signo_oficial": s} for i, s in enumerate(signos)
+            ],
+        }
+
+    def test_true_si_un_signo_oficial_ha_cambiado(self):
+        self._escribir_resultados(1, ["1", "1", "X"])
+        entry = self._entry(["1", "1", "1"])  # el tercero se guardo como "1"
+        self.assertTrue(cp.resultados_oficiales_cambiados(entry, 1))
+
+    def test_false_si_todos_coinciden(self):
+        self._escribir_resultados(1, ["1", "1", "X"])
+        entry = self._entry(["1", "1", "X"])
+        self.assertFalse(cp.resultados_oficiales_cambiados(entry, 1))
+
+    def test_false_si_el_resultado_actual_sigue_pendiente(self):
+        # Un partido que aun no tiene signo no invalida lo ya calculado.
+        self._escribir_resultados(1, ["1", "1", "Pendiente"])
+        entry = self._entry(["1", "1", "X"])
+        self.assertFalse(cp.resultados_oficiales_cambiados(entry, 1))
+
+    def test_false_si_no_hay_detalle_guardado(self):
+        self._escribir_resultados(1, ["1", "1", "X"])
+        self.assertFalse(cp.resultados_oficiales_cambiados({"jornada": 1}, 1))
+
+    def test_false_si_no_existe_el_fichero_de_la_jornada(self):
+        entry = self._entry(["1", "1", "X"])
+        self.assertFalse(cp.resultados_oficiales_cambiados(entry, 99))
+
+
+if __name__ == "__main__":
+    unittest.main()

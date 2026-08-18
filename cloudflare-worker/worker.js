@@ -60,7 +60,13 @@ const THESPORTSDB_LIGAS = {
 // en el body se sobreescribe con el primero de la lista, igual que ya se
 // hacia con gemini/openrouter (evita pedir un modelo mas caro directamente
 // al proxy sin pasar por la web).
-const MODELOS_GROQ_PERMITIDOS = ["llama-3.3-70b-versatile", "meta-llama/llama-4-scout-17b-16e-instruct"];
+// 18/08/2026: Groq retiro de golpe TODA la familia llama que teniamos aqui
+// (llama-3.3-70b-versatile, llama-3.1-8b-instant, llama-4-scout/maverick) y
+// el chat entero empezo a devolver 404 "The model does not exist". Verificado
+// hoy contra el proxy: de los candidatos probados solo responden 200 los
+// openai/gpt-oss-* y groq/compound. Ninguno acepta imagenes, asi que la
+// vision queda cubierta por Gemini (ver mas abajo).
+const MODELOS_GROQ_PERMITIDOS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
 
 function origenValido(request) {
   const origin = request.headers.get("Origin") || "";
@@ -129,7 +135,11 @@ export default {
     // ── /api/gemini ──────────────────────────────────────────────────────────
     if (url.pathname === "/api/gemini") {
       const body = await request.json().catch(() => ({}));
-      body.model = "gemini-2.0-flash";
+      // gemini-2.0-flash retirado (18/08/2026): la propia API respondia
+      // 404 indicando gemini-3.6-flash como reemplazo. Es ademas el unico
+      // camino que queda para leer imagenes de boletos, porque Groq ya no
+      // ofrece ningun modelo con vision para esta cuenta.
+      body.model = "gemini-3.6-flash";
       const upstream = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
         method:  "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${env.GEMINI_KEY}` },
@@ -145,8 +155,13 @@ export default {
       const body = await request.json().catch(() => ({}));
       // mistralai/mistral-7b-instruct:free fue retirado del catalogo de
       // OpenRouter (404 "No endpoints found", detectado 2026-07-18).
-      // Verificado contra el catalogo real (openrouter.ai/api/v1/models)
-      // que este modelo esta activo hoy.
+      // OJO (18/08/2026): esta variante ":free" tambien dejo de existir.
+      // OpenRouter responde 404 "This model is unavailable for free" y
+      // apunta al slug de pago (sin sufijo), que NO se activa aqui a
+      // proposito: cambiarlo supondria empezar a pagar por cada llamada.
+      // Este es el TERCER fallback (solo entra si Groq y Gemini fallan),
+      // asi que se deja documentado y pendiente de decision en vez de
+      // asumir el coste por defecto.
       body.model = "meta-llama/llama-3.3-70b-instruct:free";
       const upstream = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method:  "POST",

@@ -1474,11 +1474,55 @@
       return Number(row.aciertos || 0);
     }
 
+    // Primera jornada de la temporada 26/27 (la J1 se valido el 15/08/2026).
+    // La Quiniela reinicia su numeracion cada temporada, asi que el numero
+    // por si solo no distingue "J1 nueva" de "J1 de hace un año".
+    const INICIO_TEMPORADA_ACTUAL_MS = Date.parse('2026-08-15T00:00:00Z');
+
+    // quinielas_jugadas.json arrastra DOS formatos de fecha segun cuando se
+    // guardo cada entrada: ISO ("2026-08-15T06:45:14.841Z") y formato
+    // español ("13/5/2026, 13:12:31"). Ni comparar como texto ni new Date()
+    // funcionan con el segundo (Date lo leeria como mes/dia y da Invalid
+    // Date), asi que hay que normalizar antes de ordenar o filtrar.
+    function fechaValidadoMs(valor) {
+      const texto = String(valor || '').trim();
+      if (!texto) return NaN;
+      const es = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:,\s*(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+      if (es) {
+        const [, d, m, a, hh = '0', mm = '0', ss = '0'] = es;
+        return new Date(Number(a), Number(m) - 1, Number(d), Number(hh), Number(mm), Number(ss)).getTime();
+      }
+      const ms = Date.parse(texto);
+      return Number.isNaN(ms) ? NaN : ms;
+    }
+
+    function jornadasDeLaTemporadaActual() {
+      return new Set(
+        arr(state.quinielasJugadas?.jugadas)
+          .filter(j => {
+            const ms = fechaValidadoMs(j.validado_en);
+            return !Number.isNaN(ms) && ms >= INICIO_TEMPORADA_ACTUAL_MS;
+          })
+          .map(j => Number(j.jornada))
+      );
+    }
+
     function historyRowsWithIa() {
       const h = state.historial || {};
+      // El suelo "jornada >= 61" marcaba el arranque de la IA dentro de la
+      // temporada 25/26, pero con el reinicio de numeracion ese mismo suelo
+      // escondia la J1 de la 26/27 recien jugada (y habria escondido todas
+      // las de esta temporada hasta llegar otra vez a la 61). Las jornadas
+      // de la temporada en curso se reconocen por fecha, no por numero.
+      const actuales = jornadasDeLaTemporadaActual();
+      const esActual = r => actuales.has(Number(r.jornada));
       return arr(h.jornadas || h.historial || h.resultados)
-        .filter(r => Number(r.jornada) >= 61 && (historyAciertos(r) > 0 || Number(r.partidos_comparados || 0) > 0 || arr(r.detalle_partidos).length > 0))
-        .sort((a, b) => Number(a.jornada || 0) - Number(b.jornada || 0));
+        .filter(r => (Number(r.jornada) >= 61 || esActual(r))
+          && (historyAciertos(r) > 0 || Number(r.partidos_comparados || 0) > 0 || arr(r.detalle_partidos).length > 0))
+        // Las de la temporada actual van despues de las viejas aunque su
+        // numero sea menor -si no, la J1 nueva acabaria al final de la tabla
+        // (que se pinta invertida) en vez de arriba como lo mas reciente.
+        .sort((a, b) => (esActual(a) - esActual(b)) || (Number(a.jornada || 0) - Number(b.jornada || 0)));
     }
 
     function historyRowCost(row) {
@@ -1523,7 +1567,7 @@
       // Ordenar por fecha real (validado_en), no por numero de jornada: la
       // Quiniela LAE reinicia su numeracion cada temporada (J76 de 25/26 ->
       // J1 de 26/27), asi que "jornada mas alta" ya no es "mas reciente".
-      const jugadas = arr((state.quinielasJugadas || {}).jugadas).slice().sort((a, b) => new Date(b.validado_en || 0) - new Date(a.validado_en || 0));
+      const jugadas = arr((state.quinielasJugadas || {}).jugadas).slice().sort((a, b) => (fechaValidadoMs(b.validado_en) || 0) - (fechaValidadoMs(a.validado_en) || 0));
       qs('#jugadasTable').innerHTML = jugadas.length ? `<table><thead><tr><th>Jornada</th><th>Validado</th><th>Signos (1-14)</th><th>Elige 8</th><th>Pleno 15</th><th>Origen</th></tr></thead><tbody>${jugadas.map(j => `<tr>
         <td>${escapeHtml(j.jornada)}</td>
         <td>${escapeHtml(formatoFechaValidado(j.validado_en))}</td>
@@ -2083,15 +2127,17 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         };
 
         try {
-          // Intentar con 70B, si falla por rate limit usar 8B como fallback
+          // Si el modelo va limitado por rate limit, reintentar con menos
+          // tokens antes de rendirse (ya no hay un segundo modelo de
+          // repuesto: Groq retiro toda la familia llama en agosto 2026).
           let resp;
           try {
-            resp = await llamarGroq([{ role: 'user', content: prompt }], 'llama-3.3-70b-versatile', 3500);
-          } catch(e70) {
-            if (e70.message?.includes('429') || e70.message?.includes('rate')) {
-              content.innerHTML = '<span style="color:#d97706;font-size:13px">⚠️ Modelo 70B limitado, usando modelo alternativo…</span>';
-              resp = await llamarGroq([{ role: 'user', content: prompt }], 'llama-3.1-8b-instant', 3000);
-            } else { throw e70; }
+            resp = await llamarGroq([{ role: 'user', content: prompt }], MODELO_GROQ, 3500);
+          } catch(eModelo) {
+            if (eModelo.message?.includes('429') || eModelo.message?.includes('rate')) {
+              content.innerHTML = '<span style="color:#d97706;font-size:13px">⚠️ Límite de uso alcanzado, reintentando en modo reducido…</span>';
+              resp = await llamarGroq([{ role: 'user', content: prompt }], MODELO_GROQ, 3000);
+            } else { throw eModelo; }
           }
           renderAnalisis(resp);
         } catch(e) {
@@ -2282,7 +2328,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       // Igual que en renderQuinielasJugadas(): ordenar por fecha real, no por
       // numero de jornada, porque la numeracion se reinicia cada temporada.
       const jugadasReales = arr((state.quinielasJugadas || {}).jugadas).slice()
-        .sort((a, b) => new Date(b.validado_en || 0) - new Date(a.validado_en || 0)).slice(0, 5);
+        .sort((a, b) => (fechaValidadoMs(b.validado_en) || 0) - (fechaValidadoMs(a.validado_en) || 0)).slice(0, 5);
       if (jugadasReales.length) {
         const lineasJugadas = jugadasReales.map(j => {
           const cabecera = `J${j.jornada} (validado ${j.validado_en || '?'}, origen=${j.origen || '?'}) | Elige8=${arr(j.elige8).join(',') || 'no'} | Pleno15=${j.pleno15 || '?'}`;
@@ -2598,6 +2644,19 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
     // === PROXY URL ===
     const WORKER_URL = 'https://quinihub-ia.marc-ruzafa-c.workers.dev';
 
+    // Modelos de IA en un solo sitio: los proveedores retiran modelos sin
+    // avisar y el chat entero se cae con un 404 ("The model X does not
+    // exist"). Paso real el 18/08/2026: Groq retiro de golpe
+    // llama-3.3-70b-versatile, llama-3.1-8b-instant y llama-4-scout, que
+    // estaban repartidos por cuatro sitios del archivo. Centralizarlos
+    // permite comprobarlos y cambiarlos de una sola vez.
+    const MODELO_GROQ = 'openai/gpt-oss-120b';
+    // Groq ya no ofrece ningun modelo con vision para esta cuenta (los
+    // llama-4-scout/maverick y llama-3.2-vision estan retirados), asi que
+    // las imagenes no tienen ruta viable hasta que el worker actualice
+    // Gemini -ver mensaje de aviso en el flujo de adjuntos.
+    const MODELO_GROQ_VISION = null;
+
     // Detecta si la pregunta necesita búsqueda web — umbral amplio
     function necesitaBusquedaWeb(texto) {
       const t = texto.toLowerCase();
@@ -2910,7 +2969,7 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
     }
 
     // Llama a Groq con los mensajes preparados — auto-retry en rate limit TPM, fallback a Gemini en límite diario
-    async function llamarGroq(messages, model = 'llama-3.1-8b-instant', max_tokens = 600, _retry = 0) {
+    async function llamarGroq(messages, model = MODELO_GROQ, max_tokens = 600, _retry = 0) {
       const response = await fetch(`${WORKER_URL}/api/groq`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -3365,12 +3424,22 @@ ${contexto}${bloqueCalendario}${bloqueLesionesEquipo}${bloqueClasificacionEquipo
 INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Responde normalmente y al final añade EXACTAMENTE esta línea (sin nada después):
 [MEMO]resumen breve de lo aprendido, máximo 250 caracteres, incluyendo info web si la hay[/MEMO]` : ''}`;
 
-        let modeloGroq = 'llama-3.3-70b-versatile';
+        let modeloGroq = MODELO_GROQ;
         let messages;
+
+        if (adjuntoActual?.tipo === 'imagen' && !MODELO_GROQ_VISION) {
+          // Sin modelo de vision disponible: avisar claro en vez de mandar
+          // la imagen y que el proveedor devuelva un 404 incomprensible.
+          // El adjunto ya se limpio arriba con limpiarAdjunto(), y el
+          // bloque finally reactiva el input al salir por aqui.
+          if (typing) typing.remove();
+          añadirMensajeChat('ia', 'Ahora mismo no puedo leer imágenes: el proveedor de IA retiró los modelos con visión que usábamos. Descríbeme el boleto por texto (ej. "P1: 1X, P2: 2…") y lo analizo igual.');
+          return;
+        }
 
         if (adjuntoActual?.tipo === 'imagen') {
           // Vision: el último mensaje de usuario lleva texto + imagen en base64
-          modeloGroq = 'meta-llama/llama-4-scout-17b-16e-instruct';
+          modeloGroq = MODELO_GROQ_VISION;
           // Prompt específico para leer boletos/quinielas — identifica qué signo está marcado en cada fila
           const promptImagen = texto
             ? texto + `\n\nNOTA VISUAL — CÓDIGO DE COLORES DEL BOLETO: Las casillas MARCADAS/SELECCIONADAS tienen fondo AZUL OSCURO o AZUL MARINO. Las casillas NO marcadas tienen fondo ROSA CLARO o BLANCO. Lee fila por fila (1 al 15) e indica solo las casillas con fondo azul oscuro.`
@@ -3497,7 +3566,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       // mas vieja de verdad -sin esto, el chat mostraba la J76 como "la
       // ultima jugada" al preguntar por la J1 recien confirmada).
       const jugadasPorFecha = arr((quinielasJugadas || {}).jugadas).slice()
-        .sort((a, b) => new Date(b.validado_en || 0) - new Date(a.validado_en || 0));
+        .sort((a, b) => (fechaValidadoMs(b.validado_en) || 0) - (fechaValidadoMs(a.validado_en) || 0));
       const ultimaJugada = jugadasPorFecha.length ? (Number(jugadasPorFecha[0].jornada) || 0) : 0;
       state.ultimaJornadaJugadaNum = ultimaJugada;
       state.ultimaJornadaJugadaDatos = ultimaJugada ? await getJson(`data/jornadas/jornada_${ultimaJugada}.json`, null) : null;

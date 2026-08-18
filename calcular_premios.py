@@ -895,6 +895,42 @@ def puede_mejorarse_con_jugada_real(entry, jornada):
     return entry.get("origen_prediccion") != "data/quinielas_jugadas.json"
 
 
+def resultados_oficiales_cambiados(entry, jornada):
+    """True si algun signo oficial guardado ya no coincide con el que hay
+    hoy en data/jornadas/jornada_N.json.
+
+    Los aciertos se protegen para que una fuente peor no pise un recuento
+    bueno, pero esa proteccion tambien congelaba recuentos calculados sobre
+    resultados que DESPUES se corrigieron. Caso real (J1 de 26/27): el
+    Celta-Osasuna estaba aplazado y se colo un 5-1 erroneo que daba signo
+    "1"; al resolverse por sorteo el signo real fue "X", pero el historial
+    se quedo con 10 aciertos en vez de los 9 reales, y ninguna ejecucion
+    posterior lo recalculaba ("manteniendo 10 aciertos verificados").
+    """
+    detalle = entry.get("detalle_partidos") or []
+    if not detalle:
+        return False
+    resultados = leer_resultados_jornada(jornada)
+    partidos_res = {
+        p["num"]: p
+        for p in (resultados.get("partidos") or [])
+        if p.get("num")
+    }
+    if not partidos_res:
+        return False
+    for partido in detalle:
+        actual = partidos_res.get(partido.get("num"))
+        if not actual:
+            continue
+        signo_actual = str(actual.get("signo_oficial") or "").upper()
+        signo_guardado = str(partido.get("signo_oficial") or "").upper()
+        if signo_actual not in ("1", "X", "2"):
+            continue
+        if signo_guardado and signo_guardado != signo_actual:
+            return True
+    return False
+
+
 def premio_confirmado_usuario(entry):
     return str(entry.get("fuente_premio", "")) == "confirmado_usuario"
 
@@ -1069,6 +1105,12 @@ def main():
         if existente and premio_confirmado_usuario(existente):
             continue
         mejorable = bool(existente) and puede_mejorarse_con_jugada_real(existente, jornada)
+        # Un recuento protegido tambien debe rehacerse si los resultados
+        # oficiales sobre los que se calculo han cambiado despues (partido
+        # aplazado que se resuelve por sorteo, resultado mal scrapeado que
+        # se corrige...). Sin esto el numero se congelaba para siempre.
+        if existente and resultados_oficiales_cambiados(existente, jornada):
+            mejorable = True
         # Si hay registro existente con aciertos protegidos, no recalcular
         # (salvo que ahora exista la jugada realmente jugada y el registro
         # guardado no viniera de ahi -entonces hay que actualizarlo-).
