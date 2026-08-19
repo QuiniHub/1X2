@@ -2,6 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import actualizar_aprendizaje_ia as aa
 from actualizar_aprendizaje_ia import (
@@ -233,6 +234,58 @@ class ProbabilidadesJornadaLosillaTests(unittest.TestCase):
         favorito, prob, _ = aa.mercado_partido_losilla(fuente_losilla, 1, 5)
         self.assertEqual(favorito, "2")
         self.assertEqual(prob, 80.0)
+
+
+class UmbralProbabilidadSorpresaTests(unittest.TestCase):
+    """Bajado de 75.0 a 52.0 el 19/08/2026 a peticion explicita de Marc, que
+    senalo a mano los 5 partidos reales de la J1 que el considera sorpresa
+    (53,7%-61,3% de favorito segun la media de las 3 columnas de Losilla) y
+    dejo fuera a proposito uno mas debil (Oviedo-Granada, 51,7%) -52.0 es el
+    umbral mas alto que cubre los 5 sin colar el que el excluyo."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self._original_sorpresas = aa.SORPRESAS_MERCADO
+        aa.SORPRESAS_MERCADO = Path(self._tmp.name) / "sorpresas_mercado.json"
+        self.addCleanup(lambda: setattr(aa, "SORPRESAS_MERCADO", self._original_sorpresas))
+
+    def _jornada_con_favorito(self, prob_favorito, signo_favorito, signo_real):
+        fuente_losilla = {
+            "probabilidades": {
+                "jornada": 1,
+                "partidos": [{"numero": 1, "probabilidades_signo": {
+                    "1": prob_favorito if signo_favorito == "1" else 10.0,
+                    "X": prob_favorito if signo_favorito == "X" else 10.0,
+                    "2": prob_favorito if signo_favorito == "2" else 10.0,
+                }}],
+            }
+        }
+        jornada_data = {"partidos": [{"num": 1, "local": "A", "visitante": "B", "signo_oficial": signo_real, "fecha": "2026-08-15"}]}
+        return fuente_losilla, jornada_data
+
+    def test_un_favorito_al_53_por_ciento_que_pierde_ya_cuenta(self):
+        """Nivel real de P3 (Racing-Villarreal, 53,7%) -con el umbral viejo
+        (75.0) esto no contaba, con el nuevo (52.0) si."""
+        fuente_losilla, jornada_data = self._jornada_con_favorito(53.0, "1", "X")
+        with mock.patch.object(aa, "cargar_json", side_effect=lambda path, defecto=None: fuente_losilla if path == aa.FUENTE_LOSILLA else (defecto or {})):
+            nuevas = aa.registrar_sorpresas_mercado(1, jornada_data, {})
+        self.assertEqual(nuevas, 1)
+
+    def test_un_favorito_al_74_por_ciento_seguia_contando_antes_y_ahora_tambien(self):
+        fuente_losilla, jornada_data = self._jornada_con_favorito(74.0, "2", "1")
+        with mock.patch.object(aa, "cargar_json", side_effect=lambda path, defecto=None: fuente_losilla if path == aa.FUENTE_LOSILLA else (defecto or {})):
+            nuevas = aa.registrar_sorpresas_mercado(1, jornada_data, {})
+        self.assertEqual(nuevas, 1)
+
+    def test_un_favorito_al_51_por_ciento_sigue_sin_contar(self):
+        """Nivel real de P8 (Oviedo-Granada, 51,7%) -Marc lo dejo fuera a
+        proposito al senalar los 5 partidos sorpresa de la J1; el umbral
+        debe respetar esa exclusion."""
+        fuente_losilla, jornada_data = self._jornada_con_favorito(51.0, "1", "X")
+        with mock.patch.object(aa, "cargar_json", side_effect=lambda path, defecto=None: fuente_losilla if path == aa.FUENTE_LOSILLA else (defecto or {})):
+            nuevas = aa.registrar_sorpresas_mercado(1, jornada_data, {})
+        self.assertEqual(nuevas, 0)
 
 
 if __name__ == "__main__":

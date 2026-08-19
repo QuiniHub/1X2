@@ -19,6 +19,22 @@ SORPRESAS_MERCADO = DATA / "memoria_ia" / "sorpresas_mercado.json"
 
 SIGNOS_VALIDOS = {"1", "X", "2"}
 
+# Umbral de probabilidad de mercado a partir del cual un favorito que no
+# gana cuenta como "sorpresa" en registrar_sorpresas_mercado(). Bajado de
+# 75.0 a 52.0 el 19/08/2026 a peticion explicita de Marc: revisando a mano
+# los % reales de eduardolosilla.es de la J1, senalo el mismo los 5 partidos
+# que considera sorpresa real (P3 Racing-Villarreal, P7 Cadiz-Celta Fortuna,
+# P10 Eibar-Tenerife, P12 Girona-Leganes, P14 Sporting-Sabadell -favoritos
+# del 53,7% al 61,3% segun la media de las 3 columnas de Losilla, Jugados/
+# LAE/Probables- y dejo fuera a proposito P8 Oviedo-Granada (51,7%, el mas
+# parecido mas debil). 52.0 es el umbral mas alto que cubre los 5 sin colar
+# el que Marc excluyo. Ojo: no bajar mucho mas de aqui -en 3 temporadas
+# completas el 48,6% de TODOS los partidos de Primera+Segunda son "sorpresa"
+# frente al favorito de las cuotas (ver project_sorpresas_por_temporada en
+# la memoria), asi que un umbral por debajo de ~50% deja de ser una señal
+# rara y empieza a marcar casi cualquier resultado como sorpresa.
+UMBRAL_PROBABILIDAD_SORPRESA = 52.0
+
 # Tabla orientativa ya usada por calcular_premios.py. Se mantiene aqui para
 # que el cierre automatico pueda escribir historial_premios.json aunque el
 # registro anterior exista con 0 aciertos / 0 fallos.
@@ -558,7 +574,7 @@ def registrar_sorpresas_mercado(jornada_num, jornada_data, pred_info):
         if real not in SIGNOS_VALIDOS:
             continue
         signo_fav, prob_fav, mercado = mercado_partido_losilla(fuente_losilla, jornada_num, num)
-        if not signo_fav or prob_fav <= 75.0 or signo_fav == real:
+        if not signo_fav or prob_fav <= UMBRAL_PROBABILIDAD_SORPRESA or signo_fav == real:
             continue
         prediccion = pred_por_num.get(num, {})
         alertas = alertas_motivacion_prediccion(prediccion)
