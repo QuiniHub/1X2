@@ -219,20 +219,22 @@
       "probabilidad_sorpresa": 56.5,
       "elige8": false,
       "razonamiento": "Probabilidades IA: 1=46.8%, X=32.5%, 2=20.7%. Rayo Vallecano llega con 47 puntos, 13 puntos en los ultimos 5 y 1.054 goles a favor por partido. Villarreal llega con 69 puntos, 5 puntos en los ultimos 5 y 1.216 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Sin noticias recientes detectadas en fuentes públicas durante esta actualización. Villarreal CF: noticias generales sin alerta deportiva clara. Motivacion: el local compite con mas urgencia (europa league (aspira matematicamente), conference (defiende plaza)). Objetivos: Rayo Vallecano (europa league (aspira matematicamente), conference (defiende plaza)) frente a Villarreal (champions (asegurado matematicamente), europa league (asegurado matematicamente), conference (asegurado matematicamente)). Riesgo de azar/sorpresa estimado: 56.5%. Decision final: 1.",
-      "competicion_resuelta": "liga_extranjera",
-      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "competicion_resuelta": "primera_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_primera",
       "resolucion_competicion": {
-        "competicion": "liga_extranjera",
-        "modelo_recomendado": "modelo_liga_extranjera",
-        "confianza": 0.62,
-        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
-        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "competicion": "primera_division",
+        "modelo_recomendado": "modelo_liga_espana_primera",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Primera.",
+        "lectura": "Usar clasificacion de Primera, forma, casa/fuera, objetivos y bajas.",
         "datos_minimos": [
           "resultados",
-          "clasificacion_liga",
+          "clasificacion",
           "forma",
-          "ranking_elo",
-          "lesiones"
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
         ],
         "equipos_normalizados": {
           "local": "rayo vallecano madrid",
@@ -605,11 +607,11 @@
     "elige8_seleccionados": 0
   },
   "resolucion_competiciones": {
-    "generado_en": "2026-08-20T20:39:25.682550+00:00",
+    "generado_en": "2026-08-20T21:41:37.453827+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
-      "liga_extranjera": 11,
-      "primera_division": 1,
+      "liga_extranjera": 10,
+      "primera_division": 2,
       "segunda_division": 2
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."

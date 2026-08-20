@@ -51,20 +51,22 @@
       ],
       "elige8": false,
       "razonamiento": "Probabilidades IA: 1=5.6%, X=39.7%, 2=54.6%. Deportivo Alaves llega con 43 puntos, forma últimos 5/10: 7/15 puntos, dinámica estable y 1.158 goles a favor por partido. Rayo Vallecano llega con 50 puntos, forma últimos 5/10: 11/18 puntos, dinámica positiva reciente y 1.158 goles encajados por partido. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. Deportivo Alaves: noticias generales sin alerta deportiva clara. Sin noticias recientes detectadas en fuentes públicas durante esta actualización. Motivacion: el visitante compite con mas urgencia (europa (defiende plaza)). Aprendizaje competitivo: cuando el visitante necesita y el local tiene objetivo cerrado, el 1 fijo no debe ser tranquilo (52.4% de rupturas en memoria). Patron general aprendido: necesidad contra objetivo cerrado aumenta sorpresa y exige desconfiar del fijo limpio (66.0%). Objetivos: Deportivo Alaves (situacion final (salvado matematicamente)) frente a Rayo Vallecano (europa (defiende plaza)). Riesgo de azar/sorpresa estimado: 57.4%. Indice de sorpresa quinielistica: 75.3/100; favorito a vigilar: Rayo Vallecano; cobertura sugerida por sorpresa: DOBLE. empate con peso alto. Decision final: X2.",
-      "competicion_resuelta": "liga_extranjera",
-      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "competicion_resuelta": "primera_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_primera",
       "resolucion_competicion": {
-        "competicion": "liga_extranjera",
-        "modelo_recomendado": "modelo_liga_extranjera",
-        "confianza": 0.62,
-        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
-        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "competicion": "primera_division",
+        "modelo_recomendado": "modelo_liga_espana_primera",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Primera.",
+        "lectura": "Usar clasificacion de Primera, forma, casa/fuera, objetivos y bajas.",
         "datos_minimos": [
           "resultados",
-          "clasificacion_liga",
+          "clasificacion",
           "forma",
-          "ranking_elo",
-          "lesiones"
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
         ],
         "equipos_normalizados": {
           "local": "deportivo alaves",
@@ -1192,12 +1194,12 @@
     "indice_sorpresa_max": 100.0
   },
   "resolucion_competiciones": {
-    "generado_en": "2026-08-20T20:39:25.684420+00:00",
+    "generado_en": "2026-08-20T21:41:37.455305+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
-      "liga_extranjera": 9,
-      "segunda_division": 4,
-      "primera_division": 1
+      "primera_division": 2,
+      "liga_extranjera": 8,
+      "segunda_division": 4
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
   }
