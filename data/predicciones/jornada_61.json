@@ -141,20 +141,22 @@
       "incertidumbre": 104.03,
       "elige8": false,
       "razonamiento": "Probabilidades IA: 1=21.9%, X=31.5%, 2=46.5%. Real Sociedad llega con 44 puntos, 3 puntos en los ultimos 5 y 1.543 goles a favor por partido. Betis llega con 54 puntos, 9 puntos en los ultimos 5 y 1.229 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Decision final: 2.",
-      "competicion_resuelta": "liga_extranjera",
-      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "competicion_resuelta": "primera_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_primera",
       "resolucion_competicion": {
-        "competicion": "liga_extranjera",
-        "modelo_recomendado": "modelo_liga_extranjera",
-        "confianza": 0.62,
-        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
-        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "competicion": "primera_division",
+        "modelo_recomendado": "modelo_liga_espana_primera",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Primera.",
+        "lectura": "Usar clasificacion de Primera, forma, casa/fuera, objetivos y bajas.",
         "datos_minimos": [
           "resultados",
-          "clasificacion_liga",
+          "clasificacion",
           "forma",
-          "ranking_elo",
-          "lesiones"
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
         ],
         "equipos_normalizados": {
           "local": "sociedad",
@@ -357,20 +359,22 @@
       "incertidumbre": 115.6,
       "elige8": false,
       "razonamiento": "Probabilidades IA: 1=27.6%, X=34.0%, 2=38.3%. Burgos llega con 61 puntos, 6 puntos en los ultimos 5 y 1.077 goles a favor por partido. Almería llega con 72 puntos, 10 puntos en los ultimos 5 y 1.436 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Decision final: 2.",
-      "competicion_resuelta": "liga_extranjera",
-      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
       "resolucion_competicion": {
-        "competicion": "liga_extranjera",
-        "modelo_recomendado": "modelo_liga_extranjera",
-        "confianza": 0.62,
-        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
-        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
         "datos_minimos": [
           "resultados",
-          "clasificacion_liga",
+          "clasificacion",
           "forma",
-          "ranking_elo",
-          "lesiones"
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
         ],
         "equipos_normalizados": {
           "local": "burgos",
@@ -533,20 +537,22 @@
     "resultado": "Pendiente",
     "signo_oficial": "Pendiente",
     "signo_nuestro": "No jugada",
-    "competicion_resuelta": "liga_extranjera",
-    "modelo_datos_recomendado": "modelo_liga_extranjera",
+    "competicion_resuelta": "primera_division",
+    "modelo_datos_recomendado": "modelo_liga_espana_primera",
     "resolucion_competicion": {
-      "competicion": "liga_extranjera",
-      "modelo_recomendado": "modelo_liga_extranjera",
-      "confianza": 0.62,
-      "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
-      "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+      "competicion": "primera_division",
+      "modelo_recomendado": "modelo_liga_espana_primera",
+      "confianza": 0.94,
+      "motivo": "Ambos equipos estan en Primera.",
+      "lectura": "Usar clasificacion de Primera, forma, casa/fuera, objetivos y bajas.",
       "datos_minimos": [
         "resultados",
-        "clasificacion_liga",
+        "clasificacion",
         "forma",
-        "ranking_elo",
-        "lesiones"
+        "casa_fuera",
+        "lesiones",
+        "alineaciones",
+        "xg"
       ],
       "equipos_normalizados": {
         "local": "barcelona",
@@ -561,12 +567,12 @@
     "elige8_seleccionados": 0
   },
   "resolucion_competiciones": {
-    "generado_en": "2026-08-21T07:07:14.494746+00:00",
+    "generado_en": "2026-08-21T08:00:38.359644+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
-      "liga_extranjera": 11,
-      "primera_division": 1,
-      "segunda_division": 2
+      "liga_extranjera": 9,
+      "primera_division": 2,
+      "segunda_division": 3
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
   }

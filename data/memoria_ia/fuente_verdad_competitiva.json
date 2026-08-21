@@ -1,9 +1,186 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-21T07:07:05.163691+00:00",
+  "generado_en": "2026-08-21T08:00:28.965773+00:00",
   "fuente": "data/memoria_ia/contexto_competitivo.json",
   "descripcion": "Fuente unica de verdad competitiva para motor, quiniela, analisis y asistentes.",
   "equipos": {
+    "Deportivo Alaves": {
+      "equipo": "Deportivo Alaves",
+      "liga": "primera",
+      "posicion": 1,
+      "puntos": 4,
+      "puntos_en_juego": 108,
+      "maximo_puntos": 112,
+      "motivacion_competitiva": "baja",
+      "motivacion": "baja",
+      "situacion_competitiva": "salvado_matematicamente",
+      "lectura_resumen": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
+      "objetivo_principal": {
+        "objetivo": "situacion_final",
+        "estado": "salvado_matematicamente",
+        "vivo": false,
+        "terminal": true,
+        "override_oficial_jornada": true,
+        "lectura": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
+        "puntos_necesarios_para_asegurar": 0
+      },
+      "objetivos": [
+        {
+          "objetivo": "situacion_final",
+          "estado": "salvado_matematicamente",
+          "vivo": false,
+          "terminal": true,
+          "override_oficial_jornada": true,
+          "lectura": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
+          "puntos_necesarios_para_asegurar": 0
+        }
+      ],
+      "objetivos_vivos": [],
+      "override_oficial_jornada": true
+    },
+    "RCD Espanyol de Barcelona": {
+      "equipo": "RCD Espanyol de Barcelona",
+      "liga": "primera",
+      "posicion": 2,
+      "puntos": 3,
+      "puntos_en_juego": 111,
+      "maximo_puntos": 114,
+      "motivacion_competitiva": "maxima",
+      "motivacion": "maxima",
+      "situacion_competitiva": "riesgo_descenso",
+      "lectura_resumen": "Riesgo de descenso: solo tiene 3 puntos sobre Malaga CF. Necesita 109 puntos para salvarse por puntos sin depender de otros.",
+      "objetivo_principal": {
+        "objetivo": "descenso",
+        "estado": "riesgo_descenso",
+        "vivo": true,
+        "terminal": false,
+        "distancia_o_colchon": 3,
+        "corte_equipo": "Malaga CF",
+        "corte_puntos_actuales": 0,
+        "corte_maximo_puntos": 111,
+        "puntos_necesarios_para_salvarse": 109,
+        "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Malaga CF. Necesita 109 puntos para salvarse por puntos sin depender de otros."
+      },
+      "objetivos": [
+        {
+          "objetivo": "descenso",
+          "estado": "riesgo_descenso",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 3,
+          "corte_equipo": "Malaga CF",
+          "corte_puntos_actuales": 0,
+          "corte_maximo_puntos": 111,
+          "puntos_necesarios_para_salvarse": 109,
+          "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Malaga CF. Necesita 109 puntos para salvarse por puntos sin depender de otros."
+        },
+        {
+          "objetivo": "titulo_liga",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -2,
+          "puntos_necesarios_para_entrar": 2,
+          "lectura": "Aún puede pelear el título por puntos: necesita 2 puntos para superar al líder Deportivo Alaves."
+        },
+        {
+          "objetivo": "champions",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 2,
+          "corte_equipo": "Villarreal CF",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 112,
+          "puntos_necesarios_para_asegurar": 110,
+          "lectura": "Defiende plaza de champions con 2 puntos sobre Villarreal CF. Para asegurarla por puntos necesita 110 puntos más."
+        },
+        {
+          "objetivo": "europa_league",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 2,
+          "corte_equipo": "Elche CF",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 112,
+          "puntos_necesarios_para_asegurar": 110,
+          "lectura": "Defiende plaza de Europa League con 2 puntos sobre Elche CF. Para asegurarla por puntos necesita 110 puntos más."
+        },
+        {
+          "objetivo": "conference",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 2,
+          "corte_equipo": "Rayo Vallecano de Madrid",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 109,
+          "puntos_necesarios_para_asegurar": 107,
+          "lectura": "Defiende plaza de Conference con 2 puntos sobre Rayo Vallecano de Madrid. Para asegurarla por puntos necesita 107 puntos más."
+        }
+      ],
+      "objetivos_vivos": [
+        {
+          "objetivo": "descenso",
+          "estado": "riesgo_descenso",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 3,
+          "corte_equipo": "Malaga CF",
+          "corte_puntos_actuales": 0,
+          "corte_maximo_puntos": 111,
+          "puntos_necesarios_para_salvarse": 109,
+          "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Malaga CF. Necesita 109 puntos para salvarse por puntos sin depender de otros."
+        },
+        {
+          "objetivo": "titulo_liga",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -2,
+          "puntos_necesarios_para_entrar": 2,
+          "lectura": "Aún puede pelear el título por puntos: necesita 2 puntos para superar al líder Deportivo Alaves."
+        },
+        {
+          "objetivo": "champions",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 2,
+          "corte_equipo": "Villarreal CF",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 112,
+          "puntos_necesarios_para_asegurar": 110,
+          "lectura": "Defiende plaza de champions con 2 puntos sobre Villarreal CF. Para asegurarla por puntos necesita 110 puntos más."
+        },
+        {
+          "objetivo": "europa_league",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 2,
+          "corte_equipo": "Elche CF",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 112,
+          "puntos_necesarios_para_asegurar": 110,
+          "lectura": "Defiende plaza de Europa League con 2 puntos sobre Elche CF. Para asegurarla por puntos necesita 110 puntos más."
+        },
+        {
+          "objetivo": "conference",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 2,
+          "corte_equipo": "Rayo Vallecano de Madrid",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 109,
+          "puntos_necesarios_para_asegurar": 107,
+          "lectura": "Defiende plaza de Conference con 2 puntos sobre Rayo Vallecano de Madrid. Para asegurarla por puntos necesita 107 puntos más."
+        }
+      ],
+      "override_oficial_jornada": false
+    },
     "Club Atletico de Madrid": {
       "equipo": "Club Atletico de Madrid",
       "liga": "primera",
@@ -14,18 +191,18 @@
       "motivacion_competitiva": "maxima",
       "motivacion": "maxima",
       "situacion_competitiva": "riesgo_descenso",
-      "lectura_resumen": "Riesgo de descenso: solo tiene 3 puntos sobre Getafe CF. Necesita 109 puntos para salvarse por puntos sin depender de otros.",
+      "lectura_resumen": "Riesgo de descenso: solo tiene 3 puntos sobre Malaga CF. Necesita 109 puntos para salvarse por puntos sin depender de otros.",
       "objetivo_principal": {
         "objetivo": "descenso",
         "estado": "riesgo_descenso",
         "vivo": true,
         "terminal": false,
         "distancia_o_colchon": 3,
-        "corte_equipo": "Getafe CF",
+        "corte_equipo": "Malaga CF",
         "corte_puntos_actuales": 0,
         "corte_maximo_puntos": 111,
         "puntos_necesarios_para_salvarse": 109,
-        "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Getafe CF. Necesita 109 puntos para salvarse por puntos sin depender de otros."
+        "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Malaga CF. Necesita 109 puntos para salvarse por puntos sin depender de otros."
       },
       "objetivos": [
         {
@@ -34,23 +211,35 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 3,
-          "corte_equipo": "Getafe CF",
+          "corte_equipo": "Malaga CF",
           "corte_puntos_actuales": 0,
           "corte_maximo_puntos": 111,
           "puntos_necesarios_para_salvarse": 109,
-          "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Getafe CF. Necesita 109 puntos para salvarse por puntos sin depender de otros."
+          "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Malaga CF. Necesita 109 puntos para salvarse por puntos sin depender de otros."
         },
         {
           "objetivo": "titulo_liga",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -1,
-          "puntos_necesarios_para_entrar": 1,
-          "lectura": "Aún puede pelear el título por puntos: necesita 1 punto para superar al líder Club Atletico de Madrid."
+          "distancia_o_colchon": -2,
+          "puntos_necesarios_para_entrar": 2,
+          "lectura": "Aún puede pelear el título por puntos: necesita 2 puntos para superar al líder Deportivo Alaves."
         },
         {
           "objetivo": "champions",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 2,
+          "corte_equipo": "Villarreal CF",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 112,
+          "puntos_necesarios_para_asegurar": 110,
+          "lectura": "Defiende plaza de champions con 2 puntos sobre Villarreal CF. Para asegurarla por puntos necesita 110 puntos más."
+        },
+        {
+          "objetivo": "europa_league",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
@@ -59,31 +248,19 @@
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 112,
           "puntos_necesarios_para_asegurar": 110,
-          "lectura": "Defiende plaza de champions con 2 puntos sobre Elche CF. Para asegurarla por puntos necesita 110 puntos más."
-        },
-        {
-          "objetivo": "europa_league",
-          "estado": "defiende_plaza",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -1,
-          "corte_equipo": "Deportivo Alaves",
-          "corte_puntos_actuales": 4,
-          "corte_maximo_puntos": 112,
-          "puntos_necesarios_para_asegurar": 110,
-          "lectura": "Defiende plaza de Europa League con -1 puntos sobre Deportivo Alaves. Para asegurarla por puntos necesita 110 puntos más."
+          "lectura": "Defiende plaza de Europa League con 2 puntos sobre Elche CF. Para asegurarla por puntos necesita 110 puntos más."
         },
         {
           "objetivo": "conference",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": 3,
-          "corte_equipo": "1Barcelona",
-          "corte_puntos_actuales": 0,
-          "corte_maximo_puntos": 114,
-          "puntos_necesarios_para_asegurar": 112,
-          "lectura": "Defiende plaza de Conference con 3 puntos sobre 1Barcelona. Para asegurarla por puntos necesita 112 puntos más."
+          "distancia_o_colchon": 2,
+          "corte_equipo": "Rayo Vallecano de Madrid",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 109,
+          "puntos_necesarios_para_asegurar": 107,
+          "lectura": "Defiende plaza de Conference con 2 puntos sobre Rayo Vallecano de Madrid. Para asegurarla por puntos necesita 107 puntos más."
         }
       ],
       "objetivos_vivos": [
@@ -93,23 +270,35 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 3,
-          "corte_equipo": "Getafe CF",
+          "corte_equipo": "Malaga CF",
           "corte_puntos_actuales": 0,
           "corte_maximo_puntos": 111,
           "puntos_necesarios_para_salvarse": 109,
-          "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Getafe CF. Necesita 109 puntos para salvarse por puntos sin depender de otros."
+          "lectura": "Riesgo de descenso: solo tiene 3 puntos sobre Malaga CF. Necesita 109 puntos para salvarse por puntos sin depender de otros."
         },
         {
           "objetivo": "titulo_liga",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -1,
-          "puntos_necesarios_para_entrar": 1,
-          "lectura": "Aún puede pelear el título por puntos: necesita 1 punto para superar al líder Club Atletico de Madrid."
+          "distancia_o_colchon": -2,
+          "puntos_necesarios_para_entrar": 2,
+          "lectura": "Aún puede pelear el título por puntos: necesita 2 puntos para superar al líder Deportivo Alaves."
         },
         {
           "objetivo": "champions",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": 2,
+          "corte_equipo": "Villarreal CF",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 112,
+          "puntos_necesarios_para_asegurar": 110,
+          "lectura": "Defiende plaza de champions con 2 puntos sobre Villarreal CF. Para asegurarla por puntos necesita 110 puntos más."
+        },
+        {
+          "objetivo": "europa_league",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
@@ -118,31 +307,19 @@
           "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 112,
           "puntos_necesarios_para_asegurar": 110,
-          "lectura": "Defiende plaza de champions con 2 puntos sobre Elche CF. Para asegurarla por puntos necesita 110 puntos más."
-        },
-        {
-          "objetivo": "europa_league",
-          "estado": "defiende_plaza",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -1,
-          "corte_equipo": "Deportivo Alaves",
-          "corte_puntos_actuales": 4,
-          "corte_maximo_puntos": 112,
-          "puntos_necesarios_para_asegurar": 110,
-          "lectura": "Defiende plaza de Europa League con -1 puntos sobre Deportivo Alaves. Para asegurarla por puntos necesita 110 puntos más."
+          "lectura": "Defiende plaza de Europa League con 2 puntos sobre Elche CF. Para asegurarla por puntos necesita 110 puntos más."
         },
         {
           "objetivo": "conference",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": 3,
-          "corte_equipo": "1Barcelona",
-          "corte_puntos_actuales": 0,
-          "corte_maximo_puntos": 114,
-          "puntos_necesarios_para_asegurar": 112,
-          "lectura": "Defiende plaza de Conference con 3 puntos sobre 1Barcelona. Para asegurarla por puntos necesita 112 puntos más."
+          "distancia_o_colchon": 2,
+          "corte_equipo": "Rayo Vallecano de Madrid",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 109,
+          "puntos_necesarios_para_asegurar": 107,
+          "lectura": "Defiende plaza de Conference con 2 puntos sobre Rayo Vallecano de Madrid. Para asegurarla por puntos necesita 107 puntos más."
         }
       ],
       "override_oficial_jornada": false
@@ -225,18 +402,18 @@
       "motivacion_competitiva": "maxima",
       "motivacion": "maxima",
       "situacion_competitiva": "riesgo_descenso",
-      "lectura_resumen": "Riesgo de descenso: solo tiene 1 punto sobre Getafe CF. Necesita 111 puntos para salvarse por puntos sin depender de otros.",
+      "lectura_resumen": "Riesgo de descenso: solo tiene 1 punto sobre Malaga CF. Necesita 111 puntos para salvarse por puntos sin depender de otros.",
       "objetivo_principal": {
         "objetivo": "descenso",
         "estado": "riesgo_descenso",
         "vivo": true,
         "terminal": false,
         "distancia_o_colchon": 1,
-        "corte_equipo": "Getafe CF",
+        "corte_equipo": "Malaga CF",
         "corte_puntos_actuales": 0,
         "corte_maximo_puntos": 111,
         "puntos_necesarios_para_salvarse": 111,
-        "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Getafe CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
+        "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Malaga CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
       },
       "objetivos": [
         {
@@ -245,20 +422,20 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 1,
-          "corte_equipo": "Getafe CF",
+          "corte_equipo": "Malaga CF",
           "corte_puntos_actuales": 0,
           "corte_maximo_puntos": 111,
           "puntos_necesarios_para_salvarse": 111,
-          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Getafe CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
+          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Malaga CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
         },
         {
           "objetivo": "titulo_liga",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -3,
-          "puntos_necesarios_para_entrar": 3,
-          "lectura": "Aún puede pelear el título por puntos: necesita 3 puntos para superar al líder Club Atletico de Madrid."
+          "distancia_o_colchon": -4,
+          "puntos_necesarios_para_entrar": 4,
+          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Deportivo Alaves."
         },
         {
           "objetivo": "champions",
@@ -266,35 +443,35 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "RC Deportivo de La Coruna",
+          "corte_equipo": "Real Racing Club de Santander",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de RC Deportivo de La Coruna."
+          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Real Racing Club de Santander."
         },
         {
           "objetivo": "europa_league",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -3,
-          "corte_equipo": "Deportivo Alaves",
-          "corte_puntos_actuales": 4,
+          "distancia_o_colchon": 0,
+          "corte_equipo": "Elche CF",
+          "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 112,
           "puntos_necesarios_para_asegurar": 112,
-          "lectura": "Defiende plaza de Europa League con -3 puntos sobre Deportivo Alaves. Para asegurarla por puntos necesita 112 puntos más."
+          "lectura": "Defiende plaza de Europa League con 0 puntos sobre Elche CF. Para asegurarla por puntos necesita 112 puntos más."
         },
         {
           "objetivo": "conference",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": 1,
-          "corte_equipo": "1Barcelona",
-          "corte_puntos_actuales": 0,
-          "corte_maximo_puntos": 114,
-          "puntos_necesarios_para_asegurar": 114,
-          "lectura": "Defiende plaza de Conference con 1 punto sobre 1Barcelona. Para asegurarla por puntos necesita 114 puntos más."
+          "distancia_o_colchon": 0,
+          "corte_equipo": "Rayo Vallecano de Madrid",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 109,
+          "puntos_necesarios_para_asegurar": 109,
+          "lectura": "Defiende plaza de Conference con 0 puntos sobre Rayo Vallecano de Madrid. Para asegurarla por puntos necesita 109 puntos más."
         }
       ],
       "objetivos_vivos": [
@@ -304,20 +481,20 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 1,
-          "corte_equipo": "Getafe CF",
+          "corte_equipo": "Malaga CF",
           "corte_puntos_actuales": 0,
           "corte_maximo_puntos": 111,
           "puntos_necesarios_para_salvarse": 111,
-          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Getafe CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
+          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Malaga CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
         },
         {
           "objetivo": "titulo_liga",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -3,
-          "puntos_necesarios_para_entrar": 3,
-          "lectura": "Aún puede pelear el título por puntos: necesita 3 puntos para superar al líder Club Atletico de Madrid."
+          "distancia_o_colchon": -4,
+          "puntos_necesarios_para_entrar": 4,
+          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Deportivo Alaves."
         },
         {
           "objetivo": "champions",
@@ -325,35 +502,35 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "RC Deportivo de La Coruna",
+          "corte_equipo": "Real Racing Club de Santander",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de RC Deportivo de La Coruna."
+          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Real Racing Club de Santander."
         },
         {
           "objetivo": "europa_league",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -3,
-          "corte_equipo": "Deportivo Alaves",
-          "corte_puntos_actuales": 4,
+          "distancia_o_colchon": 0,
+          "corte_equipo": "Elche CF",
+          "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 112,
           "puntos_necesarios_para_asegurar": 112,
-          "lectura": "Defiende plaza de Europa League con -3 puntos sobre Deportivo Alaves. Para asegurarla por puntos necesita 112 puntos más."
+          "lectura": "Defiende plaza de Europa League con 0 puntos sobre Elche CF. Para asegurarla por puntos necesita 112 puntos más."
         },
         {
           "objetivo": "conference",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": 1,
-          "corte_equipo": "1Barcelona",
-          "corte_puntos_actuales": 0,
-          "corte_maximo_puntos": 114,
-          "puntos_necesarios_para_asegurar": 114,
-          "lectura": "Defiende plaza de Conference con 1 punto sobre 1Barcelona. Para asegurarla por puntos necesita 114 puntos más."
+          "distancia_o_colchon": 0,
+          "corte_equipo": "Rayo Vallecano de Madrid",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 109,
+          "puntos_necesarios_para_asegurar": 109,
+          "lectura": "Defiende plaza de Conference con 0 puntos sobre Rayo Vallecano de Madrid. Para asegurarla por puntos necesita 109 puntos más."
         }
       ],
       "override_oficial_jornada": false
@@ -368,18 +545,18 @@
       "motivacion_competitiva": "maxima",
       "motivacion": "maxima",
       "situacion_competitiva": "riesgo_descenso",
-      "lectura_resumen": "Riesgo de descenso: solo tiene 1 punto sobre Getafe CF. Necesita 111 puntos para salvarse por puntos sin depender de otros.",
+      "lectura_resumen": "Riesgo de descenso: solo tiene 1 punto sobre Malaga CF. Necesita 111 puntos para salvarse por puntos sin depender de otros.",
       "objetivo_principal": {
         "objetivo": "descenso",
         "estado": "riesgo_descenso",
         "vivo": true,
         "terminal": false,
         "distancia_o_colchon": 1,
-        "corte_equipo": "Getafe CF",
+        "corte_equipo": "Malaga CF",
         "corte_puntos_actuales": 0,
         "corte_maximo_puntos": 111,
         "puntos_necesarios_para_salvarse": 111,
-        "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Getafe CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
+        "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Malaga CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
       },
       "objetivos": [
         {
@@ -388,20 +565,20 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 1,
-          "corte_equipo": "Getafe CF",
+          "corte_equipo": "Malaga CF",
           "corte_puntos_actuales": 0,
           "corte_maximo_puntos": 111,
           "puntos_necesarios_para_salvarse": 111,
-          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Getafe CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
+          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Malaga CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
         },
         {
           "objetivo": "titulo_liga",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -3,
-          "puntos_necesarios_para_entrar": 3,
-          "lectura": "Aún puede pelear el título por puntos: necesita 3 puntos para superar al líder Club Atletico de Madrid."
+          "distancia_o_colchon": -4,
+          "puntos_necesarios_para_entrar": 4,
+          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Deportivo Alaves."
         },
         {
           "objetivo": "champions",
@@ -409,35 +586,35 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "RC Deportivo de La Coruna",
+          "corte_equipo": "Real Racing Club de Santander",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de RC Deportivo de La Coruna."
+          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Real Racing Club de Santander."
         },
         {
           "objetivo": "europa_league",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -3,
-          "corte_equipo": "Deportivo Alaves",
-          "corte_puntos_actuales": 4,
+          "distancia_o_colchon": 0,
+          "corte_equipo": "Elche CF",
+          "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 112,
           "puntos_necesarios_para_asegurar": 112,
-          "lectura": "Defiende plaza de Europa League con -3 puntos sobre Deportivo Alaves. Para asegurarla por puntos necesita 112 puntos más."
+          "lectura": "Defiende plaza de Europa League con 0 puntos sobre Elche CF. Para asegurarla por puntos necesita 112 puntos más."
         },
         {
           "objetivo": "conference",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": 1,
-          "corte_equipo": "1Barcelona",
-          "corte_puntos_actuales": 0,
-          "corte_maximo_puntos": 114,
-          "puntos_necesarios_para_asegurar": 114,
-          "lectura": "Defiende plaza de Conference con 1 punto sobre 1Barcelona. Para asegurarla por puntos necesita 114 puntos más."
+          "distancia_o_colchon": 0,
+          "corte_equipo": "Rayo Vallecano de Madrid",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 109,
+          "puntos_necesarios_para_asegurar": 109,
+          "lectura": "Defiende plaza de Conference con 0 puntos sobre Rayo Vallecano de Madrid. Para asegurarla por puntos necesita 109 puntos más."
         }
       ],
       "objetivos_vivos": [
@@ -447,20 +624,20 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 1,
-          "corte_equipo": "Getafe CF",
+          "corte_equipo": "Malaga CF",
           "corte_puntos_actuales": 0,
           "corte_maximo_puntos": 111,
           "puntos_necesarios_para_salvarse": 111,
-          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Getafe CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
+          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Malaga CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
         },
         {
           "objetivo": "titulo_liga",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -3,
-          "puntos_necesarios_para_entrar": 3,
-          "lectura": "Aún puede pelear el título por puntos: necesita 3 puntos para superar al líder Club Atletico de Madrid."
+          "distancia_o_colchon": -4,
+          "puntos_necesarios_para_entrar": 4,
+          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Deportivo Alaves."
         },
         {
           "objetivo": "champions",
@@ -468,35 +645,35 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "RC Deportivo de La Coruna",
+          "corte_equipo": "Real Racing Club de Santander",
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de RC Deportivo de La Coruna."
+          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Real Racing Club de Santander."
         },
         {
           "objetivo": "europa_league",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -3,
-          "corte_equipo": "Deportivo Alaves",
-          "corte_puntos_actuales": 4,
+          "distancia_o_colchon": 0,
+          "corte_equipo": "Elche CF",
+          "corte_puntos_actuales": 1,
           "corte_maximo_puntos": 112,
           "puntos_necesarios_para_asegurar": 112,
-          "lectura": "Defiende plaza de Europa League con -3 puntos sobre Deportivo Alaves. Para asegurarla por puntos necesita 112 puntos más."
+          "lectura": "Defiende plaza de Europa League con 0 puntos sobre Elche CF. Para asegurarla por puntos necesita 112 puntos más."
         },
         {
           "objetivo": "conference",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": 1,
-          "corte_equipo": "1Barcelona",
-          "corte_puntos_actuales": 0,
-          "corte_maximo_puntos": 114,
-          "puntos_necesarios_para_asegurar": 114,
-          "lectura": "Defiende plaza de Conference con 1 punto sobre 1Barcelona. Para asegurarla por puntos necesita 114 puntos más."
+          "distancia_o_colchon": 0,
+          "corte_equipo": "Rayo Vallecano de Madrid",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 109,
+          "puntos_necesarios_para_asegurar": 109,
+          "lectura": "Defiende plaza de Conference con 0 puntos sobre Rayo Vallecano de Madrid. Para asegurarla por puntos necesita 109 puntos más."
         }
       ],
       "override_oficial_jornada": false
@@ -511,18 +688,18 @@
       "motivacion_competitiva": "maxima",
       "motivacion": "maxima",
       "situacion_competitiva": "riesgo_descenso",
-      "lectura_resumen": "Riesgo de descenso: solo tiene 1 punto sobre Getafe CF. Necesita 111 puntos para salvarse por puntos sin depender de otros.",
+      "lectura_resumen": "Riesgo de descenso: solo tiene 1 punto sobre Malaga CF. Necesita 111 puntos para salvarse por puntos sin depender de otros.",
       "objetivo_principal": {
         "objetivo": "descenso",
         "estado": "riesgo_descenso",
         "vivo": true,
         "terminal": false,
         "distancia_o_colchon": 1,
-        "corte_equipo": "Getafe CF",
+        "corte_equipo": "Malaga CF",
         "corte_puntos_actuales": 0,
         "corte_maximo_puntos": 111,
         "puntos_necesarios_para_salvarse": 111,
-        "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Getafe CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
+        "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Malaga CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
       },
       "objetivos": [
         {
@@ -531,23 +708,35 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 1,
-          "corte_equipo": "Getafe CF",
+          "corte_equipo": "Malaga CF",
           "corte_puntos_actuales": 0,
           "corte_maximo_puntos": 111,
           "puntos_necesarios_para_salvarse": 111,
-          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Getafe CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
+          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Malaga CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
         },
         {
           "objetivo": "titulo_liga",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -3,
-          "puntos_necesarios_para_entrar": 3,
-          "lectura": "Aún puede pelear el título por puntos: necesita 3 puntos para superar al líder Club Atletico de Madrid."
+          "distancia_o_colchon": -4,
+          "puntos_necesarios_para_entrar": 4,
+          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Deportivo Alaves."
         },
         {
           "objetivo": "champions",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -1,
+          "corte_equipo": "Real Racing Club de Santander",
+          "corte_puntos_actuales": 1,
+          "puntos_necesarios_para_entrar": 1,
+          "depende_de_rivales": false,
+          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Real Racing Club de Santander."
+        },
+        {
+          "objetivo": "europa_league",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
@@ -556,31 +745,19 @@
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de RC Deportivo de La Coruna."
-        },
-        {
-          "objetivo": "europa_league",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": 0,
-          "corte_equipo": "1Athletic",
-          "corte_puntos_actuales": 0,
-          "puntos_necesarios_para_entrar": 0,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 0 puntos para superar sin desempates el corte de 1Athletic."
+          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de RC Deportivo de La Coruna."
         },
         {
           "objetivo": "conference",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": 1,
-          "corte_equipo": "1Barcelona",
-          "corte_puntos_actuales": 0,
-          "corte_maximo_puntos": 114,
-          "puntos_necesarios_para_asegurar": 114,
-          "lectura": "Defiende plaza de Conference con 1 punto sobre 1Barcelona. Para asegurarla por puntos necesita 114 puntos más."
+          "distancia_o_colchon": 0,
+          "corte_equipo": "Rayo Vallecano de Madrid",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 109,
+          "puntos_necesarios_para_asegurar": 109,
+          "lectura": "Defiende plaza de Conference con 0 puntos sobre Rayo Vallecano de Madrid. Para asegurarla por puntos necesita 109 puntos más."
         }
       ],
       "objetivos_vivos": [
@@ -590,23 +767,35 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": 1,
-          "corte_equipo": "Getafe CF",
+          "corte_equipo": "Malaga CF",
           "corte_puntos_actuales": 0,
           "corte_maximo_puntos": 111,
           "puntos_necesarios_para_salvarse": 111,
-          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Getafe CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
+          "lectura": "Riesgo de descenso: solo tiene 1 punto sobre Malaga CF. Necesita 111 puntos para salvarse por puntos sin depender de otros."
         },
         {
           "objetivo": "titulo_liga",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -3,
-          "puntos_necesarios_para_entrar": 3,
-          "lectura": "Aún puede pelear el título por puntos: necesita 3 puntos para superar al líder Club Atletico de Madrid."
+          "distancia_o_colchon": -4,
+          "puntos_necesarios_para_entrar": 4,
+          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Deportivo Alaves."
         },
         {
           "objetivo": "champions",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -1,
+          "corte_equipo": "Real Racing Club de Santander",
+          "corte_puntos_actuales": 1,
+          "puntos_necesarios_para_entrar": 1,
+          "depende_de_rivales": false,
+          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de Real Racing Club de Santander."
+        },
+        {
+          "objetivo": "europa_league",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
@@ -615,93 +804,69 @@
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 1,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de RC Deportivo de La Coruna."
-        },
-        {
-          "objetivo": "europa_league",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": 0,
-          "corte_equipo": "1Athletic",
-          "corte_puntos_actuales": 0,
-          "puntos_necesarios_para_entrar": 0,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 0 puntos para superar sin desempates el corte de 1Athletic."
+          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de RC Deportivo de La Coruna."
         },
         {
           "objetivo": "conference",
           "estado": "defiende_plaza",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": 1,
-          "corte_equipo": "1Barcelona",
-          "corte_puntos_actuales": 0,
-          "corte_maximo_puntos": 114,
-          "puntos_necesarios_para_asegurar": 114,
-          "lectura": "Defiende plaza de Conference con 1 punto sobre 1Barcelona. Para asegurarla por puntos necesita 114 puntos más."
+          "distancia_o_colchon": 0,
+          "corte_equipo": "Rayo Vallecano de Madrid",
+          "corte_puntos_actuales": 1,
+          "corte_maximo_puntos": 109,
+          "puntos_necesarios_para_asegurar": 109,
+          "lectura": "Defiende plaza de Conference con 0 puntos sobre Rayo Vallecano de Madrid. Para asegurarla por puntos necesita 109 puntos más."
         }
       ],
       "override_oficial_jornada": false
     },
-    "1Athletic": {
-      "equipo": "1Athletic",
+    "Rayo Vallecano de Madrid": {
+      "equipo": "Rayo Vallecano de Madrid",
       "liga": "primera",
-      "posicion": 0,
-      "puntos": 0,
-      "puntos_en_juego": 114,
-      "maximo_puntos": 114,
-      "motivacion_competitiva": "baja",
-      "motivacion": "baja",
-      "situacion_competitiva": "temporada_no_iniciada",
-      "lectura_resumen": "Temporada sin empezar para este equipo -sin partidos jugados, ningun objetivo es matematicamente real todavia.",
-      "objetivo_principal": {
-        "objetivo": "situacion_final",
-        "estado": "temporada_no_iniciada",
-        "vivo": false,
-        "terminal": false,
-        "lectura": "Temporada sin empezar para este equipo -sin partidos jugados, ningun objetivo es matematicamente real todavia."
-      },
-      "objetivos": [],
-      "objetivos_vivos": [],
-      "override_oficial_jornada": false
-    },
-    "Deportivo Alaves": {
-      "equipo": "Deportivo Alaves",
-      "liga": "primera",
-      "posicion": 11,
-      "puntos": 4,
+      "posicion": 9,
+      "puntos": 1,
       "puntos_en_juego": 108,
-      "maximo_puntos": 112,
-      "motivacion_competitiva": "baja",
-      "motivacion": "baja",
-      "situacion_competitiva": "salvado_matematicamente",
-      "lectura_resumen": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
+      "maximo_puntos": 109,
+      "motivacion_competitiva": "maxima",
+      "motivacion": "maxima",
+      "situacion_competitiva": "defiende_plaza_europea",
+      "lectura_resumen": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
       "objetivo_principal": {
-        "objetivo": "situacion_final",
-        "estado": "salvado_matematicamente",
-        "vivo": false,
-        "terminal": true,
+        "objetivo": "europa",
+        "estado": "defiende_plaza",
+        "vivo": true,
+        "terminal": false,
         "override_oficial_jornada": true,
-        "lectura": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
-        "puntos_necesarios_para_asegurar": 0
+        "lectura": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
+        "puntos_necesarios_para_asegurar": 1
       },
       "objetivos": [
         {
-          "objetivo": "situacion_final",
-          "estado": "salvado_matematicamente",
-          "vivo": false,
-          "terminal": true,
+          "objetivo": "europa",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
           "override_oficial_jornada": true,
-          "lectura": "Salvado matematicamente. No debe tratarse como equipo con riesgo de descenso.",
-          "puntos_necesarios_para_asegurar": 0
+          "lectura": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
+          "puntos_necesarios_para_asegurar": 1
         }
       ],
-      "objetivos_vivos": [],
+      "objetivos_vivos": [
+        {
+          "objetivo": "europa",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "override_oficial_jornada": true,
+          "lectura": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
+          "puntos_necesarios_para_asegurar": 1
+        }
+      ],
       "override_oficial_jornada": true
     },
-    "1Barcelona": {
-      "equipo": "1Barcelona",
+    "Athletic Club": {
+      "equipo": "Athletic Club",
       "liga": "primera",
       "posicion": 0,
       "puntos": 0,
@@ -722,8 +887,8 @@
       "objetivos_vivos": [],
       "override_oficial_jornada": false
     },
-    "1Celta": {
-      "equipo": "1Celta",
+    "FC Barcelona": {
+      "equipo": "FC Barcelona",
       "liga": "primera",
       "posicion": 0,
       "puntos": 0,
@@ -744,8 +909,52 @@
       "objetivos_vivos": [],
       "override_oficial_jornada": false
     },
-    "1Osasuna": {
-      "equipo": "1Osasuna",
+    "RC Celta de Vigo": {
+      "equipo": "RC Celta de Vigo",
+      "liga": "primera",
+      "posicion": 0,
+      "puntos": 0,
+      "puntos_en_juego": 114,
+      "maximo_puntos": 114,
+      "motivacion_competitiva": "maxima",
+      "motivacion": "maxima",
+      "situacion_competitiva": "defiende_plaza",
+      "lectura_resumen": "Necesita 1 punto para asegurar Europa League. Debe tratarse como objetivo vivo real y motivacion alta/maxima.",
+      "objetivo_principal": {
+        "objetivo": "europa_league",
+        "estado": "defiende_plaza",
+        "vivo": true,
+        "terminal": false,
+        "override_oficial_jornada": true,
+        "lectura": "Necesita 1 punto para asegurar Europa League. Debe tratarse como objetivo vivo real y motivacion alta/maxima.",
+        "puntos_necesarios_para_asegurar": 1
+      },
+      "objetivos": [
+        {
+          "objetivo": "europa_league",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "override_oficial_jornada": true,
+          "lectura": "Necesita 1 punto para asegurar Europa League. Debe tratarse como objetivo vivo real y motivacion alta/maxima.",
+          "puntos_necesarios_para_asegurar": 1
+        }
+      ],
+      "objetivos_vivos": [
+        {
+          "objetivo": "europa_league",
+          "estado": "defiende_plaza",
+          "vivo": true,
+          "terminal": false,
+          "override_oficial_jornada": true,
+          "lectura": "Necesita 1 punto para asegurar Europa League. Debe tratarse como objetivo vivo real y motivacion alta/maxima.",
+          "puntos_necesarios_para_asegurar": 1
+        }
+      ],
+      "override_oficial_jornada": true
+    },
+    "CA Osasuna": {
+      "equipo": "CA Osasuna",
       "liga": "primera",
       "posicion": 0,
       "puntos": 0,
@@ -766,8 +975,8 @@
       "objetivos_vivos": [],
       "override_oficial_jornada": false
     },
-    "1Betis": {
-      "equipo": "1Betis",
+    "Real Betis Balompie": {
+      "equipo": "Real Betis Balompie",
       "liga": "primera",
       "posicion": 0,
       "puntos": 0,
@@ -788,8 +997,8 @@
       "objetivos_vivos": [],
       "override_oficial_jornada": false
     },
-    "1Real Madrid": {
-      "equipo": "1Real Madrid",
+    "Real Madrid CF": {
+      "equipo": "Real Madrid CF",
       "liga": "primera",
       "posicion": 0,
       "puntos": 0,
@@ -810,8 +1019,8 @@
       "objetivos_vivos": [],
       "override_oficial_jornada": false
     },
-    "1Real Sociedad": {
-      "equipo": "1Real Sociedad",
+    "Real Sociedad de Futbol": {
+      "equipo": "Real Sociedad de Futbol",
       "liga": "primera",
       "posicion": 0,
       "puntos": 0,
@@ -832,8 +1041,8 @@
       "objetivos_vivos": [],
       "override_oficial_jornada": false
     },
-    "1Valencia": {
-      "equipo": "1Valencia",
+    "Valencia CF": {
+      "equipo": "Valencia CF",
       "liga": "primera",
       "posicion": 0,
       "puntos": 0,
@@ -908,18 +1117,18 @@
       "motivacion_competitiva": "maxima",
       "motivacion": "maxima",
       "situacion_competitiva": "en_descenso_con_opciones",
-      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Levante UD (0).",
+      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Valencia CF (0).",
       "objetivo_principal": {
         "objetivo": "descenso",
         "estado": "en_descenso_con_opciones",
         "vivo": true,
         "terminal": false,
         "distancia_o_colchon": -1,
-        "corte_equipo": "Levante UD",
+        "corte_equipo": "Valencia CF",
         "corte_puntos_actuales": 0,
         "puntos_necesarios_para_salvarse": 1,
         "depende_de_rivales": false,
-        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Levante UD (0)."
+        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Valencia CF (0)."
       },
       "objetivos": [
         {
@@ -928,23 +1137,35 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Levante UD",
+          "corte_equipo": "Valencia CF",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Levante UD (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Valencia CF (0)."
         },
         {
           "objetivo": "titulo_liga",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -4,
-          "puntos_necesarios_para_entrar": 4,
-          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Club Atletico de Madrid."
+          "distancia_o_colchon": -5,
+          "puntos_necesarios_para_entrar": 5,
+          "lectura": "Aún puede pelear el título por puntos: necesita 5 puntos para superar al líder Deportivo Alaves."
         },
         {
           "objetivo": "champions",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -2,
+          "corte_equipo": "Real Racing Club de Santander",
+          "corte_puntos_actuales": 1,
+          "puntos_necesarios_para_entrar": 2,
+          "depende_de_rivales": false,
+          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Real Racing Club de Santander."
+        },
+        {
+          "objetivo": "europa_league",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
@@ -953,31 +1174,19 @@
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
-        },
-        {
-          "objetivo": "europa_league",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -1,
-          "corte_equipo": "1Athletic",
-          "corte_puntos_actuales": 0,
-          "puntos_necesarios_para_entrar": 1,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de 1Athletic."
+          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
         },
         {
           "objetivo": "conference",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -5,
-          "corte_equipo": "Deportivo Alaves",
-          "corte_puntos_actuales": 4,
-          "puntos_necesarios_para_entrar": 5,
+          "distancia_o_colchon": -2,
+          "corte_equipo": "Elche CF",
+          "corte_puntos_actuales": 1,
+          "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de Conference, pero puede alcanzarlo: necesita 5 puntos para superar sin desempates el corte de Deportivo Alaves."
+          "lectura": "Está fuera de Conference, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Elche CF."
         }
       ],
       "objetivos_vivos": [
@@ -987,23 +1196,35 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Levante UD",
+          "corte_equipo": "Valencia CF",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Levante UD (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Valencia CF (0)."
         },
         {
           "objetivo": "titulo_liga",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -4,
-          "puntos_necesarios_para_entrar": 4,
-          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Club Atletico de Madrid."
+          "distancia_o_colchon": -5,
+          "puntos_necesarios_para_entrar": 5,
+          "lectura": "Aún puede pelear el título por puntos: necesita 5 puntos para superar al líder Deportivo Alaves."
         },
         {
           "objetivo": "champions",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -2,
+          "corte_equipo": "Real Racing Club de Santander",
+          "corte_puntos_actuales": 1,
+          "puntos_necesarios_para_entrar": 2,
+          "depende_de_rivales": false,
+          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Real Racing Club de Santander."
+        },
+        {
+          "objetivo": "europa_league",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
@@ -1012,31 +1233,19 @@
           "corte_puntos_actuales": 1,
           "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
-        },
-        {
-          "objetivo": "europa_league",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -1,
-          "corte_equipo": "1Athletic",
-          "corte_puntos_actuales": 0,
-          "puntos_necesarios_para_entrar": 1,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de 1Athletic."
+          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
         },
         {
           "objetivo": "conference",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": -5,
-          "corte_equipo": "Deportivo Alaves",
-          "corte_puntos_actuales": 4,
-          "puntos_necesarios_para_entrar": 5,
+          "distancia_o_colchon": -2,
+          "corte_equipo": "Elche CF",
+          "corte_puntos_actuales": 1,
+          "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de Conference, pero puede alcanzarlo: necesita 5 puntos para superar sin desempates el corte de Deportivo Alaves."
+          "lectura": "Está fuera de Conference, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Elche CF."
         }
       ],
       "override_oficial_jornada": false
@@ -1051,18 +1260,18 @@
       "motivacion_competitiva": "maxima",
       "motivacion": "maxima",
       "situacion_competitiva": "en_descenso_con_opciones",
-      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Levante UD (0).",
+      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Valencia CF (0).",
       "objetivo_principal": {
         "objetivo": "descenso",
         "estado": "en_descenso_con_opciones",
         "vivo": true,
         "terminal": false,
         "distancia_o_colchon": -1,
-        "corte_equipo": "Levante UD",
+        "corte_equipo": "Valencia CF",
         "corte_puntos_actuales": 0,
         "puntos_necesarios_para_salvarse": 1,
         "depende_de_rivales": false,
-        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Levante UD (0)."
+        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Valencia CF (0)."
       },
       "objetivos": [
         {
@@ -1071,56 +1280,56 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Levante UD",
+          "corte_equipo": "Valencia CF",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Levante UD (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Valencia CF (0)."
         },
         {
           "objetivo": "titulo_liga",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -4,
-          "puntos_necesarios_para_entrar": 4,
-          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Club Atletico de Madrid."
-        },
-        {
-          "objetivo": "champions",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -2,
-          "corte_equipo": "RC Deportivo de La Coruna",
-          "corte_puntos_actuales": 1,
-          "puntos_necesarios_para_entrar": 2,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
-        },
-        {
-          "objetivo": "europa_league",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -1,
-          "corte_equipo": "1Athletic",
-          "corte_puntos_actuales": 0,
-          "puntos_necesarios_para_entrar": 1,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de 1Athletic."
-        },
-        {
-          "objetivo": "conference",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -5,
-          "corte_equipo": "Deportivo Alaves",
-          "corte_puntos_actuales": 4,
           "puntos_necesarios_para_entrar": 5,
+          "lectura": "Aún puede pelear el título por puntos: necesita 5 puntos para superar al líder Deportivo Alaves."
+        },
+        {
+          "objetivo": "champions",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -2,
+          "corte_equipo": "Real Racing Club de Santander",
+          "corte_puntos_actuales": 1,
+          "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de Conference, pero puede alcanzarlo: necesita 5 puntos para superar sin desempates el corte de Deportivo Alaves."
+          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Real Racing Club de Santander."
+        },
+        {
+          "objetivo": "europa_league",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -2,
+          "corte_equipo": "RC Deportivo de La Coruna",
+          "corte_puntos_actuales": 1,
+          "puntos_necesarios_para_entrar": 2,
+          "depende_de_rivales": false,
+          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
+        },
+        {
+          "objetivo": "conference",
+          "estado": "aspira_matematicamente",
+          "vivo": true,
+          "terminal": false,
+          "distancia_o_colchon": -2,
+          "corte_equipo": "Elche CF",
+          "corte_puntos_actuales": 1,
+          "puntos_necesarios_para_entrar": 2,
+          "depende_de_rivales": false,
+          "lectura": "Está fuera de Conference, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Elche CF."
         }
       ],
       "objetivos_vivos": [
@@ -1130,128 +1339,44 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Levante UD",
+          "corte_equipo": "Valencia CF",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Levante UD (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Valencia CF (0)."
         },
         {
           "objetivo": "titulo_liga",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -4,
-          "puntos_necesarios_para_entrar": 4,
-          "lectura": "Aún puede pelear el título por puntos: necesita 4 puntos para superar al líder Club Atletico de Madrid."
-        },
-        {
-          "objetivo": "champions",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -2,
-          "corte_equipo": "RC Deportivo de La Coruna",
-          "corte_puntos_actuales": 1,
-          "puntos_necesarios_para_entrar": 2,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
-        },
-        {
-          "objetivo": "europa_league",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -1,
-          "corte_equipo": "1Athletic",
-          "corte_puntos_actuales": 0,
-          "puntos_necesarios_para_entrar": 1,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 1 punto para superar sin desempates el corte de 1Athletic."
-        },
-        {
-          "objetivo": "conference",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -5,
-          "corte_equipo": "Deportivo Alaves",
-          "corte_puntos_actuales": 4,
           "puntos_necesarios_para_entrar": 5,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de Conference, pero puede alcanzarlo: necesita 5 puntos para superar sin desempates el corte de Deportivo Alaves."
-        }
-      ],
-      "override_oficial_jornada": false
-    },
-    "RCD Espanyol de Barcelona": {
-      "equipo": "RCD Espanyol de Barcelona",
-      "liga": "primera",
-      "posicion": 21,
-      "puntos": 3,
-      "puntos_en_juego": 111,
-      "maximo_puntos": 114,
-      "motivacion_competitiva": "maxima",
-      "motivacion": "maxima",
-      "situacion_competitiva": "en_descenso_con_opciones",
-      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 0 puntos para superar sin desempates el corte de Levante UD (0).",
-      "objetivo_principal": {
-        "objetivo": "descenso",
-        "estado": "en_descenso_con_opciones",
-        "vivo": true,
-        "terminal": false,
-        "distancia_o_colchon": 0,
-        "corte_equipo": "Levante UD",
-        "corte_puntos_actuales": 0,
-        "puntos_necesarios_para_salvarse": 0,
-        "depende_de_rivales": false,
-        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 0 puntos para superar sin desempates el corte de Levante UD (0)."
-      },
-      "objetivos": [
-        {
-          "objetivo": "descenso",
-          "estado": "en_descenso_con_opciones",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": 0,
-          "corte_equipo": "Levante UD",
-          "corte_puntos_actuales": 0,
-          "puntos_necesarios_para_salvarse": 0,
-          "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 0 puntos para superar sin desempates el corte de Levante UD (0)."
-        },
-        {
-          "objetivo": "titulo_liga",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -1,
-          "puntos_necesarios_para_entrar": 1,
-          "lectura": "Aún puede pelear el título por puntos: necesita 1 punto para superar al líder Club Atletico de Madrid."
+          "lectura": "Aún puede pelear el título por puntos: necesita 5 puntos para superar al líder Deportivo Alaves."
         },
         {
           "objetivo": "champions",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": 0,
-          "corte_equipo": "RC Deportivo de La Coruna",
+          "distancia_o_colchon": -2,
+          "corte_equipo": "Real Racing Club de Santander",
           "corte_puntos_actuales": 1,
-          "puntos_necesarios_para_entrar": 0,
+          "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 0 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
+          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Real Racing Club de Santander."
         },
         {
           "objetivo": "europa_league",
           "estado": "aspira_matematicamente",
           "vivo": true,
           "terminal": false,
-          "distancia_o_colchon": 0,
-          "corte_equipo": "1Athletic",
-          "corte_puntos_actuales": 0,
-          "puntos_necesarios_para_entrar": 0,
+          "distancia_o_colchon": -2,
+          "corte_equipo": "RC Deportivo de La Coruna",
+          "corte_puntos_actuales": 1,
+          "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 0 puntos para superar sin desempates el corte de 1Athletic."
+          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
         },
         {
           "objetivo": "conference",
@@ -1259,117 +1384,14 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -2,
-          "corte_equipo": "Deportivo Alaves",
-          "corte_puntos_actuales": 4,
-          "puntos_necesarios_para_entrar": 2,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de Conference, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Deportivo Alaves."
-        }
-      ],
-      "objetivos_vivos": [
-        {
-          "objetivo": "descenso",
-          "estado": "en_descenso_con_opciones",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": 0,
-          "corte_equipo": "Levante UD",
-          "corte_puntos_actuales": 0,
-          "puntos_necesarios_para_salvarse": 0,
-          "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 0 puntos para superar sin desempates el corte de Levante UD (0)."
-        },
-        {
-          "objetivo": "titulo_liga",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -1,
-          "puntos_necesarios_para_entrar": 1,
-          "lectura": "Aún puede pelear el título por puntos: necesita 1 punto para superar al líder Club Atletico de Madrid."
-        },
-        {
-          "objetivo": "champions",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": 0,
-          "corte_equipo": "RC Deportivo de La Coruna",
+          "corte_equipo": "Elche CF",
           "corte_puntos_actuales": 1,
-          "puntos_necesarios_para_entrar": 0,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de champions, pero puede alcanzarlo: necesita 0 puntos para superar sin desempates el corte de RC Deportivo de La Coruna."
-        },
-        {
-          "objetivo": "europa_league",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": 0,
-          "corte_equipo": "1Athletic",
-          "corte_puntos_actuales": 0,
-          "puntos_necesarios_para_entrar": 0,
-          "depende_de_rivales": false,
-          "lectura": "Está fuera de Europa League, pero puede alcanzarlo: necesita 0 puntos para superar sin desempates el corte de 1Athletic."
-        },
-        {
-          "objetivo": "conference",
-          "estado": "aspira_matematicamente",
-          "vivo": true,
-          "terminal": false,
-          "distancia_o_colchon": -2,
-          "corte_equipo": "Deportivo Alaves",
-          "corte_puntos_actuales": 4,
           "puntos_necesarios_para_entrar": 2,
           "depende_de_rivales": false,
-          "lectura": "Está fuera de Conference, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Deportivo Alaves."
+          "lectura": "Está fuera de Conference, pero puede alcanzarlo: necesita 2 puntos para superar sin desempates el corte de Elche CF."
         }
       ],
       "override_oficial_jornada": false
-    },
-    "Rayo Vallecano de Madrid": {
-      "equipo": "Rayo Vallecano de Madrid",
-      "liga": "primera",
-      "posicion": 98,
-      "puntos": 1,
-      "puntos_en_juego": 108,
-      "maximo_puntos": 109,
-      "motivacion_competitiva": "maxima",
-      "motivacion": "maxima",
-      "situacion_competitiva": "defiende_plaza_europea",
-      "lectura_resumen": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
-      "objetivo_principal": {
-        "objetivo": "europa",
-        "estado": "defiende_plaza",
-        "vivo": true,
-        "terminal": false,
-        "override_oficial_jornada": true,
-        "lectura": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
-        "puntos_necesarios_para_asegurar": 1
-      },
-      "objetivos": [
-        {
-          "objetivo": "europa",
-          "estado": "defiende_plaza",
-          "vivo": true,
-          "terminal": false,
-          "override_oficial_jornada": true,
-          "lectura": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
-          "puntos_necesarios_para_asegurar": 1
-        }
-      ],
-      "objetivos_vivos": [
-        {
-          "objetivo": "europa",
-          "estado": "defiende_plaza",
-          "vivo": true,
-          "terminal": false,
-          "override_oficial_jornada": true,
-          "lectura": "Quiere asegurar plaza europea. Objetivo vivo real en la ultima jornada.",
-          "puntos_necesarios_para_asegurar": 1
-        }
-      ],
-      "override_oficial_jornada": true
     },
     "FC Andorra": {
       "equipo": "FC Andorra",
@@ -1775,8 +1797,8 @@
       ],
       "override_oficial_jornada": false
     },
-    "Burgos C": {
-      "equipo": "Burgos C",
+    "Burgos CF": {
+      "equipo": "Burgos CF",
       "liga": "segunda",
       "posicion": 5,
       "puntos": 3,
@@ -3021,8 +3043,8 @@
       ],
       "override_oficial_jornada": false
     },
-    "Real Sociedad de Futbol": {
-      "equipo": "Real Sociedad de Futbol",
+    "Real Sociedad B": {
+      "equipo": "Real Sociedad B",
       "liga": "segunda",
       "posicion": 18,
       "puntos": 0,
@@ -3176,18 +3198,18 @@
       "motivacion_competitiva": "maxima",
       "motivacion": "maxima",
       "situacion_competitiva": "en_descenso_con_opciones",
-      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad de Futbol (0).",
+      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad B (0).",
       "objetivo_principal": {
         "objetivo": "descenso_primera_federacion",
         "estado": "en_descenso_con_opciones",
         "vivo": true,
         "terminal": false,
         "distancia_o_colchon": -1,
-        "corte_equipo": "Real Sociedad de Futbol",
+        "corte_equipo": "Real Sociedad B",
         "corte_puntos_actuales": 0,
         "puntos_necesarios_para_salvarse": 1,
         "depende_de_rivales": false,
-        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad de Futbol (0)."
+        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad B (0)."
       },
       "objetivos": [
         {
@@ -3196,11 +3218,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Real Sociedad de Futbol",
+          "corte_equipo": "Real Sociedad B",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad de Futbol (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad B (0)."
         },
         {
           "objetivo": "ascenso_directo",
@@ -3234,11 +3256,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Real Sociedad de Futbol",
+          "corte_equipo": "Real Sociedad B",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad de Futbol (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad B (0)."
         },
         {
           "objetivo": "ascenso_directo",
@@ -3277,18 +3299,18 @@
       "motivacion_competitiva": "maxima",
       "motivacion": "maxima",
       "situacion_competitiva": "en_descenso_con_opciones",
-      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad de Futbol (0).",
+      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad B (0).",
       "objetivo_principal": {
         "objetivo": "descenso_primera_federacion",
         "estado": "en_descenso_con_opciones",
         "vivo": true,
         "terminal": false,
         "distancia_o_colchon": -1,
-        "corte_equipo": "Real Sociedad de Futbol",
+        "corte_equipo": "Real Sociedad B",
         "corte_puntos_actuales": 0,
         "puntos_necesarios_para_salvarse": 1,
         "depende_de_rivales": false,
-        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad de Futbol (0)."
+        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad B (0)."
       },
       "objetivos": [
         {
@@ -3297,11 +3319,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Real Sociedad de Futbol",
+          "corte_equipo": "Real Sociedad B",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad de Futbol (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad B (0)."
         },
         {
           "objetivo": "ascenso_directo",
@@ -3335,11 +3357,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Real Sociedad de Futbol",
+          "corte_equipo": "Real Sociedad B",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad de Futbol (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad B (0)."
         },
         {
           "objetivo": "ascenso_directo",
@@ -3378,18 +3400,18 @@
       "motivacion_competitiva": "maxima",
       "motivacion": "maxima",
       "situacion_competitiva": "en_descenso_con_opciones",
-      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad de Futbol (0).",
+      "lectura_resumen": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad B (0).",
       "objetivo_principal": {
         "objetivo": "descenso_primera_federacion",
         "estado": "en_descenso_con_opciones",
         "vivo": true,
         "terminal": false,
         "distancia_o_colchon": -1,
-        "corte_equipo": "Real Sociedad de Futbol",
+        "corte_equipo": "Real Sociedad B",
         "corte_puntos_actuales": 0,
         "puntos_necesarios_para_salvarse": 1,
         "depende_de_rivales": false,
-        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad de Futbol (0)."
+        "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad B (0)."
       },
       "objetivos": [
         {
@@ -3398,11 +3420,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Real Sociedad de Futbol",
+          "corte_equipo": "Real Sociedad B",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad de Futbol (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad B (0)."
         },
         {
           "objetivo": "ascenso_directo",
@@ -3436,11 +3458,11 @@
           "vivo": true,
           "terminal": false,
           "distancia_o_colchon": -1,
-          "corte_equipo": "Real Sociedad de Futbol",
+          "corte_equipo": "Real Sociedad B",
           "corte_puntos_actuales": 0,
           "puntos_necesarios_para_salvarse": 1,
           "depende_de_rivales": false,
-          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad de Futbol (0)."
+          "lectura": "Está en descenso, pero aún tiene opciones. Necesita 1 punto para superar sin desempates el corte de Real Sociedad B (0)."
         },
         {
           "objetivo": "ascenso_directo",

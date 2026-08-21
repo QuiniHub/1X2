@@ -38,20 +38,22 @@
       "resultado": "3-1",
       "signo_oficial": "1",
       "signo_nuestro": "No jugada",
-      "competicion_resuelta": "liga_extranjera",
-      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
       "resolucion_competicion": {
-        "competicion": "liga_extranjera",
-        "modelo_recomendado": "modelo_liga_extranjera",
-        "confianza": 0.62,
-        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
-        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
         "datos_minimos": [
           "resultados",
-          "clasificacion_liga",
+          "clasificacion",
           "forma",
-          "ranking_elo",
-          "lesiones"
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
         ],
         "equipos_normalizados": {
           "local": "castellon",
@@ -427,11 +429,11 @@
     }
   },
   "resolucion_competiciones": {
-    "generado_en": "2026-08-21T07:07:14.437958+00:00",
+    "generado_en": "2026-08-21T08:00:38.317961+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
-      "liga_extranjera": 13,
-      "segunda_division": 1
+      "liga_extranjera": 12,
+      "segunda_division": 2
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
   }
