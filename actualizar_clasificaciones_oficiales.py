@@ -169,34 +169,29 @@ def limpiar_nombre_as(nombre):
     return canonico(nombre)
 
 
-CELDA_POSICION_RE = re.compile(r"^(\d{1,2})(.+)$")
-CELDA_CODIGO_RE = re.compile(r"^(.+?)([A-Z]{2,4})$")
-
-
-def parsear_celda_posicion_equipo(texto):
-    """La primera celda de cada fila viene como "1AlavésALA" (posicion +
-    nombre + codigo de 2-4 letras, todo pegado sin espacios) -asi es como
-    AS.com renderiza ahora esa columna; antes venia repartido en varias
-    lineas de texto sueltas, que es lo que el parser viejo esperaba.
-
-    Los equipos sin sigla corta conocida (p.ej. un filial recien ascendido
-    como "Celta Fortuna") no llevan codigo de 2-4 mayusculas: AS.com repite
-    el nombre completo dos veces seguidas en su lugar ("Celta FortunaCelta
-    Fortuna"). Ese caso se detecta aparte para no perder esas filas."""
-    m = CELDA_POSICION_RE.match(texto.strip())
-    if not m:
+def parsear_celda_posicion_equipo(celda_html):
+    """La primera celda de cada fila (<th class="fix">) trae la posicion,
+    un indicador opcional de variacion (subida/bajada respecto a la jornada
+    anterior) y el nombre del equipo como elementos HTML separados -asi es
+    como AS.com la estructura, aunque su texto plano los deje todos pegados
+    sin espacio (ej. "11AlavésALA" para posicion 1 + variacion "sube 1" +
+    "Alavés" + sigla "ALA", frente a "3AtléticoATM" para un equipo sin
+    variacion, solo posicion 3 + "Atlético" + sigla). Leer por clase CSS
+    (.a_tb_ps para la posicion, .a_tb_tm-lk span._hidden-xs para el nombre)
+    evita tener que adivinar cuantos digitos son de la posicion y cuantos
+    del indicador de variacion -ese conteo por regex es justo lo que se
+    rompio en cuanto empezo a haber equipos que cambiaban de puesto (jornada
+    2 en adelante; en la jornada 1, con la tabla recien estrenada, ningun
+    equipo tenia todavia variacion que mostrar, por eso el bug no salio
+    hasta ahora)."""
+    pos_span = celda_html.select_one(".a_tb_ps")
+    nombre_span = celda_html.select_one("a.a_tb_tm-lk span._hidden-xs")
+    if pos_span is None or nombre_span is None:
         return None
-    posicion, resto = m.groups()
-
-    mitad = len(resto) // 2
-    if len(resto) % 2 == 0 and resto[:mitad] == resto[mitad:]:
-        return int(posicion), limpiar_nombre_as(resto[:mitad])
-
-    m_codigo = CELDA_CODIGO_RE.match(resto)
-    if not m_codigo:
+    texto_pos = pos_span.get_text(strip=True)
+    if not texto_pos.isdigit():
         return None
-    nombre, _codigo = m_codigo.groups()
-    return int(posicion), limpiar_nombre_as(nombre)
+    return int(texto_pos), limpiar_nombre_as(nombre_span.get_text(strip=True))
 
 
 def parsear_estadisticas_as(valores):
@@ -232,14 +227,15 @@ def extraer_tabla_as(liga, esperado):
 
     filas = []
     for fila_html in tabla_html.find_all("tr"):
-        celdas = [c.get_text(strip=True) for c in fila_html.find_all(["td", "th"])]
-        if len(celdas) < 9:
+        celda_pos = fila_html.find("th")
+        if celda_pos is None:
             continue
-        pos_equipo = parsear_celda_posicion_equipo(celdas[0])
+        pos_equipo = parsear_celda_posicion_equipo(celda_pos)
         if not pos_equipo:
             continue
         posicion, equipo = pos_equipo
-        stats = parsear_estadisticas_as(celdas[1:9])
+        celdas_stats = [c.get_text(strip=True) for c in fila_html.find_all("td")]
+        stats = parsear_estadisticas_as(celdas_stats)
         if not stats:
             continue
         filas.append({"posicion": posicion, "equipo": equipo, **stats})

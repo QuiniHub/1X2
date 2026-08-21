@@ -59,6 +59,22 @@ LIGAS_CON_JORNADAS = {"La Liga": "4335", "Segunda División": "4400"}
 TEMPORADA_THESPORTSDB = "2026-2027"
 RONDAS_A_CONSULTAR = (1, 2)
 
+# 5 partidos de la Jornada 1 de Primera aplazados por el Mundial 2026 y
+# jugados despues en fecha suelta (confirmado en vivo con Atletico-Malaga,
+# 19/08/2026, resultado 2-0). eventsround.php?r=1 NO los devuelve aunque ya
+# esten jugados y con marcador -TheSportsDB parece no reindexar la ronda
+# tras un aplazamiento- pero searchevents.php si los encuentra buscando
+# directamente por el par de equipos, asi que se consultan aparte como
+# respaldo puntual. Sin esto el calendario oficial se quedaba mostrando
+# "vs" sin marcador para siempre en partidos ya jugados y cerrados.
+APLAZADOS_JORNADA1_PRIMERA = [
+    ("Atletico Madrid", "Malaga"),
+    ("Celta Vigo", "Osasuna"),
+    ("Barcelona", "Athletic Bilbao"),
+    ("Real Madrid", "Real Sociedad"),
+    ("Valencia", "Real Betis"),
+]
+
 OPENFOOTBALL_URLS = {
     "La Liga 2025-26": "https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/es.1.json",
     "Champions 2025-26": "https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/cl.json",
@@ -256,6 +272,23 @@ def obtener_thesportsdb_por_rondas(nombre_liga, league_id, rondas):
             print(f"  TheSportsDB {nombre_liga} ronda {ronda}: {e}")
     return resultados
 
+def obtener_thesportsdb_aplazados(nombre_liga, pares):
+    resultados = []
+    for local, visitante in pares:
+        try:
+            r = requests.get(
+                "https://www.thesportsdb.com/api/v1/json/3/searchevents.php",
+                params={"e": f"{local} vs {visitante}"},
+                headers=HEADERS,
+                timeout=15,
+            )
+            if r.status_code == 200:
+                resultados.extend(_parsear_eventos_thesportsdb(nombre_liga, r.json().get("event") or []))
+        except Exception as e:
+            print(f"  TheSportsDB aplazado {local}-{visitante}: {e}")
+    return resultados
+
+
 def obtener_thesportsdb():
     print("TheSportsDB: consultando ligas...")
     todos = []
@@ -266,6 +299,9 @@ def obtener_thesportsdb():
             partidos = obtener_thesportsdb_liga(nombre, lid)
         print(f"  {nombre}: {len(partidos)} partidos")
         todos.extend(partidos)
+    aplazados = obtener_thesportsdb_aplazados("La Liga", APLAZADOS_JORNADA1_PRIMERA)
+    print(f"  La Liga (aplazados J1): {len(aplazados)} partidos")
+    todos.extend(aplazados)
     return todos
 
 

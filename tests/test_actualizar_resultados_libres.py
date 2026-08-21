@@ -87,5 +87,44 @@ class ObtenerThesportsdbPorRondasTests(unittest.TestCase):
         self.assertEqual(len(resultados), 1)
 
 
+class ObtenerThesportsdbAplazadosTests(unittest.TestCase):
+    """Bug real (19/08/2026): Atletico Madrid-Malaga (aplazado de la J1 por
+    el Mundial 2026, jugado en fecha suelta) tenia resultado real 2-0 en
+    TheSportsDB, pero eventsround.php?r=1 no lo devolvia -el calendario
+    oficial se quedaba mostrando "vs" sin marcador para siempre en un
+    partido ya jugado y cerrado. searchevents.php si lo encuentra buscando
+    directamente por el par de equipos."""
+
+    def test_busca_cada_par_de_equipos_por_separado(self):
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.return_value = respuesta_ok({"event": [evento("Atletico Madrid", "Malaga", 2, 0)]})
+            resultados = arl.obtener_thesportsdb_aplazados("La Liga", [("Atletico Madrid", "Malaga")])
+        mock_get.assert_called_once()
+        self.assertEqual(resultados[0]["resultado"], "2-0")
+        self.assertEqual(resultados[0]["ganador"], "Club Atletico de Madrid")
+
+    def test_consulta_todos_los_pares_configurados(self):
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.return_value = respuesta_ok({"event": [evento("A", "B", 1, 0)]})
+            resultados = arl.obtener_thesportsdb_aplazados("La Liga", arl.APLAZADOS_JORNADA1_PRIMERA)
+        self.assertEqual(mock_get.call_count, len(arl.APLAZADOS_JORNADA1_PRIMERA))
+        self.assertEqual(len(resultados), len(arl.APLAZADOS_JORNADA1_PRIMERA))
+
+    def test_par_sin_evento_encontrado_no_rompe_los_demas(self):
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.side_effect = [
+                respuesta_ok({"event": None}),
+                respuesta_ok({"event": [evento("A", "B", 1, 0)]}),
+            ]
+            resultados = arl.obtener_thesportsdb_aplazados("La Liga", [("X", "Y"), ("A", "B")])
+        self.assertEqual(len(resultados), 1)
+
+    def test_error_de_red_en_un_par_no_rompe_los_demas(self):
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.side_effect = [Exception("timeout"), respuesta_ok({"event": [evento("A", "B", 1, 0)]})]
+            resultados = arl.obtener_thesportsdb_aplazados("La Liga", [("X", "Y"), ("A", "B")])
+        self.assertEqual(len(resultados), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
