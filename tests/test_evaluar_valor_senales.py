@@ -54,6 +54,45 @@ class EvaluarSenalTests(unittest.TestCase):
         self.assertEqual(resultado["veredicto"], "sin_diferencia_relevante")
 
 
+class EsRiesgoSorpresaSinCubrirTests(unittest.TestCase):
+    """Bug real (21/08/2026): Marc pidio poder analizar si los partidos que
+    el motor marca como "necesita mas cobertura" (indice de sorpresa alto)
+    pero se quedan jugados como FIJO por falta de presupuesto de dobles/
+    triples fallan de verdad mas que el resto -para decidir si merece la
+    pena subir ese presupuesto. Esta funcion replica EXACTAMENTE el mismo
+    criterio que ya usa riesgos_no_cubiertos_por_presupuesto() en
+    motor_prediccion_quiniela.py, para no divergir del calculo real."""
+
+    def test_fijo_con_cobertura_sugerida_triple_es_riesgo(self):
+        partido = {"tipo": "FIJO", "cobertura_sorpresa_sugerida": "TRIPLE", "indice_sorpresa_quinielistica": 100.0}
+        self.assertTrue(evs.es_riesgo_sorpresa_sin_cubrir(partido))
+
+    def test_fijo_con_cobertura_sugerida_doble_es_riesgo(self):
+        partido = {"tipo": "FIJO", "cobertura_sorpresa_sugerida": "DOBLE", "indice_sorpresa_quinielistica": 50.0}
+        self.assertTrue(evs.es_riesgo_sorpresa_sin_cubrir(partido))
+
+    def test_fijo_con_cobertura_sugerida_fijo_e_indice_bajo_no_es_riesgo(self):
+        partido = {"tipo": "FIJO", "cobertura_sorpresa_sugerida": "FIJO", "indice_sorpresa_quinielistica": 20.0}
+        self.assertFalse(evs.es_riesgo_sorpresa_sin_cubrir(partido))
+
+    def test_fijo_con_indice_alto_aunque_sugerida_diga_fijo_es_riesgo(self):
+        partido = {"tipo": "FIJO", "cobertura_sorpresa_sugerida": "FIJO", "indice_sorpresa_quinielistica": 65.0}
+        self.assertTrue(evs.es_riesgo_sorpresa_sin_cubrir(partido))
+
+    def test_doble_ya_cubierto_no_cuenta_aunque_el_indice_sea_alto(self):
+        # Si ya se jugo como DOBLE/TRIPLE el riesgo SI se cubrio -no es un
+        # "riesgo sin cubrir", es la cobertura funcionando como se espera.
+        partido = {"tipo": "DOBLE", "cobertura_sorpresa_sugerida": "TRIPLE", "indice_sorpresa_quinielistica": 100.0}
+        self.assertFalse(evs.es_riesgo_sorpresa_sin_cubrir(partido))
+
+    def test_calidad_baja_con_tercera_probabilidad_alta_tambien_es_riesgo(self):
+        partido = {
+            "tipo": "FIJO", "cobertura_sorpresa_sugerida": "FIJO", "indice_sorpresa_quinielistica": 10.0,
+            "calidad_datos": "baja", "tercera_probabilidad": 20.0,
+        }
+        self.assertTrue(evs.es_riesgo_sorpresa_sin_cubrir(partido))
+
+
 class EvaluacionesSnapshotsTests(unittest.TestCase):
     """Prueba la lectura real de snapshot + jornada oficial y la deteccion de cada senal."""
 
@@ -123,6 +162,47 @@ class EvaluacionesSnapshotsTests(unittest.TestCase):
         self.assertFalse(ev2["senales"]["contexto_competitivo_motivacion"])
         self.assertFalse(ev2["senales"]["datos_profesionales_cuotas"])
         self.assertFalse(ev2["senales"]["refuerzo_sorpresas_mercado"])
+
+    def test_extrae_riesgo_sorpresa_sin_cubrir_desde_el_json_real(self):
+        import json
+
+        snapshot = {
+            "jornada": 9003,
+            "prediccion": {
+                "jornada": 9003,
+                "partidos": [
+                    {
+                        "num": 1,
+                        "probabilidades": {"1": 40, "X": 35, "2": 25},
+                        "tipo": "FIJO",
+                        "cobertura_sorpresa_sugerida": "TRIPLE",
+                        "indice_sorpresa_quinielistica": 100.0,
+                    },
+                    {
+                        "num": 2,
+                        "probabilidades": {"1": 70, "X": 20, "2": 10},
+                        "tipo": "FIJO",
+                        "cobertura_sorpresa_sugerida": "FIJO",
+                        "indice_sorpresa_quinielistica": 15.0,
+                    },
+                ],
+            },
+        }
+        (evs.SNAPSHOTS / "jornada_9003.json").write_text(json.dumps(snapshot), encoding="utf-8")
+        jornada_oficial = {
+            "jornada": 9003,
+            "partidos": [
+                {"num": 1, "signo_oficial": "X"},
+                {"num": 2, "signo_oficial": "1"},
+            ],
+        }
+        (evs.JORNADAS / "jornada_9003.json").write_text(json.dumps(jornada_oficial), encoding="utf-8")
+
+        evaluaciones = evs.evaluaciones_snapshots()
+        ev1 = next(e for e in evaluaciones if e["num"] == 1)
+        ev2 = next(e for e in evaluaciones if e["num"] == 2)
+        self.assertTrue(ev1["senales"]["riesgo_sorpresa_sin_cubrir"])
+        self.assertFalse(ev2["senales"]["riesgo_sorpresa_sin_cubrir"])
 
     def test_partido_sin_resultado_oficial_se_ignora(self):
         import json

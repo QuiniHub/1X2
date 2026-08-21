@@ -81,6 +81,25 @@ def top_signo(probs):
 # Señales del motor sobre las que ya tenemos rastro por partido (ver
 # motor_prediccion_quiniela.py). Cada función devuelve True/False según si esa
 # señal estaba activa para ese partido concreto en el momento de predecir.
+def es_riesgo_sorpresa_sin_cubrir(partido):
+    """Mismo criterio que riesgos_no_cubiertos_por_presupuesto() en
+    motor_prediccion_quiniela.py: un partido jugado como FIJO cuyo propio
+    indice de sorpresa del motor pedia mas cobertura (DOBLE/TRIPLE), pero el
+    presupuesto de dobles/triples del boleto no llego a darsela. Replicado
+    aqui en vez de importado porque evaluar_valor_senales.py solo mira
+    snapshots ya guardados (no repite el calculo del motor), y este archivo
+    ya sigue el patron de trabajar solo con los campos que trae cada snapshot."""
+    if str(partido.get("tipo") or "").upper() != "FIJO":
+        return False
+    sugerida = str(partido.get("cobertura_sorpresa_sugerida") or "FIJO").upper()
+    indice = float(partido.get("indice_sorpresa_quinielistica") or 0)
+    calidad_baja_con_tercera_alta = (
+        str(partido.get("calidad_datos") or "").lower() == "baja"
+        and float(partido.get("tercera_probabilidad") or 0) >= 18
+    )
+    return sugerida != "FIJO" or indice >= 60 or calidad_baja_con_tercera_alta
+
+
 SENALES = {
     "contexto_competitivo_motivacion": lambda p: bool(p.get("alertas_motivacion")),
     "datos_profesionales_cuotas": lambda p: bool(
@@ -89,6 +108,7 @@ SENALES = {
     "refuerzo_sorpresas_mercado": lambda p: bool(
         ((p.get("ajuste_motivacion") or {}).get("refuerzo_memoria_sorpresas_mercado") or {}).get("activo")
     ),
+    "riesgo_sorpresa_sin_cubrir": es_riesgo_sorpresa_sin_cubrir,
 }
 
 
