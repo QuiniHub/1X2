@@ -20,14 +20,86 @@ LIGAS = {
     "primera": {
         "csv": "SP1.csv",
         "calendario": DATA / "calendario_primera.json",
+        "calendario_oficial": DATA / "calendario_1a_2627.json",
         "equipos_esperados": 20,
         "min_partidos": 300,
     },
     "segunda": {
         "csv": "SP2.csv",
         "calendario": DATA / "calendario_segunda.json",
+        "calendario_oficial": DATA / "calendario_2a_2627.json",
         "equipos_esperados": 22,
         "min_partidos": 350,
+    },
+}
+
+# Nombres exactos que usa el calendario oficial 26/27 (data/calendario_1a_2627.json
+# y calendario_2a_2627.json, la lista completa de 38/42 jornadas con fecha y
+# emparejamientos, sin resultado) -> nombre canonico que ya usan calendario_primera.json/
+# segunda.json en su lista "equipos". Es un mapeo cerrado y explicito (no por
+# regex/substring como el resto de este archivo) porque son solo 20+22 equipos
+# conocidos de antemano, y varios de ellos NO resuelven bien con las heuristicas
+# de canonico() (ej. "Atletico de Madrid" con "de" en medio no coincide con
+# ningun alias existente ahi tampoco -mismo tipo de gap que este script ya
+# tenia para nombres del CSV, ver ALIAS mas abajo).
+NOMBRES_CALENDARIO_OFICIAL = {
+    "primera": {
+        "Alavés": "Deportivo Alaves",
+        "Athletic Club": "Athletic Club",
+        "Atlético de Madrid": "Club Atletico de Madrid",
+        "Celta de Vigo": "RC Celta de Vigo",
+        "Deportivo de La Coruña": "RC Deportivo de La Coruna",
+        "Elche": "Elche CF",
+        "Espanyol": "RCD Espanyol de Barcelona",
+        "FC Barcelona": "FC Barcelona",
+        "Getafe": "Getafe CF",
+        "Levante": "Levante UD",
+        "Málaga CF": "Malaga CF",
+        "Osasuna": "CA Osasuna",
+        "Racing de Santander": "Real Racing Club de Santander",
+        "Rayo Vallecano": "Rayo Vallecano de Madrid",
+        "Real Betis": "Real Betis Balompie",
+        "Real Madrid": "Real Madrid CF",
+        "Real Sociedad": "Real Sociedad de Futbol",
+        "Sevilla": "Sevilla FC",
+        "Valencia": "Valencia CF",
+        "Villarreal": "Villarreal CF",
+    },
+    "segunda": {
+        "AD Ceuta FC": "AD Ceuta FC",
+        "Albacete Balompié": "Albacete Balompie",
+        "Burgos CF": "Burgos CF",
+        "CD Castellón": "CD Castellon",
+        "CD Eldense": "CD Eldense",
+        "CD Leganés": "CD Leganes",
+        "CD Tenerife": "CD Tenerife",
+        "CE Sabadell FC": "CE Sabadell",
+        "Cádiz CF": "Cadiz CF",
+        "Córdoba CF": "Cordoba CF",
+        "FC Andorra": "FC Andorra",
+        "Girona FC": "Girona FC",
+        "Granada CF": "Granada CF",
+        "RC Celta Fortuna": "RC Celta Fortuna",
+        "RCD Mallorca": "RCD Mallorca",
+        "Real Oviedo": "Real Oviedo",
+        "Real Sociedad de Fútbol B": "Real Sociedad B",
+        "Real Sporting de Gijón": "Real Sporting de Gijon",
+        "Real Valladolid CF": "Real Valladolid CF",
+        "SD Eibar": "SD Eibar",
+        "UD Almería": "UD Almeria",
+        "UD Las Palmas": "UD Las Palmas",
+    },
+}
+
+# football-data.co.uk usa para Segunda el nombre largo "RC Celta de Vigo" para
+# el filial (Celta Fortuna, recien ascendido) en vez de un codigo propio -el
+# alias global "celta de vigo" -> "RC Celta de Vigo" mas abajo es correcto
+# para Primera (el primer equipo), asi que esta correccion solo se aplica al
+# procesar la liga "segunda", sin tocar el alias compartido.
+ALIAS_POR_LIGA = {
+    "segunda": {
+        "rc celta de vigo": "RC Celta Fortuna",
+        "celta de vigo": "RC Celta Fortuna",
     },
 }
 
@@ -40,6 +112,7 @@ ALIAS = {
     "athletic club": "Athletic Club",
     "atletico madrid": "Club Atletico de Madrid",
     "ath madrid": "Club Atletico de Madrid",
+    "atl madrid": "Club Atletico de Madrid",
     "club atletico de madrid": "Club Atletico de Madrid",
     "barcelona": "FC Barcelona",
     "fc barcelona": "FC Barcelona",
@@ -102,10 +175,13 @@ ALIAS = {
     "deportivo": "RC Deportivo de La Coruna",
     "la coruna": "RC Deportivo de La Coruna",
     "dep la coruna": "RC Deportivo de La Coruna",
+    "dep a coruna": "RC Deportivo de La Coruna",
     "deportivo la coruna": "RC Deportivo de La Coruna",
     "rc deportivo de la coruna": "RC Deportivo de La Coruna",
     "eibar": "SD Eibar",
     "sd eibar": "SD Eibar",
+    "eldense": "CD Eldense",
+    "cd eldense": "CD Eldense",
     "granada": "Granada CF",
     "granada cf": "Granada CF",
     "huesca": "SD Huesca",
@@ -118,6 +194,10 @@ ALIAS = {
     "malaga cf": "Malaga CF",
     "mirandes": "CD Mirandes",
     "cd mirandes": "CD Mirandes",
+    "sabadell": "CE Sabadell",
+    "ce sabadell": "CE Sabadell",
+    "tenerife": "CD Tenerife",
+    "cd tenerife": "CD Tenerife",
     "santander": "Real Racing Club de Santander",
     "racing santander": "Real Racing Club de Santander",
     "real racing club de santander": "Real Racing Club de Santander",
@@ -165,8 +245,11 @@ def normalizar(texto):
     return " ".join(texto.split())
 
 
-def canonico(nombre):
+def canonico(nombre, liga=None):
     clave = normalizar(nombre)
+    especifico = ALIAS_POR_LIGA.get(liga, {})
+    if clave in especifico:
+        return especifico[clave]
     if clave in ALIAS:
         return ALIAS[clave]
     for alias, oficial in ALIAS.items():
@@ -229,8 +312,8 @@ def descargar_partidos_csv(liga):
 
         filas = []
         for fila in csv.DictReader(io.StringIO(contenido)):
-            local = canonico(fila.get("HomeTeam"))
-            visitante = canonico(fila.get("AwayTeam"))
+            local = canonico(fila.get("HomeTeam"), liga)
+            visitante = canonico(fila.get("AwayTeam"), liga)
             gl = fila.get("FTHG")
             gv = fila.get("FTAG")
             if not local or not visitante or gl in (None, "") or gv in (None, ""):
@@ -260,6 +343,66 @@ def descargar_partidos_csv(liga):
 
 def clave_partido(local, visitante):
     return normalizar(canonico(local)), normalizar(canonico(visitante))
+
+
+def sembrar_jornadas_desde_oficial(liga):
+    """Asegura que calendario_primera.json/segunda.json tengan el fixture
+    completo (local/visitante/fecha, sin resultado todavia) de las 38/42
+    jornadas oficiales de data/calendario_1a_2627.json/2a_2627.json.
+
+    Bug real (21/08/2026): sin esto, calendario_primera.json/segunda.json
+    se quedaban con la lista de equipos pero CERO partidos dentro de cada
+    jornada -asi que actualizar_calendario() no tenia ningun "hueco" contra
+    el que emparejar los resultados reales del CSV de football-data.co.uk, y
+    los descartaba todos en silencio como "sin emparejar". Consecuencia real
+    en el motor: fuerza() da un 76% del peso a estos datos, y de esa formula,
+    ~55% depende de forma reciente (ultimos 5/10 partidos) y rendimiento
+    casa/fuera -ambos se quedaban a 0 para los 42 equipos durante toda la
+    temporada, aunque los partidos ya estuvieran jugados y con resultado
+    conocido en otras fuentes (AS.com, TheSportsDB). Idempotente: solo añade
+    los partidos que todavia no esten, no reescribe resultados ya guardados."""
+    oficial = cargar_json(LIGAS[liga]["calendario_oficial"], {})
+    jornadas_oficiales = oficial.get("jornadas") or []
+    if not jornadas_oficiales:
+        return 0
+
+    nombres = NOMBRES_CALENDARIO_OFICIAL[liga]
+    calendario_path = LIGAS[liga]["calendario"]
+    calendario = cargar_json(calendario_path, {"competicion": liga, "jornadas": []})
+    por_numero = {int(j.get("jornada", 0)): j for j in calendario.get("jornadas", [])}
+
+    cambios = 0
+    for jornada_oficial in jornadas_oficiales:
+        num = int(jornada_oficial.get("num", 0))
+        jornada = por_numero.get(num)
+        if jornada is None:
+            jornada = {"jornada": num, "partidos": []}
+            calendario.setdefault("jornadas", []).append(jornada)
+            por_numero[num] = jornada
+        jornada.pop("estado", None)  # ya no aplica "pendiente_calendario_oficial" una vez sembrada
+        ya_presentes = {
+            clave_partido(p.get("local"), p.get("visitante")) for p in jornada.get("partidos", [])
+        }
+        for partido in jornada_oficial.get("partidos", []):
+            local = nombres.get(partido.get("local"), partido.get("local"))
+            visitante = nombres.get(partido.get("visitante"), partido.get("visitante"))
+            clave = clave_partido(local, visitante)
+            if clave in ya_presentes:
+                continue
+            jornada.setdefault("partidos", []).append({
+                "local": local,
+                "visitante": visitante,
+                "fecha": jornada_oficial.get("fecha", ""),
+                "resultado": "",
+                "estado": "Pendiente",
+            })
+            ya_presentes.add(clave)
+            cambios += 1
+
+    if cambios:
+        calendario["jornadas"] = sorted(por_numero.values(), key=lambda j: int(j.get("jornada", 0)))
+        guardar_json(calendario_path, calendario)
+    return cambios
 
 
 def actualizar_calendario(liga, resultados):
@@ -504,6 +647,9 @@ def main():
     tablas = {}
     fuentes = {}
     for liga in ("primera", "segunda"):
+        sembrados = sembrar_jornadas_desde_oficial(liga)
+        if sembrados:
+            print(f"{liga}: {sembrados} partidos sembrados desde el calendario oficial 26/27.")
         try:
             fuente, resultados = descargar_partidos_csv(liga)
         except Exception as exc:
