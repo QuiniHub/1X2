@@ -934,14 +934,21 @@
       return '';
     }
 
-    // Aviso explicito cuando lo realmente jugado (match.tipo, el dato crudo
-    // del motor, no el estado editable de la UI) cubre MENOS de lo que el
+    // Aviso explicito cuando lo realmente jugado cubre MENOS de lo que el
     // propio motor pedia -el caso real que investigamos con Marc: J1 tuvo
     // 8 partidos asi, y los 5 fallos reales de esa jornada salieron todos
-    // de ese grupo.
+    // de ese grupo. "Lo realmente jugado" es state.typeAssignment (lo que
+    // computeAssignments() acaba de calcular en el navegador segun el
+    // contador de dobles/triples de HOY), no match.tipo -ese campo viene
+    // fijo del servidor con el presupuesto que tenia el motor cuando
+    // genero la prediccion, y puede no coincidir con lo que ves en
+    // pantalla despues de pulsar "Generar quiniela". Antes de generar
+    // no hay boleto jugado todavia, asi que no se muestra ningun aviso.
     function coberturaMismatchNote(match) {
+      if (!state.generated) return '';
+      const num = match.num ?? match.numero ?? match.partido;
+      const jugada = String(state.typeAssignment[num] || '').toUpperCase();
       const sugerida = String(match.cobertura_sorpresa_sugerida || '').toUpperCase();
-      const jugada = String(match.tipo || '').toUpperCase();
       if (!(sugerida in NIVEL_COBERTURA) || !(jugada in NIVEL_COBERTURA)) return '';
       if (NIVEL_COBERTURA[jugada] >= NIVEL_COBERTURA[sugerida]) return '';
       return `<div class="cobertura-aviso">⚠ Jugado ${escapeHtml(jugada)}, pero el motor pedía ${escapeHtml(sugerida)} — no cupo en el presupuesto de dobles/triples</div>`;
@@ -994,12 +1001,23 @@
       if (!cambio) return '';
       const id = `mill_${match.num ?? match.numero ?? ''}`;
       const color = '#b8860b';
+      // cambio.signo_conservador viene fijo del servidor (el signo_final que
+      // tenia el motor con SU presupuesto de dobles/triples al generar la
+      // prediccion) -no el que ves jugado en pantalla ahora, que depende del
+      // contador de dobles/triples que tengas puesto tu. Se usa el signo
+      // realmente seleccionado (selectedSigns) para que la flecha diga "lo
+      // que tienes jugado ahora mismo -> alternativa", no un dato viejo que
+      // podia no coincidir (confusion real de Marc, 21/08/2026).
+      const jugadoAhora = selectedSigns(match) || cambio.signo_conservador || '';
+      const yaIncluyeAlternativa = jugadoAhora && cambio.signo_millonario && jugadoAhora.includes(cambio.signo_millonario);
       return `<span style="position:relative;display:inline-block">
         <button type="button" onclick="document.querySelectorAll('.mill-pop').forEach(e=>{if(e.id!=='${id}')e.style.display='none'});const d=document.getElementById('${id}');d.style.display=d.style.display!=='block'?'block':'none'"
           title="Alternativa millonaria disponible en este partido"
           style="font-size:10px;padding:2px 7px;border-radius:6px;background:${color}15;color:${color};font-weight:700;border:1px solid ${color}30;cursor:pointer;line-height:1.4">💰</button>
         <div class="mill-pop" id="${id}" style="display:none;position:absolute;z-index:6;top:24px;left:0;min-width:220px;max-width:280px;padding:8px 10px;background:var(--surface2,#fff);border:1px solid ${color}55;border-radius:8px;font-size:11px;line-height:1.5;color:var(--text,#333);box-shadow:0 4px 14px rgba(0,0,0,.18)">
-          <strong style="color:${color}">Alternativa: ${escapeHtml(cambio.signo_conservador || '')} → ${escapeHtml(cambio.signo_millonario || '')}</strong>
+          ${yaIncluyeAlternativa
+            ? `<strong style="color:${color}">Ya la tienes cubierta: ${escapeHtml(jugadoAhora)} incluye la alternativa (${escapeHtml(cambio.signo_millonario)})</strong>`
+            : `<strong style="color:${color}">Alternativa: ${escapeHtml(jugadoAhora)} → ${escapeHtml(cambio.signo_millonario || '')}</strong>`}
           <div style="margin-top:4px;color:var(--muted,#666)">${escapeHtml(cambio.justificacion || '')}</div>
         </div>
       </span>`;
