@@ -16,6 +16,7 @@
       --soft: #e8edf4;
       --soft-2: #f1f4f8;
       --danger: #c84747;
+      --amber: #C97A1E;
       --shadow: 0 20px 45px rgba(23, 32, 51, 0.08);
       --radius: 22px;
     }
@@ -254,6 +255,11 @@
       transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
     .match-row.reveal { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(29, 158, 117, 0.12); }
+    /* Semáforo de sorpresa: verde=FIJO sugerido, naranja=DOBLE sugerido, rojo=TRIPLE sugerido (ver surpriseTone()) */
+    .match-row.tone-verde   { border-left: 6px solid var(--green); background: #f2faf6; }
+    .match-row.tone-naranja { border-left: 6px solid var(--amber); background: #fdf6ec; }
+    .match-row.tone-rojo    { border-left: 6px solid var(--danger); background: #fdf3f2; }
+    .cobertura-aviso { margin-top: 4px; font-size: 11px; font-weight: 700; color: var(--danger); }
     .match-num {
       width: 34px;
       height: 34px;
@@ -911,33 +917,34 @@
       qsa('.signs').forEach(renderSignSelection);
     }
 
-    function surpriseBadge(match) {
-      const idx = Number(match.indice_sorpresa_quinielistica ?? match.surprise_score ?? 0);
-      if (!idx || idx < 40) return '';
-      const alta = idx >= 70;
-      const color = alta ? '#c62828' : '#e65100';
-      const emoji = alta ? '🔴' : '🟡';
+    // Semáforo de sorpresa: colorea la fila entera del partido segun lo que
+    // el motor SUGIERE cubrir (cobertura_sorpresa_sugerida, calculado en
+    // indice_sorpresa_quinielistica() dentro de motor_prediccion_quiniela.py),
+    // no segun lo que finalmente se jugo -asi un partido peligroso se sigue
+    // viendo en rojo aunque el presupuesto de dobles/triples no llegara a
+    // cubrirlo y se quedara como FIJO. Sustituye al badge 🔴/🟡 anterior
+    // (mismo dato de fondo, pero invisible salvo que uno abriera el JSON).
+    const NIVEL_COBERTURA = { FIJO: 0, DOBLE: 1, TRIPLE: 2 };
 
-      // Etiqueta descriptiva según probabilidades (Opción A)
-      const probs = match.probabilidades || match.probabilidad_signos || {};
-      const vals = [Number(probs['1']||0), Number(probs['X']||0), Number(probs['2']||0)];
-      const sorted = [...vals].sort((a,b) => b-a);
-      const topProb = sorted[0] || 0;
-      const margin = sorted.length >= 2 ? sorted[0] - sorted[1] : 100;
-      const xProb = Number(probs['X'] || 0);
+    function surpriseTone(match) {
+      const sugerida = String(match.cobertura_sorpresa_sugerida || '').toUpperCase();
+      if (sugerida === 'TRIPLE') return 'rojo';
+      if (sugerida === 'DOBLE') return 'naranja';
+      if (sugerida === 'FIJO') return 'verde';
+      return '';
+    }
 
-      let tipoLabel;
-      if (topProb < 45 || topProb === 0) tipoLabel = 'Sin favorito claro';
-      else if (margin <= 5)              tipoLabel = 'Muy igualado';
-      else if (xProb >= 33)             tipoLabel = 'Empate peligroso';
-      else                              tipoLabel = 'Favorito con riesgo';
-
-      // Primer motivo del motor (Opción C)
-      const motivos = Array.isArray(match.motivos_sorpresa) ? match.motivos_sorpresa : [];
-      const motivo = motivos[0] || '';
-      const motivoHtml = motivo ? `<span style="font-weight:400;opacity:0.85"> · ${escapeHtml(motivo)}</span>` : '';
-
-      return `<span style="font-size:10px;padding:2px 7px;border-radius:6px;background:${color}15;color:${color};font-weight:700;border:1px solid ${color}30;margin-left:4px">${emoji} ${escapeHtml(tipoLabel)}${motivoHtml}</span>`;
+    // Aviso explicito cuando lo realmente jugado (match.tipo, el dato crudo
+    // del motor, no el estado editable de la UI) cubre MENOS de lo que el
+    // propio motor pedia -el caso real que investigamos con Marc: J1 tuvo
+    // 8 partidos asi, y los 5 fallos reales de esa jornada salieron todos
+    // de ese grupo.
+    function coberturaMismatchNote(match) {
+      const sugerida = String(match.cobertura_sorpresa_sugerida || '').toUpperCase();
+      const jugada = String(match.tipo || '').toUpperCase();
+      if (!(sugerida in NIVEL_COBERTURA) || !(jugada in NIVEL_COBERTURA)) return '';
+      if (NIVEL_COBERTURA[jugada] >= NIVEL_COBERTURA[sugerida]) return '';
+      return `<div class="cobertura-aviso">⚠ Jugado ${escapeHtml(jugada)}, pero el motor pedía ${escapeHtml(sugerida)} — no cupo en el presupuesto de dobles/triples</div>`;
     }
 
     function analisisExpansible(match) {
@@ -990,7 +997,7 @@
       return `<span style="position:relative;display:inline-block">
         <button type="button" onclick="document.querySelectorAll('.mill-pop').forEach(e=>{if(e.id!=='${id}')e.style.display='none'});const d=document.getElementById('${id}');d.style.display=d.style.display!=='block'?'block':'none'"
           title="Alternativa millonaria disponible en este partido"
-          style="font-size:10px;padding:2px 7px;border-radius:6px;background:${color}15;color:${color};font-weight:700;border:1px solid ${color}30;cursor:pointer;line-height:1.4">💰 millonaria</button>
+          style="font-size:10px;padding:2px 7px;border-radius:6px;background:${color}15;color:${color};font-weight:700;border:1px solid ${color}30;cursor:pointer;line-height:1.4">💰</button>
         <div class="mill-pop" id="${id}" style="display:none;position:absolute;z-index:6;top:24px;left:0;min-width:220px;max-width:280px;padding:8px 10px;background:var(--surface2,#fff);border:1px solid ${color}55;border-radius:8px;font-size:11px;line-height:1.5;color:var(--text,#333);box-shadow:0 4px 14px rgba(0,0,0,.18)">
           <strong style="color:${color}">Alternativa: ${escapeHtml(cambio.signo_conservador || '')} → ${escapeHtml(cambio.signo_millonario || '')}</strong>
           <div style="margin-top:4px;color:var(--muted,#666)">${escapeHtml(cambio.justificacion || '')}</div>
@@ -1029,11 +1036,13 @@
         } else if (editable && elige8Count < 8) {
           elige8Label = `<span class="elige8-add" data-elige8-toggle="${escapeHtml(String(num))}">+ Elige 8</span>`;
         }
-        return `<article class="match-row" data-num="${escapeHtml(num)}">
+        const tone = surpriseTone(match);
+        return `<article class="match-row${tone ? ` tone-${tone}` : ''}" data-num="${escapeHtml(num)}">
           <div class="match-num">${escapeHtml(num)}</div>
           <div class="teams">
             <strong>${escapeHtml(match.local || match.equipo_local)} <span style="color:var(--muted);font-weight:700">vs</span> ${escapeHtml(match.visitante || match.equipo_visitante)}</strong>
-            <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8Label}${probabilityText(match)}${surpriseBadge(match)}${boletoMillonarioBadge(match)}</div>
+            <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8Label}${probabilityText(match)}${boletoMillonarioBadge(match)}</div>
+            ${coberturaMismatchNote(match)}
             ${analisisExpansible(match)}
           </div>
           <div class="signs" data-selected="${escapeHtml(chosen)}">
