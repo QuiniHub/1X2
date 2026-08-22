@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-22T18:44:42.906401+00:00",
+  "generado_en": "2026-08-22T19:30:02.862065+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -144,15 +144,15 @@
     },
     "2": {
       "jornada": 2,
-      "partidos_cerrados": 2,
-      "partidos_con_prediccion": 2,
+      "partidos_cerrados": 4,
+      "partidos_con_prediccion": 4,
       "precision_boleto": 50.0,
-      "precision_top1": 0.0,
-      "brier_medio": 0.7929,
-      "logloss_medio": 1.2948,
+      "precision_top1": 25.0,
+      "brier_medio": 0.7513,
+      "logloss_medio": 1.235,
       "por_tipo": {
         "FIJO": {
-          "total": 1,
+          "total": 2,
           "aciertos": 0,
           "precision": 0.0
         },
@@ -162,24 +162,38 @@
           "precision": null
         },
         "TRIPLE": {
-          "total": 1,
-          "aciertos": 1,
+          "total": 2,
+          "aciertos": 2,
           "precision": 100.0
         }
       },
       "elige8": {
-        "selecciones": 1,
-        "aciertos": 1,
+        "selecciones": 2,
+        "aciertos": 2,
         "precision": 100.0
       },
-      "surprise_score_medio": 59.93,
+      "surprise_score_medio": 56.1,
       "ranking_incertidumbre": [
+        {
+          "num": 9,
+          "partido": "AD Ceuta FC - UD Las Palmas",
+          "incertidumbre": 266.88,
+          "surprise_score": 66.46,
+          "margen_probabilidad": 4.8048
+        },
         {
           "num": 8,
           "partido": "Real Oviedo - CD Leganes",
           "incertidumbre": 175.31,
           "surprise_score": 65.29,
           "margen_probabilidad": 3.7
+        },
+        {
+          "num": 2,
+          "partido": "Valencia CF - RC Celta de Vigo",
+          "incertidumbre": 154.98,
+          "surprise_score": 38.09,
+          "margen_probabilidad": 4.6953
         },
         {
           "num": 1,
@@ -197,8 +211,20 @@
           "elige8": true
         },
         {
+          "num": 2,
+          "partido": "Valencia CF - RC Celta de Vigo",
+          "confianza_real_elige8": 47.43,
+          "elige8": true
+        },
+        {
           "num": 8,
           "partido": "Real Oviedo - CD Leganes",
+          "confianza_real_elige8": 0.0,
+          "elige8": false
+        },
+        {
+          "num": 9,
+          "partido": "AD Ceuta FC - UD Las Palmas",
           "confianza_real_elige8": 0.0,
           "elige8": false
         }
