@@ -1,28 +1,28 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-22T16:35:05.003933+00:00",
+  "generado_en": "2026-08-22T17:29:36.316989+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 169,
-    "precision_top": 38.46,
-    "brier_medio": 0.6581,
-    "logloss_medio": 1.0865,
+    "partidos": 171,
+    "precision_top": 38.01,
+    "brier_medio": 0.6592,
+    "logloss_medio": 1.0882,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 109,
+      "total": 110,
       "prob_top_media": 35.5,
-      "precision_real": 33.03,
-      "desviacion_calibracion": -2.47,
+      "precision_real": 32.73,
+      "desviacion_calibracion": -2.77,
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 42,
-      "prob_top_media": 45.06,
-      "precision_real": 50.0,
-      "desviacion_calibracion": 4.94,
+      "total": 43,
+      "prob_top_media": 44.95,
+      "precision_real": 48.84,
+      "desviacion_calibracion": 3.89,
       "muestra_suficiente": true
     },
     "50-60": {
@@ -35,10 +35,10 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 169,
-      "precision_top": 38.46,
-      "brier_medio": 0.6581,
-      "logloss_medio": 1.0865,
+      "partidos": 171,
+      "precision_top": 38.01,
+      "brier_medio": 0.6592,
+      "logloss_medio": 1.0882,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -252,6 +252,36 @@
       "bucket_top": "40-50",
       "brier": 0.5017739999999999,
       "logloss": 0.8603830999358589,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 2,
+      "num": 1,
+      "partido": "Athletic Club - Sevilla FC",
+      "fuente": "data/backtesting/pre_cierre/jornada_2.json",
+      "real": "2",
+      "top": "X",
+      "acierto_top": false,
+      "prob_top": 34.9,
+      "prob_real": 33.4,
+      "bucket_top": "30-40",
+      "brier": 0.665846,
+      "logloss": 1.0966142860054366,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 2,
+      "num": 8,
+      "partido": "Real Oviedo - CD Leganes",
+      "fuente": "data/backtesting/pre_cierre/jornada_2.json",
+      "real": "2",
+      "top": "X",
+      "acierto_top": false,
+      "prob_top": 40.2,
+      "prob_real": 25.3,
+      "bucket_top": "40-50",
+      "brier": 0.838638,
+      "logloss": 1.374365790254617,
       "competicion": "desconocida"
     },
     {
