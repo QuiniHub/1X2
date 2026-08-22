@@ -1815,13 +1815,21 @@
           const wb = palabrasClave(b);
           return wa.length > 0 && wb.length > 0 && wa.some(w => wb.includes(w));
         };
+        // Ojo: buscar el primer partido que coincida por nombre NO basta -
+        // calendario_primera/segunda.json trae las 38/42 jornadas enteras
+        // sembradas con resultado:"" para las que aun no se han jugado, y
+        // si esa entrada "vacia" aparece antes que la real (de
+        // resultadosLibres, por ejemplo) en el array, el primer find() se
+        // quedaba con la vacia y ocultaba el resultado real que si estaba
+        // mas adelante -bug real de Marc, 22/08/2026: Betis-Real Sociedad
+        // ya tenia 1-0 en resultadosLibres pero salia "vs". Por eso aqui se
+        // exige ademas que la entrada tenga un resultado de verdad.
         const encontrado = resultadosJornada.find(r => {
           const rl = normalizeName(r.local || '');
           const rv = normalizeName(r.visitante || '');
-          return coincide(nl, rl) && coincide(nv, rv);
+          return coincide(nl, rl) && coincide(nv, rv) && r.resultado && r.resultado !== 'Pendiente';
         });
-        const resultado = encontrado?.resultado;
-        return resultado && resultado !== 'Pendiente' ? resultado : null;
+        return encontrado ? encontrado.resultado : null;
       };
 
       // Ojo: no cachear el valor por defecto hasta que el calendario haya
