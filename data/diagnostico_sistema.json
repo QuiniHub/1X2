@@ -1,14 +1,14 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-22T10:33:27.926332+00:00",
+  "generado_en": "2026-08-22T10:58:33.090951+00:00",
   "estado": "critico_actualizacion",
   "score_salud": 45,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
     "jornada_actual": {
-      "jornada": 2,
-      "fecha": "Domingo, 23 de agosto de 2026",
+      "jornada": 3,
+      "fecha": "Domingo, 30 de agosto de 2026",
       "estado": "abierta",
       "partidos": 14,
       "cerrados": 0,
@@ -16,7 +16,7 @@
       "pendientes_totales_con_pleno15": 15,
       "pleno15_cerrado": false,
       "ultima_actualizacion_partido": "",
-      "path": "data/jornadas/jornada_2.json"
+      "path": "data/jornadas/jornada_3.json"
     },
     "proxima_jornada": {
       "jornada": 64,
@@ -94,9 +94,9 @@
     ]
   },
   "memoria_quinielas": {
-    "jugadas_persistidas_json": 19,
-    "jornadas_validadas_historial": 19,
-    "jornadas_memoria_real_total": 53,
+    "jugadas_persistidas_json": 20,
+    "jornadas_validadas_historial": 20,
+    "jornadas_memoria_real_total": 55,
     "jornadas_con_signo_nuestro": 15,
     "signos_nuestros_en_jornadas": 210,
     "estado": "memoria_propia_disponible",
@@ -108,25 +108,25 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 2,
-    "generado_en": "2026-08-22T10:33:27.206898+00:00",
+    "jornada": 3,
+    "generado_en": "2026-08-22T10:58:32.539000+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 8,
-      "dobles": 4,
-      "triples": 2,
+      "fijos": 14,
+      "dobles": 0,
+      "triples": 0,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 7,
-      "indice_sorpresa_max": 100.0,
+      "favoritos_atacables": 0,
+      "indice_sorpresa_max": 0.0,
       "calidad_datos": {
-        "alta": 9,
+        "alta": 0,
         "media": 0,
-        "media_baja": 5,
+        "media_baja": 0,
         "baja": 0
       }
     },
-    "retenida_por_compuerta": false,
-    "motivo_bloqueo": null
+    "retenida_por_compuerta": true,
+    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 2 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 3 hasta cerrar y aprender la 2."
   },
   "clasificaciones": {
     "primera": {
@@ -179,7 +179,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.02,
+    "contexto_equipos_horas": 0.43,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -253,7 +253,7 @@
     "partidos_cerrados": 168,
     "aciertos": 94,
     "precision": 55.95,
-    "generado_en": "2026-08-22T10:33:27.729010+00:00",
+    "generado_en": "2026-08-22T10:58:32.970334+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -263,15 +263,16 @@
       "detalle": "Club Atletico de Madrid tiene 1 PJ en tabla, pero el calendario ya tiene 2 resultados."
     },
     {
-      "nivel": "alta",
-      "titulo": "Predicción de jornada antigua",
-      "detalle": "La jornada activa es 76 pero la última predicción dice 2."
+      "nivel": "media",
+      "titulo": "Jornada actual incompleta",
+      "detalle": "La jornada 3 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
     },
     {
       "nivel": "media",
-      "titulo": "Jornada actual incompleta",
-      "detalle": "La jornada 2 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
-      "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
+      "titulo": "Prediccion demasiado rigida",
+      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
+      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
     },
     {
       "nivel": "media",
@@ -295,7 +296,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-08-22T10:33:27.926332+00:00",
+    "generado_en": "2026-08-22T10:58:33.090951+00:00",
     "estado": "critico",
     "score": 0,
     "alertas": [
@@ -303,11 +304,6 @@
         "nivel": "critica",
         "titulo": "Clasificacion primera congelada",
         "detalle": "Club Atletico de Madrid tiene 1 PJ en tabla, pero el calendario ya tiene 2 resultados."
-      },
-      {
-        "nivel": "alta",
-        "titulo": "Predicción de jornada antigua",
-        "detalle": "La jornada activa es 76 pero la última predicción dice 2."
       }
     ],
     "jornadas": {
@@ -409,28 +405,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-08-22T10:32:59.483162+00:00"
+      "generado_en": "2026-08-22T10:58:12.795072+00:00"
     },
     "prediccion": {
-      "jornada": 2,
-      "generado_en": "2026-08-22T10:33:27.206898+00:00",
+      "jornada": 3,
+      "generado_en": "2026-08-22T10:58:32.539000+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 8,
-        "dobles": 4,
-        "triples": 2,
+        "fijos": 14,
+        "dobles": 0,
+        "triples": 0,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 7,
-        "indice_sorpresa_max": 100.0,
+        "favoritos_atacables": 0,
+        "indice_sorpresa_max": 0.0,
         "calidad_datos": {
-          "alta": 9,
+          "alta": 0,
           "media": 0,
-          "media_baja": 5,
+          "media_baja": 0,
           "baja": 0
         }
       },
-      "retenida_por_compuerta": false,
-      "motivo_bloqueo": null
+      "retenida_por_compuerta": true,
+      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 2 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 3 hasta cerrar y aprender la 2."
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -533,6 +529,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-08-22T10:32:59.483162+00:00"
+    "generado_en": "2026-08-22T10:58:12.795072+00:00"
   }
 }
