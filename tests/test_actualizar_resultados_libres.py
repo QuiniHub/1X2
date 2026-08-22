@@ -1,4 +1,6 @@
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -87,42 +89,116 @@ class ObtenerThesportsdbPorRondasTests(unittest.TestCase):
         self.assertEqual(len(resultados), 1)
 
 
-class ObtenerThesportsdbAplazadosTests(unittest.TestCase):
-    """Bug real (19/08/2026): Atletico Madrid-Malaga (aplazado de la J1 por
-    el Mundial 2026, jugado en fecha suelta) tenia resultado real 2-0 en
-    TheSportsDB, pero eventsround.php?r=1 no lo devolvia -el calendario
-    oficial se quedaba mostrando "vs" sin marcador para siempre en un
-    partido ya jugado y cerrado. searchevents.php si lo encuentra buscando
-    directamente por el par de equipos."""
+class ParesEsperadosCalendarioTests(unittest.TestCase):
+    """pares_esperados_calendario() lee de calendario_primera.json/segunda.json
+    ya sembrados (ver actualizar_ligas_football_data.py) para saber que
+    partidos DEBERIAN existir en cada ronda -sin esto, obtener_thesportsdb_
+    backfill() no tendria forma de saber que le falta algo a eventsround.php."""
 
-    def test_busca_cada_par_de_equipos_por_separado(self):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        base = Path(self._tmp.name)
+        self._orig = dict(arl.CALENDARIO_SEMBRADO)
+        arl.CALENDARIO_SEMBRADO = {"La Liga": base / "calendario_primera.json"}
+        (base / "calendario_primera.json").write_text(json.dumps({
+            "jornadas": [
+                {"jornada": 1, "partidos": [
+                    {"local": "Deportivo Alaves", "visitante": "Getafe CF"},
+                    {"local": "Club Atletico de Madrid", "visitante": "Malaga CF"},
+                ]},
+                {"jornada": 2, "partidos": [
+                    {"local": "Athletic Club", "visitante": "Sevilla FC"},
+                ]},
+            ]
+        }), encoding="utf-8")
+
+    def tearDown(self):
+        arl.CALENDARIO_SEMBRADO = self._orig
+        self._tmp.cleanup()
+
+    def test_devuelve_los_pares_de_las_rondas_pedidas(self):
+        pares = arl.pares_esperados_calendario("La Liga", (1,))
+        self.assertEqual(pares, [("Deportivo Alaves", "Getafe CF"), ("Club Atletico de Madrid", "Malaga CF")])
+
+    def test_combina_varias_rondas(self):
+        pares = arl.pares_esperados_calendario("La Liga", (1, 2))
+        self.assertEqual(len(pares), 3)
+
+    def test_liga_sin_calendario_sembrado_devuelve_vacio(self):
+        self.assertEqual(arl.pares_esperados_calendario("Segunda División", (1,)), [])
+
+
+class ObtenerThesportsdbBackfillTests(unittest.TestCase):
+    """Bug real (22/08/2026): 6 de los 11 partidos de la Jornada 1 de
+    Segunda faltaban en eventsround.php sin haberse aplazado nunca -el
+    mismo problema que ya se vio con Atletico-Malaga (19/08) pero sin
+    ningun aplazamiento real detras, asi que la lista fija de "aplazados
+    conocidos" del fix anterior no lo cubria. obtener_thesportsdb_backfill()
+    generaliza eso: compara contra el calendario oficial ya sembrado y solo
+    pregunta por lo que eventsround.php no trajo en absoluto."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        base = Path(self._tmp.name)
+        self._orig = dict(arl.CALENDARIO_SEMBRADO)
+        arl.CALENDARIO_SEMBRADO = {"La Liga": base / "calendario_primera.json"}
+        (base / "calendario_primera.json").write_text(json.dumps({
+            "jornadas": [{"jornada": 1, "partidos": [
+                {"local": "Deportivo Alaves", "visitante": "Getafe CF"},
+                {"local": "Club Atletico de Madrid", "visitante": "Malaga CF"},
+            ]}]
+        }), encoding="utf-8")
+
+    def tearDown(self):
+        arl.CALENDARIO_SEMBRADO = self._orig
+        self._tmp.cleanup()
+
+    def test_solo_busca_los_pares_que_eventsround_no_trajo(self):
+        ya_obtenidos = [{"local": "Deportivo Alaves", "visitante": "Getafe CF", "resultado": "3-0"}]
         with patch("actualizar_resultados_libres.requests.get") as mock_get:
             mock_get.return_value = respuesta_ok({"event": [evento("Atletico Madrid", "Malaga", 2, 0)]})
-            resultados = arl.obtener_thesportsdb_aplazados("La Liga", [("Atletico Madrid", "Malaga")])
+            resultados = arl.obtener_thesportsdb_backfill("La Liga", (1,), ya_obtenidos)
         mock_get.assert_called_once()
         self.assertEqual(resultados[0]["resultado"], "2-0")
-        self.assertEqual(resultados[0]["ganador"], "Club Atletico de Madrid")
 
-    def test_consulta_todos_los_pares_configurados(self):
+    def test_no_repite_llamada_para_un_partido_que_eventsround_ya_trajo_aunque_este_pendiente(self):
+        # Si eventsround.php SI menciono el partido (aunque siga sin
+        # resultado, un partido futuro de verdad), no hace falta gastar
+        # una llamada extra en buscarlo -solo se rellenan huecos reales.
+        ya_obtenidos = [
+            {"local": "Deportivo Alaves", "visitante": "Getafe CF", "resultado": "3-0"},
+            {"local": "Club Atletico de Madrid", "visitante": "Malaga CF", "resultado": None},
+        ]
         with patch("actualizar_resultados_libres.requests.get") as mock_get:
-            mock_get.return_value = respuesta_ok({"event": [evento("A", "B", 1, 0)]})
-            resultados = arl.obtener_thesportsdb_aplazados("La Liga", arl.APLAZADOS_JORNADA1_PRIMERA)
-        self.assertEqual(mock_get.call_count, len(arl.APLAZADOS_JORNADA1_PRIMERA))
-        self.assertEqual(len(resultados), len(arl.APLAZADOS_JORNADA1_PRIMERA))
+            resultados = arl.obtener_thesportsdb_backfill("La Liga", (1,), ya_obtenidos)
+        mock_get.assert_not_called()
+        self.assertEqual(resultados, [])
 
     def test_par_sin_evento_encontrado_no_rompe_los_demas(self):
+        arl.CALENDARIO_SEMBRADO["La Liga"].write_text(json.dumps({
+            "jornadas": [{"jornada": 1, "partidos": [
+                {"local": "X", "visitante": "Y"},
+                {"local": "A", "visitante": "B"},
+            ]}]
+        }), encoding="utf-8")
         with patch("actualizar_resultados_libres.requests.get") as mock_get:
             mock_get.side_effect = [
                 respuesta_ok({"event": None}),
                 respuesta_ok({"event": [evento("A", "B", 1, 0)]}),
             ]
-            resultados = arl.obtener_thesportsdb_aplazados("La Liga", [("X", "Y"), ("A", "B")])
+            resultados = arl.obtener_thesportsdb_backfill("La Liga", (1,), [])
         self.assertEqual(len(resultados), 1)
 
     def test_error_de_red_en_un_par_no_rompe_los_demas(self):
+        arl.CALENDARIO_SEMBRADO["La Liga"].write_text(json.dumps({
+            "jornadas": [{"jornada": 1, "partidos": [
+                {"local": "X", "visitante": "Y"},
+                {"local": "A", "visitante": "B"},
+            ]}]
+        }), encoding="utf-8")
         with patch("actualizar_resultados_libres.requests.get") as mock_get:
             mock_get.side_effect = [Exception("timeout"), respuesta_ok({"event": [evento("A", "B", 1, 0)]})]
-            resultados = arl.obtener_thesportsdb_aplazados("La Liga", [("X", "Y"), ("A", "B")])
+            resultados = arl.obtener_thesportsdb_backfill("La Liga", (1,), [])
         self.assertEqual(len(resultados), 1)
 
 

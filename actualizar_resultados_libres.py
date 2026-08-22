@@ -59,21 +59,15 @@ LIGAS_CON_JORNADAS = {"La Liga": "4335", "Segunda División": "4400"}
 TEMPORADA_THESPORTSDB = "2026-2027"
 RONDAS_A_CONSULTAR = (1, 2)
 
-# 5 partidos de la Jornada 1 de Primera aplazados por el Mundial 2026 y
-# jugados despues en fecha suelta (confirmado en vivo con Atletico-Malaga,
-# 19/08/2026, resultado 2-0). eventsround.php?r=1 NO los devuelve aunque ya
-# esten jugados y con marcador -TheSportsDB parece no reindexar la ronda
-# tras un aplazamiento- pero searchevents.php si los encuentra buscando
-# directamente por el par de equipos, asi que se consultan aparte como
-# respaldo puntual. Sin esto el calendario oficial se quedaba mostrando
-# "vs" sin marcador para siempre en partidos ya jugados y cerrados.
-APLAZADOS_JORNADA1_PRIMERA = [
-    ("Atletico Madrid", "Malaga"),
-    ("Celta Vigo", "Osasuna"),
-    ("Barcelona", "Athletic Bilbao"),
-    ("Real Madrid", "Real Sociedad"),
-    ("Valencia", "Real Betis"),
-]
+# calendario_primera.json/segunda.json ya vienen sembrados con el fixture
+# oficial completo (sembrar_jornadas_desde_oficial() en
+# actualizar_ligas_football_data.py) -se usan aqui solo para saber que
+# partidos DEBERIAN existir en cada ronda, y asi detectar huecos reales de
+# TheSportsDB sin tener que mantener una lista de casos conocidos a mano.
+CALENDARIO_SEMBRADO = {
+    "La Liga": DATA / "calendario_primera.json",
+    "Segunda División": DATA / "calendario_segunda.json",
+}
 
 OPENFOOTBALL_URLS = {
     "La Liga 2025-26": "https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/es.1.json",
@@ -272,9 +266,70 @@ def obtener_thesportsdb_por_rondas(nombre_liga, league_id, rondas):
             print(f"  TheSportsDB {nombre_liga} ronda {ronda}: {e}")
     return resultados
 
-def obtener_thesportsdb_aplazados(nombre_liga, pares):
+def _cargar_json_local(path, defecto=None):
+    if defecto is None:
+        defecto = {}
+    if not Path(path).exists():
+        return defecto
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return defecto
+
+
+def _clave_equipo(nombre):
+    return re.sub(r"[^a-z0-9]+", " ", str(nombre or "").strip().lower()).strip()
+
+
+def pares_esperados_calendario(nombre_liga, rondas):
+    """Partidos que DEBERIAN existir en las rondas indicadas, segun el
+    calendario oficial ya sembrado (ver CALENDARIO_SEMBRADO)."""
+    path = CALENDARIO_SEMBRADO.get(nombre_liga)
+    if not path:
+        return []
+    data = _cargar_json_local(path, {})
+    pares = []
+    for jornada in data.get("jornadas", []):
+        try:
+            num = int(jornada.get("jornada", 0))
+        except (TypeError, ValueError):
+            continue
+        if num not in rondas:
+            continue
+        for p in jornada.get("partidos", []):
+            local, visitante = p.get("local"), p.get("visitante")
+            if local and visitante:
+                pares.append((local, visitante))
+    return pares
+
+
+def obtener_thesportsdb_backfill(nombre_liga, rondas, ya_obtenidos):
+    """Respaldo puntual via searchevents.php para partidos que
+    eventsround.php no devuelve en absoluto, aunque el calendario oficial
+    diga que existen en esa ronda. Confirmado en vivo (22/08/2026) que esto
+    no es solo cosa de aplazamientos (el caso original, Atletico-Malaga
+    19/08): 6 de los 11 partidos de la Jornada 1 de Segunda tambien faltan
+    en eventsround.php sin haberse aplazado nunca -TheSportsDB simplemente
+    no devuelve la ronda completa, sin patron claro. Por eso esto compara
+    contra el calendario oficial YA SEMBRADO en vez de mantener una lista
+    de casos concretos a mano (el enfoque anterior, que no habria cubierto
+    este caso de Segunda). Solo se pregunta por pares que eventsround.php
+    NO MENCIONO en absoluto -los que si aparecen pero siguen sin jugarse
+    (resultado null) no se repiten, para no gastar llamadas de mas cada
+    ciclo en partidos que de verdad estan pendientes."""
+    esperados = pares_esperados_calendario(nombre_liga, rondas)
+    if not esperados:
+        return []
+    ya_claves = {
+        (_clave_equipo(r["local"]), _clave_equipo(r["visitante"]))
+        for r in ya_obtenidos
+    }
+    faltantes = [
+        (local, visitante) for local, visitante in esperados
+        if (_clave_equipo(local), _clave_equipo(visitante)) not in ya_claves
+    ]
     resultados = []
-    for local, visitante in pares:
+    for local, visitante in faltantes:
         try:
             r = requests.get(
                 "https://www.thesportsdb.com/api/v1/json/3/searchevents.php",
@@ -285,23 +340,27 @@ def obtener_thesportsdb_aplazados(nombre_liga, pares):
             if r.status_code == 200:
                 resultados.extend(_parsear_eventos_thesportsdb(nombre_liga, r.json().get("event") or []))
         except Exception as e:
-            print(f"  TheSportsDB aplazado {local}-{visitante}: {e}")
+            print(f"  TheSportsDB backfill {nombre_liga} {local}-{visitante}: {e}")
     return resultados
 
 
 def obtener_thesportsdb():
     print("TheSportsDB: consultando ligas...")
     todos = []
+    por_ronda = {}
     for nombre, lid in THESPORTSDB_LIGAS.items():
         if nombre in LIGAS_CON_JORNADAS:
             partidos = obtener_thesportsdb_por_rondas(nombre, lid, RONDAS_A_CONSULTAR)
+            por_ronda[nombre] = partidos
         else:
             partidos = obtener_thesportsdb_liga(nombre, lid)
         print(f"  {nombre}: {len(partidos)} partidos")
         todos.extend(partidos)
-    aplazados = obtener_thesportsdb_aplazados("La Liga", APLAZADOS_JORNADA1_PRIMERA)
-    print(f"  La Liga (aplazados J1): {len(aplazados)} partidos")
-    todos.extend(aplazados)
+    for nombre in LIGAS_CON_JORNADAS:
+        backfill = obtener_thesportsdb_backfill(nombre, RONDAS_A_CONSULTAR, por_ronda.get(nombre, []))
+        if backfill:
+            print(f"  {nombre} (backfill huecos de ronda): {len(backfill)} partidos")
+        todos.extend(backfill)
     return todos
 
 

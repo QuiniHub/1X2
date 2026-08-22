@@ -1690,12 +1690,34 @@
       renderCalendario();
     }
 
+    // Jornada "vigente" del calendario oficial: la PRIMERA que todavia
+    // tenga algun partido sin resultado -no por fecha, porque una jornada
+    // puede seguir "abierta" bastante despues de su fecha nominal (partidos
+    // aplazados, o un hueco de datos que el pipeline aun no ha rellenado).
+    // En cuanto los 10/11 partidos de una jornada tienen marcador, se pasa
+    // sola a la siguiente. Antes la pestaña Liga 26/27 siempre abria en la
+    // Jornada 1 -bien en agosto, pero cuanto mas avance la temporada peor
+    // (en la J30 habria que pulsar "▶" 29 veces cada vez solo para ver la
+    // jornada actual). Solo se usa como valor por defecto la PRIMERA vez
+    // -si el usuario navega a otra jornada a mano, esa eleccion se respeta
+    // el resto de la sesion.
+    function jornadaVigente(cal) {
+      const jornadas = arr(cal?.jornadas);
+      if (!jornadas.length) return 1;
+      const incompleta = jornadas.find(j => arr(j.partidos).some(p => !p.resultado));
+      const elegida = incompleta || jornadas[jornadas.length - 1];
+      return Number(elegida.num ?? elegida.jornada ?? 1);
+    }
+
     function renderCalendario() {
       const sel = qs('#calLigaSel');
       const liga = sel ? sel.value : '1a';
       const cal = liga === '1a' ? state.calendario1a : state.calendario2a;
       const jornadaKey = liga === '1a' ? 'calJornada1a' : 'calJornada2a';
-      const jornadaActual = state[jornadaKey] || 1;
+      // Ojo: no cachear el valor por defecto hasta que el calendario haya
+      // cargado de verdad (llega por fetch async) -si no, se quedaria
+      // pegado en el "1" del primer render, antes de saber la fecha real.
+      const jornadaActual = state[jornadaKey] || (arr(cal?.jornadas).length ? (state[jornadaKey] = jornadaVigente(cal)) : 1);
       const label = qs('#calJornadaLabel');
       const content = qs('#calContent');
       if (!content) return;
@@ -1806,7 +1828,8 @@
         const key = liga === '1a' ? 'calJornada1a' : 'calJornada2a';
         const cal = liga === '1a' ? state.calendario1a : state.calendario2a;
         const total = cal?.jornadas?.length || 1;
-        state[key] = Math.max(1, Math.min(total, (state[key] || 1) + delta));
+        const base = state[key] || jornadaVigente(cal);
+        state[key] = Math.max(1, Math.min(total, base + delta));
         renderCalendario();
       };
       document.addEventListener('click', e => {
