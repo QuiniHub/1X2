@@ -193,6 +193,31 @@ class ActualizarBoletoVivoTests(unittest.TestCase):
         self.assertIsNotNone(item)
         self.assertEqual(item["resultado"], "3-0")
 
+    def test_buscar_resultado_libre_descarta_un_amistoso_de_pretemporada_lejano(self):
+        """Bug real confirmado el 22/08/2026: Castellon-Sabadell (Jornada 2,
+        aun sin jugar, fecha 2026-08-23) se marco con signo_oficial "1" a
+        partir de un amistoso de pretemporada del 18/07 con el mismo par de
+        equipos -mas de un mes de diferencia. Sin filtro de fecha,
+        buscar_resultado_libre() se quedaba con el primer nombre que
+        coincidiera sin mirar si era el mismo partido."""
+        partidos_libres = [
+            {"local": "Castellón", "visitante": "Sabadell", "resultado": "2-0", "fecha": "2026-07-18", "fuente": "thesportsdb"},
+        ]
+        item = actualizar_boleto_vivo.buscar_resultado_libre(
+            partidos_libres, "CD Castellon", "Sabadell", fecha_partido="2026-08-23"
+        )
+        self.assertIsNone(item)
+
+    def test_buscar_resultado_libre_acepta_un_aplazamiento_real_dentro_de_la_ronda(self):
+        partidos_libres = [
+            {"local": "Atletico Madrid", "visitante": "Malaga", "resultado": "2-0", "fecha": "2026-08-19", "fuente": "thesportsdb"},
+        ]
+        item = actualizar_boleto_vivo.buscar_resultado_libre(
+            partidos_libres, "Club Atletico de Madrid", "Malaga CF", fecha_partido="2026-08-16"
+        )
+        self.assertIsNotNone(item)
+        self.assertEqual(item["resultado"], "2-0")
+
     def test_aplica_resultados_libres_solo_a_casillas_pendientes(self):
         data = {
             "estado": "abierta",

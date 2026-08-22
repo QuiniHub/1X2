@@ -336,12 +336,36 @@ def coincide_equipo(nombre_a, nombre_b):
     return len(comunes) / min(len(tokens_a), len(tokens_b)) >= 0.6
 
 
-def buscar_resultado_libre(partidos_libres, local, visitante):
+def _fechas_compatibles(fecha_partido, fecha_item, dias_margen=20):
+    """resultados_libres.json acumula partidos de cualquier fecha (incluidos
+    amistosos de pretemporada), y dos equipos pueden enfrentarse mas de una
+    vez en la temporada -sin este filtro, un amistoso viejo con el mismo par
+    de equipos podia "resolver" por error una casilla de una jornada que ni
+    siquiera se habia jugado todavia. Bug real confirmado el 22/08/2026:
+    Castellon-Sabadell (Jornada 2, aun sin jugar) se marco con signo_oficial
+    "1" a partir de un amistoso del 18/07, mas de un mes antes. Si no se
+    conoce alguna de las dos fechas, no se filtra (mismo criterio permisivo
+    que ya usa buscarResultado() en index.html).
+    """
+    if not fecha_partido or not fecha_item:
+        return True
+    try:
+        a = datetime.strptime(fecha_partido[:10], "%Y-%m-%d")
+        b = datetime.strptime(fecha_item[:10], "%Y-%m-%d")
+    except ValueError:
+        return True
+    return abs((a - b).days) <= dias_margen
+
+
+def buscar_resultado_libre(partidos_libres, local, visitante, fecha_partido=None):
     for item in partidos_libres:
         if not item.get("resultado"):
             continue
-        if coincide_equipo(item.get("local", ""), local) and coincide_equipo(item.get("visitante", ""), visitante):
-            return item
+        if not coincide_equipo(item.get("local", ""), local) or not coincide_equipo(item.get("visitante", ""), visitante):
+            continue
+        if not _fechas_compatibles(fecha_partido, item.get("fecha")):
+            continue
+        return item
     return None
 
 
@@ -365,7 +389,7 @@ def aplicar_resultados_libres_a_jornada(data, partidos_libres):
         visitante = partido.get("visitante")
         if es_placeholder(local) or es_placeholder(visitante):
             continue
-        item = buscar_resultado_libre(partidos_libres, local, visitante)
+        item = buscar_resultado_libre(partidos_libres, local, visitante, partido.get("fecha"))
         if not item:
             continue
         origen = CasillaViva(
