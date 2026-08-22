@@ -1744,7 +1744,7 @@
       const jornadas = arr(cal?.jornadas);
       if (!jornadas.length) return 1;
       const incompleta = jornadas.find(j =>
-        arr(j.partidos).some(p => !buscarResultado(p.local, p.visitante))
+        arr(j.partidos).some(p => !buscarResultado(p.local, p.visitante, j.fecha))
       );
       const elegida = incompleta || jornadas[jornadas.length - 1];
       return Number(elegida.num ?? elegida.jornada ?? 1);
@@ -1802,7 +1802,7 @@
         .replace(/[^a-z0-9]+/g, ' ')
         .split(' ')
         .filter(w => w.length >= 4 && !PARTICULAS_CLUB.has(w));
-      const buscarResultado = (local, visitante) => {
+      const buscarResultado = (local, visitante, fechaPartido) => {
         const nl = normalizeName(local);
         const nv = normalizeName(visitante);
         // Comparacion doble: substring directo (rapido, cubre "Levante" vs
@@ -1824,10 +1824,31 @@
         // mas adelante -bug real de Marc, 22/08/2026: Betis-Real Sociedad
         // ya tenia 1-0 en resultadosLibres pero salia "vs". Por eso aqui se
         // exige ademas que la entrada tenga un resultado de verdad.
+        //
+        // Tampoco basta con "tiene resultado real" a secas -resultadosLibres
+        // acumula partidos de TODA fecha (incluidos amistosos de
+        // pretemporada, ej. Castellon-Sabadell 2-0 del 18/07, muy anterior al
+        // inicio de liga), y dos equipos se enfrentan mas de una vez en la
+        // temporada. Sin filtrar por fecha, un amistoso viejo con el mismo
+        // par de equipos "resolvia" por error un partido de Liga que ni
+        // siquiera se habia jugado todavia -bug real visto en produccion el
+        // 22/08/2026 (Jornada 2 de Segunda mostraba un marcador falso).
+        // Se exige que la fecha del resultado candidato este a menos de 20
+        // dias de la fecha oficial del partido que se esta consultando
+        // (cuando se conoce esta ultima) -suficiente para cubrir aplazamientos
+        // reales dentro de la misma jornada, no para colar partidos de otra
+        // fecha muy lejana.
+        const fechaRef = fechaPartido ? new Date(fechaPartido + 'T12:00:00').getTime() : null;
         const encontrado = resultadosJornada.find(r => {
           const rl = normalizeName(r.local || '');
           const rv = normalizeName(r.visitante || '');
-          return coincide(nl, rl) && coincide(nv, rv) && r.resultado && r.resultado !== 'Pendiente';
+          if (!coincide(nl, rl) || !coincide(nv, rv)) return false;
+          if (!r.resultado || r.resultado === 'Pendiente') return false;
+          if (fechaRef && r.fecha) {
+            const rFecha = new Date(r.fecha + 'T12:00:00').getTime();
+            if (!Number.isNaN(rFecha) && Math.abs(rFecha - fechaRef) > 20 * 86400000) return false;
+          }
+          return true;
         });
         return encontrado ? encontrado.resultado : null;
       };
@@ -1853,7 +1874,7 @@
         : '';
 
       const filas = jornada.partidos.map(p => {
-        const resultado = buscarResultado(p.local, p.visitante);
+        const resultado = buscarResultado(p.local, p.visitante, jornada.fecha);
         const centro = resultado
           ? `<strong style="color:var(--text,#111)">${escapeHtml(resultado)}</strong>`
           : 'vs';
