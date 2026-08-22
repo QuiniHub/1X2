@@ -1767,19 +1767,23 @@
 
       // Este calendario (numeracion propia de LaLiga, 1-38/1-42) es solo
       // fixture -sin resultados. Los resultados reales se cruzan por
-      // nombre de equipo desde TRES fuentes: state.historicoQuinielas (TODAS
-      // las jornadas de Quiniela ya jugadas esta temporada, no solo la
-      // activa -dato que ya tenemos nosotros mismos, sin depender de ningun
-      // API externo), state.jornadaActual (por si la jornada en curso no
-      // esta todavia en el historico) y state.resultadosLibres (ESPN/
-      // TheSportsDB, jornada completa de las dos ligas, para partidos que
-      // la Quiniela nunca eligio, ej. Real Sociedad B - Castellon). Antes
-      // solo se usaban las ultimas dos: en cuanto una jornada de Quiniela
-      // cerraba y la activa avanzaba a la siguiente, sus resultados reales
-      // (que YA teniamos guardados) dejaban de cruzarse aqui -hallazgo de
-      // Marc, 22/08/2026: "tenemos nosotros mismos resultados en nuestra
-      // memoria que nos faltan por poner".
+      // nombre de equipo desde CUATRO fuentes: state.historicoQuinielas
+      // (TODAS las jornadas de Quiniela ya jugadas esta temporada, no solo
+      // la activa -dato que ya tenemos nosotros mismos, sin depender de
+      // ningun API externo), state.jornadaActual (por si la jornada en
+      // curso no esta todavia en el historico), state.calendarioPrimera/
+      // state.segunda (calendario_primera.json/calendario_segunda.json,
+      // sembrado partido a partido para fuerza() -tiene resultados reales
+      // de partidos que la Quiniela nunca eligio, ej. Almeria-Eldense, y
+      // que antes tampoco se cruzaban aqui) y state.resultadosLibres (ESPN/
+      // TheSportsDB, respaldo cuando ninguna fuente local lo tiene todavia).
+      // Antes solo se usaban las dos primeras: en cuanto una jornada de
+      // Quiniela cerraba y la activa avanzaba a la siguiente, sus
+      // resultados reales (que YA teniamos guardados) dejaban de cruzarse
+      // aqui -hallazgo de Marc, 22/08/2026: "tenemos nosotros mismos
+      // resultados en nuestra memoria que nos faltan por poner".
       const nombreLigaLibre = liga === '1a' ? 'La Liga' : 'Segunda División';
+      const calendarioSembrado = liga === '1a' ? state.calendarioPrimera : state.segunda;
       // Temporada dinamica, no fija -hardcodear "2026/2027" aqui rompería
       // solo en cuanto empiece la 27/28 (mismo patron de bug ya visto 8
       // veces en este proyecto, ver [[feedback_orden_cronologico]]).
@@ -1790,6 +1794,7 @@
       const resultadosJornada = [
         ...jornadasQuinielaTemporada.flatMap(j => arr(j.partidos)),
         ...arr(state.jornadaActual?.partidos),
+        ...arr(calendarioSembrado?.jornadas).flatMap(j => arr(j.partidos)),
         ...arr(state.resultadosLibres?.partidos).filter(p => p.liga === nombreLigaLibre),
       ];
       const PARTICULAS_CLUB = new Set(['fc','cf','cd','sd','ud','rcd','rc','sad','club','real','de','del','la','el','futbol','balompie','madrid','barcelona']);
@@ -3638,13 +3643,14 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
-      const [pred, pleno, apr, hist, metricas, segunda, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga, lesionesRespaldo, clasificacionesOficiales, contextoCompetitivo, estadoVivo, calibracionProbabilidades, resultadosLibres] = await Promise.all([
+      const [pred, pleno, apr, hist, metricas, segunda, calendarioPrimera, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga, lesionesRespaldo, clasificacionesOficiales, contextoCompetitivo, estadoVivo, calibracionProbabilidades, resultadosLibres] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
         getJson('data/premios/historial_premios.json'),
         getJson('data/memoria_ia/metricas_probabilisticas.json'),
         getJson('data/calendario_segunda.json'),
+        getJson('data/calendario_primera.json', null),
         getJson('data/memoria_ia/memoria_historica_profunda.json'),
         getJson('data/memoria_ia/pesos_dinamicos.json'),
         getJson('data/calendario_1a_2627.json', null),
@@ -3669,6 +3675,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.historial = hist;
       state.metricas = metricas;
       state.segunda = segunda;
+      state.calendarioPrimera = calendarioPrimera;
       state.resultadosLibres = resultadosLibres;
       state.memoriaHistorica = memoriaHistorica;
       state.pesosDinamicos = pesosDinamicos;
