@@ -128,6 +128,17 @@ class ParesEsperadosCalendarioTests(unittest.TestCase):
         self.assertEqual(arl.pares_esperados_calendario("Segunda División", (1,)), [])
 
 
+class NombreBusquedaCortoTests(unittest.TestCase):
+    def test_quita_sigla_de_club_al_principio(self):
+        self.assertEqual(arl._nombre_busqueda_corto("UD Almeria"), "Almeria")
+        self.assertEqual(arl._nombre_busqueda_corto("CD Eldense"), "Eldense")
+        self.assertEqual(arl._nombre_busqueda_corto("RCD Mallorca"), "Mallorca")
+
+    def test_nombre_sin_sigla_se_queda_igual(self):
+        self.assertEqual(arl._nombre_busqueda_corto("Malaga CF"), "Malaga CF")
+        self.assertEqual(arl._nombre_busqueda_corto("Atletico Madrid"), "Atletico Madrid")
+
+
 class ObtenerThesportsdbBackfillTests(unittest.TestCase):
     """Bug real (22/08/2026): 6 de los 11 partidos de la Jornada 1 de
     Segunda faltaban en eventsround.php sin haberse aplazado nunca -el
@@ -182,12 +193,32 @@ class ObtenerThesportsdbBackfillTests(unittest.TestCase):
             ]}]
         }), encoding="utf-8")
         with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            # "X vs Y" no tiene siglas de club que quitar, asi que la
+            # consulta corta y la completa son identicas -se intenta dos
+            # veces (ambas vacias) antes de pasar al siguiente par.
             mock_get.side_effect = [
+                respuesta_ok({"event": None}),
                 respuesta_ok({"event": None}),
                 respuesta_ok({"event": [evento("A", "B", 1, 0)]}),
             ]
             resultados = arl.obtener_thesportsdb_backfill("La Liga", (1,), [])
         self.assertEqual(len(resultados), 1)
+
+    def test_reintenta_sin_siglas_de_club_si_el_nombre_completo_no_encuentra_nada(self):
+        # Bug real (22/08/2026): searchevents.php no encuentra "UD Almeria
+        # vs CD Eldense" (nombres canonicos, con siglas) pero si "Almeria
+        # vs Eldense" (sin siglas) -se prueba primero la version corta.
+        arl.CALENDARIO_SEMBRADO["La Liga"].write_text(json.dumps({
+            "jornadas": [{"jornada": 1, "partidos": [
+                {"local": "UD Almeria", "visitante": "CD Eldense"},
+            ]}]
+        }), encoding="utf-8")
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.return_value = respuesta_ok({"event": [evento("Almeria", "Eldense", 3, 0)]})
+            resultados = arl.obtener_thesportsdb_backfill("La Liga", (1,), [])
+        mock_get.assert_called_once()
+        self.assertEqual(mock_get.call_args.kwargs["params"]["e"], "Almeria vs Eldense")
+        self.assertEqual(resultados[0]["resultado"], "3-0")
 
     def test_error_de_red_en_un_par_no_rompe_los_demas(self):
         arl.CALENDARIO_SEMBRADO["La Liga"].write_text(json.dumps({

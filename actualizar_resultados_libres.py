@@ -281,6 +281,20 @@ def _clave_equipo(nombre):
     return re.sub(r"[^a-z0-9]+", " ", str(nombre or "").strip().lower()).strip()
 
 
+_PREFIJOS_CLUB_BUSQUEDA = ("UD ", "CD ", "CF ", "RCD ", "RC ", "SD ", "AD ", "FC ")
+
+
+def _nombre_busqueda_corto(nombre):
+    """Quita siglas de club al principio del nombre -searchevents.php de
+    TheSportsDB no encuentra "UD Almeria vs CD Eldense" pero si "Almeria vs
+    Eldense" (confirmado en vivo, 22/08/2026)."""
+    texto = str(nombre or "").strip()
+    for prefijo in _PREFIJOS_CLUB_BUSQUEDA:
+        if texto.startswith(prefijo):
+            return texto[len(prefijo):].strip()
+    return texto
+
+
 def pares_esperados_calendario(nombre_liga, rondas):
     """Partidos que DEBERIAN existir en las rondas indicadas, segun el
     calendario oficial ya sembrado (ver CALENDARIO_SEMBRADO)."""
@@ -330,17 +344,30 @@ def obtener_thesportsdb_backfill(nombre_liga, rondas, ya_obtenidos):
     ]
     resultados = []
     for local, visitante in faltantes:
-        try:
-            r = requests.get(
-                "https://www.thesportsdb.com/api/v1/json/3/searchevents.php",
-                params={"e": f"{local} vs {visitante}"},
-                headers=HEADERS,
-                timeout=15,
-            )
-            if r.status_code == 200:
-                resultados.extend(_parsear_eventos_thesportsdb(nombre_liga, r.json().get("event") or []))
-        except Exception as e:
-            print(f"  TheSportsDB backfill {nombre_liga} {local}-{visitante}: {e}")
+        # searchevents.php es muy literal: "UD Almeria vs CD Eldense" (los
+        # nombres canonicos, con siglas de club delante) no encuentra nada,
+        # pero "Almeria vs Eldense" (sin siglas) si -confirmado en vivo
+        # (22/08/2026). Se prueba primero la version corta (la que
+        # funciona), y si no hay nada se reintenta con el nombre completo
+        # por si algun otro par necesita justo lo contrario.
+        for consulta in (
+            f"{_nombre_busqueda_corto(local)} vs {_nombre_busqueda_corto(visitante)}",
+            f"{local} vs {visitante}",
+        ):
+            try:
+                r = requests.get(
+                    "https://www.thesportsdb.com/api/v1/json/3/searchevents.php",
+                    params={"e": consulta},
+                    headers=HEADERS,
+                    timeout=15,
+                )
+                if r.status_code == 200:
+                    eventos = r.json().get("event") or []
+                    if eventos:
+                        resultados.extend(_parsear_eventos_thesportsdb(nombre_liga, eventos))
+                        break
+            except Exception as e:
+                print(f"  TheSportsDB backfill {nombre_liga} {local}-{visitante}: {e}")
     return resultados
 
 
