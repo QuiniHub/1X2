@@ -1691,20 +1691,29 @@
     }
 
     // Jornada "vigente" del calendario oficial: la PRIMERA que todavia
-    // tenga algun partido sin resultado -no por fecha, porque una jornada
-    // puede seguir "abierta" bastante despues de su fecha nominal (partidos
-    // aplazados, o un hueco de datos que el pipeline aun no ha rellenado).
-    // En cuanto los 10/11 partidos de una jornada tienen marcador, se pasa
-    // sola a la siguiente. Antes la pestaña Liga 26/27 siempre abria en la
-    // Jornada 1 -bien en agosto, pero cuanto mas avance la temporada peor
-    // (en la J30 habria que pulsar "▶" 29 veces cada vez solo para ver la
-    // jornada actual). Solo se usa como valor por defecto la PRIMERA vez
-    // -si el usuario navega a otra jornada a mano, esa eleccion se respeta
-    // el resto de la sesion.
-    function jornadaVigente(cal) {
+    // tenga algun partido sin resultado real -no por fecha, porque una
+    // jornada puede seguir "abierta" bastante despues de su fecha nominal
+    // (partidos aplazados, o un hueco de datos que el pipeline aun no ha
+    // rellenado). En cuanto todos los partidos de una jornada tienen
+    // marcador, se pasa sola a la siguiente. Antes la pestaña Liga 26/27
+    // siempre abria en la Jornada 1 -bien en agosto, pero cuanto mas avance
+    // la temporada peor (en la J30 habria que pulsar "▶" 29 veces cada vez
+    // solo para ver la jornada actual). Solo se usa como valor por defecto
+    // la PRIMERA vez -si el usuario navega a otra jornada a mano, esa
+    // eleccion se respeta el resto de la sesion.
+    //
+    // Recibe buscarResultado (la misma funcion de cruce por nombre que usa
+    // el resto del render) en vez de mirar cal.jornadas[].partidos[].resultado
+    // directamente -ese campo NUNCA existe en calendario_1a_2627.json/
+    // 2a_2627.json (es solo fixture estatico, sin resultados propios), asi
+    // que sin esto la comprobacion de "esta completa" siempre daba falso y
+    // se quedaba pegado en la Jornada 1 para siempre.
+    function jornadaVigente(cal, buscarResultado) {
       const jornadas = arr(cal?.jornadas);
       if (!jornadas.length) return 1;
-      const incompleta = jornadas.find(j => arr(j.partidos).some(p => !p.resultado));
+      const incompleta = jornadas.find(j =>
+        arr(j.partidos).some(p => !buscarResultado(p.local, p.visitante))
+      );
       const elegida = incompleta || jornadas[jornadas.length - 1];
       return Number(elegida.num ?? elegida.jornada ?? 1);
     }
@@ -1714,10 +1723,6 @@
       const liga = sel ? sel.value : '1a';
       const cal = liga === '1a' ? state.calendario1a : state.calendario2a;
       const jornadaKey = liga === '1a' ? 'calJornada1a' : 'calJornada2a';
-      // Ojo: no cachear el valor por defecto hasta que el calendario haya
-      // cargado de verdad (llega por fetch async) -si no, se quedaria
-      // pegado en el "1" del primer render, antes de saber la fecha real.
-      const jornadaActual = state[jornadaKey] || (arr(cal?.jornadas).length ? (state[jornadaKey] = jornadaVigente(cal)) : 1);
       const label = qs('#calJornadaLabel');
       const content = qs('#calContent');
       if (!content) return;
@@ -1728,32 +1733,30 @@
         return;
       }
 
-      const totalJornadas = cal.jornadas.length;
-      const jIdx = Math.max(0, Math.min(jornadaActual - 1, totalJornadas - 1));
-      const jornada = cal.jornadas[jIdx];
-      if (!jornada) { content.innerHTML = '<p class="subtitle" style="padding:16px">Sin datos.</p>'; return; }
-
-      if (label) label.textContent = `Jornada ${jornada.num}`;
-
-      // Formato fecha
-      const fecha = jornada.fecha
-        ? new Date(jornada.fecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-        : '';
-
-      const notaParcial = cal._nota
-        ? `<p class="subtitle" style="padding:4px 16px 0;color:#d97706">⚠️ ${cal._nota}</p>`
-        : '';
-
       // Este calendario (numeracion propia de LaLiga, 1-38/1-42) es solo
       // fixture -sin resultados. Los resultados reales se cruzan por
-      // nombre de equipo desde dos fuentes: state.jornadaActual (los 14-15
-      // partidos que eligio La Quiniela esa semana) y state.resultadosLibres
-      // (ESPN/TheSportsDB, jornada completa de las dos ligas) -sin esta
-      // segunda fuente, un partido que la Quiniela no eligiera (ej. Real
-      // Sociedad B - Castellon) se quedaba sin marcador para siempre,
-      // aunque ya estuviera jugado y cerrado.
+      // nombre de equipo desde TRES fuentes: state.historicoQuinielas (TODAS
+      // las jornadas de Quiniela ya jugadas esta temporada, no solo la
+      // activa -dato que ya tenemos nosotros mismos, sin depender de ningun
+      // API externo), state.jornadaActual (por si la jornada en curso no
+      // esta todavia en el historico) y state.resultadosLibres (ESPN/
+      // TheSportsDB, jornada completa de las dos ligas, para partidos que
+      // la Quiniela nunca eligio, ej. Real Sociedad B - Castellon). Antes
+      // solo se usaban las ultimas dos: en cuanto una jornada de Quiniela
+      // cerraba y la activa avanzaba a la siguiente, sus resultados reales
+      // (que YA teniamos guardados) dejaban de cruzarse aqui -hallazgo de
+      // Marc, 22/08/2026: "tenemos nosotros mismos resultados en nuestra
+      // memoria que nos faltan por poner".
       const nombreLigaLibre = liga === '1a' ? 'La Liga' : 'Segunda División';
+      // Temporada dinamica, no fija -hardcodear "2026/2027" aqui rompería
+      // solo en cuanto empiece la 27/28 (mismo patron de bug ya visto 8
+      // veces en este proyecto, ver [[feedback_orden_cronologico]]).
+      const temporadaActualKey = state.clasificacionesOficiales?.temporada_detectada || '2026/2027';
+      const jornadasQuinielaTemporada = arr(
+        (state.historicoQuinielas?.temporadas || {})[temporadaActualKey]?.jornadas
+      );
       const resultadosJornada = [
+        ...jornadasQuinielaTemporada.flatMap(j => arr(j.partidos)),
         ...arr(state.jornadaActual?.partidos),
         ...arr(state.resultadosLibres?.partidos).filter(p => p.liga === nombreLigaLibre),
       ];
@@ -1783,6 +1786,26 @@
         const resultado = encontrado?.resultado;
         return resultado && resultado !== 'Pendiente' ? resultado : null;
       };
+
+      // Ojo: no cachear el valor por defecto hasta que el calendario haya
+      // cargado de verdad (llega por fetch async) -si no, se quedaria
+      // pegado en el "1" del primer render, antes de saber la jornada real.
+      const jornadaActual = state[jornadaKey] || (state[jornadaKey] = jornadaVigente(cal, buscarResultado));
+      const totalJornadas = cal.jornadas.length;
+      const jIdx = Math.max(0, Math.min(jornadaActual - 1, totalJornadas - 1));
+      const jornada = cal.jornadas[jIdx];
+      if (!jornada) { content.innerHTML = '<p class="subtitle" style="padding:16px">Sin datos.</p>'; return; }
+
+      if (label) label.textContent = `Jornada ${jornada.num}`;
+
+      // Formato fecha
+      const fecha = jornada.fecha
+        ? new Date(jornada.fecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+        : '';
+
+      const notaParcial = cal._nota
+        ? `<p class="subtitle" style="padding:4px 16px 0;color:#d97706">⚠️ ${cal._nota}</p>`
+        : '';
 
       const filas = jornada.partidos.map(p => {
         const resultado = buscarResultado(p.local, p.visitante);
@@ -1828,7 +1851,10 @@
         const key = liga === '1a' ? 'calJornada1a' : 'calJornada2a';
         const cal = liga === '1a' ? state.calendario1a : state.calendario2a;
         const total = cal?.jornadas?.length || 1;
-        const base = state[key] || jornadaVigente(cal);
+        // state[key] ya deberia estar poblado por renderCalendario() (que
+        // siempre corre antes de que el usuario pueda pulsar ◀/▶); el "1"
+        // es solo un respaldo defensivo, no deberia usarse en la practica.
+        const base = state[key] || 1;
         state[key] = Math.max(1, Math.min(total, base + delta));
         renderCalendario();
       };
