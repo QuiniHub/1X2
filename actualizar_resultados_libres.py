@@ -281,14 +281,70 @@ def _clave_equipo(nombre):
     return re.sub(r"[^a-z0-9]+", " ", str(nombre or "").strip().lower()).strip()
 
 
+# Mapa explicito nombre canonico -> nombre corto de busqueda para los 42
+# equipos de Primera/Segunda 26/27. Sustituye al primer intento (quitar
+# solo siglas de 2-3 letras al principio, "UD "/"CD "/etc.) -ese primer
+# intento solo cubria casos como "UD Almeria" -> "Almeria", pero se
+# rompio con "Club Atletico de Madrid" (empieza por "Club ", no estaba en
+# la lista de siglas) -bug real confirmado en produccion el 22/08/2026,
+# Atletico-Malaga desaparecio del calendario aunque el partido ya estaba
+# jugado y cerrado. Con nombres tan variados (siglas al principio, "Club "
+# al principio, "de <ciudad>" en medio, sufijos "CF"/"UD"...) un mapa
+# cerrado y explicito es mas fiable que seguir afinando una regla generica.
+NOMBRES_BUSQUEDA_CORTA = {
+    # Primera
+    "Deportivo Alaves": "Alaves",
+    "Club Atletico de Madrid": "Atletico Madrid",
+    "CA Osasuna": "Osasuna",
+    "Elche CF": "Elche",
+    "FC Barcelona": "Barcelona",
+    "Getafe CF": "Getafe",
+    "Levante UD": "Levante",
+    "Malaga CF": "Malaga",
+    "RC Celta de Vigo": "Celta Vigo",
+    "RC Deportivo de La Coruna": "Deportivo La Coruna",
+    "RCD Espanyol de Barcelona": "Espanyol",
+    "Rayo Vallecano de Madrid": "Rayo Vallecano",
+    "Real Betis Balompie": "Real Betis",
+    "Real Madrid CF": "Real Madrid",
+    "Real Racing Club de Santander": "Racing Santander",
+    "Real Sociedad de Futbol": "Real Sociedad",
+    "Sevilla FC": "Sevilla",
+    "Valencia CF": "Valencia",
+    "Villarreal CF": "Villarreal",
+    # Segunda
+    "AD Ceuta FC": "Ceuta",
+    "Albacete Balompie": "Albacete",
+    "Burgos CF": "Burgos",
+    "CD Castellon": "Castellon",
+    "CD Eldense": "Eldense",
+    "CD Leganes": "Leganes",
+    "CD Tenerife": "Tenerife",
+    "CE Sabadell": "Sabadell",
+    "Cadiz CF": "Cadiz",
+    "Cordoba CF": "Cordoba",
+    "FC Andorra": "Andorra",
+    "Girona FC": "Girona",
+    "Granada CF": "Granada",
+    "RC Celta Fortuna": "Celta Fortuna",
+    "RCD Mallorca": "Mallorca",
+    "Real Sporting de Gijon": "Sporting de Gijon",
+    "Real Valladolid CF": "Real Valladolid",
+    "SD Eibar": "Eibar",
+    "UD Almeria": "Almeria",
+    "UD Las Palmas": "Las Palmas",
+}
+
+# Respaldo generico por si aparece un equipo nuevo (ascenso/descenso de
+# temporada futura) que todavia no este en NOMBRES_BUSQUEDA_CORTA -mismo
+# criterio de siglas al principio que el primer intento, mejor que nada.
 _PREFIJOS_CLUB_BUSQUEDA = ("UD ", "CD ", "CF ", "RCD ", "RC ", "SD ", "AD ", "FC ")
 
 
 def _nombre_busqueda_corto(nombre):
-    """Quita siglas de club al principio del nombre -searchevents.php de
-    TheSportsDB no encuentra "UD Almeria vs CD Eldense" pero si "Almeria vs
-    Eldense" (confirmado en vivo, 22/08/2026)."""
     texto = str(nombre or "").strip()
+    if texto in NOMBRES_BUSQUEDA_CORTA:
+        return NOMBRES_BUSQUEDA_CORTA[texto]
     for prefijo in _PREFIJOS_CLUB_BUSQUEDA:
         if texto.startswith(prefijo):
             return texto[len(prefijo):].strip()

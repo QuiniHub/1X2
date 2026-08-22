@@ -129,13 +129,24 @@ class ParesEsperadosCalendarioTests(unittest.TestCase):
 
 
 class NombreBusquedaCortoTests(unittest.TestCase):
-    def test_quita_sigla_de_club_al_principio(self):
+    """Bug real (22/08/2026): el primer intento (quitar solo siglas de 2-3
+    letras al principio) no cubria "Club Atletico de Madrid" -no empieza
+    por ninguna sigla conocida, empieza por "Club "- y Atletico-Malaga
+    desaparecio del calendario en produccion aunque el partido ya estaba
+    jugado y cerrado. Sustituido por un mapa explicito de los 42 equipos."""
+
+    def test_equipos_del_mapa_explicito(self):
+        self.assertEqual(arl._nombre_busqueda_corto("Club Atletico de Madrid"), "Atletico Madrid")
+        self.assertEqual(arl._nombre_busqueda_corto("Malaga CF"), "Malaga")
         self.assertEqual(arl._nombre_busqueda_corto("UD Almeria"), "Almeria")
         self.assertEqual(arl._nombre_busqueda_corto("CD Eldense"), "Eldense")
         self.assertEqual(arl._nombre_busqueda_corto("RCD Mallorca"), "Mallorca")
+        self.assertEqual(arl._nombre_busqueda_corto("Real Sporting de Gijon"), "Sporting de Gijon")
 
-    def test_nombre_sin_sigla_se_queda_igual(self):
-        self.assertEqual(arl._nombre_busqueda_corto("Malaga CF"), "Malaga CF")
+    def test_equipo_desconocido_usa_el_respaldo_de_siglas(self):
+        # Si aparece un equipo nuevo (ascenso/descenso futuro) que aun no
+        # este en el mapa, se aplica el respaldo generico de siglas.
+        self.assertEqual(arl._nombre_busqueda_corto("UD Un Equipo Nuevo"), "Un Equipo Nuevo")
         self.assertEqual(arl._nombre_busqueda_corto("Atletico Madrid"), "Atletico Madrid")
 
 
