@@ -668,16 +668,48 @@
       return { dobles, triples };
     }
 
+    // Mismo conteo que countSignsFromBoleto() pero SOLO en los partidos
+    // marcados para Elige8 -el Elige8 hereda el signo de la primera columna
+    // de cada partido elegido, pero su propio numero de apuestas depende
+    // unicamente de los dobles/triples que caigan DENTRO de esos 8
+    // partidos, no de los 14 de la quiniela completa.
+    function countSignsFromElige8() {
+      let dobles = 0, triples = 0;
+      qsa('.match-row', qs('#ticketList') || document).forEach(row => {
+        const num = Number(row.dataset.num);
+        if (!state.elige8Set.has(num)) return;
+        const box = row.querySelector('.signs');
+        if (!box) return;
+        const sel = normalizeSignText(box.dataset.selected || '');
+        if (sel.length === 3) triples++;
+        else if (sel.length === 2) dobles++;
+      });
+      return { dobles, triples };
+    }
+
     function calculateCost(elige8Activo = state.elige8) {
       // Si hay boleto generado con signos reales, usarlos; si no, usar los contadores
       let dobles = state.dobles, triples = state.triples;
-      if (state.generated || state.mode === 'mixta' || state.mode === 'manual') {
+      const boletoReal = state.generated || state.mode === 'mixta' || state.mode === 'manual';
+      if (boletoReal) {
         const real = countSignsFromBoleto();
         if (real.dobles + real.triples > 0) { dobles = real.dobles; triples = real.triples; }
       }
       const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
       const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
-      const importeElige8 = elige8Activo ? apuestas * 0.50 : 0;
+      // Bug real (22/08/2026, hallazgo de Marc comparando con el boleto
+      // oficial confirmado): esto multiplicaba por las 64 apuestas de TODA
+      // la quiniela (64 x 0.50 = 32 EUR) en vez de solo por las
+      // combinaciones que salen de los dobles/triples DENTRO de los 8
+      // partidos elegidos para Elige8 -en el boleto real confirmado esa
+      // cifra eran 8 apuestas (3 de los 6 dobles caian dentro del Elige8),
+      // coste real 4.00 EUR, no 32.00 EUR.
+      let apuestasElige8 = apuestas;
+      if (elige8Activo && boletoReal && state.elige8Set && state.elige8Set.size) {
+        const real8 = countSignsFromElige8();
+        apuestasElige8 = Math.pow(2, real8.dobles) * Math.pow(3, real8.triples);
+      }
+      const importeElige8 = elige8Activo ? apuestasElige8 * 0.50 : 0;
       return { apuestas, dobles, triples, importeQuiniela, importeElige8, importeTotal: importeQuiniela + importeElige8 };
     }
 
