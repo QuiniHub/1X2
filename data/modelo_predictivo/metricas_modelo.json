@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-23T16:36:16.460359+00:00",
-  "version_id": "20260823T163608Z",
-  "dataset_hash": "087444954ea51d70948e807465e059d1ad8cf687a619053fea7a66514cc983e4",
+  "generado_en": "2026-08-23T17:29:27.020553+00:00",
+  "version_id": "20260823T172909Z",
+  "dataset_hash": "5bdf41aaae8694854d6f8df0f5c25aebb1e68d99b6b9f0729f3308e00caddc82",
   "estado": "modelo_calibrado_entrenado",
   "sklearn_disponible": true,
   "numpy_disponible": true,
@@ -14,40 +14,40 @@
     "rutas": [
       "data/modelo_predictivo/modelo_entrenado.joblib",
       "data/modelo_predictivo/modelo_calibrado.joblib",
-      "data/modelo_predictivo/versiones/20260823T163608Z/modelo_entrenado.joblib",
-      "data/modelo_predictivo/versiones/20260823T163608Z/modelo_calibrado.joblib"
+      "data/modelo_predictivo/versiones/20260823T172909Z/modelo_entrenado.joblib",
+      "data/modelo_predictivo/versiones/20260823T172909Z/modelo_calibrado.joblib"
     ]
   },
-  "muestras": 1025,
+  "muestras": 1026,
   "muestras_por_competicion": {
     "liga_extranjera": 770,
     "primera_division": 126,
-    "segunda_division": 91,
+    "segunda_division": 92,
     "selecciones": 38
   },
   "baseline_elo_poisson": {
-    "muestras": 1025,
-    "accuracy_top1": 47.024,
-    "brier_score": 0.63063,
-    "log_loss": 1.046826,
+    "muestras": 1026,
+    "accuracy_top1": 47.076,
+    "brier_score": 0.630367,
+    "log_loss": 1.046462,
     "calibration_curve": [
       {
         "bin": "0.3-0.4",
         "muestras": 274,
-        "confianza_media": 37.585,
+        "confianza_media": 37.588,
         "acierto_top1": 43.066
       },
       {
         "bin": "0.4-0.5",
         "muestras": 560,
-        "confianza_media": 43.782,
+        "confianza_media": 43.786,
         "acierto_top1": 44.464
       },
       {
         "bin": "0.5-0.6",
-        "muestras": 161,
-        "confianza_media": 54.049,
-        "acierto_top1": 56.522
+        "muestras": 162,
+        "confianza_media": 54.039,
+        "acierto_top1": 56.79
       },
       {
         "bin": "0.6-0.7",
@@ -57,9 +57,9 @@
       },
       {
         "bin": "0.9-1.0",
-        "muestras": 1025,
-        "confianza_media": 44.314,
-        "acierto_top1": 47.024
+        "muestras": 1026,
+        "confianza_media": 44.325,
+        "acierto_top1": 47.076
       }
     ],
     "por_competicion": {
@@ -76,10 +76,10 @@
         "log_loss": 0.990044
       },
       "segunda_division": {
-        "muestras": 91,
-        "accuracy_top1": 45.055,
-        "brier_score": 0.657534,
-        "log_loss": 1.087687
+        "muestras": 92,
+        "accuracy_top1": 45.652,
+        "brier_score": 0.654308,
+        "log_loss": 1.083181
       },
       "selecciones": {
         "muestras": 38,
@@ -90,187 +90,193 @@
     },
     "por_signo_real": {
       "1": {
-        "muestras": 469,
-        "accuracy_top1": 81.023,
-        "brier_score": 0.497383,
-        "log_loss": 0.855091
+        "muestras": 470,
+        "accuracy_top1": 81.277,
+        "brier_score": 0.496946,
+        "log_loss": 0.854496
       },
       "2": {
         "muestras": 313,
         "accuracy_top1": 30.99,
-        "brier_score": 0.675175,
-        "log_loss": 1.102416
+        "brier_score": 0.675296,
+        "log_loss": 1.102584
       },
       "X": {
         "muestras": 243,
-        "accuracy_top1": 2.058,
-        "brier_score": 0.830423,
-        "log_loss": 1.345278
+        "accuracy_top1": 1.646,
+        "brier_score": 0.830551,
+        "log_loss": 1.345463
       }
     }
   },
   "modelo_entrenable_in_sample": {
-    "muestras": 1025,
-    "accuracy_top1": 47.22,
-    "brier_score": 0.627452,
-    "log_loss": 1.041911,
+    "muestras": 1026,
+    "accuracy_top1": 47.368,
+    "brier_score": 0.627038,
+    "log_loss": 1.04132,
     "calibration_curve": [
       {
         "bin": "0.3-0.4",
-        "muestras": 61,
-        "confianza_media": 39.215,
-        "acierto_top1": 54.098
+        "muestras": 60,
+        "confianza_media": 39.214,
+        "acierto_top1": 56.667
       },
       {
         "bin": "0.4-0.5",
-        "muestras": 820,
-        "confianza_media": 45.065,
-        "acierto_top1": 43.537
+        "muestras": 803,
+        "confianza_media": 45.076,
+        "acierto_top1": 43.213
       },
       {
         "bin": "0.5-0.6",
-        "muestras": 144,
-        "confianza_media": 52.486,
-        "acierto_top1": 65.278
+        "muestras": 162,
+        "confianza_media": 52.392,
+        "acierto_top1": 64.198
+      },
+      {
+        "bin": "0.6-0.7",
+        "muestras": 1,
+        "confianza_media": 60.288,
+        "acierto_top1": 100.0
       },
       {
         "bin": "0.9-1.0",
-        "muestras": 1025,
-        "confianza_media": 45.759,
-        "acierto_top1": 47.22
+        "muestras": 1026,
+        "confianza_media": 45.903,
+        "acierto_top1": 47.368
       }
     ],
     "por_competicion": {
       "liga_extranjera": {
         "muestras": 770,
-        "accuracy_top1": 46.494,
-        "brier_score": 0.631237,
-        "log_loss": 1.04722
+        "accuracy_top1": 46.364,
+        "brier_score": 0.631109,
+        "log_loss": 1.047012
       },
       "primera_division": {
         "muestras": 126,
-        "accuracy_top1": 53.175,
-        "brier_score": 0.594867,
-        "log_loss": 0.99559
+        "accuracy_top1": 54.762,
+        "brier_score": 0.594278,
+        "log_loss": 0.994836
       },
       "segunda_division": {
-        "muestras": 91,
-        "accuracy_top1": 45.055,
-        "brier_score": 0.647065,
-        "log_loss": 1.069315
+        "muestras": 92,
+        "accuracy_top1": 45.652,
+        "brier_score": 0.644126,
+        "log_loss": 1.065196
       },
       "selecciones": {
         "muestras": 38,
         "accuracy_top1": 47.368,
-        "brier_score": 0.611823,
-        "log_loss": 1.022312
+        "brier_score": 0.611809,
+        "log_loss": 1.022321
       }
     },
     "por_signo_real": {
       "1": {
-        "muestras": 469,
-        "accuracy_top1": 96.588,
-        "brier_score": 0.437562,
-        "log_loss": 0.773649
+        "muestras": 470,
+        "accuracy_top1": 96.596,
+        "brier_score": 0.435116,
+        "log_loss": 0.77045
       },
       "2": {
         "muestras": 313,
-        "accuracy_top1": 9.904,
-        "brier_score": 0.716789,
-        "log_loss": 1.146771
+        "accuracy_top1": 10.224,
+        "brier_score": 0.719329,
+        "log_loss": 1.150573
       },
       "X": {
         "muestras": 243,
         "accuracy_top1": 0.0,
-        "brier_score": 0.878874,
-        "log_loss": 1.424604
+        "brier_score": 0.879369,
+        "log_loss": 1.424502
       }
     }
   },
   "backtesting_rolling": {
     "estado": "ok",
-    "muestras_backtesting": 983,
+    "muestras_backtesting": 984,
     "metricas": {
-      "muestras": 983,
-      "accuracy_top1": 45.677,
-      "brier_score": 0.6414,
-      "log_loss": 1.063358,
+      "muestras": 984,
+      "accuracy_top1": 45.833,
+      "brier_score": 0.640858,
+      "log_loss": 1.062423,
       "calibration_curve": [
         {
           "bin": "0.3-0.4",
-          "muestras": 68,
-          "confianza_media": 38.217,
-          "acierto_top1": 42.647
+          "muestras": 65,
+          "confianza_media": 38.203,
+          "acierto_top1": 44.615
         },
         {
           "bin": "0.4-0.5",
-          "muestras": 700,
-          "confianza_media": 45.694,
-          "acierto_top1": 43.143
+          "muestras": 696,
+          "confianza_media": 45.685,
+          "acierto_top1": 42.816
         },
         {
           "bin": "0.5-0.6",
-          "muestras": 212,
-          "confianza_media": 52.372,
-          "acierto_top1": 54.717
+          "muestras": 218,
+          "confianza_media": 52.398,
+          "acierto_top1": 55.046
         },
         {
           "bin": "0.6-0.7",
-          "muestras": 3,
-          "confianza_media": 61.021,
-          "acierto_top1": 66.667
+          "muestras": 5,
+          "confianza_media": 61.172,
+          "acierto_top1": 80.0
         },
         {
           "bin": "0.9-1.0",
-          "muestras": 983,
-          "confianza_media": 46.664,
-          "acierto_top1": 45.677
+          "muestras": 984,
+          "confianza_media": 46.757,
+          "acierto_top1": 45.833
         }
       ],
       "por_competicion": {
         "liga_extranjera": {
           "muestras": 742,
           "accuracy_top1": 46.092,
-          "brier_score": 0.63986,
-          "log_loss": 1.060774
+          "brier_score": 0.639622,
+          "log_loss": 1.060315
         },
         "primera_division": {
           "muestras": 117,
-          "accuracy_top1": 47.009,
-          "brier_score": 0.619589,
-          "log_loss": 1.033475
+          "accuracy_top1": 47.863,
+          "brier_score": 0.618027,
+          "log_loss": 1.030657
         },
         "segunda_division": {
-          "muestras": 86,
-          "accuracy_top1": 40.698,
-          "brier_score": 0.669829,
-          "log_loss": 1.103881
+          "muestras": 87,
+          "accuracy_top1": 41.379,
+          "brier_score": 0.667411,
+          "log_loss": 1.100359
         },
         "selecciones": {
           "muestras": 38,
           "accuracy_top1": 44.737,
-          "brier_score": 0.674279,
-          "log_loss": 1.114112
+          "brier_score": 0.674508,
+          "log_loss": 1.114535
         }
       },
       "por_signo_real": {
         "1": {
-          "muestras": 453,
-          "accuracy_top1": 95.585,
-          "brier_score": 0.434508,
-          "log_loss": 0.770881
+          "muestras": 454,
+          "accuracy_top1": 95.595,
+          "brier_score": 0.433068,
+          "log_loss": 0.76901
         },
         "2": {
           "muestras": 299,
-          "accuracy_top1": 5.017,
-          "brier_score": 0.782187,
-          "log_loss": 1.250758
+          "accuracy_top1": 5.351,
+          "brier_score": 0.782838,
+          "log_loss": 1.25144
         },
         "X": {
           "muestras": 231,
           "accuracy_top1": 0.433,
-          "brier_score": 0.864892,
-          "log_loss": 1.394351
+          "brier_score": 0.865468,
+          "log_loss": 1.394429
         }
       }
     },
@@ -281,9 +287,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.28493691,
-          "X": 0.23528539,
-          "2": 0.4797777
+          "1": 0.29291505,
+          "X": 0.23744335,
+          "2": 0.4696416
         },
         "top": "2",
         "acierto_top1": false
@@ -294,9 +300,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.41996501,
-          "X": 0.2447575,
-          "2": 0.33527749
+          "1": 0.41976195,
+          "X": 0.24310349,
+          "2": 0.33713456
         },
         "top": "1",
         "acierto_top1": false
@@ -307,9 +313,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.49687252,
-          "X": 0.25148003,
-          "2": 0.25164745
+          "1": 0.49699361,
+          "X": 0.25124765,
+          "2": 0.25175874
         },
         "top": "1",
         "acierto_top1": true
@@ -320,9 +326,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.31317817,
-          "X": 0.25506931,
-          "2": 0.43175253
+          "1": 0.31727013,
+          "X": 0.24023348,
+          "2": 0.44249639
         },
         "top": "2",
         "acierto_top1": true
@@ -333,9 +339,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.47174675,
-          "X": 0.25977099,
-          "2": 0.26848227
+          "1": 0.4745492,
+          "X": 0.25787851,
+          "2": 0.26757229
         },
         "top": "1",
         "acierto_top1": false
@@ -346,9 +352,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.49942037,
-          "X": 0.24936008,
-          "2": 0.25121955
+          "1": 0.49887484,
+          "X": 0.24918692,
+          "2": 0.25193824
         },
         "top": "1",
         "acierto_top1": true
@@ -359,9 +365,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.36912807,
-          "X": 0.25640186,
-          "2": 0.37447007
+          "1": 0.37076991,
+          "X": 0.24924728,
+          "2": 0.37998281
         },
         "top": "2",
         "acierto_top1": false
@@ -372,9 +378,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.51589214,
-          "X": 0.23522154,
-          "2": 0.24888633
+          "1": 0.51854027,
+          "X": 0.23620227,
+          "2": 0.24525746
         },
         "top": "1",
         "acierto_top1": true
@@ -385,9 +391,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.50231069,
-          "X": 0.24265726,
-          "2": 0.25503205
+          "1": 0.50470813,
+          "X": 0.23830744,
+          "2": 0.25698443
         },
         "top": "1",
         "acierto_top1": true
@@ -398,9 +404,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.53722496,
-          "X": 0.2136355,
-          "2": 0.24913954
+          "1": 0.5281198,
+          "X": 0.21865043,
+          "2": 0.25322977
         },
         "top": "1",
         "acierto_top1": true
@@ -411,9 +417,9 @@
         "competicion": "primera_division",
         "y": "1",
         "probs": {
-          "1": 0.42927867,
-          "X": 0.22942835,
-          "2": 0.34129298
+          "1": 0.4306573,
+          "X": 0.23034024,
+          "2": 0.33900245
         },
         "top": "1",
         "acierto_top1": true
@@ -424,9 +430,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.44852531,
-          "X": 0.22073536,
-          "2": 0.33073933
+          "1": 0.44905949,
+          "X": 0.22200296,
+          "2": 0.32893754
         },
         "top": "1",
         "acierto_top1": false
@@ -437,9 +443,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.40275744,
-          "X": 0.20407587,
-          "2": 0.39316669
+          "1": 0.40678988,
+          "X": 0.20608605,
+          "2": 0.38712407
         },
         "top": "1",
         "acierto_top1": false
@@ -450,9 +456,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.52644929,
-          "X": 0.22853512,
-          "2": 0.24501559
+          "1": 0.51938441,
+          "X": 0.23230668,
+          "2": 0.24830891
         },
         "top": "1",
         "acierto_top1": true
@@ -463,9 +469,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.32556695,
-          "X": 0.2442183,
-          "2": 0.43021475
+          "1": 0.3287383,
+          "X": 0.24407805,
+          "2": 0.42718365
         },
         "top": "2",
         "acierto_top1": false
@@ -476,9 +482,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.47037181,
-          "X": 0.23938104,
-          "2": 0.29024714
+          "1": 0.47018715,
+          "X": 0.24001662,
+          "2": 0.28979622
         },
         "top": "1",
         "acierto_top1": true
@@ -489,9 +495,9 @@
         "competicion": "primera_division",
         "y": "2",
         "probs": {
-          "1": 0.49713013,
-          "X": 0.25262294,
-          "2": 0.25024693
+          "1": 0.50514333,
+          "X": 0.24492874,
+          "2": 0.24992793
         },
         "top": "1",
         "acierto_top1": false
@@ -502,9 +508,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.43588872,
-          "X": 0.24269665,
-          "2": 0.32141463
+          "1": 0.43595254,
+          "X": 0.24323811,
+          "2": 0.32080935
         },
         "top": "1",
         "acierto_top1": true
@@ -515,9 +521,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.4372175,
-          "X": 0.23619091,
-          "2": 0.32659159
+          "1": 0.43740796,
+          "X": 0.23658974,
+          "2": 0.3260023
         },
         "top": "1",
         "acierto_top1": false
@@ -528,9 +534,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.46438403,
-          "X": 0.25958554,
-          "2": 0.27603043
+          "1": 0.46448056,
+          "X": 0.25824129,
+          "2": 0.27727816
         },
         "top": "1",
         "acierto_top1": false
@@ -541,9 +547,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.48542339,
-          "X": 0.27583375,
-          "2": 0.23874286
+          "1": 0.48564682,
+          "X": 0.27338406,
+          "2": 0.24096912
         },
         "top": "1",
         "acierto_top1": false
@@ -554,9 +560,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.46446597,
-          "X": 0.25951644,
-          "2": 0.27601759
+          "1": 0.46455928,
+          "X": 0.25818368,
+          "2": 0.27725703
         },
         "top": "1",
         "acierto_top1": false
@@ -567,9 +573,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.54344546,
-          "X": 0.23954982,
-          "2": 0.21700472
+          "1": 0.54210341,
+          "X": 0.23919179,
+          "2": 0.2187048
         },
         "top": "1",
         "acierto_top1": true
@@ -580,9 +586,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.43867716,
-          "X": 0.20542795,
-          "2": 0.3558949
+          "1": 0.43846146,
+          "X": 0.20609287,
+          "2": 0.35544567
         },
         "top": "1",
         "acierto_top1": true
@@ -593,9 +599,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.41918631,
-          "X": 0.22527637,
-          "2": 0.35553732
+          "1": 0.41664348,
+          "X": 0.22478558,
+          "2": 0.35857094
         },
         "top": "1",
         "acierto_top1": false
@@ -606,9 +612,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.43947278,
-          "X": 0.24427226,
-          "2": 0.31625496
+          "1": 0.43893457,
+          "X": 0.24469623,
+          "2": 0.3163692
         },
         "top": "1",
         "acierto_top1": false
@@ -619,9 +625,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.50660758,
-          "X": 0.24676534,
-          "2": 0.24662708
+          "1": 0.50769318,
+          "X": 0.24661413,
+          "2": 0.24569269
         },
         "top": "1",
         "acierto_top1": true
@@ -632,9 +638,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.4254396,
-          "X": 0.24917523,
-          "2": 0.32538517
+          "1": 0.42639351,
+          "X": 0.24926173,
+          "2": 0.32434476
         },
         "top": "1",
         "acierto_top1": true
@@ -645,9 +651,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.48005459,
-          "X": 0.25529383,
-          "2": 0.26465159
+          "1": 0.47954933,
+          "X": 0.25570117,
+          "2": 0.2647495
         },
         "top": "1",
         "acierto_top1": false
@@ -658,9 +664,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.41352998,
-          "X": 0.25807733,
-          "2": 0.3283927
+          "1": 0.4152669,
+          "X": 0.25927942,
+          "2": 0.32545368
         },
         "top": "1",
         "acierto_top1": false
@@ -671,9 +677,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.48553926,
-          "X": 0.23592615,
-          "2": 0.27853459
+          "1": 0.48832914,
+          "X": 0.2363507,
+          "2": 0.27532016
         },
         "top": "1",
         "acierto_top1": true
@@ -684,9 +690,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.39113181,
-          "X": 0.27408796,
-          "2": 0.33478023
+          "1": 0.39312272,
+          "X": 0.27412947,
+          "2": 0.3327478
         },
         "top": "1",
         "acierto_top1": true
@@ -697,9 +703,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.38002398,
-          "X": 0.23557323,
-          "2": 0.38440279
+          "1": 0.38133104,
+          "X": 0.22783131,
+          "2": 0.39083765
         },
         "top": "2",
         "acierto_top1": true
@@ -710,9 +716,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.5719019,
-          "X": 0.23285728,
-          "2": 0.19524082
+          "1": 0.56431849,
+          "X": 0.23425895,
+          "2": 0.20142256
         },
         "top": "1",
         "acierto_top1": true
@@ -723,9 +729,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.44439587,
-          "X": 0.21094521,
-          "2": 0.34465891
+          "1": 0.44912526,
+          "X": 0.21157451,
+          "2": 0.33930023
         },
         "top": "1",
         "acierto_top1": false
@@ -736,9 +742,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.49035975,
-          "X": 0.22753691,
-          "2": 0.28210334
+          "1": 0.48917097,
+          "X": 0.22768065,
+          "2": 0.28314838
         },
         "top": "1",
         "acierto_top1": true
@@ -749,9 +755,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.5073075,
-          "X": 0.21510373,
-          "2": 0.27758878
+          "1": 0.50780909,
+          "X": 0.21474151,
+          "2": 0.2774494
         },
         "top": "1",
         "acierto_top1": false
@@ -762,9 +768,9 @@
         "competicion": "primera_division",
         "y": "X",
         "probs": {
-          "1": 0.44297341,
-          "X": 0.23141113,
-          "2": 0.32561545
+          "1": 0.44475493,
+          "X": 0.23164667,
+          "2": 0.3235984
         },
         "top": "1",
         "acierto_top1": false
@@ -775,9 +781,9 @@
         "competicion": "primera_division",
         "y": "2",
         "probs": {
-          "1": 0.40105722,
-          "X": 0.22063833,
-          "2": 0.37830445
+          "1": 0.40200557,
+          "X": 0.22126198,
+          "2": 0.37673245
         },
         "top": "1",
         "acierto_top1": false
@@ -788,9 +794,9 @@
         "competicion": "primera_division",
         "y": "2",
         "probs": {
-          "1": 0.38730764,
-          "X": 0.23935815,
-          "2": 0.37333421
+          "1": 0.3913327,
+          "X": 0.24030689,
+          "2": 0.36836041
         },
         "top": "1",
         "acierto_top1": false
@@ -801,9 +807,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.52246348,
-          "X": 0.21007205,
-          "2": 0.26746446
+          "1": 0.51399524,
+          "X": 0.22138463,
+          "2": 0.26462014
         },
         "top": "1",
         "acierto_top1": false
@@ -814,9 +820,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.28581941,
-          "X": 0.24838021,
-          "2": 0.46580038
+          "1": 0.27888792,
+          "X": 0.25352254,
+          "2": 0.46758954
         },
         "top": "2",
         "acierto_top1": true
@@ -827,9 +833,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.39706584,
-          "X": 0.235899,
-          "2": 0.36703516
+          "1": 0.39724381,
+          "X": 0.23580658,
+          "2": 0.36694961
         },
         "top": "1",
         "acierto_top1": false
@@ -840,9 +846,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.47647211,
-          "X": 0.25426419,
-          "2": 0.2692637
+          "1": 0.47923467,
+          "X": 0.24811275,
+          "2": 0.27265257
         },
         "top": "1",
         "acierto_top1": true
@@ -853,9 +859,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.50434713,
-          "X": 0.25194609,
-          "2": 0.24370678
+          "1": 0.50682413,
+          "X": 0.25041346,
+          "2": 0.24276241
         },
         "top": "1",
         "acierto_top1": false
@@ -866,9 +872,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.48042228,
-          "X": 0.26301862,
-          "2": 0.2565591
+          "1": 0.48299624,
+          "X": 0.26024351,
+          "2": 0.25676025
         },
         "top": "1",
         "acierto_top1": false
@@ -879,9 +885,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.4496244,
-          "X": 0.24375252,
-          "2": 0.30662308
+          "1": 0.44926808,
+          "X": 0.24346671,
+          "2": 0.30726521
         },
         "top": "1",
         "acierto_top1": false
@@ -892,9 +898,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.6091525,
-          "X": 0.22309161,
-          "2": 0.1677559
+          "1": 0.61153533,
+          "X": 0.22047191,
+          "2": 0.16799276
         },
         "top": "1",
         "acierto_top1": true
@@ -905,9 +911,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.43927896,
-          "X": 0.25364546,
-          "2": 0.30707558
+          "1": 0.43752333,
+          "X": 0.25242364,
+          "2": 0.31005303
         },
         "top": "1",
         "acierto_top1": false
@@ -918,9 +924,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.43079302,
-          "X": 0.24880679,
-          "2": 0.3204002
+          "1": 0.43342245,
+          "X": 0.24930011,
+          "2": 0.31727744
         },
         "top": "1",
         "acierto_top1": true
@@ -931,9 +937,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.4909621,
-          "X": 0.24841079,
-          "2": 0.26062712
+          "1": 0.49113802,
+          "X": 0.24827519,
+          "2": 0.26058679
         },
         "top": "1",
         "acierto_top1": false
@@ -944,9 +950,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.55100522,
-          "X": 0.23326051,
-          "2": 0.21573428
+          "1": 0.550422,
+          "X": 0.23322985,
+          "2": 0.21634815
         },
         "top": "1",
         "acierto_top1": true
@@ -957,9 +963,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.28904015,
-          "X": 0.25047994,
-          "2": 0.46047991
+          "1": 0.29032983,
+          "X": 0.25288111,
+          "2": 0.45678906
         },
         "top": "2",
         "acierto_top1": false
@@ -970,9 +976,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.52314021,
-          "X": 0.25496963,
-          "2": 0.22189016
+          "1": 0.52356537,
+          "X": 0.25375467,
+          "2": 0.22267996
         },
         "top": "1",
         "acierto_top1": false
@@ -983,9 +989,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.39335945,
-          "X": 0.25048415,
-          "2": 0.3561564
+          "1": 0.39622795,
+          "X": 0.25093481,
+          "2": 0.35283724
         },
         "top": "1",
         "acierto_top1": true
@@ -996,9 +1002,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.4000145,
-          "X": 0.24195679,
-          "2": 0.35802871
+          "1": 0.40262596,
+          "X": 0.24282017,
+          "2": 0.35455386
         },
         "top": "1",
         "acierto_top1": false
@@ -1009,9 +1015,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.40449246,
-          "X": 0.21010444,
-          "2": 0.3854031
+          "1": 0.41156956,
+          "X": 0.20291984,
+          "2": 0.38551059
         },
         "top": "1",
         "acierto_top1": true
@@ -1022,9 +1028,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.49388605,
-          "X": 0.23077118,
-          "2": 0.27534277
+          "1": 0.49348886,
+          "X": 0.23031869,
+          "2": 0.27619245
         },
         "top": "1",
         "acierto_top1": false
@@ -1035,9 +1041,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.53734495,
-          "X": 0.23025454,
-          "2": 0.23240051
+          "1": 0.53587011,
+          "X": 0.23003029,
+          "2": 0.2340996
         },
         "top": "1",
         "acierto_top1": false
@@ -1048,9 +1054,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.4287125,
-          "X": 0.24738175,
-          "2": 0.32390575
+          "1": 0.42720287,
+          "X": 0.24775662,
+          "2": 0.32504051
         },
         "top": "1",
         "acierto_top1": false
@@ -1061,9 +1067,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.53201077,
-          "X": 0.24875411,
-          "2": 0.21923511
+          "1": 0.53358383,
+          "X": 0.24803631,
+          "2": 0.21837986
         },
         "top": "1",
         "acierto_top1": true
@@ -1074,9 +1080,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.45554023,
-          "X": 0.24717464,
-          "2": 0.29728513
+          "1": 0.45451201,
+          "X": 0.24740536,
+          "2": 0.29808263
         },
         "top": "1",
         "acierto_top1": true
@@ -1087,9 +1093,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.46182816,
-          "X": 0.22683514,
-          "2": 0.3113367
+          "1": 0.46288534,
+          "X": 0.22693153,
+          "2": 0.31018313
         },
         "top": "1",
         "acierto_top1": true
@@ -1100,9 +1106,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.48616922,
-          "X": 0.26425778,
-          "2": 0.249573
+          "1": 0.48603111,
+          "X": 0.26415301,
+          "2": 0.24981588
         },
         "top": "1",
         "acierto_top1": true
@@ -1113,9 +1119,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.52542899,
-          "X": 0.24000161,
-          "2": 0.2345694
+          "1": 0.52334944,
+          "X": 0.23771438,
+          "2": 0.23893618
         },
         "top": "1",
         "acierto_top1": false
@@ -1126,9 +1132,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.45536501,
-          "X": 0.24065813,
-          "2": 0.30397686
+          "1": 0.45972539,
+          "X": 0.24093379,
+          "2": 0.29934082
         },
         "top": "1",
         "acierto_top1": false
@@ -1139,9 +1145,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.46419129,
-          "X": 0.24499237,
-          "2": 0.29081634
+          "1": 0.46517613,
+          "X": 0.2449116,
+          "2": 0.28991227
         },
         "top": "1",
         "acierto_top1": false
@@ -1152,9 +1158,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.53847444,
-          "X": 0.23326644,
-          "2": 0.22825912
+          "1": 0.53790271,
+          "X": 0.2339766,
+          "2": 0.22812069
         },
         "top": "1",
         "acierto_top1": true
@@ -1165,9 +1171,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.51886838,
-          "X": 0.22452386,
-          "2": 0.25660776
+          "1": 0.51766193,
+          "X": 0.22458394,
+          "2": 0.25775413
         },
         "top": "1",
         "acierto_top1": true
@@ -1178,9 +1184,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.52171425,
-          "X": 0.23678652,
-          "2": 0.24149923
+          "1": 0.52488451,
+          "X": 0.23659956,
+          "2": 0.23851593
         },
         "top": "1",
         "acierto_top1": false
@@ -1191,9 +1197,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.54824764,
-          "X": 0.22974638,
-          "2": 0.22200598
+          "1": 0.55247072,
+          "X": 0.23091464,
+          "2": 0.21661463
         },
         "top": "1",
         "acierto_top1": true
@@ -1204,9 +1210,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.5059511,
-          "X": 0.2591446,
-          "2": 0.2349043
+          "1": 0.50956952,
+          "X": 0.2590178,
+          "2": 0.23141269
         },
         "top": "1",
         "acierto_top1": true
@@ -1217,9 +1223,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.3982373,
-          "X": 0.23281322,
-          "2": 0.36894948
+          "1": 0.40045167,
+          "X": 0.23162085,
+          "2": 0.36792748
         },
         "top": "1",
         "acierto_top1": false
@@ -1230,9 +1236,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.45387839,
-          "X": 0.23425798,
-          "2": 0.31186363
+          "1": 0.45496735,
+          "X": 0.23404694,
+          "2": 0.31098571
         },
         "top": "1",
         "acierto_top1": false
@@ -1243,9 +1249,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.39146572,
-          "X": 0.23985194,
-          "2": 0.36868234
+          "1": 0.39404939,
+          "X": 0.23862612,
+          "2": 0.36732448
         },
         "top": "1",
         "acierto_top1": false
@@ -1256,9 +1262,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.52162539,
-          "X": 0.23007299,
-          "2": 0.24830162
+          "1": 0.52182034,
+          "X": 0.22978298,
+          "2": 0.24839669
         },
         "top": "1",
         "acierto_top1": false
@@ -1269,9 +1275,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.51471104,
-          "X": 0.22423822,
-          "2": 0.26105073
+          "1": 0.51597344,
+          "X": 0.21920189,
+          "2": 0.26482466
         },
         "top": "1",
         "acierto_top1": false
@@ -1282,9 +1288,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.49624125,
-          "X": 0.24868075,
-          "2": 0.255078
+          "1": 0.49610073,
+          "X": 0.24894807,
+          "2": 0.2549512
         },
         "top": "1",
         "acierto_top1": true
@@ -1295,9 +1301,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.4624025,
-          "X": 0.25689785,
-          "2": 0.28069965
+          "1": 0.46397883,
+          "X": 0.2532241,
+          "2": 0.28279707
         },
         "top": "1",
         "acierto_top1": true
@@ -1308,9 +1314,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.47757823,
-          "X": 0.24536219,
-          "2": 0.27705957
+          "1": 0.47920249,
+          "X": 0.2418649,
+          "2": 0.27893261
         },
         "top": "1",
         "acierto_top1": false
@@ -1321,9 +1327,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.39163415,
-          "X": 0.23259525,
-          "2": 0.3757706
+          "1": 0.38900413,
+          "X": 0.2382062,
+          "2": 0.37278967
         },
         "top": "1",
         "acierto_top1": true
@@ -1334,9 +1340,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.50660853,
-          "X": 0.23617995,
-          "2": 0.25721152
+          "1": 0.50272557,
+          "X": 0.23685778,
+          "2": 0.26041665
         },
         "top": "1",
         "acierto_top1": false
@@ -1347,9 +1353,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.49627152,
-          "X": 0.2443223,
-          "2": 0.25940618
+          "1": 0.49465624,
+          "X": 0.24411247,
+          "2": 0.2612313
         },
         "top": "1",
         "acierto_top1": true
@@ -1360,9 +1366,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.43381718,
-          "X": 0.25973536,
-          "2": 0.30644746
+          "1": 0.43410469,
+          "X": 0.25854705,
+          "2": 0.30734826
         },
         "top": "1",
         "acierto_top1": true
@@ -1373,9 +1379,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.4193521,
-          "X": 0.24558526,
-          "2": 0.33506264
+          "1": 0.42106248,
+          "X": 0.24466065,
+          "2": 0.33427686
         },
         "top": "1",
         "acierto_top1": false
@@ -1386,9 +1392,9 @@
         "competicion": "segunda_division",
         "y": "2",
         "probs": {
-          "1": 0.42021398,
-          "X": 0.23969302,
-          "2": 0.340093
+          "1": 0.42269007,
+          "X": 0.23889118,
+          "2": 0.33841875
         },
         "top": "1",
         "acierto_top1": false
@@ -1399,9 +1405,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.48388488,
-          "X": 0.25991974,
-          "2": 0.25619538
+          "1": 0.48446797,
+          "X": 0.25901499,
+          "2": 0.25651704
         },
         "top": "1",
         "acierto_top1": false
@@ -1412,9 +1418,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.4672434,
-          "X": 0.25061803,
-          "2": 0.28213856
+          "1": 0.46730651,
+          "X": 0.25036617,
+          "2": 0.28232732
         },
         "top": "1",
         "acierto_top1": false
@@ -1425,9 +1431,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.46487498,
-          "X": 0.25352788,
-          "2": 0.28159714
+          "1": 0.46133942,
+          "X": 0.24917197,
+          "2": 0.28948861
         },
         "top": "1",
         "acierto_top1": false
@@ -1438,9 +1444,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.43917268,
-          "X": 0.24547597,
-          "2": 0.31535136
+          "1": 0.44546393,
+          "X": 0.24460563,
+          "2": 0.30993044
         },
         "top": "1",
         "acierto_top1": false
@@ -1451,9 +1457,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.44635173,
-          "X": 0.24487922,
-          "2": 0.30876905
+          "1": 0.45267021,
+          "X": 0.24562946,
+          "2": 0.30170033
         },
         "top": "1",
         "acierto_top1": false
@@ -1464,9 +1470,9 @@
         "competicion": "primera_division",
         "y": "2",
         "probs": {
-          "1": 0.36807615,
-          "X": 0.21912797,
-          "2": 0.41279588
+          "1": 0.36842565,
+          "X": 0.22081454,
+          "2": 0.41075981
         },
         "top": "2",
         "acierto_top1": true
@@ -1477,9 +1483,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.57810132,
-          "X": 0.21523674,
-          "2": 0.20666194
+          "1": 0.56004072,
+          "X": 0.21975071,
+          "2": 0.22020857
         },
         "top": "1",
         "acierto_top1": true
@@ -1490,9 +1496,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.53846611,
-          "X": 0.23741187,
-          "2": 0.22412201
+          "1": 0.52816464,
+          "X": 0.23983694,
+          "2": 0.23199841
         },
         "top": "1",
         "acierto_top1": false
@@ -1503,9 +1509,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.48879251,
-          "X": 0.23908681,
-          "2": 0.27212068
+          "1": 0.48605122,
+          "X": 0.23950888,
+          "2": 0.2744399
         },
         "top": "1",
         "acierto_top1": false
@@ -1516,9 +1522,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.41986875,
-          "X": 0.23639338,
-          "2": 0.34373788
+          "1": 0.42916884,
+          "X": 0.23481209,
+          "2": 0.33601907
         },
         "top": "1",
         "acierto_top1": false
@@ -1529,9 +1535,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.47688074,
-          "X": 0.21769027,
-          "2": 0.30542899
+          "1": 0.47639689,
+          "X": 0.2176302,
+          "2": 0.30597291
         },
         "top": "1",
         "acierto_top1": false
@@ -1542,9 +1548,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.47654881,
-          "X": 0.24199573,
-          "2": 0.28145546
+          "1": 0.47657567,
+          "X": 0.24244756,
+          "2": 0.28097677
         },
         "top": "1",
         "acierto_top1": true
@@ -1555,9 +1561,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.48245319,
-          "X": 0.20748787,
-          "2": 0.31005893
+          "1": 0.48224811,
+          "X": 0.20751113,
+          "2": 0.31024075
         },
         "top": "1",
         "acierto_top1": true
@@ -1568,11 +1574,11 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.37560646,
-          "X": 0.23993612,
-          "2": 0.38445741
+          "1": 0.39161516,
+          "X": 0.23762667,
+          "2": 0.37075818
         },
-        "top": "2",
+        "top": "1",
         "acierto_top1": false
       },
       {
@@ -1581,9 +1587,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.47024889,
-          "X": 0.24127479,
-          "2": 0.28847632
+          "1": 0.47028352,
+          "X": 0.24091091,
+          "2": 0.28880557
         },
         "top": "1",
         "acierto_top1": false
@@ -1594,9 +1600,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.39605771,
-          "X": 0.2433266,
-          "2": 0.3606157
+          "1": 0.40512194,
+          "X": 0.24106915,
+          "2": 0.35380891
         },
         "top": "1",
         "acierto_top1": false
@@ -1607,9 +1613,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.35022837,
-          "X": 0.22862605,
-          "2": 0.42114558
+          "1": 0.34924221,
+          "X": 0.23018533,
+          "2": 0.42057247
         },
         "top": "2",
         "acierto_top1": false
@@ -1620,9 +1626,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.43156785,
-          "X": 0.22954329,
-          "2": 0.33888886
+          "1": 0.43837079,
+          "X": 0.2283969,
+          "2": 0.33323231
         },
         "top": "1",
         "acierto_top1": true
@@ -1633,9 +1639,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.52063841,
-          "X": 0.23539184,
-          "2": 0.24396975
+          "1": 0.51945637,
+          "X": 0.2339893,
+          "2": 0.24655433
         },
         "top": "1",
         "acierto_top1": false
@@ -1646,9 +1652,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.5040564,
-          "X": 0.24254445,
-          "2": 0.25339916
+          "1": 0.50703231,
+          "X": 0.24168727,
+          "2": 0.25128043
         },
         "top": "1",
         "acierto_top1": true
@@ -1659,9 +1665,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.50366384,
-          "X": 0.25398699,
-          "2": 0.24234917
+          "1": 0.50708697,
+          "X": 0.25245456,
+          "2": 0.24045847
         },
         "top": "1",
         "acierto_top1": false
@@ -1672,9 +1678,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.35750868,
-          "X": 0.24063267,
-          "2": 0.40185865
+          "1": 0.35185888,
+          "X": 0.24179575,
+          "2": 0.40634538
         },
         "top": "2",
         "acierto_top1": true
@@ -1685,9 +1691,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.45844606,
-          "X": 0.2454247,
-          "2": 0.29612925
+          "1": 0.46393138,
+          "X": 0.24494148,
+          "2": 0.29112715
         },
         "top": "1",
         "acierto_top1": true
@@ -1698,9 +1704,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.45337343,
-          "X": 0.25222587,
-          "2": 0.2944007
+          "1": 0.45651472,
+          "X": 0.25227576,
+          "2": 0.29120952
         },
         "top": "1",
         "acierto_top1": false
@@ -1711,9 +1717,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.33941988,
-          "X": 0.22539861,
-          "2": 0.43518151
+          "1": 0.33558439,
+          "X": 0.22707779,
+          "2": 0.43733782
         },
         "top": "2",
         "acierto_top1": true
@@ -1724,9 +1730,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.54681736,
-          "X": 0.23301095,
-          "2": 0.22017169
+          "1": 0.5504029,
+          "X": 0.23395468,
+          "2": 0.21564242
         },
         "top": "1",
         "acierto_top1": true
@@ -1737,9 +1743,9 @@
         "competicion": "liga_extranjera",
         "y": "X",
         "probs": {
-          "1": 0.46378414,
-          "X": 0.24763359,
-          "2": 0.28858226
+          "1": 0.46220709,
+          "X": 0.24564412,
+          "2": 0.29214879
         },
         "top": "1",
         "acierto_top1": false
@@ -1750,9 +1756,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.39884683,
-          "X": 0.2319083,
-          "2": 0.36924488
+          "1": 0.40008389,
+          "X": 0.23089526,
+          "2": 0.36902085
         },
         "top": "1",
         "acierto_top1": true
@@ -1763,9 +1769,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.40069116,
-          "X": 0.24908071,
-          "2": 0.35022812
+          "1": 0.40283879,
+          "X": 0.24831643,
+          "2": 0.34884479
         },
         "top": "1",
         "acierto_top1": true
@@ -1776,9 +1782,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.27033002,
-          "X": 0.23151658,
-          "2": 0.49815341
+          "1": 0.27319966,
+          "X": 0.22981839,
+          "2": 0.49698195
         },
         "top": "2",
         "acierto_top1": false
@@ -1789,9 +1795,9 @@
         "competicion": "liga_extranjera",
         "y": "1",
         "probs": {
-          "1": 0.38747084,
-          "X": 0.24357181,
-          "2": 0.36895735
+          "1": 0.38736829,
+          "X": 0.2431988,
+          "2": 0.36943291
         },
         "top": "1",
         "acierto_top1": true
@@ -1802,9 +1808,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.46355737,
-          "X": 0.25893118,
-          "2": 0.27751144
+          "1": 0.46530362,
+          "X": 0.2569685,
+          "2": 0.27772788
         },
         "top": "1",
         "acierto_top1": false
@@ -1815,9 +1821,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.48991335,
-          "X": 0.24465641,
-          "2": 0.26543023
+          "1": 0.49048267,
+          "X": 0.24272601,
+          "2": 0.26679131
         },
         "top": "1",
         "acierto_top1": false
@@ -1828,9 +1834,9 @@
         "competicion": "liga_extranjera",
         "y": "2",
         "probs": {
-          "1": 0.42974321,
-          "X": 0.24068771,
-          "2": 0.32956908
+          "1": 0.43024566,
+          "X": 0.23930226,
+          "2": 0.33045208
         },
         "top": "1",
         "acierto_top1": false

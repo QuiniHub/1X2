@@ -1,22 +1,22 @@
 {
   "version": "1.2",
-  "precision": 66.42,
+  "precision": 66.18,
   "jornadas_revisadas": 20,
-  "partidos_revisados": 271,
+  "partidos_revisados": 272,
   "aciertos": 180,
-  "fallos": 91,
+  "fallos": 92,
   "fallos_por_tipo": {
     "Doble insuficiente": 17,
-    "Fijo fallado": 43,
+    "Fijo fallado": 44,
     "No cubrio empate": 31
   },
   "fallos_por_signo_real": {
-    "1": 22,
+    "1": 23,
     "2": 38,
     "X": 31
   },
   "signos_omitidos_en_fallo": {
-    "1": 22,
+    "1": 23,
     "2": 38,
     "X": 31
   },
@@ -28,10 +28,10 @@
       "precision": 73.02
     },
     "FIJO": {
-      "total": 174,
+      "total": 175,
       "aciertos": 100,
-      "fallos": 74,
-      "precision": 57.47
+      "fallos": 75,
+      "precision": 57.14
     },
     "TRIPLE": {
       "total": 34,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 120,
+      "total": 121,
       "aciertos": 98,
-      "fallos": 22,
-      "precision": 81.67
+      "fallos": 23,
+      "precision": 80.99
     },
     "2": {
       "total": 86,
@@ -61,57 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 60,
-      "partido": "Espanyol - R. Madrid",
-      "pronostico": "X2",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "0-2",
-      "resultado_final": "0-2",
-      "signo_real": "2",
-      "signos_cubiertos": "X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Espanyol",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "R. Madrid",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 60,
       "partido": "C. Leonesa - Cádiz",
@@ -21758,6 +21707,120 @@
           "partidos": 2
         }
       }
+    },
+    {
+      "jornada": 2,
+      "partido": "SD Eibar - Real Valladolid CF",
+      "pronostico": "X",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-0",
+      "resultado_final": "1-0",
+      "signo_real": "1",
+      "signos_cubiertos": "X",
+      "signo_omitido": "1",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_2.json",
+      "probabilidades_usadas": {
+        "1": 21.5,
+        "X": 43.7,
+        "2": 34.9
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "SD Eibar",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Real Valladolid CF",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (43.7%).",
+        "hipotesis_alternativa": "2 como alternativa (34.9%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 68.3,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision DOBLE X2: margen 8.8 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 11.76,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.42,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la necesidad competitiva viva tiene mas peso acumulado."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local SD Eibar: ppp=2.09; perfil visitante Real Valladolid CF: ppp=1.01."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "SD Eibar",
+        "partidos_total": 20,
+        "puntos_por_partido": 1.908,
+        "empates_pct": 19.53,
+        "surprise_score_medio": 39.58,
+        "forma_5_ppp": 2.4,
+        "forma_10_ppp": 2.2,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 3
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Real Valladolid CF",
+        "partidos_total": 20,
+        "puntos_por_partido": 0.921,
+        "empates_pct": 34.49,
+        "surprise_score_medio": 38.52,
+        "forma_5_ppp": 1.2,
+        "forma_10_ppp": 0.9,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 2
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -21771,19 +21834,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 271,
+    "partidos_base": 272,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.58,
-      "no_cubrio_empate_sobre_fallos_pct": 34.07,
-      "no_cubrio_empate_sobre_total_pct": 11.44,
-      "fijo_fallado_sobre_fallos_pct": 47.25,
-      "fijo_fallado_sobre_total_pct": 15.87,
-      "doble_insuficiente_sobre_total_pct": 6.27
+      "fallos_total_pct": 33.82,
+      "no_cubrio_empate_sobre_fallos_pct": 33.7,
+      "no_cubrio_empate_sobre_total_pct": 11.4,
+      "fijo_fallado_sobre_fallos_pct": 47.83,
+      "fijo_fallado_sobre_total_pct": 16.18,
+      "doble_insuficiente_sobre_total_pct": 6.25
     },
-    "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 5.55,
-    "riesgo_extra_triple_insuficiente": 2.04,
+    "boost_empate_zona_riesgo": 5.93,
+    "riesgo_extra_fijo_fragil": 5.91,
+    "riesgo_extra_triple_insuficiente": 2.02,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
