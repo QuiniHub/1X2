@@ -1,28 +1,28 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-23T20:57:29.499601+00:00",
+  "generado_en": "2026-08-23T21:31:25.487207+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 178,
-    "precision_top": 37.64,
-    "brier_medio": 0.6605,
-    "logloss_medio": 1.0905,
+    "partidos": 180,
+    "precision_top": 37.22,
+    "brier_medio": 0.6603,
+    "logloss_medio": 1.0898,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 110,
-      "prob_top_media": 35.5,
-      "precision_real": 32.73,
-      "desviacion_calibracion": -2.77,
+      "total": 111,
+      "prob_top_media": 35.49,
+      "precision_real": 32.43,
+      "desviacion_calibracion": -3.05,
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 50,
+      "total": 51,
       "prob_top_media": 44.8,
-      "precision_real": 46.0,
-      "desviacion_calibracion": 1.2,
+      "precision_real": 45.1,
+      "desviacion_calibracion": 0.3,
       "muestra_suficiente": true
     },
     "50-60": {
@@ -35,10 +35,10 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 178,
-      "precision_top": 37.64,
-      "brier_medio": 0.6605,
-      "logloss_medio": 1.0905,
+      "partidos": 180,
+      "precision_top": 37.22,
+      "brier_medio": 0.6603,
+      "logloss_medio": 1.0898,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -316,6 +316,21 @@
     },
     {
       "jornada": 2,
+      "num": 5,
+      "partido": "Elche CF - FC Barcelona",
+      "fuente": "data/backtesting/pre_cierre/jornada_2.json",
+      "real": "2",
+      "top": "X",
+      "acierto_top": false,
+      "prob_top": 34.5,
+      "prob_real": 33.1,
+      "bucket_top": "30-40",
+      "brier": 0.671562,
+      "logloss": 1.1056369036050742,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 2,
       "num": 8,
       "partido": "Real Oviedo - CD Leganes",
       "fuente": "data/backtesting/pre_cierre/jornada_2.json",
@@ -402,6 +417,21 @@
       "bucket_top": "40-50",
       "brier": 0.6309354980683651,
       "logloss": 1.0143519450503697,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 2,
+      "num": 14,
+      "partido": "Tenerife - UD Almeria",
+      "fuente": "data/backtesting/pre_cierre/jornada_2.json",
+      "real": "1",
+      "top": "X",
+      "acierto_top": false,
+      "prob_top": 44.76,
+      "prob_real": 38.86,
+      "bucket_top": "40-50",
+      "brier": 0.600941516026431,
+      "logloss": 0.9451754356967743,
       "competicion": "desconocida"
     },
     {
