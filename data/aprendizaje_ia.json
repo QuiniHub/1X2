@@ -1,24 +1,24 @@
 {
   "version": "1.2",
-  "precision": 66.19,
+  "precision": 65.95,
   "jornadas_revisadas": 20,
-  "partidos_revisados": 278,
+  "partidos_revisados": 279,
   "aciertos": 184,
-  "fallos": 94,
+  "fallos": 95,
   "fallos_por_tipo": {
     "Doble insuficiente": 18,
     "Fijo fallado": 44,
-    "No cubrio empate": 32
+    "No cubrio empate": 33
   },
   "fallos_por_signo_real": {
     "1": 24,
     "2": 38,
-    "X": 32
+    "X": 33
   },
   "signos_omitidos_en_fallo": {
     "1": 24,
     "2": 38,
-    "X": 32
+    "X": 33
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,10 +28,10 @@
       "precision": 73.13
     },
     "FIJO": {
-      "total": 177,
+      "total": 178,
       "aciertos": 101,
-      "fallos": 76,
-      "precision": 57.06
+      "fallos": 77,
+      "precision": 56.74
     },
     "TRIPLE": {
       "total": 34,
@@ -54,68 +54,13 @@
       "precision": 56.32
     },
     "X": {
-      "total": 67,
+      "total": 68,
       "aciertos": 35,
-      "fallos": 32,
-      "precision": 52.24
+      "fallos": 33,
+      "precision": 51.47
     }
   },
   "detalle": [
-    {
-      "jornada": 61,
-      "partido": "Elche - Alavés",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "data/predicciones/jornada_61.json",
-      "probabilidades_usadas": {
-        "1": 52.9,
-        "X": 30.5,
-        "2": 16.6
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Elche",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Alavés",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=52.9%, X=30.5%, 2=16.6%. Elche llega con 39 puntos, 10 puntos en los ultimos 5 y 1.314 goles a favor por partido. Alavés llega con 37 puntos, 5 puntos en los ultimos 5 y 1.543 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 61,
       "partido": "Sevilla - Espanyol",
@@ -21423,6 +21368,122 @@
     },
     {
       "jornada": 2,
+      "partido": "Malaga CF - RC Deportivo de La Coruna",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "2",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_2.json",
+      "probabilidades_usadas": {
+        "1": 24.6,
+        "X": 35.7,
+        "2": 39.7
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Malaga CF",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "RC Deportivo de La Coruna",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (39.7%).",
+        "hipotesis_alternativa": "X como alternativa (35.7%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 2: margen 4.0 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.94,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.42,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la necesidad competitiva viva tiene mas peso acumulado."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.31,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Málaga: ppp=1.59; perfil visitante RC Deportivo de La Coruna: ppp=0.00.",
+          "Memoria autonoma: historial de sorpresa medio elevado (46.7)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Málaga",
+        "partidos_total": 34,
+        "puntos_por_partido": 1.651,
+        "empates_pct": 28.33,
+        "surprise_score_medio": 37.68,
+        "forma_5_ppp": 1.2,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 3
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "RC Deportivo de La Coruna",
+        "partidos_total": 1,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 55.8,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 2,
       "partido": "Real Oviedo - CD Leganes",
       "pronostico": "X",
       "tipo_pronostico": "FIJO",
@@ -22223,19 +22284,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 278,
+    "partidos_base": 279,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.81,
-      "no_cubrio_empate_sobre_fallos_pct": 34.04,
-      "no_cubrio_empate_sobre_total_pct": 11.51,
-      "fijo_fallado_sobre_fallos_pct": 46.81,
-      "fijo_fallado_sobre_total_pct": 15.83,
-      "doble_insuficiente_sobre_total_pct": 6.47
+      "fallos_total_pct": 34.05,
+      "no_cubrio_empate_sobre_fallos_pct": 34.74,
+      "no_cubrio_empate_sobre_total_pct": 11.83,
+      "fijo_fallado_sobre_fallos_pct": 46.32,
+      "fijo_fallado_sobre_total_pct": 15.77,
+      "doble_insuficiente_sobre_total_pct": 6.45
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 5.43,
-    "riesgo_extra_triple_insuficiente": 2.22,
+    "riesgo_extra_fijo_fragil": 5.28,
+    "riesgo_extra_triple_insuficiente": 2.21,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,

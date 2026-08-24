@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-24T20:41:12.453758+00:00",
+  "generado_en": "2026-08-24T21:38:40.066164+00:00",
   "estado": "critico_actualizacion",
   "score_salud": 45,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
@@ -96,9 +96,9 @@
   "memoria_quinielas": {
     "jugadas_persistidas_json": 20,
     "jornadas_validadas_historial": 20,
-    "jornadas_memoria_real_total": 55,
-    "jornadas_con_signo_nuestro": 15,
-    "signos_nuestros_en_jornadas": 210,
+    "jornadas_memoria_real_total": 56,
+    "jornadas_con_signo_nuestro": 16,
+    "signos_nuestros_en_jornadas": 224,
     "estado": "memoria_propia_disponible",
     "fuentes_validas": [
       "data/quinielas_jugadas.json",
@@ -109,24 +109,24 @@
   },
   "prediccion": {
     "jornada": 3,
-    "generado_en": "2026-08-24T20:41:11.890053+00:00",
+    "generado_en": "2026-08-24T21:38:36.079293+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 8,
+      "dobles": 4,
+      "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 6,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
-        "alta": 0,
+        "alta": 12,
         "media": 0,
-        "media_baja": 0,
+        "media_baja": 2,
         "baja": 0
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 2 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 3 hasta cerrar y aprender la 2."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "clasificaciones": {
     "primera": {
@@ -179,7 +179,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 1.06,
+    "contexto_equipos_horas": 2.02,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -249,11 +249,11 @@
   },
   "backtesting_pre_cierre": {
     "estado": "operativo",
-    "jornadas_snapshot": 13,
-    "partidos_cerrados": 181,
-    "aciertos": 101,
-    "precision": 55.8,
-    "generado_en": "2026-08-24T20:41:12.304890+00:00",
+    "jornadas_snapshot": 14,
+    "partidos_cerrados": 182,
+    "aciertos": 102,
+    "precision": 56.04,
+    "generado_en": "2026-08-24T21:38:39.846603+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -263,16 +263,15 @@
       "detalle": "Sevilla FC tiene 2 PJ en tabla, pero el calendario ya tiene 4 resultados."
     },
     {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 76 pero la última predicción dice 3."
+    },
+    {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
       "detalle": "La jornada 3 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
       "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
-    },
-    {
-      "nivel": "media",
-      "titulo": "Prediccion demasiado rigida",
-      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
-      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
     },
     {
       "nivel": "media",
@@ -296,7 +295,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-08-24T20:41:12.453758+00:00",
+    "generado_en": "2026-08-24T21:38:40.066164+00:00",
     "estado": "critico",
     "score": 0,
     "alertas": [
@@ -304,6 +303,11 @@
         "nivel": "critica",
         "titulo": "Clasificacion primera congelada",
         "detalle": "Sevilla FC tiene 2 PJ en tabla, pero el calendario ya tiene 4 resultados."
+      },
+      {
+        "nivel": "alta",
+        "titulo": "Predicción de jornada antigua",
+        "detalle": "La jornada activa es 76 pero la última predicción dice 3."
       }
     ],
     "jornadas": {
@@ -374,7 +378,7 @@
         "racing": null,
         "deportivo": null,
         "leganes": {
-          "posicion": 4,
+          "posicion": 5,
           "equipo": "CD Leganes",
           "pj": 2,
           "g": 1,
@@ -405,28 +409,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-08-24T20:40:48.329361+00:00"
+      "generado_en": "2026-08-24T21:38:10.773863+00:00"
     },
     "prediccion": {
       "jornada": 3,
-      "generado_en": "2026-08-24T20:41:11.890053+00:00",
+      "generado_en": "2026-08-24T21:38:36.079293+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 14,
-        "dobles": 0,
-        "triples": 0,
+        "fijos": 8,
+        "dobles": 4,
+        "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 0,
-        "indice_sorpresa_max": 0.0,
+        "favoritos_atacables": 6,
+        "indice_sorpresa_max": 100.0,
         "calidad_datos": {
-          "alta": 0,
+          "alta": 12,
           "media": 0,
-          "media_baja": 0,
+          "media_baja": 2,
           "baja": 0
         }
       },
-      "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 2 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 3 hasta cerrar y aprender la 2."
+      "retenida_por_compuerta": false,
+      "motivo_bloqueo": null
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -498,7 +502,7 @@
       "racing": null,
       "deportivo": null,
       "leganes": {
-        "posicion": 4,
+        "posicion": 5,
         "equipo": "CD Leganes",
         "pj": 2,
         "g": 1,
@@ -529,6 +533,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-08-24T20:40:48.329361+00:00"
+    "generado_en": "2026-08-24T21:38:10.773863+00:00"
   }
 }
