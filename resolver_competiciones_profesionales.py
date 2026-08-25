@@ -72,6 +72,11 @@ REQUISITOS = {
         "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
         "datos_minimos": ["resultados", "clasificacion_liga", "forma", "ranking_elo", "lesiones"],
     },
+    "liga_f": {
+        "modelo": "modelo_conservador_baja_calidad",
+        "lectura": "Liga F (futbol femenino espanol) -el pipeline no tiene clasificacion, historico ni forma propios para esta competicion. No usar clasificacion/fuerza de Primera o Segunda masculina aunque el club comparta nombre (ej. 'Real Madrid Femenino' no es 'Real Madrid CF').",
+        "datos_minimos": ["resultados", "clasificacion_liga_f", "forma"],
+    },
     "desconocida": {
         "modelo": "modelo_conservador_baja_calidad",
         "lectura": "Competicion no resuelta; bajar confianza y pedir fuentes especificas.",
@@ -132,10 +137,26 @@ def catalogos():
     }
 
 
+def es_equipo_liga_f(nombre_normalizado):
+    """Los clubes de Liga F llevan 'Femenino'/'Femeni' como parte de su propio
+    nombre oficial (Athletic Club Femenino, Real Madrid Femenino, FC Barcelona
+    Femeni...) -detectar esa palabra evita mantener una lista fija de 16
+    equipos que cambiaria cada temporada por ascensos/descensos, y no depende
+    de adivinar el nombre exacto que use la fuente de la Quiniela."""
+    return "femenino" in nombre_normalizado or "femeni" in nombre_normalizado
+
+
 def resolver(partido, cats):
     local = normalizar(partido.get("local"))
     visitante = normalizar(partido.get("visitante"))
-    if local in cats["primera"] and visitante in cats["primera"]:
+    if es_equipo_liga_f(local) or es_equipo_liga_f(visitante):
+        # Se comprueba ANTES que Primera/Segunda: un nombre como "Real Madrid
+        # Femenino" no debe colar por compartir "real madrid" con el club
+        # masculino -son competiciones y plantillas distintas, sin datos
+        # propios en este pipeline (ver Liga F 2026-27, aviso de Marc el
+        # 2026-08-25 antes de que empiece la Jornada 3).
+        comp, confianza, motivo = "liga_f", 0.35, "Liga F (futbol femenino) -sin fuente de datos propia, no confundir con el club masculino homonimo."
+    elif local in cats["primera"] and visitante in cats["primera"]:
         comp, confianza, motivo = "primera_division", 0.94, "Ambos equipos estan en Primera."
     elif local in cats["segunda"] and visitante in cats["segunda"]:
         comp, confianza, motivo = "segunda_division", 0.94, "Ambos equipos estan en Segunda."

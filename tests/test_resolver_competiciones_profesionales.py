@@ -29,6 +29,28 @@ class ResolverCompeticionesProfesionalesTests(unittest.TestCase):
             "primera_division",
         )
 
+    def test_liga_f_se_detecta_por_el_propio_nombre_del_club(self):
+        # Aviso de Marc el 2026-08-25, antes de que empiece la Jornada 3:
+        # la Quiniela va a incluir partidos de Liga F (futbol femenino). El
+        # pipeline no tiene clasificacion/historico/forma propios para esa
+        # competicion -debe reconocerla (no caer en liga_extranjera con
+        # confianza 0.62 como si fuera una liga extranjera cualquiera) y
+        # marcar confianza baja de verdad.
+        cats = {"primera": set(), "segunda": set(), "mundial": set(), "selecciones": set()}
+        info = resolver({"local": "Athletic Club Femenino", "visitante": "Real Madrid Femenino"}, cats)
+        self.assertEqual(info["competicion"], "liga_f")
+        self.assertLess(info["confianza"], 0.5)
+
+    def test_liga_f_no_colisiona_con_el_club_masculino_homonimo(self):
+        # "Real Madrid Femenino" comparte nombre de club con "Real Madrid CF"
+        # (Primera) -si el club masculino estuviera en el catalogo de Primera,
+        # el partido NO debe clasificarse como primera_division solo porque
+        # las palabras "real"/"madrid" coincidan.
+        cats = {"primera": {"madrid", "barcelona"}, "segunda": set(), "mundial": set(), "selecciones": set()}
+        info = resolver({"local": "Real Madrid Femenino", "visitante": "FC Barcelona Femeni"}, cats)
+        self.assertEqual(info["competicion"], "liga_f")
+        self.assertNotEqual(info["competicion"], "primera_division")
+
     def test_celta_b_no_cae_en_liga_extranjera(self):
         # Bug real (jornada 1 de LaLiga 26/27, 2026-08-11): la fuente de
         # quinielafutbol.info usa el nombre antiguo "Celta B" para el filial
