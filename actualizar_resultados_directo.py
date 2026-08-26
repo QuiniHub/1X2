@@ -70,11 +70,28 @@ def normalizar(texto):
     return texto.replace("ee uu", "eeuu")
 
 
+PALABRAS_CIUDAD_AMBIGUAS = {"madrid", "barcelona"}
+
+
 def candidatos_equipo(nombre):
     n = normalizar(nombre)
     partes = [p for p in n.split() if len(p) > 2]
+    # "madrid"/"barcelona" identifican la CIUDAD, no el club -varios equipos
+    # de Primera/Segunda la comparten (Real Madrid, Atletico de Madrid, Rayo
+    # Vallecano de Madrid / FC Barcelona, RCD Espanyol de Barcelona). Si el
+    # nombre tiene otra palabra mas especifica (atletico, rayo, espanyol...),
+    # esa es la que debe identificar al equipo -la palabra de ciudad sola
+    # solo se admite cuando es la UNICA palabra distintiva que queda tras
+    # quitar particulas (ej. "Real Madrid CF" -> "madrid", "FC Barcelona" ->
+    # "barcelona"). Bug real (26/08/2026): sin esto, un resultado real de
+    # "RCD Espanyol de Barcelona vs Real Madrid CF" se escribia por error
+    # sobre la casilla de calendario de "FC Barcelona vs Rayo Vallecano de
+    # Madrid" (partido de otra jornada, ni jugado todavia).
+    distintivas = [p for p in partes if p not in PALABRAS_CIUDAD_AMBIGUAS]
     candidatos = {n}
-    candidatos.update(partes)
+    candidatos.update(distintivas)
+    if not distintivas:
+        candidatos.update(p for p in partes if p in PALABRAS_CIUDAD_AMBIGUAS)
     alias = {
         "eeuu": ["ee uu", "estados unidos", "usa", "united states"],
         "estados unidos": ["eeuu", "ee uu", "usa", "united states"],
@@ -350,7 +367,26 @@ def actualizar_jornada_quiniela(texto):
     return cambios, actualizados
 
 
+def _fecha_calendario_es_futura(p_cal):
+    fecha_txt = str(p_cal.get("fecha") or "").strip()[:10]
+    if not fecha_txt:
+        return False
+    try:
+        return datetime.fromisoformat(fecha_txt).date() > datetime.now(TZ_COMPETICION).date()
+    except ValueError:
+        return False
+
+
 def sincronizar_calendario_liga(partidos):
+    # Bug real (26/08/2026): "FC Barcelona - Rayo Vallecano de Madrid"
+    # (Jornada 3, 2026-08-30, aun sin jugar) quedo marcado "Jugado" con el
+    # resultado real de OTRO partido de la Jornada 2 ya cerrada (RCD
+    # Espanyol de Barcelona 1-2 Real Madrid CF) -contiene_equipo() emparejo
+    # por la palabra de ciudad compartida ("barcelona"/"madrid", ya
+    # corregido arriba en candidatos_equipo). Guardia adicional aqui, igual
+    # que en actualizar_calendario() (actualizar_ligas_football_data.py):
+    # nunca marcar "Jugado" una casilla del calendario cuya fecha todavia no
+    # ha llegado, sea cual sea la causa del emparejamiento erroneo.
     cambios = 0
     for archivo in (DATA / "calendario_primera.json", DATA / "calendario_segunda.json"):
         data = cargar_json(archivo, {})
@@ -358,6 +394,8 @@ def sincronizar_calendario_liga(partidos):
             continue
         for jornada in data.get("jornadas", []):
             for p_cal in jornada.get("partidos", []):
+                if _fecha_calendario_es_futura(p_cal):
+                    continue
                 for p_q in partidos:
                     resultado = p_q.get("resultado")
                     if not resultado or resultado == "Pendiente":
