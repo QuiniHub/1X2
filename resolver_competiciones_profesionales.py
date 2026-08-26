@@ -137,19 +137,24 @@ def catalogos():
     }
 
 
-def es_equipo_liga_f(nombre_normalizado):
-    """Los clubes de Liga F llevan 'Femenino'/'Femeni' como parte de su propio
-    nombre oficial (Athletic Club Femenino, Real Madrid Femenino, FC Barcelona
-    Femeni...) -detectar esa palabra evita mantener una lista fija de 16
-    equipos que cambiaria cada temporada por ascensos/descensos, y no depende
-    de adivinar el nombre exacto que use la fuente de la Quiniela."""
+def es_equipo_liga_f(nombre_crudo, nombre_normalizado):
+    """Formato real confirmado en data/jornadas/jornada_3.json (25/08/2026,
+    fuente quinielafutbol.info): los partidos de Liga F llevan un sufijo
+    "(F)" en el nombre crudo -ej. "Athletic Club (F)", "Real Madrid (F)"- NO
+    la palabra "Femenino"/"Femeni" completa como en el nombre oficial del
+    club. Se comprueba el nombre CRUDO (antes de que normalizar() quite los
+    parentesis) porque es la señal mas precisa; se mantiene tambien el
+    chequeo de "femenino"/"femeni" como respaldo por si otra fuente (o LAE
+    directamente) lo escribe distinto."""
+    if re.search(r"\(\s*f\s*\)\s*$", str(nombre_crudo or ""), re.I):
+        return True
     return "femenino" in nombre_normalizado or "femeni" in nombre_normalizado
 
 
 def resolver(partido, cats):
     local = normalizar(partido.get("local"))
     visitante = normalizar(partido.get("visitante"))
-    if es_equipo_liga_f(local) or es_equipo_liga_f(visitante):
+    if es_equipo_liga_f(partido.get("local"), local) or es_equipo_liga_f(partido.get("visitante"), visitante):
         # Se comprueba ANTES que Primera/Segunda: un nombre como "Real Madrid
         # Femenino" no debe colar por compartir "real madrid" con el club
         # masculino -son competiciones y plantillas distintas, sin datos

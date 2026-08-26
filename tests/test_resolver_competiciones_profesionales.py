@@ -49,6 +49,20 @@ class ResolverCompeticionesProfesionalesTests(unittest.TestCase):
         cats = {"primera": {"madrid", "barcelona"}, "segunda": set(), "mundial": set(), "selecciones": set()}
         info = resolver({"local": "Real Madrid Femenino", "visitante": "FC Barcelona Femeni"}, cats)
         self.assertEqual(info["competicion"], "liga_f")
+
+    def test_liga_f_formato_real_con_sufijo_f_entre_parentesis(self):
+        # Formato REAL confirmado en data/jornadas/jornada_3.json (fuente
+        # quinielafutbol.info): los partidos de Liga F llevan un sufijo
+        # "(F)" -ej. "Athletic Club (F)", "Real Madrid (F)"- no la palabra
+        # "Femenino" completa como se habia asumido al principio (commit
+        # 7b9aa6d12). Sin este caso, el fix original no habria funcionado
+        # con los datos reales de la propia Jornada 3.
+        cats = {"primera": {"athletic", "madrid"}, "segunda": set(), "mundial": set(), "selecciones": set()}
+        info = resolver({"local": "Athletic Club (F)", "visitante": "Badalona (F)"}, cats)
+        self.assertEqual(info["competicion"], "liga_f")
+        info2 = resolver({"local": "Real Madrid (F)", "visitante": "Atlético de Madrid (F)"}, cats)
+        self.assertEqual(info2["competicion"], "liga_f")
+        self.assertNotEqual(info2["competicion"], "primera_division")
         self.assertNotEqual(info["competicion"], "primera_division")
 
     def test_celta_b_no_cae_en_liga_extranjera(self):
