@@ -405,6 +405,13 @@ def sembrar_jornadas_desde_oficial(liga):
     return cambios
 
 
+def _fecha_es_futura(fecha_iso_str, hoy):
+    try:
+        return datetime.strptime(fecha_iso_str[:10], "%Y-%m-%d").date() > hoy
+    except ValueError:
+        return False
+
+
 def actualizar_calendario(liga, resultados):
     calendario_path = LIGAS[liga]["calendario"]
     calendario = cargar_json(calendario_path, {"competicion": liga, "jornadas": []})
@@ -413,12 +420,26 @@ def actualizar_calendario(liga, resultados):
         for partido in jornada.get("partidos", []):
             indice[clave_partido(partido.get("local"), partido.get("visitante"))] = partido
 
+    # Bug real (25/08/2026): calendario_primera.json quedo con "Sevilla FC -
+    # Club Atletico de Madrid" (Jornada 3, fecha 2026-08-30) marcado "Jugado"
+    # con marcador 2-1 CINCO DIAS antes de jugarse -football-data.co.uk (o
+    # una respuesta transitoria suya) trajo un resultado con la fecha del
+    # partido todavia sin llegar, y actualizar_calendario() lo escribio sin
+    # comprobar la fecha contra "hoy". Guardia minima: nunca marcar "Jugado"
+    # un partido cuya fecha (la del resultado entrante, o si no la trae la
+    # que ya tenia el partido) sea posterior a hoy.
+    hoy = datetime.now(timezone.utc).date()
     cambios = 0
     sin_emparejar = []
+    ignorados_fecha_futura = []
     for resultado in resultados:
         partido = indice.get(clave_partido(resultado["local"], resultado["visitante"]))
         if not partido:
             sin_emparejar.append(f"{resultado['local']} - {resultado['visitante']}")
+            continue
+        fecha_referencia = resultado.get("fecha") or partido.get("fecha")
+        if fecha_referencia and _fecha_es_futura(fecha_referencia, hoy):
+            ignorados_fecha_futura.append(f"{resultado['local']} - {resultado['visitante']} ({fecha_referencia})")
             continue
         previo = (partido.get("resultado") or "").strip()
         if previo != resultado["resultado"] or partido.get("estado") != "Jugado":
@@ -432,7 +453,7 @@ def actualizar_calendario(liga, resultados):
     calendario["fuente"] = "football-data.co.uk + calendario interno"
     calendario["actualizado_en"] = ahora_iso()
     guardar_json(calendario_path, calendario)
-    return calendario, cambios, sin_emparejar
+    return calendario, cambios, sin_emparejar, ignorados_fecha_futura
 
 
 def parse_resultado(partido):
@@ -655,12 +676,14 @@ def main():
         except Exception as exc:
             print(f"{liga}: no se pudo leer football-data ({exc}); se conserva la tabla actual.")
             continue
-        _, cambios, sin_emparejar = actualizar_calendario(liga, resultados)
+        _, cambios, sin_emparejar, ignorados_fecha_futura = actualizar_calendario(liga, resultados)
         equipos, jugados = construir_clasificacion_desde_resultados(resultados)
         fuentes[liga] = {"url": fuente, "resultados_leidos": len(resultados), "cambios_calendario": cambios}
         print(f"{liga}: {len(resultados)} resultados fuente, {cambios} cambios calendario, {jugados} partidos jugados.")
         if sin_emparejar:
             print(f"{liga}: {len(sin_emparejar)} partidos de fuente sin emparejar con calendario.")
+        if ignorados_fecha_futura:
+            print(f"{liga}: {len(ignorados_fecha_futura)} resultados ignorados por tener fecha futura: {ignorados_fecha_futura}")
         if validar_tabla(liga, equipos, jugados):
             tablas[liga] = equipos
             max_pj = max((e.get("pj", 0) for e in equipos), default=0)

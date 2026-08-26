@@ -174,12 +174,41 @@ class SembrarJornadasDesdeOficialTests(unittest.TestCase):
             }, ensure_ascii=False), encoding="utf-8")
 
             alfd.sembrar_jornadas_desde_oficial("primera")
-            _, cambios, sin_emparejar = alfd.actualizar_calendario("primera", [{
+            _, cambios, sin_emparejar, ignorados_fecha_futura = alfd.actualizar_calendario("primera", [{
                 "local": "Club Atletico de Madrid", "visitante": "Malaga CF",
                 "resultado": "2-0", "fecha": "2026-08-19",
             }])
             self.assertEqual(cambios, 1)
             self.assertEqual(sin_emparejar, [])
+            self.assertEqual(ignorados_fecha_futura, [])
+
+        self._con_directorio_temporal(prueba)
+
+    def test_no_marca_jugado_un_partido_con_fecha_futura(self):
+        # Bug real (25/08/2026): "Sevilla FC - Club Atletico de Madrid"
+        # (Jornada 3, fecha 2026-08-30) quedo marcado "Jugado" con marcador
+        # 2-1 CINCO DIAS antes de jugarse -football-data.co.uk trajo (de
+        # forma transitoria) un resultado con la fecha del partido todavia
+        # sin llegar, y actualizar_calendario() lo escribio sin comprobar la
+        # fecha contra "hoy". Usa un año muy lejano para que el test no
+        # dependa de cuando se ejecute de verdad.
+        def prueba(tmp):
+            (tmp / "calendario_primera.json").write_text(json.dumps({
+                "competicion": "primera", "jornadas": [{"jornada": 3, "partidos": [
+                    {"local": "Sevilla FC", "visitante": "Club Atletico de Madrid",
+                     "fecha": "2099-08-30", "resultado": "", "estado": "Pendiente"},
+                ]}]
+            }, ensure_ascii=False), encoding="utf-8")
+
+            calendario, cambios, sin_emparejar, ignorados_fecha_futura = alfd.actualizar_calendario("primera", [{
+                "local": "Sevilla FC", "visitante": "Club Atletico de Madrid",
+                "resultado": "2-1", "fecha": "2099-08-30",
+            }])
+            self.assertEqual(cambios, 0)
+            self.assertEqual(len(ignorados_fecha_futura), 1)
+            partido = calendario["jornadas"][0]["partidos"][0]
+            self.assertEqual(partido["estado"], "Pendiente")
+            self.assertEqual(partido["resultado"], "")
 
         self._con_directorio_temporal(prueba)
 
