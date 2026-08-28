@@ -12,16 +12,20 @@ from motor_prediccion_quiniela import (
     ajustar_por_aprendizaje_propio,
     ajustar_por_lesiones_laliga,
     ajustar_por_mercado_losilla,
+    ajustar_por_patrones_aprendidos,
     buscar_lesiones_equipo,
     calcular_probabilidades,
     clave_par_equipos_h2h,
     cobertura_automatica,
     construir_boleto_millonario,
     coste,
+    descenso_vivo_motor,
     evaluar_riesgo_millonario,
     fuerza_pretemporada,
     historial_h2h_partido,
     indice_sorpresa_quinielistica,
+    necesidad_viva_motor,
+    objetivo_cerrado_motor,
     tier_por_posicion,
     normalizar_pesos_dinamicos,
     prioridad_elige8,
@@ -527,6 +531,73 @@ class MotorPrediccionTests(unittest.TestCase):
         # El corte de Liga F no debe afectar al matching normal del club
         # masculino -mismo caso que ya cubre otro test de esta clase.
         self.assertGreaterEqual(motor.puntuacion_nombre_equipo("SD Eibar", "Eibar"), 55)
+
+    def test_necesidad_viva_ignora_riesgo_descenso_con_muchas_jornadas_por_delante(self):
+        # Principio de Marc (28/08/2026): la permanencia o cualquier titulo
+        # solo se juegan de verdad a falta de unas 10 jornadas -antes de eso,
+        # "riesgo_descenso" con 30+ partidos restantes es aritmetica de
+        # inicio de temporada, no presion competitiva real. Caso real: Levante
+        # (pj=2, 1 punto) salia marcado como "riesgo_descenso" con
+        # "motivacion maxima" en la Jornada 3 (36 partidos restantes) y eso
+        # disparaba un ajuste de ~30 puntos en ajustar_por_patrones_aprendidos.
+        equipo_inicio_temporada = {
+            "equipo": "Levante UD",
+            "pj": 2,
+            "partidos_restantes": 36,
+            "motivacion_competitiva": "maxima",
+            "objetivos": [{"objetivo": "descenso", "estado": "riesgo_descenso", "lectura": "riesgo de descenso"}],
+            "objetivos_vivos": [{"objetivo": "descenso", "estado": "riesgo_descenso"}],
+            "situacion_competitiva": "riesgo_descenso",
+        }
+        self.assertFalse(necesidad_viva_motor(equipo_inicio_temporada))
+        self.assertFalse(descenso_vivo_motor(equipo_inicio_temporada))
+        self.assertFalse(objetivo_cerrado_motor(equipo_inicio_temporada))
+
+    def test_necesidad_viva_se_activa_de_verdad_en_la_recta_final(self):
+        # El mismo equipo, misma situacion, pero ya en la recta final de la
+        # temporada (10 o menos partidos restantes) -aqui SI debe contar
+        # como presion competitiva real.
+        equipo_recta_final = {
+            "equipo": "Levante UD",
+            "pj": 28,
+            "partidos_restantes": 10,
+            "motivacion_competitiva": "maxima",
+            "objetivos": [{"objetivo": "descenso", "estado": "riesgo_descenso", "lectura": "riesgo de descenso"}],
+            "objetivos_vivos": [{"objetivo": "descenso", "estado": "riesgo_descenso"}],
+            "situacion_competitiva": "riesgo_descenso",
+        }
+        self.assertTrue(necesidad_viva_motor(equipo_recta_final))
+        self.assertTrue(descenso_vivo_motor(equipo_recta_final))
+
+    def test_necesidad_viva_sin_partidos_restantes_no_bloquea(self):
+        # Si no hay dato de calendario (partidos_restantes ausente), no se
+        # bloquea la señal -mantiene el comportamiento anterior en vez de
+        # perderla por completo. Cubre tambien los tests ya existentes que
+        # usan equipo_competitivo() sin este campo.
+        equipo_sin_calendario = equipo_competitivo("Equipo", "riesgo_descenso", motivacion="maxima", vivos=[{"objetivo": "descenso"}])
+        self.assertTrue(necesidad_viva_motor(equipo_sin_calendario))
+
+    def test_patrones_aprendidos_no_penaliza_al_favorito_visitante_en_inicio_de_temporada(self):
+        # Reproduce el caso real Levante-Real Betis (Jornada 3, 2026-08-28):
+        # con la guarda de partidos_restantes activa, ajustar_por_patrones_aprendidos
+        # ya no debe mover nada -antes del fix, esto restaba ~30 puntos al
+        # favorito visitante solo por el estado de tabla a pj=2.
+        probs = {"1": 18.0, "X": 28.0, "2": 54.0}
+        local_comp = {
+            "equipo": "Levante UD", "pj": 2, "partidos_restantes": 36,
+            "motivacion_competitiva": "maxima",
+            "objetivos": [{"objetivo": "descenso", "estado": "riesgo_descenso", "lectura": "riesgo de descenso"}],
+            "objetivos_vivos": [{"objetivo": "descenso"}], "situacion_competitiva": "riesgo_descenso",
+        }
+        visitante_comp = {
+            "equipo": "Real Betis Balompie", "pj": 2, "partidos_restantes": 36,
+            "motivacion_competitiva": "maxima",
+            "objetivos": [{"objetivo": "descenso", "estado": "permanencia_por_cerrar", "lectura": "permanencia no cerrada"}],
+            "objetivos_vivos": [{"objetivo": "descenso"}], "situacion_competitiva": "permanencia_por_cerrar",
+        }
+        nuevas, riesgo, lecturas = ajustar_por_patrones_aprendidos(probs, {}, local_comp, visitante_comp)
+        self.assertAlmostEqual(nuevas["2"], probs["2"], delta=0.5)
+        self.assertEqual(lecturas, [])
 
     def test_lesiones_laliga_mas_bajas_en_visitante_favorece_al_local(self):
         probs = {"1": 40.0, "X": 30.0, "2": 30.0}

@@ -195,13 +195,20 @@ def buscar_contexto_competitivo(contexto, nombre):
 
 def valor_motivacion(equipo):
     orden = {"baja": 0, "media": 1, "alta": 2, "maxima": 3}
-    if not equipo:
+    if not equipo or not objetivos_en_juego_de_verdad(equipo):
         return 0
     return orden.get(str(equipo.get("motivacion_competitiva", "baja")).lower(), 0)
 
 
 def objetivo_descenso(equipo):
-    if not equipo:
+    # Mismo principio de Marc (28/08/2026) que objetivo_cerrado_motor/
+    # necesidad_viva_motor mas abajo: la permanencia solo se juega de
+    # verdad a falta de unas 10 jornadas. Via independiente al mismo bug
+    # real -ajustar_por_motivacion() leia "objetivos"/"motivacion_competitiva"
+    # directamente sin pasar por esos guardas, asi que seguia inflando la
+    # urgencia de Levante-Betis en la Jornada 3 (pj=2) incluso despues de
+    # arreglar ajustar_por_patrones_aprendidos.
+    if not equipo or not objetivos_en_juego_de_verdad(equipo):
         return False
     for objetivo in equipo.get("objetivos", []):
         texto = f"{objetivo.get('objetivo', '')} {objetivo.get('estado', '')}".lower()
@@ -1019,8 +1026,31 @@ def texto_competitivo_motor(equipo):
     return f"{objetivos} {(equipo or {}).get('situacion_competitiva', '')} {(equipo or {}).get('motivacion_competitiva', '')}".lower()
 
 
+# Principio de Marc (28/08/2026): la permanencia, el titulo o cualquier otro
+# objetivo de la tabla solo se juegan DE VERDAD a falta de unas 10 jornadas
+# -antes de eso, un "riesgo_descenso"/"motivacion maxima" con calendario_competitivo
+# calculado sobre 30+ partidos restantes es matematicamente correcto pero no
+# representa presion competitiva real todavia (con 36 partidos por jugar,
+# literalmente cualquier equipo "necesita X puntos para salvarse sin depender
+# de nadie" -no es señal, es la aritmetica de una temporada que acaba de
+# empezar). Bug real confirmado: Levante (pj=2, 1 punto) salia marcado
+# "riesgo_descenso" con "motivacion maxima" en la Jornada 3, y eso disparaba
+# ajustar_por_patrones_aprendidos() con un movimiento de ~30 puntos en la
+# probabilidad de Betis sin dejar ningun rastro visible en la web.
+JORNADAS_RESTANTES_PARA_OBJETIVOS_REALES = 10
+
+
+def objetivos_en_juego_de_verdad(equipo):
+    restantes = (equipo or {}).get("partidos_restantes")
+    try:
+        restantes = int(restantes)
+    except (TypeError, ValueError):
+        return True  # sin dato de calendario, no bloquear -mejor mantener el comportamiento anterior que perder la señal por completo.
+    return restantes <= JORNADAS_RESTANTES_PARA_OBJETIVOS_REALES
+
+
 def objetivo_cerrado_motor(equipo):
-    if not equipo:
+    if not equipo or not objetivos_en_juego_de_verdad(equipo):
         return False
     if equipo.get("objetivos_vivos"):
         return False
@@ -1039,7 +1069,7 @@ def objetivo_cerrado_motor(equipo):
 
 
 def necesidad_viva_motor(equipo):
-    if not equipo or objetivo_cerrado_motor(equipo):
+    if not equipo or not objetivos_en_juego_de_verdad(equipo) or objetivo_cerrado_motor(equipo):
         return False
     texto = texto_competitivo_motor(equipo)
     motivacion = str(equipo.get("motivacion_competitiva") or equipo.get("motivacion") or "").lower()
@@ -2674,6 +2704,11 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
                 "riesgo_extra": riesgo_perfiles,
                 "lecturas": lecturas_perfiles,
             },
+            "ajuste_patrones": {
+                "activo": bool(lecturas_patrones),
+                "riesgo_extra": riesgo_patrones,
+                "lecturas": lecturas_patrones,
+            },
             "contexto_competitivo_local": local_comp,
             "contexto_competitivo_visitante": visitante_comp,
             "lecturas_motivacion": lecturas_motivacion,
@@ -2812,6 +2847,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "perfil_autonomo_local": partido["perfil_autonomo_local"],
             "perfil_autonomo_visitante": partido["perfil_autonomo_visitante"],
             "ajuste_perfiles_autonomos": partido["ajuste_perfiles_autonomos"],
+            "ajuste_patrones": partido["ajuste_patrones"],
             "ajuste_modelo_entrenado": partido["ajuste_modelo_entrenado"],
             "ajuste_aprendizaje": partido["ajuste_aprendizaje"],
             "ajuste_pesos_dinamicos": partido["ajuste_pesos_dinamicos"],
