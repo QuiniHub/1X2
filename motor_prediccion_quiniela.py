@@ -104,7 +104,21 @@ def equipos_memoria(memoria):
     return equipos
 
 
+def es_equipo_liga_f(nombre):
+    """Los partidos de Liga F (futbol femenino) llevan un sufijo "(F)" en el
+    nombre -ej. "Eibar (F)", "Real Madrid (F)". Bug real confirmado el
+    28/08/2026: normalizar("Eibar (F)") da "eibar f", que sigue puntuando
+    107.5 contra "SD Eibar" (el club masculino, unico que existe en
+    memoria/contexto -no hay ninguna fuente de datos de Liga F en el
+    pipeline) porque "eibar" sigue siendo substring completo del resultado.
+    Sin este corte, varios partidos de Liga F salian con calidad_datos
+    "alta" basada en las estadisticas del equipo MASCULINO homonimo."""
+    return bool(re.search(r"\(\s*f\s*\)\s*$", str(nombre or ""), re.I))
+
+
 def puntuacion_nombre_equipo(candidato, objetivo):
+    if es_equipo_liga_f(objetivo) or es_equipo_liga_f(candidato):
+        return 0
     base = normalizar(candidato)
     buscado = normalizar(objetivo)
     if not base or not buscado:

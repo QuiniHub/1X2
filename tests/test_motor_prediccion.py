@@ -507,6 +507,27 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertEqual(buscar_lesiones_equipo(fuente, "Manchester United"), [])
         self.assertEqual(buscar_lesiones_equipo({}, "Athletic"), [])
 
+    def test_equipo_liga_f_no_coincide_con_el_club_masculino_homonimo(self):
+        # Bug real confirmado el 28/08/2026: normalizar("Eibar (F)") daba
+        # "eibar f", que seguia puntuando 107.5 contra "SD Eibar" (unico
+        # club real que existe en memoria/contexto/lesiones -no hay ninguna
+        # fuente de datos de Liga F en el pipeline). Varios partidos de
+        # Liga F de la Jornada 3 salieron con calidad_datos "alta" basados
+        # en las estadisticas/lesiones del equipo MASCULINO homonimo.
+        self.assertEqual(motor.puntuacion_nombre_equipo("SD Eibar", "Eibar (F)"), 0)
+        self.assertEqual(motor.puntuacion_nombre_equipo("Real Madrid CF", "Real Madrid (F)"), 0)
+        self.assertEqual(motor.puntuacion_nombre_equipo("Club Atletico de Madrid", "Atlético de Madrid (F)"), 0)
+        self.assertTrue(motor.es_equipo_liga_f("Eibar (F)"))
+        self.assertFalse(motor.es_equipo_liga_f("SD Eibar"))
+
+        fuente = {"equipos": {"SD Eibar": [{"jugador": "X", "categoria": "lesionado"}]}}
+        self.assertEqual(buscar_lesiones_equipo(fuente, "Eibar (F)"), [])
+
+    def test_equipo_masculino_sigue_coincidiendo_con_normalidad(self):
+        # El corte de Liga F no debe afectar al matching normal del club
+        # masculino -mismo caso que ya cubre otro test de esta clase.
+        self.assertGreaterEqual(motor.puntuacion_nombre_equipo("SD Eibar", "Eibar"), 55)
+
     def test_lesiones_laliga_mas_bajas_en_visitante_favorece_al_local(self):
         probs = {"1": 40.0, "X": 30.0, "2": 30.0}
         lesiones_local = [{"categoria": "lesionado"}]
