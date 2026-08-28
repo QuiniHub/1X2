@@ -1856,7 +1856,17 @@
       // Ojo: no cachear el valor por defecto hasta que el calendario haya
       // cargado de verdad (llega por fetch async) -si no, se quedaria
       // pegado en el "1" del primer render, antes de saber la jornada real.
-      const jornadaActual = state[jornadaKey] || (state[jornadaKey] = jornadaVigente(cal, buscarResultado));
+      // Bug real (28/08/2026): esta guarda solo evitaba RECALCULAR una vez
+      // cacheado, pero cacheaba igual el "1" de jornadaVigente() aunque
+      // `cal` hubiera fallado en cargar (red, fetch puntual) -quedaba
+      // pegado en Jornada 1 el resto de la sesion aunque los datos reales
+      // llegaran bien un segundo despues. Ahora solo se cachea si `cal`
+      // trae jornadas de verdad.
+      let jornadaActual = state[jornadaKey];
+      if (!jornadaActual) {
+        jornadaActual = jornadaVigente(cal, buscarResultado);
+        if (arr(cal?.jornadas).length) state[jornadaKey] = jornadaActual;
+      }
       const totalJornadas = cal.jornadas.length;
       const jIdx = Math.max(0, Math.min(jornadaActual - 1, totalJornadas - 1));
       const jornada = cal.jornadas[jIdx];
@@ -1908,6 +1918,19 @@
         qsa('.tab-panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
         qs(`#${btn.dataset.tab}`).classList.add('active');
+        // La pestaña Liga 26/27 solo se calcula UNA vez, al terminar init() -
+        // si esa unica vez coincidio con un fallo de red puntual en alguna
+        // de las 4 fuentes que cruza jornadaVigente() (ver renderCalendario),
+        // el resultado erroneo (normalmente "Jornada 1" por defecto) se
+        // quedaba cacheado en state.calJornada1a/2a para el resto de la
+        // sesion -ni recargar la pestaña lo corregia, habia que recargar
+        // toda la pagina. Recalcular cada vez que se ve la pestaña de
+        // verdad es barato (unas pocas decenas de jornadas) y la autocura.
+        if (btn.dataset.tab === 'liga') {
+          delete state.calJornada1a;
+          delete state.calJornada2a;
+          renderCalendario();
+        }
       }));
 
       // Navegador de calendario
