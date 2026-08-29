@@ -1,28 +1,28 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-29T20:53:21.775973+00:00",
+  "generado_en": "2026-08-29T23:13:43.544694+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 187,
-    "precision_top": 37.97,
-    "brier_medio": 0.6598,
-    "logloss_medio": 1.0897,
+    "partidos": 188,
+    "precision_top": 37.77,
+    "brier_medio": 0.659,
+    "logloss_medio": 1.0881,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
       "total": 114,
       "prob_top_media": 35.54,
-      "precision_real": 33.33,
-      "desviacion_calibracion": -2.2,
+      "precision_real": 32.46,
+      "desviacion_calibracion": -3.08,
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 55,
-      "prob_top_media": 44.6,
-      "precision_real": 45.45,
-      "desviacion_calibracion": 0.85,
+      "total": 56,
+      "prob_top_media": 44.62,
+      "precision_real": 46.43,
+      "desviacion_calibracion": 1.8,
       "muestra_suficiente": true
     },
     "50-60": {
@@ -35,10 +35,10 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 187,
-      "precision_top": 37.97,
-      "brier_medio": 0.6598,
-      "logloss_medio": 1.0897,
+      "partidos": 188,
+      "precision_top": 37.77,
+      "brier_medio": 0.659,
+      "logloss_medio": 1.0881,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -496,6 +496,21 @@
     },
     {
       "jornada": 3,
+      "num": 3,
+      "partido": "Sevilla FC - Club Atletico de Madrid",
+      "fuente": "data/backtesting/pre_cierre/jornada_3.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 45.9,
+      "prob_real": 45.9,
+      "bucket_top": "40-50",
+      "brier": 0.497846,
+      "logloss": 0.778705068921592,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 3,
       "num": 8,
       "partido": "Albacete Balompie - Real Oviedo",
       "fuente": "data/backtesting/pre_cierre/jornada_3.json",
@@ -529,14 +544,14 @@
       "num": 14,
       "partido": "Real Madrid (F) - Atlético de Madrid (F)",
       "fuente": "data/backtesting/pre_cierre/jornada_3.json",
-      "real": "1",
+      "real": "2",
       "top": "1",
-      "acierto_top": true,
+      "acierto_top": false,
       "prob_top": 36.1,
-      "prob_real": 36.1,
+      "prob_real": 35.4,
       "bucket_top": "30-40",
-      "brier": 0.614862,
-      "logloss": 1.018877320649256,
+      "brier": 0.628862,
+      "logloss": 1.0384583658483626,
       "competicion": "desconocida"
     },
     {

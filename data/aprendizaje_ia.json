@@ -1,23 +1,23 @@
 {
   "version": "1.2",
-  "precision": 65.85,
+  "precision": 65.26,
   "jornadas_revisadas": 21,
-  "partidos_revisados": 284,
-  "aciertos": 187,
-  "fallos": 97,
+  "partidos_revisados": 285,
+  "aciertos": 186,
+  "fallos": 99,
   "fallos_por_tipo": {
     "Doble insuficiente": 18,
-    "Fijo fallado": 46,
+    "Fijo fallado": 48,
     "No cubrio empate": 33
   },
   "fallos_por_signo_real": {
     "1": 26,
-    "2": 38,
+    "2": 40,
     "X": 33
   },
   "signos_omitidos_en_fallo": {
     "1": 26,
-    "2": 38,
+    "2": 40,
     "X": 33
   },
   "precision_por_tipo": {
@@ -28,10 +28,10 @@
       "precision": 73.13
     },
     "FIJO": {
-      "total": 181,
-      "aciertos": 102,
-      "fallos": 79,
-      "precision": 56.35
+      "total": 182,
+      "aciertos": 101,
+      "fallos": 81,
+      "precision": 55.49
     },
     "TRIPLE": {
       "total": 36,
@@ -42,16 +42,16 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 128,
-      "aciertos": 102,
+      "total": 127,
+      "aciertos": 101,
       "fallos": 26,
-      "precision": 79.69
+      "precision": 79.53
     },
     "2": {
-      "total": 88,
+      "total": 90,
       "aciertos": 50,
-      "fallos": 38,
-      "precision": 56.82
+      "fallos": 40,
+      "precision": 55.56
     },
     "X": {
       "total": 68,
@@ -61,61 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 61,
-      "partido": "Oviedo - Getafe",
-      "pronostico": "2",
-      "tipo_pronostico": "FIJO",
-      "resultado": "0-0",
-      "resultado_final": "0-0",
-      "signo_real": "X",
-      "signos_cubiertos": "2",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "data/predicciones/jornada_61.json",
-      "probabilidades_usadas": {
-        "1": 26.0,
-        "X": 30.7,
-        "2": 43.2
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Oviedo",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Getafe",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=26.0%, X=30.7%, 2=43.2%. Oviedo llega con 29 puntos, 5 puntos en los ultimos 5 y 0.743 goles a favor por partido. Getafe llega con 45 puntos, 4 puntos en los ultimos 5 y 1.029 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Decision final: 2.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 61,
       "partido": "Rayo Vallecano - Girona",
@@ -22233,6 +22178,121 @@
     },
     {
       "jornada": 3,
+      "partido": "Sevilla FC - Club Atletico de Madrid",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-3",
+      "resultado_final": "1-3",
+      "signo_real": "2",
+      "signos_cubiertos": "1",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_3.json",
+      "probabilidades_usadas": {
+        "1": 43.6,
+        "X": 31.9,
+        "2": 24.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Sevilla FC",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Club Atletico de Madrid",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (43.6%).",
+        "hipotesis_alternativa": "X como alternativa (31.9%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 67.2,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 1: margen 11.7 puntos, indice sorpresa 90.4."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.69,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Sevilla FC: ppp=1.38; perfil visitante Atlético de Madrid: ppp=2.34."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Sevilla FC",
+        "partidos_total": 32,
+        "puntos_por_partido": 1.332,
+        "empates_pct": 17.41,
+        "surprise_score_medio": 36.72,
+        "forma_5_ppp": 1.4,
+        "forma_10_ppp": 1.2,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Atlético de Madrid",
+        "partidos_total": 3,
+        "puntos_por_partido": 2.029,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 51.81,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 2.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 3,
       "partido": "Albacete Balompie - Real Oviedo",
       "pronostico": "1X2",
       "tipo_pronostico": "TRIPLE",
@@ -22466,13 +22526,13 @@
       "partido": "Real Madrid (F) - At. Madrid (F)",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
-      "resultado": "1-0",
-      "resultado_final": "1-0",
-      "signo_real": "1",
+      "resultado": "1-3",
+      "resultado_final": "1-3",
+      "signo_real": "2",
       "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
       "origen": "data/predicciones/jornada_3.json",
       "probabilidades_usadas": {
         "1": 52.0,
@@ -22588,19 +22648,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 284,
+    "partidos_base": 285,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 34.15,
-      "no_cubrio_empate_sobre_fallos_pct": 34.02,
-      "no_cubrio_empate_sobre_total_pct": 11.62,
-      "fijo_fallado_sobre_fallos_pct": 47.42,
-      "fijo_fallado_sobre_total_pct": 16.2,
-      "doble_insuficiente_sobre_total_pct": 6.34
+      "fallos_total_pct": 34.74,
+      "no_cubrio_empate_sobre_fallos_pct": 33.33,
+      "no_cubrio_empate_sobre_total_pct": 11.58,
+      "fijo_fallado_sobre_fallos_pct": 48.48,
+      "fijo_fallado_sobre_total_pct": 16.84,
+      "doble_insuficiente_sobre_total_pct": 6.32
     },
-    "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 5.84,
-    "riesgo_extra_triple_insuficiente": 2.11,
+    "boost_empate_zona_riesgo": 5.93,
+    "riesgo_extra_fijo_fragil": 6.57,
+    "riesgo_extra_triple_insuficiente": 2.09,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
