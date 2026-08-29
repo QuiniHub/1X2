@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-08-29T14:22:39.923124+00:00",
+  "generado_en": "2026-08-29T17:53:15.716269+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -284,17 +284,17 @@
     },
     "3": {
       "jornada": 3,
-      "partidos_cerrados": 0,
-      "partidos_con_prediccion": 0,
-      "precision_boleto": null,
-      "precision_top1": null,
-      "brier_medio": null,
-      "logloss_medio": null,
+      "partidos_cerrados": 2,
+      "partidos_con_prediccion": 2,
+      "precision_boleto": 50.0,
+      "precision_top1": 0.0,
+      "brier_medio": 0.7258,
+      "logloss_medio": 1.1893,
       "por_tipo": {
         "FIJO": {
-          "total": 0,
+          "total": 1,
           "aciertos": 0,
-          "precision": null
+          "precision": 0.0
         },
         "DOBLE": {
           "total": 0,
@@ -302,19 +302,47 @@
           "precision": null
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0,
-          "precision": null
+          "total": 1,
+          "aciertos": 1,
+          "precision": 100.0
         }
       },
       "elige8": {
-        "selecciones": 0,
-        "aciertos": 0,
-        "precision": null
+        "selecciones": 1,
+        "aciertos": 1,
+        "precision": 100.0
       },
-      "surprise_score_medio": null,
-      "ranking_incertidumbre": [],
-      "ranking_elige8_confianza_real": []
+      "surprise_score_medio": 56.35,
+      "ranking_incertidumbre": [
+        {
+          "num": 12,
+          "partido": "Eibar (F) - Espanyol (F)",
+          "incertidumbre": 148.8,
+          "surprise_score": 49.31,
+          "margen_probabilidad": 1.2
+        },
+        {
+          "num": 1,
+          "partido": "Levante UD - Real Betis Balompie",
+          "incertidumbre": 139.83,
+          "surprise_score": 63.39,
+          "margen_probabilidad": 7.2
+        }
+      ],
+      "ranking_elige8_confianza_real": [
+        {
+          "num": 12,
+          "partido": "Eibar (F) - Espanyol (F)",
+          "confianza_real_elige8": 38.91,
+          "elige8": true
+        },
+        {
+          "num": 1,
+          "partido": "Levante UD - Real Betis Balompie",
+          "confianza_real_elige8": 3.41,
+          "elige8": false
+        }
+      ]
     },
     "4": {
       "jornada": 4,
