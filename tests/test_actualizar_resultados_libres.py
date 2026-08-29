@@ -2,6 +2,7 @@ import json
 import sys
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -11,7 +12,7 @@ sys.path.insert(0, str(ROOT))
 import actualizar_resultados_libres as arl
 
 
-def evento(local, visitante, hg=None, ag=None, status="Match Finished", fecha="2026-08-16"):
+def evento(local, visitante, hg=None, ag=None, status="Match Finished", fecha="2026-08-16", temporada=None):
     return {
         "strHomeTeam": local,
         "strAwayTeam": visitante,
@@ -19,6 +20,7 @@ def evento(local, visitante, hg=None, ag=None, status="Match Finished", fecha="2
         "intAwayScore": ag,
         "strStatus": status,
         "dateEvent": fecha,
+        "strSeason": temporada if temporada is not None else arl.TEMPORADA_THESPORTSDB,
     }
 
 
@@ -128,6 +130,54 @@ class ParesEsperadosCalendarioTests(unittest.TestCase):
         self.assertEqual(arl.pares_esperados_calendario("Segunda División", (1,)), [])
 
 
+class RondasAConsultarTests(unittest.TestCase):
+    """Bug real confirmado el 29/08/2026: RONDAS_A_CONSULTAR era una tupla
+    fija (1, 2) desde el arranque de temporada -en cuanto empezo a jugarse
+    la Jornada 3 (Alaves 1-0 Villarreal, viernes 28/08), el pipeline dejo
+    de mirar esa ronda por completo, ni en el fetch normal ni en el propio
+    backfill de huecos, aunque el resultado ya estaba disponible en
+    TheSportsDB desde el primer momento."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        base = Path(self._tmp.name)
+        self._orig = dict(arl.CALENDARIO_OFICIAL_ESTATICO)
+        arl.CALENDARIO_OFICIAL_ESTATICO = {"La Liga": base / "calendario_1a_2627.json"}
+        (base / "calendario_1a_2627.json").write_text(json.dumps({
+            "jornadas": [
+                {"num": 1, "fecha": "2026-08-16"},
+                {"num": 2, "fecha": "2026-08-23"},
+                {"num": 3, "fecha": "2026-08-30"},
+                {"num": 4, "fecha": "2026-09-06"},
+            ]
+        }), encoding="utf-8")
+
+    def tearDown(self):
+        arl.CALENDARIO_OFICIAL_ESTATICO = self._orig
+        self._tmp.cleanup()
+
+    def test_incluye_la_ronda_recien_empezada(self):
+        # 29/08: la jornada 3 (fecha oficial 30/08) ya se esta jugando de
+        # verdad (el primer partido fue el 28/08) y debe estar cubierta.
+        hoy = datetime(2026, 8, 29).date()
+        self.assertEqual(arl.rondas_a_consultar("La Liga", hoy=hoy), (2, 3))
+
+    def test_no_repite_rondas_ya_muy_antiguas(self):
+        hoy = datetime(2026, 8, 29).date()
+        self.assertNotIn(1, arl.rondas_a_consultar("La Liga", hoy=hoy, ventana_dias=9))
+
+    def test_incluye_la_ronda_que_esta_a_punto_de_empezar(self):
+        # Margen de +2 dias: si la jornada empieza pasado mañana, hay que
+        # empezar a consultarla ya (los partidos de viernes de una jornada
+        # con fecha "oficial" en domingo).
+        hoy = datetime(2026, 9, 4).date()
+        self.assertIn(4, arl.rondas_a_consultar("La Liga", hoy=hoy))
+
+    def test_sin_calendario_estatico_cae_al_respaldo_minimo(self):
+        arl.CALENDARIO_OFICIAL_ESTATICO = {"La Liga": Path("/no/existe.json")}
+        self.assertEqual(arl.rondas_a_consultar("La Liga", hoy=datetime(2026, 8, 29).date()), (1, 2))
+
+
 class NombreBusquedaCortoTests(unittest.TestCase):
     """Bug real (22/08/2026): el primer intento (quitar solo siglas de 2-3
     letras al principio) no cubria "Club Atletico de Madrid" -no empieza
@@ -182,6 +232,43 @@ class ObtenerThesportsdbBackfillTests(unittest.TestCase):
             resultados = arl.obtener_thesportsdb_backfill("La Liga", (1,), ya_obtenidos)
         mock_get.assert_called_once()
         self.assertEqual(resultados[0]["resultado"], "2-0")
+
+    def test_no_repite_llamada_para_un_partido_ya_obtenido_con_nombre_acentuado(self):
+        # Bug real (29/08/2026): TheSportsDB devuelve "Alavés" (con acento)
+        # mientras que el calendario sembrado usa "Alaves" (sin acento) -sin
+        # quitar acentos en _clave_equipo(), estas dos claves no coincidian
+        # y el partido, YA encontrado por eventsround.php, se trataba igual
+        # como un "hueco" y disparaba una busqueda de backfill innecesaria.
+        arl.CALENDARIO_SEMBRADO["La Liga"].write_text(json.dumps({
+            "jornadas": [{"jornada": 1, "partidos": [
+                {"local": "Deportivo Alaves", "visitante": "Getafe CF"},
+            ]}]
+        }), encoding="utf-8")
+        ya_obtenidos = [{"local": "Deportivo Alavés", "visitante": "Getafe CF", "resultado": "3-0"}]
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            resultados = arl.obtener_thesportsdb_backfill("La Liga", (1,), ya_obtenidos)
+        mock_get.assert_not_called()
+        self.assertEqual(resultados, [])
+
+    def test_descarta_eventos_de_otra_temporada(self):
+        # Bug real (29/08/2026): searchevents.php busca por nombre de
+        # equipo sin acotar temporada -"Alaves vs Villarreal" devolvio,
+        # ademas del partido real de esta temporada, uno de 2024 con
+        # marcador distinto, y se aceptaron los dos sin filtrar.
+        arl.CALENDARIO_SEMBRADO["La Liga"].write_text(json.dumps({
+            "jornadas": [{"jornada": 1, "partidos": [
+                {"local": "Deportivo Alaves", "visitante": "Villarreal CF"},
+            ]}]
+        }), encoding="utf-8")
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.return_value = respuesta_ok({"event": [
+                evento("Deportivo Alaves", "Villarreal", 1, 1, fecha="2024-02-10", temporada="2023-2024"),
+                evento("Deportivo Alaves", "Villarreal", 1, 0, fecha="2026-08-28"),
+            ]})
+            resultados = arl.obtener_thesportsdb_backfill("La Liga", (1,), [])
+        self.assertEqual(len(resultados), 1)
+        self.assertEqual(resultados[0]["resultado"], "1-0")
+        self.assertEqual(resultados[0]["fecha"], "2026-08-28")
 
     def test_no_repite_llamada_para_un_partido_que_eventsround_ya_trajo_aunque_este_pendiente(self):
         # Si eventsround.php SI menciono el partido (aunque siga sin

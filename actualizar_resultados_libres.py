@@ -9,6 +9,7 @@ el resto del sistema (motor predictivo, IA chat) los consuma.
 """
 import json
 import re
+import unicodedata
 import requests
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -57,7 +58,49 @@ THESPORTSDB_LIGAS = {
 # de liguilla normales (no copas ni fases de grupos/eliminatorias).
 LIGAS_CON_JORNADAS = {"La Liga": "4335", "Segunda División": "4400"}
 TEMPORADA_THESPORTSDB = "2026-2027"
-RONDAS_A_CONSULTAR = (1, 2)
+
+# Calendario oficial ESTATICO (distinto de CALENDARIO_SEMBRADO mas abajo,
+# que no lleva fecha por jornada) -se usa solo para saber que ronda de
+# LaLiga/Segunda toca consultar cada dia.
+CALENDARIO_OFICIAL_ESTATICO = {
+    "La Liga": DATA / "calendario_1a_2627.json",
+    "Segunda División": DATA / "calendario_2a_2627.json",
+}
+
+
+def rondas_a_consultar(nombre_liga, hoy=None, ventana_dias=9, minimo_rondas=(1, 2)):
+    """Que rondas de LaLiga/Segunda pedirle a TheSportsDB hoy.
+
+    Bug real confirmado el 29/08/2026: esto era una tupla fija (1, 2) desde
+    el arranque de la temporada. En cuanto empezo a jugarse la Jornada 3
+    (Alaves 1-0 Villarreal, viernes 28/08 -ya reflejado en la clasificacion
+    oficial de AS.com, pero invisible para nuestro propio pipeline de
+    resultados) dejo de cubrir nada nuevo: ni el fetch normal ni el propio
+    backfill de huecos miraban mas alla de la ronda 2, pasase lo que pasase
+    en el calendario real. Con una temporada de 38/42 jornadas, una
+    constante fija se queda obsoleta la primera semana que avanza la liga.
+
+    Se calcula a partir de la fecha OFICIAL de cada jornada en el
+    calendario estatico (calendario_1a_2627.json/2a_2627.json, que si trae
+    fecha por jornada -CALENDARIO_SEMBRADO mas abajo no) -devuelve las
+    rondas cuya fecha cae entre "hoy - ventana_dias" y "hoy + 2" (para
+    cubrir la ronda que se esta jugando ahora mismo aunque se reparta entre
+    viernes y lunes). Si no hay dato de fecha (fallo de red, archivo vacio),
+    cae al respaldo minimo original para no romper el pipeline."""
+    if hoy is None:
+        hoy = datetime.now(timezone.utc).date()
+    path = CALENDARIO_OFICIAL_ESTATICO.get(nombre_liga)
+    data = _cargar_json_local(path, {}) if path else {}
+    rondas = set()
+    for jornada in data.get("jornadas", []):
+        try:
+            num = int(jornada.get("num") or jornada.get("jornada") or 0)
+            fecha = datetime.strptime(str(jornada.get("fecha") or "")[:10], "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            continue
+        if hoy - timedelta(days=ventana_dias) <= fecha <= hoy + timedelta(days=2):
+            rondas.add(num)
+    return tuple(sorted(rondas)) if rondas else minimo_rondas
 
 # calendario_primera.json/segunda.json ya vienen sembrados con el fixture
 # oficial completo (sembrar_jornadas_desde_oficial() en
@@ -278,7 +321,19 @@ def _cargar_json_local(path, defecto=None):
 
 
 def _clave_equipo(nombre):
-    return re.sub(r"[^a-z0-9]+", " ", str(nombre or "").strip().lower()).strip()
+    # Bug real confirmado el 29/08/2026: sin quitar acentos, "Alavés"
+    # (nombre que devuelve TheSportsDB) y "Alaves" (nombre sin acento que
+    # ya usa nuestro calendario sembrado) generaban claves DISTINTAS
+    # ("alav s" vs "alaves", la é se sustituia por un espacio en vez de
+    # desaparecer) -el partido recien encontrado por eventsround.php se
+    # trataba como "hueco" igualmente, disparando una busqueda de backfill
+    # innecesaria que ademas trajo un resultado de OTRA temporada (ver
+    # obtener_thesportsdb_backfill). Todas las demas funciones de
+    # normalizacion de nombres del proyecto ya quitan acentos (NFD); esta
+    # se habia quedado atras.
+    texto = unicodedata.normalize("NFD", str(nombre or "").strip().lower())
+    texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
+    return re.sub(r"[^a-z0-9]+", " ", texto).strip()
 
 
 # Mapa explicito nombre canonico -> nombre corto de busqueda para los 42
@@ -419,6 +474,16 @@ def obtener_thesportsdb_backfill(nombre_liga, rondas, ya_obtenidos):
                 )
                 if r.status_code == 200:
                     eventos = r.json().get("event") or []
+                    # searchevents.php busca por nombre de equipo SIN
+                    # acotar temporada -dos equipos que llevan años
+                    # enfrentandose devuelven varios partidos historicos a
+                    # la vez. Bug real confirmado el 29/08/2026: "Alaves vs
+                    # Villarreal" trajo (ademas del partido real de esta
+                    # temporada) uno de 2024 con marcador distinto, y al
+                    # extender sin filtrar los dos quedaron mezclados en
+                    # resultados_libres.json. Quedarse solo con la
+                    # temporada actual antes de aceptar el evento.
+                    eventos = [e for e in eventos if e.get("strSeason") == TEMPORADA_THESPORTSDB]
                     if eventos:
                         resultados.extend(_parsear_eventos_thesportsdb(nombre_liga, eventos))
                         break
@@ -431,16 +496,18 @@ def obtener_thesportsdb():
     print("TheSportsDB: consultando ligas...")
     todos = []
     por_ronda = {}
+    rondas_por_liga = {nombre: rondas_a_consultar(nombre) for nombre in LIGAS_CON_JORNADAS}
     for nombre, lid in THESPORTSDB_LIGAS.items():
         if nombre in LIGAS_CON_JORNADAS:
-            partidos = obtener_thesportsdb_por_rondas(nombre, lid, RONDAS_A_CONSULTAR)
+            partidos = obtener_thesportsdb_por_rondas(nombre, lid, rondas_por_liga[nombre])
             por_ronda[nombre] = partidos
         else:
             partidos = obtener_thesportsdb_liga(nombre, lid)
         print(f"  {nombre}: {len(partidos)} partidos")
         todos.extend(partidos)
     for nombre in LIGAS_CON_JORNADAS:
-        backfill = obtener_thesportsdb_backfill(nombre, RONDAS_A_CONSULTAR, por_ronda.get(nombre, []))
+        print(f"  {nombre}: rondas consultadas {rondas_por_liga[nombre]}")
+        backfill = obtener_thesportsdb_backfill(nombre, rondas_por_liga[nombre], por_ronda.get(nombre, []))
         if backfill:
             print(f"  {nombre} (backfill huecos de ronda): {len(backfill)} partidos")
         todos.extend(backfill)

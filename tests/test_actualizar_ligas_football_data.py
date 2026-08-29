@@ -38,6 +38,16 @@ class CanonicoTests(unittest.TestCase):
         self.assertEqual(alfd.canonico("RC Celta de Vigo", "primera"), "RC Celta de Vigo")
         self.assertEqual(alfd.canonico("RC Celta de Vigo"), "RC Celta de Vigo")
 
+    def test_sporting_de_gijon_sin_prefijo_real_resuelve_igual(self):
+        # Bug real (29/08/2026): resultados_libres.json trae "Sporting de
+        # Gijon"/"Sporting de Gijón" (sin "Real"), que no coincidia con
+        # ningun alias exacto ni con el fallback de substring ("sporting
+        # gijon" no es substring de "sporting de gijon" por la "de" en
+        # medio) -asi que el resultado real de Tenerife-Sporting J3 nunca
+        # se emparejaba con calendario_segunda.json.
+        self.assertEqual(alfd.canonico("Sporting de Gijon"), "Real Sporting de Gijon")
+        self.assertEqual(alfd.canonico("Sporting de Gijón"), "Real Sporting de Gijon")
+
 
 class CodigoTemporadaDesdeUrlTests(unittest.TestCase):
     def test_extrae_el_codigo_de_una_url_football_data(self):
@@ -211,6 +221,73 @@ class SembrarJornadasDesdeOficialTests(unittest.TestCase):
             self.assertEqual(partido["resultado"], "")
 
         self._con_directorio_temporal(prueba)
+
+
+class ResultadosLibresParaLigaTests(unittest.TestCase):
+    """Bug real (29/08/2026): calendario_primera/segunda.json (lo que
+    alimenta fuerza()/el aprendizaje) solo se actualizaba con
+    football-data.co.uk, una fuente confirmada varios dias mas lenta que
+    TheSportsDB al arrancar cada jornada nueva -Alaves 1-0 Villarreal,
+    jugado el viernes, ya estaba en resultados_libres.json (gracias al fix
+    de rondas de ese mismo dia) pero calendario_primera.json seguia en
+    "Pendiente" porque nadie cruzaba esa fuente aqui."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self._orig = alfd.RESULTADOS_LIBRES
+        alfd.RESULTADOS_LIBRES = Path(self._tmp.name) / "resultados_libres.json"
+
+    def tearDown(self):
+        alfd.RESULTADOS_LIBRES = self._orig
+        self._tmp.cleanup()
+
+    def _escribir(self, partidos):
+        alfd.RESULTADOS_LIBRES.write_text(json.dumps({"partidos": partidos}, ensure_ascii=False), encoding="utf-8")
+
+    def test_filtra_por_liga_y_exige_resultado_real(self):
+        self._escribir([
+            {"liga": "La Liga", "local": "Deportivo Alaves", "visitante": "Villarreal CF", "resultado": "1-0", "fecha": "2026-08-28"},
+            {"liga": "Segunda División", "local": "Tenerife", "visitante": "Sporting de Gijon", "resultado": "0-1", "fecha": "2026-08-28"},
+            {"liga": "La Liga", "local": "Real Madrid CF", "visitante": "Malaga CF", "resultado": None, "fecha": "2026-08-30"},
+            {"liga": "Premier League", "local": "Arsenal", "visitante": "Chelsea", "resultado": "2-1", "fecha": "2026-08-28"},
+        ])
+        primera = alfd.resultados_libres_para_liga("primera")
+        self.assertEqual(len(primera), 1)
+        self.assertEqual(primera[0]["local"], "Deportivo Alaves")
+        segunda = alfd.resultados_libres_para_liga("segunda")
+        self.assertEqual(len(segunda), 1)
+        self.assertEqual(segunda[0]["local"], "Tenerife")
+
+    def test_sin_archivo_devuelve_vacio(self):
+        self.assertEqual(alfd.resultados_libres_para_liga("primera"), [])
+
+    def test_se_fusiona_con_football_data_para_actualizar_el_calendario(self):
+        # El formato de salida (local/visitante/resultado/fecha) debe ser
+        # directamente compatible con actualizar_calendario(), sin
+        # transformacion adicional.
+        self._escribir([
+            {"liga": "La Liga", "local": "Deportivo Alaves", "visitante": "Villarreal CF", "resultado": "1-0", "fecha": "2026-08-28"},
+        ])
+        respaldo = alfd.resultados_libres_para_liga("primera")
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp = Path(tmp_dir)
+            original_ligas = alfd.LIGAS
+            try:
+                alfd.LIGAS = {"primera": dict(original_ligas["primera"], calendario=tmp / "calendario_primera.json")}
+                (tmp / "calendario_primera.json").write_text(json.dumps({
+                    "competicion": "primera", "jornadas": [{"jornada": 3, "partidos": [
+                        {"local": "Deportivo Alaves", "visitante": "Villarreal CF", "fecha": "2026-08-30", "resultado": "", "estado": "Pendiente"},
+                    ]}]
+                }, ensure_ascii=False), encoding="utf-8")
+
+                calendario, cambios, sin_emparejar, ignorados = alfd.actualizar_calendario("primera", [] + respaldo)
+                self.assertEqual(cambios, 1)
+                partido = calendario["jornadas"][0]["partidos"][0]
+                self.assertEqual(partido["resultado"], "1-0")
+                self.assertEqual(partido["estado"], "Jugado")
+            finally:
+                alfd.LIGAS = original_ligas
 
 
 if __name__ == "__main__":

@@ -16,6 +16,9 @@ except Exception:
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 
+RESULTADOS_LIBRES = DATA / "resultados_libres.json"
+LIGA_RESULTADOS_LIBRES = {"primera": "La Liga", "segunda": "Segunda División"}
+
 LIGAS = {
     "primera": {
         "csv": "SP1.csv",
@@ -206,6 +209,7 @@ ALIAS = {
     "real sociedad b": "Real Sociedad B",
     "sp gijon": "Real Sporting de Gijon",
     "sporting gijon": "Real Sporting de Gijon",
+    "sporting de gijon": "Real Sporting de Gijon",
     "sporting g treal": "Real Sporting de Gijon",
     "real sporting de gijon": "Real Sporting de Gijon",
     "valladolid": "Real Valladolid CF",
@@ -664,6 +668,28 @@ def actualizar_clasificaciones(tablas, fuentes):
         guardar_json(ruta, data)
 
 
+def resultados_libres_para_liga(liga):
+    """Respaldo cuando football-data.co.uk todavia no tiene un resultado
+    real -confirmado el 29/08/2026: su CSV de la temporada 2627 se queda
+    varios dias por detras de TheSportsDB nada mas empezar cada jornada
+    (ej. Alaves 1-0 Villarreal, jugado el viernes, seguia sin aparecer ahi
+    el sabado). resultados_libres.json (ESPN/TheSportsDB/OpenFootball, ya
+    con su propio fallback de rondas) suele tenerlo antes -sin este
+    respaldo, calendario_primera/segunda.json (lo que de verdad alimenta
+    fuerza()/el aprendizaje) se queda desactualizado aunque ya sepamos el
+    resultado real por otra via. Mismo formato de entrada que
+    descargar_partidos_csv() (local/visitante/resultado/fecha), asi que se
+    puede fusionar directamente sin tocar actualizar_calendario()."""
+    nombre_liga = LIGA_RESULTADOS_LIBRES.get(liga)
+    if not nombre_liga:
+        return []
+    datos = cargar_json(RESULTADOS_LIBRES, {})
+    return [
+        p for p in datos.get("partidos", [])
+        if p.get("liga") == nombre_liga and p.get("resultado") and p.get("local") and p.get("visitante")
+    ]
+
+
 def main():
     tablas = {}
     fuentes = {}
@@ -674,9 +700,12 @@ def main():
         try:
             fuente, resultados = descargar_partidos_csv(liga)
         except Exception as exc:
-            print(f"{liga}: no se pudo leer football-data ({exc}); se conserva la tabla actual.")
-            continue
-        _, cambios, sin_emparejar, ignorados_fecha_futura = actualizar_calendario(liga, resultados)
+            print(f"{liga}: no se pudo leer football-data ({exc}); se usa solo el respaldo.")
+            fuente, resultados = "football-data.co.uk (no disponible)", []
+        respaldo = resultados_libres_para_liga(liga)
+        if respaldo:
+            print(f"{liga}: {len(respaldo)} resultados de respaldo desde resultados_libres.json.")
+        _, cambios, sin_emparejar, ignorados_fecha_futura = actualizar_calendario(liga, resultados + respaldo)
         equipos, jugados = construir_clasificacion_desde_resultados(resultados)
         fuentes[liga] = {"url": fuente, "resultados_leidos": len(resultados), "cambios_calendario": cambios}
         print(f"{liga}: {len(resultados)} resultados fuente, {cambios} cambios calendario, {jugados} partidos jugados.")
