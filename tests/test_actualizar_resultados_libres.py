@@ -129,6 +129,37 @@ class ParesEsperadosCalendarioTests(unittest.TestCase):
     def test_liga_sin_calendario_sembrado_devuelve_vacio(self):
         self.assertEqual(arl.pares_esperados_calendario("Segunda División", (1,)), [])
 
+    def test_pares_ya_resueltos_devuelve_solo_los_que_tienen_resultado_real(self):
+        # Bug real (31/08/2026): el backfill por equipo gastaba su tope de
+        # pares en huecos de eventsround.php que football-data.co.uk ya
+        # habia resuelto en el calendario -el unico par sin resolver de
+        # verdad (Andorra-Eibar) quedaba fuera del cupo.
+        arl.CALENDARIO_SEMBRADO["La Liga"].write_text(json.dumps({
+            "jornadas": [{"jornada": 1, "partidos": [
+                {"local": "SD Eibar", "visitante": "Real Valladolid CF", "resultado": "1-0"},
+                {"local": "FC Andorra", "visitante": "SD Eibar", "resultado": ""},
+                {"local": "Burgos CF", "visitante": "Real Sociedad B", "resultado": "Pendiente"},
+            ]}]
+        }), encoding="utf-8")
+        resueltos = arl.pares_ya_resueltos_calendario("La Liga", (1,))
+        self.assertEqual(resueltos, {(arl._clave_equipo("SD Eibar"), arl._clave_equipo("Real Valladolid CF"))})
+
+    def test_con_fecha_devuelve_tambien_la_fecha_del_partido(self):
+        # Necesario para que el backfill por equipo pueda saltarse partidos
+        # que aun no se han jugado (la causa real del 429 del 31/08/2026:
+        # gastar cupo de API buscando resultados de partidos futuros).
+        arl.CALENDARIO_SEMBRADO["La Liga"].write_text(json.dumps({
+            "jornadas": [{"jornada": 1, "partidos": [
+                {"local": "Deportivo Alaves", "visitante": "Getafe CF", "fecha": "2026-08-15"},
+                {"local": "Club Atletico de Madrid", "visitante": "Malaga CF"},
+            ]}]
+        }), encoding="utf-8")
+        pares = arl.pares_esperados_calendario("La Liga", (1,), con_fecha=True)
+        self.assertEqual(pares, [
+            ("Deportivo Alaves", "Getafe CF", "2026-08-15"),
+            ("Club Atletico de Madrid", "Malaga CF", ""),
+        ])
+
 
 class RondasAConsultarTests(unittest.TestCase):
     """Bug real confirmado el 29/08/2026: RONDAS_A_CONSULTAR era una tupla
@@ -431,21 +462,44 @@ class ObtenerThesportsdbBackfillPorEquipoTests(unittest.TestCase):
             )
         self.assertEqual(mock_get.call_args_list[0].kwargs["params"]["t"], "FC Andorra")
 
-    def test_se_detiene_del_todo_al_primer_429(self):
-        # Bug real (31/08/2026): probar esto contra todos los pares
-        # pendientes de una ronda (la mayoria simplemente sin jugar aun)
-        # disparo un 429 de Cloudflare en la API publica compartida de
-        # TheSportsDB -seguir insistiendo par a par solo empeora el corte,
-        # y puede arrastrar tambien a las demas llamadas del mismo ciclo.
+    def test_un_429_espera_una_vez_y_se_recupera(self):
+        # Bug real (31/08/2026, segunda vuelta): el limite de la clave
+        # publica de TheSportsDB es POR MINUTO, y el propio ciclo (rondas +
+        # searchevents) lo agota justo antes de llegar aqui -el primer 429
+        # no significa "API caida" sino "espera a que se reinicie la
+        # ventana". Confirmado en vivo: la misma peticion daba 429 durante
+        # el ciclo y 200 un minuto despues.
         resp_429 = MagicMock()
         resp_429.status_code = 429
-        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+        with patch("actualizar_resultados_libres.requests.get") as mock_get, \
+                patch("actualizar_resultados_libres.time.sleep") as mock_sleep:
+            mock_get.side_effect = [
+                resp_429,
+                respuesta_ok({"teams": [equipo_busqueda("138280", "FC Andorra")]}),
+                respuesta_ok({"results": [evento_completo("FC Andorra", "Eibar", 0, 1)]}),
+            ]
+            resultados = arl.obtener_thesportsdb_backfill_por_equipo(
+                "Segunda División", "4400", [("FC Andorra", "SD Eibar")]
+            )
+        mock_sleep.assert_called_once_with(arl.ESPERA_TRAS_429_SEGUNDOS)
+        self.assertEqual(len(resultados), 1)
+        self.assertEqual(resultados[0]["resultado"], "0-1")
+
+    def test_un_segundo_429_tras_la_espera_si_detiene_la_pasada(self):
+        # La espera es UNA por pasada -si tras esperar el minuto entero la
+        # API sigue cortada, es un corte de verdad (no la ventana por
+        # minuto) y seguir insistiendo par a par solo lo empeora.
+        resp_429 = MagicMock()
+        resp_429.status_code = 429
+        with patch("actualizar_resultados_libres.requests.get") as mock_get, \
+                patch("actualizar_resultados_libres.time.sleep") as mock_sleep:
             mock_get.return_value = resp_429
             resultados = arl.obtener_thesportsdb_backfill_por_equipo(
                 "Segunda División", "4400",
                 [("FC Andorra", "SD Eibar"), ("Burgos CF", "Real Sociedad B")],
             )
-        mock_get.assert_called_once()
+        self.assertEqual(mock_get.call_count, 2)
+        mock_sleep.assert_called_once()
         self.assertEqual(resultados, [])
 
     def test_no_supera_el_tope_de_pares_por_llamada(self):

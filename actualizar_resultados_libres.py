@@ -9,6 +9,7 @@ el resto del sistema (motor predictivo, IA chat) los consuma.
 """
 import json
 import re
+import time
 import unicodedata
 import requests
 from datetime import datetime, timezone, timedelta
@@ -406,9 +407,12 @@ def _nombre_busqueda_corto(nombre):
     return texto
 
 
-def pares_esperados_calendario(nombre_liga, rondas):
+def pares_esperados_calendario(nombre_liga, rondas, con_fecha=False):
     """Partidos que DEBERIAN existir en las rondas indicadas, segun el
-    calendario oficial ya sembrado (ver CALENDARIO_SEMBRADO)."""
+    calendario oficial ya sembrado (ver CALENDARIO_SEMBRADO). Con
+    con_fecha=True devuelve (local, visitante, fecha) para poder filtrar
+    por "ya deberia haberse jugado" sin gastar peticiones en partidos
+    futuros."""
     path = CALENDARIO_SEMBRADO.get(nombre_liga)
     if not path:
         return []
@@ -424,13 +428,43 @@ def pares_esperados_calendario(nombre_liga, rondas):
         for p in jornada.get("partidos", []):
             local, visitante = p.get("local"), p.get("visitante")
             if local and visitante:
-                pares.append((local, visitante))
+                if con_fecha:
+                    pares.append((local, visitante, str(p.get("fecha") or "")))
+                else:
+                    pares.append((local, visitante))
     return pares
 
 
 def _nombres_equivalentes(a, b):
     ca, cb = _clave_equipo(a), _clave_equipo(b)
     return bool(ca) and bool(cb) and (ca in cb or cb in ca)
+
+
+def pares_ya_resueltos_calendario(nombre_liga, rondas):
+    """Claves de los pares cuyo calendario sembrado YA tiene un resultado
+    real -no necesitan ningun rescate. Bug real (31/08/2026, tercera
+    vuelta): sin esto, el backfill por equipo gastaba su tope de pares en
+    huecos de eventsround.php que football-data.co.uk ya habia resuelto en
+    el calendario (ej. Eibar 1-0 Valladolid de la ronda 2), y el unico par
+    que DE VERDAD seguia sin resolver en ninguna fuente (Andorra-Eibar)
+    quedaba fuera del cupo."""
+    path = CALENDARIO_SEMBRADO.get(nombre_liga)
+    if not path:
+        return set()
+    data = _cargar_json_local(path, {})
+    resueltos = set()
+    for jornada in data.get("jornadas", []):
+        try:
+            num = int(jornada.get("jornada", 0))
+        except (TypeError, ValueError):
+            continue
+        if num not in rondas:
+            continue
+        for p in jornada.get("partidos", []):
+            resultado = str(p.get("resultado") or "").strip()
+            if resultado and resultado.lower() != "pendiente":
+                resueltos.add((_clave_equipo(p.get("local")), _clave_equipo(p.get("visitante"))))
+    return resueltos
 
 
 class _LimiteThesportsdbAlcanzado(Exception):
@@ -440,6 +474,26 @@ class _LimiteThesportsdbAlcanzado(Exception):
 
 
 LIMITE_BACKFILL_POR_EQUIPO = 6
+
+# El limite de la clave publica de TheSportsDB es POR MINUTO -confirmado en
+# vivo el 31/08/2026: el propio ciclo (rondas + backfill de searchevents)
+# agota el cupo justo antes de que le toque el turno a este respaldo, asi
+# que el primer 429 no significa "API caida" sino "espera a que se reinicie
+# la ventana". Se espera UNA vez por pasada; un segundo 429 tras la espera
+# si aborta de verdad.
+ESPERA_TRAS_429_SEGUNDOS = 65
+
+
+def _get_thesportsdb_con_reintento(url, params, estado_reintento):
+    r = requests.get(url, params=params, headers=HEADERS, timeout=15)
+    if r.status_code == 429 and not estado_reintento.get("usado"):
+        estado_reintento["usado"] = True
+        print(f"  TheSportsDB 429: esperando {ESPERA_TRAS_429_SEGUNDOS}s a que se reinicie el cupo por minuto...")
+        time.sleep(ESPERA_TRAS_429_SEGUNDOS)
+        r = requests.get(url, params=params, headers=HEADERS, timeout=15)
+    if r.status_code == 429:
+        raise _LimiteThesportsdbAlcanzado()
+    return r
 
 
 def obtener_thesportsdb_backfill_por_equipo(nombre_liga, league_id, pares):
@@ -469,6 +523,7 @@ def obtener_thesportsdb_backfill_por_equipo(nombre_liga, league_id, pares):
     llamada (no crece con el numero de partidos aun pendientes de la ronda)
     y aborto inmediato en cuanto se ve un 429, en vez de seguir insistiendo."""
     resultados = []
+    estado_reintento = {"usado": False}
     try:
         for local, visitante in pares[:LIMITE_BACKFILL_POR_EQUIPO]:
             encontrado = False
@@ -482,14 +537,11 @@ def obtener_thesportsdb_backfill_por_equipo(nombre_liga, league_id, pares):
                     # "Andorra") aqui resuelve a la SELECCION NACIONAL de
                     # Andorra en vez del club, porque "Andorra" a secas es
                     # ambiguo entre ambos.
-                    r = requests.get(
+                    r = _get_thesportsdb_con_reintento(
                         "https://www.thesportsdb.com/api/v1/json/3/searchteams.php",
-                        params={"t": nombre_busqueda},
-                        headers=HEADERS,
-                        timeout=15,
+                        {"t": nombre_busqueda},
+                        estado_reintento,
                     )
-                    if r.status_code == 429:
-                        raise _LimiteThesportsdbAlcanzado()
                     equipos = r.json().get("teams") or [] if r.status_code == 200 else []
                 except _LimiteThesportsdbAlcanzado:
                     raise
@@ -501,14 +553,11 @@ def obtener_thesportsdb_backfill_por_equipo(nombre_liga, league_id, pares):
                     if not id_equipo:
                         continue
                     try:
-                        r2 = requests.get(
+                        r2 = _get_thesportsdb_con_reintento(
                             "https://www.thesportsdb.com/api/v1/json/3/eventslast.php",
-                            params={"id": id_equipo},
-                            headers=HEADERS,
-                            timeout=15,
+                            {"id": id_equipo},
+                            estado_reintento,
                         )
-                        if r2.status_code == 429:
-                            raise _LimiteThesportsdbAlcanzado()
                         eventos = r2.json().get("results") or [] if r2.status_code == 200 else []
                     except _LimiteThesportsdbAlcanzado:
                         raise
@@ -544,16 +593,28 @@ def obtener_thesportsdb_backfill(nombre_liga, rondas, ya_obtenidos):
     NO MENCIONO en absoluto -los que si aparecen pero siguen sin jugarse
     (resultado null) no se repiten, para no gastar llamadas de mas cada
     ciclo en partidos que de verdad estan pendientes."""
-    esperados = pares_esperados_calendario(nombre_liga, rondas)
+    esperados = pares_esperados_calendario(nombre_liga, rondas, con_fecha=True)
     if not esperados:
         return []
     ya_claves = {
         (_clave_equipo(r["local"]), _clave_equipo(r["visitante"]))
         for r in ya_obtenidos
     }
+    # Mismos filtros que el backfill por equipo (31/08/2026): ni partidos
+    # cuya fecha oficial aun no llego (buscar su resultado es gastar cupo en
+    # nada), ni partidos que el calendario sembrado ya tiene resueltos por
+    # otra fuente (football-data.co.uk) -sin esto, cada ciclo re-buscaba
+    # ~14 pares ya conocidos y el cupo por minuto de la clave publica se
+    # agotaba antes de llegar al unico par que de verdad faltaba. La fecha
+    # se trata de forma laxa (sin fecha -> se intenta igual) para no dejar
+    # de buscar por un hueco de datos del propio calendario.
+    hoy = datetime.now(timezone.utc).date().isoformat()
+    ya_resueltos = pares_ya_resueltos_calendario(nombre_liga, rondas)
     faltantes = [
-        (local, visitante) for local, visitante in esperados
-        if (_clave_equipo(local), _clave_equipo(visitante)) not in ya_claves
+        (local, visitante) for local, visitante, fecha in esperados
+        if (not fecha or fecha[:10] <= hoy)
+        and (_clave_equipo(local), _clave_equipo(visitante)) not in ya_claves
+        and (_clave_equipo(local), _clave_equipo(visitante)) not in ya_resueltos
     ]
     resultados = []
     for local, visitante in faltantes:
@@ -617,12 +678,21 @@ def obtener_thesportsdb():
         obtenidos.extend(backfill)
         # Segundo nivel de respaldo -ver obtener_thesportsdb_backfill_por_equipo,
         # solo para los pares que ni eventsround.php ni searchevents.php
-        # encontraron en absoluto.
-        esperados = pares_esperados_calendario(nombre, rondas_por_liga[nombre])
+        # encontraron en absoluto Y cuya fecha oficial ya llego -buscar el
+        # resultado de un partido que aun no se ha jugado es gastar cupo de
+        # la API en nada (fue la causa real del 429 del 31/08/2026: la
+        # mayoria de "faltantes" eran simplemente partidos futuros de la
+        # ronda en curso).
+        hoy = datetime.now(timezone.utc).date().isoformat()
+        esperados = pares_esperados_calendario(nombre, rondas_por_liga[nombre], con_fecha=True)
         ya_claves = {(_clave_equipo(r["local"]), _clave_equipo(r["visitante"])) for r in obtenidos}
+        ya_resueltos = pares_ya_resueltos_calendario(nombre, rondas_por_liga[nombre])
         aun_faltantes = [
-            (local, visitante) for local, visitante in esperados
-            if (_clave_equipo(local), _clave_equipo(visitante)) not in ya_claves
+            (local, visitante) for local, visitante, fecha in
+            sorted(esperados, key=lambda e: e[2], reverse=True)
+            if fecha and fecha[:10] <= hoy
+            and (_clave_equipo(local), _clave_equipo(visitante)) not in ya_claves
+            and (_clave_equipo(local), _clave_equipo(visitante)) not in ya_resueltos
         ]
         backfill_equipo = obtener_thesportsdb_backfill_por_equipo(
             nombre, THESPORTSDB_LIGAS[nombre], aun_faltantes
