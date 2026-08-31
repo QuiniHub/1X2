@@ -331,5 +331,136 @@ class ObtenerThesportsdbBackfillTests(unittest.TestCase):
         self.assertEqual(len(resultados), 1)
 
 
+def equipo_busqueda(id_team, nombre, liga="Spanish La Liga 2"):
+    return {"idTeam": id_team, "strTeam": nombre, "strLeague": liga}
+
+
+def evento_completo(local, visitante, hg, ag, id_league="4400", temporada=None, status="FT"):
+    return {
+        "strHomeTeam": local,
+        "strAwayTeam": visitante,
+        "intHomeScore": hg,
+        "intAwayScore": ag,
+        "strStatus": status,
+        "dateEvent": "2026-08-30",
+        "idLeague": id_league,
+        "strSeason": temporada if temporada is not None else arl.TEMPORADA_THESPORTSDB,
+    }
+
+
+class ObtenerThesportsdbBackfillPorEquipoTests(unittest.TestCase):
+    """Bug real (31/08/2026): "FC Andorra vs Eibar" (Jornada 3 de Segunda)
+    no aparecia ni en eventsround.php ni en searchevents.php (la busqueda
+    de texto libre no reconoce esa cadena exacta, confirmado en vivo:
+    0 resultados) pese a que el partido SI existe en TheSportsDB. Las
+    clasificaciones oficiales (AS.com) ya contaban el partido, pero
+    calendario_segunda.json se quedaba con "Pendiente" indefinidamente."""
+
+    def test_encuentra_el_partido_via_ultimos_eventos_del_equipo(self):
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.side_effect = [
+                respuesta_ok({"teams": [equipo_busqueda("138280", "FC Andorra")]}),
+                respuesta_ok({"results": [evento_completo("FC Andorra", "Eibar", 0, 1)]}),
+            ]
+            resultados = arl.obtener_thesportsdb_backfill_por_equipo(
+                "Segunda División", "4400", [("FC Andorra", "SD Eibar")]
+            )
+        self.assertEqual(len(resultados), 1)
+        self.assertEqual(resultados[0]["resultado"], "0-1")
+
+    def test_ignora_eventos_de_un_equipo_homonimo_de_otra_categoria(self):
+        # Bug potencial: "RCD Mallorca" (nuestro calendario simulado) puede
+        # resolver via searchteams.php a "Mallorca B", el filial real que
+        # juega en una categoria distinta (Segunda RFEF, no Segunda
+        # Division) -sus ultimos partidos tienen un idLeague diferente y
+        # deben descartarse, no colarse como si fueran el partido buscado.
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.side_effect = [
+                respuesta_ok({"teams": [equipo_busqueda("146799", "Mallorca B", liga="Spanish Segunda RFEF Group 3")]}),
+                respuesta_ok({"results": [
+                    evento_completo("Mallorca B", "Ceuta B", 2, 1, id_league="5001")
+                ]}),
+                respuesta_ok({"teams": []}),
+            ]
+            resultados = arl.obtener_thesportsdb_backfill_por_equipo(
+                "Segunda División", "4400", [("RCD Mallorca", "AD Ceuta FC")]
+            )
+        self.assertEqual(resultados, [])
+
+    def test_descarta_eventos_de_otra_temporada(self):
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.side_effect = [
+                respuesta_ok({"teams": [equipo_busqueda("138280", "FC Andorra")]}),
+                respuesta_ok({"results": [
+                    evento_completo("FC Andorra", "Eibar", 2, 1, temporada="2024-2025"),
+                ]}),
+                respuesta_ok({"teams": [equipo_busqueda("134626", "Eibar")]}),
+                respuesta_ok({"results": [
+                    evento_completo("FC Andorra", "Eibar", 2, 1, temporada="2024-2025"),
+                ]}),
+            ]
+            resultados = arl.obtener_thesportsdb_backfill_por_equipo(
+                "Segunda División", "4400", [("FC Andorra", "SD Eibar")]
+            )
+        self.assertEqual(resultados, [])
+
+    def test_par_sin_equipo_encontrado_no_rompe_los_demas(self):
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.side_effect = [
+                respuesta_ok({"teams": []}),
+                respuesta_ok({"teams": []}),
+                respuesta_ok({"teams": [equipo_busqueda("138161", "Burgos")]}),
+                respuesta_ok({"results": [evento_completo("Burgos", "Real Sociedad B", 1, 1)]}),
+            ]
+            resultados = arl.obtener_thesportsdb_backfill_por_equipo(
+                "Segunda División", "4400",
+                [("X", "Y"), ("Burgos CF", "Real Sociedad B")],
+            )
+        self.assertEqual(len(resultados), 1)
+        self.assertEqual(resultados[0]["resultado"], "1-1")
+
+    def test_busca_el_nombre_completo_no_el_recortado_de_siglas(self):
+        # Bug real (31/08/2026): "FC Andorra" recortado a "Andorra" (el
+        # respaldo de siglas que SI funciona bien en searchevents.php)
+        # resuelve en searchteams.php a la SELECCION NACIONAL de Andorra,
+        # no al club -searchteams.php necesita el nombre oficial completo.
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.return_value = respuesta_ok({"teams": []})
+            arl.obtener_thesportsdb_backfill_por_equipo(
+                "Segunda División", "4400", [("FC Andorra", "SD Eibar")]
+            )
+        self.assertEqual(mock_get.call_args_list[0].kwargs["params"]["t"], "FC Andorra")
+
+    def test_se_detiene_del_todo_al_primer_429(self):
+        # Bug real (31/08/2026): probar esto contra todos los pares
+        # pendientes de una ronda (la mayoria simplemente sin jugar aun)
+        # disparo un 429 de Cloudflare en la API publica compartida de
+        # TheSportsDB -seguir insistiendo par a par solo empeora el corte,
+        # y puede arrastrar tambien a las demas llamadas del mismo ciclo.
+        resp_429 = MagicMock()
+        resp_429.status_code = 429
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.return_value = resp_429
+            resultados = arl.obtener_thesportsdb_backfill_por_equipo(
+                "Segunda División", "4400",
+                [("FC Andorra", "SD Eibar"), ("Burgos CF", "Real Sociedad B")],
+            )
+        mock_get.assert_called_once()
+        self.assertEqual(resultados, [])
+
+    def test_no_supera_el_tope_de_pares_por_llamada(self):
+        # Tope duro: no crece sin limite con el numero de partidos aun
+        # pendientes de la ronda (la mayoria de "faltantes" en un ciclo real
+        # son simplemente partidos que no se han jugado todavia, no huecos
+        # de verdad -sin tope, cada ciclo gastaria el cupo entero de la API
+        # gratuita en pares que de todas formas no van a encontrar nada).
+        pares = [(f"Local{i}", f"Visitante{i}") for i in range(20)]
+        with patch("actualizar_resultados_libres.requests.get") as mock_get:
+            mock_get.return_value = respuesta_ok({"teams": []})
+            arl.obtener_thesportsdb_backfill_por_equipo("Segunda División", "4400", pares)
+        # 2 busquedas de equipo (local y visitante) por cada par permitido.
+        self.assertLessEqual(mock_get.call_count, arl.LIMITE_BACKFILL_POR_EQUIPO * 2)
+
+
 if __name__ == "__main__":
     unittest.main()

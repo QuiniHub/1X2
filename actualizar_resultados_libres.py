@@ -428,6 +428,108 @@ def pares_esperados_calendario(nombre_liga, rondas):
     return pares
 
 
+def _nombres_equivalentes(a, b):
+    ca, cb = _clave_equipo(a), _clave_equipo(b)
+    return bool(ca) and bool(cb) and (ca in cb or cb in ca)
+
+
+class _LimiteThesportsdbAlcanzado(Exception):
+    """Señal interna para abortar obtener_thesportsdb_backfill_por_equipo en
+    cuanto se detecta un 429 -no tiene sentido seguir gastando el resto del
+    cupo de la API en los pares siguientes si ya esta cortada."""
+
+
+LIMITE_BACKFILL_POR_EQUIPO = 6
+
+
+def obtener_thesportsdb_backfill_por_equipo(nombre_liga, league_id, pares):
+    """Ultimo recurso cuando ni eventsround.php ni searchevents.php
+    encuentran el partido -confirmado real el 31/08/2026: "Andorra vs
+    Eibar" (J3 de Segunda) daba 0 resultados en searchevents.php pese a que
+    el partido SI existe en TheSportsDB (idEvent 2505736, FT, 0-1) -la
+    busqueda de texto libre de ese endpoint simplemente no reconoce esa
+    cadena. searchteams.php + eventslast.php (ultimos partidos del equipo)
+    si lo encuentra, pero buscar por nombre puede resolver al equipo
+    equivocado (ej. "RCD Mallorca" de nuestro calendario resuelve a
+    "Mallorca B", el filial real que juega en una categoria distinta) -por
+    eso la seguridad real no esta en acertar el equipo, sino en exigir que
+    el EVENTO devuelto tenga idLeague/strSeason exactos antes de aceptarlo;
+    un id de equipo equivocado simplemente no aporta ningun evento que pase
+    ese filtro.
+
+    Bug real de disponibilidad, mismo dia: esto hace hasta 4 peticiones HTTP
+    por par (2 lados x busqueda de equipo + ultimos partidos). Probado en
+    vivo contra TODOS los pares aun pendientes de las rondas consultadas (no
+    solo el caso que de verdad necesitaba este respaldo -la mayoria son
+    partidos que sencillamente no se han jugado todavia) disparo un 429 de
+    Cloudflare en la API publica gratuita de TheSportsDB, compartida con
+    TODAS las demas llamadas del mismo ciclo (eventsround.php,
+    searchevents.php) -sin cuidado esto podia romper el pipeline entero, no
+    solo quedarse sin este dato. Doble guardia: tope duro de pares por
+    llamada (no crece con el numero de partidos aun pendientes de la ronda)
+    y aborto inmediato en cuanto se ve un 429, en vez de seguir insistiendo."""
+    resultados = []
+    try:
+        for local, visitante in pares[:LIMITE_BACKFILL_POR_EQUIPO]:
+            encontrado = False
+            for nombre_busqueda in (local, visitante):
+                if encontrado:
+                    break
+                try:
+                    # searchteams.php quiere el nombre OFICIAL completo, al
+                    # reves que searchevents.php -bug real confirmado el
+                    # 31/08/2026: quitar el prefijo de club ("FC Andorra" ->
+                    # "Andorra") aqui resuelve a la SELECCION NACIONAL de
+                    # Andorra en vez del club, porque "Andorra" a secas es
+                    # ambiguo entre ambos.
+                    r = requests.get(
+                        "https://www.thesportsdb.com/api/v1/json/3/searchteams.php",
+                        params={"t": nombre_busqueda},
+                        headers=HEADERS,
+                        timeout=15,
+                    )
+                    if r.status_code == 429:
+                        raise _LimiteThesportsdbAlcanzado()
+                    equipos = r.json().get("teams") or [] if r.status_code == 200 else []
+                except _LimiteThesportsdbAlcanzado:
+                    raise
+                except Exception as e:
+                    print(f"  TheSportsDB backfill-equipo {nombre_liga} {local}-{visitante}: {e}")
+                    continue
+                for equipo in equipos:
+                    id_equipo = equipo.get("idTeam")
+                    if not id_equipo:
+                        continue
+                    try:
+                        r2 = requests.get(
+                            "https://www.thesportsdb.com/api/v1/json/3/eventslast.php",
+                            params={"id": id_equipo},
+                            headers=HEADERS,
+                            timeout=15,
+                        )
+                        if r2.status_code == 429:
+                            raise _LimiteThesportsdbAlcanzado()
+                        eventos = r2.json().get("results") or [] if r2.status_code == 200 else []
+                    except _LimiteThesportsdbAlcanzado:
+                        raise
+                    except Exception as e:
+                        print(f"  TheSportsDB backfill-equipo {nombre_liga} {local}-{visitante}: {e}")
+                        continue
+                    for e in eventos:
+                        if e.get("idLeague") != league_id or e.get("strSeason") != TEMPORADA_THESPORTSDB:
+                            continue
+                        if _nombres_equivalentes(e.get("strHomeTeam", ""), local) and \
+                                _nombres_equivalentes(e.get("strAwayTeam", ""), visitante):
+                            resultados.extend(_parsear_eventos_thesportsdb(nombre_liga, [e]))
+                            encontrado = True
+                            break
+                    if encontrado:
+                        break
+    except _LimiteThesportsdbAlcanzado:
+        print(f"  TheSportsDB backfill-equipo {nombre_liga}: 429 (limite de peticiones), se detiene esta pasada")
+    return resultados
+
+
 def obtener_thesportsdb_backfill(nombre_liga, rondas, ya_obtenidos):
     """Respaldo puntual via searchevents.php para partidos que
     eventsround.php no devuelve en absoluto, aunque el calendario oficial
@@ -507,10 +609,27 @@ def obtener_thesportsdb():
         todos.extend(partidos)
     for nombre in LIGAS_CON_JORNADAS:
         print(f"  {nombre}: rondas consultadas {rondas_por_liga[nombre]}")
-        backfill = obtener_thesportsdb_backfill(nombre, rondas_por_liga[nombre], por_ronda.get(nombre, []))
+        obtenidos = list(por_ronda.get(nombre, []))
+        backfill = obtener_thesportsdb_backfill(nombre, rondas_por_liga[nombre], obtenidos)
         if backfill:
             print(f"  {nombre} (backfill huecos de ronda): {len(backfill)} partidos")
         todos.extend(backfill)
+        obtenidos.extend(backfill)
+        # Segundo nivel de respaldo -ver obtener_thesportsdb_backfill_por_equipo,
+        # solo para los pares que ni eventsround.php ni searchevents.php
+        # encontraron en absoluto.
+        esperados = pares_esperados_calendario(nombre, rondas_por_liga[nombre])
+        ya_claves = {(_clave_equipo(r["local"]), _clave_equipo(r["visitante"])) for r in obtenidos}
+        aun_faltantes = [
+            (local, visitante) for local, visitante in esperados
+            if (_clave_equipo(local), _clave_equipo(visitante)) not in ya_claves
+        ]
+        backfill_equipo = obtener_thesportsdb_backfill_por_equipo(
+            nombre, THESPORTSDB_LIGAS[nombre], aun_faltantes
+        )
+        if backfill_equipo:
+            print(f"  {nombre} (backfill por equipo): {len(backfill_equipo)} partidos")
+        todos.extend(backfill_equipo)
     return todos
 
 
