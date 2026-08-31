@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 65.07,
+  "precision": 65.19,
   "jornadas_revisadas": 21,
-  "partidos_revisados": 292,
-  "aciertos": 190,
+  "partidos_revisados": 293,
+  "aciertos": 191,
   "fallos": 102,
   "fallos_por_tipo": {
     "Doble insuficiente": 19,
@@ -22,10 +22,10 @@
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 70,
-      "aciertos": 51,
+      "total": 71,
+      "aciertos": 52,
       "fallos": 19,
-      "precision": 72.86
+      "precision": 73.24
     },
     "FIJO": {
       "total": 186,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 131,
-      "aciertos": 105,
+      "total": 132,
+      "aciertos": 106,
       "fallos": 26,
-      "precision": 80.15
+      "precision": 80.3
     },
     "2": {
       "total": 92,
@@ -61,57 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 62,
-      "partido": "Celta - Levante",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "2-3",
-      "resultado_final": "2-3",
-      "signo_real": "2",
-      "signos_cubiertos": "1X",
-      "signo_omitido": "2",
-      "acierto": false,
-      "motivo_error": "Doble insuficiente",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Celta",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Levante",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 62,
       "partido": "Betis - Elche",
@@ -22256,6 +22205,124 @@
     },
     {
       "jornada": 3,
+      "partido": "CA Osasuna - Getafe CF",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "1-0",
+      "resultado_final": "1-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_3.json",
+      "probabilidades_usadas": {
+        "1": 48.6,
+        "X": 35.0,
+        "2": 16.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "CA Osasuna",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Getafe CF",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (48.6%).",
+        "hipotesis_alternativa": "X como alternativa (35.0%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_atacable",
+          "probabilidad": 61.6,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 13.6 puntos, indice sorpresa 61.2."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.69,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 11.1,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 2.25,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local CA Osasuna: ppp=0.78; perfil visitante Getafe CF: ppp=1.63.",
+          "Memoria autonoma: tendencia de empate conjunta alta (40.0%).",
+          "Memoria autonoma: historial de sorpresa medio elevado (57.5)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "CA Osasuna",
+        "partidos_total": 3,
+        "puntos_por_partido": 0.676,
+        "empates_pct": 67.62,
+        "surprise_score_medio": 61.19,
+        "forma_5_ppp": 0.667,
+        "forma_10_ppp": 0.667,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Getafe CF",
+        "partidos_total": 32,
+        "puntos_por_partido": 1.384,
+        "empates_pct": 12.45,
+        "surprise_score_medio": 53.86,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 1.7,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 3,
       "partido": "Albacete Balompie - Real Oviedo",
       "pronostico": "1X2",
       "tipo_pronostico": "TRIPLE",
@@ -23058,19 +23125,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 292,
+    "partidos_base": 293,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 34.93,
+      "fallos_total_pct": 34.81,
       "no_cubrio_empate_sobre_fallos_pct": 33.33,
-      "no_cubrio_empate_sobre_total_pct": 11.64,
+      "no_cubrio_empate_sobre_total_pct": 11.6,
       "fijo_fallado_sobre_fallos_pct": 48.04,
-      "fijo_fallado_sobre_total_pct": 16.78,
-      "doble_insuficiente_sobre_total_pct": 6.51
+      "fijo_fallado_sobre_total_pct": 16.72,
+      "doble_insuficiente_sobre_total_pct": 6.48
     },
-    "boost_empate_zona_riesgo": 5.96,
-    "riesgo_extra_fijo_fragil": 6.43,
-    "riesgo_extra_triple_insuficiente": 2.26,
+    "boost_empate_zona_riesgo": 5.94,
+    "riesgo_extra_fijo_fragil": 6.38,
+    "riesgo_extra_triple_insuficiente": 2.23,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
