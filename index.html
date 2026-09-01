@@ -3370,7 +3370,18 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         const [contextoWeb, datosFootball, tsdbClasif, urlsContenido] = await Promise.all([webPromise, footballPromise, tsdbClasifPromise, urlsPromise]);
 
         // Historia de chat enviada a Groq: reducir a 4 si hay datos externos, 6 si es local
-        const historialEnvio = esConsultaLocal ? chatHistory.slice(-4) : chatHistory.slice(-2);
+        // En consultas de DATOS, el historial reenviado excluye las
+        // respuestas anteriores del asistente. Bug real (01/09/2026,
+        // capturas de Marc): una respuesta antigua con partidos inventados
+        // ("Granada-Alaves", un falso 1-1) quedaba guardada en localStorage
+        // y se le reenviaba al modelo, que REPETIA su propia fabulacion por
+        // encima de los datos reales del contexto -el mismo test con el
+        // historial limpio respondia 100% veraz. Las preguntas del usuario
+        // se conservan (dan hilo); las respuestas del asistente se
+        // reconstruyen SIEMPRE desde los datos.
+        const historialEnvio = esConsultaLocalPrevia
+          ? chatHistory.filter(m => m.role === 'user').slice(-3)
+          : (esConsultaLocal ? chatHistory.slice(-4) : chatHistory.slice(-2));
 
         // Formatear clasificaciones TheSportsDB
         let bloqueClasif = '';
@@ -3614,7 +3625,7 @@ REGLAS CRÍTICAS — LEE ANTES DE RESPONDER:
 7. Si preguntan por lesionados/bajas/dudas de un equipo y aparece un bloque "LESIONADOS/DUDAS REALES DE [EQUIPO]" más abajo, cita EXCLUSIVAMENTE esos nombres — ni uno más, aunque la búsqueda web o tu conocimiento previo te sugieran otra baja "probable". Si ese bloque no aparece para el equipo preguntado, di explícitamente que no tienes datos estructurados de esa fuente para ese equipo, en vez de inventar o mezclar con suposiciones.
 8. Si preguntan por la clasificación/situación en la liga de un equipo y aparece un bloque "SITUACIÓN REAL DE [EQUIPO] EN LA LIGA" más abajo, cita EXCLUSIVAMENTE esos datos (posición, puntos, lectura) y respeta SIEMPRE la etiqueta de temporada que incluye ese bloque — si dice que es la clasificación final de la temporada pasada, dilo así de claro, nunca des a entender que la Liga 26/27 ya está en marcha si el propio bloque dice que no. Si ese bloque no aparece, di que no tienes datos de clasificación de ese equipo, sin inventar posiciones ni puntos.
 9. NUNCA des un marcador, resultado final o "ya se jugó/ya terminó X-Y" de un partido concreto a menos que ese marcador aparezca LITERALMENTE citado en los datos del sistema o en un fragmento real de la búsqueda web que se te ha pasado más abajo. Si preguntan por un partido de hoy/próximo y no tienes un resultado confirmado en los datos, di explícitamente que no tienes el resultado confirmado o que el partido está pendiente de jugarse — no lo inventes aunque la fecha ya haya llegado ni aunque "suene plausible".
-10. Al analizar jornadas jugadas, los ÚNICOS enfrentamientos que existieron son los que aparecen listados partido a partido en "LO QUE REALMENTE HEMOS JUGADO". Copia local, visitante, signo jugado, signo oficial y marcador TAL CUAL de esa lista, en SU jornada (no mezcles partidos de una jornada en otra). Si esa lista no aparece o una jornada viene sin partidos, responde "no tengo el detalle de esa jornada en este momento" — un análisis con partidos inventados o marcadores garabateados es el peor error posible en esta web.
+10. Al analizar jornadas jugadas, los ÚNICOS enfrentamientos que existieron son los que aparecen listados partido a partido en "LO QUE REALMENTE HEMOS JUGADO". Copia local, visitante, signo jugado, signo oficial y marcador TAL CUAL de esa lista, en SU jornada (no mezcles partidos de una jornada en otra). Si esa lista no aparece o una jornada viene sin partidos, responde "no tengo el detalle de esa jornada en este momento" — un análisis con partidos inventados o marcadores garabateados es el peor error posible en esta web. Y si en esta conversación diste antes una respuesta que contradice esta lista (un enfrentamiento que no está, un marcador distinto), aquella respuesta estaba MAL: ignórala por completo y reconstruye solo desde estos datos, sin intentar ser coherente con lo que dijiste.
 
 ${esConsultaLocalPrevia ? manualEsencial : `
 ═══════════════════════════════════════════════════════
