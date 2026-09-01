@@ -317,9 +317,23 @@ def resumen_contexto_equipo(equipo):
     }
 
 
+JORNADAS_RESTANTES_PARA_OBJETIVOS_REALES = 10
+
+
+def objetivos_en_juego_de_verdad(equipo):
+    # Mismo gate que el motor (motor_prediccion_quiniela.py): la permanencia
+    # o cualquier titulo solo se juegan a falta de 10 jornadas o menos.
+    # Esta copia local de valor_motivacion no lo tenia (auditoria
+    # 01/09/2026) y el estado vivo mostraba "presion de descenso" a pj=3.
+    try:
+        return int((equipo or {}).get("partidos_restantes")) <= JORNADAS_RESTANTES_PARA_OBJETIVOS_REALES
+    except (TypeError, ValueError):
+        return True
+
+
 def valor_motivacion(equipo):
     orden = {"baja": 0, "media": 1, "alta": 2, "maxima": 3}
-    if not equipo:
+    if not equipo or not objetivos_en_juego_de_verdad(equipo):
         return 0
     return orden.get(str(equipo.get("motivacion_competitiva", "baja")).lower(), 0)
 

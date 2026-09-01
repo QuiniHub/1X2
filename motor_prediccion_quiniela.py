@@ -37,6 +37,7 @@ HISTORIAL_ENFRENTAMIENTOS = DATA / "memoria_ia" / "historial_enfrentamientos.jso
 PERFILES_EQUIPOS = DATA / "memoria_ia" / "perfiles_equipos.json"
 CLASIFICACIONES_MUNDIAL = DATA / "memoria_ia" / "clasificaciones_mundial_2026.json"
 FUENTE_LOSILLA = DATA / "memoria_ia" / "fuente_losilla.json"
+CALIBRACION_PROBABILIDADES = DATA / "memoria_ia" / "calibracion_probabilidades.json"
 PRETEMPORADA = DATA / "memoria_ia" / "pretemporada_2026_2027.json"
 FUENTE_LESIONES_LALIGA = DATA / "memoria_ia" / "fuente_lesiones_laliga.json"
 FUENTE_LESIONES_RESPALDO = DATA / "memoria_ia" / "fuente_lesiones_jornadaperfecta.json"
@@ -85,16 +86,30 @@ def normalizar(texto):
 
 
 def detectar_jornada_activa():
-    jornadas = []
+    # Orden CRONOLOGICO por fecha real de los partidos, nunca max(numero):
+    # la numeracion de La Quiniela se reinicia cada temporada, asi que hoy
+    # (J4 de 26/27 conviviendo con jornada_76.json de 25/26) el maximo por
+    # numero devolveria 76. Era una mina latente -el pipeline pasa la
+    # jornada objetivo por otra via-, desactivada en la auditoria del
+    # 01/09/2026. Mismo patron numero-vs-fecha corregido ya 8+ veces.
+    candidatas = []
     for path in JORNADAS.glob("jornada_*.json"):
         data = cargar_json(path, {})
         numero = data.get("jornada")
         if not isinstance(numero, int):
             m = re.search(r"(\d+)", path.stem)
             numero = int(m.group(1)) if m else 0
-        if numero:
-            jornadas.append(numero)
-    return max(jornadas) if jornadas else 61
+        if not numero:
+            continue
+        fechas = sorted(
+            str(p.get("fecha") or "")[:10]
+            for p in data.get("partidos", [])
+            if re.match(r"^\d{4}-\d{2}-\d{2}", str(p.get("fecha") or ""))
+        )
+        candidatas.append(((fechas[-1] if fechas else ""), numero))
+    if not candidatas:
+        return 61
+    return max(candidatas)[1]
 
 
 def equipos_memoria(memoria):
@@ -463,6 +478,41 @@ def _clave_perfil_es_liga_f(clave_normalizada):
     return texto.endswith(" f") or "femen" in texto
 
 
+def ajustar_por_calibracion(probs, calibracion):
+    """Cierra el circuito de calibracion (auditoria 01/09/2026: el sistema
+    MEDIA que su franja 50-60% solo acertaba el 47% y ese dato no corregia
+    nada -aprendizaje decorativo). Corrige el signo top hacia su tasa real
+    medida, con tres frenos: solo con muestra suficiente del bucket
+    (muestra_suficiente=true, que exige n>=30 en calibrar_probabilidades),
+    solo si la desviacion supera los 3 puntos (ruido fuera), y con tope de
+    4 puntos de movimiento -un empujon, no un secuestro. Lo recortado (o
+    añadido) se reparte proporcionalmente entre los otros dos signos y se
+    renormaliza."""
+    top = signo_top(probs)
+    p_top = float(probs.get(top, 0.0))
+    bucket = f"{int(p_top // 10) * 10}-{int(p_top // 10) * 10 + 10}"
+    datos = ((calibracion or {}).get("por_bucket_top") or {}).get(bucket) or {}
+    if not datos.get("muestra_suficiente"):
+        return probs, {"activo": False, "motivo": f"bucket {bucket} sin muestra suficiente"}
+    desviacion = float(datos.get("desviacion_calibracion") or 0.0)
+    if abs(desviacion) <= 3.0:
+        return probs, {"activo": False, "motivo": f"bucket {bucket} bien calibrado ({desviacion:+.1f})"}
+    correccion = max(-4.0, min(4.0, desviacion))
+    nuevos = dict(probs)
+    nuevos[top] = max(1.0, p_top + correccion)
+    resto = [s for s in ("1", "X", "2") if s != top]
+    total_resto = sum(float(probs.get(s, 0.0)) for s in resto) or 1.0
+    for s in resto:
+        nuevos[s] = max(1.0, float(probs.get(s, 0.0)) - correccion * float(probs.get(s, 0.0)) / total_resto)
+    return normalizar_probs(nuevos), {
+        "activo": True,
+        "bucket": bucket,
+        "desviacion_medida": desviacion,
+        "correccion_aplicada": round(correccion, 2),
+        "lectura": f"Calibracion real del bucket {bucket}: el motor decia {datos.get('prob_top_media')}% y acerto el {datos.get('precision_real')}% (n={datos.get('total')}); signo top corregido {correccion:+.1f} pts.",
+    }
+
+
 def buscar_perfil_autonomo(perfiles, nombre):
     equipos = (perfiles or {}).get("equipos") or {}
     clave = normalizar(nombre)
@@ -616,7 +666,12 @@ def ajustar_por_pesos_dinamicos(probs, pesos, local_comp, visitante_comp, contex
         for signo in ("1", "X", "2"):
             if signo != top:
                 p[signo] += ajuste_top / 2
-        riesgo_extra += d_sorpresa * 120
+        # Antes: d_sorpresa * 120 -un multiplicador fuera de escala (aportaba
+        # ~7.8 de riesgo el solo, frente a topes de 1-2 del resto) que inflaba
+        # la incertidumbre de TODOS los partidos de la jornada (auditoria
+        # 01/09/2026). Ahora proporcional al ajuste real aplicado, como los
+        # demas.
+        riesgo_extra += ajuste_top * 2.0
         lecturas.append("Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.")
 
     d_clasificacion = delta_peso(pesos, "clasificacion")
@@ -638,6 +693,38 @@ def ajustar_por_pesos_dinamicos(probs, pesos, local_comp, visitante_comp, contex
         p["X"] += ajuste * 0.5
         riesgo_extra += ajuste * 2.0
         lecturas.append("Pesos dinamicos: la necesidad competitiva viva tiene mas peso acumulado.")
+
+    # Los tres pesos siguientes estaban en pesos_dinamicos.json pero NO se
+    # usaban (auditoria 01/09/2026: "goles" era el peso mas alto del archivo
+    # y no tenia ningun efecto). Su delta vs referencia dice cuanto fiarse
+    # de esa señal BASE, y el signo top es quien la porta -mismos topes
+    # pequeños que el resto (nudge, no secuestro). "fatiga" sigue sin
+    # conectar a proposito: no existe ninguna fuente de fatiga que modular.
+    d_goles = delta_peso(pesos, "goles")
+    if abs(d_goles) > 0.005 and top in {"1", "2"}:
+        ajuste = max(-1.5, min(1.5, d_goles * 30))
+        p[top] += ajuste
+        if ajuste < 0:
+            p["X"] += abs(ajuste) * 0.55
+        riesgo_extra += abs(ajuste) * 0.8
+        lecturas.append("Pesos dinamicos: la diferencia de goles esta " + ("ganando" if ajuste > 0 else "perdiendo") + " fiabilidad medida.")
+
+    d_forma = delta_peso(pesos, "forma_reciente")
+    if d_forma < -0.005 and top in {"1", "2"}:
+        ajuste = min(abs(d_forma) * 25, 1.2)
+        p[top] -= ajuste
+        p["X"] += ajuste * 0.55
+        riesgo_extra += ajuste
+        lecturas.append("Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.")
+
+    d_casa = delta_peso(pesos, "casa_fuera")
+    if abs(d_casa) > 0.005:
+        ajuste = max(-1.0, min(1.0, d_casa * 25))
+        p["1"] += ajuste
+        if ajuste < 0:
+            p["X"] += abs(ajuste) * 0.5
+        riesgo_extra += abs(ajuste) * 0.8
+        lecturas.append("Pesos dinamicos: el factor campo se recalibra segun aciertos reales.")
 
     d_bajas = max(delta_peso(pesos, "bajas"), 0.0)
     if d_bajas:
@@ -853,7 +940,15 @@ def contexto_liga_losilla(fila, liga, tabla):
     en_objetivo = pos <= plazas_objetivo; cerca_objetivo = pts >= pts_corte_obj - 3
     pj_max = max((pj_fila(x) for x in tabla_ordenada), default=0)
     ultimas_5 = pj_max >= 33 if total >= 16 else pj_max >= max(1, total * 2 - 5)
-    return {"liga": liga, "posicion": pos, "puntos": pts, "total_equipos": total, "descenso": bool(en_descenso or cerca_descenso), "europa_ascenso": bool(en_objetivo or cerca_objetivo), "sin_objetivos": bool((not en_descenso and not cerca_descenso) and (not en_objetivo and not cerca_objetivo) and ultimas_5)}
+    # Gate de recta final (mina latente detectada en la auditoria del
+    # 01/09/2026): esta funcion deducia "descenso"/"europa_ascenso" de la
+    # POSICION ACTUAL sin mirar cuantas jornadas quedan -a pj=3 habria
+    # disparado +10/-6.5 de motivacion por una tabla que aun no significa
+    # nada. Mismo principio que JORNADAS_RESTANTES_PARA_OBJETIVOS_REALES:
+    # los objetivos de tabla solo existen a falta de 10 jornadas o menos.
+    jornadas_totales = max((total - 1) * 2, 1)
+    recta_final = (jornadas_totales - pj_max) <= JORNADAS_RESTANTES_PARA_OBJETIVOS_REALES
+    return {"liga": liga, "posicion": pos, "puntos": pts, "total_equipos": total, "descenso": bool(recta_final and (en_descenso or cerca_descenso)), "europa_ascenso": bool(recta_final and (en_objetivo or cerca_objetivo)), "sin_objetivos": bool((not en_descenso and not cerca_descenso) and (not en_objetivo and not cerca_objetivo) and ultimas_5)}
 
 
 def partido_es_derbi(partido):
@@ -2617,6 +2712,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     perfiles_autonomos = cargar_json(PERFILES_EQUIPOS, {})
     clasificaciones_mundial = cargar_json(CLASIFICACIONES_MUNDIAL, {})
     fuente_losilla = cargar_json(FUENTE_LOSILLA, {})
+    calibracion = cargar_json(CALIBRACION_PROBABILIDADES, {})
     fuente_lesiones_laliga = cargar_json(FUENTE_LESIONES_LALIGA, {})
     fuente_lesiones_respaldo = cargar_json(FUENTE_LESIONES_RESPALDO, {})
     modelo_runtime = preparar_modelo_predictivo_runtime(ROOT)
@@ -2701,6 +2797,12 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         if ajuste_motivacion_competitiva.get("activo"):
             riesgo_motivacion_competitiva = min(sum(abs(v) for v in ajuste_motivacion_competitiva.get("ajuste_por_signo", {}).values()), 35.0)
             lecturas_motivacion.extend(ajuste_motivacion_competitiva.get("lecturas", []))
+        # Ultima capa: correccion por calibracion medida (ver
+        # ajustar_por_calibracion). Va la ULTIMA a proposito: corrige el
+        # numero final que se publica, que es el que la calibracion midio.
+        probs, ajuste_calibracion = ajustar_por_calibracion(probs, calibracion)
+        if ajuste_calibracion.get("activo"):
+            lecturas_motivacion.append(ajuste_calibracion.get("lectura"))
         inc = incertidumbre(
             probs,
             local,
@@ -2740,6 +2842,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
                 "riesgo_extra": riesgo_patrones,
                 "lecturas": lecturas_patrones,
             },
+            "ajuste_calibracion": ajuste_calibracion,
             "contexto_competitivo_local": local_comp,
             "contexto_competitivo_visitante": visitante_comp,
             "lecturas_motivacion": lecturas_motivacion,
@@ -2879,6 +2982,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "perfil_autonomo_visitante": partido["perfil_autonomo_visitante"],
             "ajuste_perfiles_autonomos": partido["ajuste_perfiles_autonomos"],
             "ajuste_patrones": partido["ajuste_patrones"],
+            "ajuste_calibracion": partido.get("ajuste_calibracion", {}),
             "ajuste_modelo_entrenado": partido["ajuste_modelo_entrenado"],
             "ajuste_aprendizaje": partido["ajuste_aprendizaje"],
             "ajuste_pesos_dinamicos": partido["ajuste_pesos_dinamicos"],

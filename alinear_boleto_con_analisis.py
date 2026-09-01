@@ -201,6 +201,37 @@ def alinear_prediccion(data):
             "baja": sum(1 for p in data["partidos"] if p.get("calidad_datos") == "baja"),
         },
     }
+    # Reconciliar el boleto millonario con el boleto YA alineado. Bug real
+    # (auditoria 01/09/2026): este script reescribe tipo/signo_final pero el
+    # boleto_millonario del motor se quedaba con los signos conservadores de
+    # ANTES del alineado -la web mostraba "cambia X2 -> X" en un partido
+    # cuyo boleto final ya era un fijo "2", y marcaba como cambio cosas que
+    # el boleto final ya cubria.
+    millonario = data.get("boleto_millonario") or {}
+    if millonario.get("cambios_respecto_a_conservadora"):
+        finales = {int(p.get("num") or 0): p for p in data["partidos"]}
+        cambios_vivos = []
+        for cambio in millonario["cambios_respecto_a_conservadora"]:
+            final = finales.get(int(cambio.get("num") or 0)) or {}
+            signo_final = str(final.get("signo_final") or "")
+            cambio["signo_conservador"] = signo_final or cambio.get("signo_conservador")
+            signo_mill = str(cambio.get("signo_millonario") or "")
+            # Si el boleto final ya cubre el signo millonario (doble/triple
+            # que lo incluye), el "cambio" ya no cambia nada: fuera.
+            if signo_mill and signo_mill not in signo_final:
+                cambios_vivos.append(cambio)
+        millonario["cambios_respecto_a_conservadora"] = cambios_vivos
+        millonario["total_cambios"] = len(cambios_vivos)
+        millonario["resumen"] = (
+            f"{len(cambios_vivos)} partido(s) con evidencia contextual real para ir a por la sorpresa."
+            if cambios_vivos else
+            "Sin cambios: el boleto alineado ya cubre todas las sorpresas con evidencia real."
+        )
+        vivos_num = {int(c.get("num") or 0) for c in cambios_vivos}
+        for p in millonario.get("partidos", []):
+            p["es_cambio_millonario"] = int(p.get("num") or 0) in vivos_num
+        data["boleto_millonario"] = millonario
+
     data["ataques_favorito_prioritarios"] = [
         {
             "num": p.get("num"),

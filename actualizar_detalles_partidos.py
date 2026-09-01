@@ -196,8 +196,14 @@ def main():
         print("ERROR: jornada no disponible en prediccion")
         return
 
-    # eduardolosilla usa año de FIN de temporada (2025/26 = 2026)
-    temporada = 2026
+    # eduardolosilla usa año de FIN de temporada (2026/27 = 2027). Calculado,
+    # no fijo: estaba hardcodeado a 2026 y desde el arranque de la 26/27 la
+    # API devolvia HTTP 400 en silencio -por eso no existian detalles_j2/j3/j4
+    # (bug real, auditoria 01/09/2026; la misma familia temporada-hardcodeada
+    # que ya rompio 8 veces). La temporada futbolistica empieza en agosto:
+    # de agosto a diciembre el año de fin es el siguiente.
+    hoy = datetime.now(timezone.utc)
+    temporada = hoy.year + 1 if hoy.month >= 8 else hoy.year
     salida = JORNADAS_DIR / f"detalles_j{jornada}.json"
 
     print(f"Jornada {jornada} | Temporada {temporada}")

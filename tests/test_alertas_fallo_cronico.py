@@ -1,5 +1,6 @@
 import io
 import sys
+import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -12,15 +13,17 @@ import actualizar_todo as at
 
 class AlertaFalloCronicoTests(unittest.TestCase):
     def setUp(self):
+        # Directorio temporal, NUNCA el data/ real del repo: si el proceso
+        # muriera a mitad, el archivo huerfano quedaria en data/ y el
+        # `git add .` del workflow lo publicaria en el siguiente ciclo
+        # (hallazgo de la auditoria de tests, 01/09/2026).
+        self._tmp = tempfile.TemporaryDirectory()
         self._ruta_original = at.HISTORIAL_FALLOS
-        at.HISTORIAL_FALLOS = ROOT / "data" / "_test_diagnostico_fallos_cronicos.json"
-        if at.HISTORIAL_FALLOS.exists():
-            at.HISTORIAL_FALLOS.unlink()
+        at.HISTORIAL_FALLOS = Path(self._tmp.name) / "_test_diagnostico_fallos_cronicos.json"
 
     def tearDown(self):
-        if at.HISTORIAL_FALLOS.exists():
-            at.HISTORIAL_FALLOS.unlink()
         at.HISTORIAL_FALLOS = self._ruta_original
+        self._tmp.cleanup()
 
     def test_fallos_por_debajo_del_umbral_no_alertan(self):
         salida = io.StringIO()

@@ -84,9 +84,22 @@ def buscar_contexto_equipo(nombre, indice):
     return None
 
 
+JORNADAS_RESTANTES_PARA_OBJETIVOS_REALES = 10
+
+
+def objetivos_en_juego_de_verdad(equipo):
+    # Mismo gate que el motor: los objetivos de tabla solo cuentan a falta
+    # de 10 jornadas o menos (esta copia local no lo tenia -auditoria
+    # 01/09/2026).
+    try:
+        return int((equipo or {}).get("partidos_restantes")) <= JORNADAS_RESTANTES_PARA_OBJETIVOS_REALES
+    except (TypeError, ValueError):
+        return True
+
+
 def valor_motivacion(equipo):
     orden = {"baja": 0, "media": 1, "alta": 2, "maxima": 3}
-    if not equipo:
+    if not equipo or not objetivos_en_juego_de_verdad(equipo):
         return 0
     return orden.get(str(equipo.get("motivacion_competitiva", equipo.get("motivacion", "baja"))).lower(), 0)
 

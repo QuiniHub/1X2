@@ -324,41 +324,9 @@
     .stand-row:first-of-type { border-top: 0; }
     .situation { color: var(--muted); font-size: 12px; }
 
-    /* Mundial subtabs */
-    .world-subtabs { display: flex; gap: 6px; margin-bottom: 16px; }
-    .world-tab { padding: 7px 16px; border: 1px solid var(--soft); border-radius: 20px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.15s; }
-    .world-tab.active { background: var(--green); border-color: var(--green); color: #fff; }
-
-    /* Bracket */
-    .bracket-scroll { overflow-x: auto; padding-bottom: 12px; }
-    .bracket-wrap { display: flex; gap: 0; min-width: max-content; }
-    .b-col { display: flex; flex-direction: column; width: 160px; flex-shrink: 0; }
-    .b-col-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); text-align: center; padding: 0 8px 10px; white-space: nowrap; }
-    .b-col-body { position: relative; flex: 1; }
-    .b-col-connector { width: 20px; flex-shrink: 0; position: relative; }
-    .b-match { position: absolute; left: 6px; right: 6px; background: var(--card); border: 1px solid var(--soft); border-radius: 10px; display: flex; flex-direction: column; justify-content: space-between; padding: 6px 8px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-    .b-match.has-result { border-color: var(--green); }
-    .b-team { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
-    .b-team.tbd { color: var(--muted); font-weight: 400; font-style: italic; }
-    .b-team.winner { color: var(--green); }
-    .b-team.loser { color: var(--muted); text-decoration: line-through; }
-    .b-divider { height: 1px; background: var(--soft); margin: 3px 0; }
-    .b-meta { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.2; }
-    .b-score { font-size: 11px; font-weight: 700; color: var(--fg); text-align: center; }
-
-    /* Bracket round cards (mobile-friendly fallback) */
-    .bracket-round { margin-bottom: 18px; }
-    .bracket-round-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; }
-    .bracket-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
-    .bracket-match-card { background: var(--card); border: 1px solid var(--soft); border-radius: 10px; padding: 10px 12px; }
-    .bracket-match-card.played { border-color: var(--green); }
-    .bracket-team { font-size: 13px; font-weight: 600; padding: 3px 0; display: flex; justify-content: space-between; align-items: center; }
-    .bracket-team .goles { font-size: 15px; font-weight: 800; min-width: 18px; text-align: right; }
-    .bracket-team.winner .goles { color: var(--green); }
-    .bracket-team.loser { color: var(--muted); }
-    .bracket-team.tbd { color: var(--muted); font-style: italic; font-weight: 400; }
-    .bracket-divider { height: 1px; background: var(--soft); margin: 4px 0; }
-    .bracket-info { font-size: 10px; color: var(--muted); margin-top: 4px; }
+    /* CSS del Mundial 2026 (subtabs y bracket) eliminado 01/09/2026: el
+       marcado que lo usaba se retiro con el codigo del Mundial y ningun
+       elemento del DOM ni del JS lo referencia ya (auditoria). */
     .tag { border-radius: 999px; padding: 5px 9px; font-size: 12px; font-weight: 900; background: var(--soft-2); color: var(--muted); }
     .tag.ok { background: rgba(29, 158, 117, 0.12); color: var(--green); }
     .tag.bad { background: rgba(200, 71, 71, 0.12); color: var(--danger); }
@@ -421,7 +389,7 @@
       <button class="tab-btn" data-tab="aprendizaje">Aprendizaje</button>
       <button class="tab-btn" data-tab="historial">Historial</button>
       <button class="tab-btn" data-tab="jugadas">Quinielas Jugadas</button>
-      <button class="tab-btn" data-tab="liga">Liga 26/27</button>
+      <button class="tab-btn" data-tab="liga" id="tabLigaLabel">Liga 26/27</button>
       <button class="tab-btn" data-tab="chat">🧠 IA</button>
     </nav>
 
@@ -548,7 +516,7 @@
 
     <section id="liga" class="tab-panel">
       <div class="grid-2" style="margin-bottom:16px">
-        <div class="countdown"><div><strong id="daysToLeague">--</strong><span>días hasta el inicio de Liga 26/27</span></div></div>
+        <div class="countdown"><div><strong id="daysToLeague">--</strong><span id="lblInicioLiga">días hasta el inicio de Liga 26/27</span></div></div>
         <div class="card">
           <div class="card-head"><h2>Clasificación inicial 26/27</h2><span class="tag blue">Sorteo celebrado 30/06/2026</span></div>
           <div class="card-body"><div class="teams-list" id="leagueTeams"></div></div>
@@ -606,7 +574,7 @@
   </main>
 
   <script>
-    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, historial: null, metricas: null, segunda: null, calendario1a: null, calendario2a: null, historicoLigas: null, historicoQuinielas: null, detallesPartidos: null, calJornada1a: 1, calJornada2a: 1, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {}, _historicoTabActiva: 'primera', _quinielaTabActiva: '2025/2026' };
+    const state = { prediccion: null, pleno15Data: null, jornadaActual: null, aprendizaje: null, historial: null, metricas: null, segunda: null, calendario1a: null, calendario2a: null, historicoLigas: null, historicoQuinielas: null, detallesPartidos: null, calJornada1a: 1, calJornada2a: 1, generated: false, dobles: 0, triples: 0, elige8: false, mode: 'auto', signAssignment: {}, typeAssignment: {}, elige8Set: new Set(), pleno15Manual: {}, _historicoTabActiva: 'primera', _quinielaTabActiva: null };
     const qs = (s, root = document) => root.querySelector(s);
     const qsa = (s, root = document) => [...root.querySelectorAll(s)];
     const fmt = (v, fallback = '-') => (v === null || v === undefined || v === '' ? fallback : v);
@@ -864,18 +832,6 @@
       return `<span>1 ${pct(probs['1'])} · X ${pct(probs.X)} · 2 ${pct(probs['2'])}</span>`;
     }
 
-    function elige8Probability(match) {
-      return firstNumber(match.elige8_probabilidad_acierto, match.probabilidad_acierto_elige8, match.elige8_probabilidad_cubierta, match.elige8_confianza_real, match.probabilidad_top);
-    }
-
-    function flagValue(value) {
-      if (typeof value === 'boolean') return value;
-      if (typeof value === 'number') return value > 0;
-      if (typeof value === 'string') return ['true', 'si', 'sí', '1', 'yes'].includes(value.toLowerCase());
-      if (value && typeof value === 'object') return Boolean(value.activo ?? value.seleccionado ?? value.recomendado ?? value.enabled ?? value.value);
-      return false;
-    }
-
     function isElige8Match(match) {
       if (!state.elige8) return false;
       const num = match.num ?? match.numero ?? match.partido;
@@ -1001,7 +957,7 @@
         const dd = arr(det.datos_destacados)[0] || '';
         if (h.total > 0 || dd) {
           h2hHtml = `<div style="margin-top:4px;padding-top:4px;border-top:1px solid var(--border,#eee);color:var(--muted,#666)">`;
-          if (h.total > 0) h2hHtml += `<span style="margin-right:8px">H2H (${h.total}): ${h.v1}V ${h.vX}E ${h.v2}D</span>`;
+          if (h.total > 0) h2hHtml += `<span style="margin-right:8px">H2H (${escapeHtml(h.total)}): ${escapeHtml(h.v1)}V ${escapeHtml(h.vX)}E ${escapeHtml(h.v2)}D</span>`;
           if (dd) h2hHtml += `<span>${escapeHtml(dd)}</span>`;
           h2hHtml += `</div>`;
         }
@@ -1304,14 +1260,15 @@
       const temps = hl.temporadas_cargadas || [];
       qs('#historicoTag').textContent = `${total} partidos · ${temps.join(' | ')}`;
 
-      // Tabs de liga
+      // Tabs de liga (clave saneada en el onclick, etiqueta escapada -ver
+      // el mismo patron en renderHistoricoQuinielas).
       tabsEl.innerHTML = ligaKeys.map(k => {
         const activa = k === state._historicoTabActiva;
-        return `<button onclick="state._historicoTabActiva='${k}';renderHistoricoLigas()" style="
+        return `<button onclick="state._historicoTabActiva='${String(k).replace(/[^\w\/.-]/g, '')}';renderHistoricoLigas()" style="
           padding:6px 14px;border-radius:20px;border:none;cursor:pointer;font-size:13px;font-weight:600;
           background:${activa ? 'var(--accent,#4f46e5)' : 'var(--surface2,#e8e8e8)'};
           color:${activa ? '#fff' : 'var(--fg,#333)'}">
-          ${ligas[k].nombre || k}
+          ${escapeHtml(ligas[k].nombre || k)}
         </button>`;
       }).join('');
 
@@ -1426,14 +1383,17 @@
       const totalJ = tempKeys.reduce((s, k) => s + (temporadas[k].estadisticas?.jornadas || 0), 0);
       qs('#historicoQuinielasTag').textContent = `${totalJ} jornadas · ${tempKeys.join(' | ')}`;
 
-      // Tabs por temporada
+      // Tabs por temporada. La clave se sanea antes de inyectarla en el
+      // onclick inline (una clave con comilla romperia/inyectaria el
+      // handler -auditoria 01/09/2026) y se escapa en la etiqueta visible.
+      const claveSegura = k => String(k).replace(/[^\w\/.-]/g, '');
       qs('#historicoQuinielasTabs').innerHTML = tempKeys.map(k => {
         const activa = k === state._quinielaTabActiva;
-        return `<button onclick="state._quinielaTabActiva='${k}';renderHistoricoQuinielas()" style="
+        return `<button onclick="state._quinielaTabActiva='${claveSegura(k)}';renderHistoricoQuinielas()" style="
           padding:6px 14px;border-radius:20px;border:none;cursor:pointer;font-size:13px;font-weight:600;
           background:${activa ? 'var(--accent,#4f46e5)' : 'var(--surface2,#e8e8e8)'};
           color:${activa ? '#fff' : 'var(--fg,#333)'}">
-          ${k}
+          ${escapeHtml(k)}
         </button>`;
       }).join('');
 
@@ -1465,33 +1425,36 @@
               const signosHtml = signos.map(s => {
                 const bg = s==='1' ? '#e8f5e9' : s==='X' ? '#fff3e0' : s==='2' ? '#e3f2fd' : '#f5f5f5';
                 const fg = s==='1' ? '#2e7d32' : s==='X' ? '#e65100' : s==='2' ? '#1565c0' : '#999';
-                return `<span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:3px;background:${bg};color:${fg};font-weight:700;font-size:11px;margin:1px">${s}</span>`;
+                return `<span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:3px;background:${bg};color:${fg};font-weight:700;font-size:11px;margin:1px">${escapeHtml(s)}</span>`;
               }).join('');
-              const id = `qj_${j.temporada_key}_${j.jornada}`;
+              // id saneado: temporada_key/jornada acaban dentro de un
+              // onclick inline mas abajo -sin sanear, un valor con comilla
+              // inyectaria en el handler (auditoria 01/09/2026).
+              const id = `qj_${String(j.temporada_key).replace(/[^\w-]/g, '_')}_${String(j.jornada).replace(/[^\w-]/g, '_')}`;
               const partidos14 = arr(j.partidos).filter(p => p.num <= 14);
               const p15 = arr(j.partidos).find(p => p.num === 15);
               const partidosHtml = `<div id="${id}" style="display:none;margin-top:6px;border-top:1px solid var(--border,#eee);padding-top:6px">
                 <table style="width:100%;border-collapse:collapse;font-size:11px">
                   ${partidos14.map(p => {
                     const bg2 = (p.signo_oficial||'') === '1' ? '#e8f5e9' : (p.signo_oficial||'') === 'X' ? '#fff3e0' : (p.signo_oficial||'') === '2' ? '#e3f2fd' : '#f9f9f9';
-                    const porc = p.porc1 != null ? ` <span style="color:var(--muted,#888)">(${p.porc1}%·${p.porcX}%·${p.porc2}%)</span>` : '';
+                    const porc = p.porc1 != null ? ` <span style="color:var(--muted,#888)">(${escapeHtml(p.porc1)}%·${escapeHtml(p.porcX)}%·${escapeHtml(p.porc2)}%)</span>` : '';
                     return `<tr><td style="padding:2px 6px;color:var(--muted,#888);width:20px">${p.num}</td>
                       <td style="padding:2px 6px">${escapeHtml(p.local)}</td>
                       <td style="padding:2px 6px;text-align:center;font-weight:700">${escapeHtml(p.resultado||'')}</td>
                       <td style="padding:2px 6px">${escapeHtml(p.visitante)}</td>
-                      <td style="padding:2px 4px;text-align:center"><span style="background:${bg2};padding:1px 5px;border-radius:4px;font-weight:700">${p.signo_oficial||'?'}</span>${porc}</td>
+                      <td style="padding:2px 4px;text-align:center"><span style="background:${bg2};padding:1px 5px;border-radius:4px;font-weight:700">${escapeHtml(p.signo_oficial||'?')}</span>${porc}</td>
                     </tr>`;
                   }).join('')}
                   ${p15 ? `<tr style="border-top:2px solid var(--border,#ddd)"><td style="padding:2px 6px;color:var(--muted,#888)">P15</td>
                     <td style="padding:2px 6px">${escapeHtml(p15.local)}</td>
                     <td style="padding:2px 6px;text-align:center;font-weight:700">${escapeHtml(p15.resultado||'')}</td>
                     <td style="padding:2px 6px">${escapeHtml(p15.visitante)}</td>
-                    <td style="padding:2px 4px;text-align:center"><span style="background:#f3e5f5;padding:1px 5px;border-radius:4px;font-weight:700">${p15.signo_p15||p15.signo_oficial||'?'}</span></td>
+                    <td style="padding:2px 4px;text-align:center"><span style="background:#f3e5f5;padding:1px 5px;border-radius:4px;font-weight:700">${escapeHtml(p15.signo_p15||p15.signo_oficial||'?')}</span></td>
                   </tr>` : ''}
                 </table>
               </div>`;
               return `<tr style="border-bottom:1px solid var(--border,#eee)">
-                <td style="padding:5px 8px;text-align:center;font-weight:700;color:var(--muted,#888)">${j.jornada}</td>
+                <td style="padding:5px 8px;text-align:center;font-weight:700;color:var(--muted,#888)">${escapeHtml(j.jornada)}</td>
                 <td style="padding:5px 8px;white-space:nowrap;color:var(--muted,#888)">${escapeHtml(j.fecha||'')}</td>
                 <td style="padding:5px 8px">${signosHtml}</td>
                 <td style="padding:5px 8px;text-align:center">
@@ -1533,10 +1496,25 @@
       return Number(row.aciertos || 0);
     }
 
-    // Primera jornada de la temporada 26/27 (la J1 se valido el 15/08/2026).
-    // La Quiniela reinicia su numeracion cada temporada, asi que el numero
-    // por si solo no distingue "J1 nueva" de "J1 de hace un año".
-    const INICIO_TEMPORADA_ACTUAL_MS = Date.parse('2026-08-15T00:00:00Z');
+    // Inicio de la temporada futbolistica ACTUAL, calculado -no fijo. La
+    // temporada arranca en agosto: de agosto a diciembre empieza el 1 de
+    // agosto de este año; de enero a julio, el del año pasado. Antes era
+    // Date.parse('2026-08-15') hardcodeado: en el reinicio 27/28 las
+    // jornadas de la 26/27 habrian seguido contando como "actuales" y la
+    // J1 nueva habria colisionado por numero con la vieja (el patron de
+    // bug repetido 8+ veces; auditoria 01/09/2026).
+    function inicioTemporadaActualMs() {
+      const hoy = new Date();
+      const anio = hoy.getUTCMonth() >= 7 ? hoy.getUTCFullYear() : hoy.getUTCFullYear() - 1;
+      return Date.parse(`${anio}-08-01T00:00:00Z`);
+    }
+    const INICIO_TEMPORADA_ACTUAL_MS = inicioTemporadaActualMs();
+    // Etiqueta "2026/2027" de la temporada en curso, para comparar contra
+    // temporada_detectada sin hardcodear el año en cada sitio.
+    function temporadaActualLabel() {
+      const inicio = new Date(inicioTemporadaActualMs()).getUTCFullYear();
+      return `${inicio}/${inicio + 1}`;
+    }
 
     // quinielas_jugadas.json arrastra DOS formatos de fecha segun cuando se
     // guardo cada entrada: ISO ("2026-08-15T06:45:14.841Z") y formato
@@ -1566,17 +1544,32 @@
       );
     }
 
+    // Jornadas de la "era IA" posteriores al reinicio de numeracion:
+    // cualquier quiniela jugada desde el arranque de la 26/27 en adelante
+    // (fecha, no numero). Sin esto, en el reinicio 27/28 las jornadas de la
+    // 26/27 (numeros 1-40) no pasarian ni el suelo historico >=61 ni el
+    // filtro de "temporada actual", y desaparecerian del Historial
+    // (auditoria 01/09/2026, mina de reinicio).
+    const INICIO_ERA_IA_NUEVA_MS = Date.parse('2026-08-01T00:00:00Z');
+    function jornadasEraIaNueva() {
+      return new Set(
+        arr((state.quinielasJugadas || {}).jugadas)
+          .filter(j => (fechaValidadoMs(j.validado_en) || 0) >= INICIO_ERA_IA_NUEVA_MS)
+          .map(j => Number(j.jornada))
+      );
+    }
+
     function historyRowsWithIa() {
       const h = state.historial || {};
-      // El suelo "jornada >= 61" marcaba el arranque de la IA dentro de la
-      // temporada 25/26, pero con el reinicio de numeracion ese mismo suelo
-      // escondia la J1 de la 26/27 recien jugada (y habria escondido todas
-      // las de esta temporada hasta llegar otra vez a la 61). Las jornadas
-      // de la temporada en curso se reconocen por fecha, no por numero.
+      // El suelo "jornada >= 61" marca el arranque de la IA dentro de la
+      // temporada 25/26 (numeracion vieja); todo lo posterior al reinicio
+      // se reconoce por fecha via jornadasEraIaNueva().
       const actuales = jornadasDeLaTemporadaActual();
+      const eraNueva = jornadasEraIaNueva();
       const esActual = r => actuales.has(Number(r.jornada));
+      const esEraIa = r => Number(r.jornada) >= 61 || eraNueva.has(Number(r.jornada)) || esActual(r);
       return arr(h.jornadas || h.historial || h.resultados)
-        .filter(r => (Number(r.jornada) >= 61 || esActual(r))
+        .filter(r => esEraIa(r)
           && (historyAciertos(r) > 0 || Number(r.partidos_comparados || 0) > 0 || arr(r.detalle_partidos).length > 0))
         // Las de la temporada actual van despues de las viejas aunque su
         // numero sea menor -si no, la J1 nueva acabaria al final de la tabla
@@ -1674,10 +1667,20 @@
     };
 
     function renderLeague() {
-      const start = new Date('2026-08-14T20:00:00+02:00');
-      const today = new Date();
-      const days = Math.max(0, Math.ceil((start - today) / 86400000));
-      qs('#daysToLeague').textContent = days;
+      // Countdown solo tiene sentido ANTES del arranque; con la liga en
+      // marcha la tarjeta entera se oculta (antes quedaba un "0 días hasta
+      // el inicio de Liga 26/27" fijo para siempre -y en 27/28 seguiria
+      // diciendo 26/27; auditoria 01/09/2026). La fecha exacta del primer
+      // partido no se hardcodea: basta con "ya empezo" via
+      // INICIO_TEMPORADA_ACTUAL_MS + primera quincena de agosto.
+      const contadorEl = qs('#daysToLeague');
+      const inicioLiga = INICIO_TEMPORADA_ACTUAL_MS + 14 * 86400000; // ~mediados de agosto
+      const days = Math.max(0, Math.ceil((inicioLiga - Date.now()) / 86400000));
+      if (contadorEl) {
+        contadorEl.textContent = days;
+        const tarjeta = contadorEl.closest('.countdown');
+        if (tarjeta) tarjeta.style.display = days > 0 ? '' : 'none';
+      }
 
       const teamCell = nombre => `<strong>${escapeHtml(nombre)}</strong>`;
 
@@ -1689,32 +1692,44 @@
       // mostrar clasificaciones.json tal cual seria tan enganoso como los
       // ceros: datos reales, pero de la temporada equivocada.
       const clasif = state.clasificacionesOficiales;
-      const temporadaReal = !!(clasif && clasif.temporada_detectada === '2026/2027'
+      // Comparacion contra la temporada ACTUAL calculada, no contra un
+      // literal '2026/2027' -en el reinicio 27/28 el literal habria hecho
+      // caer esta pestaña al roster viejo hardcodeado con ceros (datos
+      // falsos con aspecto real; auditoria 01/09/2026).
+      const temporadaEnCurso = temporadaActualLabel();
+      const etiquetaCorta = temporadaEnCurso.replace(/^\d{2}(\d{2})\/\d{2}(\d{2})$/, '$1/$2');
+      const temporadaReal = !!(clasif && clasif.temporada_detectada === temporadaEnCurso
         && arr(clasif.primera).length >= 20 && arr(clasif.segunda).length >= 22);
 
       let html;
       if (temporadaReal) {
-        const filaReal = fila => `<tr><td>${fila.posicion}</td><td>${teamCell(fila.equipo)}</td><td>${fila.pj ?? 0}</td><td>${fila.g ?? 0}</td><td>${fila.e ?? 0}</td><td>${fila.p ?? 0}</td><td>${fila.gf ?? 0}</td><td>${fila.gc ?? 0}</td><td>${fila.dg ?? 0}</td><td>${fila.puntos ?? 0}</td></tr>`;
+        const filaReal = fila => `<tr><td>${escapeHtml(fila.posicion)}</td><td>${teamCell(fila.equipo)}</td><td>${escapeHtml(fila.pj ?? 0)}</td><td>${escapeHtml(fila.g ?? 0)}</td><td>${escapeHtml(fila.e ?? 0)}</td><td>${escapeHtml(fila.p ?? 0)}</td><td>${escapeHtml(fila.gf ?? 0)}</td><td>${escapeHtml(fila.gc ?? 0)}</td><td>${escapeHtml(fila.dg ?? 0)}</td><td>${escapeHtml(fila.puntos ?? 0)}</td></tr>`;
         const table = (title, equipos) => {
           const ordenados = arr(equipos).slice().sort((a, b) => (a.posicion || 999) - (b.posicion || 999));
           const yaHayPartidos = ordenados.some(e => Number(e.pj) > 0);
           const subtitulo = yaHayPartidos
             ? 'Clasificación real, actualizada en directo.'
-            : 'Roster confirmado de 2026/27 -la liga todavía no ha empezado a jugarse, todos a 0.';
+            : `Roster confirmado de ${etiquetaCorta} -la liga todavía no ha empezado a jugarse, todos a 0.`;
           return `<section style="grid-column:1/-1;display:grid;gap:12px"><div><h3>${escapeHtml(title)}</h3><p class="subtitle">${subtitulo}</p></div><table><thead><tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr></thead><tbody>${ordenados.map(filaReal).join('')}</tbody></table></section>`;
         };
         html = [
-          table('LALIGA EA SPORTS 2026/27', clasif.primera),
-          table('LALIGA HYPERMOTION 2026/27', clasif.segunda)
+          table(`LALIGA EA SPORTS ${etiquetaCorta}`, clasif.primera),
+          table(`LALIGA HYPERMOTION ${etiquetaCorta}`, clasif.segunda)
         ].join('');
-      } else {
+      } else if (temporadaEnCurso === '2026/2027') {
+        // Respaldo hardcodeado, valido SOLO mientras la temporada en curso
+        // sea la 26/27 -en 27/28 este roster seria mentira con aspecto de
+        // dato real (auditoria 01/09/2026), asi que a partir de entonces
+        // se muestra el aviso honesto de abajo en su lugar.
         const statCells = '<td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>';
         const row = (nombre, idx) => `<tr><td>${idx + 1}</td><td>${teamCell(nombre)}</td>${statCells}</tr>`;
         const table = (title, equipos) => `<section style="grid-column:1/-1;display:grid;gap:12px"><div><h3>${escapeHtml(title)}</h3><p class="subtitle">Clasificación inicial 2026/27 · todos los equipos arrancan con 0 puntos.</p></div><table><thead><tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr></thead><tbody>${equipos.map(row).join('')}</tbody></table></section>`;
         html = [
-          table('LALIGA EA SPORTS 2026/27', EQUIPOS_2627.primera),
-          table('LALIGA HYPERMOTION 2026/27', EQUIPOS_2627.segunda)
+          table('LALIGA EA SPORTS 26/27', EQUIPOS_2627.primera),
+          table('LALIGA HYPERMOTION 26/27', EQUIPOS_2627.segunda)
         ].join('');
+      } else {
+        html = `<section style="grid-column:1/-1"><p class="subtitle">La clasificación de la temporada ${escapeHtml(temporadaEnCurso)} todavía no está disponible en las fuentes — se cargará sola en cuanto AS.com publique la tabla real.</p></section>`;
       }
 
       qs('#leagueTeams').innerHTML = html;
@@ -1880,7 +1895,7 @@
         : '';
 
       const notaParcial = cal._nota
-        ? `<p class="subtitle" style="padding:4px 16px 0;color:#d97706">⚠️ ${cal._nota}</p>`
+        ? `<p class="subtitle" style="padding:4px 16px 0;color:#d97706">⚠️ ${escapeHtml(cal._nota)}</p>`
         : '';
 
       const filas = jornada.partidos.map(p => {
@@ -1955,15 +1970,6 @@
         if (e.target.id === 'calLigaSel') renderCalendario();
       });
 
-      document.addEventListener('click', e => {
-        const btn = e.target.closest('.world-tab');
-        if (!btn) return;
-        qsa('.world-tab').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const tab = btn.dataset.wtab;
-        qs('#worldPanelEliminatorias').style.display = tab === 'eliminatorias' ? '' : 'none';
-        qs('#worldPanelGrupos').style.display = tab === 'grupos' ? '' : 'none';
-      });
       qsa('[data-counter]').forEach(btn => btn.addEventListener('click', () => {
         const key = btn.dataset.counter;
         const other = key === 'dobles' ? 'triples' : 'dobles';
@@ -2101,7 +2107,6 @@
           body: JSON.stringify({ search_depth: 'advanced', include_answer: true, ...body })
         }).then(r => r.ok ? r.json() : null).catch(() => null);
         const tsdbPast  = id  => fetch(`https://www.thesportsdb.com/api/v1/json/3/eventspastleague.php?id=${id}`).then(r=>r.ok?r.json():null).catch(()=>null);
-        const tsdbNext  = id  => fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=${id}`).then(r=>r.ok?r.json():null).catch(()=>null);
         const tsdbStand = (l,s) => fetch(`https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=${l}&s=${s}`).then(r=>r.ok?r.json():null).catch(()=>null);
 
         // ── 1. TODOS LOS FETCHES EN PARALELO ─────────────────────────────────
@@ -2128,7 +2133,7 @@
             }),
             // Tavily: noticias equipos nórdicos + Pleno al 15
             tavilyFetch({
-              query: `${[...equiposNordicos.slice(0,5), plenoPartido.local, plenoPartido.visitante].filter(Boolean).join(' ')} resultados forma clasificación 2026`,
+              query: `${[...equiposNordicos.slice(0,5), plenoPartido.local, plenoPartido.visitante].filter(Boolean).join(' ')} resultados forma clasificación ${new Date().getFullYear()}`,
               include_domains: ['flashscore.es','sofascore.com','soccerway.com','transfermarkt.es','fotmob.com','eldesmarque.com'],
               max_results: 5
             }),
@@ -2278,7 +2283,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
               const gV = plenoPartido.probabilidades_goles?.visitante || {};
               content.innerHTML += `
                 <span style="color:var(--text);font-weight:600;display:block;margin-top:8px">Partido: ${escapeHtml(plenoPartido.local)} vs ${escapeHtml(plenoPartido.visitante)}</span>
-                <span style="color:var(--muted,#555);display:block;font-size:13px">${escapeHtml(plenoPartido.local)}: 0g=${gL['0']||'?'}% · 1g=${gL['1']||'?'}% · 2g=${gL['2']||'?'}% · M=${gL['M']||'?'}%</span>
+                <span style="color:var(--muted,#555);display:block;font-size:13px">${escapeHtml(plenoPartido.local)}: 0g=${escapeHtml(gL['0']||'?')}% · 1g=${escapeHtml(gL['1']||'?')}% · 2g=${escapeHtml(gL['2']||'?')}% · M=${escapeHtml(gL['M']||'?')}%</span>
                 <span style="color:var(--muted,#555);display:block;font-size:13px">${escapeHtml(plenoPartido.visitante)}: 0g=${gV['0']||'?'}% · 1g=${gV['1']||'?'}% · 2g=${gV['2']||'?'}% · M=${gV['M']||'?'}%</span>`;
             }
             // Recomendacion motor (cual de los 14 apostar)
@@ -2288,7 +2293,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
               const pX2 = parseFloat(pProbs['X'] || 0).toFixed(1);
               const pV2 = parseFloat(pProbs['2'] || 0).toFixed(1);
               content.innerHTML += `
-                <span style="color:#059669;font-weight:600;display:block;margin-top:10px">✅ Motor recomienda apostar por: ${escapeHtml(motorRec.local)} vs ${escapeHtml(motorRec.visitante)} — Signo ${escapeHtml(motorRec.signo_recomendado)} (${motorRec.probabilidad}%)</span>
+                <span style="color:#059669;font-weight:600;display:block;margin-top:10px">✅ Motor recomienda apostar por: ${escapeHtml(motorRec.local)} vs ${escapeHtml(motorRec.visitante)} — Signo ${escapeHtml(motorRec.signo_recomendado)} (${escapeHtml(motorRec.probabilidad)}%)</span>
                 <span style="color:#0891b2;display:block;font-size:13px">1=${pL2}% · X=${pX2}% · 2=${pV2}%</span>
                 <span style="color:var(--muted,#555);display:block;margin-top:4px;font-size:12px;line-height:1.4">${escapeHtml((motorRec.razonamiento||'').slice(0,250))}…</span>`;
             }
@@ -2595,7 +2600,20 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       }
 
       // Pestaña Liga 26/27 — una línea
-      const liga2627 = `\nLIGA 26/27: Primera comienza 14/08/2026. Suben de 2ª: Racing de Santander, Deportivo de La Coruña, Málaga CF. Bajan a 2ª: Real Oviedo, RCD Mallorca, Girona FC.\n1ª (20): ${EQUIPOS_2627.primera.join(', ')}.\n2ª (22): ${EQUIPOS_2627.segunda.join(', ')}.`;
+      // Composicion de ligas para el chat: desde los datos REALES de
+      // clasificaciones_oficiales.json cuando la temporada detectada es la
+      // en curso; el roster hardcodeado EQUIPOS_2627 queda solo como
+      // respaldo mientras la deteccion coincida con 2026/2027 (en 27/28
+      // este bloque se construye de los datos y no miente; auditoria
+      // 01/09/2026).
+      const clasifChat = state.clasificacionesOficiales || {};
+      const tempDetectada = clasifChat.temporada_detectada || '';
+      let liga2627 = '';
+      if (arr(clasifChat.primera).length >= 18 && arr(clasifChat.segunda).length >= 18) {
+        liga2627 = `\nLIGA ${tempDetectada}: composición real.\n1ª (${arr(clasifChat.primera).length}): ${arr(clasifChat.primera).map(e => e.equipo).join(', ')}.\n2ª (${arr(clasifChat.segunda).length}): ${arr(clasifChat.segunda).map(e => e.equipo).join(', ')}.`;
+      } else if (tempDetectada === '2026/2027' || !tempDetectada) {
+        liga2627 = `\nLIGA 26/27: Primera comienza 14/08/2026. Suben de 2ª: Racing de Santander, Deportivo de La Coruña, Málaga CF. Bajan a 2ª: Real Oviedo, RCD Mallorca, Girona FC.\n1ª (20): ${EQUIPOS_2627.primera.join(', ')}.\n2ª (22): ${EQUIPOS_2627.segunda.join(', ')}.`;
+      }
 
       // Historial real LaLiga 1ª y 2ª — 3 temporadas completas
       let bloqueHistoricoLigas = '';
@@ -2942,7 +2960,7 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         return `Mundial 2026 ${texto.slice(0, 60)} ${fechaHoy}`;
       }
       if (/allsvenskan|liga suec/i.test(t))
-        return `Allsvenskan 2026 ${texto.slice(0, 50)} ${fechaHoy}`;
+        return `Allsvenskan ${new Date().getFullYear()} ${texto.slice(0, 50)} ${fechaHoy}`;
       if (/veikkausliiga|liga finlan/i.test(t))
         return `Veikkausliiga 2026 ${texto.slice(0, 50)} ${fechaHoy}`;
       if (/eliteserien|norueg/i.test(t))
@@ -3488,14 +3506,18 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
             }
           }
           if (equipoEncontrado) {
+            // Temporada calculada, no literal '2026/2027' -en 27/28 el
+            // literal habria etiquetado la temporada nueva como "final de
+            // la pasada" con años equivocados (auditoria 01/09/2026).
             const temporada = (state.contextoCompetitivo || {}).temporada_detectada;
-            const pretemporada2627 = temporada === '2026/2027' && !(equipoEncontrado.pj > 0);
-            const etiquetaTemporada = temporada !== '2026/2027'
-              ? 'clasificación FINAL de 2025/2026 — la Liga 26/27 aún no ha empezado'
-              : pretemporada2627
-                ? 'roster confirmado de 2026/2027 — la Liga todavía NO ha empezado a jugarse, todos los equipos están a 0'
-                : 'clasificación EN VIVO de 2026/2027, con partidos ya jugados';
-            bloqueClasificacionEquipo = `\n\n--- SITUACIÓN REAL DE ${equipoEncontrado.equipo.toUpperCase()} EN LA LIGA (${etiquetaTemporada}) ---\nDivisión: ${equipoEncontrado.liga} · Posición: ${equipoEncontrado.posicion} · Puntos: ${equipoEncontrado.puntos} (${equipoEncontrado.pj} PJ) · DG: ${equipoEncontrado.dg}\n${equipoEncontrado.lectura_resumen || 'Sin lectura competitiva específica.'}\nIMPORTANTE: usa EXCLUSIVAMENTE estos datos para hablar de la situación en la liga de este equipo. Dile claramente al usuario cuál de las 3 situaciones aplica: (a) clasificación final de la temporada pasada, (b) roster ya confirmado de 2026/2027 pero SIN NINGÚN PARTIDO JUGADO todavía (no digas "acaba de empezar" ni inventes resultados), o (c) clasificación en vivo de 2026/2027 con partidos ya jugados.\n--- FIN CLASIFICACIÓN ---`;
+            const enCurso = temporadaActualLabel();
+            const esPretemporada = temporada === enCurso && !(equipoEncontrado.pj > 0);
+            const etiquetaTemporada = temporada !== enCurso
+              ? `clasificación FINAL de ${temporada || 'la temporada pasada'} — la Liga ${enCurso} aún no ha empezado`
+              : esPretemporada
+                ? `roster confirmado de ${enCurso} — la Liga todavía NO ha empezado a jugarse, todos los equipos están a 0`
+                : `clasificación EN VIVO de ${enCurso}, con partidos ya jugados`;
+            bloqueClasificacionEquipo = `\n\n--- SITUACIÓN REAL DE ${equipoEncontrado.equipo.toUpperCase()} EN LA LIGA (${etiquetaTemporada}) ---\nDivisión: ${equipoEncontrado.liga} · Posición: ${equipoEncontrado.posicion} · Puntos: ${equipoEncontrado.puntos} (${equipoEncontrado.pj} PJ) · DG: ${equipoEncontrado.dg}\n${equipoEncontrado.lectura_resumen || 'Sin lectura competitiva específica.'}\nIMPORTANTE: usa EXCLUSIVAMENTE estos datos para hablar de la situación en la liga de este equipo. Dile claramente al usuario cuál de las 3 situaciones aplica: (a) clasificación final de la temporada pasada, (b) roster ya confirmado de ${enCurso} pero SIN NINGÚN PARTIDO JUGADO todavía (no digas "acaba de empezar" ni inventes resultados), o (c) clasificación en vivo de ${enCurso} con partidos ya jugados.\n--- FIN CLASIFICACIÓN ---`;
             bloqueWeb = '';
           }
         }
@@ -3682,7 +3704,7 @@ TU PERSONALIDAD:
 - Si encontraste info web, intégrala de forma natural — no digas "según la web", di directamente los datos.
 - Respuestas concisas y naturales. Sin bullets innecesarios. Como una conversación real.
 
-DATOS REALES DE TU SISTEMA — TEMPORADA 2026/2027:
+DATOS REALES DE TU SISTEMA — TEMPORADA ${temporadaActualLabel()}:
 ${contexto}${bloqueCalendario}${bloqueLesionesEquipo}${bloqueClasificacionEquipo}${bloqueFootball}${bloqueClasif}${bloqueWeb}${bloqueURLs}${bloqueAdjunto}${quiereAprender ? `
 
 INSTRUCCIÓN ESPECIAL — MEMORIZAR: El usuario quiere que aprendas algo. Responde normalmente y al final añade EXACTAMENTE esta línea (sin nada después):
@@ -3777,6 +3799,13 @@ No inventes — solo lo que ves con fondo oscuro.`;
     async function init() {
       bindEvents();
       updateConfigUI();
+      // Etiquetas de temporada visibles, calculadas (el HTML trae "26/27"
+      // solo como respaldo si este JS no llegara a ejecutarse).
+      const _etiqTemp = temporadaActualLabel().replace(/^\d{2}(\d{2})\/\d{2}(\d{2})$/, '$1/$2');
+      const _tabLiga = qs('#tabLigaLabel');
+      if (_tabLiga) _tabLiga.textContent = `Liga ${_etiqTemp}`;
+      const _lblInicio = qs('#lblInicioLiga');
+      if (_lblInicio) _lblInicio.textContent = `días hasta el inicio de Liga ${_etiqTemp}`;
       const [pred, pleno, apr, hist, metricas, segunda, calendarioPrimera, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga, lesionesRespaldo, clasificacionesOficiales, contextoCompetitivo, estadoVivo, calibracionProbabilidades, resultadosLibres] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),

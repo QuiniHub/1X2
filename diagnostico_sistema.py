@@ -96,6 +96,18 @@ def ultima_prediccion():
     return max(candidatas, key=lambda item: item.get("jornada", 0), default={})
 
 
+def fecha_orden_jornada(data):
+    """Ultima fecha ISO de los partidos -orden cronologico real; la
+    numeracion se reinicia cada temporada (patron numero-vs-fecha, ver
+    control_calidad_actualizacion.py)."""
+    fechas = sorted(
+        str(p.get("fecha") or "")[:10]
+        for p in data.get("partidos", [])
+        if re.match(r"^\d{4}-\d{2}-\d{2}", str(p.get("fecha") or ""))
+    )
+    return fechas[-1] if fechas else ""
+
+
 def resumen_jornada(path):
     data = cargar_json(path, {})
     partidos = data.get("partidos", [])
@@ -107,6 +119,7 @@ def resumen_jornada(path):
     return {
         "jornada": jornada_numero(path, data),
         "fecha": data.get("fecha") or "",
+        "fecha_orden": fecha_orden_jornada(data),
         "estado": data.get("estado") or ("cerrada" if len(cerrados) == len(partidos) and partidos else "abierta"),
         "partidos": len(partidos),
         "cerrados": len(cerrados),
@@ -122,13 +135,19 @@ def diagnosticar_jornadas(alertas, jornada_objetivo=None):
     res = []
     for path in sorted(JORNADAS.glob("jornada_*.json"), key=lambda p: int(re.search(r"(\d+)", p.stem).group(1))):
         res.append(resumen_jornada(path))
+    res.sort(key=lambda j: (j.get("fecha_orden") or "", j.get("jornada") or 0))
+    # Orden CRONOLOGICO real (fecha de partidos), nunca por numero: la J76
+    # de 25/26 es "mayor" que la J4 de 26/27 pero es un mes mas vieja -por
+    # numero, este diagnostico daba como "actual" la 76 y como "proxima" la
+    # 64 atascada de mayo (bug real, auditoria 01/09/2026).
+    clave_cronologica = lambda j: (j.get("fecha_orden") or "", j.get("jornada") or 0)
     abiertas = [j for j in res if j["pendientes"] > 0]
     jornada_actual = next((j for j in res if j["jornada"] == jornada_objetivo), None)
     if not jornada_actual:
-        jornada_actual = max(res, key=lambda j: j["jornada"], default=None)
-    proxima = max(
-        [j for j in abiertas if jornada_actual and j["jornada"] > jornada_actual["jornada"]],
-        key=lambda j: j["jornada"],
+        jornada_actual = max(res, key=clave_cronologica, default=None)
+    proxima = min(
+        [j for j in abiertas if jornada_actual and clave_cronologica(j) > clave_cronologica(jornada_actual)],
+        key=clave_cronologica,
         default=None,
     )
 

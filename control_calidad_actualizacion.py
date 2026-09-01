@@ -67,6 +67,23 @@ def signo_valido(valor):
     return str(valor or "").strip().upper() in {"1", "X", "2"}
 
 
+def fecha_orden_jornada(data):
+    """Ultima fecha ISO real de los partidos de la jornada -la unica forma
+    segura de ordenar jornadas de La Quiniela, porque la numeracion se
+    reinicia cada temporada (la J76 de 25/26 es numericamente mayor que la
+    J4 de 26/27 pero es 4 semanas MAS VIEJA). Bug real (01/09/2026,
+    auditoria): este script ordenaba por numero y llevaba semanas gritando
+    en falso "la jornada activa es 76 pero la prediccion dice 4",
+    manteniendo el score de salud en 65 sin que nada estuviera roto -el
+    mismo patron numero-vs-fecha ya corregido 8 veces en otros sitios."""
+    fechas = sorted(
+        str(p.get("fecha") or "")[:10]
+        for p in data.get("partidos", [])
+        if re.match(r"^\d{4}-\d{2}-\d{2}", str(p.get("fecha") or ""))
+    )
+    return fechas[-1] if fechas else ""
+
+
 def resumen_jornada(path):
     data = cargar_json(path, {})
     partidos = data.get("partidos", [])
@@ -75,6 +92,7 @@ def resumen_jornada(path):
     return {
         "jornada": data.get("jornada") or int(re.search(r"(\d+)", path.stem).group(1)),
         "fecha": data.get("fecha", ""),
+        "fecha_orden": fecha_orden_jornada(data),
         "partidos": len(partidos),
         "cerrados": cerrados,
         "pendientes": pendientes,
@@ -86,6 +104,7 @@ def jornadas_estado():
     resumenes = []
     for path in sorted(JORNADAS.glob("jornada_*.json"), key=lambda p: int(re.search(r"(\d+)", p.stem).group(1))):
         resumenes.append(resumen_jornada(path))
+    resumenes.sort(key=lambda r: (r.get("fecha_orden") or "", r.get("jornada") or 0))
     actual = resumenes[-1] if resumenes else None
     ultima = resumenes[-1] if resumenes else None
     return resumenes, actual, ultima

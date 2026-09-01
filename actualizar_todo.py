@@ -52,7 +52,10 @@ SCRIPTS_NO_CRITICOS_RED = {
     "construir_historial_quinielas.py",
     "actualizar_aprendizaje_ia.py",
     "generar_artefactos_compuerta_aprendizaje.py",
-    "generar_diario_aprendizaje.py",
+    # generar_diario_aprendizaje.py retirado (01/09/2026): escribia el
+    # diario y construir_memoria_ia.py lo REESCRIBIA una linea despues -el
+    # archivo publicado ni siquiera era el que consumian sorpresas/pesos/
+    # compuerta. Un solo escritor canonico: construir_memoria_ia.py.
     "construir_memoria_ia.py",
     "alimentar_sorpresas_mercado.py",
     "construir_memoria_historica_profunda.py",
@@ -109,7 +112,10 @@ SCRIPTS_ACTIVOS = [
     "construir_historial_quinielas.py",
     "actualizar_aprendizaje_ia.py",
     "generar_artefactos_compuerta_aprendizaje.py",
-    "generar_diario_aprendizaje.py",
+    # generar_diario_aprendizaje.py retirado (01/09/2026): escribia el
+    # diario y construir_memoria_ia.py lo REESCRIBIA una linea despues -el
+    # archivo publicado ni siquiera era el que consumian sorpresas/pesos/
+    # compuerta. Un solo escritor canonico: construir_memoria_ia.py.
     "construir_memoria_ia.py",
     "aprender_de_historial_resultados.py",
     "memoria_autonoma_quiniela.py",
@@ -149,8 +155,6 @@ SCRIPTS_ACTIVOS = [
     "calcular_premios.py",
 
     # --- Control de calidad ---
-    "guardar_snapshot_prediccion.py",
-    "backtesting_pre_cierre.py",
     "calibrar_probabilidades.py",
     "evaluar_valor_senales.py",
     "diagnostico_sistema.py",
@@ -164,6 +168,14 @@ SCRIPTS_ACTIVOS = [
     "construir_memoria_historica_profunda.py",
     "limpiar_prediccion_bloqueada.py",
     "seleccionar_pleno15.py",
+    # El snapshot y el backtesting se congelan DESPUES de calibrar,
+    # aplicar Elige8 y elegir el Pleno al 15 -antes se congelaban justo
+    # despues del motor, asi que la "precision pre-cierre" media un boleto
+    # que no era el finalmente publicado (auditoria 01/09/2026). Calibrar
+    # lee snapshots de ciclos ANTERIORES, asi que moverlos aqui no le
+    # afecta.
+    "guardar_snapshot_prediccion.py",
+    "backtesting_pre_cierre.py",
     "validar_publicacion_autonoma.py",
 ]
 

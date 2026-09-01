@@ -239,13 +239,32 @@ def validar_prediccion(pred):
         if not jornada_path.exists():
             avisos.append(f"No existe data/jornadas/jornada_{jornada}.json para la prediccion publicada. Aviso no bloqueante.")
 
-    existentes = jornadas_existentes()
-    cerradas = [n for n in existentes if jornada_cerrada(cargar_json(JORNADAS / f"jornada_{n}.json", {}))]
-    jornada_num = entero(jornada)
-    if cerradas and jornada_num and jornada_num <= max(cerradas):
-        avisos.append(
-            f"La prediccion publicada es jornada {jornada}, pero la ultima cerrada detectada es {max(cerradas)}."
+    # Comparacion CRONOLOGICA, no por numero: la numeracion se reinicia
+    # cada temporada, asi que "jornada 4 <= max(76)" avisaba en falso cada
+    # ciclo desde el arranque de la 26/27 (auditoria 01/09/2026, mismo
+    # patron numero-vs-fecha que en control_calidad/diagnostico_sistema).
+    def fecha_orden(data):
+        fechas = sorted(
+            str(p.get("fecha") or "")[:10]
+            for p in data.get("partidos", [])
+            if re.match(r"^\d{4}-\d{2}-\d{2}", str(p.get("fecha") or ""))
         )
+        return fechas[-1] if fechas else ""
+
+    existentes = jornadas_existentes()
+    cerradas = []
+    for n in existentes:
+        data_j = cargar_json(JORNADAS / f"jornada_{n}.json", {})
+        if jornada_cerrada(data_j):
+            cerradas.append((fecha_orden(data_j), n))
+    jornada_num = entero(jornada)
+    fecha_publicada = fecha_orden(cargar_json(JORNADAS / f"jornada_{jornada_num}.json", {})) if jornada_num else ""
+    if cerradas and fecha_publicada:
+        fecha_ultima_cerrada, num_ultima_cerrada = max(cerradas)
+        if fecha_publicada < fecha_ultima_cerrada:
+            avisos.append(
+                f"La prediccion publicada es jornada {jornada} ({fecha_publicada}), pero hay una jornada cerrada mas reciente: {num_ultima_cerrada} ({fecha_ultima_cerrada})."
+            )
 
     return errores, avisos, tipos
 
