@@ -1533,12 +1533,31 @@
       return Number.isNaN(ms) ? NaN : ms;
     }
 
+    // Ancla REAL de la temporada de Quiniela en curso: la fecha en que se
+    // valido la J1 mas reciente (la numeracion se reinicia con cada J1).
+    // Bug real (01/09/2026, captura de Marc): anclar esto a un "1 de
+    // agosto" generico metia a las J75/J76 nordicas (validadas el 1-7 de
+    // agosto, temporada VIEJA) como "temporada actual" y el Historial las
+    // ordenaba por encima de la J3. La J1 nueva es el unico ancla que no
+    // depende de en que dia exacto arranque cada liga.
+    function inicioTemporadaQuinielaMs() {
+      const fechasJ1 = arr(state.quinielasJugadas?.jugadas)
+        .filter(j => Number(j.jornada) === 1)
+        .map(j => fechaValidadoMs(j.validado_en))
+        .filter(ms => !Number.isNaN(ms));
+      if (fechasJ1.length) return Math.max(...fechasJ1);
+      // Respaldo si aun no hay J1 jugada: mediados de agosto del año de
+      // inicio (LaLiga nunca arranca antes del ~11).
+      return INICIO_TEMPORADA_ACTUAL_MS + 10 * 86400000;
+    }
+
     function jornadasDeLaTemporadaActual() {
+      const ancla = inicioTemporadaQuinielaMs();
       return new Set(
         arr(state.quinielasJugadas?.jugadas)
           .filter(j => {
             const ms = fechaValidadoMs(j.validado_en);
-            return !Number.isNaN(ms) && ms >= INICIO_TEMPORADA_ACTUAL_MS;
+            return !Number.isNaN(ms) && ms >= ancla;
           })
           .map(j => Number(j.jornada))
       );
@@ -1550,7 +1569,11 @@
     // 26/27 (numeros 1-40) no pasarian ni el suelo historico >=61 ni el
     // filtro de "temporada actual", y desaparecerian del Historial
     // (auditoria 01/09/2026, mina de reinicio).
-    const INICIO_ERA_IA_NUEVA_MS = Date.parse('2026-08-01T00:00:00Z');
+    // Constante HISTORICA fija (evento pasado, no depende del año en
+    // curso): la J1 de la 26/27 se valido el 15/08/2026; las J75/76
+    // nordicas de la temporada vieja se validaron el 1-7 de agosto y NO
+    // pertenecen a la era nueva.
+    const INICIO_ERA_IA_NUEVA_MS = Date.parse('2026-08-11T00:00:00Z');
     function jornadasEraIaNueva() {
       return new Set(
         arr((state.quinielasJugadas || {}).jugadas)
@@ -3275,7 +3298,15 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         // de lo jugado, no disparaba el modo local -> recorte de 2500 en vez
         // de 5500 y el detalle real de las jornadas quedaba fuera, dejando
         // al modelo sin datos justo en la pregunta que mas los necesita.
-        const esConsultaLocalPrevia = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|aprendid|pesos|jornada actual|jornada anterior|última jornada|jornadas|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev|partidos.*jornada|quiniela.*jornada|dame.*partido|publica.*partido|lista.*partido|muestra.*partido|temporada|24.25|25.26|23.24|datos.*equipo|equipo.*datos|como.*fue|estadistica|clasificaci[oó]n.*liga|liga.*clasificaci[oó]n|1[aª] division|2[aª] division|primera.*division|segunda.*division|calendario|jugará|cuando juega|próximos partidos|fixtures|hemos jugado|nuestra quiniela|jornada\s*\d+.*jugad|jugad.*jornada\s*\d+/i.test(textoTotal);
+        // "jornada" (singular incluido), "sorpres", "disputad", "marcamos",
+        // "fallamos", "acertamos": cualquier pregunta que hable de las
+        // jornadas o de lo jugado ES una consulta de datos. Bug real
+        // (01/09/2026, captura de Marc): "QUE SORPRESAS... EN CADA JORNADA
+        // de las 3 disputadas?" no disparaba el modo local -> contexto de
+        // 2500 sin el detalle real de las jornadas -> el modelo volvio a
+        // inventarse partidos (un "Granada-Alaves" otra vez) con los datos
+        // correctos a un archivo de distancia.
+        const esConsultaLocalPrevia = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|acertam|fall[oa]m|premio|cobra|aprendizaje|aprendid|sorpres|disputad|marcamos|pesos|jornada|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev|partidos|quiniela|dame.*partido|publica.*partido|lista.*partido|muestra.*partido|temporada|24.25|25.26|23.24|datos.*equipo|equipo.*datos|como.*fue|estadistica|clasificaci[oó]n.*liga|liga.*clasificaci[oó]n|1[aª] division|2[aª] division|primera.*division|segunda.*division|calendario|jugará|cuando juega|próximos partidos|fixtures|hemos jugado|jugad/i.test(textoTotal);
         // 5500 (antes 4500): el detalle real partido a partido de las 3
         // ultimas jornadas jugadas no cabia en 4500 junto a la memoria del
         // socio, y lo que se recortaba era justo el dato real cuya ausencia
@@ -3583,6 +3614,7 @@ REGLAS CRÍTICAS — LEE ANTES DE RESPONDER:
 7. Si preguntan por lesionados/bajas/dudas de un equipo y aparece un bloque "LESIONADOS/DUDAS REALES DE [EQUIPO]" más abajo, cita EXCLUSIVAMENTE esos nombres — ni uno más, aunque la búsqueda web o tu conocimiento previo te sugieran otra baja "probable". Si ese bloque no aparece para el equipo preguntado, di explícitamente que no tienes datos estructurados de esa fuente para ese equipo, en vez de inventar o mezclar con suposiciones.
 8. Si preguntan por la clasificación/situación en la liga de un equipo y aparece un bloque "SITUACIÓN REAL DE [EQUIPO] EN LA LIGA" más abajo, cita EXCLUSIVAMENTE esos datos (posición, puntos, lectura) y respeta SIEMPRE la etiqueta de temporada que incluye ese bloque — si dice que es la clasificación final de la temporada pasada, dilo así de claro, nunca des a entender que la Liga 26/27 ya está en marcha si el propio bloque dice que no. Si ese bloque no aparece, di que no tienes datos de clasificación de ese equipo, sin inventar posiciones ni puntos.
 9. NUNCA des un marcador, resultado final o "ya se jugó/ya terminó X-Y" de un partido concreto a menos que ese marcador aparezca LITERALMENTE citado en los datos del sistema o en un fragmento real de la búsqueda web que se te ha pasado más abajo. Si preguntan por un partido de hoy/próximo y no tienes un resultado confirmado en los datos, di explícitamente que no tienes el resultado confirmado o que el partido está pendiente de jugarse — no lo inventes aunque la fecha ya haya llegado ni aunque "suene plausible".
+10. Al analizar jornadas jugadas, los ÚNICOS enfrentamientos que existieron son los que aparecen listados partido a partido en "LO QUE REALMENTE HEMOS JUGADO". Copia local, visitante, signo jugado, signo oficial y marcador TAL CUAL de esa lista, en SU jornada (no mezcles partidos de una jornada en otra). Si esa lista no aparece o una jornada viene sin partidos, responde "no tengo el detalle de esa jornada en este momento" — un análisis con partidos inventados o marcadores garabateados es el peor error posible en esta web.
 
 ${esConsultaLocalPrevia ? manualEsencial : `
 ═══════════════════════════════════════════════════════
