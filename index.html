@@ -2754,7 +2754,12 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       // media la posicion 3655) se cortaba siempre para preguntas que no
       // calificaban como "consulta local previa" -el chat nunca llegaba a
       // leer lo que jugamos de verdad, pese a estar bien construido.
-      return `${bloqueQuinielasJugadas}
+      // Va al principio a proposito: enviarMensajeChat() recorta el contexto
+      // a 2500-4500 caracteres, y este bloque (las reglas del metodo,
+      // validadas jornada a jornada) es lo que mas valor da por caracter.
+      const bloqueMemoriaSocio = (state.memoriaSocio || {}).bloque_para_chat || '';
+      return `${bloqueMemoriaSocio}
+${bloqueQuinielasJugadas}
 ${resumenMem}
 ${bloqueHistoricoLigas}
 ${bloqueHistoricoQuinielas}
@@ -3746,6 +3751,11 @@ No inventes — solo lo que ves con fondo oscuro.`;
         getJson('data/memoria_ia/calibracion_probabilidades.json', null),
         getJson('data/resultados_libres.json', null)
       ]);
+      // Memoria destilada del socio IA (Claude): las reglas validadas con
+      // dinero real en las sesiones de trabajo, para que el chat de la web
+      // sepa lo mismo sin depender de un modelo de pago. Carga aparte para
+      // no reordenar el destructuring gigante de arriba.
+      state.memoriaSocio = await getJson('data/memoria_ia/memoria_socio.json', null);
       state.prediccion = pred;
       state.pleno15Data = pleno;
       state.aprendizaje = apr;
