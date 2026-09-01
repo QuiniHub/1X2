@@ -3158,10 +3158,19 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
 
     // Llama a Groq con los mensajes preparados — auto-retry en rate limit TPM, fallback a Gemini en límite diario
     async function llamarGroq(messages, model = MODELO_GROQ, max_tokens = 600, _retry = 0) {
+      // gpt-oss es un modelo de RAZONAMIENTO: "piensa" en un canal oculto que
+      // consume max_tokens ANTES de escribir la respuesta visible. Bug real
+      // (31/08/2026, capturas de Marc): con preguntas grandes la cadena de
+      // razonamiento se comia el presupuesto entero y el content llegaba
+      // VACIO con status 200 — a veces sí, a veces no, según cuánto "pensara"
+      // esa vez. reasoning_effort:'low' recorta ese canal (el worker pasa el
+      // body entero a Groq, solo fija el modelo); ademas gasta menos TPM, que
+      // con un limite de 8000/min y preguntas de ~7900 tokens era la otra
+      // mitad del problema.
       const response = await fetch(`${WORKER_URL}/api/groq`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, max_tokens, temperature: 0.7, messages })
+        body: JSON.stringify({ model, max_tokens, temperature: 0.7, reasoning_effort: 'low', messages })
       });
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
@@ -3188,7 +3197,15 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         throw new Error(`Error ${response.status}: ${msg || 'sin detalle'}`);
       }
       const data = await response.json();
-      return data.choices?.[0]?.message?.content || '';
+      const choice = data.choices?.[0];
+      const contenido = choice?.message?.content || '';
+      // Respaldo del mismo bug: si aun asi el razonamiento agoto el
+      // presupuesto (200 con content vacio y finish_reason 'length'),
+      // reintentar UNA vez con mas margen en vez de devolver el vacio.
+      if (!contenido && choice?.finish_reason === 'length' && _retry < 2) {
+        return llamarGroq(messages, model, max_tokens + 1500, _retry + 1);
+      }
+      return contenido;
     }
 
     async function enviarMensajeChat() {
