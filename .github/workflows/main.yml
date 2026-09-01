@@ -49,6 +49,12 @@ jobs:
 
       - name: Integrar cambios remotos
         run: |
+          # Descartar cualquier residuo que las pruebas hayan dejado en el
+          # working tree (son datos regenerables; el ciclo los reconstruye
+          # entero un paso despues). Bug real (01/09/2026): un test que
+          # persistia la prediccion dejo el workspace sucio y este rebase
+          # murio con "You have unstaged changes" -2 ciclos sin publicar.
+          git checkout -- .
           git pull --rebase origin main
 
       - name: Actualizar datos y validar publicacion

@@ -67,11 +67,22 @@ class ValidadorPublicacionTests(unittest.TestCase):
 class PredecirSmokeTests(unittest.TestCase):
     """predecir() (el orquestador entero del motor) no tenia ningun test.
     Smoke sobre los datos REALES del repo: si esto falla, el boleto que se
-    publicaria esta roto."""
+    publicaria esta roto.
+
+    OJO: guardar_json se anula durante el smoke. predecir() PERSISTE su
+    salida (jornada_N.json, ultima_prediccion.json) y sin este parche el
+    test ensuciaba el workspace del CI -> el paso `git pull --rebase` del
+    workflow moria con "You have unstaged changes" y el ciclo entero
+    dejaba de publicar (2 runs rojos reales, 01/09/2026)."""
 
     @classmethod
     def setUpClass(cls):
-        cls.resultado = motor.predecir()
+        cls._guardar_original = motor.guardar_json
+        motor.guardar_json = lambda *a, **k: None
+        try:
+            cls.resultado = motor.predecir()
+        finally:
+            motor.guardar_json = cls._guardar_original
 
     def test_devuelve_14_partidos_con_probabilidades_sanas(self):
         partidos = self.resultado.get("partidos") or []
