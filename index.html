@@ -2120,7 +2120,7 @@
             // TSDB — eventos pasados ligas nórdicas (Mundial eliminado)
             tsdbPast(4344), tsdbPast(4430), tsdbPast(4356), tsdbPast(4341),
             // TSDB — clasificaciones ligas nórdicas
-            tsdbStand(4344,'2026'), tsdbStand(4430,'2026'), tsdbStand(4356,'2026'), tsdbStand(4341,'2025-2026'),
+            tsdbStand(4344,String(new Date().getFullYear())), tsdbStand(4430,String(new Date().getFullYear())), tsdbStand(4356,String(new Date().getFullYear())), tsdbStand(4340,String(new Date().getFullYear())),
             // Tavily: Losilla (análisis quiniela)
             tavilyFetch({
               query: `quiniela jornada ${jornadaNum} análisis pronósticos partidos ${fechaHoyStr}`,
@@ -2216,7 +2216,11 @@
           const pV = parseFloat(probs['2'] || p.prob_2 || 0).toFixed(1);
           const formaL = buscarForma(local), formaV = buscarForma(visitante);
           const standL = buscarStand(local),  standV = buscarStand(visitante);
-          const wcL = getWC(local), wcV = getWC(visitante);
+          // getWC() se borro con el codigo del Mundial (comentario de
+          // arriba) pero esta llamada quedo viva: ReferenceError fuera de
+          // todo try/catch que dejaba el boton "Analisis IA" colgado en el
+          // spinner para siempre, sin error visible (bug real, 01/09/2026,
+          // encontrado en la auditoria profunda).
           let ln = `P${i+1}. ${local} vs ${visitante} [${comp||'liga'}] → ${signo}(${tipo})\n  Motor: 1=${pL}% X=${pX}% 2=${pV}%`;
           if (standL) ln += `\n  ${local}: ${standL.pos}°/${standL.liga} ${standL.pts}pts ${standL.gf}-${standL.gc}gf-gc`;
           if (standV) ln += `\n  ${visitante}: ${standV.pos}°/${standV.liga} ${standV.pts}pts ${standV.gf}-${standV.gc}gf-gc`;
@@ -3288,13 +3292,20 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
           : Promise.resolve(null);
 
         // Clasificaciones TheSportsDB — misma logica: independiente de esConsultaLocal.
+        // Solo ligas nordicas (año natural, s=año actual calculado): la
+        // clasificacion de La Liga/Segunda REAL ya llega al chat desde
+        // clasificaciones_oficiales.json (nuestra fuente, actualizada cada
+        // 30 min). Bug real (01/09/2026, auditoria): aqui habia ademas
+        // La Liga y Serie A con temporada HARDCODEADA "2025-2026" -el chat
+        // recibia la tabla de la temporada PASADA etiquetada "en tiempo
+        // real" y podia citarla como actual.
         const necesitaClasif = esSobreLoJugado || /clasificaci|tabla|standing|posici|puntos|liga suec|liga finlan|allsvenskan|veikkausliiga|norueg|dinamarc|eliteserien|superligaen|completa|toda la|más equipo|mas equipo/i.test(textoTotal);
+        const anioNordico = new Date().getFullYear();
         const tsdbClasifPromise = necesitaClasif ? Promise.all([
-          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4344&s=2026').then(r=>r.ok?r.json():null).catch(()=>null),
-          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4430&s=2026').then(r=>r.ok?r.json():null).catch(()=>null),
-          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4335&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null),
-          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4332&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null),
-          fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4339&s=2025-2026').then(r=>r.ok?r.json():null).catch(()=>null),
+          fetch(`https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4344&s=${anioNordico}`).then(r=>r.ok?r.json():null).catch(()=>null),
+          fetch(`https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4430&s=${anioNordico}`).then(r=>r.ok?r.json():null).catch(()=>null),
+          fetch(`https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4356&s=${anioNordico}`).then(r=>r.ok?r.json():null).catch(()=>null),
+          fetch(`https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4340&s=${anioNordico}`).then(r=>r.ok?r.json():null).catch(()=>null),
         ]) : Promise.resolve(null);
 
         // Buscar en web — misma logica: independiente de esConsultaLocal.
@@ -3318,9 +3329,8 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
           const ligas = [
             { nombre: 'Allsvenskan (Suecia)', data: tsdbClasif[0] },
             { nombre: 'Veikkausliiga (Finlandia)', data: tsdbClasif[1] },
-            { nombre: 'La Liga', data: tsdbClasif[2] },
-            { nombre: 'Eliteserien (Noruega)', data: tsdbClasif[3] },
-            { nombre: 'Superligaen (Dinamarca)', data: tsdbClasif[4] },
+            { nombre: 'Eliteserien (Noruega)', data: tsdbClasif[2] },
+            { nombre: 'Superligaen (Dinamarca)', data: tsdbClasif[3] },
           ];
           for (const { nombre, data } of ligas) {
             const tabla = (data?.table || data?.standing || []);

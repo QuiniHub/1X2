@@ -456,18 +456,49 @@ def normalizar_pesos_dinamicos(pesos, decay=0.94):
     return data
 
 
+def _clave_perfil_es_liga_f(clave_normalizada):
+    # Las claves de perfiles_equipos.json son nombres YA normalizados: el
+    # marcador femenino sobrevive como " f" final o "femenino"/"femenina".
+    texto = str(clave_normalizada or "")
+    return texto.endswith(" f") or "femen" in texto
+
+
 def buscar_perfil_autonomo(perfiles, nombre):
     equipos = (perfiles or {}).get("equipos") or {}
     clave = normalizar(nombre)
     if clave in equipos:
         return equipos[clave]
-    piezas = set(clave.split())
+    # Bug real (01/09/2026, J4 publicada): esta funcion NO pasaba por
+    # puntuacion_nombre_equipo (y su corte de Liga F), y con score>=1 un
+    # solo token compartido bastaba -"Sevilla (F)" recibia el perfil del
+    # Sevilla FC masculino, "Atletico de Madrid (F)" el del Atletico
+    # masculino, y "Logroño (F)" el de At. Madrid (F) (casados por el token
+    # suelto "f"). Septima aparicion de la familia colision-de-nombres.
+    # Regla: los dos lados deben coincidir en genero, y el marcador
+    # femenino no cuenta como token de coincidencia.
+    es_f = es_equipo_liga_f(nombre) or _clave_perfil_es_liga_f(clave)
+    MARCADORES_F = {"f", "femenino", "femenina", "femeni"}
+    piezas = set(clave.split()) - MARCADORES_F
     mejor = None
     mejor_score = 0
     for key, perfil in equipos.items():
-        candidato = set(str(key).split())
-        score = len(piezas & candidato)
-        if clave and (clave in key or key in clave):
+        if _clave_perfil_es_liga_f(key) != es_f:
+            continue
+        candidato = set(str(key).split()) - MARCADORES_F
+        # Coincidencia por prefijo ademas de exacta: "at" (de "At. Madrid")
+        # debe contar frente a "atletico" -sin esto, "Atletico de Madrid
+        # (F)" empataba a 1 token ("madrid") entre "at madrid f" y
+        # "madrid f" y se llevaba el perfil del Real Madrid (F).
+        def _token_casa(p, cs):
+            return any(c == p or (len(p) >= 2 and len(c) >= 2 and (c.startswith(p) or p.startswith(c))) for c in cs)
+        score = sum(1 for p in piezas if _token_casa(p, candidato))
+        # Bono solo con cobertura MUTUA de tokens. El bono anterior por
+        # substring de cadena ("madrid f" es substring de "atletico madrid
+        # f") premiaba justo a la clave que IGNORA el token distintivo
+        # ("atletico") y entregaba el perfil del club equivocado.
+        if piezas and candidato \
+                and all(_token_casa(p, candidato) for p in piezas) \
+                and all(_token_casa(c, piezas) for c in candidato):
             score += 3
         if score > mejor_score:
             mejor = perfil

@@ -58,9 +58,44 @@ def obj(override):
     return result
 
 
+def _minimo_partidos_restantes(ctx):
+    valores = []
+    for liga in ("primera", "segunda"):
+        for equipo in ctx.get(liga, {}).get("equipos", []):
+            try:
+                valores.append(int(equipo.get("partidos_restantes")))
+            except (TypeError, ValueError):
+                continue
+    return min(valores) if valores else None
+
+
+def overrides_vigentes(datos, ctx):
+    # Misma guardia que aplicar_objetivos_oficiales_json.py (este script
+    # aplica EL MISMO archivo) -ver alli el bug real del 01/09/2026: los
+    # overrides manuales de la ultima jornada 25/26 se aplicaron cada
+    # ciclo durante meses por no tener caducidad ni gate de momento de
+    # temporada.
+    from datetime import datetime, timezone
+    valido_hasta = str(datos.get("valido_hasta") or "")[:10]
+    if not valido_hasta:
+        return False, "sin campo valido_hasta (archivo de otra jornada/temporada; se ignora)"
+    hoy = datetime.now(timezone.utc).date().isoformat()
+    if valido_hasta < hoy:
+        return False, f"caducado (valido_hasta {valido_hasta} < hoy {hoy})"
+    restantes = _minimo_partidos_restantes(ctx)
+    if restantes is not None and restantes > 10:
+        return False, f"faltan {restantes} jornadas (>10)"
+    return True, ""
+
+
 def main():
     ctx = load(CTX)
-    overrides = load(OVR).get("equipos", {})
+    datos = load(OVR)
+    overrides = datos.get("equipos", {})
+    vigentes, motivo = overrides_vigentes(datos, ctx)
+    if not vigentes:
+        print(f"Overrides competitivos ignorados: {motivo}")
+        return
     for liga in ["primera", "segunda"]:
         for equipo in ctx.get(liga, {}).get("equipos", []):
             override = find(equipo.get("equipo"), overrides)

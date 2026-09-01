@@ -532,6 +532,32 @@ class MotorPrediccionTests(unittest.TestCase):
         # masculino -mismo caso que ya cubre otro test de esta clase.
         self.assertGreaterEqual(motor.puntuacion_nombre_equipo("SD Eibar", "Eibar"), 55)
 
+    def test_perfil_autonomo_liga_f_no_recibe_el_perfil_del_club_masculino(self):
+        # Bug real (01/09/2026, J4 publicada): buscar_perfil_autonomo no
+        # pasaba por el corte de Liga F y con score>=1 un token compartido
+        # bastaba -"Sevilla (F)" recibio el perfil del Sevilla FC masculino,
+        # "Atletico de Madrid (F)" el del Atletico masculino y "Logroño (F)"
+        # el de At. Madrid (F) (casados por el token suelto "f"). Septima
+        # aparicion de la familia colision-de-nombres.
+        perfiles = {"equipos": {
+            "sevilla": {"equipo": "Sevilla FC"},
+            "madrid": {"equipo": "Real Madrid CF"},
+            "atletico madrid": {"equipo": "Club Atletico de Madrid"},
+            "madrid f": {"equipo": "Real Madrid (F)"},
+            "at madrid f": {"equipo": "At. Madrid (F)"},
+            "eibar f": {"equipo": "Eibar (F)"},
+        }}
+        buscar = motor.buscar_perfil_autonomo
+        self.assertIsNone(buscar(perfiles, "Sevilla (F)"))
+        self.assertIsNone(buscar(perfiles, "Logroño (F)"))
+        self.assertEqual(buscar(perfiles, "Real Madrid (F)")["equipo"], "Real Madrid (F)")
+        # "At." debe casar con "at madrid f", no con "madrid f" (el bono por
+        # substring de cadena premiaba a la clave que ignoraba "atletico").
+        self.assertEqual(buscar(perfiles, "Atlético de Madrid (F)")["equipo"], "At. Madrid (F)")
+        # Y el masculino no debe recibir el perfil femenino ni viceversa.
+        self.assertEqual(buscar(perfiles, "Real Madrid CF")["equipo"], "Real Madrid CF")
+        self.assertEqual(buscar(perfiles, "Sevilla FC")["equipo"], "Sevilla FC")
+
     def test_necesidad_viva_ignora_riesgo_descenso_con_muchas_jornadas_por_delante(self):
         # Principio de Marc (28/08/2026): la permanencia o cualquier titulo
         # solo se juegan de verdad a falta de unas 10 jornadas -antes de eso,

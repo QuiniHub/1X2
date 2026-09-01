@@ -64,11 +64,51 @@ def objetivo_desde_override(override):
     return objetivo
 
 
+def _minimo_partidos_restantes(contexto):
+    valores = []
+    for liga in ("primera", "segunda"):
+        for equipo in contexto.get(liga, {}).get("equipos", []):
+            try:
+                valores.append(int(equipo.get("partidos_restantes")))
+            except (TypeError, ValueError):
+                continue
+    return min(valores) if valores else None
+
+
+def overrides_vigentes(datos, contexto):
+    """Bug real (01/09/2026): objetivos_jornada_actual.json era un archivo
+    de overrides MANUALES escrito el 29/06/2026 para la ULTIMA jornada de
+    la temporada 25/26 ("Necesita 1 punto para asegurar Europa League",
+    etc.) y, al no tener ni fecha de caducidad ni comprobacion de momento
+    de temporada, se siguio aplicando CADA CICLO durante toda la
+    pretemporada y el arranque de la 26/27 -inyectando motivacion "maxima"
+    y lecturas obsoletas a 8 equipos (incluido un Malaga que cambio de
+    division). Doble guardia: caducidad explicita obligatoria (un archivo
+    sin valido_hasta se ignora) y el principio del proyecto de que los
+    objetivos de tabla solo existen a falta de 10 jornadas o menos."""
+    valido_hasta = str(datos.get("valido_hasta") or "")[:10]
+    if not valido_hasta:
+        return False, "sin campo valido_hasta (archivo de otra jornada/temporada; se ignora)"
+    hoy = datetime.now(timezone.utc).date().isoformat()
+    if valido_hasta < hoy:
+        return False, f"caducado (valido_hasta {valido_hasta} < hoy {hoy})"
+    restantes = _minimo_partidos_restantes(contexto)
+    if restantes is not None and restantes > 10:
+        return False, f"faltan {restantes} jornadas (>10): los overrides de ultima jornada no aplican todavia"
+    return True, ""
+
+
 def aplicar():
     contexto = cargar(CONTEXTO, {})
-    overrides = cargar(OBJETIVOS, {}).get("equipos", {})
+    datos_overrides = cargar(OBJETIVOS, {})
+    overrides = datos_overrides.get("equipos", {})
     if not contexto or not overrides:
         raise SystemExit("Falta contexto_competitivo.json u objetivos_jornada_actual.json")
+
+    vigentes, motivo = overrides_vigentes(datos_overrides, contexto)
+    if not vigentes:
+        print(json.dumps({"objetivos_oficiales_aplicados": [], "ignorado": motivo}, ensure_ascii=False))
+        return
 
     aplicados = []
     for liga in ("primera", "segunda"):
