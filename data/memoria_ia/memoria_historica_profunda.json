@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "descripcion": "Memoria historica profunda de la IA — conocimiento acumulado sobre futbol y quinielas",
-  "generado_en": "2026-09-01T13:31:28.310596+00:00",
+  "generado_en": "2026-09-01T17:28:39.241021+00:00",
   "temporadas_analizadas": [
     "2025_2026"
   ],
@@ -316,6 +316,91 @@
     },
     "conclusion_pesos": "El sistema ha aprendido que la SORPRESA y el EMPATE pesan más de lo esperado. La FORMA RECIENTE y la CLASIFICACIÓN engañan más de lo que ayudan. Los GOLES y la MOTIVACIÓN COMPETITIVA son los factores más fiables."
   },
-  "factores_humanos_validados": {},
+  "factores_humanos_validados": {
+    "brecha_tabla_margen_amplio_mercado": {
+      "casos": 363,
+      "tasa_sorpresa": 29.5,
+      "fiabilidad": "baja",
+      "conclusion": "Brecha de tabla top10 vs resto; favorito de tabla=1, probabilidad implicita de mercado para ese favorito=61.0%."
+    },
+    "brecha_tabla_margen_estrecho_mercado": {
+      "casos": 905,
+      "tasa_sorpresa": 61.5,
+      "fiabilidad": "media",
+      "conclusion": "Brecha de tabla top10 vs resto; favorito de tabla=2, probabilidad implicita de mercado para ese favorito=38.7%."
+    },
+    "equipo_necesitado_vs_equipo_sin_objetivo": {
+      "casos": 87,
+      "tasa_sorpresa": 69.0,
+      "fiabilidad": "alta",
+      "conclusion": "Choque necesidad contra objetivo cerrado: no tratar al equipo sin objetivo como fijo limpio."
+    },
+    "local_descenso_vs_visitante_favorito": {
+      "casos": 715,
+      "tasa_sorpresa": 62.2,
+      "fiabilidad": "media",
+      "conclusion": "Local con urgencia de descenso/permanencia rompe o amenaza el 2 fijo."
+    },
+    "necesitado_local_vs_visitante_objetivo_cerrado": {
+      "casos": 44,
+      "tasa_sorpresa": 77.3,
+      "fiabilidad": "alta",
+      "conclusion": "El local con objetivo vivo puntua o gana ante visitante con objetivo cerrado."
+    },
+    "racha_perdedora_local_no_rebota": {
+      "casos": 135,
+      "tasa_sorpresa": 34.1,
+      "fiabilidad": "baja",
+      "conclusion": "Local llega con 3 derrotas seguidas sin puntuar: la 'necesidad' no predice un rebote, historicamente rinde peor."
+    },
+    "racha_perdedora_local_no_rebota_rival_motivado": {
+      "casos": 129,
+      "tasa_sorpresa": 34.9,
+      "fiabilidad": "baja",
+      "conclusion": "Local con 3 derrotas seguidas; rival visitante con objetivo vivo (se lo juega)."
+    },
+    "racha_perdedora_local_no_rebota_rival_sin_objetivo": {
+      "casos": 6,
+      "tasa_sorpresa": 16.7,
+      "fiabilidad": "baja",
+      "conclusion": "Local con 4 derrotas seguidas; rival visitante con objetivo cerrado (puede rotar)."
+    },
+    "racha_perdedora_visitante_no_rebota": {
+      "casos": 103,
+      "tasa_sorpresa": 16.5,
+      "fiabilidad": "baja",
+      "conclusion": "Visitante llega con 3 derrotas seguidas sin puntuar: la 'necesidad' no predice un rebote, historicamente rinde peor."
+    },
+    "racha_perdedora_visitante_no_rebota_rival_motivado": {
+      "casos": 101,
+      "tasa_sorpresa": 16.8,
+      "fiabilidad": "baja",
+      "conclusion": "Visitante con 3 derrotas seguidas; rival local con objetivo vivo (se lo juega)."
+    },
+    "top10_local_vs_resto_visitante": {
+      "casos": 610,
+      "tasa_sorpresa": 41.5,
+      "fiabilidad": "baja",
+      "conclusion": "Local del top 10 recibe a un equipo de la segunda mitad de la tabla."
+    },
+    "top10_visitante_vs_resto_local": {
+      "casos": 658,
+      "tasa_sorpresa": 62.5,
+      "fiabilidad": "media",
+      "conclusion": "Visitante del top 10 viaja a un equipo de la segunda mitad de la tabla."
+    },
+    "visitante_descenso_vs_local_favorito": {
+      "casos": 671,
+      "tasa_sorpresa": 40.5,
+      "fiabilidad": "baja",
+      "conclusion": "Visitante con urgencia de descenso/permanencia rompe o amenaza el 1 fijo."
+    },
+    "visitante_necesitado_vs_local_objetivo_cerrado": {
+      "casos": 43,
+      "tasa_sorpresa": 60.5,
+      "fiabilidad": "media",
+      "conclusion": "El visitante con objetivo vivo puntua o gana ante local con objetivo cerrado."
+    }
+  },
   "resumen_para_chat": "SOY LA IA DE QUINIHUB. ESTO ES LO QUE SÉ Y HE APRENDIDO:\n\nSOBRE EL FÚTBOL (basado en 1050 partidos analizados):\n- Gana el local el 46.1% de las veces. Hay empate el 23.6%. Gana el visitante el 30.3%.\n- El 30.3% de los partidos son sorpresas para el pronóstico habitual.\n- Las jornadas de La Quiniela tienen de media un 53.9% de sorpresa.\n\nSOBRE LO QUE HE APRENDIDO DE LOS PESOS:\n- el EMPATE pesa más de lo esperado — ha subido un 75% sobre mi referencia base.\n- la SORPRESA pesa más de lo esperado — ha subido un 73% sobre mi referencia base.\n- la FORMA RECIENTE la he reducido un 50% — engañaba más de lo que ayudaba.\n- la CLASIFICACIÓN la he reducido un 50% — engañaba más de lo que ayudaba.\n- la FATIGA y las BAJAS son los factores que menos he tenido que tocar — los más fiables desde el inicio.\n\nPATRONES COMPETITIVOS QUE HE VALIDADO:\n- Equipo necesitado vs sin objetivo: 66% de sorpresa (294 casos). MUY FIABLE.\n- Local desesperado (descenso) vs visitante objetivo cerrado: 79.6% sorpresa (147 casos). EL MÁS FIABLE.\n- Visitante necesitado vs local sin objetivos: 52.4% sorpresa (147 casos). MODERADO.\n\nMIS FALLOS MÁS HABITUALES:\n- Fijo fallado (70 veces): confío demasiado en el favorito sin cobertura.\n- No cubro empate (32 veces): el X me cuesta más de lo que debería.\n- Precisión en FIJOS: 56.8%. En DOBLES: 78.7%. En TRIPLES: 100.0%.\n\nSOBRE NUESTRAS QUINIELAS:\n- Llevamos 21 jornadas jugadas con IA.\n- Mejor resultado: J70 con 12 aciertos.\n- Total cobrado: 97.34€\n- Precisión media: 68.3%\n\nEQUIPOS QUE MÁS SORPRENDEN (dan la sorpresa con más frecuencia):\n- Cultural Leonesa: 54.5% de sorpresa en 11 partidos\n- Psv: 44.4% de sorpresa en 9 partidos\n- Ajax: 42.9% de sorpresa en 7 partidos\n- Degerfors If: 40.0% de sorpresa en 5 partidos\n- R. Zaragoza: 36.8% de sorpresa en 19 partidos\n\nESTADO ACTUAL: J4 en estado: lista para publicar."
 }
