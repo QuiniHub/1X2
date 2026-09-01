@@ -2210,11 +2210,36 @@
         };
         buildStand(standAllsv,'Allsvenskan'); buildStand(standVeik,'Veikkausliiga');
         buildStand(standElite,'Eliteserien'); buildStand(standSuper,'Superligaen');
+        // Clasificacion ESPAÑOLA real desde nuestros propios datos (frescos
+        // cada 30 min). Bug real (01/09/2026, capturas de Marc): este mapa
+        // solo se construia con las 4 ligas NORDICAS -diseño de la era
+        // Noruega/Suecia nunca actualizado para LaLiga-, asi que los
+        // equipos españoles iban SIN clasificacion a las lineas de datos y
+        // el modelo se inventaba posiciones y puntos rancios ("Alaves 11.º
+        // con 2pts" siendo lider con 7).
+        const cargarStandEspanola = (equipos, liga) => {
+          for (const e of arr(equipos)) {
+            const key = normN(e.equipo || '');
+            if (!key) continue;
+            standingsMap[key] = { pos: e.posicion, pts: e.puntos, pj: e.pj, g: e.g, e: e.e, p: e.p, gf: e.gf, gc: e.gc, liga };
+          }
+        };
+        cargarStandEspanola((state.clasificacionesOficiales || {}).primera, '1ª España');
+        cargarStandEspanola((state.clasificacionesOficiales || {}).segunda, '2ª España');
+        const esLigaF = nombre => /\(\s*f\s*\)|femen/i.test(String(nombre || ''));
         const buscarStand = nombre => {
           if (!nombre) return null;
           const nn = normN(nombre);
+          // 1) Exacto: los nombres de la prediccion y de nuestra
+          // clasificacion española salen del mismo pipeline canonico.
+          if (standingsMap[nn]) return standingsMap[nn];
+          // 2) Contencion COMPLETA (nombre entero dentro de la clave o
+          // viceversa, minimo 5 chars). La heuristica anterior de 4 letras
+          // hacia que "athletic-CLUB" casara con "CLUB-atleticodemadrid" y
+          // los dos rivales del derbi recibieran la MISMA fila (8ª
+          // aparicion de la familia colision-de-nombres, 01/09/2026).
           for (const [k, v] of Object.entries(standingsMap)) {
-            if (nn.length > 3 && (k.includes(nn.slice(0,4)) || nn.includes(k.slice(0,4)))) return v;
+            if (nn.length >= 5 && k.length >= 5 && (k.includes(nn) || nn.includes(k))) return v;
           }
           return null;
         };
@@ -2250,10 +2275,15 @@
           // spinner para siempre, sin error visible (bug real, 01/09/2026,
           // encontrado en la auditoria profunda).
           let ln = `P${i+1}. ${local} vs ${visitante} [${comp||'liga'}] → ${signo}(${tipo})\n  Motor: 1=${pL}% X=${pX}% 2=${pV}%`;
-          if (standL) ln += `\n  ${local}: ${standL.pos}°/${standL.liga} ${standL.pts}pts ${standL.gf}-${standL.gc}gf-gc`;
-          if (standV) ln += `\n  ${visitante}: ${standV.pos}°/${standV.liga} ${standV.pts}pts ${standV.gf}-${standV.gc}gf-gc`;
+          if (standL) ln += `\n  ${local}: ${standL.pos}°/${standL.liga} ${standL.pts}pts (${standL.pj}PJ) ${standL.gf}-${standL.gc}gf-gc`;
+          if (standV) ln += `\n  ${visitante}: ${standV.pos}°/${standV.liga} ${standV.pts}pts (${standV.pj}PJ) ${standV.gf}-${standV.gc}gf-gc`;
           if (formaL) ln += `\n  Forma ${local}: ${formaL}`;
           if (formaV) ln += `\n  Forma ${visitante}: ${formaV}`;
+          if (esLigaF(local) || esLigaF(visitante)) {
+            ln += `\n  ⚠ LIGA F: SIN datos de clasificación/forma en el sistema — analiza SOLO con los % del motor, sin inventar posiciones, puntos ni contexto.`;
+          } else if (!standL && !standV) {
+            ln += `\n  ⚠ Sin clasificación disponible para este partido — no inventes posiciones ni puntos.`;
+          }
           return ln;
         }).join('\n\n');
 
@@ -2265,16 +2295,20 @@
 
 REGLA FUNDAMENTAL: Los % del motor son datos calibrados — CÓPIALOS exactamente sin cambiar ningún número. Tu aportación es el análisis cualitativo usando las fuentes reales.
 
-Partidos nórdicos: usa forma ESPN/TSDB y clasificación de tabla.
+REGLAS DURAS DE DATOS (violarlas es el peor error posible):
+1. Las posiciones, puntos y PJ de cada equipo son EXCLUSIVAMENTE los que aparecen en su línea de DATOS POR PARTIDO. Si un equipo no trae clasificación, NO le inventes posición ni puntos — analiza solo con los % del motor.
+2. En los partidos marcados "LIGA F: SIN datos", limítate a los % del motor. Nada de "fase final", posiciones, rachas ni objetivos inventados.
+3. NUNCA atribuyas citas textuales a Losilla ni a nadie. Si el bloque LOSILLA trae información, resúmela sin comillas; si no aparece, no menciones a Losilla.
+4. No afirmes resultados de partidos anteriores ("viene de ganar a X") salvo que aparezcan literalmente en las líneas de Forma o en los bloques de noticias.
 ${bloquelosilla}${bloqueNordic}
-DATOS POR PARTIDO (ESPN 30d + TheSportsDB Allsvenskan/Veikkausliiga/Eliteserien/Superligaen + clasificaciones reales):
+DATOS POR PARTIDO (% del motor + clasificación REAL de 1ª/2ª España actualizada hoy + forma ESPN 30d):
 ${listaPartidos}
 
 FORMATO OBLIGATORIO para cada partido:
 **P[N]. Local vs Visitante**
 📊 Local [% motor 1]% | Empate [% motor X]% | Visitante [% motor 2]%
 ⚡ Sorpresa: Alta/Media/Baja
-💬 [2-3 frases: posición tabla, últimos resultados, contexto WC o motivación, dato clave de Losilla/noticias]
+💬 [2-3 frases usando SOLO los datos de la línea del partido: posición/puntos reales, forma listada, y noticias de los bloques si las hay]
 
 Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
 
