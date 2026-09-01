@@ -73,8 +73,32 @@ def normalizar(texto):
 PALABRAS_CIUDAD_AMBIGUAS = {"madrid", "barcelona"}
 
 
+def es_equipo_liga_f(nombre_crudo):
+    crudo = str(nombre_crudo or "")
+    return bool(re.search(r"\(\s*f\s*\)", crudo, re.I)) or bool(re.search(r"femen[ií]", crudo, re.I))
+
+
 def candidatos_equipo(nombre):
     n = normalizar(nombre)
+    # Liga F: candidatos ESTRICTOS con marcador femenino obligatorio. Bug
+    # real (01/09/2026, dinero de verdad): "Real Madrid (F)" degeneraba en
+    # el candidato suelto "madrid" (normalizar quita "real" como particula
+    # y "madrid" era la unica palabra que quedaba) y "At. Madrid (F)" igual
+    # -asi que el fragmento del Sevilla 1-3 At. Madrid MASCULINO validaba a
+    # los DOS equipos del derbi femenino y escribia ese 1-3 como
+    # signo_oficial "2" del P14... cuando el resultado real fue 3-2 (signo
+    # "1", el que Marc jugo). La web resto un acierto que si teniamos: J3
+    # fue 10/14 con premio, no 9/14 sin el. Un equipo (F) solo puede
+    # emparejar con texto que tambien lleve el marcador femenino pegado.
+    if es_equipo_liga_f(nombre):
+        nucleo = re.sub(r"\s*\bfemenin?[oa]?\b\s*$", "", re.sub(r"\s+f$", "", n)).strip()
+        candidatos = {n}
+        variantes = [nucleo] + [p for p in nucleo.split() if len(p) > 2]
+        for v in variantes:
+            if v:
+                candidatos.add(f"{v} f")
+                candidatos.add(f"{v} femenino")
+        return {c for c in candidatos if c}
     partes = [p for p in n.split() if len(p) > 2]
     # "madrid"/"barcelona" identifican la CIUDAD, no el club -varios equipos
     # de Primera/Segunda la comparten (Real Madrid, Atletico de Madrid, Rayo
@@ -120,6 +144,15 @@ def candidatos_equipo(nombre):
 
 def contiene_equipo(texto, equipo):
     base = normalizar(texto)
+    if es_equipo_liga_f(equipo):
+        # Palabra completa obligatoria: el candidato "madrid f" es substring
+        # de "madrid final" (el texto masculino de quiniela15 esta lleno de
+        # "final"), asi que el substring a secas reabria el mismo bug que
+        # los candidatos estrictos intentan cerrar.
+        return any(
+            re.search(r"(?<![a-z0-9])" + re.escape(c) + r"(?![a-z0-9])", base)
+            for c in candidatos_equipo(equipo)
+        )
     return any(c in base for c in candidatos_equipo(equipo))
 
 

@@ -84,6 +84,39 @@ class ResultadosDirectoTests(unittest.TestCase):
         # (ver test de mas abajo), no esta funcion.
         self.assertTrue(contiene_equipo("Club Atletico de Madrid", "Real Madrid CF"))
 
+    def test_equipo_liga_f_no_coincide_con_el_resultado_del_club_masculino(self):
+        # Bug real (01/09/2026, con dinero de verdad): el fragmento del
+        # Sevilla 1-3 At. Madrid MASCULINO (que en la misma pagina tiene al
+        # lado "Real Madrid - Malaga") validaba a los DOS equipos del derbi
+        # FEMENINO ("Real Madrid (F)" degeneraba en el candidato "madrid" a
+        # secas, "At. Madrid (F)" igual) y escribia 1-3/signo "2" en el P14
+        # de la J3 -el resultado real fue 3-2/signo "1", el que Marc jugo.
+        # La web mostro 9 aciertos cuando el escrutinio oficial dio 10 CON
+        # premio. Un equipo (F) solo empareja con texto femenino.
+        texto_masculino = (
+            "Resultados jornada 3 Sevilla FC 1 - 3 At. Madrid final "
+            "Real Madrid - Malaga CF 4 - 0 final"
+        )
+        self.assertIsNone(buscar_resultado_final(
+            texto_masculino, {"local": "Real Madrid (F)", "visitante": "At. Madrid (F)"}
+        ))
+        self.assertFalse(contiene_equipo("Sevilla FC 1-3 Club Atletico de Madrid", "At. Madrid (F)"))
+        self.assertNotIn("madrid", candidatos_equipo("At. Madrid (F)"))
+        self.assertNotIn("madrid", candidatos_equipo("Real Madrid (F)"))
+
+    def test_equipo_liga_f_si_coincide_con_texto_femenino(self):
+        texto_femenino = "Liga F Real Madrid (F) 3 - 2 At. Madrid (F) final"
+        self.assertEqual(
+            buscar_resultado_final(
+                texto_femenino, {"local": "Real Madrid (F)", "visitante": "At. Madrid (F)"}
+            ),
+            "3-2",
+        )
+        # Tambien con la forma "Femenino" escrita entera (ej. P13 de la J3,
+        # "Alavés Femenino" tal cual en el archivo de jornada).
+        self.assertTrue(contiene_equipo("Alaves Femenino 2-0", "Alavés Femenino"))
+        self.assertTrue(contiene_equipo("Eibar (F) gana 1-0", "Eibar (F)"))
+
     def test_real_madrid_y_barcelona_siguen_coincidiendo_consigo_mismos(self):
         # La palabra de ciudad SI debe quedarse cuando es la unica palabra
         # distintiva del nombre (Real Madrid CF -> "madrid" tras quitar
