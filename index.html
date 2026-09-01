@@ -2503,7 +2503,9 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
           // dando analisis generico ("ventaja del local en LaLiga") aunque
           // la jornada fuera de Noruega/Suecia o del Mundial.
           const esUltima = Number(j.jornada) === Number(state.ultimaJornadaJugadaNum);
-          const partidosConEquipo = esUltima ? arr((state.ultimaJornadaJugadaDatos || {}).partidos) : [];
+          const datosJornada = (state.jornadasJugadasDatos || {})[Number(j.jornada)]
+            || (esUltima ? state.ultimaJornadaJugadaDatos : null);
+          const partidosConEquipo = arr((datosJornada || {}).partidos);
           if (partidosConEquipo.length === arr(j.signos).length) {
             // Aciertos/fallos se calculan AQUI comparando contra el signo
             // oficial real -antes solo se listaba el signo jugado sin el
@@ -2522,15 +2524,15 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
                 pendientes++;
                 resultadoPorNum[num] = null;
               } else if (String(signo).includes(oficial)) {
-                estado = `ACIERTO (oficial ${oficial}, ${p.resultado || '?'})`;
+                estado = `oficial ${oficial} (${p.resultado || '?'}) ACIERTO`;
                 aciertos++;
                 resultadoPorNum[num] = true;
               } else {
-                estado = `FALLO (oficial ${oficial}, ${p.resultado || '?'})`;
+                estado = `oficial ${oficial} (${p.resultado || '?'}) FALLO`;
                 fallos++;
                 resultadoPorNum[num] = false;
               }
-              return `  P${num} ${p.local || '?'} vs ${p.visitante || '?'}: jugado=${signo} → ${estado}`;
+              return `  P${num} ${p.local || '?'}-${p.visitante || '?'}: jugado ${signo} → ${estado}`;
             });
             const cerrados = aciertos + fallos;
             const resumenReal = `  RESUMEN REAL (calculado, no lo cambies): ${aciertos} aciertos y ${fallos} fallos de ${cerrados} partidos con resultado oficial cerrado; ${pendientes} partidos todavia pendientes de resultado.`;
@@ -2552,13 +2554,17 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
                 lineaElige8 = `  ELIGE8 (calculado, no lo cambies): FALLADO, no se acertaron los ${numsElige8.length} — rompio en P${rotoEn.join(', P')}.`;
               }
             }
-            const pleno = (state.ultimaJornadaJugadaDatos || {}).pleno15 || {};
-            const lineaPleno = pleno.local ? `  P15 Pleno al 15: ${pleno.local} vs ${pleno.visitante} → ${j.pleno15 || '?'}` : '';
+            const pleno = (datosJornada || {}).pleno15 || {};
+            const lineaPleno = pleno.local ? `  P15 Pleno al 15: ${pleno.local} vs ${pleno.visitante} → jugado ${j.pleno15 || '?'}, oficial ${pleno.signo_oficial || 'pendiente'}` : '';
             return `${cabecera}\n${resumenReal}${lineaElige8 ? '\n' + lineaElige8 : ''}\n${lineasPartido.join('\n')}${lineaPleno ? '\n' + lineaPleno : ''}`;
           }
           return `${cabecera} | signos=${arr(j.signos).join(' ')}`;
         });
-        bloqueQuinielasJugadas = `\nLO QUE REALMENTE HEMOS JUGADO (boletos reales confirmados por Marc — ESTO NO ES la predicción automática que aparece más abajo, son cosas distintas):\n${lineasJugadas.join('\n')}\nIMPORTANTE: si aparece un "RESUMEN REAL", usa EXACTAMENTE esos numeros de aciertos/fallos/pendientes al hablar de esta jornada. Si aparece una linea "ELIGE8", usa EXACTAMENTE ese veredicto (ACERTADO/FALLADO/pendiente) -nunca deduzcas tu solo si se acerto el Elige8 a partir de la lista de numeros jugados, esa lista NO indica resultado. No inventes ni redondees un numero distinto aunque te parezca mas natural.`;
+        // Las instrucciones van en la CABECERA, no al final: este bloque va
+        // dentro del contexto recortable y un aviso colocado despues de las
+        // listas era lo primero que se comia el recorte -precisamente el
+        // aviso de no inventar desaparecia en las preguntas largas.
+        bloqueQuinielasJugadas = `\nLO QUE REALMENTE HEMOS JUGADO (boletos reales confirmados por Marc — NO es la prediccion automatica de mas abajo). REGLAS DURAS: usa EXACTAMENTE los numeros de cada "RESUMEN REAL" y el veredicto de cada linea "ELIGE8", nunca los deduzcas tu. Los partidos listados (P1-P15) son los UNICOS que existieron en cada jornada: cita SOLO enfrentamientos, signos y resultados que aparezcan literalmente aqui. Si una jornada aparece sin lista de partidos, di que no tienes su detalle — NUNCA rellenes el hueco con partidos, marcadores o dobles plausibles: un analisis inventado es peor que "no tengo ese dato".\n${lineasJugadas.join('\n')}`;
       }
 
       // Predicción actual — compacta para ahorrar tokens
@@ -3242,8 +3248,18 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
 
         // Detectar si es consulta local ANTES de truncar para ajustar el límite
         // Consultas locales no hacen fetch externo → podemos dar más contexto sin riesgo de 413
-        const esConsultaLocalPrevia = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|pesos|jornada actual|jornada anterior|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev|partidos.*jornada|quiniela.*jornada|dame.*partido|publica.*partido|lista.*partido|muestra.*partido|temporada|24.25|25.26|23.24|datos.*equipo|equipo.*datos|como.*fue|estadistica|clasificaci[oó]n.*liga|liga.*clasificaci[oó]n|1[aª] division|2[aª] division|primera.*division|segunda.*division|calendario|jugará|cuando juega|próximos partidos|fixtures|hemos jugado|nuestra quiniela|jornada\s*\d+.*jugad|jugad.*jornada\s*\d+/i.test(textoTotal);
-        const limiteContexto = esConsultaLocalPrevia ? 4500 : 2500;
+        // "aprendid" cubre "que has aprendido (de estas jornadas)" -bug real
+        // (01/09/2026): esa pregunta, la mas natural para pedir el analisis
+        // de lo jugado, no disparaba el modo local -> recorte de 2500 en vez
+        // de 5500 y el detalle real de las jornadas quedaba fuera, dejando
+        // al modelo sin datos justo en la pregunta que mas los necesita.
+        const esConsultaLocalPrevia = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|aprendid|pesos|jornada actual|jornada anterior|última jornada|jornadas|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev|partidos.*jornada|quiniela.*jornada|dame.*partido|publica.*partido|lista.*partido|muestra.*partido|temporada|24.25|25.26|23.24|datos.*equipo|equipo.*datos|como.*fue|estadistica|clasificaci[oó]n.*liga|liga.*clasificaci[oó]n|1[aª] division|2[aª] division|primera.*division|segunda.*division|calendario|jugará|cuando juega|próximos partidos|fixtures|hemos jugado|nuestra quiniela|jornada\s*\d+.*jugad|jugad.*jornada\s*\d+/i.test(textoTotal);
+        // 5500 (antes 4500): el detalle real partido a partido de las 3
+        // ultimas jornadas jugadas no cabia en 4500 junto a la memoria del
+        // socio, y lo que se recortaba era justo el dato real cuya ausencia
+        // hacia al modelo inventar partidos. +260 tokens aprox, dentro del
+        // cupo TPM de Groq (verificado en produccion con la pregunta real).
+        const limiteContexto = esConsultaLocalPrevia ? 6800 : 2500;
         const contexto = contextoCompleto.slice(0, limiteContexto);
 
         // Detectar si el usuario quiere que la IA aprenda algo
@@ -3317,8 +3333,10 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         }
 
 
+        bloqueClasif = bloqueClasif.slice(0, 1200);
+
         let bloqueWeb = contextoWeb
-          ? `\n\n--- INFORMACIÓN ACTUALIZADA DE LA WEB ---\n${contextoWeb}--- FIN DATOS WEB ---`
+          ? `\n\n--- INFORMACIÓN ACTUALIZADA DE LA WEB ---\n${String(contextoWeb).slice(0, 1600)}--- FIN DATOS WEB ---`
           : '';
 
         // Bloque de contenido de URLs pegadas por el usuario
@@ -3495,9 +3513,31 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
             bloqueFootball += `\n--- FIN DATOS FÚTBOL ---`;
           }
         }
+        // Tope duro: este bloque (y bloqueClasif/bloqueWeb abajo) van FUERA
+        // del recorte de `contexto`, y sin tope el volcado de ESPN de todas
+        // las ligas + clasificaciones nordicas llevaba el prompt entero a
+        // ~9.700 tokens con un cupo TPM de Groq de 8.000 -429 garantizado
+        // en cada pregunta "grande" (bug real, 01/09/2026). Espana primero
+        // en el dump, asi que el recorte se lleva lo menos relevante.
+        bloqueFootball = bloqueFootball.slice(0, 1800);
 
         const fechaHoyStr = new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
+        // Dos versiones del "manual de La Quiniela" del prompt. El completo
+        // (~8k caracteres, reglas del juego + finanzas + estrategia) solo
+        // cabe cuando el contexto de datos es pequeno; en las consultas de
+        // datos (esConsultaLocalPrevia, contexto de 6800) el prompt entero
+        // se iba a ~10.400 tokens con un cupo TPM de Groq de 8.000 -429
+        // permanente en las preguntas de analisis (bug real, 01/09/2026).
+        // Para esas, el resumen esencial conserva justo las reglas que el
+        // modelo confundia (P15 por goles, coste, Elige8) en ~600 chars.
+        const manualEsencial = `
+REGLAS ESENCIALES DE LA QUINIELA (resumen — el detalle completo lo tienes memorizado de otras conversaciones):
+- 14 partidos con signo 1/X/2. Premio minimo: 10 aciertos de 14. Categorias: 10, 11, 12, 13, 14 y 14+Pleno15.
+- P15 (Pleno al 15): NO se marca 1/X/2 — se pronostican GOLES por equipo (0/1/2/M, M=3 o mas). Solo puntua si los 14 anteriores estan perfectos.
+- Coste boleto: combinaciones = 2^dobles × 3^triples; coste = combinaciones × 0,75 EUR. Doble/Triple = marcar 2/3 signos en UN partido, no boletos extra.
+- Elige 8 (+0,50 EUR): elegir 8 de los 14; hereda los signos de la primera columna; hay que acertar los 8.
+- NUNCA inventes reglas, marcadores ni partidos: si un dato no esta abajo, di que no lo tienes.`;
         const systemPrompt = `Eres el analista de QuiniHub. Tu nombre es "Analista QuiniHub" y eres el mayor experto en La Quiniela de la LAE (Loterías y Apuestas del Estado) de España.
 HOY ES: ${fechaHoyStr}. Usa esta fecha para responder preguntas sobre "hoy", "ayer", "esta semana", etc.
 
@@ -3512,6 +3552,7 @@ REGLAS CRÍTICAS — LEE ANTES DE RESPONDER:
 8. Si preguntan por la clasificación/situación en la liga de un equipo y aparece un bloque "SITUACIÓN REAL DE [EQUIPO] EN LA LIGA" más abajo, cita EXCLUSIVAMENTE esos datos (posición, puntos, lectura) y respeta SIEMPRE la etiqueta de temporada que incluye ese bloque — si dice que es la clasificación final de la temporada pasada, dilo así de claro, nunca des a entender que la Liga 26/27 ya está en marcha si el propio bloque dice que no. Si ese bloque no aparece, di que no tienes datos de clasificación de ese equipo, sin inventar posiciones ni puntos.
 9. NUNCA des un marcador, resultado final o "ya se jugó/ya terminó X-Y" de un partido concreto a menos que ese marcador aparezca LITERALMENTE citado en los datos del sistema o en un fragmento real de la búsqueda web que se te ha pasado más abajo. Si preguntan por un partido de hoy/próximo y no tienes un resultado confirmado en los datos, di explícitamente que no tienes el resultado confirmado o que el partido está pendiente de jugarse — no lo inventes aunque la fecha ya haya llegado ni aunque "suene plausible".
 
+${esConsultaLocalPrevia ? manualEsencial : `
 ═══════════════════════════════════════════════════════
 DOCUMENTO OFICIAL: REGLAS COMPLETAS DE LA QUINIELA LAE
 ═══════════════════════════════════════════════════════
@@ -3621,6 +3662,7 @@ ERRORES GRAVES PROHIBIDOS — NUNCA LOS COMETAS:
 ❌ NUNCA inventes un marcador o un "ya se jugó" de un partido sin tenerlo citado literalmente en los datos o en la búsqueda web. Si no lo tienes, dilo claramente.
 
 ═══════════════════════════════════════════════════════
+`}
 
 TU PERSONALIDAD:
 - Directo, apasionado y honesto. Hablas como un aficionado muy preparado del fútbol, no como un robot.
@@ -3797,6 +3839,20 @@ No inventes — solo lo que ves con fondo oscuro.`;
       const ultimaJugada = jugadasPorFecha.length ? (Number(jugadasPorFecha[0].jornada) || 0) : 0;
       state.ultimaJornadaJugadaNum = ultimaJugada;
       state.ultimaJornadaJugadaDatos = ultimaJugada ? await getJson(`data/jornadas/jornada_${ultimaJugada}.json`, null) : null;
+      // Fixture real de las 3 jornadas jugadas mas recientes (no solo la
+      // ultima). Bug real (01/09/2026, capturas de Marc): al pedir al chat
+      // un analisis de "las 3 primeras jornadas", solo tenia equipos y
+      // resultados de la ULTIMA -de las demas veia solo la tira de signos
+      // ("2 X2 2...") sin saber contra quien, y rellenaba los huecos
+      // INVENTANDO partidos que no existieron (un "Granada-Alaves", un
+      // "Real Sociedad-Espanyol en J2", un "clasico Sevilla-Valencia").
+      state.jornadasJugadasDatos = {};
+      for (const jug of jugadasPorFecha.slice(0, 3)) {
+        const numJ = Number(jug.jornada) || 0;
+        if (numJ && !(numJ in state.jornadasJugadasDatos)) {
+          state.jornadasJugadasDatos[numJ] = await getJson(`data/jornadas/jornada_${numJ}.json`, null);
+        }
+      }
       // generado_en solo se mueve cuando el motor regenera la PREDICCION -una
       // vez la jornada empieza a jugarse no hace falta regenerarla, asi que
       // se queda fijo aunque los resultados reales se sigan actualizando en
