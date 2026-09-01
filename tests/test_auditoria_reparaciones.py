@@ -77,10 +77,19 @@ class PredecirSmokeTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        # Jornada EXPLICITA desde estado_jornada_objetivo.json -el mismo
+        # camino que usa el pipeline real (motor_prediccion_objetivo.py:
+        # predecir(jornada=objetivo)). El auto-detect interno de predecir()
+        # sin argumento es una ruta legacy que nadie usa en produccion y
+        # que aqui elegia "predecir la 5" cargando el jornada_5.json viejo
+        # de la 25/26 (fallo real del smoke en CI, 01/09/2026).
+        estado = json.loads((ROOT / "data" / "estado_jornada_objetivo.json").read_text(encoding="utf-8")) \
+            if (ROOT / "data" / "estado_jornada_objetivo.json").exists() else {}
+        objetivo = estado.get("jornada_objetivo")
         cls._guardar_original = motor.guardar_json
         motor.guardar_json = lambda *a, **k: None
         try:
-            cls.resultado = motor.predecir()
+            cls.resultado = motor.predecir(jornada=objetivo) if objetivo else {}
         finally:
             motor.guardar_json = cls._guardar_original
 
