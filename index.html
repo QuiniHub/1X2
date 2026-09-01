@@ -3680,6 +3680,14 @@ No inventes — solo lo que ves con fondo oscuro.`;
           añadirMensajeChat('ia', respuestaFinal);
           chatHistory.push({ role: 'assistant', content: respuestaFinal });
           guardarHistorialChat();
+        } else {
+          // Bug real (31/08/2026, hallazgo de Marc con captura): el proveedor
+          // puede responder 200 con contenido VACIO (respuesta filtrada,
+          // cortada, o un fallback que devolvio ''). Sin este else, el
+          // indicador de "escribiendo" desaparecia y no se mostraba NADA -
+          // ni respuesta ni error-, dejando al usuario mirando un chat mudo
+          // sin saber si reintentarlo o esperar.
+          añadirMensajeChat('ia', 'El proveedor de IA devolvió una respuesta vacía (suele ser saturación puntual del nivel gratuito). Vuelve a enviar la pregunta — normalmente al segundo intento funciona.');
         }
 
       } catch (err) {
