@@ -1877,7 +1877,18 @@
         // reales dentro de la misma jornada, no para colar partidos de otra
         // fecha muy lejana.
         const fechaRef = fechaPartido ? new Date(fechaPartido + 'T12:00:00').getTime() : null;
+        // Guardia de GENERO: un partido de Liga F solo puede resolver a otro
+        // de Liga F y viceversa. Bug real (04/09/2026, captura de Marc, 9ª
+        // colision de nombres): el 2-0 del Alaves Femenino-Valencia (F) de
+        // la J3 (30/08) se pintaba sobre el "Deportivo Alaves - Valencia CF"
+        // masculino de la J6 (16/09) -"alaves" es substring de "alaves
+        // femenino" y los 17 dias de distancia pasaban la guardia de fecha
+        // de 20. Las otras guardias (fecha, placeholder, ciudad) no cubrian
+        // esta via.
+        const esLigaFNombre = n => /\(\s*f\s*\)|femen/i.test(String(n || ''));
+        const parEsLigaF = esLigaFNombre(local) || esLigaFNombre(visitante);
         const encontrado = resultadosJornada.find(r => {
+          if ((esLigaFNombre(r.local) || esLigaFNombre(r.visitante)) !== parEsLigaF) return false;
           const rl = normalizeName(r.local || '');
           const rv = normalizeName(r.visitante || '');
           if (!coincide(nl, rl) || !coincide(nv, rv)) return false;
