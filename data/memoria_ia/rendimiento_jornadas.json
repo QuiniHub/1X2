@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-05T19:28:18.301345+00:00",
+  "generado_en": "2026-09-05T21:48:44.007749+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -424,17 +424,17 @@
     },
     "4": {
       "jornada": 4,
-      "partidos_cerrados": 4,
-      "partidos_con_prediccion": 4,
-      "precision_boleto": 0.0,
-      "precision_top1": 0.0,
-      "brier_medio": 0.9005,
-      "logloss_medio": 1.4896,
+      "partidos_cerrados": 6,
+      "partidos_con_prediccion": 6,
+      "precision_boleto": 33.33,
+      "precision_top1": 33.33,
+      "brier_medio": 0.7406,
+      "logloss_medio": 1.2456,
       "por_tipo": {
         "FIJO": {
-          "total": 3,
-          "aciertos": 0,
-          "precision": 0.0
+          "total": 4,
+          "aciertos": 1,
+          "precision": 25.0
         },
         "DOBLE": {
           "total": 1,
@@ -442,18 +442,25 @@
           "precision": 0.0
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0,
-          "precision": null
+          "total": 1,
+          "aciertos": 1,
+          "precision": 100.0
         }
       },
       "elige8": {
-        "selecciones": 1,
-        "aciertos": 0,
-        "precision": 0.0
+        "selecciones": 3,
+        "aciertos": 2,
+        "precision": 66.67
       },
-      "surprise_score_medio": 69.3,
+      "surprise_score_medio": 56.69,
       "ranking_incertidumbre": [
+        {
+          "num": 3,
+          "partido": "Villarreal CF - RC Deportivo de La Coruna",
+          "incertidumbre": 152.98,
+          "surprise_score": 40.77,
+          "margen_probabilidad": 0.9009
+        },
         {
           "num": 2,
           "partido": "Rayo Vallecano de Madrid - R. Santander",
@@ -481,13 +488,32 @@
           "incertidumbre": 124.89,
           "surprise_score": 74.29,
           "margen_probabilidad": 11.5
+        },
+        {
+          "num": 11,
+          "partido": "Sevilla (F) - Barcelona (F)",
+          "incertidumbre": 101.2,
+          "surprise_score": 22.2,
+          "margen_probabilidad": 44.7
         }
       ],
       "ranking_elige8_confianza_real": [
         {
+          "num": 3,
+          "partido": "Villarreal CF - RC Deportivo de La Coruna",
+          "confianza_real_elige8": 56.23,
+          "elige8": true
+        },
+        {
           "num": 1,
           "partido": "Athletic Club - Club Atletico de Madrid",
           "confianza_real_elige8": 47.33,
+          "elige8": true
+        },
+        {
+          "num": 11,
+          "partido": "Sevilla (F) - Barcelona (F)",
+          "confianza_real_elige8": 24.08,
           "elige8": true
         },
         {

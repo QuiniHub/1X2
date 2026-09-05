@@ -1,21 +1,21 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-05T19:28:48.183322+00:00",
+  "generado_en": "2026-09-05T21:49:15.806518+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 200,
-    "precision_top": 38.0,
-    "brier_medio": 0.6627,
-    "logloss_medio": 1.0943,
+    "partidos": 202,
+    "precision_top": 38.61,
+    "brier_medio": 0.6602,
+    "logloss_medio": 1.0909,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 114,
-      "prob_top_media": 35.54,
-      "precision_real": 33.33,
-      "desviacion_calibracion": -2.2,
+      "total": 115,
+      "prob_top_media": 35.53,
+      "precision_real": 33.91,
+      "desviacion_calibracion": -1.62,
       "muestra_suficiente": true
     },
     "40-50": {
@@ -31,14 +31,21 @@
       "precision_real": 47.37,
       "desviacion_calibracion": -6.49,
       "muestra_suficiente": false
+    },
+    "60-70": {
+      "total": 1,
+      "prob_top_media": 64.1,
+      "precision_real": 100.0,
+      "desviacion_calibracion": 35.9,
+      "muestra_suficiente": false
     }
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 200,
-      "precision_top": 38.0,
-      "brier_medio": 0.6627,
-      "logloss_medio": 1.0943,
+      "partidos": 202,
+      "precision_top": 38.61,
+      "brier_medio": 0.6602,
+      "logloss_medio": 1.0909,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -706,6 +713,21 @@
     },
     {
       "jornada": 4,
+      "num": 3,
+      "partido": "Villarreal CF - RC Deportivo de La Coruna",
+      "fuente": "data/backtesting/pre_cierre/jornada_4.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 34.8,
+      "prob_real": 34.8,
+      "bucket_top": "30-40",
+      "brier": 0.6377280000000001,
+      "logloss": 1.0555527992076628,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 4,
       "num": 8,
       "partido": "Real Sociedad B - Tenerife",
       "fuente": "data/backtesting/pre_cierre/jornada_4.json",
@@ -732,6 +754,21 @@
       "bucket_top": "40-50",
       "brier": 1.0271759999999999,
       "logloss": 1.7372712839439852,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 4,
+      "num": 11,
+      "partido": "Sevilla (F) - Barcelona (F)",
+      "fuente": "data/backtesting/pre_cierre/jornada_4.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 64.1,
+      "prob_real": 64.1,
+      "bucket_top": "60-70",
+      "brier": 0.19380200000000009,
+      "logloss": 0.44472582206146716,
       "competicion": "desconocida"
     },
     {
