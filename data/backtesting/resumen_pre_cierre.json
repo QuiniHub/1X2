@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-05T12:02:46.097133+00:00",
+  "generado_en": "2026-09-05T15:09:17.336974+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 15,
-    "partidos_cerrados": 196,
-    "aciertos": 111,
-    "precision": 56.63
+    "partidos_cerrados": 197,
+    "aciertos": 112,
+    "precision": 56.85
   },
   "jornadas": [
     {
@@ -776,10 +776,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_4.json",
       "creado_en": "2026-08-31T23:21:29.829067+00:00",
       "prediccion_generada_en": "2026-08-31T23:21:29.828533+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
-      "aciertos": 0,
-      "precision": null,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 1,
+      "aciertos": 1,
+      "precision": 100.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -804,15 +804,31 @@
           "aciertos": 0
         },
         "DOBLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 1,
+          "aciertos": 1
         },
         "TRIPLE": {
           "total": 0,
           "aciertos": 0
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 8,
+          "partido": "Real Sociedad B - Tenerife",
+          "jugado": "X2",
+          "tipo": "DOBLE",
+          "oficial": "X",
+          "acierto": true,
+          "probabilidades": {
+            "1": 22.6,
+            "X": 31.7,
+            "2": 45.7
+          },
+          "incertidumbre": 134.49,
+          "probabilidad_sorpresa": 65.4
+        }
+      ]
     },
     {
       "jornada": 66,
