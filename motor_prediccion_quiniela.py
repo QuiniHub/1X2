@@ -1348,9 +1348,19 @@ PESO_MERCADO_LOSILLA_POR_CALIDAD = {
     "baja": 0.65,
 }
 PESO_MERCADO_LOSILLA_DEFECTO = 0.18
+# Con pocas jornadas disputadas, la estadistica propia es ruido aunque la
+# etiqueta de calidad diga "alta": en la J4 26/27 (pj=3) el motor fallo los
+# 4 partidos de riesgo siendo MAS extremo que el mercado en la misma
+# direccion (prob. media al signo real: motor 23.5% vs mercado 35.3%,
+# autopsia 2026-09-06). El mercado ya descuenta calendario y contexto que
+# 3 partidos de tabla no pueden contener, asi que hasta que ambos equipos
+# lleguen a PJ_MINIMO_CONFIANZA_ESTADISTICA el peso del mercado tiene un
+# suelo alto aunque la calidad del dato propio sea alta.
+PJ_MINIMO_CONFIANZA_ESTADISTICA = 6
+PESO_MERCADO_SUELO_POCAS_JORNADAS = 0.45
 
 
-def ajustar_por_mercado_losilla(probs, mercado, calidad_datos=None):
+def ajustar_por_mercado_losilla(probs, mercado, calidad_datos=None, pj_minimo=None):
     """Integra el consenso publico de eduardolosilla.es (promedio de
     tecnicos/quinielista/LAE/real) como señal de mercado independiente.
 
@@ -1379,6 +1389,11 @@ def ajustar_por_mercado_losilla(probs, mercado, calidad_datos=None):
 
     p = dict(probs)
     peso = PESO_MERCADO_LOSILLA_POR_CALIDAD.get(calidad_datos, PESO_MERCADO_LOSILLA_DEFECTO)
+    suelo_pocas_jornadas = False
+    if pj_minimo is not None and float(pj_minimo) < PJ_MINIMO_CONFIANZA_ESTADISTICA:
+        if peso < PESO_MERCADO_SUELO_POCAS_JORNADAS:
+            peso = PESO_MERCADO_SUELO_POCAS_JORNADAS
+            suelo_pocas_jornadas = True
     top_motor = signo_top(p)
     top_mercado = signo_top(mercado)
     p = {
@@ -1392,7 +1407,13 @@ def ajustar_por_mercado_losilla(probs, mercado, calidad_datos=None):
         lecturas.append(
             f"Mercado Losilla: el consenso publico ({top_mercado}) no coincide con el favorito del motor ({top_motor})."
         )
-    lecturas.append(f"Mercado Losilla: consenso publico integrado con peso {peso:.2f} (calidad_datos={calidad_datos or 'desconocida'}).")
+    detalle_peso = f"calidad_datos={calidad_datos or 'desconocida'}"
+    if suelo_pocas_jornadas:
+        detalle_peso += (
+            f", suelo por inicio de temporada: pj={int(float(pj_minimo))} < "
+            f"{PJ_MINIMO_CONFIANZA_ESTADISTICA}, la tabla aun es ruido (leccion J4 26/27)"
+        )
+    lecturas.append(f"Mercado Losilla: consenso publico integrado con peso {peso:.2f} ({detalle_peso}).")
     return normalizar_probs(p), round(riesgo_extra, 2), lecturas
 
 
@@ -2776,8 +2797,13 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         if ajuste_modelo_entrenado.get("activo"):
             trazabilidad["origen_probabilidades"] = f"{trazabilidad['origen_probabilidades']}+modelo_entrenado"
         mercado_losilla_partido = mercado_losilla_signos(fuente_losilla, partido)
+        pj_minimo_partido = min(
+            float((local or {}).get("pj") or 0),
+            float((visitante or {}).get("pj") or 0),
+        )
         probs, riesgo_mercado_losilla, lecturas_mercado_losilla = ajustar_por_mercado_losilla(
-            probs, mercado_losilla_partido, calidad_datos=trazabilidad["calidad_datos"]
+            probs, mercado_losilla_partido, calidad_datos=trazabilidad["calidad_datos"],
+            pj_minimo=pj_minimo_partido,
         )
         lecturas_motivacion.extend(lecturas_mercado_losilla)
         # jornadaperfecta.com es respaldo -solo se consulta cuando la

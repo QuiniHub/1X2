@@ -260,6 +260,35 @@
     .match-row.tone-naranja { border-left: 6px solid var(--amber); background: #fdf6ec; }
     .match-row.tone-rojo    { border-left: 6px solid var(--danger); background: #fdf3f2; }
     .cobertura-aviso { margin-top: 4px; font-size: 11px; font-weight: 700; color: var(--danger); }
+    /* Bandas de aviso SIEMPRE visibles dentro del partido (2026-09-06): en la
+       J4 el aviso millonario del P8 (Sociedad B-Tenerife -> X, y salio X)
+       existia pero era un botoncito 💰 que habia que pulsar -Marc no se dio
+       por avisado. Ahora el aviso ocupa una banda entera, sin clic. */
+    .aviso-banda {
+      margin-top: 6px; padding: 7px 10px; border-radius: 9px;
+      font-size: 12px; font-weight: 700; line-height: 1.45;
+    }
+    .aviso-banda .aviso-detalle { font-weight: 500; font-size: 11px; margin-top: 2px; opacity: .92; }
+    .aviso-banda.millonario { background: #b8860b1c; border: 1.5px solid #b8860b66; color: #7a5a06; }
+    .aviso-banda.riesgo { background: #d33a2c14; border: 1.5px solid #d33a2c55; color: #a12518; }
+    .avisos-jornada {
+      margin-bottom: 12px; padding: 12px 14px; border-radius: 14px;
+      background: linear-gradient(135deg, #b8860b12, #d33a2c10);
+      border: 2px solid #b8860b55; font-size: 13px; line-height: 1.55;
+    }
+    .avisos-jornada .avisos-titulo {
+      font-weight: 900; font-size: 14px; color: #8a6206; letter-spacing: .3px;
+      display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+    }
+    .avisos-jornada .avisos-titulo .punto {
+      width: 10px; height: 10px; border-radius: 50%; background: var(--danger);
+      animation: avisoPulso 1.4s ease-in-out infinite;
+    }
+    @keyframes avisoPulso { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.75); } }
+    @media (prefers-reduced-motion: reduce) { .avisos-jornada .avisos-titulo .punto { animation: none; } }
+    .avisos-jornada ul { margin: 0; padding-left: 18px; }
+    .avisos-jornada li { margin: 3px 0; }
+    .avisos-jornada .aviso-elige8 { color: var(--danger); font-weight: 800; }
     .match-num {
       width: 34px;
       height: 34px;
@@ -456,7 +485,7 @@
       <div class="grid-2">
         <div class="card">
           <div class="card-head"><h2>Boleto</h2><span class="tag blue" id="jornadaLabel">Jornada</span></div>
-          <div class="card-body"><div class="ticket" id="ticketList"></div></div>
+          <div class="card-body"><div id="avisosJornada"></div><div class="ticket" id="ticketList"></div></div>
         </div>
         <div class="card">
           <div class="card-head"><h2>Pleno al 15</h2><span class="tag">Siempre visible</span></div>
@@ -984,31 +1013,72 @@
       return cambios.find(c => Number(c.num) === num) || null;
     }
 
-    function boletoMillonarioBadge(match) {
+    // Banda millonaria SIEMPRE visible (antes era un botoncito 💰 con popup:
+    // en la J4 el aviso del P8 Sociedad B-Tenerife -> X existia, salio X, y
+    // Marc no se dio por avisado porque habia que pulsarlo, 2026-09-06).
+    // cambio.signo_conservador viene fijo del servidor -se usa el signo
+    // realmente seleccionado (selectedSigns) para que la flecha diga "lo que
+    // tienes jugado ahora mismo -> alternativa" (confusion real, 21/08/2026).
+    function avisoMillonarioBanda(match) {
       const cambio = boletoMillonarioCambio(match);
       if (!cambio) return '';
-      const id = `mill_${match.num ?? match.numero ?? ''}`;
-      const color = '#b8860b';
-      // cambio.signo_conservador viene fijo del servidor (el signo_final que
-      // tenia el motor con SU presupuesto de dobles/triples al generar la
-      // prediccion) -no el que ves jugado en pantalla ahora, que depende del
-      // contador de dobles/triples que tengas puesto tu. Se usa el signo
-      // realmente seleccionado (selectedSigns) para que la flecha diga "lo
-      // que tienes jugado ahora mismo -> alternativa", no un dato viejo que
-      // podia no coincidir (confusion real de Marc, 21/08/2026).
       const jugadoAhora = selectedSigns(match) || cambio.signo_conservador || '';
       const yaIncluyeAlternativa = jugadoAhora && cambio.signo_millonario && jugadoAhora.includes(cambio.signo_millonario);
-      return `<span style="position:relative;display:inline-block">
-        <button type="button" onclick="document.querySelectorAll('.mill-pop').forEach(e=>{if(e.id!=='${id}')e.style.display='none'});const d=document.getElementById('${id}');d.style.display=d.style.display!=='block'?'block':'none'"
-          title="Alternativa millonaria disponible en este partido"
-          style="font-size:10px;padding:2px 7px;border-radius:6px;background:${color}15;color:${color};font-weight:700;border:1px solid ${color}30;cursor:pointer;line-height:1.4">💰</button>
-        <div class="mill-pop" id="${id}" style="display:none;position:absolute;z-index:6;top:24px;left:0;min-width:220px;max-width:280px;padding:8px 10px;background:var(--surface2,#fff);border:1px solid ${color}55;border-radius:8px;font-size:11px;line-height:1.5;color:var(--text,#333);box-shadow:0 4px 14px rgba(0,0,0,.18)">
-          ${yaIncluyeAlternativa
-            ? `<strong style="color:${color}">Ya la tienes cubierta: ${escapeHtml(jugadoAhora)} incluye la alternativa (${escapeHtml(cambio.signo_millonario)})</strong>`
-            : `<strong style="color:${color}">Alternativa: ${escapeHtml(jugadoAhora)} → ${escapeHtml(cambio.signo_millonario || '')}</strong>`}
-          <div style="margin-top:4px;color:var(--muted,#666)">${escapeHtml(cambio.justificacion || '')}</div>
-        </div>
-      </span>`;
+      return `<div class="aviso-banda millonario">
+        ${yaIncluyeAlternativa
+          ? `💰 SORPRESA POSIBLE — ya la tienes cubierta: ${escapeHtml(jugadoAhora)} incluye la alternativa (${escapeHtml(cambio.signo_millonario)})`
+          : `💰 EL MOTOR VE POSIBLE LA SORPRESA: ${escapeHtml(jugadoAhora)} → ${escapeHtml(cambio.signo_millonario || '')}`}
+        <div class="aviso-detalle">${escapeHtml(cambio.justificacion || '')}</div>
+      </div>`;
+    }
+
+    // Riesgo alto de sorpresa por indice del motor (>=60) o cobertura TRIPLE
+    // sugerida: banda roja siempre visible con los motivos reales.
+    function indiceSorpresaDe(match) {
+      return Math.round(Number(match.indice_sorpresa_quinielistica ?? match.surprise_score ?? 0));
+    }
+
+    function esRiesgoAlto(match) {
+      return indiceSorpresaDe(match) >= 60 || String(match.cobertura_sorpresa_sugerida || '').toUpperCase() === 'TRIPLE';
+    }
+
+    function avisoRiesgoBanda(match) {
+      if (!esRiesgoAlto(match)) return '';
+      const idx = indiceSorpresaDe(match);
+      const motivos = arr(match.motivos_sorpresa).slice(0, 2).join(' · ');
+      return `<div class="aviso-banda riesgo">
+        ⚠ RIESGO ALTO DE SORPRESA${idx ? ` (${idx}/100)` : ''} — el motor NO se fía de este partido
+        ${motivos ? `<div class="aviso-detalle">${escapeHtml(motivos)}</div>` : ''}
+      </div>`;
+    }
+
+    // Panel resumen encima del boleto: junta en un solo sitio, imposible de
+    // no ver, todos los avisos de la jornada (millonario + riesgo alto) y
+    // marca en rojo si alguno de esos partidos esta ademas en tu Elige 8
+    // (leccion J4: el Elige8 cayo justo por P1 y P8, los dos con aviso).
+    function renderAvisosJornada() {
+      const cont = qs('#avisosJornada');
+      if (!cont) return;
+      const items = [];
+      predictionMatches().forEach(match => {
+        const num = match.num ?? match.numero ?? match.partido;
+        const nombre = `${match.local || match.equipo_local || ''} - ${match.visitante || match.equipo_visitante || ''}`;
+        const enElige8 = isElige8Match(match);
+        const cambio = boletoMillonarioCambio(match);
+        if (cambio) {
+          const jugadoAhora = selectedSigns(match) || cambio.signo_conservador || '';
+          const cubierta = jugadoAhora && cambio.signo_millonario && jugadoAhora.includes(cambio.signo_millonario);
+          items.push(`<li>💰 <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: el motor ve posible ${escapeHtml(cambio.signo_millonario || '')}${cubierta ? ' (ya cubierta en tu jugada)' : ` en vez de ${escapeHtml(jugadoAhora)}`}${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
+        }
+        if (esRiesgoAlto(match)) {
+          items.push(`<li>⚠ <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: riesgo alto de sorpresa (${indiceSorpresaDe(match)}/100)${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
+        }
+      });
+      if (!items.length) { cont.innerHTML = ''; return; }
+      cont.innerHTML = `<div class="avisos-jornada">
+        <div class="avisos-titulo"><span class="punto"></span>⚠ AVISOS DE ESTA JORNADA — léelos antes de jugar</div>
+        <ul>${items.join('')}</ul>
+      </div>`;
     }
 
     function renderTicket() {
@@ -1047,7 +1117,9 @@
           <div class="match-num">${escapeHtml(num)}</div>
           <div class="teams">
             <strong>${escapeHtml(match.local || match.equipo_local)} <span style="color:var(--muted);font-weight:700">vs</span> ${escapeHtml(match.visitante || match.equipo_visitante)}</strong>
-            <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8Label}${probabilityText(match)}${boletoMillonarioBadge(match)}</div>
+            <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8Label}${probabilityText(match)}</div>
+            ${avisoRiesgoBanda(match)}
+            ${avisoMillonarioBanda(match)}
             ${coberturaMismatchNote(match)}
             ${analisisExpansible(match)}
           </div>
@@ -1057,6 +1129,7 @@
         </article>`;
       }).join('');
       qs('#ticketList').innerHTML = html || '<div class="empty">No hay partidos cargados todavía.</div>';
+      renderAvisosJornada();
       applyTicketVisibility();
     }
 
