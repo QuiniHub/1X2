@@ -877,20 +877,46 @@
 
     function computeAssignments() {
       const matches = predictionMatches();
-      // Ordenar por probabilidad_top ascendente: los menos seguros primero
-      const byUncertainty = [...matches].sort((a, b) =>
-        (Number(a.probabilidad_top) || 0) - (Number(b.probabilidad_top) || 0)
-      );
       state.typeAssignment = {};
       state.signAssignment = {};
-      byUncertainty.forEach((m, i) => {
-        const num = m.num ?? m.numero ?? m.partido;
+      const numDe = m => m.num ?? m.numero ?? m.partido;
+      const signosOrdenados = m => {
         const probs = m.probabilidades || m.probabilidad_signos || {};
-        const sorted = ['1','X','2'].sort((a, b) => (Number(probs[b]) || 0) - (Number(probs[a]) || 0));
-        if (i < state.triples) {
+        return ['1','X','2'].sort((a, b) => (Number(probs[b]) || 0) - (Number(probs[a]) || 0));
+      };
+      // Criterio COMPLETO del motor (2026-09-06, petición de Marc): al cambiar
+      // los contadores, los triples/dobles se recolocan con las mismas
+      // puntuaciones que usa cobertura_automatica en el motor Python
+      // (prioridad_cobertura_triple/doble: incertidumbre + índice de sorpresa
+      // + contexto competitivo + desacuerdo con el mercado Losilla...), no con
+      // el atajo de "probabilidad_top más baja primero" que ignoraba todo eso.
+      // Respaldo: si el JSON publicado aún no trae las puntuaciones (predicción
+      // generada por un motor anterior), se mantiene el criterio antiguo.
+      const tienePrioridades = matches.some(m => Number.isFinite(Number(m.prioridad_cobertura_triple)));
+      let triplesSet, doblesSet;
+      if (tienePrioridades) {
+        const porTriple = [...matches].sort((a, b) =>
+          (Number(b.prioridad_cobertura_triple) || 0) - (Number(a.prioridad_cobertura_triple) || 0)
+        );
+        triplesSet = new Set(porTriple.slice(0, state.triples).map(numDe));
+        const porDoble = matches.filter(m => !triplesSet.has(numDe(m))).sort((a, b) =>
+          (Number(b.prioridad_cobertura_doble) || 0) - (Number(a.prioridad_cobertura_doble) || 0)
+        );
+        doblesSet = new Set(porDoble.slice(0, state.dobles).map(numDe));
+      } else {
+        const byUncertainty = [...matches].sort((a, b) =>
+          (Number(a.probabilidad_top) || 0) - (Number(b.probabilidad_top) || 0)
+        );
+        triplesSet = new Set(byUncertainty.slice(0, state.triples).map(numDe));
+        doblesSet = new Set(byUncertainty.slice(state.triples, state.triples + state.dobles).map(numDe));
+      }
+      matches.forEach(m => {
+        const num = numDe(m);
+        const sorted = signosOrdenados(m);
+        if (triplesSet.has(num)) {
           state.typeAssignment[num] = 'triple';
           state.signAssignment[num] = '1X2';
-        } else if (i < state.triples + state.dobles) {
+        } else if (doblesSet.has(num)) {
           state.typeAssignment[num] = 'doble';
           state.signAssignment[num] = sorted[0] + sorted[1];
         } else {
@@ -903,19 +929,19 @@
       //   doble = suma de las 2 probabilidades cubiertas
       //   fijo  = probabilidad del signo elegido
       if (state.elige8) {
-        const tripleNums = matches
-          .filter(m => state.typeAssignment[m.num ?? m.numero ?? m.partido] === 'triple')
-          .map(m => m.num ?? m.numero ?? m.partido);
-        const nonTriples = matches
-          .filter(m => state.typeAssignment[m.num ?? m.numero ?? m.partido] !== 'triple')
-          .sort((a, b) => {
-            const numA = a.num ?? a.numero ?? a.partido;
-            const numB = b.num ?? b.numero ?? b.partido;
-            return elige8ConfForMatch(b, state.typeAssignment[numB]) - elige8ConfForMatch(a, state.typeAssignment[numA]);
-          });
-        const needed = Math.max(0, 8 - tripleNums.length);
-        const fillers = nonTriples.slice(0, needed).map(m => m.num ?? m.numero ?? m.partido);
-        state.elige8Set = new Set([...tripleNums, ...fillers]);
+        // Mismo criterio que prioridad_elige8() en el motor Python:
+        // probabilidad REAL cubierta por lo jugado AHORA MISMO (según los
+        // contadores actuales) menos la penalización cualitativa exportada
+        // (incertidumbre + sorpresa + necesidad — los avisos que en la J4
+        // 26/27 se ignoraron y tumbaron el Elige8 con P1 y P8 dentro).
+        // Sin la penalización en el JSON (motor antiguo) cuenta como 0 y el
+        // comportamiento queda como antes.
+        const puntuacionElige8 = m => {
+          const num = m.num ?? m.numero ?? m.partido;
+          return elige8ConfForMatch(m, state.typeAssignment[num]) - (Number(m.penalizacion_elige8) || 0);
+        };
+        const ranking = [...matches].sort((a, b) => puntuacionElige8(b) - puntuacionElige8(a));
+        state.elige8Set = new Set(ranking.slice(0, 8).map(m => m.num ?? m.numero ?? m.partido));
       } else {
         state.elige8Set = new Set();
       }

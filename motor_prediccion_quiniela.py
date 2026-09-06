@@ -1737,11 +1737,18 @@ def prioridad_elige8(partido):
     coste del Elige8 por cada doble/triple incluido). Se quita: ahora
     manda probabilidad_cubierta de verdad, sin bono artificial por tipo.
     """
+    return probabilidad_cubierta(partido) - penalizacion_elige8_partido(partido)
+
+
+def penalizacion_elige8_partido(partido):
+    """Parte cualitativa del criterio Elige8, separada para poder exportarla
+    al frontend: la web recalcula el Elige8 en el navegador cuando Marc
+    cambia dobles/triples, y sin esta penalizacion ignoraba los avisos
+    (incertidumbre, sorpresa, necesidad) igual que paso en la J4 26/27."""
     incertidumbre_partido = float(partido.get("incertidumbre") or 0)
     sorpresa = float(partido.get("probabilidad_sorpresa") or 0)
     riesgo_necesidad = 1 if partido.get("riesgo_necesidad_real") or partido.get("riesgo_necesidad") else 0
-    penalizacion = min(25, incertidumbre_partido * 0.05) + min(15, sorpresa * 0.05) + riesgo_necesidad
-    return probabilidad_cubierta(partido) - penalizacion
+    return min(25, incertidumbre_partido * 0.05) + min(15, sorpresa * 0.05) + riesgo_necesidad
 
 
 def incertidumbre(probs, local, visitante, diff, riesgo_contexto=0):
@@ -3087,6 +3094,14 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "tipo": tipo,
             "incertidumbre": partido["incertidumbre"],
             "probabilidad_sorpresa": partido["probabilidad_sorpresa"],
+            # Puntuaciones REALES de colocacion, exportadas para que la web
+            # reparta dobles/triples/Elige8 con el criterio completo del motor
+            # (sorpresa, contexto, desacuerdo de mercado...) cuando Marc
+            # cambia los contadores en el navegador -antes la web usaba solo
+            # probabilidad_top y perdia todo eso (peticion de Marc 06/09/2026).
+            "prioridad_cobertura_triple": round(prioridad_triple(partido), 2),
+            "prioridad_cobertura_doble": round(prioridad_doble(partido), 2),
+            "penalizacion_elige8": round(penalizacion_elige8_partido(partido), 2),
             "probabilidad_top": probabilidad_top(partido["probabilidades"]),
             "margen_probabilidad": margen_probabilidades(partido["probabilidades"]),
             "tercera_probabilidad": tercera_probabilidad_valor(partido["probabilidades"]),

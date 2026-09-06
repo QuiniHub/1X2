@@ -316,3 +316,44 @@ class MillonarioReconciliadoTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PrioridadesExportadasTests(unittest.TestCase):
+    """La web recoloca dobles/triples/Elige8 en el navegador cuando Marc
+    cambia los contadores (2026-09-06): para que use el criterio COMPLETO
+    del motor y no un atajo por probabilidad, predecir() exporta por partido
+    prioridad_cobertura_triple/doble y penalizacion_elige8. Si estos campos
+    desaparecen, la web vuelve en silencio al criterio simplificado."""
+
+    def test_predecir_exporta_prioridades_de_colocacion(self):
+        estado_path = ROOT / "data" / "estado_jornada_objetivo.json"
+        objetivo = (json.loads(estado_path.read_text(encoding="utf-8")) if estado_path.exists() else {}).get("jornada_objetivo")
+        if not objetivo:
+            self.skipTest("sin jornada objetivo en este entorno")
+        original = motor.guardar_json
+        motor.guardar_json = lambda *a, **k: None
+        try:
+            resultado = motor.predecir(jornada=objetivo)
+        finally:
+            motor.guardar_json = original
+        partidos = resultado.get("partidos") or []
+        if not partidos or not all("probabilidades" in p for p in partidos):
+            self.skipTest("prediccion bloqueada por compuerta en este entorno")
+        for p in partidos:
+            self.assertIn("prioridad_cobertura_triple", p)
+            self.assertIn("prioridad_cobertura_doble", p)
+            self.assertIn("penalizacion_elige8", p)
+            self.assertGreaterEqual(float(p["penalizacion_elige8"]), 0.0)
+
+    def test_penalizacion_elige8_es_la_parte_cualitativa_de_prioridad(self):
+        partido = {
+            "probabilidades": {"1": 60.0, "X": 25.0, "2": 15.0},
+            "signo_final": "1",
+            "incertidumbre": 100.0,
+            "probabilidad_sorpresa": 40.0,
+            "riesgo_necesidad_real": True,
+        }
+        pen = motor.penalizacion_elige8_partido(partido)
+        # min(25, 100*0.05)=5 + min(15, 40*0.05)=2 + 1 de necesidad = 8
+        self.assertAlmostEqual(pen, 8.0)
+        self.assertAlmostEqual(motor.prioridad_elige8(partido), motor.probabilidad_cubierta(partido) - pen)
