@@ -1,51 +1,51 @@
 {
   "version": "1.2",
-  "precision": 65.25,
+  "precision": 65.26,
   "jornadas_revisadas": 22,
-  "partidos_revisados": 305,
-  "aciertos": 199,
-  "fallos": 106,
+  "partidos_revisados": 308,
+  "aciertos": 201,
+  "fallos": 107,
   "fallos_por_tipo": {
     "Doble insuficiente": 20,
     "Fijo fallado": 50,
-    "No cubrio empate": 36
+    "No cubrio empate": 37
   },
   "fallos_por_signo_real": {
     "1": 28,
     "2": 42,
-    "X": 36
+    "X": 37
   },
   "signos_omitidos_en_fallo": {
     "1": 28,
     "2": 42,
-    "X": 36
+    "X": 37
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 74,
-      "aciertos": 54,
+      "total": 75,
+      "aciertos": 55,
       "fallos": 20,
-      "precision": 72.97
+      "precision": 73.33
     },
     "FIJO": {
-      "total": 194,
+      "total": 195,
       "aciertos": 108,
-      "fallos": 86,
-      "precision": 55.67
+      "fallos": 87,
+      "precision": 55.38
     },
     "TRIPLE": {
-      "total": 37,
-      "aciertos": 37,
+      "total": 38,
+      "aciertos": 38,
       "fallos": 0,
       "precision": 100.0
     }
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 138,
-      "aciertos": 110,
+      "total": 139,
+      "aciertos": 111,
       "fallos": 28,
-      "precision": 79.71
+      "precision": 79.86
     },
     "2": {
       "total": 96,
@@ -54,174 +54,13 @@
       "precision": 56.25
     },
     "X": {
-      "total": 71,
-      "aciertos": 35,
-      "fallos": 36,
-      "precision": 49.3
+      "total": 73,
+      "aciertos": 36,
+      "fallos": 37,
+      "precision": 49.32
     }
   },
   "detalle": [
-    {
-      "jornada": 62,
-      "partido": "Glasgow Rangers - Hibernian",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-2",
-      "resultado_final": "1-2",
-      "signo_real": "2",
-      "signos_cubiertos": "1",
-      "signo_omitido": "2",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "issue_memoria_sin_token",
-      "probabilidades_usadas": {},
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Glasgow Rangers",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Hibernian",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 63,
-      "partido": "Athletic de Bilbao - Celta",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "data/predicciones/jornada_63.json",
-      "probabilidades_usadas": {
-        "1": 34.5,
-        "X": 34.1,
-        "2": 31.4
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Athletic de Bilbao",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Celta",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.5%, X=34.1%, 2=31.4%. Athletic de Bilbao llega con 45 puntos, 7 puntos en los ultimos 5 y 1.108 goles a favor por partido. Celta llega con 51 puntos, 7 puntos en los ultimos 5 y 1.297 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Sin noticias recientes detectadas en fuentes públicas durante esta actualización. RC Celta de Vigo: hay señales de posibles lesiones o partes médicos. Contexto visitante: posibles bajas/sanciones detectadas. Motivacion: el local compite con mas urgencia (europa league (aspira matematicamente), conference (aspira matematicamente)). Objetivos: Athletic de Bilbao (europa league (aspira matematicamente), conference (aspira matematicamente)) frente a Celta (europa league (asegurado matematicamente), conference (asegurado matematicamente)). Riesgo de azar/sorpresa estimado: 70%. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 63,
-      "partido": "Atlético de Madrid - Girona",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-0",
-      "resultado_final": "1-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_63.json",
-      "probabilidades_usadas": {
-        "1": 51.5,
-        "X": 27.9,
-        "2": 20.6
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Atlético de Madrid",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Girona",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=51.5%, X=27.9%, 2=20.6%. Atlético de Madrid llega con 69 puntos, 9 puntos en los ultimos 5 y 1.649 goles a favor por partido. Girona llega con 40 puntos, 1 puntos en los ultimos 5 y 1.459 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Club Atlético de Madrid: hay señales de posibles lesiones o partes médicos; hay jugadores en duda o incidencias de entrenamiento. Girona FC: hay posibles regresos o altas. Contexto local: posibles bajas/sanciones detectadas. Contexto local: dudas de disponibilidad o entrenamiento. Contexto visitante: posibles altas o regresos. Motivacion: el visitante compite con mas urgencia (descenso (en descenso con opciones)). Contexto competitivo visitante: partido condicionado por permanencia/descenso. Objetivos: Atlético de Madrid (champions (asegurado matematicamente), europa league (asegurado matematicamente), conference (asegurado matematicamente)) frente a Girona (descenso (en descenso con opciones)). Riesgo de azar/sorpresa estimado: 50.5%. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 63,
       "partido": "Barcelona - Betis",
@@ -23272,6 +23111,126 @@
     },
     {
       "jornada": 4,
+      "partido": "RCD Espanyol de Barcelona - Sevilla FC",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_4.json",
+      "probabilidades_usadas": {
+        "1": 27.7,
+        "X": 33.3,
+        "2": 39.1
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "RCD Espanyol de Barcelona",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Sevilla FC",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (39.1%).",
+        "hipotesis_alternativa": "X como alternativa (33.3%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE X2: margen 5.8 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 15.36,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.96,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.89,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local RCD Espanyol de Barcelona: ppp=1.15; perfil visitante Sevilla FC: ppp=1.32.",
+          "Memoria autonoma: historial de sorpresa medio elevado (49.9)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "RCD Espanyol de Barcelona",
+        "partidos_total": 3,
+        "puntos_por_partido": 0.971,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 56.51,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Sevilla FC",
+        "partidos_total": 33,
+        "puntos_por_partido": 1.3,
+        "empates_pct": 17.09,
+        "surprise_score_medio": 43.33,
+        "forma_5_ppp": 1.4,
+        "forma_10_ppp": 1.2,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 4,
       "partido": "R. Sociedad B - Tenerife",
       "pronostico": "2",
       "tipo_pronostico": "FIJO",
@@ -23504,6 +23463,125 @@
         "racha_actual": {
           "tipo": "P",
           "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 4,
+      "partido": "UD Almeria - Cadiz CF",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "3-2",
+      "resultado_final": "3-2",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_4.json",
+      "probabilidades_usadas": {
+        "1": 48.1,
+        "X": 35.7,
+        "2": 16.2
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "UD Almeria",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Cadiz CF",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (48.1%).",
+        "hipotesis_alternativa": "X como alternativa (35.7%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 62.4,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 12.4 puntos, indice sorpresa 80.2."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 15.36,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 1.49,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local UD Almeria: ppp=1.82; perfil visitante Cadiz CF: ppp=0.64.",
+          "Memoria autonoma: historial de sorpresa medio elevado (53.3)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "UD Almeria",
+        "partidos_total": 32,
+        "puntos_por_partido": 1.648,
+        "empates_pct": 20.67,
+        "surprise_score_medio": 51.02,
+        "forma_5_ppp": 1.6,
+        "forma_10_ppp": 2.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Cadiz CF",
+        "partidos_total": 30,
+        "puntos_por_partido": 0.897,
+        "empates_pct": 34.5,
+        "surprise_score_medio": 55.59,
+        "forma_5_ppp": 0.2,
+        "forma_10_ppp": 0.6,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
         }
       }
     },
@@ -23815,6 +23893,123 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 4,
+      "partido": "Real Madrid (F) - Eibar (F)",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-0",
+      "resultado_final": "0-0",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_4.json",
+      "probabilidades_usadas": {
+        "1": 68.9,
+        "X": 19.1,
+        "2": 12.0
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Real Madrid (F)",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Eibar (F)",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (68.9%).",
+        "hipotesis_alternativa": "X como alternativa (19.1%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 31.1,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 49.8 puntos, indice sorpresa 2.2."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.16,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Real Madrid (F): ppp=3.00; perfil visitante Eibar (F): ppp=2.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Real Madrid (F)",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 29.76,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Eibar (F)",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 49.31,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -23828,19 +24023,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 305,
+    "partidos_base": 308,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 34.75,
-      "no_cubrio_empate_sobre_fallos_pct": 33.96,
-      "no_cubrio_empate_sobre_total_pct": 11.8,
-      "fijo_fallado_sobre_fallos_pct": 47.17,
-      "fijo_fallado_sobre_total_pct": 16.39,
-      "doble_insuficiente_sobre_total_pct": 6.56
+      "fallos_total_pct": 34.74,
+      "no_cubrio_empate_sobre_fallos_pct": 34.58,
+      "no_cubrio_empate_sobre_total_pct": 12.01,
+      "fijo_fallado_sobre_fallos_pct": 46.73,
+      "fijo_fallado_sobre_total_pct": 16.23,
+      "doble_insuficiente_sobre_total_pct": 6.49
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 5.95,
-    "riesgo_extra_triple_insuficiente": 2.3,
+    "riesgo_extra_fijo_fragil": 5.73,
+    "riesgo_extra_triple_insuficiente": 2.24,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,

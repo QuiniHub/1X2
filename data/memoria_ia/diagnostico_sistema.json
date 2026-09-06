@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-06T18:38:32.499221+00:00",
+  "generado_en": "2026-09-06T21:16:09.687956+00:00",
   "estado": "operativo_con_avisos",
-  "score_salud": 79,
+  "score_salud": 82,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
@@ -64,13 +64,13 @@
         "jornada": 4,
         "fecha": "Domingo, 6 de septiembre de 2026",
         "fecha_orden": "2026-09-06",
-        "estado": "en_juego",
+        "estado": "cerrada",
         "partidos": 14,
-        "cerrados": 11,
-        "pendientes": 3,
-        "pendientes_totales_con_pleno15": 4,
+        "cerrados": 14,
+        "pendientes": 0,
+        "pendientes_totales_con_pleno15": 1,
         "pleno15_cerrado": false,
-        "ultima_actualizacion_partido": "2026-09-06T18:35:36Z",
+        "ultima_actualizacion_partido": "2026-09-06T21:11:46Z",
         "path": "data/jornadas/jornada_4.json"
       },
       {
@@ -91,9 +91,9 @@
   "memoria_quinielas": {
     "jugadas_persistidas_json": 22,
     "jornadas_validadas_historial": 22,
-    "jornadas_memoria_real_total": 62,
-    "jornadas_con_signo_nuestro": 18,
-    "signos_nuestros_en_jornadas": 252,
+    "jornadas_memoria_real_total": 63,
+    "jornadas_con_signo_nuestro": 19,
+    "signos_nuestros_en_jornadas": 266,
     "estado": "memoria_propia_disponible",
     "fuentes_validas": [
       "data/quinielas_jugadas.json",
@@ -104,24 +104,24 @@
   },
   "prediccion": {
     "jornada": 5,
-    "generado_en": "2026-09-06T18:38:31.877829+00:00",
+    "generado_en": "2026-09-06T21:16:05.266282+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 8,
+      "dobles": 4,
+      "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 9,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
         "alta": 0,
         "media": 0,
-        "media_baja": 0,
-        "baja": 0
+        "media_baja": 5,
+        "baja": 9
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 4 solo tiene 11 de 14 resultados oficiales. No se genera prediccion para la jornada 5 hasta cerrar y aprender la 4."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "clasificaciones": {
     "primera": {
@@ -174,7 +174,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 5.79,
+    "contexto_equipos_horas": 0.02,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -245,23 +245,17 @@
   "backtesting_pre_cierre": {
     "estado": "operativo",
     "jornadas_snapshot": 15,
-    "partidos_cerrados": 204,
-    "aciertos": 115,
-    "precision": 56.37,
-    "generado_en": "2026-09-06T16:11:57.894510+00:00",
+    "partidos_cerrados": 207,
+    "aciertos": 118,
+    "precision": 57.0,
+    "generado_en": "2026-09-06T18:38:33.271410+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
     {
       "nivel": "media",
-      "titulo": "Prediccion demasiado rigida",
-      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
-      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
-    },
-    {
-      "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 11 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -280,7 +274,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-09-06T18:38:32.499221+00:00",
+    "generado_en": "2026-09-06T21:16:09.687956+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
@@ -337,8 +331,8 @@
           "fecha": "Domingo, 6 de septiembre de 2026",
           "fecha_orden": "2026-09-06",
           "partidos": 14,
-          "cerrados": 11,
-          "pendientes": 3,
+          "cerrados": 14,
+          "pendientes": 0,
           "path": "data/jornadas/jornada_4.json"
         },
         {
@@ -390,28 +384,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-09-06T18:38:03.286832+00:00"
+      "generado_en": "2026-09-06T21:15:34.048479+00:00"
     },
     "prediccion": {
       "jornada": 5,
-      "generado_en": "2026-09-06T18:38:31.877829+00:00",
+      "generado_en": "2026-09-06T21:16:05.266282+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 14,
-        "dobles": 0,
-        "triples": 0,
+        "fijos": 8,
+        "dobles": 4,
+        "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 0,
-        "indice_sorpresa_max": 0.0,
+        "favoritos_atacables": 9,
+        "indice_sorpresa_max": 100.0,
         "calidad_datos": {
           "alta": 0,
           "media": 0,
-          "media_baja": 0,
-          "baja": 0
+          "media_baja": 5,
+          "baja": 9
         }
       },
-      "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 4 solo tiene 11 de 14 resultados oficiales. No se genera prediccion para la jornada 5 hasta cerrar y aprender la 4."
+      "retenida_por_compuerta": false,
+      "motivo_bloqueo": null
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -468,8 +462,8 @@
         "fecha": "Domingo, 6 de septiembre de 2026",
         "fecha_orden": "2026-09-06",
         "partidos": 14,
-        "cerrados": 11,
-        "pendientes": 3,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_4.json"
       },
       {
@@ -521,6 +515,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-09-06T18:38:03.286832+00:00"
+    "generado_en": "2026-09-06T21:15:34.048479+00:00"
   }
 }
