@@ -276,6 +276,84 @@ def fuerza(equipo, condicion):
     )
 
 
+# Fuerza por calidad de calendario (strength of schedule, 2026-09-06):
+# fuerza() cuenta puntos sin mirar contra QUIEN se lograron -ganar 3 puntos
+# al lider vale lo mismo que ganarselos al colista, y a principio de
+# temporada eso convierte un calendario facil en "fuerza" falsa (2a raiz de
+# la autopsia J4 26/27). Correccion de primer orden: puntos extra virtuales
+# equivalentes a (ppg medio de los rivales ya enfrentados - ppg medio de la
+# liga) por partido jugado. Verificado en backtest sobre J1-J4 26/27 con los
+# datos exactos pre-cierre de cada jornada (snapshots de git): junto al
+# suelo de mercado paso de 17/48 a 19/48 aciertos de signo top y +1.0pt de
+# probabilidad media al signo real, sin empeorar ninguna jornada. K=1.0 es
+# el credito teorico completo; 1.5 daba 20/48 pero con peor probabilidad
+# media -no se afina mas con solo 48 partidos de muestra.
+K_FUERZA_CALENDARIO = 1.0
+CALENDARIOS_LIGA = [DATA / "calendario_primera.json", DATA / "calendario_segunda.json"]
+_SOS_CALENDARIO_CACHE = None
+
+
+def _fuerza_calendario_equipos():
+    """{nombre_calendario: delta_opp} por liga: cuanto mejor/peor que la
+    media de su liga era el rival medio ya enfrentado por cada equipo."""
+    global _SOS_CALENDARIO_CACHE
+    if _SOS_CALENDARIO_CACHE is not None:
+        return _SOS_CALENDARIO_CACHE
+    tabla = {}
+    for ruta in CALENDARIOS_LIGA:
+        cal = cargar_json(ruta, {})
+        pts, pj, rivales = {}, {}, {}
+        for jor in cal.get("jornadas") or []:
+            for p in jor.get("partidos") or []:
+                res = str(p.get("resultado") or "")
+                if "-" not in res:
+                    continue
+                try:
+                    gl, gv = (int(x) for x in res.split("-", 1))
+                except ValueError:
+                    continue
+                local, visitante = p.get("local"), p.get("visitante")
+                pl = 3 if gl > gv else (1 if gl == gv else 0)
+                pv = 3 if gv > gl else (1 if gl == gv else 0)
+                for equipo, puntos, rival in ((local, pl, visitante), (visitante, pv, local)):
+                    if not equipo:
+                        continue
+                    pts[equipo] = pts.get(equipo, 0) + puntos
+                    pj[equipo] = pj.get(equipo, 0) + 1
+                    rivales.setdefault(equipo, []).append(rival)
+        if not pts:
+            continue
+        ppg = {e: pts[e] / pj[e] for e in pts}
+        media_liga = sum(ppg.values()) / len(ppg)
+        for equipo, lista in rivales.items():
+            opp = [ppg[r] for r in lista if r in ppg]
+            if opp:
+                tabla[equipo] = (sum(opp) / len(opp)) - media_liga
+    _SOS_CALENDARIO_CACHE = tabla
+    return tabla
+
+
+def ajustar_equipo_por_calendario(equipo, nombre):
+    """Copia del equipo de memoria con los puntos corregidos por la calidad
+    real de su calendario. Sin datos de calendario (ligas nordicas, Liga F
+    -puntuacion_nombre_equipo ya devuelve 0 en cruces de genero-, pj=0) el
+    equipo vuelve tal cual: la señal solo actua cuando existe de verdad."""
+    if not equipo or float(equipo.get("pj") or 0) <= 0:
+        return equipo
+    tabla = _fuerza_calendario_equipos()
+    mejor, mejor_score = None, 0
+    for candidato, delta in tabla.items():
+        score = puntuacion_nombre_equipo(candidato, nombre)
+        if score > mejor_score:
+            mejor, mejor_score = delta, score
+    if mejor is None or mejor_score < 55:
+        return equipo
+    ajustado = dict(equipo)
+    ajustado["pts"] = float(equipo.get("pts") or 0) + K_FUERZA_CALENDARIO * float(equipo.get("pj") or 0) * mejor
+    ajustado["sos_delta_opp"] = round(mejor, 3)
+    return ajustado
+
+
 _PRETEMPORADA_CACHE = None
 
 
@@ -756,8 +834,12 @@ def aplicar_patron_posicion(probs, memoria, posicion):
 
 
 def calcular_probabilidades(memoria, partido):
-    local = buscar_equipo(memoria, partido.get("local", ""))
-    visitante = buscar_equipo(memoria, partido.get("visitante", ""))
+    local = ajustar_equipo_por_calendario(
+        buscar_equipo(memoria, partido.get("local", "")), partido.get("local", "")
+    )
+    visitante = ajustar_equipo_por_calendario(
+        buscar_equipo(memoria, partido.get("visitante", "")), partido.get("visitante", "")
+    )
     fl = fuerza(local, "local")
     fv = fuerza(visitante, "visitante")
 

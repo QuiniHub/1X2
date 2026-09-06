@@ -993,3 +993,73 @@ class FuerzaPretemporadaTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FuerzaCalendarioTests(unittest.TestCase):
+    """Strength of schedule (2026-09-06): fuerza() contaba puntos sin mirar
+    contra quien -a principio de temporada un calendario facil se disfrazaba
+    de fuerza real (2a raiz de la autopsia J4 26/27). Backtest sobre J1-J4
+    con snapshots pre-cierre reales: 17/48 -> 19/48 signos top y +1.0pt de
+    probabilidad media al signo real, sin empeorar ninguna jornada."""
+
+    def setUp(self):
+        # Liga de 4 equipos, todos con 2 partidos: Lider gano a Colista y a
+        # Medio (calendario facil-medio); Sufrido perdio contra Lider... se
+        # construye a mano una tabla ya calculada para aislar el ajuste.
+        motor._SOS_CALENDARIO_CACHE = {
+            "Calendario Duro FC": 0.9,     # sus rivales sacan +0.9 ppg sobre la media
+            "Calendario Facil FC": -0.9,
+        }
+        self.addCleanup(setattr, motor, "_SOS_CALENDARIO_CACHE", None)
+
+    def test_calendario_duro_suma_puntos_virtuales_y_facil_resta(self):
+        equipo = {"equipo": "x", "pj": 4, "pts": 6}
+        duro = motor.ajustar_equipo_por_calendario(dict(equipo), "Calendario Duro FC")
+        facil = motor.ajustar_equipo_por_calendario(dict(equipo), "Calendario Facil FC")
+        self.assertAlmostEqual(duro["pts"], 6 + 1.0 * 4 * 0.9)
+        self.assertAlmostEqual(facil["pts"], 6 - 1.0 * 4 * 0.9)
+        self.assertEqual(duro["sos_delta_opp"], 0.9)
+
+    def test_sin_partidos_o_sin_calendario_no_toca_nada(self):
+        sin_pj = {"equipo": "x", "pj": 0, "pts": 0}
+        self.assertEqual(motor.ajustar_equipo_por_calendario(sin_pj, "Calendario Duro FC"), sin_pj)
+        nordico = {"equipo": "x", "pj": 5, "pts": 9}
+        self.assertEqual(motor.ajustar_equipo_por_calendario(dict(nordico), "Rosenborg"), nordico)
+        self.assertIsNone(motor.ajustar_equipo_por_calendario(None, "Calendario Duro FC"))
+
+    def test_liga_f_nunca_cruza_con_el_calendario_masculino(self):
+        # 10a colision evitada por diseño: el calendario solo es masculino y
+        # puntuacion_nombre_equipo devuelve 0 en cruces de genero.
+        motor._SOS_CALENDARIO_CACHE = {"Calendario Duro": 0.9}
+        femenino = {"equipo": "x", "pj": 3, "pts": 4}
+        resultado = motor.ajustar_equipo_por_calendario(dict(femenino), "Calendario Duro (F)")
+        self.assertEqual(resultado, femenino)
+
+    def test_construccion_tabla_desde_calendario_real(self):
+        import json as _json
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            ruta = Path(tmp) / "calendario_test.json"
+            ruta.write_text(_json.dumps({"jornadas": [
+                {"partidos": [
+                    {"local": "A", "visitante": "B", "resultado": "2-0"},
+                    {"local": "C", "visitante": "D", "resultado": "1-1"},
+                ]},
+                {"partidos": [
+                    {"local": "B", "visitante": "C", "resultado": "0-3"},
+                    {"local": "D", "visitante": "A", "resultado": "0-1", "estado": "Jugado"},
+                    {"local": "A", "visitante": "C", "resultado": None},
+                ]},
+            ]}), encoding="utf-8")
+            originales = motor.CALENDARIOS_LIGA
+            motor.CALENDARIOS_LIGA = [ruta]
+            motor._SOS_CALENDARIO_CACHE = None
+            try:
+                tabla = motor._fuerza_calendario_equipos()
+            finally:
+                motor.CALENDARIOS_LIGA = originales
+                motor._SOS_CALENDARIO_CACHE = None
+        # ppg: A=3.0 (2 victorias), B=0, C=2.0 (empate+victoria), D=0.5
+        # media liga = (3+0+2+0.5)/4 = 1.375
+        self.assertAlmostEqual(tabla["A"], ((0 + 0.5) / 2) - 1.375)   # rivales de A: B y D
+        self.assertAlmostEqual(tabla["B"], ((3.0 + 2.0) / 2) - 1.375)  # rivales de B: A y C
