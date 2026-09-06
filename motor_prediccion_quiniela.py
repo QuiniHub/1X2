@@ -2346,6 +2346,16 @@ def indice_sorpresa_partido(partido):
     return float(partido.get("indice_sorpresa_quinielistica") or 0)
 
 
+# Colocacion de dobles/triples: cuanto pesa que el mercado Losilla no este
+# de acuerdo con el favorito del motor. Los 4 fallos de la autopsia J4 26/27
+# (y los 3 casos de aviso predictivo del Elige8) compartian esa firma: el
+# motor era mas extremo que el mercado en la misma direccion. La
+# incertidumbre propia del motor no capta ese desacuerdo -esta es la señal
+# externa que faltaba en prioridad_cobertura. Valor elegido por backtest
+# sobre J1-J4 (ver DECISION_LOG.md 2026-09-06).
+PESO_PRIORIDAD_DESACUERDO_MERCADO = 80.0
+
+
 def prioridad_cobertura(partido):
     probs = partido.get("probabilidades", {})
     valores = sorted(probs.values(), reverse=True)
@@ -2365,6 +2375,15 @@ def prioridad_cobertura(partido):
     detalle_indice = partido.get("_indice_sorpresa_quinielistica") or {}
     if detalle_indice.get("favorito_atacable"):
         score += 35
+
+    mercado = partido.get("mercado_losilla") or {}
+    if sum(float(mercado.get(s) or 0) for s in ("1", "X", "2")) > 0:
+        top_mercado = signo_top(mercado)
+        if top_mercado and top_mercado != top:
+            # brecha: cuanta mas probabilidad da el mercado a SU favorito que
+            # al del motor, mas grave es el desacuerdo (0-100 pts de escala)
+            brecha = max(float(mercado.get(top_mercado) or 0) - float(mercado.get(top) or 0), 0.0)
+            score += PESO_PRIORIDAD_DESACUERDO_MERCADO + brecha * 0.8
 
     if partido.get("riesgo_necesidad_real"):
         score += 25

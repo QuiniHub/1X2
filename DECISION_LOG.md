@@ -1159,3 +1159,34 @@ esta auditoria -y aqui se confirma que la causa no es solo un prompt
 mal escrito, sino una ambiguedad real en el modelo de datos (dos
 eventos distintos comparten el campo "jornada") que tambien afecta a
 una pantalla de la web sin pasar por ningun chat ni ninguna IA.
+
+### 2026-09-06 — Mejoras de motor validadas por backtest ANTES de desplegarse (método nuevo estándar)
+
+A raíz de la autopsia de la J4 26/27 (los 4 fallos de riesgo compartían firma: motor
+más extremo que el mercado Losilla en la misma dirección, con tabla de solo pj=3),
+Marc pidió explícitamente que ninguna mejora de motor se aplicara sin probar antes
+si habría ayudado en las jornadas ya jugadas. El método quedó montado y se queda
+como estándar: reconstruir con `git archive` el estado de datos exacto pre-cierre de
+cada jornada (commits dd29768/b9a7820/0707aee/f8275be para J1-J4), copiar encima el
+código actual del motor, ejecutar `predecir(jornada=N)` con la persistencia anulada,
+y comparar variantes contra los signos oficiales. Tres cambios pasaron la prueba:
+
+1. **Suelo 0.45 al peso del mercado con pj<6** (`PJ_MINIMO_CONFIANZA_ESTADISTICA`,
+   commit `a483feb3d`): la etiqueta calidad "alta" no protege del ruido de tabla a
+   principio de temporada.
+2. **Strength of schedule** (`ajustar_equipo_por_calendario`, commit `1e49fe000`):
+   puntos virtuales K·pj·(ppg medio de rivales − media liga), K=1.0. Juntas, 1+2
+   pasan de 17/48 a 19/48 signos top y +1.0pt de probabilidad media al signo real,
+   sin empeorar ninguna jornada. La curva de K (0.5→17, 1.0→19, 1.5→20, 2.0→19) no
+   se afinó más allá de 1.0: con n=48 sería sobreajuste.
+3. **Desacuerdo con el mercado en la colocación de dobles/triples**
+   (`PESO_PRIORIDAD_DESACUERDO_MERCADO=80` en `prioridad_cobertura`): con
+   presupuesto fijo 5D+1T (las 96 apuestas reales de Marc), el boleto pasa de 27/48
+   a 29/48 signos cubiertos (meseta estable de peso 80 a 160); en la J4 el doble se
+   movía de un partido ya acertado como fijo al P8 Sociedad B-Tenerife (X real).
+
+**Además quedó medido el hándicap de presupuesto** (queja real de Marc: "aconseja
+triples, y para eso no hace falta ser muy predictivo"): la sugerencia automática del
+motor en J1-J3 costaba 108€ y aun así dejaba 4-5 fallos sin cubrir; pasar de 72€ a
+108€ solo compraba ~medio acierto por jornada. Conclusión operativa: presupuesto
+moderado + mejor puntería con las dudas, no más dudas.

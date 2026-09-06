@@ -1063,3 +1063,34 @@ class FuerzaCalendarioTests(unittest.TestCase):
         # media liga = (3+0+2+0.5)/4 = 1.375
         self.assertAlmostEqual(tabla["A"], ((0 + 0.5) / 2) - 1.375)   # rivales de A: B y D
         self.assertAlmostEqual(tabla["B"], ((3.0 + 2.0) / 2) - 1.375)  # rivales de B: A y C
+
+
+class PrioridadDesacuerdoMercadoTests(unittest.TestCase):
+    """Colocacion de dobles/triples (2026-09-06): el desacuerdo del mercado
+    Losilla con el favorito del motor entra en prioridad_cobertura. Backtest
+    con presupuesto fijo 5D+1T sobre J1-J4: 27/48 -> 29/48 signos cubiertos
+    (peso 80, meseta estable hasta 160); en la J4 el doble se movia de un
+    partido ya acertado al P8 Sociedad B-Tenerife (aviso real, salio X)."""
+
+    def _partido(self, mercado):
+        return {
+            "num": 1,
+            "probabilidades": {"1": 50.0, "X": 28.0, "2": 22.0},
+            "incertidumbre": 100.0,
+            "mercado_losilla": mercado,
+        }
+
+    def test_desacuerdo_con_mercado_sube_la_prioridad(self):
+        de_acuerdo = motor.prioridad_cobertura(self._partido({"1": 60.0, "X": 25.0, "2": 15.0}))
+        en_contra = motor.prioridad_cobertura(self._partido({"X": 55.0, "1": 30.0, "2": 15.0}))
+        self.assertGreater(en_contra, de_acuerdo + motor.PESO_PRIORIDAD_DESACUERDO_MERCADO - 1)
+
+    def test_brecha_mayor_pesa_mas(self):
+        leve = motor.prioridad_cobertura(self._partido({"X": 40.0, "1": 38.0, "2": 22.0}))
+        fuerte = motor.prioridad_cobertura(self._partido({"X": 70.0, "1": 15.0, "2": 15.0}))
+        self.assertGreater(fuerte, leve)
+
+    def test_sin_mercado_no_cambia_nada(self):
+        sin = motor.prioridad_cobertura(self._partido({}))
+        nulo = motor.prioridad_cobertura(self._partido({"1": 0.0, "X": 0.0, "2": 0.0}))
+        self.assertEqual(sin, nulo)
