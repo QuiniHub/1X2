@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-06T21:15:33.868595+00:00",
+  "generado_en": "2026-09-06T23:04:45.430454+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -565,36 +565,142 @@
     "5": {
       "jornada": 5,
       "partidos_cerrados": 14,
-      "partidos_con_prediccion": 0,
-      "precision_boleto": null,
-      "precision_top1": null,
-      "brier_medio": null,
-      "logloss_medio": null,
+      "partidos_con_prediccion": 14,
+      "precision_boleto": 35.71,
+      "precision_top1": 21.43,
+      "brier_medio": 0.8443,
+      "logloss_medio": 1.362,
       "por_tipo": {
         "FIJO": {
-          "total": 0,
+          "total": 8,
           "aciertos": 0,
-          "precision": null
+          "precision": 0.0
         },
         "DOBLE": {
-          "total": 0,
-          "aciertos": 0,
-          "precision": null
+          "total": 4,
+          "aciertos": 3,
+          "precision": 75.0
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0,
-          "precision": null
+          "total": 2,
+          "aciertos": 2,
+          "precision": 100.0
         }
       },
       "elige8": {
-        "selecciones": 0,
-        "aciertos": 0,
-        "precision": null
+        "selecciones": 8,
+        "aciertos": 1,
+        "precision": 12.5
       },
-      "surprise_score_medio": null,
-      "ranking_incertidumbre": [],
-      "ranking_elige8_confianza_real": []
+      "surprise_score_medio": 62.15,
+      "ranking_incertidumbre": [
+        {
+          "num": 9,
+          "partido": "Fenerbahçe - Roma",
+          "incertidumbre": 149.31,
+          "surprise_score": 40.57,
+          "margen_probabilidad": 0.5994
+        },
+        {
+          "num": 8,
+          "partido": "Nápoles - Arsenal",
+          "incertidumbre": 149.08,
+          "surprise_score": 40.42,
+          "margen_probabilidad": 0.7
+        },
+        {
+          "num": 6,
+          "partido": "Paris Saint-Germain - Slovan Bratislava",
+          "incertidumbre": 143.28,
+          "surprise_score": 60.6,
+          "margen_probabilidad": 6.6
+        },
+        {
+          "num": 2,
+          "partido": "Oporto - Manchester City",
+          "incertidumbre": 136.96,
+          "surprise_score": 62.28,
+          "margen_probabilidad": 12.5
+        },
+        {
+          "num": 5,
+          "partido": "FC Barcelona - Feyenoord",
+          "incertidumbre": 135.95,
+          "surprise_score": 66.71,
+          "margen_probabilidad": 7.9
+        },
+        {
+          "num": 12,
+          "partido": "Bayern de Múnich - Bodø/Glimt",
+          "incertidumbre": 134.24,
+          "surprise_score": 65.28,
+          "margen_probabilidad": 14.8
+        },
+        {
+          "num": 3,
+          "partido": "Lille - Real Betis Balompie",
+          "incertidumbre": 131.12,
+          "surprise_score": 36.31,
+          "margen_probabilidad": 10.7107
+        },
+        {
+          "num": 1,
+          "partido": "Borussia Dortmund - Villarreal CF",
+          "incertidumbre": 128.16,
+          "surprise_score": 64.59,
+          "margen_probabilidad": 9.1
+        }
+      ],
+      "ranking_elige8_confianza_real": [
+        {
+          "num": 8,
+          "partido": "Nápoles - Arsenal",
+          "confianza_real_elige8": 38.92,
+          "elige8": false
+        },
+        {
+          "num": 9,
+          "partido": "Fenerbahçe - Roma",
+          "confianza_real_elige8": 38.86,
+          "elige8": false
+        },
+        {
+          "num": 7,
+          "partido": "Sporting de Portugal - Galatasaray",
+          "confianza_real_elige8": 38.63,
+          "elige8": true
+        },
+        {
+          "num": 4,
+          "partido": "Real Madrid CF - Inter de Milán",
+          "confianza_real_elige8": 35.59,
+          "elige8": false
+        },
+        {
+          "num": 11,
+          "partido": "Como 1907 - Leipzig",
+          "confianza_real_elige8": 29.3,
+          "elige8": true
+        },
+        {
+          "num": 14,
+          "partido": "Slavia de Praga - Lens",
+          "confianza_real_elige8": 27.85,
+          "elige8": true
+        },
+        {
+          "num": 3,
+          "partido": "Lille - Real Betis Balompie",
+          "confianza_real_elige8": 26.23,
+          "elige8": false
+        },
+        {
+          "num": 13,
+          "partido": "Manchester United - Sabah",
+          "confianza_real_elige8": 19.11,
+          "elige8": true
+        }
+      ]
     },
     "6": {
       "jornada": 6,
@@ -4602,7 +4708,7 @@
     }
   },
   "resumen": {
-    "jornadas_evaluadas": 19,
+    "jornadas_evaluadas": 20,
     "precision_media_ultimas_8": 72.32,
     "criterio_aprendizaje": "tras cada jornada cerrada se compara prediccion vs resultado y se reentrena la memoria"
   }
