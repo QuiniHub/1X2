@@ -1,35 +1,35 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-06T16:11:56.980968+00:00",
+  "generado_en": "2026-09-06T18:38:32.353319+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 204,
-    "precision_top": 38.73,
-    "brier_medio": 0.6598,
-    "logloss_medio": 1.0907,
+    "partidos": 207,
+    "precision_top": 39.13,
+    "brier_medio": 0.6554,
+    "logloss_medio": 1.084,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 115,
-      "prob_top_media": 35.53,
-      "precision_real": 33.91,
-      "desviacion_calibracion": -1.62,
+      "total": 117,
+      "prob_top_media": 35.58,
+      "precision_real": 33.33,
+      "desviacion_calibracion": -2.24,
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 67,
-      "prob_top_media": 44.57,
-      "precision_real": 43.28,
-      "desviacion_calibracion": -1.29,
+      "total": 68,
+      "prob_top_media": 44.59,
+      "precision_real": 44.12,
+      "desviacion_calibracion": -0.47,
       "muestra_suficiente": true
     },
     "50-60": {
       "total": 20,
       "prob_top_media": 53.73,
-      "precision_real": 45.0,
-      "desviacion_calibracion": -8.73,
+      "precision_real": 50.0,
+      "desviacion_calibracion": -3.73,
       "muestra_suficiente": false
     },
     "60-70": {
@@ -42,10 +42,10 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 204,
-      "precision_top": 38.73,
-      "brier_medio": 0.6598,
-      "logloss_medio": 1.0907,
+      "partidos": 207,
+      "precision_top": 39.13,
+      "brier_medio": 0.6554,
+      "logloss_medio": 1.084,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -731,14 +731,44 @@
       "num": 4,
       "partido": "Valencia CF - FC Barcelona",
       "fuente": "data/backtesting/pre_cierre/jornada_4.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 51.4,
+      "prob_real": 51.4,
+      "bucket_top": "50-60",
+      "brier": 0.359294,
+      "logloss": 0.6655320135269719,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 4,
+      "num": 5,
+      "partido": "Deportivo Alaves - CA Osasuna",
+      "fuente": "data/backtesting/pre_cierre/jornada_4.json",
       "real": "1",
+      "top": "X",
+      "acierto_top": false,
+      "prob_top": 38.7,
+      "prob_real": 37.1,
+      "bucket_top": "30-40",
+      "brier": 0.6039739999999999,
+      "logloss": 0.9915532163747021,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 4,
+      "num": 6,
+      "partido": "Malaga CF - Levante UD",
+      "fuente": "data/backtesting/pre_cierre/jornada_4.json",
+      "real": "X",
       "top": "2",
       "acierto_top": false,
-      "prob_top": 51.4,
-      "prob_real": 19.3,
-      "bucket_top": "50-60",
-      "brier": 1.0012939999999997,
-      "logloss": 1.6450650900772514,
+      "prob_top": 37.7,
+      "prob_real": 33.2,
+      "bucket_top": "30-40",
+      "brier": 0.6730339999999999,
+      "logloss": 1.1026203100656484,
       "competicion": "desconocida"
     },
     {
@@ -784,6 +814,21 @@
       "bucket_top": "60-70",
       "brier": 0.19380200000000009,
       "logloss": 0.44472582206146716,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 4,
+      "num": 12,
+      "partido": "Logroño (F) - Athletic Club (F)",
+      "fuente": "data/backtesting/pre_cierre/jornada_4.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 45.8,
+      "prob_real": 45.8,
+      "bucket_top": "40-50",
+      "brier": 0.440718,
+      "logloss": 0.7808860948679521,
       "competicion": "desconocida"
     },
     {
