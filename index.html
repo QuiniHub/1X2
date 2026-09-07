@@ -1088,11 +1088,15 @@
 
     function avisoRiesgoBanda(match) {
       if (!esRiesgoAlto(match)) return '';
-      const idx = indiceSorpresaDe(match);
       const motivos = arr(match.motivos_sorpresa).slice(0, 2).join(' · ');
       const rec = recomendacionPresupuesto(match);
+      // Sin "80/100" ni indices tecnicos (feedback de Marc 07/09/2026: "no
+      // me aclaro con tantos numeros"): el signo sorpresa y SU probabilidad
+      // real, que es lo unico que hace falta para decidir.
+      const probs = match.probabilidades || match.probabilidad_signos || {};
+      const probSorpresa = Number(probs[rec.sorpresa]) || 0;
       return `<div class="aviso-banda riesgo">
-        ⚠ RIESGO ALTO DE SORPRESA${idx ? ` (${idx}/100)` : ''} — la sorpresa que ve: <span class="aviso-signo">${escapeHtml(rec.sorpresa)}</span>
+        ⚠ SORPRESA POSIBLE — signo: <span class="aviso-signo">${escapeHtml(rec.sorpresa)}</span> con ${probSorpresa.toFixed(0)}% de probabilidad
         <div class="aviso-detalle">
           Presup. máximo: <b>1X2</b> · medio: <b>${escapeHtml(rec.doble)}</b> · mínimo: <b>${escapeHtml(rec.fijo)}</b> (el fijo del motor)
           ${rec.sorpresaFueraDelDoble ? `<br>‼ OJO: la sorpresa (${escapeHtml(rec.sorpresa)}) queda FUERA del doble ${escapeHtml(rec.doble)} — para cubrirla de verdad: ${escapeHtml(rec.fijo + rec.sorpresa)} o triple` : ''}
@@ -1121,7 +1125,9 @@
         }
         if (esRiesgoAlto(match)) {
           const rec = recomendacionPresupuesto(match);
-          items.push(`<li>⚠ <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: riesgo ${indiceSorpresaDe(match)}/100 — sorpresa: <b>${escapeHtml(rec.sorpresa)}</b> · doble <b>${escapeHtml(rec.doble)}</b> · fijo <b>${escapeHtml(rec.fijo)}</b>${rec.sorpresaFueraDelDoble ? ' <span class="aviso-elige8">(la sorpresa queda fuera del doble)</span>' : ''}${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
+          const probsM = match.probabilidades || match.probabilidad_signos || {};
+          const probSorpresa = Number(probsM[rec.sorpresa]) || 0;
+          items.push(`<li>⚠ <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: sorpresa <b>${escapeHtml(rec.sorpresa)}</b> (${probSorpresa.toFixed(0)}%) · doble <b>${escapeHtml(rec.doble)}</b> · fijo <b>${escapeHtml(rec.fijo)}</b>${rec.sorpresaFueraDelDoble ? ' <span class="aviso-elige8">(la sorpresa queda fuera del doble)</span>' : ''}${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
         }
       });
       if (!items.length) { cont.innerHTML = ''; return; }
