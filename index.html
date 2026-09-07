@@ -270,6 +270,10 @@
     }
     .aviso-banda .aviso-detalle { font-weight: 500; font-size: 11px; margin-top: 2px; opacity: .92; }
     .aviso-banda.millonario { background: #b8860b1c; border: 1.5px solid #b8860b66; color: #7a5a06; }
+    .aviso-banda .aviso-signo {
+      display: inline-block; min-width: 22px; text-align: center; padding: 1px 6px;
+      border-radius: 6px; background: #a12518; color: #fff; font-weight: 900; font-size: 13px;
+    }
     .aviso-banda.riesgo { background: #d33a2c14; border: 1.5px solid #d33a2c55; color: #a12518; }
     .avisos-jornada {
       margin-bottom: 12px; padding: 12px 14px; border-radius: 14px;
@@ -1068,12 +1072,31 @@
       return indiceSorpresaDe(match) >= 60 || String(match.cobertura_sorpresa_sugerida || '').toUpperCase() === 'TRIPLE';
     }
 
+    // Recomendación concreta por presupuesto (petición de Marc 07/09/2026:
+    // "si me dice triple, eso ya lo sé yo — un triple cubre todo"). Máximo =
+    // triple; Medio = doble con los 2 signos más probables; Mínimo = el fijo
+    // que jugaría el motor. Y aparte, el signo sorpresa CONCRETO que ve
+    // (signo_sorpresa_principal) — con alarma extra si ese signo queda FUERA
+    // del doble recomendado, que es justo cuando el doble no te salva.
+    function recomendacionPresupuesto(match) {
+      const probs = match.probabilidades || match.probabilidad_signos || {};
+      const orden = ['1','X','2'].sort((a, b) => (Number(probs[b]) || 0) - (Number(probs[a]) || 0));
+      const sorpresa = String(match.signo_sorpresa_principal || '').trim().toUpperCase() || orden[1];
+      const doble = orden[0] + orden[1];
+      return { fijo: orden[0], doble, sorpresa, sorpresaFueraDelDoble: !doble.includes(sorpresa) };
+    }
+
     function avisoRiesgoBanda(match) {
       if (!esRiesgoAlto(match)) return '';
       const idx = indiceSorpresaDe(match);
       const motivos = arr(match.motivos_sorpresa).slice(0, 2).join(' · ');
+      const rec = recomendacionPresupuesto(match);
       return `<div class="aviso-banda riesgo">
-        ⚠ RIESGO ALTO DE SORPRESA${idx ? ` (${idx}/100)` : ''} — el motor NO se fía de este partido
+        ⚠ RIESGO ALTO DE SORPRESA${idx ? ` (${idx}/100)` : ''} — la sorpresa que ve: <span class="aviso-signo">${escapeHtml(rec.sorpresa)}</span>
+        <div class="aviso-detalle">
+          Presup. máximo: <b>1X2</b> · medio: <b>${escapeHtml(rec.doble)}</b> · mínimo: <b>${escapeHtml(rec.fijo)}</b> (el fijo del motor)
+          ${rec.sorpresaFueraDelDoble ? `<br>‼ OJO: la sorpresa (${escapeHtml(rec.sorpresa)}) queda FUERA del doble ${escapeHtml(rec.doble)} — para cubrirla de verdad: ${escapeHtml(rec.fijo + rec.sorpresa)} o triple` : ''}
+        </div>
         ${motivos ? `<div class="aviso-detalle">${escapeHtml(motivos)}</div>` : ''}
       </div>`;
     }
@@ -1097,7 +1120,8 @@
           items.push(`<li>💰 <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: el motor ve posible ${escapeHtml(cambio.signo_millonario || '')}${cubierta ? ' (ya cubierta en tu jugada)' : ` en vez de ${escapeHtml(jugadoAhora)}`}${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
         }
         if (esRiesgoAlto(match)) {
-          items.push(`<li>⚠ <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: riesgo alto de sorpresa (${indiceSorpresaDe(match)}/100)${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
+          const rec = recomendacionPresupuesto(match);
+          items.push(`<li>⚠ <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: riesgo ${indiceSorpresaDe(match)}/100 — sorpresa: <b>${escapeHtml(rec.sorpresa)}</b> · doble <b>${escapeHtml(rec.doble)}</b> · fijo <b>${escapeHtml(rec.fijo)}</b>${rec.sorpresaFueraDelDoble ? ' <span class="aviso-elige8">(la sorpresa queda fuera del doble)</span>' : ''}${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
         }
       });
       if (!items.length) { cont.innerHTML = ''; return; }
