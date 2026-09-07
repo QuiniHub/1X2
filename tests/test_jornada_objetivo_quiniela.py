@@ -232,3 +232,37 @@ class JornadaObjetivoQuinielaTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class JornadaAprendidaFechaFuturaTests(unittest.TestCase):
+    """Caso real 07/09/2026: la J5 25/26 (jugada el año pasado, validada=True
+    en el historial) comparte numero con la J5 26/27 aun SIN jugar (fechas
+    futuras en jornada_5.json). ultima_jornada_aprendida la daba por
+    aprendida y el objetivo saltaba a la J6 legado de 2025 -la web enseñaba
+    la quiniela del año pasado. Una jornada con fecha futura no puede contar
+    como aprendida."""
+
+    def test_jugada_legado_con_fecha_futura_no_cuenta_como_aprendida(self):
+        import datetime as _dt
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base = Path(tmp_dir)
+            jornadas = base / "jornadas"
+            manana = (_dt.date.today() + _dt.timedelta(days=2)).isoformat()
+            ayer = (_dt.date.today() - _dt.timedelta(days=1)).isoformat()
+            escribir_jornada(jornadas, 4, fecha=ayer)
+            escribir_jornada(jornadas, 5, fecha=manana)   # J5 26/27: por jugar
+            escribir_jornada(jornadas, 6)                  # J6 legado sin fechas
+            historial = base / "historial.json"
+            escribir_json(historial, {"jornadas": [
+                {"jornada": 4, "validada": True},
+                {"jornada": 5, "validada": True},  # jugada de la temporada PASADA
+            ]})
+            jugadas = base / "jugadas.json"
+            escribir_json(jugadas, {"jugadas": []})
+
+            self.assertEqual(
+                objetivo.ultima_jornada_aprendida(historial, jugadas, jornadas), 4
+            )
+            self.assertEqual(
+                objetivo.jornada_objetivo_prediccion(jornadas, historial, jugadas), 5
+            )

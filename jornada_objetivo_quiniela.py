@@ -1,5 +1,6 @@
 import json
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -127,7 +128,18 @@ def ultima_jornada_aprendida(
         (fecha_jornada_cargada(numero, jornadas_dir), numero)
         for numero in aprendidas
     ]
-    con_fecha = [(fecha, numero) for fecha, numero in con_fecha if fecha]
+    # Una jornada cuyos partidos aun no se han jugado (fecha futura) no
+    # puede estar "aprendida" -si aparece como tal es memoria de la
+    # temporada anterior con el mismo numero (la numeracion LAE se
+    # reinicia) o datos contaminados. Caso real (07/09/2026): la J5 25/26
+    # jugada el año pasado, con validada=True en el historial, hacia
+    # saltar el objetivo a la J6 legado dias antes de jugarse la J5 26/27.
+    hoy = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    con_fecha = [
+        (fecha, numero)
+        for fecha, numero in con_fecha
+        if fecha and fecha[:10] <= hoy
+    ]
     if con_fecha:
         return max(con_fecha)[1]
     return max(aprendidas)

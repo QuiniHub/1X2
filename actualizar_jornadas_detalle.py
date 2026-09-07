@@ -21,7 +21,22 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 JORNADAS = DATA / "jornadas"
 FUENTE_PROXIMAS = "https://www.quinielafutbol.info/proximas-jornadas-de-la-quiniela.html"
-FUENTE_LIBERTAD = "https://www.libertaddigital.com/deportes/liga/2025-2026/quiniela/{jornada}.html"
+
+
+def temporada_libertad_actual():
+    """Temporada en el formato de la URL de Libertad Digital (aaaa-aaaa),
+    calculada de la fecha real -estaba hardcodeada "2025-2026" (6o resto del
+    patron era-vieja) y el respaldo servia jornadas del año pasado."""
+    hoy = datetime.now(timezone.utc)
+    inicio = hoy.year if hoy.month >= 8 else hoy.year - 1
+    return f"{inicio}-{inicio + 1}"
+
+
+FUENTE_LIBERTAD = (
+    "https://www.libertaddigital.com/deportes/liga/"
+    + temporada_libertad_actual()
+    + "/quiniela/{jornada}.html"
+)
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -499,10 +514,23 @@ def signo_valido(valor):
     return str(valor or "").strip().upper() in {"1", "X", "2"}
 
 
+def hay_partidos_en_el_futuro(partidos):
+    """True si algun partido tiene fecha posterior a hoy. Guardia de defensa
+    en profundidad (01/09/2026): una jornada con partidos aun por jugar no
+    puede darse por cerrada aunque alguien le haya escrito 14 signos -si
+    eso pasa, los signos son falsos por definicion."""
+    hoy = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    for p in partidos:
+        fecha = str(p.get("fecha") or "")[:10]
+        if re.match(r"^\d{4}-\d{2}-\d{2}$", fecha) and fecha > hoy:
+            return True
+    return False
+
+
 def recalcular_estado_jornada(data):
     partidos = data.get("partidos", [])
     cerrados = sum(1 for p in partidos if signo_valido(p.get("signo_oficial")))
-    if partidos and cerrados == len(partidos):
+    if partidos and cerrados == len(partidos) and not hay_partidos_en_el_futuro(partidos):
         data["estado"] = "cerrada"
     elif cerrados:
         data["estado"] = "en_juego"
@@ -567,6 +595,22 @@ def extraer_jornadas_desde_lineas(lineas):
     return jornadas
 
 
+def mismo_par_de_equipos(a, b):
+    """True solo si a y b son el MISMO emparejamiento (local y visitante).
+    Es la condicion para heredar resultados en fusionar_con_existente: el
+    bug real del 01/09/2026 fue heredar por posicion -al sustituir los
+    emparejamientos legado 25/26 de la jornada 5 por los reales 26/27, los
+    resultados del año pasado (P1 2-0...) se pegaron a los partidos nuevos
+    (Borussia-Villarreal, sin jugar), la jornada quedo "cerrada" con 14
+    signos falsos y el aprendizaje se la trago entera."""
+    return (
+        not es_placeholder_equipo(a.get("local"))
+        and not es_placeholder_equipo(a.get("visitante"))
+        and normalizar(a.get("local")) == normalizar(b.get("local"))
+        and normalizar(a.get("visitante")) == normalizar(b.get("visitante"))
+    )
+
+
 def fusionar_con_existente(nuevo, existente):
     if not existente:
         return nuevo
@@ -585,10 +629,13 @@ def fusionar_con_existente(nuevo, existente):
         if es_placeholder_equipo(fusionado.get("visitante")) and not es_placeholder_equipo(anterior.get("visitante")):
             fusionado["visitante"] = anterior.get("visitante")
             fusionado["fuente_equipos"] = anterior.get("fuente_equipos", fusionado.get("fuente_equipos", "jornada_previa_resuelta"))
-        for campo in ("resultado", "signo_oficial", "signo_nuestro", "actualizado_en", "fuente_resultado"):
-            valor = anterior.get(campo)
-            if valor and str(valor).lower() not in {"pendiente", "no jugada"}:
-                fusionado[campo] = valor
+        # Los resultados solo sobreviven si el emparejamiento es EL MISMO:
+        # un resultado pegado a otros equipos es la 10a colision de nombres.
+        if mismo_par_de_equipos(anterior, fusionado):
+            for campo in ("resultado", "signo_oficial", "signo_nuestro", "actualizado_en", "fuente_resultado"):
+                valor = anterior.get(campo)
+                if valor and str(valor).lower() not in {"pendiente", "no jugada"}:
+                    fusionado[campo] = valor
         partidos.append(fusionado)
     nuevo["partidos"] = partidos
 
@@ -600,10 +647,11 @@ def fusionar_con_existente(nuevo, existente):
     if es_placeholder_equipo(pleno.get("visitante")) and not es_placeholder_equipo(pleno_anterior.get("visitante")):
         pleno["visitante"] = pleno_anterior.get("visitante")
         pleno["fuente_equipos"] = pleno_anterior.get("fuente_equipos", pleno.get("fuente_equipos", "jornada_previa_resuelta"))
-    for campo in ("resultado", "signo_oficial", "signo_nuestro", "actualizado_en", "fuente_resultado"):
-        valor = pleno_anterior.get(campo)
-        if valor and str(valor).lower() not in {"pendiente", "no jugada"}:
-            pleno[campo] = valor
+    if mismo_par_de_equipos(pleno_anterior, pleno):
+        for campo in ("resultado", "signo_oficial", "signo_nuestro", "actualizado_en", "fuente_resultado"):
+            valor = pleno_anterior.get(campo)
+            if valor and str(valor).lower() not in {"pendiente", "no jugada"}:
+                pleno[campo] = valor
     nuevo["pleno15"] = pleno
     for campo in ("fuente_boleto_vivo", "boleto_vivo_actualizado_en"):
         if existente.get(campo):
