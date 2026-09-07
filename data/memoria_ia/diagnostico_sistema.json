@@ -1,23 +1,23 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-07T06:37:44.643085+00:00",
-  "estado": "requiere_revision_datos",
-  "score_salud": 70,
+  "generado_en": "2026-09-07T07:21:06.144243+00:00",
+  "estado": "operativo_con_avisos",
+  "score_salud": 79,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
     "jornada_actual": {
-      "jornada": 6,
-      "fecha": "La Quiniela Miércoles, 17 de septiembre de 2025",
-      "fecha_orden": "",
-      "estado": "cerrada",
+      "jornada": 5,
+      "fecha": "Miércoles, 9 de septiembre de 2026",
+      "fecha_orden": "2026-09-10",
+      "estado": "abierta",
       "partidos": 14,
-      "cerrados": 14,
-      "pendientes": 0,
-      "pendientes_totales_con_pleno15": 0,
-      "pleno15_cerrado": true,
+      "cerrados": 0,
+      "pendientes": 14,
+      "pendientes_totales_con_pleno15": 15,
+      "pleno15_cerrado": false,
       "ultima_actualizacion_partido": "",
-      "path": "data/jornadas/jornada_6.json"
+      "path": "data/jornadas/jornada_5.json"
     },
     "proxima_jornada": null,
     "ultimas": [
@@ -70,19 +70,19 @@
         "pendientes": 0,
         "pendientes_totales_con_pleno15": 1,
         "pleno15_cerrado": false,
-        "ultima_actualizacion_partido": "2026-09-07T06:34:12Z",
+        "ultima_actualizacion_partido": "2026-09-07T07:17:09Z",
         "path": "data/jornadas/jornada_4.json"
       },
       {
         "jornada": 5,
         "fecha": "Miércoles, 9 de septiembre de 2026",
         "fecha_orden": "2026-09-10",
-        "estado": "cerrada",
+        "estado": "abierta",
         "partidos": 14,
-        "cerrados": 14,
-        "pendientes": 0,
-        "pendientes_totales_con_pleno15": 0,
-        "pleno15_cerrado": true,
+        "cerrados": 0,
+        "pendientes": 14,
+        "pendientes_totales_con_pleno15": 15,
+        "pleno15_cerrado": false,
         "ultima_actualizacion_partido": "",
         "path": "data/jornadas/jornada_5.json"
       }
@@ -90,10 +90,10 @@
   },
   "memoria_quinielas": {
     "jugadas_persistidas_json": 22,
-    "jornadas_validadas_historial": 23,
-    "jornadas_memoria_real_total": 66,
-    "jornadas_con_signo_nuestro": 21,
-    "signos_nuestros_en_jornadas": 294,
+    "jornadas_validadas_historial": 22,
+    "jornadas_memoria_real_total": 63,
+    "jornadas_con_signo_nuestro": 19,
+    "signos_nuestros_en_jornadas": 266,
     "estado": "memoria_propia_disponible",
     "fuentes_validas": [
       "data/quinielas_jugadas.json",
@@ -103,21 +103,21 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 6,
-    "generado_en": "2026-09-07T06:37:43.904259+00:00",
+    "jornada": 5,
+    "generado_en": "2026-09-07T07:21:05.315688+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 8,
       "dobles": 4,
       "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 8,
+      "favoritos_atacables": 6,
       "indice_sorpresa_max": 100.0,
       "calidad_datos": {
         "alta": 0,
         "media": 0,
-        "media_baja": 3,
-        "baja": 11
+        "media_baja": 5,
+        "baja": 9
       }
     },
     "retenida_por_compuerta": false,
@@ -174,7 +174,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.02,
+    "contexto_equipos_horas": 0.74,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -216,7 +216,7 @@
     "datos_profesionales": {
       "estado_global": "sin_datos_profesionales",
       "temporada_objetivo": "2026/2027",
-      "generado_en": "2026-09-07T06:37:22Z",
+      "generado_en": "2026-09-07T07:20:42Z",
       "resumen": {
         "partidos_enriquecidos": 0,
         "cuotas": 0,
@@ -248,19 +248,20 @@
     "partidos_cerrados": 210,
     "aciertos": 119,
     "precision": 56.67,
-    "generado_en": "2026-09-07T01:19:26.360010+00:00",
+    "generado_en": "2026-09-07T06:37:45.494118+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
     {
-      "nivel": "alta",
-      "titulo": "Predicción de jornada antigua",
-      "detalle": "La jornada activa es 5 pero la última predicción dice 6."
+      "nivel": "media",
+      "titulo": "Jornada actual incompleta",
+      "detalle": "La jornada 5 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
     },
     {
       "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 11 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 9 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -279,16 +280,10 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-09-07T06:37:44.643085+00:00",
-    "estado": "revisar",
-    "score": 65,
-    "alertas": [
-      {
-        "nivel": "alta",
-        "titulo": "Predicción de jornada antigua",
-        "detalle": "La jornada activa es 5 pero la última predicción dice 6."
-      }
-    ],
+    "generado_en": "2026-09-07T07:21:06.144243+00:00",
+    "estado": "operativo",
+    "score": 100,
+    "alertas": [],
     "jornadas": {
       "total": 76,
       "actual": {
@@ -296,8 +291,8 @@
         "fecha": "Miércoles, 9 de septiembre de 2026",
         "fecha_orden": "2026-09-10",
         "partidos": 14,
-        "cerrados": 14,
-        "pendientes": 0,
+        "cerrados": 0,
+        "pendientes": 14,
         "path": "data/jornadas/jornada_5.json"
       },
       "ultima": {
@@ -305,8 +300,8 @@
         "fecha": "Miércoles, 9 de septiembre de 2026",
         "fecha_orden": "2026-09-10",
         "partidos": 14,
-        "cerrados": 14,
-        "pendientes": 0,
+        "cerrados": 0,
+        "pendientes": 14,
         "path": "data/jornadas/jornada_5.json"
       },
       "ultimas_5": [
@@ -351,8 +346,8 @@
           "fecha": "Miércoles, 9 de septiembre de 2026",
           "fecha_orden": "2026-09-10",
           "partidos": 14,
-          "cerrados": 14,
-          "pendientes": 0,
+          "cerrados": 0,
+          "pendientes": 14,
           "path": "data/jornadas/jornada_5.json"
         }
       ]
@@ -395,24 +390,24 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-09-07T06:37:17.104501+00:00"
+      "generado_en": "2026-09-07T07:20:33.106366+00:00"
     },
     "prediccion": {
-      "jornada": 6,
-      "generado_en": "2026-09-07T06:37:43.904259+00:00",
+      "jornada": 5,
+      "generado_en": "2026-09-07T07:21:05.315688+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 8,
         "dobles": 4,
         "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 8,
+        "favoritos_atacables": 6,
         "indice_sorpresa_max": 100.0,
         "calidad_datos": {
           "alta": 0,
           "media": 0,
-          "media_baja": 3,
-          "baja": 11
+          "media_baja": 5,
+          "baja": 9
         }
       },
       "retenida_por_compuerta": false,
@@ -427,8 +422,8 @@
       "fecha": "Miércoles, 9 de septiembre de 2026",
       "fecha_orden": "2026-09-10",
       "partidos": 14,
-      "cerrados": 14,
-      "pendientes": 0,
+      "cerrados": 0,
+      "pendientes": 14,
       "path": "data/jornadas/jornada_5.json"
     },
     "ultima": {
@@ -436,8 +431,8 @@
       "fecha": "Miércoles, 9 de septiembre de 2026",
       "fecha_orden": "2026-09-10",
       "partidos": 14,
-      "cerrados": 14,
-      "pendientes": 0,
+      "cerrados": 0,
+      "pendientes": 14,
       "path": "data/jornadas/jornada_5.json"
     },
     "ultimas_5": [
@@ -482,8 +477,8 @@
         "fecha": "Miércoles, 9 de septiembre de 2026",
         "fecha_orden": "2026-09-10",
         "partidos": 14,
-        "cerrados": 14,
-        "pendientes": 0,
+        "cerrados": 0,
+        "pendientes": 14,
         "path": "data/jornadas/jornada_5.json"
       }
     ]
@@ -526,6 +521,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-09-07T06:37:17.104501+00:00"
+    "generado_en": "2026-09-07T07:20:33.106366+00:00"
   }
 }
