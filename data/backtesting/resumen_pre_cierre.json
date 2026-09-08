@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-08T18:06:19.546778+00:00",
+  "generado_en": "2026-09-08T21:25:55.379695+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 16,
-    "partidos_cerrados": 210,
-    "aciertos": 119,
-    "precision": 56.67
+    "partidos_cerrados": 214,
+    "aciertos": 123,
+    "precision": 57.48
   },
   "jornadas": [
     {
@@ -1030,10 +1030,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_5.json",
       "creado_en": "2026-09-07T07:14:12.012760+00:00",
       "prediccion_generada_en": "2026-09-07T07:14:12.012760+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
-      "aciertos": 0,
-      "precision": null,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 4,
+      "aciertos": 4,
+      "precision": 100.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -1054,19 +1054,80 @@
       },
       "por_tipo": {
         "FIJO": {
-          "total": 0,
-          "aciertos": 0
+          "total": 2,
+          "aciertos": 2
         },
         "DOBLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 1,
+          "aciertos": 1
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 1,
+          "aciertos": 1
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 1,
+          "partido": "Borussia Dortmund - Villarreal CF",
+          "jugado": "1",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 37.7,
+            "X": 29.6,
+            "2": 32.6
+          },
+          "incertidumbre": 141.08,
+          "probabilidad_sorpresa": 70
+        },
+        {
+          "num": 2,
+          "partido": "Oporto - Manchester City",
+          "jugado": "X2",
+          "tipo": "DOBLE",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 24.4,
+            "X": 28.8,
+            "2": 46.9
+          },
+          "incertidumbre": 135.92,
+          "probabilidad_sorpresa": 64.6
+        },
+        {
+          "num": 3,
+          "partido": "Lille - Real Betis Balompie",
+          "jugado": "1X2",
+          "tipo": "TRIPLE",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 26.5,
+            "X": 31.3,
+            "2": 42.2
+          },
+          "incertidumbre": 131.5,
+          "probabilidad_sorpresa": 68.2
+        },
+        {
+          "num": 4,
+          "partido": "Real Madrid CF - Inter de Milán",
+          "jugado": "1",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 52.7,
+            "X": 27.6,
+            "2": 19.7
+          },
+          "incertidumbre": 110.22,
+          "probabilidad_sorpresa": 52.4
+        }
+      ]
     },
     {
       "jornada": 66,

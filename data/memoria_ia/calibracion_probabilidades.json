@@ -1,35 +1,35 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-08T18:06:18.581580+00:00",
+  "generado_en": "2026-09-08T21:25:54.165889+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 210,
-    "precision_top": 39.05,
-    "brier_medio": 0.6566,
-    "logloss_medio": 1.0852,
+    "partidos": 214,
+    "precision_top": 40.19,
+    "brier_medio": 0.6529,
+    "logloss_medio": 1.08,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 117,
-      "prob_top_media": 35.58,
-      "precision_real": 33.33,
-      "desviacion_calibracion": -2.24,
+      "total": 118,
+      "prob_top_media": 35.59,
+      "precision_real": 33.9,
+      "desviacion_calibracion": -1.7,
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 70,
-      "prob_top_media": 44.58,
-      "precision_real": 44.29,
-      "desviacion_calibracion": -0.29,
+      "total": 72,
+      "prob_top_media": 44.57,
+      "precision_real": 45.83,
+      "desviacion_calibracion": 1.26,
       "muestra_suficiente": true
     },
     "50-60": {
-      "total": 20,
-      "prob_top_media": 53.73,
-      "precision_real": 50.0,
-      "desviacion_calibracion": -3.73,
+      "total": 21,
+      "prob_top_media": 53.68,
+      "precision_real": 52.38,
+      "desviacion_calibracion": -1.3,
       "muestra_suficiente": false
     },
     "60-70": {
@@ -42,10 +42,10 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 210,
-      "precision_top": 39.05,
-      "brier_medio": 0.6566,
-      "logloss_medio": 1.0852,
+      "partidos": 214,
+      "precision_top": 40.19,
+      "brier_medio": 0.6529,
+      "logloss_medio": 1.08,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -889,6 +889,66 @@
       "bucket_top": "60-70",
       "brier": 1.0867520000000002,
       "logloss": 1.6296406197516198,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 5,
+      "num": 1,
+      "partido": "Borussia Dortmund - Villarreal CF",
+      "fuente": "data/backtesting/pre_cierre/jornada_5.json",
+      "real": "1",
+      "top": "1",
+      "acierto_top": true,
+      "prob_top": 37.74,
+      "prob_real": 37.74,
+      "bucket_top": "30-40",
+      "brier": 0.5819392966540113,
+      "logloss": 0.9745095912005428,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 5,
+      "num": 2,
+      "partido": "Oporto - Manchester City",
+      "fuente": "data/backtesting/pre_cierre/jornada_5.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 46.85,
+      "prob_real": 46.85,
+      "bucket_top": "40-50",
+      "brier": 0.42465426681210894,
+      "logloss": 0.7581520108689412,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 5,
+      "num": 3,
+      "partido": "Lille - Real Betis Balompie",
+      "fuente": "data/backtesting/pre_cierre/jornada_5.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 42.2,
+      "prob_real": 42.2,
+      "bucket_top": "40-50",
+      "brier": 0.502278,
+      "logloss": 0.8627499649461251,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 5,
+      "num": 4,
+      "partido": "Real Madrid CF - Inter de Milán",
+      "fuente": "data/backtesting/pre_cierre/jornada_5.json",
+      "real": "1",
+      "top": "1",
+      "acierto_top": true,
+      "prob_top": 52.7,
+      "prob_real": 52.7,
+      "bucket_top": "50-60",
+      "brier": 0.33871400000000007,
+      "logloss": 0.6405547304407749,
       "competicion": "desconocida"
     },
     {
