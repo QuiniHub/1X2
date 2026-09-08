@@ -1,25 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-08T05:08:36.473096+00:00",
-  "estado": "requiere_revision_datos",
-  "score_salud": 70,
+  "generado_en": "2026-09-08T07:28:59.907190+00:00",
+  "estado": "operativo_con_avisos",
+  "score_salud": 72,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
     "jornada_actual": {
-      "jornada": 5,
-      "fecha": "Miércoles, 9 de septiembre de 2026",
-      "fecha_orden": "2026-09-10",
-      "estado": "abierta",
-      "partidos": 14,
-      "cerrados": 0,
-      "pendientes": 14,
-      "pendientes_totales_con_pleno15": 15,
-      "pleno15_cerrado": false,
-      "ultima_actualizacion_partido": "",
-      "path": "data/jornadas/jornada_5.json"
-    },
-    "proxima_jornada": {
       "jornada": 6,
       "fecha": "Domingo, 13 de septiembre de 2026",
       "fecha_orden": "2026-09-14",
@@ -31,6 +18,19 @@
       "pleno15_cerrado": false,
       "ultima_actualizacion_partido": "",
       "path": "data/jornadas/jornada_6.json"
+    },
+    "proxima_jornada": {
+      "jornada": 7,
+      "fecha": "Miércoles, 16 de septiembre de 2026",
+      "fecha_orden": "2026-09-17",
+      "estado": "abierta",
+      "partidos": 14,
+      "cerrados": 0,
+      "pendientes": 14,
+      "pendientes_totales_con_pleno15": 15,
+      "pleno15_cerrado": false,
+      "ultima_actualizacion_partido": "",
+      "path": "data/jornadas/jornada_7.json"
     },
     "ultimas": [
       {
@@ -101,9 +101,9 @@
     ]
   },
   "memoria_quinielas": {
-    "jugadas_persistidas_json": 22,
-    "jornadas_validadas_historial": 22,
-    "jornadas_memoria_real_total": 63,
+    "jugadas_persistidas_json": 23,
+    "jornadas_validadas_historial": 23,
+    "jornadas_memoria_real_total": 65,
     "jornadas_con_signo_nuestro": 19,
     "signos_nuestros_en_jornadas": 266,
     "estado": "memoria_propia_disponible",
@@ -115,25 +115,25 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 5,
-    "generado_en": "2026-09-08T05:08:35.824482+00:00",
+    "jornada": 6,
+    "generado_en": "2026-09-08T07:28:59.222572+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 8,
-      "dobles": 4,
-      "triples": 2,
+      "fijos": 14,
+      "dobles": 0,
+      "triples": 0,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 7,
-      "indice_sorpresa_max": 100.0,
+      "favoritos_atacables": 0,
+      "indice_sorpresa_max": 0.0,
       "calidad_datos": {
         "alta": 0,
         "media": 0,
-        "media_baja": 5,
-        "baja": 9
+        "media_baja": 0,
+        "baja": 0
       }
     },
-    "retenida_por_compuerta": false,
-    "motivo_bloqueo": null
+    "retenida_por_compuerta": true,
+    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 5 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 6 hasta cerrar y aprender la 5."
   },
   "clasificaciones": {
     "primera": {
@@ -186,7 +186,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.02,
+    "contexto_equipos_horas": 2.36,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -260,25 +260,26 @@
     "partidos_cerrados": 210,
     "aciertos": 119,
     "precision": 56.67,
-    "generado_en": "2026-09-08T00:11:17.504912+00:00",
+    "generado_en": "2026-09-08T05:08:37.253650+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
     {
-      "nivel": "alta",
-      "titulo": "Predicción de jornada antigua",
-      "detalle": "La jornada activa es 7 pero la última predicción dice 5."
-    },
-    {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
-      "detalle": "La jornada 5 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "detalle": "La jornada 6 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
       "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
     },
     {
       "nivel": "media",
+      "titulo": "Prediccion demasiado rigida",
+      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
+      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
+    },
+    {
+      "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 10 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -297,16 +298,10 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-09-08T05:08:36.473096+00:00",
-    "estado": "revisar",
-    "score": 65,
-    "alertas": [
-      {
-        "nivel": "alta",
-        "titulo": "Predicción de jornada antigua",
-        "detalle": "La jornada activa es 7 pero la última predicción dice 5."
-      }
-    ],
+    "generado_en": "2026-09-08T07:28:59.907190+00:00",
+    "estado": "operativo",
+    "score": 100,
+    "alertas": [],
     "jornadas": {
       "total": 76,
       "actual": {
@@ -413,28 +408,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-09-08T05:08:11.621379+00:00"
+      "generado_en": "2026-09-08T07:28:31.938386+00:00"
     },
     "prediccion": {
-      "jornada": 5,
-      "generado_en": "2026-09-08T05:08:35.824482+00:00",
+      "jornada": 6,
+      "generado_en": "2026-09-08T07:28:59.222572+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 8,
-        "dobles": 4,
-        "triples": 2,
+        "fijos": 14,
+        "dobles": 0,
+        "triples": 0,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 7,
-        "indice_sorpresa_max": 100.0,
+        "favoritos_atacables": 0,
+        "indice_sorpresa_max": 0.0,
         "calidad_datos": {
           "alta": 0,
           "media": 0,
-          "media_baja": 5,
-          "baja": 9
+          "media_baja": 0,
+          "baja": 0
         }
       },
-      "retenida_por_compuerta": false,
-      "motivo_bloqueo": null
+      "retenida_por_compuerta": true,
+      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 5 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 6 hasta cerrar y aprender la 5."
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -544,6 +539,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-09-08T05:08:11.621379+00:00"
+    "generado_en": "2026-09-08T07:28:31.938386+00:00"
   }
 }

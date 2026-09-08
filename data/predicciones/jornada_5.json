@@ -341,7 +341,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
+      "elige8": false,
       "razonamiento": "Probabilidades IA: 1=40.1%, X=29.6%, 2=30.3%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=91.7/100 o sorpresa=70.0%. Favorito o signo de referencia: Borussia Dortmund. Motivos principales: favorito con ventaja moderada, no dominante; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decision final: 1.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (40.1%).",
@@ -372,13 +372,35 @@
       "elige8_eficiencia": 40.1,
       "elige8_seguro_score": 40.1,
       "elige8_confianza_real": 40.1,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 7,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 40.1,
       "elige8_seguro_margen": 9.8,
       "elige8_maxima_seguridad": false,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "borussia dortmund",
+          "visitante": "villarreal"
+        }
+      },
+      "elige8_score": 40.1,
+      "elige8_probabilidad_signo": 40.1,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 2,
@@ -637,7 +659,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
+      "elige8": true,
       "razonamiento": "Probabilidades IA: 1=24.8%, X=28.4%, 2=46.8%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (X2) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=60.0/100, sorpresa=63.3%, incertidumbre=130.4 y margen=18.4. Favorito o signo de referencia: Manchester City. Motivos principales: favorito por debajo del 50%; tercer signo vivo: partido candidato a triple. Decision final: X2.",
       "explicabilidad_ia": {
         "hipotesis_principal": "2 como signo dominante (46.8%).",
@@ -668,12 +690,36 @@
       "elige8_eficiencia": 37.6,
       "elige8_seguro_score": 75.2,
       "elige8_confianza_real": 75.2,
-      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_tipo_cobertura": "doble",
       "elige8_seguro_posicion": 12,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 46.8,
       "elige8_seguro_margen": 18.4,
-      "elige8_maxima_seguridad": true
+      "elige8_maxima_seguridad": true,
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "oporto",
+          "visitante": "manchester city"
+        }
+      },
+      "elige8_score": 75.2,
+      "elige8_probabilidad_signo": 46.8,
+      "elige8_signo_objetivo": "2",
+      "elige8_criterio": "Entra en Elige 8 porque el doble X2 suma 75.2% de probabilidad real de acierto."
     },
     {
       "num": 3,
@@ -1017,12 +1063,35 @@
       "elige8_eficiencia": 39.0,
       "elige8_seguro_score": 39.0,
       "elige8_confianza_real": 39.0,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 9,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 39.0,
       "elige8_seguro_margen": 7.4,
-      "elige8_maxima_seguridad": false
+      "elige8_maxima_seguridad": false,
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "lille",
+          "visitante": "betis"
+        }
+      },
+      "elige8_score": 39.0,
+      "elige8_probabilidad_signo": 39.0,
+      "elige8_signo_objetivo": "2"
     },
     {
       "num": 4,
@@ -1386,7 +1455,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
+      "elige8": true,
       "razonamiento": "Probabilidades IA: 1=48.7%, X=28.6%, 2=22.7%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=51.0/100, sorpresa=60.6%, incertidumbre=127.0 y margen=20.1. Favorito o signo de referencia: Real Madrid CF. Motivos principales: favorito por debajo del 50%. Decision final: 1X.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (48.7%).",
@@ -1417,12 +1486,36 @@
       "elige8_eficiencia": 38.65,
       "elige8_seguro_score": 77.3,
       "elige8_confianza_real": 77.3,
-      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_tipo_cobertura": "doble",
       "elige8_seguro_posicion": 10,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 48.7,
       "elige8_seguro_margen": 20.1,
-      "elige8_maxima_seguridad": true
+      "elige8_maxima_seguridad": true,
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "madrid",
+          "visitante": "inter milan"
+        }
+      },
+      "elige8_score": 77.3,
+      "elige8_probabilidad_signo": 48.7,
+      "elige8_signo_objetivo": "1",
+      "elige8_criterio": "Entra en Elige 8 porque el doble 1X suma 77.3% de probabilidad real de acierto."
     },
     {
       "num": 5,
@@ -1719,7 +1812,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
+      "elige8": false,
       "razonamiento": "Probabilidades IA: 1=62.4%, X=24.0%, 2=13.6%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=4.9/100 o sorpresa=38.1%. Favorito o signo de referencia: FC Barcelona. Motivos principales: sin senales fuertes de ruptura del favorito. Decision final: 1.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (62.4%).",
@@ -1750,13 +1843,35 @@
       "elige8_eficiencia": 62.4,
       "elige8_seguro_score": 62.4,
       "elige8_confianza_real": 62.4,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 4,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 62.4,
       "elige8_seguro_margen": 38.4,
       "elige8_maxima_seguridad": false,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "barcelona",
+          "visitante": "feyenoord"
+        }
+      },
+      "elige8_score": 62.4,
+      "elige8_probabilidad_signo": 62.4,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 6,
@@ -2030,13 +2145,36 @@
       "elige8_eficiencia": 66.2,
       "elige8_seguro_score": 66.2,
       "elige8_confianza_real": 66.2,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 1,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 66.2,
       "elige8_seguro_margen": 46.2,
       "elige8_maxima_seguridad": true,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "elige8_criterio": "Entra en Elige 8 porque el fijo 1 tiene 66.2% de probabilidad real de acierto.",
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "paris saint germain",
+          "visitante": "slovan bratislava"
+        }
+      },
+      "elige8_score": 66.2,
+      "elige8_probabilidad_signo": 66.2,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 7,
@@ -2324,13 +2462,36 @@
       "elige8_eficiencia": 40.25,
       "elige8_seguro_score": 80.5,
       "elige8_confianza_real": 80.5,
-      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_tipo_cobertura": "doble",
       "elige8_seguro_posicion": 6,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 49.0,
       "elige8_seguro_margen": 17.5,
       "elige8_maxima_seguridad": true,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "elige8_criterio": "Entra en Elige 8 porque el doble 1X suma 80.5% de probabilidad real de acierto.",
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "sporting lisboa",
+          "visitante": "galatasaray"
+        }
+      },
+      "elige8_score": 80.5,
+      "elige8_probabilidad_signo": 49.0,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 8,
@@ -2589,7 +2750,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
+      "elige8": true,
       "razonamiento": "Probabilidades IA: 1=24.0%, X=29.2%, 2=46.8%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (X2) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=71.7/100, sorpresa=63.6%, incertidumbre=131.5 y margen=17.6. Favorito o signo de referencia: Arsenal. Motivos principales: favorito por debajo del 50%; tercer signo vivo: partido candidato a triple. Decision final: X2.",
       "explicabilidad_ia": {
         "hipotesis_principal": "2 como signo dominante (46.8%).",
@@ -2620,12 +2781,36 @@
       "elige8_eficiencia": 38.0,
       "elige8_seguro_score": 76.0,
       "elige8_confianza_real": 76.0,
-      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_tipo_cobertura": "doble",
       "elige8_seguro_posicion": 11,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 46.8,
       "elige8_seguro_margen": 17.6,
-      "elige8_maxima_seguridad": true
+      "elige8_maxima_seguridad": true,
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "napoles",
+          "visitante": "arsenal"
+        }
+      },
+      "elige8_score": 76.0,
+      "elige8_probabilidad_signo": 46.8,
+      "elige8_signo_objetivo": "2",
+      "elige8_criterio": "Entra en Elige 8 porque el doble X2 suma 76.0% de probabilidad real de acierto."
     },
     {
       "num": 9,
@@ -2885,7 +3070,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
+      "elige8": true,
       "razonamiento": "Probabilidades IA: 1=32.9%, X=31.3%, 2=35.8%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=146.9 y margen=2.9. Favorito o signo de referencia: Roma. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decision final: 1X2.",
       "explicabilidad_ia": {
         "hipotesis_principal": "2 como signo dominante (35.8%).",
@@ -2916,12 +3101,36 @@
       "elige8_eficiencia": 33.333,
       "elige8_seguro_score": 100.0,
       "elige8_confianza_real": 100.0,
-      "elige8_tipo_cobertura": "TRIPLE",
+      "elige8_tipo_cobertura": "triple",
       "elige8_seguro_posicion": 13,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 35.8,
       "elige8_seguro_margen": 2.9,
-      "elige8_maxima_seguridad": true
+      "elige8_maxima_seguridad": true,
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "fenerbahce",
+          "visitante": "roma"
+        }
+      },
+      "elige8_score": 100.0,
+      "elige8_probabilidad_signo": 35.8,
+      "elige8_signo_objetivo": "2",
+      "elige8_criterio": "Entra en Elige 8 porque es TRIPLE: probabilidad real de acierto 100%."
     },
     {
       "num": 10,
@@ -3180,7 +3389,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
+      "elige8": false,
       "razonamiento": "Probabilidades IA: 1=54.5%, X=26.3%, 2=19.1%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=38.6/100 o sorpresa=53.0%. Favorito o signo de referencia: PSV. Motivos principales: sin senales fuertes de ruptura del favorito. Decision final: 1.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (54.5%).",
@@ -3211,13 +3420,35 @@
       "elige8_eficiencia": 54.5,
       "elige8_seguro_score": 54.5,
       "elige8_confianza_real": 54.5,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 5,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 54.5,
       "elige8_seguro_margen": 28.2,
       "elige8_maxima_seguridad": false,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "psv",
+          "visitante": "shakhtar donetsk"
+        }
+      },
+      "elige8_score": 54.5,
+      "elige8_probabilidad_signo": 54.5,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 11,
@@ -3462,7 +3693,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
+      "elige8": false,
       "razonamiento": "Probabilidades IA: 1=40.1%, X=29.7%, 2=30.2%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=89.7/100 o sorpresa=70.0%. Favorito o signo de referencia: Como 1907. Motivos principales: favorito con ventaja moderada, no dominante; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decision final: 1.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (40.1%).",
@@ -3493,13 +3724,35 @@
       "elige8_eficiencia": 40.1,
       "elige8_seguro_score": 40.1,
       "elige8_confianza_real": 40.1,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 8,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 40.1,
       "elige8_seguro_margen": 9.9,
       "elige8_maxima_seguridad": false,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "como 1907",
+          "visitante": "rb leipzig"
+        }
+      },
+      "elige8_score": 40.1,
+      "elige8_probabilidad_signo": 40.1,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 12,
@@ -3787,13 +4040,36 @@
       "elige8_eficiencia": 66.1,
       "elige8_seguro_score": 66.1,
       "elige8_confianza_real": 66.1,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 2,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 66.1,
       "elige8_seguro_margen": 45.7,
       "elige8_maxima_seguridad": true,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "elige8_criterio": "Entra en Elige 8 porque el fijo 1 tiene 66.1% de probabilidad real de acierto.",
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "bayern munich",
+          "visitante": "bod glimt"
+        }
+      },
+      "elige8_score": 66.1,
+      "elige8_probabilidad_signo": 66.1,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 13,
@@ -4052,7 +4328,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
+      "elige8": false,
       "razonamiento": "Probabilidades IA: 1=65.3%, X=20.9%, 2=13.8%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=9.0/100 o sorpresa=37.7%. Favorito o signo de referencia: Manchester United. Motivos principales: sin senales fuertes de ruptura del favorito. Decision final: 1.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (65.3%).",
@@ -4083,13 +4359,35 @@
       "elige8_eficiencia": 65.3,
       "elige8_seguro_score": 65.3,
       "elige8_confianza_real": 65.3,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 3,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 65.3,
       "elige8_seguro_margen": 44.4,
       "elige8_maxima_seguridad": false,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "manchester united",
+          "visitante": "sabah fk"
+        }
+      },
+      "elige8_score": 65.3,
+      "elige8_probabilidad_signo": 65.3,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 14,
@@ -4334,7 +4632,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
+      "elige8": true,
       "razonamiento": "Probabilidades IA: 1=33.6%, X=31.5%, 2=34.8%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=148.7 y margen=1.2. Favorito o signo de referencia: Lens. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decision final: 1X2.",
       "explicabilidad_ia": {
         "hipotesis_principal": "2 como signo dominante (34.8%).",
@@ -4365,12 +4663,36 @@
       "elige8_eficiencia": 33.333,
       "elige8_seguro_score": 100.0,
       "elige8_confianza_real": 100.0,
-      "elige8_tipo_cobertura": "TRIPLE",
+      "elige8_tipo_cobertura": "triple",
       "elige8_seguro_posicion": 14,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 34.8,
       "elige8_seguro_margen": 1.2,
-      "elige8_maxima_seguridad": true
+      "elige8_maxima_seguridad": true,
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "slavia praga",
+          "visitante": "lens"
+        }
+      },
+      "elige8_score": 100.0,
+      "elige8_probabilidad_signo": 34.8,
+      "elige8_signo_objetivo": "2",
+      "elige8_criterio": "Entra en Elige 8 porque es TRIPLE: probabilidad real de acierto 100%."
     }
   ],
   "boleto_millonario": {
@@ -5234,7 +5556,7 @@
       "baja": 9
     },
     "elige8_seguro_recomendado": true,
-    "elige8_regla": "probabilidad_real_de_acierto_por_coste",
+    "elige8_regla": "probabilidad_real_de_acierto",
     "elige8_aviso": "Modo economico: 1.3% de probabilidad conjunta estimada de acertar los 8 (eslabon mas debil: P1 Borussia Dortmund - Villarreal CF al 40.1%). Modo maxima seguridad: 15.6% pagando +71.00€ mas de Elige8. Jornada internacional (premio tipico Elige8 ≈32.62€ segun mediana historica real): valor esperado extra ≈+4.67€ por +71.00€ de coste extra -NO compensa en valor esperado (estimacion basada en la mediana historica de esta temporada, no una prediccion del premio real de esta semana)."
   },
   "snapshot_pre_cierre": {
@@ -6435,5 +6757,217 @@
       "precision": 75.74,
       "fuente": "data/memoria_ia/aprendizaje_elige8.json"
     }
+  },
+  "resolucion_competiciones": {
+    "generado_en": "2026-09-08T07:28:42.444591+00:00",
+    "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
+    "resumen": {
+      "liga_extranjera": 14
+    },
+    "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
+  },
+  "elige8_aprendizaje": {
+    "version": "4.0",
+    "generado_en": "2026-09-08T07:29:00.429992+00:00",
+    "regla_activa": "Elige 8 se elige por probabilidad real de acertar el signo jugado: TRIPLE=100%, DOBLE=suma de probabilidades de sus dos signos, FIJO=probabilidad de su unico signo. El tipo no prioriza salvo el triple, que siempre es 100%.",
+    "criterio": "ranking_por_probabilidad_real_de_acierto_del_signo_jugado",
+    "ranking": [
+      {
+        "posicion": 1,
+        "num": 9,
+        "local": "Fenerbahçe",
+        "visitante": "Roma",
+        "signo": "2",
+        "signos_jugados": "1X2",
+        "tipo_cobertura": "TRIPLE",
+        "probabilidad": 35.8,
+        "probabilidad_cubierta": 100.0,
+        "probabilidad_acierto": 100.0,
+        "score": 100.0,
+        "seleccionado": true
+      },
+      {
+        "posicion": 2,
+        "num": 14,
+        "local": "Slavia Praga",
+        "visitante": "Lens",
+        "signo": "2",
+        "signos_jugados": "1X2",
+        "tipo_cobertura": "TRIPLE",
+        "probabilidad": 34.8,
+        "probabilidad_cubierta": 100.0,
+        "probabilidad_acierto": 100.0,
+        "score": 100.0,
+        "seleccionado": true
+      },
+      {
+        "posicion": 3,
+        "num": 7,
+        "local": "Sporting de Lisboa",
+        "visitante": "Galatasaray",
+        "signo": "1",
+        "signos_jugados": "1X",
+        "tipo_cobertura": "DOBLE",
+        "probabilidad": 49.0,
+        "probabilidad_cubierta": 80.5,
+        "probabilidad_acierto": 80.5,
+        "score": 80.5,
+        "seleccionado": true
+      },
+      {
+        "posicion": 4,
+        "num": 4,
+        "local": "Real Madrid CF",
+        "visitante": "Inter de Milán",
+        "signo": "1",
+        "signos_jugados": "1X",
+        "tipo_cobertura": "DOBLE",
+        "probabilidad": 48.7,
+        "probabilidad_cubierta": 77.3,
+        "probabilidad_acierto": 77.3,
+        "score": 77.3,
+        "seleccionado": true
+      },
+      {
+        "posicion": 5,
+        "num": 8,
+        "local": "Nápoles",
+        "visitante": "Arsenal",
+        "signo": "2",
+        "signos_jugados": "X2",
+        "tipo_cobertura": "DOBLE",
+        "probabilidad": 46.8,
+        "probabilidad_cubierta": 76.0,
+        "probabilidad_acierto": 76.0,
+        "score": 76.0,
+        "seleccionado": true
+      },
+      {
+        "posicion": 6,
+        "num": 2,
+        "local": "Oporto",
+        "visitante": "Manchester City",
+        "signo": "2",
+        "signos_jugados": "X2",
+        "tipo_cobertura": "DOBLE",
+        "probabilidad": 46.8,
+        "probabilidad_cubierta": 75.2,
+        "probabilidad_acierto": 75.2,
+        "score": 75.2,
+        "seleccionado": true
+      },
+      {
+        "posicion": 7,
+        "num": 6,
+        "local": "Paris Saint-Germain",
+        "visitante": "Slovan Bratislava",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 66.2,
+        "probabilidad_cubierta": 66.2,
+        "probabilidad_acierto": 66.2,
+        "score": 66.2,
+        "seleccionado": true
+      },
+      {
+        "posicion": 8,
+        "num": 12,
+        "local": "Bayern de Múnich",
+        "visitante": "Bodø/Glimt",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 66.1,
+        "probabilidad_cubierta": 66.1,
+        "probabilidad_acierto": 66.1,
+        "score": 66.1,
+        "seleccionado": true
+      },
+      {
+        "posicion": 9,
+        "num": 13,
+        "local": "Manchester United",
+        "visitante": "Sabah FK",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 65.3,
+        "probabilidad_cubierta": 65.3,
+        "probabilidad_acierto": 65.3,
+        "score": 65.3,
+        "seleccionado": false
+      },
+      {
+        "posicion": 10,
+        "num": 5,
+        "local": "FC Barcelona",
+        "visitante": "Feyenoord",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 62.4,
+        "probabilidad_cubierta": 62.4,
+        "probabilidad_acierto": 62.4,
+        "score": 62.4,
+        "seleccionado": false
+      },
+      {
+        "posicion": 11,
+        "num": 10,
+        "local": "PSV",
+        "visitante": "Shakhtar Donetsk",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 54.5,
+        "probabilidad_cubierta": 54.5,
+        "probabilidad_acierto": 54.5,
+        "score": 54.5,
+        "seleccionado": false
+      },
+      {
+        "posicion": 12,
+        "num": 1,
+        "local": "Borussia Dortmund",
+        "visitante": "Villarreal CF",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 40.1,
+        "probabilidad_cubierta": 40.1,
+        "probabilidad_acierto": 40.1,
+        "score": 40.1,
+        "seleccionado": false
+      },
+      {
+        "posicion": 13,
+        "num": 11,
+        "local": "Como 1907",
+        "visitante": "RB Leipzig",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 40.1,
+        "probabilidad_cubierta": 40.1,
+        "probabilidad_acierto": 40.1,
+        "score": 40.1,
+        "seleccionado": false
+      },
+      {
+        "posicion": 14,
+        "num": 3,
+        "local": "Lille",
+        "visitante": "Real Betis Balompie",
+        "signo": "2",
+        "signos_jugados": "2",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 39.0,
+        "probabilidad_cubierta": 39.0,
+        "probabilidad_acierto": 39.0,
+        "score": 39.0,
+        "seleccionado": false
+      }
+    ]
   }
 }
