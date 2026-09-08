@@ -103,3 +103,21 @@ class FusionClasificacionNombresTests(unittest.TestCase):
         self.assertEqual(equipo["tendencias"].get("forma_5_pts"), 8)
         self.assertEqual(equipo["racha_actual"].get("victorias"), 2)
         self.assertEqual(equipo["local"].get("pj"), 2)
+
+
+class PlenoCategoriasTests(unittest.TestCase):
+    """El Pleno al 15 se puntua por categorias de goles (0/1/2/M), no por
+    marcador exacto: la comparacion de texto crudo contaba como fallo un
+    'M-2' jugado con un 4-2 real (bug hasta 08/09/2026)."""
+
+    def test_convierte_marcadores_reales_a_categorias(self):
+        self.assertEqual(cmi.pleno_en_categorias("5-2"), ("M", "2"))
+        self.assertEqual(cmi.pleno_en_categorias("M-1"), ("M", "1"))
+        self.assertEqual(cmi.pleno_en_categorias("0-0"), ("0", "0"))
+        self.assertEqual(cmi.pleno_en_categorias("3-4"), ("M", "M"))
+        self.assertIsNone(cmi.pleno_en_categorias("Pendiente"))
+        self.assertIsNone(cmi.pleno_en_categorias(""))
+
+    def test_m_jugada_con_goleada_real_es_acierto(self):
+        self.assertEqual(cmi.pleno_en_categorias("M-2"), cmi.pleno_en_categorias("4-2"))
+        self.assertNotEqual(cmi.pleno_en_categorias("M-1"), cmi.pleno_en_categorias("5-2"))

@@ -53,6 +53,29 @@ def reparar_mojibake(texto):
     return texto
 
 
+def categoria_goles_pleno(valor):
+    """Convierte goles a la categoria del Pleno al 15 de LAE: 0, 1, 2 o M
+    (3 o mas). Acepta tanto la categoria ya escrita como el numero real."""
+    v = str(valor).strip().upper()
+    if v in ("0", "1", "2", "M"):
+        return v
+    if v.isdigit():
+        return "M" if int(v) >= 3 else v
+    return None
+
+
+def pleno_en_categorias(texto):
+    """'5-2' -> ('M','2'); 'M-1' -> ('M','1'); invalido -> None."""
+    partes = str(texto or "").replace(" ", "").split("-")
+    if len(partes) != 2:
+        return None
+    local = categoria_goles_pleno(partes[0])
+    visitante = categoria_goles_pleno(partes[1])
+    if local is None or visitante is None:
+        return None
+    return (local, visitante)
+
+
 def limpiar_nombre(texto):
     texto = reparar_mojibake(texto).lower()
     texto = unicodedata.normalize("NFD", texto)
@@ -692,7 +715,13 @@ def analizar_nuestras_quinielas():
         pleno_estado = "pendiente"
         if pleno_oficial and pleno_oficial.lower() != "pendiente" and pleno_nuestro:
             pleno_total += 1
-            pleno_acierto = pleno_nuestro == pleno_oficial
+            # LAE puntua el pleno por CATEGORIAS de goles (0/1/2/M), no por
+            # marcador exacto: un "M-2" jugado con un 4-2 real ES acierto.
+            # La comparacion de texto crudo (bug hasta 08/09/2026) contaba
+            # eso como fallo y podia infracontar aciertos historicos.
+            pleno_acierto = pleno_en_categorias(pleno_nuestro) is not None and (
+                pleno_en_categorias(pleno_nuestro) == pleno_en_categorias(pleno_oficial)
+            )
             pleno_estado = "acertado" if pleno_acierto else "fallado"
             if pleno_acierto:
                 pleno_aciertos += 1
