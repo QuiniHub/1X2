@@ -64,3 +64,42 @@ class ClasificacionFinalTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FusionClasificacionNombresTests(unittest.TestCase):
+    """11a aparicion de la familia de nombres (08/09/2026): la clasificacion
+    oficial decia "Sabadell" y el calendario "CE Sabadell" -el cruce exacto
+    fallaba y al fusionar el equipo perdia forma_5/racha/split local-visitante
+    (el motor lo predecia a ciegas). limpiar_nombre ahora quita ce/ca/cp/ad y
+    la fusion tiene respaldo por contencion UNICA."""
+
+    def test_limpiar_nombre_quita_siglas_ce_ca_cp_ad(self):
+        self.assertEqual(cmi.limpiar_nombre("CE Sabadell"), cmi.limpiar_nombre("Sabadell"))
+        self.assertEqual(cmi.limpiar_nombre("CA Osasuna"), cmi.limpiar_nombre("Osasuna"))
+
+    def test_fusion_conserva_forma_con_nombre_de_sigla_distinta(self):
+        ligas = {"segunda": {"equipos": [{
+            "equipo": "CE Sabadell", "pj": 4, "pts": 8, "g": 2, "e": 2, "p": 0,
+            "gf": 6, "gc": 2, "dg": 4,
+            "tendencias": {"forma_5_pts": 8, "forma_10_pts": 8},
+            "racha_actual": {"victorias": 2},
+            "local": {"pj": 2, "pts": 4}, "visitante": {"pj": 2, "pts": 4},
+            "ultimos": [{"r": "G"}],
+        }]}}
+        import json as _json, tempfile, pathlib
+        with tempfile.TemporaryDirectory() as tmp:
+            ruta = pathlib.Path(tmp) / "clasificaciones.json"
+            ruta.write_text(_json.dumps({"segunda": [{
+                "posicion": 1, "equipo": "Sabadell", "pj": 4, "g": 2, "e": 2,
+                "p": 0, "gf": 6, "gc": 2, "dg": 4, "puntos": 8,
+            }]}), encoding="utf-8")
+            original = cmi.CLASIFICACIONES_OFICIALES
+            cmi.CLASIFICACIONES_OFICIALES = ruta
+            try:
+                resultado = cmi.aplicar_clasificaciones_oficiales(ligas)
+            finally:
+                cmi.CLASIFICACIONES_OFICIALES = original
+        equipo = resultado["segunda"]["equipos"][0]
+        self.assertEqual(equipo["tendencias"].get("forma_5_pts"), 8)
+        self.assertEqual(equipo["racha_actual"].get("victorias"), 2)
+        self.assertEqual(equipo["local"].get("pj"), 2)

@@ -57,7 +57,11 @@ def limpiar_nombre(texto):
     texto = reparar_mojibake(texto).lower()
     texto = unicodedata.normalize("NFD", texto)
     texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
-    texto = re.sub(r"\b(fc|cf|cd|sd|ud|rcd|rc|sad|club|real|de|del|la|el)\b", " ", texto)
+    # "ce" añadido el 08/09/2026: la tabla oficial dice "Sabadell" y el
+    # calendario "CE Sabadell" -sin quitar la sigla, el cruce exacto fallaba
+    # y el equipo perdia forma/racha/split al fusionar (11a aparicion de la
+    # familia de bugs de nombres). ca/cp/ad son siglas hermanas equivalentes.
+    texto = re.sub(r"\b(fc|cf|cd|sd|ud|rcd|rc|sad|ce|ca|cp|ad|club|real|de|del|la|el)\b", " ", texto)
     texto = re.sub(r"[^a-z0-9]+", " ", texto)
     return " ".join(texto.split()).strip()
 
@@ -1012,10 +1016,25 @@ def aplicar_clasificaciones_oficiales(ligas):
             limpiar_nombre(equipo.get("equipo")): equipo
             for equipo in ligas[liga].get("equipos", [])
         }
+
+        def emparejar(nombre):
+            """Cruce exacto y, si falla, contencion UNICA (misma liga
+            masculina, sin riesgo de genero): 'sabadell' <-> 'ce sabadell'.
+            Con 0 o >1 candidatos no se adivina -mejor un equipo sin fusionar
+            que una fusion equivocada (leccion de las 10 colisiones previas)."""
+            clave = limpiar_nombre(nombre)
+            if clave in actuales:
+                return actuales[clave]
+            if len(clave) >= 5:
+                candidatos = [v for k, v in actuales.items() if clave in k or k in clave]
+                if len(candidatos) == 1:
+                    return candidatos[0]
+            return None
+
         fusionados = []
         for fila in filas:
             nombre = fila.get("equipo", "")
-            actual = actuales.get(limpiar_nombre(nombre), equipo_base(nombre))
+            actual = emparejar(nombre) or equipo_base(nombre)
             equipo = dict(actual)
             pj = int(fila.get("pj") or 0)
             gf = int(fila.get("gf") or 0)
