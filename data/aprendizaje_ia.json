@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 65.71,
+  "precision": 65.81,
   "jornadas_revisadas": 23,
-  "partidos_revisados": 312,
-  "aciertos": 205,
+  "partidos_revisados": 313,
+  "aciertos": 206,
   "fallos": 107,
   "fallos_por_tipo": {
     "Doble insuficiente": 20,
@@ -28,10 +28,10 @@
       "precision": 74.03
     },
     "FIJO": {
-      "total": 197,
-      "aciertos": 110,
+      "total": 198,
+      "aciertos": 111,
       "fallos": 87,
-      "precision": 55.84
+      "precision": 56.06
     },
     "TRIPLE": {
       "total": 38,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 141,
-      "aciertos": 113,
+      "total": 142,
+      "aciertos": 114,
       "fallos": 28,
-      "precision": 80.14
+      "precision": 80.28
     },
     "2": {
       "total": 98,
@@ -61,61 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 63,
-      "partido": "Real Sociedad - Valencia",
-      "pronostico": "X",
-      "tipo_pronostico": "FIJO",
-      "resultado": "3-4",
-      "resultado_final": "3-4",
-      "signo_real": "2",
-      "signos_cubiertos": "X",
-      "signo_omitido": "2",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "data/predicciones/jornada_63.json",
-      "probabilidades_usadas": {
-        "1": 31.0,
-        "X": 38.6,
-        "2": 30.4
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Real Sociedad",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Valencia",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=31.0%, X=38.6%, 2=30.4%. Real Sociedad llega con 45 puntos, 2 puntos en los ultimos 5 y 1.568 goles a favor por partido. Valencia llega con 46 puntos, 8 puntos en los ultimos 5 y 1.459 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Real Sociedad de Fútbol: hay jugadores en duda o incidencias de entrenamiento. Valencia CF: hay señales de posibles lesiones o partes médicos; hay señales de sanciones o riesgo disciplinario; hay jugadores en duda o incidencias de entrenamiento; hay posibles regresos o altas; aparecen noticias de mercado o movimientos de plantilla. Contexto local: dudas de disponibilidad o entrenamiento. Contexto visitante: posibles bajas/sanciones detectadas. Contexto visitante: dudas de disponibilidad o entrenamiento. Contexto visitante: posibles altas o regresos. Motivacion: choque de alta presion para ambos; sube el riesgo de empate o resultado cerrado. Objetivos: Real Sociedad (europa league (aspira matematicamente), conference (aspira matematicamente)) frente a Valencia (europa league (aspira matematicamente), conference (aspira matematicamente)). Riesgo de azar/sorpresa estimado: 70%. Decision final: X.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 63,
       "partido": "Oviedo - Alavés",
@@ -24263,6 +24208,123 @@
           "partidos": 2
         }
       }
+    },
+    {
+      "jornada": 5,
+      "partido": "FC Barcelona - Feyenoord",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "5-1",
+      "resultado_final": "5-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_5.json",
+      "probabilidades_usadas": {
+        "1": 62.4,
+        "X": 24.0,
+        "2": 13.6
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "fallback_posicion_con_contexto+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "FC Barcelona",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Feyenoord",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (62.4%).",
+        "hipotesis_alternativa": "X como alternativa (24.0%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 38.1,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 38.4 puntos, indice sorpresa 4.9."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 7.2,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local FC Barcelona: ppp=2.48; perfil visitante Feyenoord: ppp=0.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "FC Barcelona",
+        "partidos_total": 40,
+        "puntos_por_partido": 2.432,
+        "empates_pct": 7.27,
+        "surprise_score_medio": 39.61,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 2.5,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Feyenoord",
+        "partidos_total": 1,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -24276,19 +24338,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 312,
+    "partidos_base": 313,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 34.29,
+      "fallos_total_pct": 34.19,
       "no_cubrio_empate_sobre_fallos_pct": 34.58,
-      "no_cubrio_empate_sobre_total_pct": 11.86,
+      "no_cubrio_empate_sobre_total_pct": 11.82,
       "fijo_fallado_sobre_fallos_pct": 46.73,
-      "fijo_fallado_sobre_total_pct": 16.03,
-      "doble_insuficiente_sobre_total_pct": 6.41
+      "fijo_fallado_sobre_total_pct": 15.97,
+      "doble_insuficiente_sobre_total_pct": 6.39
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 5.57,
-    "riesgo_extra_triple_insuficiente": 2.17,
+    "riesgo_extra_fijo_fragil": 5.52,
+    "riesgo_extra_triple_insuficiente": 2.15,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
