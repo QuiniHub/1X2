@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-10T19:34:07.272307+00:00",
+  "generado_en": "2026-09-10T21:53:41.977052+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
-    "jornadas_snapshot": 16,
-    "partidos_cerrados": 220,
-    "aciertos": 127,
-    "precision": 57.73
+    "jornadas_snapshot": 17,
+    "partidos_cerrados": 224,
+    "aciertos": 131,
+    "precision": 58.48
   },
   "jornadas": [
     {
@@ -1031,9 +1031,9 @@
       "creado_en": "2026-09-07T07:14:12.012760+00:00",
       "prediccion_generada_en": "2026-09-07T07:14:12.012760+00:00",
       "estado": "cerrada_o_parcial",
-      "partidos_cerrados": 10,
-      "aciertos": 8,
-      "precision": 80.0,
+      "partidos_cerrados": 14,
+      "aciertos": 12,
+      "precision": 85.71,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -1054,16 +1054,16 @@
       },
       "por_tipo": {
         "FIJO": {
-          "total": 6,
-          "aciertos": 5
+          "total": 8,
+          "aciertos": 7
         },
         "DOBLE": {
-          "total": 3,
-          "aciertos": 2
+          "total": 4,
+          "aciertos": 3
         },
         "TRIPLE": {
-          "total": 1,
-          "aciertos": 1
+          "total": 2,
+          "aciertos": 2
         }
       },
       "partidos": [
@@ -1216,8 +1216,111 @@
           },
           "incertidumbre": 121.79,
           "probabilidad_sorpresa": 53.8
+        },
+        {
+          "num": 11,
+          "partido": "Como 1907 - Leipzig",
+          "jugado": "1X",
+          "tipo": "DOBLE",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 41.9,
+            "X": 29.7,
+            "2": 28.4
+          },
+          "incertidumbre": 145.78,
+          "probabilidad_sorpresa": 70
+        },
+        {
+          "num": 12,
+          "partido": "Bayern de Múnich - Bodø/Glimt",
+          "jugado": "1",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 64.8,
+            "X": 21.7,
+            "2": 13.5
+          },
+          "incertidumbre": 107.75,
+          "probabilidad_sorpresa": 39.6
+        },
+        {
+          "num": 13,
+          "partido": "Manchester United - Sabah",
+          "jugado": "1",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 63.7,
+            "X": 20.9,
+            "2": 15.3
+          },
+          "incertidumbre": 111.47,
+          "probabilidad_sorpresa": 41.7
+        },
+        {
+          "num": 14,
+          "partido": "Slavia de Praga - Lens",
+          "jugado": "1X2",
+          "tipo": "TRIPLE",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 33.9,
+            "X": 31.7,
+            "2": 34.4
+          },
+          "incertidumbre": 158.34,
+          "probabilidad_sorpresa": 70
         }
       ]
+    },
+    {
+      "jornada": 6,
+      "snapshot": "data/backtesting/pre_cierre/jornada_6.json",
+      "creado_en": "2026-09-10T21:53:37.194523+00:00",
+      "prediccion_generada_en": "2026-09-10T21:53:37.193954+00:00",
+      "estado": "pendiente_resultados",
+      "partidos_cerrados": 0,
+      "aciertos": 0,
+      "precision": null,
+      "configuracion": {
+        "dobles": 4,
+        "triples": 2,
+        "elige8": false,
+        "elige8_modo": "desactivado",
+        "elige8_modos_disponibles": [
+          "economico",
+          "maxima_seguridad"
+        ],
+        "cobertura_auto": true
+      },
+      "coste": {
+        "apuestas": 144,
+        "apuestas_elige8": 0,
+        "importe_quiniela": 108.0,
+        "importe_elige8": 0.0,
+        "importe_total": 108.0
+      },
+      "por_tipo": {
+        "FIJO": {
+          "total": 0,
+          "aciertos": 0
+        },
+        "DOBLE": {
+          "total": 0,
+          "aciertos": 0
+        },
+        "TRIPLE": {
+          "total": 0,
+          "aciertos": 0
+        }
+      },
+      "partidos": []
     },
     {
       "jornada": 66,

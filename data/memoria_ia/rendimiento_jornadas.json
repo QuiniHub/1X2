@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-10T19:33:46.357480+00:00",
+  "generado_en": "2026-09-10T21:53:13.246815+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -564,17 +564,17 @@
     },
     "5": {
       "jornada": 5,
-      "partidos_cerrados": 10,
-      "partidos_con_prediccion": 10,
-      "precision_boleto": 90.0,
-      "precision_top1": 80.0,
-      "brier_medio": 0.4718,
-      "logloss_medio": 0.8187,
+      "partidos_cerrados": 14,
+      "partidos_con_prediccion": 14,
+      "precision_boleto": 92.86,
+      "precision_top1": 85.71,
+      "brier_medio": 0.4465,
+      "logloss_medio": 0.7854,
       "por_tipo": {
         "FIJO": {
-          "total": 5,
-          "aciertos": 4,
-          "precision": 80.0
+          "total": 8,
+          "aciertos": 7,
+          "precision": 87.5
         },
         "DOBLE": {
           "total": 4,
@@ -582,24 +582,38 @@
           "precision": 100.0
         },
         "TRIPLE": {
-          "total": 1,
-          "aciertos": 1,
+          "total": 2,
+          "aciertos": 2,
           "precision": 100.0
         }
       },
       "elige8": {
-        "selecciones": 6,
-        "aciertos": 6,
+        "selecciones": 8,
+        "aciertos": 8,
         "precision": 100.0
       },
-      "surprise_score_medio": 36.91,
+      "surprise_score_medio": 34.94,
       "ranking_incertidumbre": [
+        {
+          "num": 14,
+          "partido": "Slavia Praga - Lens",
+          "incertidumbre": 148.72,
+          "surprise_score": 40.4,
+          "margen_probabilidad": 1.2012
+        },
         {
           "num": 9,
           "partido": "Fenerbahçe SK - Roma",
           "incertidumbre": 146.94,
           "surprise_score": 51.35,
           "margen_probabilidad": 2.9
+        },
+        {
+          "num": 11,
+          "partido": "Como 1907 - Leipzig",
+          "incertidumbre": 139.38,
+          "surprise_score": 37.14,
+          "margen_probabilidad": 9.9
         },
         {
           "num": 3,
@@ -635,20 +649,6 @@
           "incertidumbre": 127.04,
           "surprise_score": 31.81,
           "margen_probabilidad": 20.1
-        },
-        {
-          "num": 10,
-          "partido": "PSV - Shakhtar Donetsk",
-          "incertidumbre": 119.89,
-          "surprise_score": 69.08,
-          "margen_probabilidad": 28.2283
-        },
-        {
-          "num": 7,
-          "partido": "Sporting Lisboa - Galatasaray",
-          "incertidumbre": 119.62,
-          "surprise_score": 31.62,
-          "margen_probabilidad": 17.5
         }
       ],
       "ranking_elige8_confianza_real": [
@@ -656,6 +656,12 @@
           "num": 9,
           "partido": "Fenerbahçe SK - Roma",
           "confianza_real_elige8": 39.39,
+          "elige8": true
+        },
+        {
+          "num": 14,
+          "partido": "Slavia Praga - Lens",
+          "confianza_real_elige8": 38.98,
           "elige8": true
         },
         {
@@ -677,27 +683,21 @@
           "elige8": false
         },
         {
+          "num": 12,
+          "partido": "B. Munich - Bodo-Glimt",
+          "confianza_real_elige8": 27.95,
+          "elige8": true
+        },
+        {
           "num": 6,
           "partido": "Paris Saint-Germain - Slovan Bratislava",
           "confianza_real_elige8": 26.93,
           "elige8": true
         },
         {
-          "num": 8,
-          "partido": "Nápoles - Arsenal",
-          "confianza_real_elige8": 22.5,
-          "elige8": true
-        },
-        {
-          "num": 2,
-          "partido": "Oporto - Man. City",
-          "confianza_real_elige8": 22.01,
-          "elige8": true
-        },
-        {
-          "num": 10,
-          "partido": "PSV - Shakhtar Donetsk",
-          "confianza_real_elige8": 7.89,
+          "num": 13,
+          "partido": "Man. United - Sabah FA",
+          "confianza_real_elige8": 25.33,
           "elige8": false
         }
       ]
@@ -4708,7 +4708,7 @@
     }
   },
   "resumen": {
-    "jornadas_evaluadas": 19,
+    "jornadas_evaluadas": 20,
     "precision_media_ultimas_8": 72.32,
     "criterio_aprendizaje": "tras cada jornada cerrada se compara prediccion vs resultado y se reentrena la memoria"
   }

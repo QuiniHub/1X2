@@ -1,9 +1,15 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-10T19:34:06.694235+00:00",
-  "estado": "operativo",
-  "score": 100,
-  "alertas": [],
+  "generado_en": "2026-09-10T21:53:41.172042+00:00",
+  "estado": "revisar",
+  "score": 65,
+  "alertas": [
+    {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 8 pero la última predicción dice 6."
+    }
+  ],
   "jornadas": {
     "total": 76,
     "actual": {
@@ -39,8 +45,8 @@
         "fecha": "Miércoles, 9 de septiembre de 2026",
         "fecha_orden": "2026-09-10",
         "partidos": 14,
-        "cerrados": 10,
-        "pendientes": 4,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_5.json"
       },
       {
@@ -110,28 +116,28 @@
     }
   },
   "contexto_competitivo": {
-    "generado_en": "2026-09-10T19:33:46.499604+00:00"
+    "generado_en": "2026-09-10T21:53:13.391893+00:00"
   },
   "prediccion": {
     "jornada": 6,
-    "generado_en": "2026-09-10T19:34:06.165199+00:00",
+    "generado_en": "2026-09-10T21:53:37.193954+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 8,
+      "dobles": 4,
+      "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 7,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
-        "alta": 0,
+        "alta": 10,
         "media": 0,
         "media_baja": 0,
-        "baja": 0
+        "baja": 4
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 5 solo tiene 10 de 14 resultados oficiales. No se genera prediccion para la jornada 6 hasta cerrar y aprender la 5."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
 }
