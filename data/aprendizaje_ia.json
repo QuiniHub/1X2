@@ -1,24 +1,24 @@
 {
   "version": "1.2",
-  "precision": 66.14,
+  "precision": 66.04,
   "jornadas_revisadas": 23,
-  "partidos_revisados": 316,
-  "aciertos": 209,
-  "fallos": 107,
+  "partidos_revisados": 318,
+  "aciertos": 210,
+  "fallos": 108,
   "fallos_por_tipo": {
     "Doble insuficiente": 20,
     "Fijo fallado": 50,
-    "No cubrio empate": 37
+    "No cubrio empate": 38
   },
   "fallos_por_signo_real": {
     "1": 28,
     "2": 42,
-    "X": 37
+    "X": 38
   },
   "signos_omitidos_en_fallo": {
     "1": 28,
     "2": 42,
-    "X": 37
+    "X": 38
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,14 +28,14 @@
       "precision": 74.68
     },
     "FIJO": {
-      "total": 199,
+      "total": 200,
       "aciertos": 112,
-      "fallos": 87,
-      "precision": 56.28
+      "fallos": 88,
+      "precision": 56.0
     },
     "TRIPLE": {
-      "total": 38,
-      "aciertos": 38,
+      "total": 39,
+      "aciertos": 39,
       "fallos": 0,
       "precision": 100.0
     }
@@ -54,123 +54,13 @@
       "precision": 57.58
     },
     "X": {
-      "total": 73,
-      "aciertos": 36,
-      "fallos": 37,
-      "precision": 49.32
+      "total": 75,
+      "aciertos": 37,
+      "fallos": 38,
+      "precision": 49.33
     }
   },
   "detalle": [
-    {
-      "jornada": 63,
-      "partido": "Racing de Santander - Valladolid",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "4-1",
-      "resultado_final": "4-1",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_63.json",
-      "probabilidades_usadas": {
-        "1": 56.9,
-        "X": 26.9,
-        "2": 16.2
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Racing de Santander",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Valladolid",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=56.9%, X=26.9%, 2=16.2%. Racing de Santander llega con 75 puntos, 13 puntos en los ultimos 5 y 2.077 goles a favor por partido. Valladolid llega con 46 puntos, 6 puntos en los ultimos 5 y 1.282 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Sin noticias recientes detectadas en fuentes públicas durante esta actualización. Real Valladolid CF: noticias generales sin alerta deportiva clara. Motivacion: el local compite con mas urgencia (ascenso directo (defiende plaza), playoff ascenso (asegurado matematicamente)). Objetivos: Racing de Santander (ascenso directo (defiende plaza), playoff ascenso (asegurado matematicamente)) frente a Valladolid (sin objetivo fuerte detectado). Riesgo de azar/sorpresa estimado: 43.1%. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 63,
-      "partido": "Almería - Las Palmas",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-2",
-      "resultado_final": "1-2",
-      "signo_real": "2",
-      "signos_cubiertos": "1",
-      "signo_omitido": "2",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "data/predicciones/jornada_63.json",
-      "probabilidades_usadas": {
-        "1": 43.7,
-        "X": 34.5,
-        "2": 21.8
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Almería",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Las Palmas",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=43.7%, X=34.5%, 2=21.8%. Almería llega con 71 puntos, 10 puntos en los ultimos 5 y 2.0 goles a favor por partido. Las Palmas llega con 66 puntos, 12 puntos en los ultimos 5 y 0.949 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. UD Almería: noticias generales sin alerta deportiva clara. UD Las Palmas: hay señales de posibles lesiones o partes médicos; hay señales de sanciones o riesgo disciplinario. Contexto visitante: posibles bajas/sanciones detectadas. Motivacion: choque de alta presion para ambos; sube el riesgo de empate o resultado cerrado. Objetivos: Almería (ascenso directo (aspira matematicamente), playoff ascenso (defiende plaza)) frente a Las Palmas (ascenso directo (aspira matematicamente), playoff ascenso (defiende plaza)). Riesgo de azar/sorpresa estimado: 61.5%. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 63,
       "partido": "Castellón - Cádiz",
@@ -24497,6 +24387,241 @@
           "partidos": 5
         }
       }
+    },
+    {
+      "jornada": 5,
+      "partido": "Fenerbahçe SK - Roma",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_5.json",
+      "probabilidades_usadas": {
+        "1": 32.9,
+        "X": 31.3,
+        "2": 35.8
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Fenerbahçe SK",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Roma",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (35.8%).",
+        "hipotesis_alternativa": "1 como alternativa (32.9%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 12: margen 2.9 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.97,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Fenerbahçe: ppp=0.00; perfil visitante Roma: ppp=1.57."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Fenerbahçe",
+        "partidos_total": 1,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Roma",
+        "partidos_total": 3,
+        "puntos_por_partido": 1.353,
+        "empates_pct": 32.38,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 1.333,
+        "forma_10_ppp": 1.333,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 5,
+      "partido": "PSV - Shakhtar Donetsk",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_5.json",
+      "probabilidades_usadas": {
+        "1": 54.5,
+        "X": 26.3,
+        "2": 19.1
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "PSV",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Shakhtar Donetsk",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (54.5%).",
+        "hipotesis_alternativa": "X como alternativa (26.3%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 53.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 28.2 puntos, indice sorpresa 38.6."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.97,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Psv: ppp=1.18; perfil visitante Shakhtar Donetsk: ppp=0.67.",
+          "Memoria autonoma: tendencia de empate conjunta alta (64.3%)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Psv",
+        "partidos_total": 7,
+        "puntos_por_partido": 1.155,
+        "empates_pct": 28.63,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 1.4,
+        "forma_10_ppp": 1.143,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Shakhtar Donetsk",
+        "partidos_total": 1,
+        "puntos_por_partido": 1.0,
+        "empates_pct": 100.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -24510,19 +24635,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 316,
+    "partidos_base": 318,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.86,
-      "no_cubrio_empate_sobre_fallos_pct": 34.58,
-      "no_cubrio_empate_sobre_total_pct": 11.71,
-      "fijo_fallado_sobre_fallos_pct": 46.73,
-      "fijo_fallado_sobre_total_pct": 15.82,
-      "doble_insuficiente_sobre_total_pct": 6.33
+      "fallos_total_pct": 33.96,
+      "no_cubrio_empate_sobre_fallos_pct": 35.19,
+      "no_cubrio_empate_sobre_total_pct": 11.95,
+      "fijo_fallado_sobre_fallos_pct": 46.3,
+      "fijo_fallado_sobre_total_pct": 15.72,
+      "doble_insuficiente_sobre_total_pct": 6.29
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 5.4,
-    "riesgo_extra_triple_insuficiente": 2.1,
+    "riesgo_extra_fijo_fragil": 5.24,
+    "riesgo_extra_triple_insuficiente": 2.06,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
