@@ -1052,6 +1052,9 @@
     function avisoMillonarioBanda(match) {
       const cambio = boletoMillonarioCambio(match);
       if (!cambio) return '';
+      // Con riesgo alto en el mismo partido, el aviso millonario va FUSIONADO
+      // dentro de la banda roja (avisoRiesgoBanda) -no se duplica la banda.
+      if (esRiesgoAlto(match)) return '';
       const jugadoAhora = selectedSigns(match) || cambio.signo_conservador || '';
       const yaIncluyeAlternativa = jugadoAhora && cambio.signo_millonario && jugadoAhora.includes(cambio.signo_millonario);
       return `<div class="aviso-banda millonario">
@@ -1095,12 +1098,26 @@
       // real, que es lo unico que hace falta para decidir.
       const probs = match.probabilidades || match.probabilidad_signos || {};
       const probSorpresa = Number(probs[rec.sorpresa]) || 0;
+      // Si el mismo partido tiene ademas alternativa millonaria, se FUSIONA
+      // aqui en un unico aviso (antes salian dos bandas casi identicas -"salen
+      // dobladas", feedback de Marc 11/09/2026): la evidencia contextual del
+      // millonario pasa a ser una linea mas del aviso de riesgo.
+      const cambio = boletoMillonarioCambio(match);
+      let lineaMillonaria = '';
+      if (cambio) {
+        const jugadoAhora = selectedSigns(match) || cambio.signo_conservador || '';
+        const cubierta = jugadoAhora && cambio.signo_millonario && jugadoAhora.includes(cambio.signo_millonario);
+        lineaMillonaria = `<div class="aviso-detalle">💰 ${cubierta
+          ? `Alternativa millonaria (${escapeHtml(cambio.signo_millonario)}) ya cubierta en tu jugada (${escapeHtml(jugadoAhora)})`
+          : `Con evidencia real detras: ${escapeHtml(cambio.justificacion || 'alternativa millonaria ' + (cambio.signo_millonario || ''))}`}</div>`;
+      }
       return `<div class="aviso-banda riesgo">
         ⚠ SORPRESA POSIBLE — signo: <span class="aviso-signo">${escapeHtml(rec.sorpresa)}</span> con ${probSorpresa.toFixed(0)}% de probabilidad
         <div class="aviso-detalle">
           Presup. máximo: <b>1X2</b> · medio: <b>${escapeHtml(rec.doble)}</b> · mínimo: <b>${escapeHtml(rec.fijo)}</b> (el fijo del motor)
           ${rec.sorpresaFueraDelDoble ? `<br>‼ OJO: la sorpresa (${escapeHtml(rec.sorpresa)}) queda FUERA del doble ${escapeHtml(rec.doble)} — para cubrirla de verdad: ${escapeHtml(rec.fijo + rec.sorpresa)} o triple` : ''}
         </div>
+        ${lineaMillonaria}
         ${motivos ? `<div class="aviso-detalle">${escapeHtml(motivos)}</div>` : ''}
       </div>`;
     }
@@ -1117,17 +1134,19 @@
         const num = match.num ?? match.numero ?? match.partido;
         const nombre = `${match.local || match.equipo_local || ''} - ${match.visitante || match.equipo_visitante || ''}`;
         const enElige8 = isElige8Match(match);
+        // Un solo <li> por partido aunque tenga riesgo Y millonario (antes
+        // salian dos lineas casi iguales -"salen dobladas", Marc 11/09/2026)
         const cambio = boletoMillonarioCambio(match);
-        if (cambio) {
-          const jugadoAhora = selectedSigns(match) || cambio.signo_conservador || '';
-          const cubierta = jugadoAhora && cambio.signo_millonario && jugadoAhora.includes(cambio.signo_millonario);
-          items.push(`<li>💰 <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: el motor ve posible ${escapeHtml(cambio.signo_millonario || '')}${cubierta ? ' (ya cubierta en tu jugada)' : ` en vez de ${escapeHtml(jugadoAhora)}`}${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
-        }
-        if (esRiesgoAlto(match)) {
+        const riesgo = esRiesgoAlto(match);
+        if (riesgo) {
           const rec = recomendacionPresupuesto(match);
           const probsM = match.probabilidades || match.probabilidad_signos || {};
           const probSorpresa = Number(probsM[rec.sorpresa]) || 0;
-          items.push(`<li>⚠ <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: sorpresa <b>${escapeHtml(rec.sorpresa)}</b> (${probSorpresa.toFixed(0)}%) · doble <b>${escapeHtml(rec.doble)}</b> · fijo <b>${escapeHtml(rec.fijo)}</b>${rec.sorpresaFueraDelDoble ? ' <span class="aviso-elige8">(la sorpresa queda fuera del doble)</span>' : ''}${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
+          items.push(`<li>${cambio ? '💰' : '⚠'} <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: sorpresa <b>${escapeHtml(rec.sorpresa)}</b> (${probSorpresa.toFixed(0)}%) · doble <b>${escapeHtml(rec.doble)}</b> · fijo <b>${escapeHtml(rec.fijo)}</b>${cambio ? ' · con evidencia real' : ''}${rec.sorpresaFueraDelDoble ? ' <span class="aviso-elige8">(la sorpresa queda fuera del doble)</span>' : ''}${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
+        } else if (cambio) {
+          const jugadoAhora = selectedSigns(match) || cambio.signo_conservador || '';
+          const cubierta = jugadoAhora && cambio.signo_millonario && jugadoAhora.includes(cambio.signo_millonario);
+          items.push(`<li>💰 <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: el motor ve posible ${escapeHtml(cambio.signo_millonario || '')}${cubierta ? ' (ya cubierta en tu jugada)' : ` en vez de ${escapeHtml(jugadoAhora)}`}${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
         }
       });
       if (!items.length) { cont.innerHTML = ''; return; }
