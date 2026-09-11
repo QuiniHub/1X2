@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-11T20:52:11.774055+00:00",
+  "generado_en": "2026-09-11T23:11:22.317800+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 17,
-    "partidos_cerrados": 224,
-    "aciertos": 131,
-    "precision": 58.48
+    "partidos_cerrados": 225,
+    "aciertos": 132,
+    "precision": 58.67
   },
   "jornadas": [
     {
@@ -1284,10 +1284,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_6.json",
       "creado_en": "2026-09-10T21:53:37.194523+00:00",
       "prediccion_generada_en": "2026-09-10T21:53:37.193954+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
-      "aciertos": 0,
-      "precision": null,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 1,
+      "aciertos": 1,
+      "precision": 100.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -1312,15 +1312,31 @@
           "aciertos": 0
         },
         "DOBLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 1,
+          "aciertos": 1
         },
         "TRIPLE": {
           "total": 0,
           "aciertos": 0
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 6,
+          "partido": "Sevilla FC - Valencia CF",
+          "jugado": "1X",
+          "tipo": "DOBLE",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 54.8,
+            "X": 31.8,
+            "2": 13.4
+          },
+          "incertidumbre": 131.86,
+          "probabilidad_sorpresa": 55.7
+        }
+      ]
     },
     {
       "jornada": 66,

@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 66.46,
-  "jornadas_revisadas": 23,
-  "partidos_revisados": 322,
-  "aciertos": 214,
+  "precision": 66.56,
+  "jornadas_revisadas": 24,
+  "partidos_revisados": 323,
+  "aciertos": 215,
   "fallos": 108,
   "fallos_por_tipo": {
     "Doble insuficiente": 20,
@@ -22,10 +22,10 @@
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 79,
-      "aciertos": 59,
+      "total": 80,
+      "aciertos": 60,
       "fallos": 20,
-      "precision": 74.68
+      "precision": 75.0
     },
     "FIJO": {
       "total": 203,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 147,
-      "aciertos": 119,
+      "total": 148,
+      "aciertos": 120,
       "fallos": 28,
-      "precision": 80.95
+      "precision": 81.08
     },
     "2": {
       "total": 100,
@@ -61,61 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 64,
-      "partido": "RC Celta de Vigo - Sevilla FC",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-0",
-      "resultado_final": "1-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_64.json",
-      "probabilidades_usadas": {
-        "1": 62.0,
-        "X": 35.6,
-        "2": 2.4
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "RC Celta de Vigo",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Sevilla FC",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=62.0%, X=35.6%, 2=2.4%. RC Celta de Vigo llega con 54 puntos, forma últimos 5/10: 10/13 puntos, dinámica positiva reciente y 1.395 goles a favor por partido. Sevilla FC llega con 43 puntos, forma últimos 5/10: 9/12 puntos, dinámica positiva reciente y 1.579 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Sin noticias recientes detectadas en fuentes públicas durante esta actualización. Sevilla FC: noticias generales sin alerta deportiva clara. Motivacion: el local compite con mas urgencia (europa league (defiende plaza)). Aprendizaje competitivo: cuando el local necesita y el visitante tiene objetivo cerrado, el fijo visitante se rompe con frecuencia (79.6% en la memoria). Patron general aprendido: necesidad contra objetivo cerrado aumenta sorpresa y exige desconfiar del fijo limpio (66.0%). Objetivos: RC Celta de Vigo (europa league (defiende plaza)) frente a Sevilla FC (situacion final (salvado matematicamente)). Riesgo de azar/sorpresa estimado: 50.0%. Indice de sorpresa quinielistica: 60.2/100; favorito a vigilar: RC Celta de Vigo; cobertura sugerida por sorpresa: DOBLE. empate con peso alto. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 64,
       "partido": "RCD Espanyol - Real Sociedad de Futbol",
@@ -24841,6 +24786,126 @@
         }
       },
       "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 6,
+      "partido": "Sevilla FC - Valencia CF",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "1-0",
+      "resultado_final": "1-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_6.json",
+      "probabilidades_usadas": {
+        "1": 55.8,
+        "X": 30.8,
+        "2": 13.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Sevilla FC",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Valencia CF",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (55.8%).",
+        "hipotesis_alternativa": "X como alternativa (30.8%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_atacable",
+          "probabilidad": 51.6,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 25.0 puntos, indice sorpresa 60.6."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.27,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.47,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Sevilla FC: ppp=1.46; perfil visitante Valencia CF: ppp=1.65.",
+          "Memoria autonoma: historial de sorpresa medio elevado (47.6)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Sevilla FC",
+        "partidos_total": 32,
+        "puntos_por_partido": 1.296,
+        "empates_pct": 20.37,
+        "surprise_score_medio": 44.61,
+        "forma_5_ppp": 1.6,
+        "forma_10_ppp": 1.2,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Valencia CF",
+        "partidos_total": 32,
+        "puntos_por_partido": 1.419,
+        "empates_pct": 19.65,
+        "surprise_score_medio": 50.57,
+        "forma_5_ppp": 2.2,
+        "forma_10_ppp": 1.2,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -24854,19 +24919,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 322,
+    "partidos_base": 323,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.54,
+      "fallos_total_pct": 33.44,
       "no_cubrio_empate_sobre_fallos_pct": 35.19,
-      "no_cubrio_empate_sobre_total_pct": 11.8,
+      "no_cubrio_empate_sobre_total_pct": 11.76,
       "fijo_fallado_sobre_fallos_pct": 46.3,
-      "fijo_fallado_sobre_total_pct": 15.53,
-      "doble_insuficiente_sobre_total_pct": 6.21
+      "fijo_fallado_sobre_total_pct": 15.48,
+      "doble_insuficiente_sobre_total_pct": 6.19
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 5.08,
-    "riesgo_extra_triple_insuficiente": 1.99,
+    "riesgo_extra_fijo_fragil": 5.04,
+    "riesgo_extra_triple_insuficiente": 1.97,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
