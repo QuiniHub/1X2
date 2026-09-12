@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 66.46,
+  "precision": 66.57,
   "jornadas_revisadas": 24,
-  "partidos_revisados": 328,
-  "aciertos": 218,
+  "partidos_revisados": 329,
+  "aciertos": 219,
   "fallos": 110,
   "fallos_por_tipo": {
     "Doble insuficiente": 20,
@@ -28,10 +28,10 @@
       "precision": 75.0
     },
     "FIJO": {
-      "total": 207,
-      "aciertos": 117,
+      "total": 208,
+      "aciertos": 118,
       "fallos": 90,
-      "precision": 56.52
+      "precision": 56.73
     },
     "TRIPLE": {
       "total": 41,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 150,
-      "aciertos": 122,
+      "total": 151,
+      "aciertos": 123,
       "fallos": 28,
-      "precision": 81.33
+      "precision": 81.46
     },
     "2": {
       "total": 102,
@@ -61,61 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 64,
-      "partido": "Girona FC - Elche CF",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "data/predicciones/jornada_64.json",
-      "probabilidades_usadas": {
-        "1": 35.0,
-        "X": 34.5,
-        "2": 30.5
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Girona FC",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Elche CF",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.0%, X=34.5%, 2=30.5%. Girona FC llega con 41 puntos, forma últimos 5/10: 3/7 puntos, dinámica estable y 1.026 goles a favor por partido. Elche CF llega con 43 puntos, forma últimos 5/10: 5/17 puntos, dinámica negativa reciente y 1.5 goles encajados por partido. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Girona FC: hay posibles regresos o altas. Elche CF: noticias generales sin alerta deportiva clara. Contexto local: posibles altas o regresos. Objetivos: Girona FC (situacion final (descendido matematicamente), titulo liga (sin opciones matematicas), champions (sin opciones matematicas)) frente a Elche CF (situacion final (salvado matematicamente), titulo liga (sin opciones matematicas), champions (sin opciones matematicas)). Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 100.0/100; favorito a vigilar: Girona FC; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 64,
       "partido": "Malaga CF - Real Racing Club de Santander",
@@ -24873,6 +24818,125 @@
     },
     {
       "jornada": 6,
+      "partido": "Real Madrid CF - Rayo Vallecano de Madrid",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "4-1",
+      "resultado_final": "4-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_6.json",
+      "probabilidades_usadas": {
+        "1": 69.3,
+        "X": 23.2,
+        "2": 7.5
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Real Madrid CF",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Rayo Vallecano de Madrid",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (69.3%).",
+        "hipotesis_alternativa": "X como alternativa (23.2%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 31.8,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 46.1 puntos, indice sorpresa 17.6."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 12.28,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.96,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.23,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Real Madrid CF: ppp=2.32; perfil visitante Rayo Vallecano de Madrid: ppp=1.01.",
+          "Memoria autonoma: historial de sorpresa medio elevado (46.3)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Real Madrid CF",
+        "partidos_total": 27,
+        "puntos_por_partido": 2.195,
+        "empates_pct": 10.52,
+        "surprise_score_medio": 38.79,
+        "forma_5_ppp": 2.4,
+        "forma_10_ppp": 2.1,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 3
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Rayo Vallecano de Madrid",
+        "partidos_total": 2,
+        "puntos_por_partido": 1.522,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 53.75,
+        "forma_5_ppp": 1.5,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 6,
       "partido": "Sevilla FC - Valencia CF",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
@@ -25239,19 +25303,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 328,
+    "partidos_base": 329,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.54,
+      "fallos_total_pct": 33.43,
       "no_cubrio_empate_sobre_fallos_pct": 35.45,
-      "no_cubrio_empate_sobre_total_pct": 11.89,
+      "no_cubrio_empate_sobre_total_pct": 11.85,
       "fijo_fallado_sobre_fallos_pct": 46.36,
-      "fijo_fallado_sobre_total_pct": 15.55,
-      "doble_insuficiente_sobre_total_pct": 6.1
+      "fijo_fallado_sobre_total_pct": 15.5,
+      "doble_insuficiente_sobre_total_pct": 6.08
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 5.11,
-    "riesgo_extra_triple_insuficiente": 1.89,
+    "riesgo_extra_fijo_fragil": 5.07,
+    "riesgo_extra_triple_insuficiente": 1.87,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
