@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-12T11:13:37.744409+00:00",
+  "generado_en": "2026-09-12T14:23:18.203583+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -704,12 +704,12 @@
     },
     "6": {
       "jornada": 6,
-      "partidos_cerrados": 1,
-      "partidos_con_prediccion": 1,
+      "partidos_cerrados": 2,
+      "partidos_con_prediccion": 2,
       "precision_boleto": 100.0,
-      "precision_top1": 100.0,
-      "brier_medio": 0.3082,
-      "logloss_medio": 0.5834,
+      "precision_top1": 50.0,
+      "brier_medio": 0.4955,
+      "logloss_medio": 0.8521,
       "por_tipo": {
         "FIJO": {
           "total": 0,
@@ -722,18 +722,25 @@
           "precision": 100.0
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0,
-          "precision": null
+          "total": 1,
+          "aciertos": 1,
+          "precision": 100.0
         }
       },
       "elige8": {
-        "selecciones": 1,
-        "aciertos": 1,
+        "selecciones": 2,
+        "aciertos": 2,
         "precision": 100.0
       },
-      "surprise_score_medio": 27.4,
+      "surprise_score_medio": 38.86,
       "ranking_incertidumbre": [
+        {
+          "num": 4,
+          "partido": "R. Santander - Deportivo Alaves",
+          "incertidumbre": 144.8,
+          "surprise_score": 50.32,
+          "margen_probabilidad": 3.7
+        },
         {
           "num": 6,
           "partido": "Sevilla FC - Valencia CF",
@@ -743,6 +750,12 @@
         }
       ],
       "ranking_elige8_confianza_real": [
+        {
+          "num": 4,
+          "partido": "R. Santander - Deportivo Alaves",
+          "confianza_real_elige8": 57.79,
+          "elige8": true
+        },
         {
           "num": 6,
           "partido": "Sevilla FC - Valencia CF",
