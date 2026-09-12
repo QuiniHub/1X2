@@ -2,22 +2,22 @@
   "version": "1.2",
   "precision": 66.67,
   "jornadas_revisadas": 24,
-  "partidos_revisados": 324,
-  "aciertos": 216,
-  "fallos": 108,
+  "partidos_revisados": 327,
+  "aciertos": 218,
+  "fallos": 109,
   "fallos_por_tipo": {
     "Doble insuficiente": 20,
-    "Fijo fallado": 50,
+    "Fijo fallado": 51,
     "No cubrio empate": 38
   },
   "fallos_por_signo_real": {
     "1": 28,
-    "2": 42,
+    "2": 43,
     "X": 38
   },
   "signos_omitidos_en_fallo": {
     "1": 28,
-    "2": 42,
+    "2": 43,
     "X": 38
   },
   "precision_por_tipo": {
@@ -28,10 +28,10 @@
       "precision": 75.0
     },
     "FIJO": {
-      "total": 203,
-      "aciertos": 115,
-      "fallos": 88,
-      "precision": 56.65
+      "total": 206,
+      "aciertos": 117,
+      "fallos": 89,
+      "precision": 56.8
     },
     "TRIPLE": {
       "total": 41,
@@ -42,16 +42,16 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 149,
-      "aciertos": 121,
+      "total": 150,
+      "aciertos": 122,
       "fallos": 28,
-      "precision": 81.21
+      "precision": 81.33
     },
     "2": {
-      "total": 100,
-      "aciertos": 58,
-      "fallos": 42,
-      "precision": 58.0
+      "total": 102,
+      "aciertos": 59,
+      "fallos": 43,
+      "precision": 57.84
     },
     "X": {
       "total": 75,
@@ -61,171 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 64,
-      "partido": "Getafe CF - CA Osasuna",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
-      "resultado": "1-0",
-      "resultado_final": "1-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_64.json",
-      "probabilidades_usadas": {
-        "1": 14.0,
-        "X": 41.5,
-        "2": 44.5
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Getafe CF",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "CA Osasuna",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=14.0%, X=41.5%, 2=44.5%. Getafe CF llega con 51 puntos, forma últimos 5/10: 7/16 puntos, dinámica estable y 0.842 goles a favor por partido. CA Osasuna llega con 42 puntos, forma últimos 5/10: 0/8 puntos, dinámica negativa reciente y 1.316 goles encajados por partido. Se protege con triple porque es de los partidos con mas incertidumbre del boleto. Getafe CF: noticias generales sin alerta deportiva clara. CA Osasuna: hay posibles regresos o altas. Contexto visitante: posibles altas o regresos. Motivacion: el visitante compite con mas urgencia (descenso (riesgo descenso), titulo liga (sin opciones matematicas), champions (sin opciones matematicas)). Contexto competitivo visitante: partido condicionado por permanencia/descenso. Aprendizaje competitivo: cuando el visitante necesita y el local tiene objetivo cerrado, el 1 fijo no debe ser tranquilo (52.4% de rupturas en memoria). Aprendizaje de descenso: un visitante que se juega permanencia contra favorito local debe subir a zona prioritaria de cobertura; patron historico 22.2%. Patron general aprendido: necesidad contra objetivo cerrado aumenta sorpresa y exige desconfiar del fijo limpio (66.0%). Objetivos: Getafe CF (europa league (asegurado matematicamente), titulo liga (sin opciones matematicas), champions (sin opciones matematicas)) frente a CA Osasuna (descenso (riesgo descenso), titulo liga (sin opciones matematicas), champions (sin opciones matematicas)). Riesgo de azar/sorpresa estimado: 67.5%. Indice de sorpresa quinielistica: 100.0/100; favorito a vigilar: CA Osasuna; cobertura sugerida por sorpresa: DOBLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1X2.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 64,
-      "partido": "RCD Mallorca - Real Oviedo",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "3-0",
-      "resultado_final": "3-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_64.json",
-      "probabilidades_usadas": {
-        "1": 66.6,
-        "X": 32.0,
-        "2": 1.4
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "RCD Mallorca",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Real Oviedo",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=66.6%, X=32.0%, 2=1.4%. RCD Mallorca llega con 42 puntos, forma últimos 5/10: 7/14 puntos, dinámica estable y 1.237 goles a favor por partido. Real Oviedo llega con 29 puntos, forma últimos 5/10: 1/8 puntos, dinámica negativa reciente y 1.579 goles encajados por partido. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. RCD Mallorca: hay posibles regresos o altas. Sin noticias recientes detectadas en fuentes públicas durante esta actualización. Contexto local: posibles altas o regresos. Motivacion: el local compite con mas urgencia (descenso (riesgo descenso), titulo liga (sin opciones matematicas), champions (sin opciones matematicas)). Contexto competitivo local: partido condicionado por permanencia/descenso. Aprendizaje competitivo: cuando el local necesita y el visitante tiene objetivo cerrado, el fijo visitante se rompe con frecuencia (79.6% en la memoria). Patron general aprendido: necesidad contra objetivo cerrado aumenta sorpresa y exige desconfiar del fijo limpio (66.0%). Objetivos: RCD Mallorca (descenso (riesgo descenso), titulo liga (sin opciones matematicas), champions (sin opciones matematicas)) frente a Real Oviedo (situacion final (descendido matematicamente), titulo liga (sin opciones matematicas), champions (sin opciones matematicas)). Riesgo de azar/sorpresa estimado: 45.4%. Indice de sorpresa quinielistica: 58.7/100; favorito a vigilar: RCD Mallorca; cobertura sugerida por sorpresa: DOBLE. favorito encaja demasiado para ser fijo limpio. Decision final: 1X.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 64,
-      "partido": "Villarreal CF - Atletico",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "5-1",
-      "resultado_final": "5-1",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_64.json",
-      "probabilidades_usadas": {
-        "1": 49.3,
-        "X": 33.9,
-        "2": 16.7
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Villarreal CF",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Atletico",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=49.3%, X=33.9%, 2=16.7%. Villarreal CF llega con 72 puntos, forma últimos 5/10: 7/17 puntos, dinámica estable y 1.895 goles a favor por partido. Atletico llega con 69 puntos, forma últimos 5/10: 9/12 puntos, dinámica positiva reciente y 1.158 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Sin noticias recientes detectadas en fuentes públicas durante esta actualización. Club Atletico de Madrid: hay señales de posibles lesiones o partes médicos; hay jugadores en duda o incidencias de entrenamiento. Contexto visitante: posibles bajas/sanciones detectadas. Contexto visitante: dudas de disponibilidad o entrenamiento. Objetivos: Villarreal CF (champions (asegurado matematicamente), titulo liga (sin opciones matematicas), europa league (asegurado matematicamente)) frente a Atletico (champions (asegurado matematicamente), titulo liga (sin opciones matematicas), europa league (asegurado matematicamente)). Riesgo de azar/sorpresa estimado: 54.3%. Indice de sorpresa quinielistica: 50.4/100; favorito a vigilar: Villarreal CF; cobertura sugerida por sorpresa: FIJO. favorito por debajo del 50%, empate con peso alto. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 64,
       "partido": "Valencia CF - FC Barcelona",
@@ -24734,6 +24569,126 @@
     },
     {
       "jornada": 6,
+      "partido": "CA Osasuna - RCD Espanyol de Barcelona",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-2",
+      "resultado_final": "0-2",
+      "signo_real": "2",
+      "signos_cubiertos": "1",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_6.json",
+      "probabilidades_usadas": {
+        "1": 45.3,
+        "X": 32.7,
+        "2": 22.0
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "CA Osasuna",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "RCD Espanyol de Barcelona",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (45.3%).",
+        "hipotesis_alternativa": "X como alternativa (32.7%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 64.1,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 1: margen 12.6 puntos, indice sorpresa 97.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.27,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 1.58,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local CA Osasuna: ppp=1.34; perfil visitante RCD Espanyol de Barcelona: ppp=0.66.",
+          "Memoria autonoma: tendencia de empate conjunta alta (32.7%).",
+          "Memoria autonoma: historial de sorpresa medio elevado (53.8)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "CA Osasuna",
+        "partidos_total": 5,
+        "puntos_por_partido": 1.011,
+        "empates_pct": 39.4,
+        "surprise_score_medio": 52.67,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "RCD Espanyol de Barcelona",
+        "partidos_total": 4,
+        "puntos_por_partido": 0.979,
+        "empates_pct": 26.09,
+        "surprise_score_medio": 54.94,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 6,
       "partido": "R. Santander - Deportivo Alaves",
       "pronostico": "1X2",
       "tipo_pronostico": "TRIPLE",
@@ -24971,6 +24926,242 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 6,
+      "partido": "Cadiz CF - UD Las Palmas",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-1",
+      "resultado_final": "0-1",
+      "signo_real": "2",
+      "signos_cubiertos": "2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_6.json",
+      "probabilidades_usadas": {
+        "1": 27.2,
+        "X": 33.1,
+        "2": 39.7
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Cadiz CF",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "UD Las Palmas",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (39.7%).",
+        "hipotesis_alternativa": "X como alternativa (33.1%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE X2: margen 6.6 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.27,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 1.33,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Cadiz CF: ppp=0.68; perfil visitante UD Las Palmas: ppp=1.95.",
+          "Memoria autonoma: historial de sorpresa medio elevado (52.4)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Cadiz CF",
+        "partidos_total": 30,
+        "puntos_por_partido": 0.81,
+        "empates_pct": 34.67,
+        "surprise_score_medio": 51.4,
+        "forma_5_ppp": 0.2,
+        "forma_10_ppp": 0.6,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "UD Las Palmas",
+        "partidos_total": 26,
+        "puntos_por_partido": 1.636,
+        "empates_pct": 17.83,
+        "surprise_score_medio": 53.35,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 1.8,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 5
+        }
+      }
+    },
+    {
+      "jornada": 6,
+      "partido": "Madrid CFF - Sevilla (F)",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-0",
+      "resultado_final": "1-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_6.json",
+      "probabilidades_usadas": {
+        "1": 52.2,
+        "X": 25.7,
+        "2": 22.1
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Madrid CFF",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Sevilla (F)",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (52.2%).",
+        "hipotesis_alternativa": "X como alternativa (25.7%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 53.9,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 26.5 puntos, indice sorpresa 36.7."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.07,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local At. Madrid (F): ppp=2.01; perfil visitante Sevilla (F): ppp=0.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "At. Madrid (F)",
+        "partidos_total": 2,
+        "puntos_por_partido": 1.522,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 26.93,
+        "forma_5_ppp": 1.5,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Sevilla (F)",
+        "partidos_total": 1,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 22.2,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -24984,19 +25175,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 324,
+    "partidos_base": 327,
     "muestra": "suficiente",
     "tasas_error": {
       "fallos_total_pct": 33.33,
-      "no_cubrio_empate_sobre_fallos_pct": 35.19,
-      "no_cubrio_empate_sobre_total_pct": 11.73,
-      "fijo_fallado_sobre_fallos_pct": 46.3,
-      "fijo_fallado_sobre_total_pct": 15.43,
-      "doble_insuficiente_sobre_total_pct": 6.17
+      "no_cubrio_empate_sobre_fallos_pct": 34.86,
+      "no_cubrio_empate_sobre_total_pct": 11.62,
+      "fijo_fallado_sobre_fallos_pct": 46.79,
+      "fijo_fallado_sobre_total_pct": 15.6,
+      "doble_insuficiente_sobre_total_pct": 6.12
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 5.0,
-    "riesgo_extra_triple_insuficiente": 1.95,
+    "riesgo_extra_fijo_fragil": 5.24,
+    "riesgo_extra_triple_insuficiente": 1.91,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,

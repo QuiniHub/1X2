@@ -1,35 +1,35 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-12T14:23:49.106856+00:00",
+  "generado_en": "2026-09-12T17:26:50.405602+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 226,
-    "precision_top": 42.04,
-    "brier_medio": 0.6419,
-    "logloss_medio": 1.0643,
+    "partidos": 229,
+    "precision_top": 42.36,
+    "brier_medio": 0.6415,
+    "logloss_medio": 1.064,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 121,
-      "prob_top_media": 35.59,
-      "precision_real": 33.88,
-      "desviacion_calibracion": -1.7,
+      "total": 122,
+      "prob_top_media": 35.62,
+      "precision_real": 34.43,
+      "desviacion_calibracion": -1.19,
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 74,
-      "prob_top_media": 44.56,
-      "precision_real": 47.3,
-      "desviacion_calibracion": 2.74,
+      "total": 75,
+      "prob_top_media": 44.57,
+      "precision_real": 46.67,
+      "desviacion_calibracion": 2.09,
       "muestra_suficiente": true
     },
     "50-60": {
-      "total": 24,
-      "prob_top_media": 53.67,
-      "precision_real": 54.17,
-      "desviacion_calibracion": 0.5,
+      "total": 25,
+      "prob_top_media": 53.58,
+      "precision_real": 56.0,
+      "desviacion_calibracion": 2.42,
       "muestra_suficiente": false
     },
     "60-70": {
@@ -42,10 +42,10 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 226,
-      "precision_top": 42.04,
-      "brier_medio": 0.6419,
-      "logloss_medio": 1.0643,
+      "partidos": 229,
+      "precision_top": 42.36,
+      "brier_medio": 0.6415,
+      "logloss_medio": 1.064,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -1103,6 +1103,21 @@
     },
     {
       "jornada": 6,
+      "num": 3,
+      "partido": "CA Osasuna - RCD Espanyol de Barcelona",
+      "fuente": "data/backtesting/pre_cierre/jornada_6.json",
+      "real": "2",
+      "top": "1",
+      "acierto_top": false,
+      "prob_top": 45.4,
+      "prob_real": 21.9,
+      "bucket_top": "40-50",
+      "brier": 0.923006,
+      "logloss": 1.5186835491656363,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 6,
       "num": 4,
       "partido": "Real Racing Club de Santander - Deportivo Alaves",
       "fuente": "data/backtesting/pre_cierre/jornada_6.json",
@@ -1129,6 +1144,36 @@
       "bucket_top": "50-60",
       "brier": 0.3233840000000001,
       "logloss": 0.6014799920341216,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 6,
+      "num": 8,
+      "partido": "Cadiz CF - UD Las Palmas",
+      "fuente": "data/backtesting/pre_cierre/jornada_6.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 39.54,
+      "prob_real": 39.54,
+      "bucket_top": "30-40",
+      "brier": 0.5501236972708444,
+      "logloss": 0.9278690137474317,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 6,
+      "num": 14,
+      "partido": "Madrid CFF (F) - Sevilla (F)",
+      "fuente": "data/backtesting/pre_cierre/jornada_6.json",
+      "real": "1",
+      "top": "1",
+      "acierto_top": true,
+      "prob_top": 51.4,
+      "prob_real": 51.4,
+      "bucket_top": "50-60",
+      "brier": 0.355016,
+      "logloss": 0.6655320135269719,
       "competicion": "desconocida"
     },
     {
