@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-14T19:13:45.578057+00:00",
-  "estado": "operativo_con_avisos",
-  "score_salud": 72,
+  "generado_en": "2026-09-14T22:54:23.137030+00:00",
+  "estado": "requiere_revision_datos",
+  "score_salud": 70,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
@@ -63,13 +63,13 @@
         "jornada": 6,
         "fecha": "Domingo, 13 de septiembre de 2026",
         "fecha_orden": "2026-09-14",
-        "estado": "en_juego",
+        "estado": "cerrada",
         "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
-        "pendientes_totales_con_pleno15": 1,
+        "cerrados": 14,
+        "pendientes": 0,
+        "pendientes_totales_con_pleno15": 0,
         "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "2026-09-14T06:57:15Z",
+        "ultima_actualizacion_partido": "2026-09-14T22:41:14Z",
         "path": "data/jornadas/jornada_6.json"
       },
       {
@@ -103,9 +103,9 @@
   "memoria_quinielas": {
     "jugadas_persistidas_json": 24,
     "jornadas_validadas_historial": 24,
-    "jornadas_memoria_real_total": 68,
-    "jornadas_con_signo_nuestro": 20,
-    "signos_nuestros_en_jornadas": 280,
+    "jornadas_memoria_real_total": 69,
+    "jornadas_con_signo_nuestro": 21,
+    "signos_nuestros_en_jornadas": 294,
     "estado": "memoria_propia_disponible",
     "fuentes_validas": [
       "data/quinielas_jugadas.json",
@@ -116,24 +116,24 @@
   },
   "prediccion": {
     "jornada": 7,
-    "generado_en": "2026-09-14T19:13:44.960049+00:00",
+    "generado_en": "2026-09-14T22:54:18.811609+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 8,
+      "dobles": 4,
+      "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 8,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
-        "alta": 0,
+        "alta": 8,
         "media": 0,
-        "media_baja": 0,
-        "baja": 0
+        "media_baja": 2,
+        "baja": 4
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 6 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 7 hasta cerrar y aprender la 6."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "clasificaciones": {
     "primera": {
@@ -154,8 +154,8 @@
         },
         {
           "posicion": 3,
-          "equipo": "Deportivo Alaves",
-          "puntos": 10
+          "equipo": "Real Betis Balompie",
+          "puntos": 12
         }
       ]
     },
@@ -186,7 +186,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 5.27,
+    "contexto_equipos_horas": 0.17,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -260,10 +260,15 @@
     "partidos_cerrados": 237,
     "aciertos": 140,
     "precision": 59.07,
-    "generado_en": "2026-09-14T15:52:16.370070+00:00",
+    "generado_en": "2026-09-14T19:13:46.358017+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
+    {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 8 pero la última predicción dice 7."
+    },
     {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
@@ -272,14 +277,8 @@
     },
     {
       "nivel": "media",
-      "titulo": "Prediccion demasiado rigida",
-      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
-      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
-    },
-    {
-      "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 10 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -298,10 +297,16 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-09-14T19:13:45.578057+00:00",
-    "estado": "operativo",
-    "score": 100,
-    "alertas": [],
+    "generado_en": "2026-09-14T22:54:23.137030+00:00",
+    "estado": "revisar",
+    "score": 65,
+    "alertas": [
+      {
+        "nivel": "alta",
+        "titulo": "Predicción de jornada antigua",
+        "detalle": "La jornada activa es 8 pero la última predicción dice 7."
+      }
+    ],
     "jornadas": {
       "total": 76,
       "actual": {
@@ -346,8 +351,8 @@
           "fecha": "Domingo, 13 de septiembre de 2026",
           "fecha_orden": "2026-09-14",
           "partidos": 14,
-          "cerrados": 13,
-          "pendientes": 1,
+          "cerrados": 14,
+          "pendientes": 0,
           "path": "data/jornadas/jornada_6.json"
         },
         {
@@ -408,28 +413,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-09-14T19:13:23.646580+00:00"
+      "generado_en": "2026-09-14T22:53:47.022124+00:00"
     },
     "prediccion": {
       "jornada": 7,
-      "generado_en": "2026-09-14T19:13:44.960049+00:00",
+      "generado_en": "2026-09-14T22:54:18.811609+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 14,
-        "dobles": 0,
-        "triples": 0,
+        "fijos": 8,
+        "dobles": 4,
+        "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 0,
-        "indice_sorpresa_max": 0.0,
+        "favoritos_atacables": 8,
+        "indice_sorpresa_max": 100.0,
         "calidad_datos": {
-          "alta": 0,
+          "alta": 8,
           "media": 0,
-          "media_baja": 0,
-          "baja": 0
+          "media_baja": 2,
+          "baja": 4
         }
       },
-      "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 6 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 7 hasta cerrar y aprender la 6."
+      "retenida_por_compuerta": false,
+      "motivo_bloqueo": null
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -477,8 +482,8 @@
         "fecha": "Domingo, 13 de septiembre de 2026",
         "fecha_orden": "2026-09-14",
         "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_6.json"
       },
       {
@@ -539,6 +544,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-09-14T19:13:23.646580+00:00"
+    "generado_en": "2026-09-14T22:53:47.022124+00:00"
   }
 }

@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 66.87,
+  "precision": 66.96,
   "jornadas_revisadas": 24,
-  "partidos_revisados": 335,
-  "aciertos": 224,
+  "partidos_revisados": 336,
+  "aciertos": 225,
   "fallos": 111,
   "fallos_por_tipo": {
     "Doble insuficiente": 21,
@@ -28,10 +28,10 @@
       "precision": 74.7
     },
     "FIJO": {
-      "total": 210,
-      "aciertos": 120,
+      "total": 211,
+      "aciertos": 121,
       "fallos": 90,
-      "precision": 57.14
+      "precision": 57.35
     },
     "TRIPLE": {
       "total": 42,
@@ -48,10 +48,10 @@
       "precision": 81.82
     },
     "2": {
-      "total": 105,
-      "aciertos": 61,
+      "total": 106,
+      "aciertos": 62,
       "fallos": 44,
-      "precision": 58.1
+      "precision": 58.49
     },
     "X": {
       "total": 76,
@@ -61,61 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 65,
-      "partido": "Cordoba CF - SD Huesca",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "data/predicciones/jornada_65.json",
-      "probabilidades_usadas": {
-        "1": 60.4,
-        "X": 28.1,
-        "2": 11.5
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Cordoba CF",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "SD Huesca",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=60.4%, X=28.1%, 2=11.5%. Cordoba CF llega con 60 puntos, forma últimos 5/10: 9/19 puntos, dinámica estable y 1.366 goles a favor por partido. SD Huesca llega con 37 puntos, forma últimos 5/10: 4/6 puntos, dinámica estable y 1.512 goles encajados por partido. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Sin noticias recientes detectadas en fuentes públicas durante esta actualización. SD Huesca: hay señales de posibles lesiones o partes médicos; hay señales de sanciones o riesgo disciplinario; hay jugadores en duda o incidencias de entrenamiento. Contexto visitante: posibles bajas/sanciones detectadas. Contexto visitante: dudas de disponibilidad o entrenamiento. Objetivos: Cordoba CF (situacion final (sin opciones matematicas)) frente a SD Huesca (situacion final (descendido matematicamente), ascenso directo (sin opciones matematicas), playoff ascenso (sin opciones matematicas)). Riesgo de azar/sorpresa estimado: 39.6%. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 65,
       "partido": "RC Deportivo de La Coruna - UD Las Palmas",
@@ -24847,6 +24792,125 @@
     },
     {
       "jornada": 6,
+      "partido": "Villarreal CF - Real Betis Balompie",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-2",
+      "resultado_final": "1-2",
+      "signo_real": "2",
+      "signos_cubiertos": "2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_6.json",
+      "probabilidades_usadas": {
+        "1": 34.0,
+        "X": 30.4,
+        "2": 35.5
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Villarreal CF",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Real Betis Balompie",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (35.5%).",
+        "hipotesis_alternativa": "1 como alternativa (34.0%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision TRIPLE 1X2: margen 1.5 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.27,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Villarreal CF: ppp=1.07; perfil visitante Bélgica: ppp=2.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Villarreal CF",
+        "partidos_total": 40,
+        "puntos_por_partido": 1.327,
+        "empates_pct": 13.63,
+        "surprise_score_medio": 42.62,
+        "forma_5_ppp": 0.2,
+        "forma_10_ppp": 0.8,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 4
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Bélgica",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 40.3,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 6,
       "partido": "Cadiz CF - UD Las Palmas",
       "pronostico": "2",
       "tipo_pronostico": "FIJO",
@@ -25633,19 +25697,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 335,
+    "partidos_base": 336,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.13,
+      "fallos_total_pct": 33.04,
       "no_cubrio_empate_sobre_fallos_pct": 35.14,
-      "no_cubrio_empate_sobre_total_pct": 11.64,
+      "no_cubrio_empate_sobre_total_pct": 11.61,
       "fijo_fallado_sobre_fallos_pct": 45.95,
-      "fijo_fallado_sobre_total_pct": 15.22,
-      "doble_insuficiente_sobre_total_pct": 6.27
+      "fijo_fallado_sobre_total_pct": 15.18,
+      "doble_insuficiente_sobre_total_pct": 6.25
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 4.77,
-    "riesgo_extra_triple_insuficiente": 2.04,
+    "riesgo_extra_fijo_fragil": 4.73,
+    "riesgo_extra_triple_insuficiente": 2.02,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
