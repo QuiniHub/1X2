@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-15T17:39:50.174263+00:00",
+  "generado_en": "2026-09-15T21:11:25.210662+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -844,17 +844,17 @@
     },
     "7": {
       "jornada": 7,
-      "partidos_cerrados": 0,
-      "partidos_con_prediccion": 0,
-      "precision_boleto": null,
-      "precision_top1": null,
-      "brier_medio": null,
-      "logloss_medio": null,
+      "partidos_cerrados": 2,
+      "partidos_con_prediccion": 2,
+      "precision_boleto": 50.0,
+      "precision_top1": 0.0,
+      "brier_medio": 0.9365,
+      "logloss_medio": 1.6156,
       "por_tipo": {
         "FIJO": {
-          "total": 0,
+          "total": 1,
           "aciertos": 0,
-          "precision": null
+          "precision": 0.0
         },
         "DOBLE": {
           "total": 0,
@@ -862,19 +862,47 @@
           "precision": null
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0,
-          "precision": null
+          "total": 1,
+          "aciertos": 1,
+          "precision": 100.0
         }
       },
       "elige8": {
-        "selecciones": 0,
-        "aciertos": 0,
-        "precision": null
+        "selecciones": 1,
+        "aciertos": 1,
+        "precision": 100.0
       },
-      "surprise_score_medio": null,
-      "ranking_incertidumbre": [],
-      "ranking_elige8_confianza_real": []
+      "surprise_score_medio": 66.02,
+      "ranking_incertidumbre": [
+        {
+          "num": 1,
+          "partido": "Rayo Vallecano de Madrid - RCD Espanyol de Barcelona",
+          "incertidumbre": 145.46,
+          "surprise_score": 48.97,
+          "margen_probabilidad": 0.0
+        },
+        {
+          "num": 2,
+          "partido": "Deportivo Alaves - Valencia CF",
+          "incertidumbre": 109.07,
+          "surprise_score": 83.06,
+          "margen_probabilidad": 28.1
+        }
+      ],
+      "ranking_elige8_confianza_real": [
+        {
+          "num": 1,
+          "partido": "Rayo Vallecano de Madrid - RCD Espanyol de Barcelona",
+          "confianza_real_elige8": 57.33,
+          "elige8": true
+        },
+        {
+          "num": 2,
+          "partido": "Deportivo Alaves - Valencia CF",
+          "confianza_real_elige8": 32.7,
+          "elige8": false
+        }
+      ]
     },
     "8": {
       "jornada": 8,
