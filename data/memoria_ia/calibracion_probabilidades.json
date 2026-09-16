@@ -1,28 +1,28 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-16T18:26:46.365966+00:00",
+  "generado_en": "2026-09-16T21:42:08.963871+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 241,
-    "precision_top": 43.57,
-    "brier_medio": 0.6385,
-    "logloss_medio": 1.0603,
+    "partidos": 248,
+    "precision_top": 43.95,
+    "brier_medio": 0.6366,
+    "logloss_medio": 1.0579,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 126,
-      "prob_top_media": 35.62,
-      "precision_real": 35.71,
-      "desviacion_calibracion": 0.09,
+      "total": 128,
+      "prob_top_media": 35.65,
+      "precision_real": 35.94,
+      "desviacion_calibracion": 0.29,
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 78,
-      "prob_top_media": 44.66,
-      "precision_real": 47.44,
-      "desviacion_calibracion": 2.78,
+      "total": 81,
+      "prob_top_media": 44.65,
+      "precision_real": 46.91,
+      "desviacion_calibracion": 2.26,
       "muestra_suficiente": true
     },
     "50-60": {
@@ -33,19 +33,19 @@
       "muestra_suficiente": false
     },
     "60-70": {
-      "total": 9,
-      "prob_top_media": 63.84,
-      "precision_real": 88.89,
-      "desviacion_calibracion": 25.04,
+      "total": 11,
+      "prob_top_media": 63.9,
+      "precision_real": 90.91,
+      "desviacion_calibracion": 27.01,
       "muestra_suficiente": false
     }
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 241,
-      "precision_top": 43.57,
-      "brier_medio": 0.6385,
-      "logloss_medio": 1.0603,
+      "partidos": 248,
+      "precision_top": 43.95,
+      "brier_medio": 0.6366,
+      "logloss_medio": 1.0579,
       "muestra": "media",
       "muestra_suficiente": true
     }
@@ -2194,6 +2194,111 @@
       "bucket_top": "50-60",
       "brier": 0.29048599999999997,
       "logloss": 0.5780343734594406,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 7,
+      "num": 4,
+      "partido": "Club Atletico de Madrid - CA Osasuna",
+      "fuente": "data/backtesting/pre_cierre/jornada_7.json",
+      "real": "1",
+      "top": "1",
+      "acierto_top": true,
+      "prob_top": 63.2,
+      "prob_real": 63.2,
+      "bucket_top": "60-70",
+      "brier": 0.21499400000000002,
+      "logloss": 0.4588658848352798,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 7,
+      "num": 5,
+      "partido": "RC Deportivo de La Coruna - Sevilla FC",
+      "fuente": "data/backtesting/pre_cierre/jornada_7.json",
+      "real": "2",
+      "top": "1",
+      "acierto_top": false,
+      "prob_top": 38.06,
+      "prob_real": 29.27,
+      "bucket_top": "30-40",
+      "brier": 0.7518495490523464,
+      "logloss": 1.2285821702981534,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 7,
+      "num": 6,
+      "partido": "FC Barcelona - Real Racing Club de Santander",
+      "fuente": "data/backtesting/pre_cierre/jornada_7.json",
+      "real": "1",
+      "top": "1",
+      "acierto_top": true,
+      "prob_top": 65.1,
+      "prob_real": 65.1,
+      "bucket_top": "60-70",
+      "brier": 0.18886200000000006,
+      "logloss": 0.4292456367735679,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 7,
+      "num": 7,
+      "partido": "Levante UD - Athletic Club",
+      "fuente": "data/backtesting/pre_cierre/jornada_7.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 36.8,
+      "prob_real": 36.8,
+      "bucket_top": "30-40",
+      "brier": 0.600594,
+      "logloss": 0.9996723408132061,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 7,
+      "num": 9,
+      "partido": "Omonia Nicosia - RC Celta de Vigo",
+      "fuente": "data/backtesting/pre_cierre/jornada_7.json",
+      "real": "1",
+      "top": "2",
+      "acierto_top": false,
+      "prob_top": 45.25,
+      "prob_real": 24.02,
+      "bucket_top": "40-50",
+      "brier": 0.8763858954049144,
+      "logloss": 1.4261158553065623,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 7,
+      "num": 10,
+      "partido": "Milan - Benfica",
+      "fuente": "data/backtesting/pre_cierre/jornada_7.json",
+      "real": "2",
+      "top": "1",
+      "acierto_top": false,
+      "prob_top": 46.35,
+      "prob_real": 24.48,
+      "bucket_top": "40-50",
+      "brier": 0.8703544208039712,
+      "logloss": 1.4074965687704935,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 7,
+      "num": 11,
+      "partido": "Anderlecht - Olympique de Lyon",
+      "fuente": "data/backtesting/pre_cierre/jornada_7.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 41.8,
+      "prob_real": 41.8,
+      "bucket_top": "40-50",
+      "brier": 0.5081040000000001,
+      "logloss": 0.8722738464573808,
       "competicion": "desconocida"
     },
     {
