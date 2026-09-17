@@ -1,37 +1,37 @@
 {
   "version": "1.2",
-  "precision": 67.34,
+  "precision": 66.67,
   "jornadas_revisadas": 25,
-  "partidos_revisados": 346,
-  "aciertos": 233,
-  "fallos": 113,
+  "partidos_revisados": 345,
+  "aciertos": 230,
+  "fallos": 115,
   "fallos_por_tipo": {
-    "Doble insuficiente": 22,
-    "Fijo fallado": 52,
+    "Doble insuficiente": 23,
+    "Fijo fallado": 53,
     "No cubrio empate": 39
   },
   "fallos_por_signo_real": {
     "1": 29,
-    "2": 45,
+    "2": 47,
     "X": 39
   },
   "signos_omitidos_en_fallo": {
     "1": 29,
-    "2": 45,
+    "2": 47,
     "X": 39
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 87,
-      "aciertos": 65,
-      "fallos": 22,
-      "precision": 74.71
+      "total": 86,
+      "aciertos": 63,
+      "fallos": 23,
+      "precision": 73.26
     },
     "FIJO": {
       "total": 216,
-      "aciertos": 125,
-      "fallos": 91,
-      "precision": 57.87
+      "aciertos": 124,
+      "fallos": 92,
+      "precision": 57.41
     },
     "TRIPLE": {
       "total": 43,
@@ -42,16 +42,16 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 160,
-      "aciertos": 131,
+      "total": 158,
+      "aciertos": 129,
       "fallos": 29,
-      "precision": 81.88
+      "precision": 81.65
     },
     "2": {
-      "total": 110,
-      "aciertos": 65,
-      "fallos": 45,
-      "precision": 59.09
+      "total": 111,
+      "aciertos": 64,
+      "fallos": 47,
+      "precision": 57.66
     },
     "X": {
       "total": 76,
@@ -61,6 +61,61 @@
     }
   },
   "detalle": [
+    {
+      "jornada": 65,
+      "partido": "Mexico - Australia",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-0",
+      "resultado_final": "1-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_65.json",
+      "probabilidades_usadas": {
+        "1": 35.9,
+        "X": 34.7,
+        "2": 29.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [],
+      "clasificacion": {
+        "local": {
+          "equipo": "Mexico",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Australia",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": "Probabilidades IA: 1=35.9%, X=34.7%, 2=29.4%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1.",
+      "ajuste_aprendizaje": {},
+      "ajuste_pesos_dinamicos": {},
+      "ajuste_perfiles_autonomos": {},
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {}
+    },
     {
       "jornada": 65,
       "partido": "Japon - Islandia",
@@ -25259,13 +25314,13 @@
       "partido": "Deportivo Alaves - Valencia CF",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
-      "resultado": "2-1",
-      "resultado_final": "2-1",
-      "signo_real": "1",
+      "resultado": "0-1",
+      "resultado_final": "0-1",
+      "signo_real": "2",
       "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
       "origen": "data/predicciones/jornada_7.json",
       "probabilidades_usadas": {
         "1": 58.1,
@@ -25377,13 +25432,13 @@
       "partido": "Elche CF - Real Madrid CF",
       "pronostico": "2",
       "tipo_pronostico": "FIJO",
-      "resultado": "2-1",
-      "resultado_final": "2-1",
-      "signo_real": "1",
+      "resultado": "2-3",
+      "resultado_final": "2-3",
+      "signo_real": "2",
       "signos_cubiertos": "2",
-      "signo_omitido": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
       "origen": "data/predicciones/jornada_7.json",
       "probabilidades_usadas": {
         "1": 18.8,
@@ -25496,8 +25551,8 @@
       "partido": "Club Atletico de Madrid - CA Osasuna",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
-      "resultado": "2-1",
-      "resultado_final": "2-1",
+      "resultado": "4-0",
+      "resultado_final": "4-0",
       "signo_real": "1",
       "signos_cubiertos": "1",
       "signo_omitido": "",
@@ -25614,13 +25669,13 @@
       "partido": "RC Deportivo de La Coruna - Sevilla FC",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
-      "resultado": "2-1",
-      "resultado_final": "2-1",
-      "signo_real": "1",
+      "resultado": "0-1",
+      "resultado_final": "0-1",
+      "signo_real": "2",
       "signos_cubiertos": "1X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Doble insuficiente",
       "origen": "data/predicciones/jornada_7.json",
       "probabilidades_usadas": {
         "1": 38.5,
@@ -25730,8 +25785,8 @@
       "partido": "FC Barcelona - R. Santander",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
-      "resultado": "2-1",
-      "resultado_final": "2-1",
+      "resultado": "6-4",
+      "resultado_final": "6-4",
       "signo_real": "1",
       "signos_cubiertos": "1",
       "signo_omitido": "",
@@ -25844,133 +25899,16 @@
     },
     {
       "jornada": 7,
-      "partido": "Levante UD - Athletic Club",
-      "pronostico": "X2",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "22-36",
-      "resultado_final": "22-36",
-      "signo_real": "2",
-      "signos_cubiertos": "X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_7.json",
-      "probabilidades_usadas": {
-        "1": 28.1,
-        "X": 32.6,
-        "2": 39.3
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_competitivo",
-        "contexto_equipos",
-        "estadistica_equipos+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Levante UD",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Athletic Club",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "2 como signo dominante (39.3%).",
-        "hipotesis_alternativa": "X como alternativa (32.6%).",
-        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
-        "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
-          "probabilidad": 70.0,
-          "favorito_atacable": true
-        },
-        "justificacion_final": "Decision TRIPLE 1X2: margen 6.7 puntos, indice sorpresa 100.0."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 13.95,
-        "lecturas": [
-          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 7.36,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 2.75,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Levante UD: ppp=1.07; perfil visitante Athletic Club: ppp=1.06.",
-          "Memoria autonoma: historial de sorpresa medio elevado (60.3)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Levante UD",
-        "partidos_total": 30,
-        "puntos_por_partido": 1.041,
-        "empates_pct": 25.05,
-        "surprise_score_medio": 51.66,
-        "forma_5_ppp": 0.8,
-        "forma_10_ppp": 1.0,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Athletic Club",
-        "partidos_total": 31,
-        "puntos_por_partido": 1.255,
-        "empates_pct": 18.62,
-        "surprise_score_medio": 68.93,
-        "forma_5_ppp": 0.8,
-        "forma_10_ppp": 1.1,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 3
-        }
-      }
-    },
-    {
-      "jornada": 7,
       "partido": "Omonia Nicosia - RC Celta de Vigo",
       "pronostico": "2",
       "tipo_pronostico": "FIJO",
-      "resultado": "0-1",
-      "resultado_final": "0-1",
-      "signo_real": "2",
+      "resultado": "1-0",
+      "resultado_final": "1-0",
+      "signo_real": "1",
       "signos_cubiertos": "2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
+      "signo_omitido": "1",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
       "origen": "data/predicciones/jornada_7.json",
       "probabilidades_usadas": {
         "1": 23.1,
@@ -26293,19 +26231,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 346,
+    "partidos_base": 345,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 32.66,
-      "no_cubrio_empate_sobre_fallos_pct": 34.51,
-      "no_cubrio_empate_sobre_total_pct": 11.27,
-      "fijo_fallado_sobre_fallos_pct": 46.02,
-      "fijo_fallado_sobre_total_pct": 15.03,
-      "doble_insuficiente_sobre_total_pct": 6.36
+      "fallos_total_pct": 33.33,
+      "no_cubrio_empate_sobre_fallos_pct": 33.91,
+      "no_cubrio_empate_sobre_total_pct": 11.3,
+      "fijo_fallado_sobre_fallos_pct": 46.09,
+      "fijo_fallado_sobre_total_pct": 15.36,
+      "doble_insuficiente_sobre_total_pct": 6.67
     },
-    "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 4.63,
-    "riesgo_extra_triple_insuficiente": 2.12,
+    "boost_empate_zona_riesgo": 5.92,
+    "riesgo_extra_fijo_fragil": 4.91,
+    "riesgo_extra_triple_insuficiente": 2.4,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
