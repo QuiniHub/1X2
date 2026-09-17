@@ -160,3 +160,32 @@ class ResultadosDirectoTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ParserResultadosGuardiasTests(unittest.TestCase):
+    """Bug real 16/09/2026: en paginas-resumen con todos los partidos
+    seguidos, la ventana ancha con equipos 'en cualquier orden' clonaba el
+    primer marcador de la pagina a toda la jornada (seis 2-1 falsos), y
+    '22-36' (una hora) entro como resultado del partido APLAZADO por lluvia."""
+
+    def test_no_clona_el_marcador_del_partido_vecino(self):
+        texto = ("Jornada 6: Rayo Vallecano 2-1 Espanyol. En Vitoria, Alaves y Valencia "
+                 "cerraron la noche y en el Martinez Valero jugaron Elche y Real Madrid.")
+        rayo = {"local": "Rayo Vallecano", "visitante": "Espanyol"}
+        alaves = {"local": "Alaves", "visitante": "Valencia"}
+        self.assertEqual(ard.buscar_resultado_final(texto, rayo), "2-1")
+        self.assertIsNone(ard.buscar_resultado_final(texto, alaves))
+
+    def test_rechaza_marcadores_imposibles_y_aplazados(self):
+        texto_hora = "Levante 22-36 Athletic Club"
+        self.assertIsNone(ard.buscar_resultado_final(texto_hora, {"local": "Levante", "visitante": "Athletic Club"}))
+        texto_aplazado = "Levante 0-0 Athletic Club aplazado por la lluvia"
+        self.assertIsNone(ard.buscar_resultado_final(texto_aplazado, {"local": "Levante", "visitante": "Athletic Club"}))
+
+    def test_acepta_los_dos_formatos_reales_de_marcador(self):
+        # Formato A: "Local 2-1 Visitante"
+        texto_a = "El Espanyol cayo en Vallecas: Rayo Vallecano 2-1 Espanyol, con goles tempraneros."
+        self.assertEqual(ard.buscar_resultado_final(texto_a, {"local": "Rayo Vallecano", "visitante": "Espanyol"}), "2-1")
+        # Formato B: "Local - Visitante 4-1" (ambos nombres antes, en orden)
+        texto_b = "Resultados quiniela: EE.UU. - Paraguay 4 - 1 signo 1 final"
+        self.assertEqual(ard.buscar_resultado_final(texto_b, {"local": "EEUU", "visitante": "Paraguay"}), "4-1")

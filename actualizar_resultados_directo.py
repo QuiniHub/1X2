@@ -156,6 +156,19 @@ def contiene_equipo(texto, equipo):
     return any(c in base for c in candidatos_equipo(equipo))
 
 
+def posicion_equipo(texto, equipo):
+    """Posicion (en el texto normalizado) de la primera mencion del equipo,
+    o None. Para exigir el orden Local-Visitante en el formato B del parser
+    de resultados (guardia anti-clonado, 16/09/2026)."""
+    base = normalizar(texto)
+    posiciones = []
+    for c in candidatos_equipo(equipo):
+        idx = base.find(c)
+        if idx >= 0:
+            posiciones.append(idx)
+    return min(posiciones) if posiciones else None
+
+
 def descargar_fuentes():
     textos = []
     if requests is None or BeautifulSoup is None:
@@ -299,7 +312,19 @@ def partido_esta_programado_en_futuro(partido):
     return False
 
 
+MAX_GOLES_CREIBLES = 12  # ningun resultado real supera esto; "22-36" era una hora parseada como marcador (bug real, 16/09/2026)
+
+
 def buscar_resultado_final(texto, partido):
+    """Extrae el marcador final de un partido del texto de la fuente.
+
+    Bug real (16/09/2026): la ventana de +-180 caracteres con los dos
+    equipos "en cualquier orden" hacia que, en paginas-resumen donde todos
+    los partidos van listados juntos, el PRIMER marcador de la pagina
+    casara con todas las parejas -la jornada entera quedo clonada con el
+    2-1 del Rayo. Ahora se exige el patron real de un resultado: el LOCAL
+    poco antes del marcador y el VISITANTE poco despues ("Rayo 2-1
+    Espanyol"), con ventanas cortas que no llegan al partido vecino."""
     local = partido.get("local", "")
     visitante = partido.get("visitante", "")
     patrones = [
@@ -308,12 +333,26 @@ def buscar_resultado_final(texto, partido):
     ]
     for patron in patrones:
         for match in re.finditer(patron, texto, re.I):
-            fragmento = texto[max(0, match.start() - 180): min(len(texto), match.end() + 180)]
-            if not (contiene_equipo(fragmento, local) and contiene_equipo(fragmento, visitante)):
+            a, b = int(match.group("a")), int(match.group("b"))
+            if a > MAX_GOLES_CREIBLES or b > MAX_GOLES_CREIBLES:
                 continue
-            if re.search(r"\b(descanso|1t|2t|min\.?|minuto|en juego|pend)\b", fragmento, re.I):
+            antes = texto[max(0, match.start() - 90): match.start()]
+            despues = texto[match.end(): min(len(texto), match.end() + 70)]
+            # Formato A: "Local 2-1 Visitante". Formato B: "Local - Visitante 2-1"
+            # (ambos nombres antes del marcador, en ese orden). Cualquier otra
+            # disposicion se rechaza: es la que permitia el clonado en listas.
+            formato_a = contiene_equipo(antes, local) and contiene_equipo(despues, visitante)
+            formato_b = False
+            if not formato_a and contiene_equipo(antes, local) and contiene_equipo(antes, visitante):
+                pos_local = posicion_equipo(antes, local)
+                pos_visitante = posicion_equipo(antes, visitante)
+                formato_b = pos_local is not None and pos_visitante is not None and pos_local < pos_visitante
+            if not (formato_a or formato_b):
                 continue
-            return f"{int(match.group('a'))}-{int(match.group('b'))}"
+            fragmento = antes + despues
+            if re.search(r"\b(descanso|1t|2t|min\.?|minuto|en juego|pend|aplazad|suspendid|pospuest)", fragmento, re.I):
+                continue
+            return f"{a}-{b}"
     return None
 
 
@@ -369,6 +408,23 @@ def actualizar_jornada_quiniela(texto):
 
     cambios = 0
     actualizados = []
+    # Guardia de lote (16/09/2026): si el parser asigna el MISMO marcador a
+    # 4+ partidos nuevos en una pasada, es un clon (paginas-resumen), no
+    # futbol -se aborta la escritura entera de esa pasada y se avisa.
+    propuestas = []
+    for partido in data.get("partidos", []):
+        if partido_esta_programado_en_futuro(partido):
+            continue
+        resultado = buscar_resultado_final(texto, partido)
+        if not resultado:
+            continue
+        if partido.get("resultado") != resultado:
+            propuestas.append(resultado)
+    repetidos = {r for r in propuestas if propuestas.count(r) >= 4}
+    if repetidos:
+        print(f"ALERTA: parser propone el mismo marcador {sorted(repetidos)} para 4+ partidos; pasada descartada.")
+        return 0, []
+
     for partido in data.get("partidos", []):
         if partido_esta_programado_en_futuro(partido):
             continue
