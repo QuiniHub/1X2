@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 66.67,
+  "precision": 66.76,
   "jornadas_revisadas": 25,
-  "partidos_revisados": 345,
-  "aciertos": 230,
+  "partidos_revisados": 346,
+  "aciertos": 231,
   "fallos": 115,
   "fallos_por_tipo": {
     "Doble insuficiente": 23,
@@ -28,10 +28,10 @@
       "precision": 73.26
     },
     "FIJO": {
-      "total": 216,
-      "aciertos": 124,
+      "total": 217,
+      "aciertos": 125,
       "fallos": 92,
-      "precision": 57.41
+      "precision": 57.6
     },
     "TRIPLE": {
       "total": 43,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 158,
-      "aciertos": 129,
+      "total": 159,
+      "aciertos": 130,
       "fallos": 29,
-      "precision": 81.65
+      "precision": 81.76
     },
     "2": {
       "total": 111,
@@ -61,61 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 65,
-      "partido": "Mexico - Australia",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-0",
-      "resultado_final": "1-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_65.json",
-      "probabilidades_usadas": {
-        "1": 35.9,
-        "X": 34.7,
-        "2": 29.4
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Mexico",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Australia",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.9%, X=34.7%, 2=29.4%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 65,
       "partido": "Japon - Islandia",
@@ -25899,6 +25844,124 @@
     },
     {
       "jornada": 7,
+      "partido": "Real Betis Balompie - Getafe CF",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-0",
+      "resultado_final": "1-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_7.json",
+      "probabilidades_usadas": {
+        "1": 60.1,
+        "X": 28.4,
+        "2": 11.5
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Real Betis Balompie",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Getafe CF",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (60.1%).",
+        "hipotesis_alternativa": "X como alternativa (28.4%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 42.5,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 31.7 puntos, indice sorpresa 19.3."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 7.2,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.02,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Bélgica: ppp=3.00; perfil visitante Getafe CF: ppp=1.77.",
+          "Memoria autonoma: historial de sorpresa medio elevado (45.1)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Bélgica",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 40.3,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Getafe CF",
+        "partidos_total": 29,
+        "puntos_por_partido": 1.371,
+        "empates_pct": 4.97,
+        "surprise_score_medio": 49.9,
+        "forma_5_ppp": 2.4,
+        "forma_10_ppp": 1.8,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 7,
       "partido": "Omonia Nicosia - RC Celta de Vigo",
       "pronostico": "2",
       "tipo_pronostico": "FIJO",
@@ -26231,19 +26294,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 345,
+    "partidos_base": 346,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.33,
+      "fallos_total_pct": 33.24,
       "no_cubrio_empate_sobre_fallos_pct": 33.91,
-      "no_cubrio_empate_sobre_total_pct": 11.3,
+      "no_cubrio_empate_sobre_total_pct": 11.27,
       "fijo_fallado_sobre_fallos_pct": 46.09,
-      "fijo_fallado_sobre_total_pct": 15.36,
-      "doble_insuficiente_sobre_total_pct": 6.67
+      "fijo_fallado_sobre_total_pct": 15.32,
+      "doble_insuficiente_sobre_total_pct": 6.65
     },
-    "boost_empate_zona_riesgo": 5.92,
-    "riesgo_extra_fijo_fragil": 4.91,
-    "riesgo_extra_triple_insuficiente": 2.4,
+    "boost_empate_zona_riesgo": 5.91,
+    "riesgo_extra_fijo_fragil": 4.87,
+    "riesgo_extra_triple_insuficiente": 2.39,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
