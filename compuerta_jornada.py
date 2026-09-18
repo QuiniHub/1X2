@@ -84,13 +84,28 @@ def estado_resultados(jornada_num, data_root=DATA):
         if 1 <= num <= 14:
             partidos.append(partido)
     faltan = []
+    aplazados = []
     cerrados = 0
     for partido in partidos:
         if signo_partido(partido) in SIGNOS:
             cerrados += 1
+        elif es_partido_aplazado(partido):
+            aplazados.append(partido.get("num"))
         else:
             faltan.append(partido.get("num"))
-    return {"ok": len(partidos) >= 14 and cerrados >= 14 and not faltan, "total": len(partidos), "cerrados": cerrados, "faltan": faltan}
+    # Un partido APLAZADO (caso real: Levante-Athletic suspendido por lluvia
+    # el 16/09/2026, J7 P7) no puede bloquear la prediccion de la jornada
+    # siguiente durante semanas: LAE resuelve su signo aparte (se juega en
+    # otra fecha o se sortea) y la Quiniela sigue. La jornada anterior se da
+    # por cerrable si TODO lo demas esta cerrado y lo unico pendiente son
+    # aplazados marcados como tales.
+    ok = len(partidos) >= 14 and not faltan and (cerrados + len(aplazados)) >= 14 and cerrados >= 13
+    return {"ok": ok, "total": len(partidos), "cerrados": cerrados, "faltan": faltan, "aplazados": aplazados}
+
+
+def es_partido_aplazado(partido):
+    texto = " ".join(str(partido.get(campo) or "") for campo in ("estado", "resultado", "signo_oficial", "nota"))
+    return re.search(r"aplazad|suspendid|pospuest", texto, re.I) is not None
 
 
 def items_jornada(path, jornada_num, clave):
@@ -105,8 +120,18 @@ def items_jornada(path, jornada_num, clave):
     return salida
 
 
+def partidos_exigibles(jornada_num, data_root=DATA):
+    """Cuantos partidos puede exigir el aprendizaje de una jornada: 14 menos
+    los APLAZADOS marcados como tales (minimo 13). Sin esto, un unico
+    aplazado (Levante-Athletic, 16/09/2026) dejaba los checks '>= 14'
+    insatisfechos para siempre y la compuerta no soltaba la J8."""
+    resultados = estado_resultados(jornada_num, data_root)
+    return max(13, 14 - len(resultados.get("aplazados") or []))
+
+
 def estado_aprendizaje(jornada_num, data_root=DATA):
     asegurar_artefactos_aprendizaje(data_root)
+    exigibles = partidos_exigibles(jornada_num, data_root)
     memoria = Path(data_root) / "memoria_ia"
     revisiones = items_jornada(memoria / "revisiones_prediccion_resultado.json", jornada_num, "revisiones")
     diario = items_jornada(memoria / "diario_aprendizaje.json", jornada_num, "entradas")
@@ -119,13 +144,13 @@ def estado_aprendizaje(jornada_num, data_root=DATA):
     jornada_historial = (historial_permanente.get("jornadas") or {}).get(str(int(jornada_num)))
     jornada_rendimiento = (rendimiento.get("jornadas") or {}).get(str(int(jornada_num)))
     checks = {
-        "revisiones_prediccion_resultado": len(revisiones) >= 14,
-        "diario_aprendizaje": len(diario) >= 14,
-        "metricas_probabilisticas": int(metricas.get("partidos_evaluados") or 0) >= len(revisiones) >= 14,
+        "revisiones_prediccion_resultado": len(revisiones) >= exigibles,
+        "diario_aprendizaje": len(diario) >= exigibles,
+        "metricas_probabilisticas": int(metricas.get("partidos_evaluados") or 0) >= len(revisiones) >= exigibles,
         "fiabilidad_equipos": bool(fiabilidad.get("equipos") or {}) and bool(fiabilidad.get("generado_en")),
         "pesos_dinamicos": bool(pesos.get("pesos") or {}) and bool(pesos.get("generado_en")),
-        "historial_permanente": bool(jornada_historial and int(jornada_historial.get("cerrados") or 0) >= 14),
-        "rendimiento_jornadas": bool(jornada_rendimiento and int(jornada_rendimiento.get("partidos_cerrados") or 0) >= 14),
+        "historial_permanente": bool(jornada_historial and int(jornada_historial.get("cerrados") or 0) >= exigibles),
+        "rendimiento_jornadas": bool(jornada_rendimiento and int(jornada_rendimiento.get("partidos_cerrados") or 0) >= exigibles),
         "perfiles_equipos": bool((perfiles.get("equipos") or {}) and perfiles.get("generado_en")),
     }
     faltan = [nombre for nombre, ok in checks.items() if not ok]

@@ -78,9 +78,15 @@ def aplicar_en_jornadas(correcciones):
                 continue
             resultado = correccion.get("resultado", "Pendiente")
             signo = correccion.get("signo_oficial", "Pendiente")
-            if partido.get("resultado") != resultado or partido.get("signo_oficial") != signo:
+            estado_partido = correccion.get("estado_calendario")
+            if (partido.get("resultado") != resultado or partido.get("signo_oficial") != signo
+                    or (estado_partido and partido.get("estado") != estado_partido)):
                 partido["resultado"] = resultado
                 partido["signo_oficial"] = signo
+                if estado_partido:
+                    # p.ej. "Aplazado": la compuerta lo necesita en la jornada,
+                    # no solo en el calendario (caso Levante-Athletic 16/09/2026)
+                    partido["estado"] = estado_partido
                 partido.pop("actualizado_en", None)
                 partido["corregido_en"] = datetime.now(timezone.utc).isoformat()
                 partido["correccion_motivo"] = correccion.get("motivo", "")
