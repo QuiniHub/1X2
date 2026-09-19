@@ -1,24 +1,24 @@
 {
   "version": "1.2",
   "precision": 66.48,
-  "jornadas_revisadas": 25,
-  "partidos_revisados": 349,
-  "aciertos": 232,
-  "fallos": 117,
+  "jornadas_revisadas": 26,
+  "partidos_revisados": 352,
+  "aciertos": 234,
+  "fallos": 118,
   "fallos_por_tipo": {
     "Doble insuficiente": 23,
     "Fijo fallado": 55,
-    "No cubrio empate": 39
+    "No cubrio empate": 40
   },
   "fallos_por_signo_real": {
     "1": 29,
     "2": 49,
-    "X": 39
+    "X": 40
   },
   "signos_omitidos_en_fallo": {
     "1": 29,
     "2": 49,
-    "X": 39
+    "X": 40
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,14 +28,14 @@
       "precision": 73.26
     },
     "FIJO": {
-      "total": 219,
-      "aciertos": 125,
-      "fallos": 94,
-      "precision": 57.08
+      "total": 221,
+      "aciertos": 126,
+      "fallos": 95,
+      "precision": 57.01
     },
     "TRIPLE": {
-      "total": 44,
-      "aciertos": 44,
+      "total": 45,
+      "aciertos": 45,
       "fallos": 0,
       "precision": 100.0
     }
@@ -48,184 +48,19 @@
       "precision": 81.76
     },
     "2": {
-      "total": 114,
-      "aciertos": 65,
+      "total": 115,
+      "aciertos": 66,
       "fallos": 49,
-      "precision": 57.02
+      "precision": 57.39
     },
     "X": {
-      "total": 76,
-      "aciertos": 37,
-      "fallos": 39,
-      "precision": 48.68
+      "total": 78,
+      "aciertos": 38,
+      "fallos": 40,
+      "precision": 48.72
     }
   },
   "detalle": [
-    {
-      "jornada": 66,
-      "partido": "UD Las Palmas - Malaga CF",
-      "pronostico": "X2",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "0-1",
-      "resultado_final": "0-1",
-      "signo_real": "2",
-      "signos_cubiertos": "X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_66.json",
-      "probabilidades_usadas": {
-        "1": 16.5,
-        "X": 39.3,
-        "2": 44.2
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "UD Las Palmas",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Malaga CF",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=16.5%, X=39.3%, 2=44.2%. UD Las Palmas llega con 73 puntos, forma últimos 5/10: 10/22 puntos, dinámica estable y 1.357 goles a favor por partido. Malaga CF llega con 73 puntos, forma últimos 5/10: 13/18 puntos, dinámica positiva reciente y 1.238 goles encajados por partido. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se protege con doble porque el segundo signo tiene peso suficiente para cubrir una desviacion razonable. UD Las Palmas: noticias generales sin alerta deportiva clara. Malaga CF: hay señales de sanciones o riesgo disciplinario. Contexto visitante: posibles bajas/sanciones detectadas. Motivacion: el visitante compite con mas urgencia (objetivo competitivo (aspira matematicamente)). Aprendizaje competitivo: cuando el visitante necesita y el local tiene objetivo cerrado, el 1 fijo no debe ser tranquilo (52.4% de rupturas en memoria). Patron general aprendido: necesidad contra objetivo cerrado aumenta sorpresa y exige desconfiar del fijo limpio (66.0%). Objetivos: UD Las Palmas (playoff ascenso (asegurado matematicamente), ascenso directo (sin opciones matematicas), situacion final (salvado matematicamente)) frente a Malaga CF (objetivo competitivo (aspira matematicamente)). Riesgo de azar/sorpresa estimado: 67.8%. Indice de sorpresa quinielistica: 100.0/100; favorito a vigilar: Malaga CF; cobertura sugerida por sorpresa: DOBLE. margen corto entre favorito y alternativa, ningun signo supera claramente el 45%, empate con peso alto. Decision final: X2.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 66,
-      "partido": "BÃ©lgica - TÃºnez",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "5-0",
-      "resultado_final": "5-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_66.json",
-      "probabilidades_usadas": {
-        "1": 35.0,
-        "X": 33.4,
-        "2": 31.6
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "BÃ©lgica",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "TÃºnez",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.0%, X=33.4%, 2=31.6%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 94.1/100; favorito a vigilar: Bélgica; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 66,
-      "partido": "Lituania - Letonia",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "data/predicciones/jornada_66.json",
-      "probabilidades_usadas": {
-        "1": 35.7,
-        "X": 33.2,
-        "2": 31.1
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [],
-      "clasificacion": {
-        "local": {
-          "equipo": "Lituania",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Letonia",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.7%, X=33.2%, 2=31.1%. El partido queda equilibrado por fuerza reciente, asi que sube el riesgo de empate o sorpresa. Se deja como fijo porque el signo principal tiene mejor relacion entre probabilidad y riesgo. Riesgo de azar/sorpresa estimado: 70%. Indice de sorpresa quinielistica: 93.7/100; favorito a vigilar: Lituania; cobertura sugerida por sorpresa: TRIPLE. margen minimo entre primer y segundo signo, ningun signo supera claramente el 45%, empate con peso alto. Decision final: 1.",
-      "ajuste_aprendizaje": {},
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 66,
       "partido": "Estonia - Islas Feroe",
@@ -26469,6 +26304,360 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 8,
+      "partido": "CA Osasuna - Rayo Vallecano de Madrid",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_8.json",
+      "probabilidades_usadas": {
+        "1": 32.8,
+        "X": 33.1,
+        "2": 34.1
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "CA Osasuna",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Rayo Vallecano de Madrid",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (34.1%).",
+        "hipotesis_alternativa": "X como alternativa (33.1%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision TRIPLE 1X2: margen 1.0 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.66,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 7.32,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.38,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local CA Osasuna: ppp=0.94; perfil visitante Rayo Vallecano de Madrid: ppp=1.01.",
+          "Memoria autonoma: historial de sorpresa medio elevado (47.1)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "CA Osasuna",
+        "partidos_total": 7,
+        "puntos_por_partido": 0.701,
+        "empates_pct": 27.32,
+        "surprise_score_medio": 50.52,
+        "forma_5_ppp": 0.8,
+        "forma_10_ppp": 0.714,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 3
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Rayo Vallecano de Madrid",
+        "partidos_total": 4,
+        "puntos_por_partido": 1.522,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 43.7,
+        "forma_5_ppp": 1.5,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 8,
+      "partido": "Athletic Club - Deportivo Alaves",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-0",
+      "resultado_final": "0-0",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_8.json",
+      "probabilidades_usadas": {
+        "1": 49.6,
+        "X": 31.0,
+        "2": 19.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Athletic Club",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Deportivo Alaves",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (49.6%).",
+        "hipotesis_alternativa": "X como alternativa (31.0%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "sorpresa_vigilada",
+          "probabilidad": 59.4,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 18.6 puntos, indice sorpresa 59.9."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.66,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.96,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 3.17,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Athletic Club: ppp=1.15; perfil visitante Deportivo Alaves: ppp=0.79.",
+          "Memoria autonoma: historial de sorpresa medio elevado (62.6)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Athletic Club",
+        "partidos_total": 31,
+        "puntos_por_partido": 1.255,
+        "empates_pct": 18.62,
+        "surprise_score_medio": 68.93,
+        "forma_5_ppp": 0.8,
+        "forma_10_ppp": 1.1,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 3
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Deportivo Alaves",
+        "partidos_total": 5,
+        "puntos_por_partido": 1.182,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 56.3,
+        "forma_5_ppp": 1.2,
+        "forma_10_ppp": 1.2,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 8,
+      "partido": "FC Andorra - Sporting Gijón",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-3",
+      "resultado_final": "1-3",
+      "signo_real": "2",
+      "signos_cubiertos": "2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_8.json",
+      "probabilidades_usadas": {
+        "1": 31.9,
+        "X": 30.9,
+        "2": 37.2
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "FC Andorra",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Sporting Gijón",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (37.2%).",
+        "hipotesis_alternativa": "1 como alternativa (31.9%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision TRIPLE 1X2: margen 5.3 puntos, indice sorpresa 95.4."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.66,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local FC Andorra: ppp=1.29; perfil visitante Sporting Gijón: ppp=1.73."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "FC Andorra",
+        "partidos_total": 22,
+        "puntos_por_partido": 1.347,
+        "empates_pct": 20.01,
+        "surprise_score_medio": 39.87,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.1,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Sporting Gijón",
+        "partidos_total": 6,
+        "puntos_por_partido": 1.661,
+        "empates_pct": 16.89,
+        "surprise_score_medio": 42.32,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 1.667,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -26482,19 +26671,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 349,
+    "partidos_base": 352,
     "muestra": "suficiente",
     "tasas_error": {
       "fallos_total_pct": 33.52,
-      "no_cubrio_empate_sobre_fallos_pct": 33.33,
-      "no_cubrio_empate_sobre_total_pct": 11.17,
-      "fijo_fallado_sobre_fallos_pct": 47.01,
-      "fijo_fallado_sobre_total_pct": 15.76,
-      "doble_insuficiente_sobre_total_pct": 6.59
+      "no_cubrio_empate_sobre_fallos_pct": 33.9,
+      "no_cubrio_empate_sobre_total_pct": 11.36,
+      "fijo_fallado_sobre_fallos_pct": 46.61,
+      "fijo_fallado_sobre_total_pct": 15.62,
+      "doble_insuficiente_sobre_total_pct": 6.53
     },
-    "boost_empate_zona_riesgo": 5.77,
-    "riesgo_extra_fijo_fragil": 5.41,
-    "riesgo_extra_triple_insuficiente": 2.33,
+    "boost_empate_zona_riesgo": 5.95,
+    "riesgo_extra_fijo_fragil": 5.22,
+    "riesgo_extra_triple_insuficiente": 2.28,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,

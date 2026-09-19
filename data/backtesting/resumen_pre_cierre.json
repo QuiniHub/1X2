@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-19T13:06:31.603433+00:00",
+  "generado_en": "2026-09-19T16:47:01.062452+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 19,
-    "partidos_cerrados": 251,
-    "aciertos": 148,
-    "precision": 58.96
+    "partidos_cerrados": 254,
+    "aciertos": 151,
+    "precision": 59.45
   },
   "jornadas": [
     {
@@ -4541,10 +4541,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_8.json",
       "creado_en": "2026-09-18T06:24:25.295786+00:00",
       "prediccion_generada_en": "2026-09-18T06:24:25.293788+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
-      "aciertos": 0,
-      "precision": null,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 3,
+      "aciertos": 3,
+      "precision": 100.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -4569,15 +4569,61 @@
           "aciertos": 0
         },
         "DOBLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 1,
+          "aciertos": 1
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 2,
+          "aciertos": 2
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 1,
+          "partido": "CA Osasuna - Rayo Vallecano de Madrid",
+          "jugado": "1X2",
+          "tipo": "TRIPLE",
+          "oficial": "X",
+          "acierto": true,
+          "probabilidades": {
+            "1": 30.5,
+            "X": 34.7,
+            "2": 34.8
+          },
+          "incertidumbre": 146.41,
+          "probabilidad_sorpresa": 70
+        },
+        {
+          "num": 2,
+          "partido": "Athletic Club - Deportivo Alaves",
+          "jugado": "1X",
+          "tipo": "DOBLE",
+          "oficial": "X",
+          "acierto": true,
+          "probabilidades": {
+            "1": 49.5,
+            "X": 32.3,
+            "2": 18.2
+          },
+          "incertidumbre": 133.89,
+          "probabilidad_sorpresa": 61.5
+        },
+        {
+          "num": 8,
+          "partido": "FC Andorra - Real Sporting de Gijon",
+          "jugado": "1X2",
+          "tipo": "TRIPLE",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 29.2,
+            "X": 31.2,
+            "2": 39.6
+          },
+          "incertidumbre": 138.1,
+          "probabilidad_sorpresa": 70
+        }
+      ]
     }
   ]
 }

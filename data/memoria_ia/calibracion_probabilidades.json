@@ -1,28 +1,28 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-19T13:06:30.456903+00:00",
+  "generado_en": "2026-09-19T16:46:59.870788+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 251,
-    "precision_top": 43.43,
+    "partidos": 254,
+    "precision_top": 43.31,
     "brier_medio": 0.6377,
-    "logloss_medio": 1.0596,
+    "logloss_medio": 1.0593,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 128,
-      "prob_top_media": 35.66,
-      "precision_real": 35.16,
-      "desviacion_calibracion": -0.5,
+      "total": 130,
+      "prob_top_media": 35.68,
+      "precision_real": 35.38,
+      "desviacion_calibracion": -0.3,
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 82,
-      "prob_top_media": 44.64,
-      "precision_real": 46.34,
-      "desviacion_calibracion": 1.7,
+      "total": 83,
+      "prob_top_media": 44.7,
+      "precision_real": 45.78,
+      "desviacion_calibracion": 1.08,
       "muestra_suficiente": true
     },
     "50-60": {
@@ -42,60 +42,15 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 251,
-      "precision_top": 43.43,
+      "partidos": 254,
+      "precision_top": 43.31,
       "brier_medio": 0.6377,
-      "logloss_medio": 1.0596,
+      "logloss_medio": 1.0593,
       "muestra": "media",
       "muestra_suficiente": true
     }
   },
   "detalle_reciente": [
-    {
-      "jornada": 1,
-      "num": 2,
-      "partido": "Sevilla FC - Rayo Vallecano de Madrid",
-      "fuente": "data/backtesting/pre_cierre/jornada_1.json",
-      "real": "1",
-      "top": "X",
-      "acierto_top": false,
-      "prob_top": 40.0,
-      "prob_real": 24.4,
-      "bucket_top": "40-50",
-      "brier": 0.8582720000000001,
-      "logloss": 1.410587053688935,
-      "competicion": "desconocida"
-    },
-    {
-      "jornada": 1,
-      "num": 3,
-      "partido": "Real Racing Club de Santander - Villarreal CF",
-      "fuente": "data/backtesting/pre_cierre/jornada_1.json",
-      "real": "X",
-      "top": "2",
-      "acierto_top": false,
-      "prob_top": 42.7,
-      "prob_real": 38.8,
-      "bucket_top": "40-50",
-      "brier": 0.5910980000000001,
-      "logloss": 0.9467499393588638,
-      "competicion": "desconocida"
-    },
-    {
-      "jornada": 1,
-      "num": 4,
-      "partido": "RCD Espanyol de Barcelona - Levante UD",
-      "fuente": "data/backtesting/pre_cierre/jornada_1.json",
-      "real": "1",
-      "top": "X",
-      "acierto_top": false,
-      "prob_top": 43.3,
-      "prob_real": 21.8,
-      "bucket_top": "40-50",
-      "brier": 0.920814,
-      "logloss": 1.523260216193048,
-      "competicion": "desconocida"
-    },
     {
       "jornada": 1,
       "num": 5,
@@ -3799,6 +3754,51 @@
       "bucket_top": "30-40",
       "brier": 0.7464244047660632,
       "logloss": 1.2183953249911603,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 8,
+      "num": 1,
+      "partido": "CA Osasuna - Rayo Vallecano de Madrid",
+      "fuente": "data/backtesting/pre_cierre/jornada_8.json",
+      "real": "X",
+      "top": "2",
+      "acierto_top": false,
+      "prob_top": 34.8,
+      "prob_real": 34.7,
+      "bucket_top": "30-40",
+      "brier": 0.640538,
+      "logloss": 1.0584304990352777,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 8,
+      "num": 2,
+      "partido": "Athletic Club - Deportivo Alaves",
+      "fuente": "data/backtesting/pre_cierre/jornada_8.json",
+      "real": "X",
+      "top": "1",
+      "acierto_top": false,
+      "prob_top": 49.5,
+      "prob_real": 32.3,
+      "bucket_top": "40-50",
+      "brier": 0.7364780000000001,
+      "logloss": 1.1301029557594806,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 8,
+      "num": 8,
+      "partido": "FC Andorra - Real Sporting de Gijon",
+      "fuente": "data/backtesting/pre_cierre/jornada_8.json",
+      "real": "2",
+      "top": "2",
+      "acierto_top": true,
+      "prob_top": 39.6,
+      "prob_real": 39.6,
+      "bucket_top": "30-40",
+      "brier": 0.5474239999999999,
+      "logloss": 0.9263410677276565,
       "competicion": "desconocida"
     }
   ],
