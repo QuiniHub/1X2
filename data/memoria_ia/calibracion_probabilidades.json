@@ -1,28 +1,28 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-20T09:47:51.656253+00:00",
+  "generado_en": "2026-09-20T14:19:25.310068+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 258,
-    "precision_top": 44.19,
-    "brier_medio": 0.6325,
-    "logloss_medio": 1.0519,
+    "partidos": 260,
+    "precision_top": 44.23,
+    "brier_medio": 0.6321,
+    "logloss_medio": 1.0513,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 130,
-      "prob_top_media": 35.68,
-      "precision_real": 35.38,
-      "desviacion_calibracion": -0.3,
+      "total": 131,
+      "prob_top_media": 35.7,
+      "precision_real": 35.11,
+      "desviacion_calibracion": -0.59,
       "muestra_suficiente": true
     },
     "40-50": {
-      "total": 84,
-      "prob_top_media": 44.74,
-      "precision_real": 46.43,
-      "desviacion_calibracion": 1.69,
+      "total": 85,
+      "prob_top_media": 44.8,
+      "precision_real": 47.06,
+      "desviacion_calibracion": 2.26,
       "muestra_suficiente": true
     },
     "50-60": {
@@ -42,45 +42,15 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 258,
-      "precision_top": 44.19,
-      "brier_medio": 0.6325,
-      "logloss_medio": 1.0519,
+      "partidos": 260,
+      "precision_top": 44.23,
+      "brier_medio": 0.6321,
+      "logloss_medio": 1.0513,
       "muestra": "media",
       "muestra_suficiente": true
     }
   },
   "detalle_reciente": [
-    {
-      "jornada": 1,
-      "num": 9,
-      "partido": "RCD Mallorca - Real Valladolid CF",
-      "fuente": "data/backtesting/pre_cierre/jornada_1.json",
-      "real": "1",
-      "top": "X",
-      "acierto_top": false,
-      "prob_top": 42.5,
-      "prob_real": 22.7,
-      "bucket_top": "40-50",
-      "brier": 0.899258,
-      "logloss": 1.4828052615007346,
-      "competicion": "desconocida"
-    },
-    {
-      "jornada": 1,
-      "num": 10,
-      "partido": "SD Eibar - Tenerife",
-      "fuente": "data/backtesting/pre_cierre/jornada_1.json",
-      "real": "2",
-      "top": "X",
-      "acierto_top": false,
-      "prob_top": 43.64,
-      "prob_real": 36.64,
-      "bucket_top": "40-50",
-      "brier": 0.6308550793035278,
-      "logloss": 1.0041214452471872,
-      "competicion": "desconocida"
-    },
     {
       "jornada": 1,
       "num": 11,
@@ -3743,6 +3713,21 @@
     },
     {
       "jornada": 8,
+      "num": 4,
+      "partido": "Getafe CF - Malaga CF",
+      "fuente": "data/backtesting/pre_cierre/jornada_8.json",
+      "real": "1",
+      "top": "1",
+      "acierto_top": true,
+      "prob_top": 49.7,
+      "prob_real": 49.7,
+      "bucket_top": "40-50",
+      "brier": 0.40393399999999985,
+      "logloss": 0.6991652528855082,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 8,
       "num": 8,
       "partido": "FC Andorra - Real Sporting de Gijon",
       "fuente": "data/backtesting/pre_cierre/jornada_8.json",
@@ -3799,6 +3784,21 @@
       "bucket_top": "60-70",
       "brier": 0.170376,
       "logloss": 0.40646560844174784,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 8,
+      "num": 14,
+      "partido": "Tenerife (F) - Sevilla (F)",
+      "fuente": "data/backtesting/pre_cierre/jornada_8.json",
+      "real": "2",
+      "top": "1",
+      "acierto_top": false,
+      "prob_top": 38.5,
+      "prob_real": 28.5,
+      "bucket_top": "30-40",
+      "brier": 0.7683500000000001,
+      "logloss": 1.2552660987134867,
       "competicion": "desconocida"
     }
   ],
