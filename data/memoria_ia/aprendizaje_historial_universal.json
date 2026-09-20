@@ -1,9 +1,9 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-15T12:38:42Z",
+  "generado_en": "2026-09-20T23:11:19Z",
   "estado_incremental": {
     "ultima_jornada_cerrada": 76,
-    "total_jornadas_cerradas": 73,
+    "total_jornadas_cerradas": 74,
     "jornadas_cerradas": [
       1,
       2,
@@ -11,6 +11,7 @@
       4,
       5,
       6,
+      8,
       10,
       11,
       12,
@@ -83,30 +84,30 @@
     "criterio_recalculo": "Solo recalcula cuando aparece una jornada cerrada nueva o cambia el conjunto de jornadas cerradas."
   },
   "resumen": {
-    "partidos_analizados": 1022,
-    "jornadas_analizadas": 73,
-    "sorpresas_detectadas": 524,
-    "sorpresas_pct": 51.27,
+    "partidos_analizados": 1036,
+    "jornadas_analizadas": 74,
+    "sorpresas_detectadas": 532,
+    "sorpresas_pct": 51.35,
     "fuente": "data/jornadas/jornada_*.json con signo_oficial 1/X/2"
   },
   "patrones_frecuencia": {
     "por_contexto": {
       "global": {
-        "partidos": 1022,
-        "peso_total": 347.6843,
+        "partidos": 1036,
+        "peso_total": 348.705,
         "frecuencia_real": {
-          "1": 46.18,
-          "X": 23.39,
-          "2": 30.43
+          "1": 46.24,
+          "X": 23.36,
+          "2": 30.41
         },
         "frecuencia_ponderada_reciente": {
-          "1": 46.18,
+          "1": 46.19,
           "X": 22.97,
-          "2": 30.85
+          "2": 30.84
         },
-        "sorpresas": 524,
-        "sorpresas_pct": 51.27,
-        "sorpresas_ponderadas_pct": 52.33
+        "sorpresas": 532,
+        "sorpresas_pct": 51.35,
+        "sorpresas_ponderadas_pct": 52.34
       },
       "liga": {
         "partidos": 984,
@@ -141,6 +142,23 @@
         "sorpresas": 17,
         "sorpresas_pct": 44.74,
         "sorpresas_ponderadas_pct": 41.98
+      },
+      "otros": {
+        "partidos": 14,
+        "peso_total": 1.0207,
+        "frecuencia_real": {
+          "1": 50.0,
+          "X": 21.43,
+          "2": 28.57
+        },
+        "frecuencia_ponderada_reciente": {
+          "1": 50.0,
+          "X": 21.43,
+          "2": 28.57
+        },
+        "sorpresas": 8,
+        "sorpresas_pct": 57.14,
+        "sorpresas_ponderadas_pct": 57.14
       }
     },
     "por_fase": {
@@ -177,14 +195,31 @@
         "sorpresas": 17,
         "sorpresas_pct": 44.74,
         "sorpresas_ponderadas_pct": 41.98
+      },
+      "fase_desconocida": {
+        "partidos": 14,
+        "peso_total": 1.0207,
+        "frecuencia_real": {
+          "1": 50.0,
+          "X": 21.43,
+          "2": 28.57
+        },
+        "frecuencia_ponderada_reciente": {
+          "1": 50.0,
+          "X": 21.43,
+          "2": 28.57
+        },
+        "sorpresas": 8,
+        "sorpresas_pct": 57.14,
+        "sorpresas_ponderadas_pct": 57.14
       }
     },
     "lectura": "Frecuencias reales y ponderadas por recencia de 1/X/2 sin depender de predicciones propias."
   },
   "patrones_sorpresa": {
     "resumen": {
-      "total": 524,
-      "porcentaje": 51.27,
+      "total": 532,
+      "porcentaje": 51.35,
       "criterio": "Signo menos frecuente del contexto o resultado contrario al signo esperado por modelo rolling con margen suficiente."
     },
     "ultimas_120": [
@@ -621,7 +656,7 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 65.03,
+        "margen_previo": 48.86,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
@@ -638,7 +673,7 @@
         "fase": "liga_regular",
         "signo_real": "1",
         "signo_esperado": "2",
-        "margen_previo": 74.67,
+        "margen_previo": 54.67,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
@@ -672,7 +707,7 @@
         "fase": "liga_regular",
         "signo_real": "1",
         "signo_esperado": "2",
-        "margen_previo": 192.0,
+        "margen_previo": 188.4,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
@@ -842,7 +877,7 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 49.17,
+        "margen_previo": 68.0,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
@@ -859,7 +894,7 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 102.9,
+        "margen_previo": 113.5,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
@@ -1080,7 +1115,7 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "X",
-        "margen_previo": 5.13,
+        "margen_previo": 6.34,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_equilibrada",
         "prior_contextual": {
@@ -2233,72 +2268,72 @@
   "patrones_incertidumbre": {
     "tipos_enfrentamiento": {
       "favorito_discutido": {
-        "partidos": 482,
-        "peso_total": 167.5286,
+        "partidos": 488,
+        "peso_total": 167.966,
         "frecuencia_real": {
           "1": 16.6,
-          "X": 41.91,
-          "2": 41.49
+          "X": 41.8,
+          "2": 41.6
         },
         "frecuencia_ponderada_reciente": {
           "1": 17.84,
-          "X": 39.71,
-          "2": 42.45
+          "X": 39.69,
+          "2": 42.47
         },
-        "sorpresas": 482,
+        "sorpresas": 488,
         "sorpresas_pct": 100.0,
         "sorpresas_ponderadas_pct": 100.0
       },
       "favorito_claro": {
-        "partidos": 408,
-        "peso_total": 135.7761,
+        "partidos": 413,
+        "peso_total": 136.6977,
         "frecuencia_real": {
           "1": 80.39,
-          "X": 0.74,
-          "2": 18.87
+          "X": 0.73,
+          "2": 18.89
         },
         "frecuencia_ponderada_reciente": {
-          "1": 80.5,
-          "X": 1.54,
-          "2": 17.96
+          "1": 80.58,
+          "X": 1.53,
+          "2": 17.89
         },
-        "sorpresas": 0,
-        "sorpresas_pct": 0.0,
-        "sorpresas_ponderadas_pct": 0.0
+        "sorpresas": 1,
+        "sorpresas_pct": 0.24,
+        "sorpresas_ponderadas_pct": 0.05
       },
       "muy_equilibrado": {
-        "partidos": 71,
-        "peso_total": 25.028,
+        "partidos": 72,
+        "peso_total": 23.9097,
         "frecuencia_real": {
-          "1": 42.25,
-          "X": 29.58,
-          "2": 28.17
+          "1": 43.06,
+          "X": 29.17,
+          "2": 27.78
         },
         "frecuencia_ponderada_reciente": {
-          "1": 44.19,
-          "X": 26.13,
-          "2": 29.69
+          "1": 44.23,
+          "X": 24.7,
+          "2": 31.07
         },
         "sorpresas": 22,
-        "sorpresas_pct": 30.99,
-        "sorpresas_ponderadas_pct": 29.08
+        "sorpresas_pct": 30.56,
+        "sorpresas_ponderadas_pct": 27.79
       },
       "margen_corto": {
-        "partidos": 61,
-        "peso_total": 19.3516,
+        "partidos": 63,
+        "peso_total": 20.1316,
         "frecuencia_real": {
-          "1": 55.74,
-          "X": 21.31,
-          "2": 22.95
+          "1": 55.56,
+          "X": 22.22,
+          "2": 22.22
         },
         "frecuencia_ponderada_reciente": {
-          "1": 53.29,
-          "X": 24.41,
-          "2": 22.3
+          "1": 51.59,
+          "X": 26.97,
+          "2": 21.44
         },
-        "sorpresas": 20,
-        "sorpresas_pct": 32.79,
-        "sorpresas_ponderadas_pct": 36.84
+        "sorpresas": 21,
+        "sorpresas_pct": 33.33,
+        "sorpresas_ponderadas_pct": 38.92
       }
     },
     "lectura": "Agrupa partidos por margen previo: muy equilibrado, margen corto, favorito discutido y favorito claro."
@@ -2534,7 +2569,8 @@
     "Contexto global muestra alta sorpresa reciente: exigir margen mayor antes de fijo.",
     "Contexto liga muestra alta sorpresa reciente: exigir margen mayor antes de fijo.",
     "Contexto selecciones muestra alta sorpresa reciente: exigir margen mayor antes de fijo.",
+    "Contexto otros muestra alta sorpresa reciente: exigir margen mayor antes de fijo.",
     "Patron favorito_discutido: muchos empates; activar doble con X si el margen del favorito es corto.",
-    "Fases mas impredecibles detectadas: liga_regular, selecciones_sin_fase."
+    "Fases mas impredecibles detectadas: liga_regular, selecciones_sin_fase, fase_desconocida."
   ]
 }
