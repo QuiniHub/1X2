@@ -1,21 +1,21 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-26T10:12:04.874888+00:00",
+  "generado_en": "2026-09-26T14:45:43.398874+00:00",
   "objetivo": "probabilidades calibradas con predicciones pre-cierre y resultados oficiales",
   "estado": "calibracion_operativa",
   "global": {
-    "partidos": 265,
-    "precision_top": 44.53,
-    "brier_medio": 0.631,
-    "logloss_medio": 1.0496,
+    "partidos": 266,
+    "precision_top": 44.36,
+    "brier_medio": 0.6313,
+    "logloss_medio": 1.05,
     "muestra": "media"
   },
   "por_bucket_top": {
     "30-40": {
-      "total": 131,
+      "total": 132,
       "prob_top_media": 35.7,
-      "precision_real": 35.11,
-      "desviacion_calibracion": -0.59,
+      "precision_real": 34.85,
+      "desviacion_calibracion": -0.85,
       "muestra_suficiente": true
     },
     "40-50": {
@@ -42,30 +42,15 @@
   },
   "por_competicion": {
     "desconocida": {
-      "partidos": 265,
-      "precision_top": 44.53,
-      "brier_medio": 0.631,
-      "logloss_medio": 1.0496,
+      "partidos": 266,
+      "precision_top": 44.36,
+      "brier_medio": 0.6313,
+      "logloss_medio": 1.05,
       "muestra": "media",
       "muestra_suficiente": true
     }
   },
   "detalle_reciente": [
-    {
-      "jornada": 2,
-      "num": 2,
-      "partido": "Valencia CF - RC Celta de Vigo",
-      "fuente": "data/backtesting/pre_cierre/jornada_2.json",
-      "real": "X",
-      "top": "2",
-      "acierto_top": false,
-      "prob_top": 41.6,
-      "prob_real": 38.1,
-      "bucket_top": "40-50",
-      "brier": 0.597426,
-      "logloss": 0.9649559038554361,
-      "competicion": "desconocida"
-    },
     {
       "jornada": 2,
       "num": 3,
@@ -3799,6 +3784,21 @@
       "bucket_top": "30-40",
       "brier": 0.7683500000000001,
       "logloss": 1.2552660987134867,
+      "competicion": "desconocida"
+    },
+    {
+      "jornada": 9,
+      "num": 1,
+      "partido": "AD Ceuta FC - Real Sociedad B",
+      "fuente": "data/backtesting/pre_cierre/jornada_9.json",
+      "real": "1",
+      "top": "2",
+      "acierto_top": false,
+      "prob_top": 35.0,
+      "prob_real": 31.1,
+      "bucket_top": "30-40",
+      "brier": 0.7121419999999999,
+      "logloss": 1.1679623668029029,
       "competicion": "desconocida"
     }
   ],

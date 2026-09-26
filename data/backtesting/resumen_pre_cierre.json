@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-26T10:12:05.950278+00:00",
+  "generado_en": "2026-09-26T14:45:44.510039+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 20,
-    "partidos_cerrados": 265,
+    "partidos_cerrados": 266,
     "aciertos": 159,
-    "precision": 60.0
+    "precision": 59.77
   },
   "jornadas": [
     {
@@ -4795,10 +4795,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_9.json",
       "creado_en": "2026-09-20T23:11:50.289940+00:00",
       "prediccion_generada_en": "2026-09-20T23:11:50.289511+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 1,
       "aciertos": 0,
-      "precision": null,
+      "precision": 0.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -4823,7 +4823,7 @@
           "aciertos": 0
         },
         "DOBLE": {
-          "total": 0,
+          "total": 1,
           "aciertos": 0
         },
         "TRIPLE": {
@@ -4831,7 +4831,23 @@
           "aciertos": 0
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 1,
+          "partido": "AD Ceuta FC - Real Sociedad B",
+          "jugado": "X2",
+          "tipo": "DOBLE",
+          "oficial": "1",
+          "acierto": false,
+          "probabilidades": {
+            "1": 31.1,
+            "X": 33.9,
+            "2": 35.0
+          },
+          "incertidumbre": 150.0,
+          "probabilidad_sorpresa": 70
+        }
+      ]
     }
   ]
 }
