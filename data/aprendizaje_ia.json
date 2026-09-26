@@ -1,37 +1,37 @@
 {
   "version": "1.2",
-  "precision": 67.03,
+  "precision": 66.49,
   "jornadas_revisadas": 27,
-  "partidos_revisados": 364,
+  "partidos_revisados": 367,
   "aciertos": 244,
-  "fallos": 120,
+  "fallos": 123,
   "fallos_por_tipo": {
-    "Doble insuficiente": 24,
+    "Doble insuficiente": 25,
     "Fijo fallado": 56,
-    "No cubrio empate": 40
+    "No cubrio empate": 42
   },
   "fallos_por_signo_real": {
     "1": 30,
-    "2": 50,
-    "X": 40
+    "2": 51,
+    "X": 42
   },
   "signos_omitidos_en_fallo": {
     "1": 30,
-    "2": 50,
-    "X": 40
+    "2": 51,
+    "X": 42
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 90,
+      "total": 91,
       "aciertos": 66,
-      "fallos": 24,
-      "precision": 73.33
+      "fallos": 25,
+      "precision": 72.53
     },
     "FIJO": {
-      "total": 227,
+      "total": 229,
       "aciertos": 131,
-      "fallos": 96,
-      "precision": 57.71
+      "fallos": 98,
+      "precision": 57.21
     },
     "TRIPLE": {
       "total": 47,
@@ -48,215 +48,19 @@
       "precision": 82.04
     },
     "2": {
-      "total": 118,
+      "total": 119,
       "aciertos": 68,
-      "fallos": 50,
-      "precision": 57.63
+      "fallos": 51,
+      "precision": 57.14
     },
     "X": {
-      "total": 79,
+      "total": 81,
       "aciertos": 39,
-      "fallos": 40,
-      "precision": 49.37
+      "fallos": 42,
+      "precision": 48.15
     }
   },
   "detalle": [
-    {
-      "jornada": 67,
-      "partido": "Brasil - Marruecos",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_67.json",
-      "probabilidades_usadas": {
-        "1": 37.9,
-        "X": 33.9,
-        "2": 28.2
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_equipos",
-        "fallback_posicion_con_contexto"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Brasil",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Marruecos",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=37.9%, X=33.9%, 2=28.2%. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=139.8 y margen=4.0. Favorito o signo de referencia: Brasil. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1X.",
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 18.96,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Haití - Escocia",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "0-1",
-      "resultado_final": "0-1",
-      "signo_real": "2",
-      "signos_cubiertos": "1",
-      "signo_omitido": "2",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "data/predicciones/jornada_67.json",
-      "probabilidades_usadas": {
-        "1": 35.7,
-        "X": 33.2,
-        "2": 31.1
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "fallback_posicion"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Haití",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Escocia",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=35.7%, X=33.2%, 2=31.1%. Se mantiene como FIJO (1) porque, con la configuración disponible, queda por debajo de las prioridades de doble/triple. Aun así, se vigila su riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%. Favorito o signo de referencia: Haití. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1.",
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 18.96,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 67,
-      "partido": "Australia - Turquía",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "2-0",
-      "resultado_final": "2-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_67.json",
-      "probabilidades_usadas": {
-        "1": 34.6,
-        "X": 34.7,
-        "2": 30.7
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "fallback_posicion"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Australia",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Turquía",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=34.6%, X=34.7%, 2=30.7%. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, índice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=139.0 y margen=0.1. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decisión final: 1X.",
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 18.96,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {},
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 67,
       "partido": "Alemania - Curazao",
@@ -27369,6 +27173,363 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 9,
+      "partido": "Granada CF - FC Andorra",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "2-3",
+      "resultado_final": "2-3",
+      "signo_real": "2",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Doble insuficiente",
+      "origen": "data/predicciones/jornada_9.json",
+      "probabilidades_usadas": {
+        "1": 51.4,
+        "X": 31.2,
+        "2": 17.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Granada CF",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "FC Andorra",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (51.4%).",
+        "hipotesis_alternativa": "X como alternativa (31.2%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_atacable",
+          "probabilidad": 55.5,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 20.2 puntos, indice sorpresa 68.5."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 11.93,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Granada CF: ppp=1.49; perfil visitante FC Andorra: ppp=1.12."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Granada CF",
+        "partidos_total": 20,
+        "puntos_por_partido": 1.153,
+        "empates_pct": 35.44,
+        "surprise_score_medio": 39.14,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 1.3,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "FC Andorra",
+        "partidos_total": 22,
+        "puntos_por_partido": 1.372,
+        "empates_pct": 20.26,
+        "surprise_score_medio": 39.67,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.2,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 9,
+      "partido": "Celta Fortuna - Sabadell",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "2",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_9.json",
+      "probabilidades_usadas": {
+        "1": 23.4,
+        "X": 34.2,
+        "2": 42.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Celta Fortuna",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Sabadell",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (42.4%).",
+        "hipotesis_alternativa": "X como alternativa (34.2%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 67.3,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 2: margen 8.2 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 14.28,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Celta Fortuna: ppp=0.67; perfil visitante Sabadell: ppp=0.77.",
+          "Memoria autonoma: tendencia de empate conjunta alta (82.8%)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Celta Fortuna",
+        "partidos_total": 1,
+        "puntos_por_partido": 1.0,
+        "empates_pct": 100.0,
+        "surprise_score_medio": 37.08,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Sabadell",
+        "partidos_total": 3,
+        "puntos_por_partido": 0.657,
+        "empates_pct": 65.7,
+        "surprise_score_medio": 35.08,
+        "forma_5_ppp": 0.667,
+        "forma_10_ppp": 0.667,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 9,
+      "partido": "Tenerife - Cadiz CF",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_9.json",
+      "probabilidades_usadas": {
+        "1": 50.7,
+        "X": 33.6,
+        "2": 15.7
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Tenerife",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Cadiz CF",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (50.7%).",
+        "hipotesis_alternativa": "X como alternativa (33.6%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "sorpresa_vigilada",
+          "probabilidad": 57.6,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 17.1 puntos, indice sorpresa 58.2."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 11.93,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.96,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.67,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Tenerife: ppp=2.32; perfil visitante Cadiz CF: ppp=0.59.",
+          "Memoria autonoma: historial de sorpresa medio elevado (48.7)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Tenerife",
+        "partidos_total": 5,
+        "puntos_por_partido": 1.965,
+        "empates_pct": 19.98,
+        "surprise_score_medio": 48.21,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 2.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Cadiz CF",
+        "partidos_total": 29,
+        "puntos_por_partido": 0.827,
+        "empates_pct": 32.86,
+        "surprise_score_medio": 49.22,
+        "forma_5_ppp": 0.2,
+        "forma_10_ppp": 0.6,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -27382,19 +27543,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 364,
+    "partidos_base": 367,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 32.97,
-      "no_cubrio_empate_sobre_fallos_pct": 33.33,
-      "no_cubrio_empate_sobre_total_pct": 10.99,
-      "fijo_fallado_sobre_fallos_pct": 46.67,
-      "fijo_fallado_sobre_total_pct": 15.38,
-      "doble_insuficiente_sobre_total_pct": 6.59
+      "fallos_total_pct": 33.51,
+      "no_cubrio_empate_sobre_fallos_pct": 34.15,
+      "no_cubrio_empate_sobre_total_pct": 11.44,
+      "fijo_fallado_sobre_fallos_pct": 45.53,
+      "fijo_fallado_sobre_total_pct": 15.26,
+      "doble_insuficiente_sobre_total_pct": 6.81
     },
-    "boost_empate_zona_riesgo": 5.7,
-    "riesgo_extra_fijo_fragil": 5.04,
-    "riesgo_extra_triple_insuficiente": 2.33,
+    "boost_empate_zona_riesgo": 6.0,
+    "riesgo_extra_fijo_fragil": 4.71,
+    "riesgo_extra_triple_insuficiente": 2.53,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
