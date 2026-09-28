@@ -1365,8 +1365,20 @@
       const allEntries = arr(a.entradas || a.partidos || a.diario || a.detalle || a.aprendizajes);
       const withResult = allEntries.filter(e => hasClosedSign(e) && Number(e.jornada));
       const jornadas = withResult.map(e => Number(e.jornada)).filter(Number.isFinite);
-      const latest = jornadas.length ? Math.max(...jornadas) : null;
-      if (latest === null) return { jornada: null, entries: [] };
+      if (!jornadas.length) return { jornada: null, entries: [] };
+      // "La ultima" por FECHA REAL de la jugada, no por numero de jornada:
+      // la numeracion se reinicia cada temporada, asi que la J76 nordica de
+      // agosto 25/26 es numericamente mayor que la J9 de septiembre 26/27
+      // pero mas vieja de verdad (el panel mostraba los aciertos de la 76).
+      const jornadasConDatos = new Set(jornadas);
+      let latest = null;
+      const jugadasPorFecha = arr((state.quinielasJugadas || {}).jugadas).slice()
+        .sort((x, y) => (fechaValidadoMs(y.validado_en) || 0) - (fechaValidadoMs(x.validado_en) || 0));
+      for (const jug of jugadasPorFecha) {
+        const nj = Number(jug.jornada) || 0;
+        if (jornadasConDatos.has(nj)) { latest = nj; break; }
+      }
+      if (latest === null) latest = Math.max(...jornadas);
       const entries = allEntries.filter(e => Number(e.jornada) === latest);
       return { jornada: latest, entries: entries.sort((a, b) => {
         const na = Number(a.num || (a.partido || '').split('.')[0]) || 99;
