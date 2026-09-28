@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-28T16:44:28.855528+00:00",
-  "estado": "operativo_con_avisos",
-  "score_salud": 72,
+  "generado_en": "2026-09-28T22:31:47.185399+00:00",
+  "estado": "requiere_revision_datos",
+  "score_salud": 70,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
@@ -63,13 +63,13 @@
         "jornada": 9,
         "fecha": "Domingo, 27 de septiembre de 2026",
         "fecha_orden": "2026-09-28",
-        "estado": "en_juego",
+        "estado": "cerrada",
         "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
-        "pendientes_totales_con_pleno15": 1,
+        "cerrados": 14,
+        "pendientes": 0,
+        "pendientes_totales_con_pleno15": 0,
         "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "2026-09-27T22:31:05Z",
+        "ultima_actualizacion_partido": "2026-09-28T22:28:32Z",
         "path": "data/jornadas/jornada_9.json"
       },
       {
@@ -103,9 +103,9 @@
   "memoria_quinielas": {
     "jugadas_persistidas_json": 27,
     "jornadas_validadas_historial": 27,
-    "jornadas_memoria_real_total": 76,
-    "jornadas_con_signo_nuestro": 22,
-    "signos_nuestros_en_jornadas": 308,
+    "jornadas_memoria_real_total": 77,
+    "jornadas_con_signo_nuestro": 23,
+    "signos_nuestros_en_jornadas": 322,
     "estado": "memoria_propia_disponible",
     "fuentes_validas": [
       "data/quinielas_jugadas.json",
@@ -116,24 +116,24 @@
   },
   "prediccion": {
     "jornada": 10,
-    "generado_en": "2026-09-28T16:44:14.998448+00:00",
+    "generado_en": "2026-09-28T22:31:36.889024+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 8,
+      "dobles": 4,
+      "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 4,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
         "alta": 0,
         "media": 0,
         "media_baja": 0,
-        "baja": 0
+        "baja": 14
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 9 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 10 hasta cerrar y aprender la 9."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "clasificaciones": {
     "primera": {
@@ -167,13 +167,13 @@
       "top_3": [
         {
           "posicion": 1,
-          "equipo": "SD Eibar",
-          "puntos": 18
+          "equipo": "CD Castellon",
+          "puntos": 19
         },
         {
           "posicion": 2,
-          "equipo": "CD Castellon",
-          "puntos": 16
+          "equipo": "SD Eibar",
+          "puntos": 18
         },
         {
           "posicion": 3,
@@ -186,7 +186,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.02,
+    "contexto_equipos_horas": 5.81,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -260,10 +260,15 @@
     "partidos_cerrados": 278,
     "aciertos": 164,
     "precision": 58.99,
-    "generado_en": "2026-09-28T07:35:57.532367+00:00",
+    "generado_en": "2026-09-28T16:44:29.856031+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
+    {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 11 pero la última predicción dice 10."
+    },
     {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
@@ -272,14 +277,8 @@
     },
     {
       "nivel": "media",
-      "titulo": "Prediccion demasiado rigida",
-      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
-      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
-    },
-    {
-      "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 10 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -298,10 +297,16 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-09-28T16:44:28.855528+00:00",
-    "estado": "operativo",
-    "score": 100,
-    "alertas": [],
+    "generado_en": "2026-09-28T22:31:47.185399+00:00",
+    "estado": "revisar",
+    "score": 65,
+    "alertas": [
+      {
+        "nivel": "alta",
+        "titulo": "Predicción de jornada antigua",
+        "detalle": "La jornada activa es 11 pero la última predicción dice 10."
+      }
+    ],
     "jornadas": {
       "total": 76,
       "actual": {
@@ -346,8 +351,8 @@
           "fecha": "Domingo, 27 de septiembre de 2026",
           "fecha_orden": "2026-09-28",
           "partidos": 14,
-          "cerrados": 13,
-          "pendientes": 1,
+          "cerrados": 14,
+          "pendientes": 0,
           "path": "data/jornadas/jornada_9.json"
         },
         {
@@ -377,30 +382,30 @@
         "racing": null,
         "deportivo": null,
         "leganes": {
-          "posicion": 9,
+          "posicion": 10,
           "equipo": "CD Leganes",
-          "pj": 6,
+          "pj": 7,
           "g": 3,
           "e": 2,
-          "p": 1,
+          "p": 2,
           "gf": 6,
-          "gc": 5,
-          "dg": 1,
+          "gc": 7,
+          "dg": -1,
           "puntos": 11,
           "pts": 11,
           "racha_actual": {
-            "victorias": 1,
+            "victorias": 0,
             "empates": 0,
-            "derrotas": 0,
-            "sin_ganar": 0,
-            "sin_perder": 1
+            "derrotas": 1,
+            "sin_ganar": 1,
+            "sin_perder": 0
           },
           "tendencias": {
-            "puntos_por_partido": 1.833,
-            "goles_favor_por_partido": 1.0,
-            "goles_contra_por_partido": 0.833,
-            "empates_pct": 33.33,
-            "forma_5_pts": 10,
+            "puntos_por_partido": 1.571,
+            "goles_favor_por_partido": 0.857,
+            "goles_contra_por_partido": 1.0,
+            "empates_pct": 28.57,
+            "forma_5_pts": 7,
             "forma_10_pts": 11
           }
         },
@@ -408,28 +413,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-09-28T16:43:43.215010+00:00"
+      "generado_en": "2026-09-28T22:31:06.969894+00:00"
     },
     "prediccion": {
       "jornada": 10,
-      "generado_en": "2026-09-28T16:44:14.998448+00:00",
+      "generado_en": "2026-09-28T22:31:36.889024+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 14,
-        "dobles": 0,
-        "triples": 0,
+        "fijos": 8,
+        "dobles": 4,
+        "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 0,
-        "indice_sorpresa_max": 0.0,
+        "favoritos_atacables": 4,
+        "indice_sorpresa_max": 100.0,
         "calidad_datos": {
           "alta": 0,
           "media": 0,
           "media_baja": 0,
-          "baja": 0
+          "baja": 14
         }
       },
-      "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 9 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 10 hasta cerrar y aprender la 9."
+      "retenida_por_compuerta": false,
+      "motivo_bloqueo": null
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -477,8 +482,8 @@
         "fecha": "Domingo, 27 de septiembre de 2026",
         "fecha_orden": "2026-09-28",
         "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_9.json"
       },
       {
@@ -508,30 +513,30 @@
       "racing": null,
       "deportivo": null,
       "leganes": {
-        "posicion": 9,
+        "posicion": 10,
         "equipo": "CD Leganes",
-        "pj": 6,
+        "pj": 7,
         "g": 3,
         "e": 2,
-        "p": 1,
+        "p": 2,
         "gf": 6,
-        "gc": 5,
-        "dg": 1,
+        "gc": 7,
+        "dg": -1,
         "puntos": 11,
         "pts": 11,
         "racha_actual": {
-          "victorias": 1,
+          "victorias": 0,
           "empates": 0,
-          "derrotas": 0,
-          "sin_ganar": 0,
-          "sin_perder": 1
+          "derrotas": 1,
+          "sin_ganar": 1,
+          "sin_perder": 0
         },
         "tendencias": {
-          "puntos_por_partido": 1.833,
-          "goles_favor_por_partido": 1.0,
-          "goles_contra_por_partido": 0.833,
-          "empates_pct": 33.33,
-          "forma_5_pts": 10,
+          "puntos_por_partido": 1.571,
+          "goles_favor_por_partido": 0.857,
+          "goles_contra_por_partido": 1.0,
+          "empates_pct": 28.57,
+          "forma_5_pts": 7,
           "forma_10_pts": 11
         }
       },
@@ -539,6 +544,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-09-28T16:43:43.215010+00:00"
+    "generado_en": "2026-09-28T22:31:06.969894+00:00"
   }
 }

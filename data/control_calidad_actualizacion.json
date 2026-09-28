@@ -1,9 +1,15 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-28T16:44:28.855528+00:00",
-  "estado": "operativo",
-  "score": 100,
-  "alertas": [],
+  "generado_en": "2026-09-28T22:31:47.185399+00:00",
+  "estado": "revisar",
+  "score": 65,
+  "alertas": [
+    {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 11 pero la última predicción dice 10."
+    }
+  ],
   "jornadas": {
     "total": 76,
     "actual": {
@@ -48,8 +54,8 @@
         "fecha": "Domingo, 27 de septiembre de 2026",
         "fecha_orden": "2026-09-28",
         "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_9.json"
       },
       {
@@ -79,30 +85,30 @@
       "racing": null,
       "deportivo": null,
       "leganes": {
-        "posicion": 9,
+        "posicion": 10,
         "equipo": "CD Leganes",
-        "pj": 6,
+        "pj": 7,
         "g": 3,
         "e": 2,
-        "p": 1,
+        "p": 2,
         "gf": 6,
-        "gc": 5,
-        "dg": 1,
+        "gc": 7,
+        "dg": -1,
         "puntos": 11,
         "pts": 11,
         "racha_actual": {
-          "victorias": 1,
+          "victorias": 0,
           "empates": 0,
-          "derrotas": 0,
-          "sin_ganar": 0,
-          "sin_perder": 1
+          "derrotas": 1,
+          "sin_ganar": 1,
+          "sin_perder": 0
         },
         "tendencias": {
-          "puntos_por_partido": 1.833,
-          "goles_favor_por_partido": 1.0,
-          "goles_contra_por_partido": 0.833,
-          "empates_pct": 33.33,
-          "forma_5_pts": 10,
+          "puntos_por_partido": 1.571,
+          "goles_favor_por_partido": 0.857,
+          "goles_contra_por_partido": 1.0,
+          "empates_pct": 28.57,
+          "forma_5_pts": 7,
           "forma_10_pts": 11
         }
       },
@@ -110,28 +116,28 @@
     }
   },
   "contexto_competitivo": {
-    "generado_en": "2026-09-28T16:43:43.215010+00:00"
+    "generado_en": "2026-09-28T22:31:06.969894+00:00"
   },
   "prediccion": {
     "jornada": 10,
-    "generado_en": "2026-09-28T16:44:14.998448+00:00",
+    "generado_en": "2026-09-28T22:31:36.889024+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 8,
+      "dobles": 4,
+      "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 4,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
         "alta": 0,
         "media": 0,
         "media_baja": 0,
-        "baja": 0
+        "baja": 14
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 9 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 10 hasta cerrar y aprender la 9."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
 }
