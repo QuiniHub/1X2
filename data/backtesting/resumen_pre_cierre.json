@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-09-29T15:43:29.320114+00:00",
+  "generado_en": "2026-09-29T20:41:11.534442+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 21,
-    "partidos_cerrados": 279,
-    "aciertos": 165,
-    "precision": 59.14
+    "partidos_cerrados": 285,
+    "aciertos": 170,
+    "precision": 59.65
   },
   "jornadas": [
     {
@@ -268,10 +268,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_10.json",
       "creado_en": "2026-09-28T22:31:36.889473+00:00",
       "prediccion_generada_en": "2026-09-28T22:31:36.889024+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
-      "aciertos": 0,
-      "precision": null,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 6,
+      "aciertos": 5,
+      "precision": 83.33,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -292,19 +292,110 @@
       },
       "por_tipo": {
         "FIJO": {
-          "total": 0,
-          "aciertos": 0
+          "total": 3,
+          "aciertos": 2
         },
         "DOBLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 2,
+          "aciertos": 2
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 1,
+          "aciertos": 1
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 1,
+          "partido": "Luxemburgo - Islandia",
+          "jugado": "1X2",
+          "tipo": "TRIPLE",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 32.1,
+            "X": 31.0,
+            "2": 37.0
+          },
+          "incertidumbre": 144.53,
+          "probabilidad_sorpresa": 70
+        },
+        {
+          "num": 2,
+          "partido": "Eslovaquia - Kazajistán",
+          "jugado": "1",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 61.9,
+            "X": 22.3,
+            "2": 15.8
+          },
+          "incertidumbre": 106.79,
+          "probabilidad_sorpresa": 42.3
+        },
+        {
+          "num": 4,
+          "partido": "Eslovenia - Macedonia del Norte",
+          "jugado": "1",
+          "tipo": "FIJO",
+          "oficial": "X",
+          "acierto": false,
+          "probabilidades": {
+            "1": 51.9,
+            "X": 27.8,
+            "2": 20.2
+          },
+          "incertidumbre": 118.21,
+          "probabilidad_sorpresa": 55.2
+        },
+        {
+          "num": 5,
+          "partido": "Bulgaria - Estonia",
+          "jugado": "1X",
+          "tipo": "DOBLE",
+          "oficial": "X",
+          "acierto": true,
+          "probabilidades": {
+            "1": 52.4,
+            "X": 27.7,
+            "2": 19.9
+          },
+          "incertidumbre": 123.57,
+          "probabilidad_sorpresa": 56.0
+        },
+        {
+          "num": 6,
+          "partido": "San Marino - Albania",
+          "jugado": "2",
+          "tipo": "FIJO",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 16.2,
+            "X": 19.2,
+            "2": 64.6
+          },
+          "incertidumbre": 99.9,
+          "probabilidad_sorpresa": 37.9
+        },
+        {
+          "num": 7,
+          "partido": "Escocia - Suiza",
+          "jugado": "X2",
+          "tipo": "DOBLE",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 26.6,
+            "X": 29.4,
+            "2": 44.0
+          },
+          "incertidumbre": 136.23,
+          "probabilidad_sorpresa": 67.6
+        }
+      ]
     },
     {
       "jornada": 2,
