@@ -1130,7 +1130,29 @@
       const cont = qs('#avisosJornada');
       if (!cont) return;
       const items = [];
-      predictionMatches().forEach(match => {
+      const partidos = predictionMatches();
+      // Regla 15 (29/09/2026, medida sobre los 377 partidos reales del diario
+      // de aprendizaje): la X solo sale el 22% de las veces pero es el 33% de
+      // TODOS nuestros fallos historicos (45 de 136) -cuando sale X fallamos
+      // el 55% de las veces, cuando sale 1 solo el 22%. En cada boleto se
+      // compara cuantas X se esperan (suma de probabilidades de X) con
+      // cuantas cubre lo jugado AHORA MISMO; brecha > 2 = recolocar dobles.
+      if (partidos.length) {
+        let xEsperadas = 0, xCubiertas = 0;
+        partidos.forEach(m => {
+          const probs = m.probabilidades || m.probabilidad_signos || {};
+          xEsperadas += (Number(probs.X) || 0) / 100;
+          if (normalizeSignText(selectedSigns(m) || '').includes('X')) xCubiertas += 1;
+        });
+        const hayJugada = partidos.some(m => normalizeSignText(selectedSigns(m) || ''));
+        if (!hayJugada) {
+          items.push(`<li>⚖ <strong>Regla 15 (empates)</strong>: esta jornada se esperan ~${xEsperadas.toFixed(1)} X — al generar o marcar tu quiniela se medirá cuántas cubres (brecha > 2 = recolocar dobles).</li>`);
+        } else {
+          const brecha = xEsperadas - xCubiertas;
+          items.push(`<li>${brecha > 2 ? '🚨' : '⚖'} <strong>Regla 15 (empates)</strong>: esta jornada se esperan ~${xEsperadas.toFixed(1)} X y tu jugada cubre la X en <b>${xCubiertas}</b> partido${xCubiertas === 1 ? '' : 's'}${brecha > 2 ? ' — <b>brecha alta (' + brecha.toFixed(1) + '): replantea dónde van los dobles</b>' : ' — brecha ' + brecha.toFixed(1) + ', cobertura razonable'}.</li>`);
+        }
+      }
+      partidos.forEach(match => {
         const num = match.num ?? match.numero ?? match.partido;
         const nombre = `${match.local || match.equipo_local || ''} - ${match.visitante || match.equipo_visitante || ''}`;
         const enElige8 = isElige8Match(match);
