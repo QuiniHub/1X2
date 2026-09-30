@@ -1,24 +1,24 @@
 {
   "version": "1.2",
-  "precision": 66.32,
+  "precision": 66.67,
   "jornadas_revisadas": 28,
-  "partidos_revisados": 383,
-  "aciertos": 254,
-  "fallos": 129,
+  "partidos_revisados": 384,
+  "aciertos": 256,
+  "fallos": 128,
   "fallos_por_tipo": {
     "Doble insuficiente": 26,
     "Fijo fallado": 59,
-    "No cubrio empate": 44
+    "No cubrio empate": 43
   },
   "fallos_por_signo_real": {
     "1": 32,
     "2": 53,
-    "X": 44
+    "X": 43
   },
   "signos_omitidos_en_fallo": {
     "1": 32,
     "2": 53,
-    "X": 44
+    "X": 43
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,10 +28,10 @@
       "precision": 72.92
     },
     "FIJO": {
-      "total": 238,
-      "aciertos": 135,
-      "fallos": 103,
-      "precision": 56.72
+      "total": 239,
+      "aciertos": 137,
+      "fallos": 102,
+      "precision": 57.32
     },
     "TRIPLE": {
       "total": 49,
@@ -48,93 +48,19 @@
       "precision": 81.61
     },
     "2": {
-      "total": 125,
-      "aciertos": 72,
+      "total": 127,
+      "aciertos": 74,
       "fallos": 53,
-      "precision": 57.6
+      "precision": 58.27
     },
     "X": {
-      "total": 84,
+      "total": 83,
       "aciertos": 40,
-      "fallos": 44,
-      "precision": 47.62
+      "fallos": 43,
+      "precision": 48.19
     }
   },
   "detalle": [
-    {
-      "jornada": 68,
-      "partido": "Túnez - Japon",
-      "pronostico": "2",
-      "tipo_pronostico": "FIJO",
-      "resultado": "0-4",
-      "resultado_final": "0-4",
-      "signo_real": "2",
-      "signos_cubiertos": "2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_68.json",
-      "probabilidades_usadas": {
-        "1": 15.7,
-        "X": 29.4,
-        "2": 54.9
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "mundial_2026",
-        "mundial_2026_resultados_y_modelo_base"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Túnez",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Japon",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": "Probabilidades IA: 1=15.7%, X=29.4%, 2=54.9%. Calidad de datos: media. Historial Mundial 2026 incorporado con muestra minima 1 partido(s): Túnez 0 pts, GF 1, GC 5; Japon 1 pts, GF 2, GC 2. Se mantiene como FIJO (2) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es DOBLE, indice=55.1/100 o sorpresa=49.3%. Favorito o signo de referencia: Japon. Motivos principales: historial del Mundial 2026 incorporado; muestra minima 1 partido(s); margen 25.5 puntos. Decision final: 2.",
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 18.42,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 22.92,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {},
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
-    },
     {
       "jornada": 68,
       "partido": "Bélgica - Irán",
@@ -27595,9 +27521,9 @@
       "partido": "Luxemburgo - Islandia",
       "pronostico": "1X2",
       "tipo_pronostico": "TRIPLE",
-      "resultado": "2-1",
-      "resultado_final": "2-1",
-      "signo_real": "1",
+      "resultado": "0-3",
+      "resultado_final": "0-3",
+      "signo_real": "2",
       "signos_cubiertos": "1X2",
       "signo_omitido": "",
       "acierto": true,
@@ -27784,16 +27710,133 @@
     },
     {
       "jornada": 10,
+      "partido": "R. Checa - Inglaterra",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-2",
+      "resultado_final": "0-2",
+      "signo_real": "2",
+      "signos_cubiertos": "2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_10.json",
+      "probabilidades_usadas": {
+        "1": 18.9,
+        "X": 22.2,
+        "2": 58.9
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "R. Checa",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Inglaterra",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (58.9%).",
+        "hipotesis_alternativa": "X como alternativa (22.2%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 46.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 2: margen 36.7 puntos, indice sorpresa 25.1."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.66,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Rep. Irlanda: ppp=3.00; perfil visitante Inglaterra: ppp=2.55."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Rep. Irlanda",
+        "partidos_total": 2,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Inglaterra",
+        "partidos_total": 7,
+        "puntos_por_partido": 2.264,
+        "empates_pct": 13.46,
+        "surprise_score_medio": 37.02,
+        "forma_5_ppp": 2.4,
+        "forma_10_ppp": 2.286,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 10,
       "partido": "Eslovenia - Macedonia",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
-      "resultado": "0-0",
-      "resultado_final": "0-0",
-      "signo_real": "X",
+      "resultado": "2-0",
+      "resultado_final": "2-0",
+      "signo_real": "1",
       "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
       "origen": "data/predicciones/jornada_10.json",
       "probabilidades_usadas": {
         "1": 52.6,
@@ -28263,19 +28306,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 383,
+    "partidos_base": 384,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.68,
-      "no_cubrio_empate_sobre_fallos_pct": 34.11,
-      "no_cubrio_empate_sobre_total_pct": 11.49,
-      "fijo_fallado_sobre_fallos_pct": 45.74,
-      "fijo_fallado_sobre_total_pct": 15.4,
-      "doble_insuficiente_sobre_total_pct": 6.79
+      "fallos_total_pct": 33.33,
+      "no_cubrio_empate_sobre_fallos_pct": 33.59,
+      "no_cubrio_empate_sobre_total_pct": 11.2,
+      "fijo_fallado_sobre_fallos_pct": 46.09,
+      "fijo_fallado_sobre_total_pct": 15.36,
+      "doble_insuficiente_sobre_total_pct": 6.77
     },
-    "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 4.87,
-    "riesgo_extra_triple_insuficiente": 2.51,
+    "boost_empate_zona_riesgo": 5.83,
+    "riesgo_extra_fijo_fragil": 4.91,
+    "riesgo_extra_triple_insuficiente": 2.49,
     "min_dobles_auto": 3,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 58,
