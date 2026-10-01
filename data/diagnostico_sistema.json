@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-01T16:18:02.578747+00:00",
-  "estado": "operativo_con_avisos",
-  "score_salud": 72,
+  "generado_en": "2026-10-01T21:17:42.496774+00:00",
+  "estado": "requiere_revision_datos",
+  "score_salud": 70,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
@@ -63,13 +63,13 @@
         "jornada": 10,
         "fecha": "Miércoles, 30 de septiembre de 2026",
         "fecha_orden": "2026-10-01",
-        "estado": "en_juego",
+        "estado": "cerrada",
         "partidos": 14,
-        "cerrados": 7,
-        "pendientes": 7,
-        "pendientes_totales_con_pleno15": 7,
+        "cerrados": 14,
+        "pendientes": 0,
+        "pendientes_totales_con_pleno15": 0,
         "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "2026-09-30T05:51:57Z",
+        "ultima_actualizacion_partido": "2026-10-01T21:14:03Z",
         "path": "data/jornadas/jornada_10.json"
       },
       {
@@ -103,9 +103,9 @@
   "memoria_quinielas": {
     "jugadas_persistidas_json": 28,
     "jornadas_validadas_historial": 28,
-    "jornadas_memoria_real_total": 79,
-    "jornadas_con_signo_nuestro": 23,
-    "signos_nuestros_en_jornadas": 322,
+    "jornadas_memoria_real_total": 80,
+    "jornadas_con_signo_nuestro": 24,
+    "signos_nuestros_en_jornadas": 336,
     "estado": "memoria_propia_disponible",
     "fuentes_validas": [
       "data/quinielas_jugadas.json",
@@ -116,24 +116,24 @@
   },
   "prediccion": {
     "jornada": 11,
-    "generado_en": "2026-10-01T16:17:55.931016+00:00",
+    "generado_en": "2026-10-01T21:17:32.286056+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 8,
+      "dobles": 4,
+      "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 10,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
-        "alta": 0,
+        "alta": 10,
         "media": 0,
         "media_baja": 0,
-        "baja": 0
+        "baja": 4
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 10 solo tiene 7 de 14 resultados oficiales. No se genera prediccion para la jornada 11 hasta cerrar y aprender la 10."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "clasificaciones": {
     "primera": {
@@ -186,7 +186,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.02,
+    "contexto_equipos_horas": 5.01,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -260,10 +260,15 @@
     "partidos_cerrados": 286,
     "aciertos": 172,
     "precision": 60.14,
-    "generado_en": "2026-10-01T09:18:50.798377+00:00",
+    "generado_en": "2026-10-01T16:18:03.617057+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
+    {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 12 pero la última predicción dice 11."
+    },
     {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
@@ -272,14 +277,8 @@
     },
     {
       "nivel": "media",
-      "titulo": "Prediccion demasiado rigida",
-      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
-      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
-    },
-    {
-      "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 12 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -298,10 +297,16 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-10-01T16:18:02.578747+00:00",
-    "estado": "operativo",
-    "score": 100,
-    "alertas": [],
+    "generado_en": "2026-10-01T21:17:42.496774+00:00",
+    "estado": "revisar",
+    "score": 65,
+    "alertas": [
+      {
+        "nivel": "alta",
+        "titulo": "Predicción de jornada antigua",
+        "detalle": "La jornada activa es 12 pero la última predicción dice 11."
+      }
+    ],
     "jornadas": {
       "total": 76,
       "actual": {
@@ -346,8 +351,8 @@
           "fecha": "Miércoles, 30 de septiembre de 2026",
           "fecha_orden": "2026-10-01",
           "partidos": 14,
-          "cerrados": 7,
-          "pendientes": 7,
+          "cerrados": 14,
+          "pendientes": 0,
           "path": "data/jornadas/jornada_10.json"
         },
         {
@@ -408,28 +413,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-10-01T16:17:27.159741+00:00"
+      "generado_en": "2026-10-01T21:17:09.113315+00:00"
     },
     "prediccion": {
       "jornada": 11,
-      "generado_en": "2026-10-01T16:17:55.931016+00:00",
+      "generado_en": "2026-10-01T21:17:32.286056+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 14,
-        "dobles": 0,
-        "triples": 0,
+        "fijos": 8,
+        "dobles": 4,
+        "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 0,
-        "indice_sorpresa_max": 0.0,
+        "favoritos_atacables": 10,
+        "indice_sorpresa_max": 100.0,
         "calidad_datos": {
-          "alta": 0,
+          "alta": 10,
           "media": 0,
           "media_baja": 0,
-          "baja": 0
+          "baja": 4
         }
       },
-      "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 10 solo tiene 7 de 14 resultados oficiales. No se genera prediccion para la jornada 11 hasta cerrar y aprender la 10."
+      "retenida_por_compuerta": false,
+      "motivo_bloqueo": null
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -477,8 +482,8 @@
         "fecha": "Miércoles, 30 de septiembre de 2026",
         "fecha_orden": "2026-10-01",
         "partidos": 14,
-        "cerrados": 7,
-        "pendientes": 7,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_10.json"
       },
       {
@@ -539,6 +544,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-10-01T16:17:27.159741+00:00"
+    "generado_en": "2026-10-01T21:17:09.113315+00:00"
   }
 }

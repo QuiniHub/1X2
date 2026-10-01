@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-01T16:17:26.976461+00:00",
+  "generado_en": "2026-10-01T21:17:08.978729+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -1264,36 +1264,43 @@
     },
     "10": {
       "jornada": 10,
-      "partidos_cerrados": 7,
-      "partidos_con_prediccion": 7,
-      "precision_boleto": 100.0,
-      "precision_top1": 85.71,
-      "brier_medio": 0.4152,
-      "logloss_medio": 0.7405,
+      "partidos_cerrados": 14,
+      "partidos_con_prediccion": 14,
+      "precision_boleto": 78.57,
+      "precision_top1": 57.14,
+      "brier_medio": 0.568,
+      "logloss_medio": 0.9463,
       "por_tipo": {
         "FIJO": {
+          "total": 8,
+          "aciertos": 5,
+          "precision": 62.5
+        },
+        "DOBLE": {
           "total": 4,
           "aciertos": 4,
           "precision": 100.0
         },
-        "DOBLE": {
+        "TRIPLE": {
           "total": 2,
           "aciertos": 2,
-          "precision": 100.0
-        },
-        "TRIPLE": {
-          "total": 1,
-          "aciertos": 1,
           "precision": 100.0
         }
       },
       "elige8": {
-        "selecciones": 4,
-        "aciertos": 4,
+        "selecciones": 8,
+        "aciertos": 8,
         "precision": 100.0
       },
-      "surprise_score_medio": 33.31,
+      "surprise_score_medio": 44.08,
       "ranking_incertidumbre": [
+        {
+          "num": 11,
+          "partido": "Eire - Austria",
+          "incertidumbre": 146.69,
+          "surprise_score": 50.37,
+          "margen_probabilidad": 3.2
+        },
         {
           "num": 1,
           "partido": "Luxemburgo - Islandia",
@@ -1309,6 +1316,20 @@
           "margen_probabilidad": 15.1
         },
         {
+          "num": 14,
+          "partido": "Dinamarca - Portugal",
+          "incertidumbre": 130.07,
+          "surprise_score": 32.98,
+          "margen_probabilidad": 18.6
+        },
+        {
+          "num": 9,
+          "partido": "Grecia - Países Bajos",
+          "incertidumbre": 128.45,
+          "surprise_score": 57.63,
+          "margen_probabilidad": 19.98
+        },
+        {
           "num": 5,
           "partido": "Bulgaria - Estonia",
           "incertidumbre": 122.97,
@@ -1316,32 +1337,18 @@
           "margen_probabilidad": 25.3
         },
         {
+          "num": 12,
+          "partido": "Gales - Noruega",
+          "incertidumbre": 118.52,
+          "surprise_score": 72.0,
+          "margen_probabilidad": 28.6
+        },
+        {
           "num": 4,
           "partido": "Eslovenia - Macedonia",
           "incertidumbre": 117.51,
           "surprise_score": 29.39,
           "margen_probabilidad": 24.8
-        },
-        {
-          "num": 3,
-          "partido": "R. Checa - Inglaterra",
-          "incertidumbre": 109.65,
-          "surprise_score": 25.48,
-          "margen_probabilidad": 36.7
-        },
-        {
-          "num": 2,
-          "partido": "Eslovaquia - Kazajstán",
-          "incertidumbre": 105.58,
-          "surprise_score": 23.13,
-          "margen_probabilidad": 40.7
-        },
-        {
-          "num": 6,
-          "partido": "San Marino - Albania",
-          "incertidumbre": 99.6,
-          "surprise_score": 21.76,
-          "margen_probabilidad": 45.7
         }
       ],
       "ranking_elige8_confianza_real": [
@@ -1349,6 +1356,12 @@
           "num": 1,
           "partido": "Luxemburgo - Islandia",
           "confianza_real_elige8": 39.57,
+          "elige8": true
+        },
+        {
+          "num": 11,
+          "partido": "Eire - Austria",
+          "confianza_real_elige8": 39.39,
           "elige8": true
         },
         {
@@ -1364,27 +1377,27 @@
           "elige8": true
         },
         {
-          "num": 2,
-          "partido": "Eslovaquia - Kazajstán",
-          "confianza_real_elige8": 21.25,
-          "elige8": false
-        },
-        {
-          "num": 7,
-          "partido": "Escocia - Suiza",
-          "confianza_real_elige8": 18.89,
+          "num": 9,
+          "partido": "Grecia - Países Bajos",
+          "confianza_real_elige8": 23.94,
           "elige8": true
         },
         {
-          "num": 3,
-          "partido": "R. Checa - Inglaterra",
-          "confianza_real_elige8": 15.59,
-          "elige8": false
+          "num": 10,
+          "partido": "Alemania - Serbia",
+          "confianza_real_elige8": 21.95,
+          "elige8": true
         },
         {
-          "num": 4,
-          "partido": "Eslovenia - Macedonia",
-          "confianza_real_elige8": 5.96,
+          "num": 14,
+          "partido": "Dinamarca - Portugal",
+          "confianza_real_elige8": 21.9,
+          "elige8": true
+        },
+        {
+          "num": 2,
+          "partido": "Eslovaquia - Kazajstán",
+          "confianza_real_elige8": 21.25,
           "elige8": false
         }
       ]
@@ -5225,7 +5238,7 @@
     }
   },
   "resumen": {
-    "jornadas_evaluadas": 23,
+    "jornadas_evaluadas": 24,
     "precision_media_ultimas_8": 72.32,
     "criterio_aprendizaje": "tras cada jornada cerrada se compara prediccion vs resultado y se reentrena la memoria"
   }

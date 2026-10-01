@@ -1,9 +1,15 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-01T16:18:02.578747+00:00",
-  "estado": "operativo",
-  "score": 100,
-  "alertas": [],
+  "generado_en": "2026-10-01T21:17:42.496774+00:00",
+  "estado": "revisar",
+  "score": 65,
+  "alertas": [
+    {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 12 pero la última predicción dice 11."
+    }
+  ],
   "jornadas": {
     "total": 76,
     "actual": {
@@ -48,8 +54,8 @@
         "fecha": "Miércoles, 30 de septiembre de 2026",
         "fecha_orden": "2026-10-01",
         "partidos": 14,
-        "cerrados": 7,
-        "pendientes": 7,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_10.json"
       },
       {
@@ -110,28 +116,28 @@
     }
   },
   "contexto_competitivo": {
-    "generado_en": "2026-10-01T16:17:27.159741+00:00"
+    "generado_en": "2026-10-01T21:17:09.113315+00:00"
   },
   "prediccion": {
     "jornada": 11,
-    "generado_en": "2026-10-01T16:17:55.931016+00:00",
+    "generado_en": "2026-10-01T21:17:32.286056+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 8,
+      "dobles": 4,
+      "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 10,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
-        "alta": 0,
+        "alta": 10,
         "media": 0,
         "media_baja": 0,
-        "baja": 0
+        "baja": 4
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 10 solo tiene 7 de 14 resultados oficiales. No se genera prediccion para la jornada 11 hasta cerrar y aprender la 10."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
 }

@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-01T16:18:03.617057+00:00",
+  "generado_en": "2026-10-01T21:17:43.324579+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
-    "jornadas_snapshot": 21,
-    "partidos_cerrados": 286,
-    "aciertos": 172,
-    "precision": 60.14
+    "jornadas_snapshot": 22,
+    "partidos_cerrados": 293,
+    "aciertos": 176,
+    "precision": 60.07
   },
   "jornadas": [
     {
@@ -269,9 +269,9 @@
       "creado_en": "2026-09-28T22:31:36.889473+00:00",
       "prediccion_generada_en": "2026-09-28T22:31:36.889024+00:00",
       "estado": "cerrada_o_parcial",
-      "partidos_cerrados": 7,
-      "aciertos": 7,
-      "precision": 100.0,
+      "partidos_cerrados": 14,
+      "aciertos": 11,
+      "precision": 78.57,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -292,16 +292,16 @@
       },
       "por_tipo": {
         "FIJO": {
+          "total": 8,
+          "aciertos": 5
+        },
+        "DOBLE": {
           "total": 4,
           "aciertos": 4
         },
-        "DOBLE": {
+        "TRIPLE": {
           "total": 2,
           "aciertos": 2
-        },
-        "TRIPLE": {
-          "total": 1,
-          "aciertos": 1
         }
       },
       "partidos": [
@@ -409,8 +409,156 @@
           },
           "incertidumbre": 136.23,
           "probabilidad_sorpresa": 67.6
+        },
+        {
+          "num": 8,
+          "partido": "Azerbaiyán - Liechtenstein",
+          "jugado": "1",
+          "tipo": "FIJO",
+          "oficial": "X",
+          "acierto": false,
+          "probabilidades": {
+            "1": 60.4,
+            "X": 22.5,
+            "2": 17.1
+          },
+          "incertidumbre": 102.55,
+          "probabilidad_sorpresa": 42.7
+        },
+        {
+          "num": 9,
+          "partido": "Grecia - Países Bajos",
+          "jugado": "X2",
+          "tipo": "DOBLE",
+          "oficial": "X",
+          "acierto": true,
+          "probabilidades": {
+            "1": 23.6,
+            "X": 27.7,
+            "2": 48.8
+          },
+          "incertidumbre": 127.17,
+          "probabilidad_sorpresa": 60.5
+        },
+        {
+          "num": 10,
+          "partido": "Alemania - Serbia",
+          "jugado": "1",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 62.1,
+            "X": 20.9,
+            "2": 17.0
+          },
+          "incertidumbre": 104.69,
+          "probabilidad_sorpresa": 41.6
+        },
+        {
+          "num": 11,
+          "partido": "Rep. Irlanda - Austria",
+          "jugado": "1X2",
+          "tipo": "TRIPLE",
+          "oficial": "X",
+          "acierto": true,
+          "probabilidades": {
+            "1": 32.1,
+            "X": 32.0,
+            "2": 35.9
+          },
+          "incertidumbre": 145.98,
+          "probabilidad_sorpresa": 70
+        },
+        {
+          "num": 12,
+          "partido": "Gales - Noruega",
+          "jugado": "2",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": false,
+          "probabilidades": {
+            "1": 23.1,
+            "X": 24.6,
+            "2": 52.4
+          },
+          "incertidumbre": 119.39,
+          "probabilidad_sorpresa": 54.9
+        },
+        {
+          "num": 13,
+          "partido": "Malta - Gibraltar",
+          "jugado": "1",
+          "tipo": "FIJO",
+          "oficial": "X",
+          "acierto": false,
+          "probabilidades": {
+            "1": 59.1,
+            "X": 23.5,
+            "2": 17.4
+          },
+          "incertidumbre": 111.2,
+          "probabilidad_sorpresa": 46.2
+        },
+        {
+          "num": 14,
+          "partido": "Dinamarca - Portugal",
+          "jugado": "X2",
+          "tipo": "DOBLE",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 25.4,
+            "X": 28.1,
+            "2": 46.5
+          },
+          "incertidumbre": 130.23,
+          "probabilidad_sorpresa": 63.6
         }
       ]
+    },
+    {
+      "jornada": 11,
+      "snapshot": "data/backtesting/pre_cierre/jornada_11.json",
+      "creado_en": "2026-10-01T21:17:32.286396+00:00",
+      "prediccion_generada_en": "2026-10-01T21:17:32.286056+00:00",
+      "estado": "pendiente_resultados",
+      "partidos_cerrados": 0,
+      "aciertos": 0,
+      "precision": null,
+      "configuracion": {
+        "dobles": 4,
+        "triples": 2,
+        "elige8": false,
+        "elige8_modo": "desactivado",
+        "elige8_modos_disponibles": [
+          "economico",
+          "maxima_seguridad"
+        ],
+        "cobertura_auto": true
+      },
+      "coste": {
+        "apuestas": 144,
+        "apuestas_elige8": 0,
+        "importe_quiniela": 108.0,
+        "importe_elige8": 0.0,
+        "importe_total": 108.0
+      },
+      "por_tipo": {
+        "FIJO": {
+          "total": 0,
+          "aciertos": 0
+        },
+        "DOBLE": {
+          "total": 0,
+          "aciertos": 0
+        },
+        "TRIPLE": {
+          "total": 0,
+          "aciertos": 0
+        }
+      },
+      "partidos": []
     },
     {
       "jornada": 2,
