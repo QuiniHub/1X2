@@ -1212,3 +1212,21 @@ reales: −0,014 (sube 0-0 y 1-1 — la corrección anti-X que motivó todo, ver
 **Pendiente consciente:** el peso 0,7 se revisará con más jornadas; Shin queda listo
 para cuando se conecte una fuente de cuotas en vivo (football-data.co.uk fixtures es
 candidata gratuita).
+
+### 2026-10-03 — Pi-ratings: PROBADO Y NO DESPLEGADO (candidato 4)
+
+Experimento aprobado por Marc con criterio prerregistrado: integrar solo si batía a la
+configuración en producción (0,7 Dixon-Coles + 0,3 motor) por ≥0,002 de RPS en el
+benchmark de 83 partidos españoles 26/27 (walk-forward sin fugas). Resultado: pi-ratings
+solo dio RPS 0,2086 (peor que Dixon-Coles solo, 0,2013); el mejor blend con pi
+(0,55 DC + 0,25 pi + 0,2 motor) dio 0,2025 — mejora de solo 0,0010 sobre producción,
+POR DEBAJO del umbral, y además peor que el D-C puro. La mejora aparente venía de
+bajar el peso del motor viejo, no de añadir pi. Conclusión: señal correlacionada con
+el D-C que no aporta información nueva suficiente en nuestra escala de datos.
+`modelo_pi_ratings.py` queda en el repo como artefacto del experimento (implementación
+completa del paper de Constantinou & Fenton 2013 con logit ordenado calibrado
+walk-forward), reutilizable si en el futuro hay más datos o features.
+**Nota recurrente para la próxima revisión:** el D-C PURO vuelve a salir mejor que el
+mix 0,7 en el mismo benchmark (0,2013 vs 0,2035) — tercera vez que apunta igual; se
+mantiene 0,7 por disciplina anti-sobreajuste (n=83), pero cuando haya ~150 partidos
+26/27 toca re-evaluar el peso con datos frescos.
