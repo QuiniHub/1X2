@@ -1190,3 +1190,25 @@ triples, y para eso no hace falta ser muy predictivo"): la sugerencia automátic
 motor en J1-J3 costaba 108€ y aun así dejaba 4-5 fallos sin cubrir; pasar de 72€ a
 108€ solo compraba ~medio acierto por jornada. Conclusión operativa: presupuesto
 moderado + mejor puntería con las dudas, no más dudas.
+
+### 2026-10-02 — Dixon-Coles (peso 0,7) como prior estadístico del motor + devig de Shin
+
+Tras la investigación mundial de métodos (INVESTIGACION_METODOS_MUNDIALES.md), Marc
+aprobó los candidatos 1 y 2. Se integró `modelo_dixon_coles.py` (Dixon & Coles 1997:
+Poisson con corrección ρ de marcadores bajos y decaimiento temporal, ajuste CONJUNTO
+de 1ª y 2ª para que los equipos que suben/bajan conserven su fuerza) y el devig de
+Shin para cuotas crudas. **Backtest previo obligatorio** (backtest_dixon_coles.py,
+resultados en data/memoria_ia/backtest_dixon_coles.json): en los 81 partidos
+españoles reales de la quiniela 26/27 (J1-J9, walk-forward sin fuga de futuro),
+D-C dio RPS 0,201 y 53,1% de acierto de signo contra 0,222 / 44,4% del motor; en
+25/26 contra el mercado (833 partidos con cuotas) el mercado no se bate, como dice
+la literatura, y Shin mejora a la normalización simple.
+**Decisiones de diseño:** peso 0,7 (el barrido daba óptimo en 1,0 pero n=81 — mismo
+criterio anti-sobreajuste que el K del calendario); se aplica ANTES del ajuste de
+mercado Losilla para respetar la lógica prior-vs-mercado existente; cobertura solo
+clubes españoles (Liga F/selecciones/Champions quedan intactos); el proveedor traga
+cualquier excepción (el motor no puede caerse por esta señal); ρ aprendido con datos
+reales: −0,014 (sube 0-0 y 1-1 — la corrección anti-X que motivó todo, ver Regla 15).
+**Pendiente consciente:** el peso 0,7 se revisará con más jornadas; Shin queda listo
+para cuando se conecte una fuente de cuotas en vivo (football-data.co.uk fixtures es
+candidata gratuita).
