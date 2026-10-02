@@ -877,6 +877,44 @@ def calcular_probabilidades(memoria, partido):
     return probs, local, visitante, round(diff, 2)
 
 
+# Dixon-Coles (1997) como prior estadistico principal para partidos de clubes
+# espanoles (02/10/2026, aprobado por Marc tras la investigacion mundial).
+# Backtest previo (backtest_dixon_coles.json): sobre los 81 partidos espanoles
+# de la quiniela 26/27 J1-J9 (walk-forward, sin fuga de futuro), D-C puro dio
+# RPS 0,201 y 53,1% de signo vs 0,222 / 44,4% del motor. El peso 0,7 se elige
+# conservador (el barrido daba optimo en 1,0 con n=81 -no sobreajustar, mismo
+# criterio que el K del calendario). Se aplica ANTES del ajuste de mercado
+# para que la logica prior-vs-mercado existente siga mandando.
+PESO_DIXON_COLES = 0.7
+
+
+def _proveedor_dixon_coles(local, visitante):
+    try:
+        from modelo_dixon_coles import probabilidades_dixon_coles
+        return probabilidades_dixon_coles(local, visitante)
+    except Exception:
+        return None
+
+
+def ajustar_por_dixon_coles(probs, partido, proveedor=None):
+    """Mezcla el prior del motor con las probabilidades Dixon-Coles cuando el
+    modelo cubre a ambos equipos. Devuelve (probs, traza)."""
+    proveedor = proveedor or _proveedor_dixon_coles
+    dc = proveedor(partido.get("local", ""), partido.get("visitante", ""))
+    if not dc or not all(s in dc for s in ("1", "X", "2")):
+        return probs, {"activo": False}
+    nuevo = {
+        s: PESO_DIXON_COLES * float(dc[s]) * 100.0 + (1.0 - PESO_DIXON_COLES) * float(probs.get(s) or 0)
+        for s in ("1", "X", "2")
+    }
+    traza = {
+        "activo": True,
+        "peso": PESO_DIXON_COLES,
+        "probs_dc": {s: round(float(dc[s]) * 100.0, 1) for s in ("1", "X", "2")},
+    }
+    return normalizar_probs(nuevo), traza
+
+
 def ajustar_por_contexto(probs, contexto_local, contexto_visitante):
     probs = dict(probs)
     riesgo_extra = 0
@@ -2858,6 +2896,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     evaluados = []
     for partido in partidos_base:
         probs, local, visitante, diff = calcular_probabilidades(memoria, partido)
+        probs, ajuste_dixon_coles = ajustar_por_dixon_coles(probs, partido)
         probs, ajuste_modelo_entrenado = ajustar_por_modelo_entrenado(probs, partido, modelo_runtime)
         contexto_local = buscar_contexto_equipo(contexto, partido.get("local", ""))
         contexto_visitante = buscar_contexto_equipo(contexto, partido.get("visitante", ""))
@@ -2904,6 +2943,9 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         trazabilidad["modelo_entrenado"] = ajuste_modelo_entrenado
         if ajuste_modelo_entrenado.get("activo"):
             trazabilidad["origen_probabilidades"] = f"{trazabilidad['origen_probabilidades']}+modelo_entrenado"
+        trazabilidad["dixon_coles"] = ajuste_dixon_coles
+        if ajuste_dixon_coles.get("activo"):
+            trazabilidad["origen_probabilidades"] = f"{trazabilidad['origen_probabilidades']}+dixon_coles"
         mercado_losilla_partido = mercado_losilla_signos(fuente_losilla, partido)
         pj_minimo_partido = min(
             float((local or {}).get("pj") or 0),

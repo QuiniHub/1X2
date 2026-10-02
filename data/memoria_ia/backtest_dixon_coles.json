@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "generado_en": "2026-10-02T07:24:53.959465+00:00",
+  "descripcion": "Backtest Dixon-Coles + Shin vs mercado (25/26) y vs motor real (26/27 J1-J9). RPS: menor = mejor.",
+  "test_a_2526_vs_mercado": {
+    "partidos_evaluados": 833,
+    "rps_medio": {
+      "normalizado": 0.20701,
+      "shin": 0.20678,
+      "dixon_coles": 0.2178,
+      "blend_50": 0.2107,
+      "blend_70_mercado": 0.20875
+    },
+    "acierto_signo_pct": {
+      "normalizado": 51.7,
+      "shin": 51.7,
+      "dixon_coles": 47.8,
+      "blend_50": 49.6,
+      "blend_70_mercado": 50.1
+    }
+  },
+  "test_b_2627_vs_motor": {
+    "partidos_evaluados": 81,
+    "sin_cobertura_dc": 44,
+    "rps_medio": {
+      "motor": 0.22152,
+      "dixon_coles": 0.20132,
+      "blend_50": 0.20689
+    },
+    "acierto_signo_pct": {
+      "motor": 44.4,
+      "dixon_coles": 53.1,
+      "blend_50": 53.1
+    }
+  }
+}
