@@ -501,6 +501,17 @@
     <section id="aprendizaje" class="tab-panel">
       <div class="metrics" id="learningMetrics"></div>
 
+      <!-- Calidad probabilistica: RPS + calibracion (candidato 5 de la
+           investigacion mundial, 02/10/2026) — medirse como los profesionales,
+           no solo con % de aciertos -->
+      <div class="card" id="rpsCard" style="display:none">
+        <div class="card-head">
+          <h2>Calidad probabilística del motor</h2>
+          <span class="tag">RPS · menor = mejor · referencia mundial 0,19-0,21</span>
+        </div>
+        <div class="card-body" id="rpsBody"></div>
+      </div>
+
       <!-- Historial LaLiga -->
       <div class="card" id="historicoCard" style="display:none">
         <div class="card-head">
@@ -1420,8 +1431,54 @@
         metric('Aciertos', jugados.length ? aciertos : '-'),
         metric('Fallos', jugados.length ? fallos : '-')
       ].join('');
+      renderRpsCalibracion();
       renderHistoricoLigas();
       renderHistoricoQuinielas();
+    }
+
+    function renderRpsCalibracion() {
+      const card = qs('#rpsCard');
+      const body = qs('#rpsBody');
+      if (!card || !body) return;
+      const rc = (state.metricas || {}).rps_calibracion;
+      if (!rc || !rc.partidos_con_probabilidades) { card.style.display = 'none'; return; }
+      card.style.display = '';
+      const signos = rc.calibracion_por_signo || {};
+      const filasSigno = ['1', 'X', '2'].map(s => {
+        const c = signos[s] || {};
+        const sesgo = Number(c.sesgo_puntos) || 0;
+        const color = Math.abs(sesgo) >= 5 ? 'var(--danger, #dc2626)' : 'var(--muted)';
+        const lectura = sesgo >= 5 ? 'lo sobreestimamos' : (sesgo <= -5 ? 'lo subestimamos' : 'bien calibrado');
+        return `<tr><td><b>${s}</b></td><td>${fmt(c.prob_media_pronosticada, '-')}%</td><td>${fmt(c.frecuencia_real_pct, '-')}%</td><td style="color:${color};font-weight:600">${sesgo > 0 ? '+' : ''}${fmt(sesgo, '-')} (${lectura})</td></tr>`;
+      }).join('');
+      const bandas = rc.calibracion_favorito || {};
+      const filasBanda = Object.keys(bandas).sort().map(b => {
+        const v = bandas[b];
+        return `<tr><td>${escapeHtml(b)}%</td><td>${v.n}</td><td>${fmt(v.prob_media, '-')}%</td><td>${fmt(v.acierto_real_pct, '-')}%</td></tr>`;
+      }).join('');
+      const porJ = rc.rps_por_jornada || {};
+      // "ultimas" por FECHA REAL de la jugada, no por numero (la numeracion
+      // se reinicia cada temporada: J76 nordica > J10 pero es mas vieja)
+      const ordenFecha = arr((state.quinielasJugadas || {}).jugadas).slice()
+        .sort((x, y) => (fechaValidadoMs(x.validado_en) || 0) - (fechaValidadoMs(y.validado_en) || 0))
+        .map(j => String(Number(j.jornada) || 0))
+        .filter(j => j in porJ);
+      const claves = ordenFecha.length ? ordenFecha.slice(-6) : Object.keys(porJ).slice(-6);
+      const ultimas = claves.map(j => `J${j}: ${Number(porJ[j]).toFixed(3)}`).join(' · ');
+      body.innerHTML = `
+        <div class="metrics" style="margin-bottom:12px">
+          ${metric('RPS medio del motor', Number(rc.rps_medio_global).toFixed(4))}
+          ${metric('Partidos medidos', rc.partidos_con_probabilidades)}
+          ${metric('Mercado (referencia)', '≈0.207')}
+          ${(() => {
+            const ligas = (state.benchmarkSpi538 || {}).ligas || {};
+            const p = ligas['Spanish Primera Division'], s = ligas['Spanish Segunda Division'];
+            return (p && s) ? metric('538 SPI en España', `${Number(p.rps_medio).toFixed(3)} 1ª · ${Number(s.rps_medio).toFixed(3)} 2ª`) : '';
+          })()}
+        </div>
+        <p style="color:var(--muted);margin:0 0 10px">El RPS mide la calidad de las <b>probabilidades</b> (castiga más fallar de lejos que de cerca); el % de aciertos solo mira el signo final. Últimas jornadas: ${ultimas || '-'}</p>
+        <div style="overflow-x:auto"><table><thead><tr><th>Signo</th><th>Prob. media pronosticada</th><th>Frecuencia real</th><th>Sesgo</th></tr></thead><tbody>${filasSigno}</tbody></table></div>
+        <div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>Cuando el favorito tiene...</th><th>Partidos</th><th>Prob. media</th><th>Acierta de verdad</th></tr></thead><tbody>${filasBanda}</tbody></table></div>`;
     }
 
     function renderHistoricoLigas() {
@@ -4076,7 +4133,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       if (_tabLiga) _tabLiga.textContent = `Liga ${_etiqTemp}`;
       const _lblInicio = qs('#lblInicioLiga');
       if (_lblInicio) _lblInicio.textContent = `días hasta el inicio de Liga ${_etiqTemp}`;
-      const [pred, pleno, apr, hist, metricas, segunda, calendarioPrimera, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga, lesionesRespaldo, clasificacionesOficiales, contextoCompetitivo, estadoVivo, calibracionProbabilidades, resultadosLibres] = await Promise.all([
+      const [pred, pleno, apr, hist, metricas, segunda, calendarioPrimera, memoriaHistorica, pesosDinamicos, cal1a, cal2a, historicoLigas, historicoQuinielas, valorSenales, aprendizajeElige8, sorpresasMercado, quinielasJugadas, lesionesLaliga, lesionesRespaldo, clasificacionesOficiales, contextoCompetitivo, estadoVivo, benchmarkSpi538, calibracionProbabilidades, resultadosLibres] = await Promise.all([
         getJson('data/predicciones/ultima_prediccion.json'),
         getJson('data/predicciones/pleno15_jornada_actual.json'),
         getJson('data/memoria_ia/diario_aprendizaje.json'),
@@ -4099,6 +4156,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
         getJson('data/clasificaciones_oficiales.json', null),
         getJson('data/memoria_ia/contexto_competitivo.json', null),
         getJson('data/memoria_ia/estado_vivo.json', null),
+        getJson('data/memoria_ia/benchmark_spi_538.json', null),
         getJson('data/memoria_ia/calibracion_probabilidades.json', null),
         getJson('data/resultados_libres.json', null)
       ]);
@@ -4131,6 +4189,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.contextoCompetitivo = contextoCompetitivo;
       state.estadoVivo = estadoVivo;
       state.calibracionProbabilidades = calibracionProbabilidades;
+      state.benchmarkSpi538 = benchmarkSpi538;
       const jornadaNum = Number(pred.jornada || pleno.jornada || 0);
       state.jornadaActual = jornadaNum ? await getJson(`data/jornadas/jornada_${jornadaNum}.json`) : {};
       state.detallesPartidos = jornadaNum ? await getJson(`data/jornadas/detalles_j${jornadaNum}.json`, null) : null;

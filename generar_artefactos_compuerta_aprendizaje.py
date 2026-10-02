@@ -90,6 +90,103 @@ def construir_revisiones(aprendizaje, generado_en):
     }
 
 
+def rps_partido(probs, signo_real):
+    """Ranked probability score de un partido (categorias ordenadas 1,X,2).
+
+    Menor = mejor. Es la metrica estandar de la literatura (Constantinou &
+    Fenton 2012; el Soccer Prediction Challenge se juzga con ella): castiga
+    mas equivocarse "de lejos" (decir 1 y salir 2) que "de cerca" (decir 1 y
+    salir X), cosa que la precision a secas no distingue. Devuelve None si
+    faltan probabilidades o el signo real no es valido."""
+    try:
+        valores = [float(probs[s]) for s in SIGNOS]
+    except (KeyError, TypeError, ValueError):
+        return None
+    total = sum(valores)
+    if total <= 0 or str(signo_real).upper() not in SIGNOS:
+        return None
+    valores = [v / total for v in valores]
+    real = str(signo_real).upper()
+    acum_p = acum_o = suma = 0.0
+    for s, p in zip(SIGNOS[:-1], valores[:-1]):
+        acum_p += p
+        acum_o += 1.0 if s == real else 0.0
+        suma += (acum_p - acum_o) ** 2
+    return suma / (len(SIGNOS) - 1)
+
+
+def construir_bloque_rps_calibracion(revisiones_items):
+    """RPS medio (global y por jornada) + calibracion por signo + calibracion
+    del favorito por bandas. Solo con partidos que tengan probabilidades y
+    signo real; los antiguos sin probabilidades quedan fuera y se cuenta
+    cuantos son (transparencia, no silencio)."""
+    evaluables = []
+    sin_probs = 0
+    for item in revisiones_items:
+        r = rps_partido(item.get("probabilidades_usadas") or {}, item.get("signo_real"))
+        if r is None:
+            sin_probs += 1
+            continue
+        evaluables.append((item, r))
+    if not evaluables:
+        return {"partidos_con_probabilidades": 0, "sin_probabilidades": sin_probs}
+
+    por_jornada = defaultdict(list)
+    for item, r in evaluables:
+        por_jornada[jornada_num(item.get("jornada"))].append(r)
+
+    # calibracion por signo: cuanta probabilidad le damos de media a cada
+    # signo vs cuantas veces sale de verdad (sesgo + = lo sobreestimamos)
+    calibracion_signo = {}
+    n = len(evaluables)
+    for s in SIGNOS:
+        prob_media = sum(
+            float((item.get("probabilidades_usadas") or {}).get(s) or 0) for item, _ in evaluables
+        ) / n
+        frecuencia = 100.0 * sum(
+            1 for item, _ in evaluables if str(item.get("signo_real")).upper() == s
+        ) / n
+        calibracion_signo[s] = {
+            "prob_media_pronosticada": round(prob_media, 1),
+            "frecuencia_real_pct": round(frecuencia, 1),
+            "sesgo_puntos": round(prob_media - frecuencia, 1),
+        }
+
+    # calibracion del favorito por bandas: cuando decimos "el favorito tiene
+    # 50-60%", ¿acierta de verdad el 50-60% de las veces?
+    bandas = {}
+    for item, _ in evaluables:
+        probs = item.get("probabilidades_usadas") or {}
+        favorito = max(SIGNOS, key=lambda s: float(probs.get(s) or 0))
+        p_fav = float(probs.get(favorito) or 0)
+        banda = f"{int(p_fav // 10) * 10}-{int(p_fav // 10) * 10 + 10}"
+        registro = bandas.setdefault(banda, {"n": 0, "suma_prob": 0.0, "aciertos": 0})
+        registro["n"] += 1
+        registro["suma_prob"] += p_fav
+        registro["aciertos"] += 1 if str(item.get("signo_real")).upper() == favorito else 0
+    calibracion_favorito = {
+        banda: {
+            "n": v["n"],
+            "prob_media": round(v["suma_prob"] / v["n"], 1),
+            "acierto_real_pct": round(100.0 * v["aciertos"] / v["n"], 1),
+        }
+        for banda, v in sorted(bandas.items())
+    }
+
+    return {
+        "nota": "RPS: menor = mejor; referencia mundial ~0,19-0,21 (mercado/estado del arte).",
+        "partidos_con_probabilidades": n,
+        "sin_probabilidades": sin_probs,
+        "rps_medio_global": round(sum(r for _, r in evaluables) / n, 5),
+        "rps_por_jornada": {
+            str(j): round(sum(valores) / len(valores), 5)
+            for j, valores in sorted(por_jornada.items())
+        },
+        "calibracion_por_signo": calibracion_signo,
+        "calibracion_favorito": calibracion_favorito,
+    }
+
+
 def construir_metricas(aprendizaje, revisiones, generado_en):
     por_jornada = defaultdict(list)
     for item in revisiones.get("revisiones") or []:
@@ -119,6 +216,7 @@ def construir_metricas(aprendizaje, revisiones, generado_en):
         "precision_por_tipo": aprendizaje.get("precision_por_tipo") or {},
         "precision_por_signo_real": aprendizaje.get("precision_por_signo_real") or {},
         "por_jornada": metricas_jornada,
+        "rps_calibracion": construir_bloque_rps_calibracion(revisiones.get("revisiones") or []),
     }
 
 
