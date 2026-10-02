@@ -1,6 +1,6 @@
 {
   "version": "1.4",
-  "generado_en": "2026-10-02T07:29:39.747992+00:00",
+  "generado_en": "2026-10-02T07:34:44.507071+00:00",
   "jornada": 11,
   "temporada_base": "2026/2027",
   "estado": "lista_para_publicar",
@@ -20,7 +20,7 @@
     "en_espera": false,
     "resultados_completos_anterior": true,
     "aprendizaje_aplicado_anterior": true,
-    "actualizado_en": "2026-10-02T07:29:39.633614+00:00",
+    "actualizado_en": "2026-10-02T07:34:43.870536+00:00",
     "detalle_cierre_anterior": {
       "ok": true,
       "total": 14,
@@ -51,10 +51,10 @@
   },
   "coste": {
     "apuestas": 144,
-    "apuestas_elige8": 2,
+    "apuestas_elige8": 4,
     "importe_quiniela": 108.0,
-    "importe_elige8": 1.0,
-    "importe_total": 109.0
+    "importe_elige8": 2.0,
+    "importe_total": 110.0
   },
   "partidos": [
     {
@@ -64,38 +64,38 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 20.6,
-        "X": 30.7,
-        "2": 48.7
+        "1": 28.4,
+        "X": 33.1,
+        "2": 38.6
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 20.6,
+          "probabilidad": 28.37,
           "nivel": "baja"
         },
         "X": {
-          "probabilidad": 30.7,
+          "probabilidad": 33.07,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 48.7,
+          "probabilidad": 38.56,
           "nivel": "media"
         }
       },
       "signo_base": "2",
       "signo_final": "2",
       "tipo": "FIJO",
-      "incertidumbre": 126.15,
-      "probabilidad_sorpresa": 60.3,
-      "prioridad_cobertura_triple": 487.85,
-      "prioridad_cobertura_doble": 233.02,
-      "penalizacion_elige8": 9.32,
-      "probabilidad_top": 48.7,
-      "margen_probabilidad": 18.0,
-      "tercera_probabilidad": 20.6,
+      "incertidumbre": 139.48,
+      "probabilidad_sorpresa": 70,
+      "prioridad_cobertura_triple": 562.48,
+      "prioridad_cobertura_doble": 277.48,
+      "penalizacion_elige8": 10.47,
+      "probabilidad_top": 38.6,
+      "margen_probabilidad": 5.5,
+      "tercera_probabilidad": 28.4,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 81.5,
-      "surprise_score": 81.5,
+      "indice_sorpresa_quinielistica": 100.0,
+      "surprise_score": 100.0,
       "categoria_sorpresa": "favorito_muy_atacable",
       "favorito_atacable": true,
       "favorito": "2",
@@ -107,24 +107,27 @@
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivos_sorpresa": [
-        "favorito por debajo del 50%",
+        "margen corto entre favorito y alternativa",
+        "ningun signo supera claramente el 45%",
+        "empate con peso alto",
+        "tercer signo vivo: partido candidato a triple",
         "Visitante del top 10 frente a un local de la segunda mitad de la tabla: 62.5% de sorpresas historicas.",
-        "Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '2' solo al 48.7% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa."
+        "Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '2' solo al 38.6% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa."
       ],
       "riesgo_millonario": {
         "candidato": true,
         "signo_favorito": "2",
         "signo_alternativo": "X",
-        "indice_sorpresa": 81.5,
+        "indice_sorpresa": 100.0,
         "motivos_contextuales": [
           "Visitante del top 10 frente a un local de la segunda mitad de la tabla: 62.5% de sorpresas historicas."
         ],
         "justificacion": "Evidencia contextual real, no solo estadistica: Visitante del top 10 frente a un local de la segunda mitad de la tabla: 62.5% de sorpresas historicas.."
       },
-      "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+      "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
       "calidad_datos": "alta",
       "trazabilidad_datos": {
-        "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+        "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
         "calidad_datos": "alta",
         "memoria_estadistica": {
           "local": true,
@@ -154,17 +157,26 @@
             "2": 33.5
           },
           "probabilidades_previas": {
-            "1": 18.1,
-            "X": 28.0,
-            "2": 53.9
+            "1": 28.9,
+            "X": 28.1,
+            "2": 43.0
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "segunda_division",
           "baseline_modelo": {
             "1": 35.7,
             "X": 22.6,
             "2": 41.7
+          }
+        },
+        "dixon_coles": {
+          "activo": true,
+          "peso": 0.7,
+          "probs_dc": {
+            "1": 33.6,
+            "X": 28.1,
+            "2": 38.3
           }
         }
       },
@@ -209,11 +221,8 @@
         "lecturas": []
       },
       "ajuste_calibracion": {
-        "activo": true,
-        "bucket": "40-50",
-        "desviacion_medida": 4.08,
-        "correccion_aplicada": 4.0,
-        "lectura": "Calibracion real del bucket 40-50: el motor decia 44.9% y acerto el 48.98% (n=98); signo top corregido +4.0 pts."
+        "activo": false,
+        "motivo": "bucket 30-40 bien calibrado (-0.7)"
       },
       "ajuste_modelo_entrenado": {
         "activo": true,
@@ -224,11 +233,11 @@
           "2": 33.5
         },
         "probabilidades_previas": {
-          "1": 18.1,
-          "X": 28.0,
-          "2": 53.9
+          "1": 28.9,
+          "X": 28.1,
+          "2": 43.0
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "segunda_division",
         "baseline_modelo": {
@@ -320,44 +329,43 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=20.6%, X=30.7%, 2=48.7%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado. Se mantiene como FIJO (2) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=81.5/100 o sorpresa=60.3%. Favorito o signo de referencia: SD Eibar. Motivos principales: favorito por debajo del 50%; Visitante del top 10 frente a un local de la segunda mitad de la tabla: 62.5% de sorpresas historicas.; Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '2' solo al 48.7% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa.. Decision final: 2.",
+      "elige8": false,
+      "razonamiento": "Probabilidades IA: 1=28.4%, X=33.1%, 2=38.6%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se mantiene como FIJO (2) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=70.0%. Favorito o signo de referencia: SD Eibar. Motivos principales: margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 2.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "2 como signo dominante (48.7%).",
-        "hipotesis_alternativa": "X como alternativa (30.7%).",
+        "hipotesis_principal": "2 como signo dominante (38.6%).",
+        "hipotesis_alternativa": "X como alternativa (33.1%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
           "categoria": "favorito_muy_atacable",
-          "probabilidad": 60.3,
+          "probabilidad": 70.0,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision FIJO 2: margen 18.0 puntos, indice sorpresa 81.5."
+        "justificacion_final": "Decision FIJO 2: margen 5.5 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "2 como signo dominante (48.7%).",
-      "hipotesis_alternativa": "X como alternativa (30.7%).",
+      "hipotesis_principal": "2 como signo dominante (38.6%).",
+      "hipotesis_alternativa": "X como alternativa (33.1%).",
       "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
         "categoria": "favorito_muy_atacable",
-        "probabilidad": 60.3,
+        "probabilidad": 70.0,
         "favorito_atacable": true
       },
-      "justificacion_final": "Decision FIJO 2: margen 18.0 puntos, indice sorpresa 81.5.",
-      "en_elige8": true,
+      "justificacion_final": "Decision FIJO 2: margen 5.5 puntos, indice sorpresa 100.0.",
+      "en_elige8": false,
       "elige8_modo": "economico",
       "elige8_modo_real": "probabilidad_real_de_acierto_por_coste",
-      "probabilidad_acierto_elige8": 48.7,
-      "elige8_probabilidad_acierto": 48.7,
-      "elige8_probabilidad_cubierta": 48.7,
-      "elige8_eficiencia": 48.7,
-      "elige8_seguro_score": 48.7,
-      "elige8_confianza_real": 48.7,
+      "probabilidad_acierto_elige8": 38.6,
+      "elige8_probabilidad_acierto": 38.6,
+      "elige8_probabilidad_cubierta": 38.6,
+      "elige8_eficiencia": 38.6,
+      "elige8_seguro_score": 38.6,
+      "elige8_confianza_real": 38.6,
       "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 4,
+      "elige8_seguro_posicion": 9,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 48.7,
-      "elige8_seguro_margen": 18.0,
-      "elige8_maxima_seguridad": false,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "elige8_seguro_probabilidad_top": 38.6,
+      "elige8_seguro_margen": 5.5,
+      "elige8_maxima_seguridad": false
     },
     {
       "num": 2,
@@ -366,38 +374,38 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 51.2,
-        "X": 32.2,
-        "2": 16.6
+        "1": 52.3,
+        "X": 28.9,
+        "2": 18.8
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 51.2,
+          "probabilidad": 52.3,
           "nivel": "media"
         },
         "X": {
-          "probabilidad": 32.2,
+          "probabilidad": 28.9,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 16.6,
+          "probabilidad": 18.8,
           "nivel": "baja"
         }
       },
       "signo_base": "1",
       "signo_final": "1X",
       "tipo": "DOBLE",
-      "incertidumbre": 121.62,
-      "probabilidad_sorpresa": 56.7,
-      "prioridad_cobertura_triple": 259.62,
-      "prioridad_cobertura_doble": 349.5,
-      "penalizacion_elige8": 8.92,
-      "probabilidad_top": 51.2,
-      "margen_probabilidad": 19.0,
-      "tercera_probabilidad": 16.6,
+      "incertidumbre": 116.06,
+      "probabilidad_sorpresa": 54.2,
+      "prioridad_cobertura_triple": 297.94,
+      "prioridad_cobertura_doble": 342.41,
+      "penalizacion_elige8": 8.51,
+      "probabilidad_top": 52.3,
+      "margen_probabilidad": 23.4,
+      "tercera_probabilidad": 18.8,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 66.4,
-      "surprise_score": 66.4,
+      "indice_sorpresa_quinielistica": 65.5,
+      "surprise_score": 65.5,
       "categoria_sorpresa": "favorito_atacable",
       "favorito_atacable": true,
       "favorito": "1",
@@ -416,16 +424,16 @@
         "candidato": true,
         "signo_favorito": "1",
         "signo_alternativo": "X",
-        "indice_sorpresa": 66.4,
+        "indice_sorpresa": 65.5,
         "motivos_contextuales": [
           "Historial de enfrentamientos directos entre estos dos equipos: 75.0% de sorpresas en 4 cruces con cuotas conocidas de las ultimas 3 temporadas."
         ],
         "justificacion": "Evidencia contextual real, no solo estadistica: Historial de enfrentamientos directos entre estos dos equipos: 75.0% de sorpresas en 4 cruces con cuotas conocidas de las ultimas 3 temporadas.."
       },
-      "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+      "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
       "calidad_datos": "alta",
       "trazabilidad_datos": {
-        "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+        "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
         "calidad_datos": "alta",
         "memoria_estadistica": {
           "local": true,
@@ -455,17 +463,26 @@
             "2": 30.8
           },
           "probabilidades_previas": {
-            "1": 58.6,
-            "X": 27.2,
-            "2": 14.2
+            "1": 53.5,
+            "X": 25.6,
+            "2": 20.9
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "segunda_division",
           "baseline_modelo": {
             "1": 40.8,
             "X": 23.3,
             "2": 35.9
+          }
+        },
+        "dixon_coles": {
+          "activo": true,
+          "peso": 0.7,
+          "probs_dc": {
+            "1": 51.3,
+            "X": 25.0,
+            "2": 23.8
           }
         }
       },
@@ -509,8 +526,11 @@
         "lecturas": []
       },
       "ajuste_calibracion": {
-        "activo": false,
-        "motivo": "bucket 50-60 bien calibrado (-2.7)"
+        "activo": true,
+        "bucket": "40-50",
+        "desviacion_medida": 4.08,
+        "correccion_aplicada": 4.0,
+        "lectura": "Calibracion real del bucket 40-50: el motor decia 44.9% y acerto el 48.98% (n=98); signo top corregido +4.0 pts."
       },
       "ajuste_modelo_entrenado": {
         "activo": true,
@@ -521,11 +541,11 @@
           "2": 30.8
         },
         "probabilidades_previas": {
-          "1": 58.6,
-          "X": 27.2,
-          "2": 14.2
+          "1": 53.5,
+          "X": 25.6,
+          "2": 20.9
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "segunda_division",
         "baseline_modelo": {
@@ -632,41 +652,41 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=51.2%, X=32.2%, 2=16.6%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=66.4/100, sorpresa=56.7%, incertidumbre=121.6 y margen=19.0. Favorito o signo de referencia: UD Almeria. Motivos principales: Historial de enfrentamientos directos entre estos dos equipos: 75.0% de sorpresas en 4 cruces con cuotas conocidas de las ultimas 3 temporadas.; rival del favorito llega sin perder. Decision final: 1X.",
+      "razonamiento": "Probabilidades IA: 1=52.3%, X=28.9%, 2=18.8%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=65.5/100, sorpresa=54.2%, incertidumbre=116.1 y margen=23.4. Favorito o signo de referencia: UD Almeria. Motivos principales: Historial de enfrentamientos directos entre estos dos equipos: 75.0% de sorpresas en 4 cruces con cuotas conocidas de las ultimas 3 temporadas.; rival del favorito llega sin perder. Decision final: 1X.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "1 como signo dominante (51.2%).",
-        "hipotesis_alternativa": "X como alternativa (32.2%).",
+        "hipotesis_principal": "1 como signo dominante (52.3%).",
+        "hipotesis_alternativa": "X como alternativa (28.9%).",
         "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
         "riesgo_de_sorpresa": {
           "categoria": "favorito_atacable",
-          "probabilidad": 56.7,
+          "probabilidad": 54.2,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 19.0 puntos, indice sorpresa 66.4."
+        "justificacion_final": "Decision DOBLE 1X: margen 23.4 puntos, indice sorpresa 65.5."
       },
-      "hipotesis_principal": "1 como signo dominante (51.2%).",
-      "hipotesis_alternativa": "X como alternativa (32.2%).",
+      "hipotesis_principal": "1 como signo dominante (52.3%).",
+      "hipotesis_alternativa": "X como alternativa (28.9%).",
       "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
       "riesgo_de_sorpresa": {
         "categoria": "favorito_atacable",
-        "probabilidad": 56.7,
+        "probabilidad": 54.2,
         "favorito_atacable": true
       },
-      "justificacion_final": "Decision DOBLE 1X: margen 19.0 puntos, indice sorpresa 66.4.",
+      "justificacion_final": "Decision DOBLE 1X: margen 23.4 puntos, indice sorpresa 65.5.",
       "en_elige8": true,
       "elige8_modo": "economico",
       "elige8_modo_real": "probabilidad_real_de_acierto_por_coste",
-      "probabilidad_acierto_elige8": 83.4,
-      "elige8_probabilidad_acierto": 83.4,
-      "elige8_probabilidad_cubierta": 83.4,
-      "elige8_eficiencia": 41.7,
-      "elige8_seguro_score": 83.4,
-      "elige8_confianza_real": 83.4,
+      "probabilidad_acierto_elige8": 81.2,
+      "elige8_probabilidad_acierto": 81.2,
+      "elige8_probabilidad_cubierta": 81.2,
+      "elige8_eficiencia": 40.6,
+      "elige8_seguro_score": 81.2,
+      "elige8_confianza_real": 81.2,
       "elige8_tipo_cobertura": "DOBLE",
-      "elige8_seguro_posicion": 8,
+      "elige8_seguro_posicion": 7,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 51.2,
-      "elige8_seguro_margen": 19.0,
+      "elige8_seguro_probabilidad_top": 52.3,
+      "elige8_seguro_margen": 23.4,
       "elige8_maxima_seguridad": true,
       "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
     },
@@ -677,71 +697,70 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 23.0,
-        "X": 32.8,
-        "2": 44.2
+        "1": 30.5,
+        "X": 36.2,
+        "2": 33.3
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 23.0,
+          "probabilidad": 30.5,
           "nivel": "baja"
         },
         "X": {
-          "probabilidad": 32.8,
-          "nivel": "baja"
+          "probabilidad": 36.2,
+          "nivel": "media"
         },
         "2": {
-          "probabilidad": 44.2,
-          "nivel": "media"
+          "probabilidad": 33.3,
+          "nivel": "baja"
         }
       },
-      "signo_base": "2",
-      "signo_final": "2",
-      "tipo": "FIJO",
-      "incertidumbre": 129.83,
-      "probabilidad_sorpresa": 65.8,
-      "prioridad_cobertura_triple": 542.83,
-      "prioridad_cobertura_doble": 257.83,
-      "penalizacion_elige8": 9.78,
-      "probabilidad_top": 44.2,
-      "margen_probabilidad": 11.4,
-      "tercera_probabilidad": 23.0,
+      "signo_base": "X",
+      "signo_final": "1X2",
+      "tipo": "TRIPLE",
+      "incertidumbre": 145.52,
+      "probabilidad_sorpresa": 70,
+      "prioridad_cobertura_triple": 644.72,
+      "prioridad_cobertura_doble": 342.72,
+      "penalizacion_elige8": 10.78,
+      "probabilidad_top": 36.2,
+      "margen_probabilidad": 2.9,
+      "tercera_probabilidad": 30.5,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
       "surprise_score": 100.0,
-      "categoria_sorpresa": "favorito_muy_atacable",
-      "favorito_atacable": true,
-      "favorito": "2",
-      "favorito_nombre": "CD Leganes",
-      "signo_sorpresa_principal": "X",
+      "categoria_sorpresa": "partido_muy_abierto",
+      "favorito_atacable": false,
+      "favorito": null,
+      "favorito_nombre": "Empate",
+      "signo_sorpresa_principal": "2",
       "signos_contra_favorito": [
-        "X",
+        "2",
         "1"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivos_sorpresa": [
-        "favorito con ventaja moderada, no dominante",
+        "margen minimo entre primer y segundo signo",
         "ningun signo supera claramente el 45%",
+        "empate con peso alto",
         "tercer signo vivo: partido candidato a triple",
-        "Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 2 cruces con cuotas conocidas de las ultimas 3 temporadas.",
-        "Visitante del top 10 frente a un local de la segunda mitad de la tabla: 62.5% de sorpresas historicas.",
-        "Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '2' solo al 44.2% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa."
+        "el signo base es X: no hay favorito limpio",
+        "Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 2 cruces con cuotas conocidas de las ultimas 3 temporadas."
       ],
       "riesgo_millonario": {
-        "candidato": true,
-        "signo_favorito": "2",
-        "signo_alternativo": "X",
+        "candidato": false,
+        "signo_favorito": null,
+        "signo_alternativo": "",
         "indice_sorpresa": 100.0,
         "motivos_contextuales": [
-          "Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 2 cruces con cuotas conocidas de las ultimas 3 temporadas.",
-          "Visitante del top 10 frente a un local de la segunda mitad de la tabla: 62.5% de sorpresas historicas."
+          "Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 2 cruces con cuotas conocidas de las ultimas 3 temporadas."
         ],
-        "justificacion": "Evidencia contextual real, no solo estadistica: Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 2 cruces con cuotas conocidas de las ultimas 3 temporadas.; Visitante del top 10 frente a un local de la segunda mitad de la tabla: 62.5% de sorpresas historicas.."
+        "justificacion": "Sin evidencia contextual suficiente -ir contra el favorito aqui seria azar puro, no una apuesta informada."
       },
-      "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+      "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
       "calidad_datos": "alta",
       "trazabilidad_datos": {
-        "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+        "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
         "calidad_datos": "alta",
         "memoria_estadistica": {
           "local": true,
@@ -771,17 +790,26 @@
             "2": 31.0
           },
           "probabilidades_previas": {
-            "1": 18.8,
-            "X": 28.9,
-            "2": 52.3
+            "1": 29.2,
+            "X": 30.7,
+            "2": 40.1
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "segunda_division",
           "baseline_modelo": {
             "1": 38.8,
             "X": 30.3,
             "2": 30.9
+          }
+        },
+        "dixon_coles": {
+          "activo": true,
+          "peso": 0.7,
+          "probs_dc": {
+            "1": 33.6,
+            "X": 31.5,
+            "2": 34.9
           }
         }
       },
@@ -827,11 +855,8 @@
         "lecturas": []
       },
       "ajuste_calibracion": {
-        "activo": true,
-        "bucket": "40-50",
-        "desviacion_medida": 4.08,
-        "correccion_aplicada": 4.0,
-        "lectura": "Calibracion real del bucket 40-50: el motor decia 44.9% y acerto el 48.98% (n=98); signo top corregido +4.0 pts."
+        "activo": false,
+        "motivo": "bucket 30-40 bien calibrado (-0.7)"
       },
       "ajuste_modelo_entrenado": {
         "activo": true,
@@ -842,11 +867,11 @@
           "2": 31.0
         },
         "probabilidades_previas": {
-          "1": 18.8,
-          "X": 28.9,
-          "2": 52.3
+          "1": 29.2,
+          "X": 30.7,
+          "2": 40.1
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "segunda_division",
         "baseline_modelo": {
@@ -891,8 +916,9 @@
       },
       "ajuste_mercado_losilla": {
         "activo": true,
-        "riesgo_extra": 0.0,
+        "riesgo_extra": 6.0,
         "lecturas": [
+          "Mercado Losilla: el consenso publico (2) no coincide con el favorito del motor (X).",
           "Mercado Losilla: consenso publico integrado con peso 0.20 (calidad_datos=alta)."
         ]
       },
@@ -952,44 +978,43 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=23.0%, X=32.8%, 2=44.2%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado. Se mantiene como FIJO (2) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=100.0/100 o sorpresa=65.8%. Favorito o signo de referencia: CD Leganes. Motivos principales: favorito con ventaja moderada, no dominante; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decision final: 2.",
+      "elige8": false,
+      "razonamiento": "Probabilidades IA: 1=30.5%, X=36.2%, 2=33.3%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=145.5 y margen=2.9. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X2.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "2 como signo dominante (44.2%).",
-        "hipotesis_alternativa": "X como alternativa (32.8%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "hipotesis_principal": "X como signo dominante (36.2%).",
+        "hipotesis_alternativa": "2 como alternativa (33.3%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
         "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
-          "probabilidad": 65.8,
-          "favorito_atacable": true
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
         },
-        "justificacion_final": "Decision FIJO 2: margen 11.4 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision TRIPLE 1X2: margen 2.9 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "2 como signo dominante (44.2%).",
-      "hipotesis_alternativa": "X como alternativa (32.8%).",
-      "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+      "hipotesis_principal": "X como signo dominante (36.2%).",
+      "hipotesis_alternativa": "2 como alternativa (33.3%).",
+      "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
       "riesgo_de_sorpresa": {
-        "categoria": "favorito_muy_atacable",
-        "probabilidad": 65.8,
-        "favorito_atacable": true
+        "categoria": "partido_muy_abierto",
+        "probabilidad": 70.0,
+        "favorito_atacable": false
       },
-      "justificacion_final": "Decision FIJO 2: margen 11.4 puntos, indice sorpresa 100.0.",
-      "en_elige8": true,
+      "justificacion_final": "Decision TRIPLE 1X2: margen 2.9 puntos, indice sorpresa 100.0.",
+      "en_elige8": false,
       "elige8_modo": "economico",
       "elige8_modo_real": "probabilidad_real_de_acierto_por_coste",
-      "probabilidad_acierto_elige8": 44.2,
-      "elige8_probabilidad_acierto": 44.2,
-      "elige8_probabilidad_cubierta": 44.2,
-      "elige8_eficiencia": 44.2,
-      "elige8_seguro_score": 44.2,
-      "elige8_confianza_real": 44.2,
-      "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 7,
+      "probabilidad_acierto_elige8": 100.0,
+      "elige8_probabilidad_acierto": 100.0,
+      "elige8_probabilidad_cubierta": 100.0,
+      "elige8_eficiencia": 33.333,
+      "elige8_seguro_score": 100.0,
+      "elige8_confianza_real": 100.0,
+      "elige8_tipo_cobertura": "TRIPLE",
+      "elige8_seguro_posicion": 13,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 44.2,
-      "elige8_seguro_margen": 11.4,
-      "elige8_maxima_seguridad": false,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "elige8_seguro_probabilidad_top": 36.2,
+      "elige8_seguro_margen": 2.9,
+      "elige8_maxima_seguridad": true
     },
     {
       "num": 4,
@@ -998,39 +1023,39 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 50.0,
-        "X": 31.0,
-        "2": 19.0
+        "1": 49.5,
+        "X": 31.3,
+        "2": 19.2
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 50.0,
+          "probabilidad": 49.5,
           "nivel": "media"
         },
         "X": {
-          "probabilidad": 31.0,
+          "probabilidad": 31.3,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 19.0,
+          "probabilidad": 19.2,
           "nivel": "baja"
         }
       },
       "signo_base": "1",
-      "signo_final": "1X",
-      "tipo": "DOBLE",
-      "incertidumbre": 117.2,
-      "probabilidad_sorpresa": 56.8,
-      "prioridad_cobertura_triple": 306.32,
-      "prioridad_cobertura_doble": 353.41,
-      "penalizacion_elige8": 8.7,
-      "probabilidad_top": 50.0,
-      "margen_probabilidad": 19.0,
-      "tercera_probabilidad": 19.0,
+      "signo_final": "1",
+      "tipo": "FIJO",
+      "incertidumbre": 118.1,
+      "probabilidad_sorpresa": 57.5,
+      "prioridad_cobertura_triple": 471.88,
+      "prioridad_cobertura_doble": 219.47,
+      "penalizacion_elige8": 8.78,
+      "probabilidad_top": 49.5,
+      "margen_probabilidad": 18.2,
+      "tercera_probabilidad": 19.2,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 71.3,
-      "surprise_score": 71.3,
-      "categoria_sorpresa": "favorito_atacable",
+      "indice_sorpresa_quinielistica": 77.1,
+      "surprise_score": 77.1,
+      "categoria_sorpresa": "favorito_muy_atacable",
       "favorito_atacable": true,
       "favorito": "1",
       "favorito_nombre": "Sabadell",
@@ -1039,25 +1064,26 @@
         "X",
         "2"
       ],
-      "cobertura_sorpresa_sugerida": "DOBLE",
+      "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivos_sorpresa": [
+        "favorito por debajo del 50%",
         "Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas.",
-        "Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '1' solo al 50.0% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa."
+        "Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '1' solo al 49.5% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa."
       ],
       "riesgo_millonario": {
         "candidato": true,
         "signo_favorito": "1",
         "signo_alternativo": "X",
-        "indice_sorpresa": 71.3,
+        "indice_sorpresa": 77.1,
         "motivos_contextuales": [
           "Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas."
         ],
         "justificacion": "Evidencia contextual real, no solo estadistica: Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas.."
       },
-      "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+      "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
       "calidad_datos": "alta",
       "trazabilidad_datos": {
-        "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+        "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
         "calidad_datos": "alta",
         "memoria_estadistica": {
           "local": true,
@@ -1087,17 +1113,26 @@
             "2": 31.6
           },
           "probabilidades_previas": {
-            "1": 58.7,
-            "X": 25.8,
-            "2": 15.5
+            "1": 57.8,
+            "X": 26.3,
+            "2": 15.9
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "segunda_division",
           "baseline_modelo": {
             "1": 39.6,
             "X": 31.0,
             "2": 29.4
+          }
+        },
+        "dixon_coles": {
+          "activo": true,
+          "peso": 0.7,
+          "probs_dc": {
+            "1": 57.4,
+            "X": 26.6,
+            "2": 16.1
           }
         }
       },
@@ -1157,11 +1192,11 @@
           "2": 31.6
         },
         "probabilidades_previas": {
-          "1": 58.7,
-          "X": 25.8,
-          "2": 15.5
+          "1": 57.8,
+          "X": 26.3,
+          "2": 15.9
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "segunda_division",
         "baseline_modelo": {
@@ -1253,43 +1288,44 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=50.0%, X=31.0%, 2=19.0%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=71.3/100, sorpresa=56.8%, incertidumbre=117.2 y margen=19.0. Favorito o signo de referencia: Sabadell. Motivos principales: Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas.; Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '1' solo al 50.0% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa.. Decision final: 1X.",
+      "elige8": true,
+      "razonamiento": "Probabilidades IA: 1=49.5%, X=31.3%, 2=19.2%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=77.1/100 o sorpresa=57.5%. Favorito o signo de referencia: Sabadell. Motivos principales: favorito por debajo del 50%; Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas.; Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '1' solo al 49.5% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa.. Decision final: 1.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "1 como signo dominante (50.0%).",
-        "hipotesis_alternativa": "X como alternativa (31.0%).",
-        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "hipotesis_principal": "1 como signo dominante (49.5%).",
+        "hipotesis_alternativa": "X como alternativa (31.3%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
-          "categoria": "favorito_atacable",
-          "probabilidad": 56.8,
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 57.5,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 19.0 puntos, indice sorpresa 71.3."
+        "justificacion_final": "Decision FIJO 1: margen 18.2 puntos, indice sorpresa 77.1."
       },
-      "hipotesis_principal": "1 como signo dominante (50.0%).",
-      "hipotesis_alternativa": "X como alternativa (31.0%).",
-      "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+      "hipotesis_principal": "1 como signo dominante (49.5%).",
+      "hipotesis_alternativa": "X como alternativa (31.3%).",
+      "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
-        "categoria": "favorito_atacable",
-        "probabilidad": 56.8,
+        "categoria": "favorito_muy_atacable",
+        "probabilidad": 57.5,
         "favorito_atacable": true
       },
-      "justificacion_final": "Decision DOBLE 1X: margen 19.0 puntos, indice sorpresa 71.3.",
-      "en_elige8": false,
+      "justificacion_final": "Decision FIJO 1: margen 18.2 puntos, indice sorpresa 77.1.",
+      "en_elige8": true,
       "elige8_modo": "economico",
       "elige8_modo_real": "probabilidad_real_de_acierto_por_coste",
-      "probabilidad_acierto_elige8": 81.0,
-      "elige8_probabilidad_acierto": 81.0,
-      "elige8_probabilidad_cubierta": 81.0,
-      "elige8_eficiencia": 40.5,
-      "elige8_seguro_score": 81.0,
-      "elige8_confianza_real": 81.0,
-      "elige8_tipo_cobertura": "DOBLE",
-      "elige8_seguro_posicion": 9,
+      "probabilidad_acierto_elige8": 49.5,
+      "elige8_probabilidad_acierto": 49.5,
+      "elige8_probabilidad_cubierta": 49.5,
+      "elige8_eficiencia": 49.5,
+      "elige8_seguro_score": 49.5,
+      "elige8_confianza_real": 49.5,
+      "elige8_tipo_cobertura": "FIJO",
+      "elige8_seguro_posicion": 6,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 50.0,
-      "elige8_seguro_margen": 19.0,
-      "elige8_maxima_seguridad": true
+      "elige8_seguro_probabilidad_top": 49.5,
+      "elige8_seguro_margen": 18.2,
+      "elige8_maxima_seguridad": false,
+      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
     },
     {
       "num": 5,
@@ -1298,35 +1334,35 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 29.3,
-        "X": 35.8,
-        "2": 34.9
+        "1": 29.9,
+        "X": 35.4,
+        "2": 34.7
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 29.3,
+          "probabilidad": 29.9,
           "nivel": "baja"
         },
         "X": {
-          "probabilidad": 35.8,
+          "probabilidad": 35.4,
           "nivel": "media"
         },
         "2": {
-          "probabilidad": 34.9,
+          "probabilidad": 34.7,
           "nivel": "baja"
         }
       },
       "signo_base": "X",
       "signo_final": "1X2",
       "tipo": "TRIPLE",
-      "incertidumbre": 143.02,
+      "incertidumbre": 146.68,
       "probabilidad_sorpresa": 70,
-      "prioridad_cobertura_triple": 641.22,
-      "prioridad_cobertura_doble": 339.22,
-      "penalizacion_elige8": 10.65,
-      "probabilidad_top": 35.8,
-      "margen_probabilidad": 0.9,
-      "tercera_probabilidad": 29.3,
+      "prioridad_cobertura_triple": 644.88,
+      "prioridad_cobertura_doble": 342.88,
+      "penalizacion_elige8": 10.83,
+      "probabilidad_top": 35.4,
+      "margen_probabilidad": 0.7,
+      "tercera_probabilidad": 29.9,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
       "surprise_score": 100.0,
@@ -1355,10 +1391,10 @@
         "motivos_contextuales": [],
         "justificacion": "Sin evidencia contextual suficiente -ir contra el favorito aqui seria azar puro, no una apuesta informada."
       },
-      "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+      "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
       "calidad_datos": "alta",
       "trazabilidad_datos": {
-        "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+        "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
         "calidad_datos": "alta",
         "memoria_estadistica": {
           "local": true,
@@ -1388,17 +1424,26 @@
             "2": 33.0
           },
           "probabilidades_previas": {
-            "1": 31.4,
-            "X": 34.7,
-            "2": 33.9
+            "1": 38.2,
+            "X": 28.2,
+            "2": 33.6
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "segunda_division",
           "baseline_modelo": {
             "1": 39.9,
             "X": 23.2,
             "2": 37.0
+          }
+        },
+        "dixon_coles": {
+          "activo": true,
+          "peso": 0.7,
+          "probs_dc": {
+            "1": 41.1,
+            "X": 25.4,
+            "2": 33.4
           }
         }
       },
@@ -1456,11 +1501,11 @@
           "2": 33.0
         },
         "probabilidades_previas": {
-          "1": 31.4,
-          "X": 34.7,
-          "2": 33.9
+          "1": 38.2,
+          "X": 28.2,
+          "2": 33.6
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "segunda_division",
         "baseline_modelo": {
@@ -1480,10 +1525,13 @@
       },
       "ajuste_pesos_dinamicos": {
         "activo": true,
-        "riesgo_extra": 7.32,
+        "riesgo_extra": 10.92,
         "lecturas": [
           "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
           "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
           "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
         ]
       },
@@ -1580,27 +1628,27 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=29.3%, X=35.8%, 2=34.9%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=143.0 y margen=0.9. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X2.",
+      "razonamiento": "Probabilidades IA: 1=29.9%, X=35.4%, 2=34.7%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=146.7 y margen=0.7. Favorito o signo de referencia: Empate. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X2.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "X como signo dominante (35.8%).",
-        "hipotesis_alternativa": "2 como alternativa (34.9%).",
+        "hipotesis_principal": "X como signo dominante (35.4%).",
+        "hipotesis_alternativa": "2 como alternativa (34.7%).",
         "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
         "riesgo_de_sorpresa": {
           "categoria": "partido_muy_abierto",
           "probabilidad": 70.0,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision TRIPLE 1X2: margen 0.9 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision TRIPLE 1X2: margen 0.7 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "X como signo dominante (35.8%).",
-      "hipotesis_alternativa": "2 como alternativa (34.9%).",
+      "hipotesis_principal": "X como signo dominante (35.4%).",
+      "hipotesis_alternativa": "2 como alternativa (34.7%).",
       "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
       "riesgo_de_sorpresa": {
         "categoria": "partido_muy_abierto",
         "probabilidad": 70.0,
         "favorito_atacable": false
       },
-      "justificacion_final": "Decision TRIPLE 1X2: margen 0.9 puntos, indice sorpresa 100.0.",
+      "justificacion_final": "Decision TRIPLE 1X2: margen 0.7 puntos, indice sorpresa 100.0.",
       "en_elige8": false,
       "elige8_modo": "economico",
       "elige8_modo_real": "probabilidad_real_de_acierto_por_coste",
@@ -1611,10 +1659,10 @@
       "elige8_seguro_score": 100.0,
       "elige8_confianza_real": 100.0,
       "elige8_tipo_cobertura": "TRIPLE",
-      "elige8_seguro_posicion": 13,
+      "elige8_seguro_posicion": 14,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 35.8,
-      "elige8_seguro_margen": 0.9,
+      "elige8_seguro_probabilidad_top": 35.4,
+      "elige8_seguro_margen": 0.7,
       "elige8_maxima_seguridad": true
     },
     {
@@ -1624,40 +1672,40 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 46.7,
-        "X": 33.6,
-        "2": 19.7
+        "1": 52.0,
+        "X": 30.5,
+        "2": 17.5
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 46.7,
+          "probabilidad": 52.0,
           "nivel": "media"
         },
         "X": {
-          "probabilidad": 33.6,
+          "probabilidad": 30.5,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 19.7,
+          "probabilidad": 17.5,
           "nivel": "baja"
         }
       },
       "signo_base": "1",
-      "signo_final": "1X",
-      "tipo": "DOBLE",
-      "incertidumbre": 130.31,
-      "probabilidad_sorpresa": 63.4,
-      "prioridad_cobertura_triple": 335.81,
-      "prioridad_cobertura_doble": 382.31,
-      "penalizacion_elige8": 9.69,
-      "probabilidad_top": 46.7,
-      "margen_probabilidad": 13.1,
-      "tercera_probabilidad": 19.7,
+      "signo_final": "1",
+      "tipo": "FIJO",
+      "incertidumbre": 114.82,
+      "probabilidad_sorpresa": 54.2,
+      "prioridad_cobertura_triple": 197.32,
+      "prioridad_cobertura_doble": 157.32,
+      "penalizacion_elige8": 8.45,
+      "probabilidad_top": 52.0,
+      "margen_probabilidad": 21.5,
+      "tercera_probabilidad": 17.5,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 70.0,
-      "surprise_score": 70.0,
-      "categoria_sorpresa": "favorito_atacable",
-      "favorito_atacable": true,
+      "indice_sorpresa_quinielistica": 34.0,
+      "surprise_score": 34.0,
+      "categoria_sorpresa": "riesgo_controlado",
+      "favorito_atacable": false,
       "favorito": "1",
       "favorito_nombre": "Real Sporting de Gijon",
       "signo_sorpresa_principal": "X",
@@ -1665,23 +1713,22 @@
         "X",
         "2"
       ],
-      "cobertura_sorpresa_sugerida": "DOBLE",
+      "cobertura_sorpresa_sugerida": "FIJO",
       "motivos_sorpresa": [
-        "favorito por debajo del 50%",
-        "empate con peso alto"
+        "sin senales fuertes de ruptura del favorito"
       ],
       "riesgo_millonario": {
         "candidato": false,
         "signo_favorito": "1",
         "signo_alternativo": "",
-        "indice_sorpresa": 70.0,
+        "indice_sorpresa": 34.0,
         "motivos_contextuales": [],
         "justificacion": "Sin evidencia contextual suficiente -ir contra el favorito aqui seria azar puro, no una apuesta informada."
       },
-      "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+      "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
       "calidad_datos": "alta",
       "trazabilidad_datos": {
-        "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+        "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
         "calidad_datos": "alta",
         "memoria_estadistica": {
           "local": true,
@@ -1711,17 +1758,26 @@
             "2": 26.0
           },
           "probabilidades_previas": {
-            "1": 42.2,
-            "X": 32.0,
-            "2": 25.8
+            "1": 52.1,
+            "X": 26.1,
+            "2": 21.9
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "segunda_division",
           "baseline_modelo": {
             "1": 48.1,
             "X": 29.2,
             "2": 22.7
+          }
+        },
+        "dixon_coles": {
+          "activo": true,
+          "peso": 0.7,
+          "probs_dc": {
+            "1": 56.3,
+            "X": 23.6,
+            "2": 20.2
           }
         }
       },
@@ -1782,11 +1838,11 @@
           "2": 26.0
         },
         "probabilidades_previas": {
-          "1": 42.2,
-          "X": 32.0,
-          "2": 25.8
+          "1": 52.1,
+          "X": 26.1,
+          "2": 21.9
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "segunda_division",
         "baseline_modelo": {
@@ -1831,9 +1887,8 @@
       },
       "ajuste_mercado_losilla": {
         "activo": true,
-        "riesgo_extra": 6.0,
+        "riesgo_extra": 0.0,
         "lecturas": [
-          "Mercado Losilla: el consenso publico (1) no coincide con el favorito del motor (X).",
           "Mercado Losilla: consenso publico integrado con peso 0.20 (calidad_datos=alta)."
         ]
       },
@@ -1906,43 +1961,44 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=46.7%, X=33.6%, 2=19.7%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=70.0/100, sorpresa=63.4%, incertidumbre=130.3 y margen=13.1. Favorito o signo de referencia: Real Sporting de Gijon. Motivos principales: favorito por debajo del 50%; empate con peso alto. Decision final: 1X.",
+      "elige8": true,
+      "razonamiento": "Probabilidades IA: 1=52.0%, X=30.5%, 2=17.5%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=34.0/100 o sorpresa=54.2%. Favorito o signo de referencia: Real Sporting de Gijon. Motivos principales: sin senales fuertes de ruptura del favorito. Decision final: 1.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "1 como signo dominante (46.7%).",
-        "hipotesis_alternativa": "X como alternativa (33.6%).",
-        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "hipotesis_principal": "1 como signo dominante (52.0%).",
+        "hipotesis_alternativa": "X como alternativa (30.5%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
-          "categoria": "favorito_atacable",
-          "probabilidad": 63.4,
-          "favorito_atacable": true
+          "categoria": "riesgo_controlado",
+          "probabilidad": 54.2,
+          "favorito_atacable": false
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 13.1 puntos, indice sorpresa 70.0."
+        "justificacion_final": "Decision FIJO 1: margen 21.5 puntos, indice sorpresa 34.0."
       },
-      "hipotesis_principal": "1 como signo dominante (46.7%).",
-      "hipotesis_alternativa": "X como alternativa (33.6%).",
-      "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+      "hipotesis_principal": "1 como signo dominante (52.0%).",
+      "hipotesis_alternativa": "X como alternativa (30.5%).",
+      "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
-        "categoria": "favorito_atacable",
-        "probabilidad": 63.4,
-        "favorito_atacable": true
+        "categoria": "riesgo_controlado",
+        "probabilidad": 54.2,
+        "favorito_atacable": false
       },
-      "justificacion_final": "Decision DOBLE 1X: margen 13.1 puntos, indice sorpresa 70.0.",
-      "en_elige8": false,
+      "justificacion_final": "Decision FIJO 1: margen 21.5 puntos, indice sorpresa 34.0.",
+      "en_elige8": true,
       "elige8_modo": "economico",
       "elige8_modo_real": "probabilidad_real_de_acierto_por_coste",
-      "probabilidad_acierto_elige8": 80.3,
-      "elige8_probabilidad_acierto": 80.3,
-      "elige8_probabilidad_cubierta": 80.3,
-      "elige8_eficiencia": 40.15,
-      "elige8_seguro_score": 80.3,
-      "elige8_confianza_real": 80.3,
-      "elige8_tipo_cobertura": "DOBLE",
-      "elige8_seguro_posicion": 10,
+      "probabilidad_acierto_elige8": 52.0,
+      "elige8_probabilidad_acierto": 52.0,
+      "elige8_probabilidad_cubierta": 52.0,
+      "elige8_eficiencia": 52.0,
+      "elige8_seguro_score": 52.0,
+      "elige8_confianza_real": 52.0,
+      "elige8_tipo_cobertura": "FIJO",
+      "elige8_seguro_posicion": 5,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 46.7,
-      "elige8_seguro_margen": 13.1,
-      "elige8_maxima_seguridad": true
+      "elige8_seguro_probabilidad_top": 52.0,
+      "elige8_seguro_margen": 21.5,
+      "elige8_maxima_seguridad": false,
+      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
     },
     {
       "num": 7,
@@ -1951,38 +2007,38 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 55.9,
-        "X": 29.6,
+        "1": 63.0,
+        "X": 22.3,
         "2": 14.6
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 55.84,
+          "probabilidad": 63.06,
           "nivel": "alta"
         },
         "X": {
-          "probabilidad": 29.57,
+          "probabilidad": 22.32,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 14.59,
+          "probabilidad": 14.61,
           "nivel": "baja"
         }
       },
       "signo_base": "1",
       "signo_final": "1",
       "tipo": "FIJO",
-      "incertidumbre": 107.53,
-      "probabilidad_sorpresa": 48.5,
-      "prioridad_cobertura_triple": 186.16,
-      "prioridad_cobertura_doble": 146.16,
-      "penalizacion_elige8": 7.8,
-      "probabilidad_top": 55.9,
-      "margen_probabilidad": 26.3,
+      "incertidumbre": 78.53,
+      "probabilidad_sorpresa": 37.0,
+      "prioridad_cobertura_triple": 130.28,
+      "prioridad_cobertura_doble": 90.28,
+      "penalizacion_elige8": 5.78,
+      "probabilidad_top": 63.0,
+      "margen_probabilidad": 40.7,
       "tercera_probabilidad": 14.6,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 30.9,
-      "surprise_score": 30.9,
+      "indice_sorpresa_quinielistica": 9.4,
+      "surprise_score": 9.4,
       "categoria_sorpresa": "riesgo_controlado",
       "favorito_atacable": false,
       "favorito": "1",
@@ -2000,16 +2056,16 @@
         "candidato": false,
         "signo_favorito": "1",
         "signo_alternativo": "",
-        "indice_sorpresa": 30.9,
+        "indice_sorpresa": 9.4,
         "motivos_contextuales": [
           "Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas."
         ],
         "justificacion": "Sin evidencia contextual suficiente -ir contra el favorito aqui seria azar puro, no una apuesta informada."
       },
-      "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+      "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
       "calidad_datos": "alta",
       "trazabilidad_datos": {
-        "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+        "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
         "calidad_datos": "alta",
         "memoria_estadistica": {
           "local": true,
@@ -2039,17 +2095,26 @@
             "2": 26.9
           },
           "probabilidades_previas": {
-            "1": 58.5,
-            "X": 26.7,
-            "2": 14.8
+            "1": 66.1,
+            "X": 20.2,
+            "2": 13.7
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "segunda_division",
           "baseline_modelo": {
             "1": 56.5,
             "X": 21.5,
             "2": 22.0
+          }
+        },
+        "dixon_coles": {
+          "activo": true,
+          "peso": 0.7,
+          "probs_dc": {
+            "1": 69.3,
+            "X": 17.5,
+            "2": 13.2
           }
         }
       },
@@ -2095,7 +2160,7 @@
       },
       "ajuste_calibracion": {
         "activo": false,
-        "motivo": "bucket 50-60 bien calibrado (-2.7)"
+        "motivo": "bucket 60-70 sin muestra suficiente"
       },
       "ajuste_modelo_entrenado": {
         "activo": true,
@@ -2106,11 +2171,11 @@
           "2": 26.9
         },
         "probabilidades_previas": {
-          "1": 58.5,
-          "X": 26.7,
-          "2": 14.8
+          "1": 66.1,
+          "X": 20.2,
+          "2": 13.7
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "segunda_division",
         "baseline_modelo": {
@@ -2120,12 +2185,9 @@
         }
       },
       "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 12.04,
-        "lecturas": [
-          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%."
-        ]
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
       },
       "ajuste_pesos_dinamicos": {
         "activo": true,
@@ -2202,41 +2264,41 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=55.9%, X=29.6%, 2=14.6%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=30.9/100 o sorpresa=48.5%. Favorito o signo de referencia: CD Castellon. Motivos principales: Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas.. Decision final: 1.",
+      "razonamiento": "Probabilidades IA: 1=63.0%, X=22.3%, 2=14.6%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=9.4/100 o sorpresa=37.0%. Favorito o signo de referencia: CD Castellon. Motivos principales: Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas.. Decision final: 1.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "1 como signo dominante (55.9%).",
-        "hipotesis_alternativa": "X como alternativa (29.6%).",
+        "hipotesis_principal": "1 como signo dominante (63.0%).",
+        "hipotesis_alternativa": "X como alternativa (22.3%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
           "categoria": "riesgo_controlado",
-          "probabilidad": 48.5,
+          "probabilidad": 37.0,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision FIJO 1: margen 26.3 puntos, indice sorpresa 30.9."
+        "justificacion_final": "Decision FIJO 1: margen 40.7 puntos, indice sorpresa 9.4."
       },
-      "hipotesis_principal": "1 como signo dominante (55.9%).",
-      "hipotesis_alternativa": "X como alternativa (29.6%).",
+      "hipotesis_principal": "1 como signo dominante (63.0%).",
+      "hipotesis_alternativa": "X como alternativa (22.3%).",
       "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
         "categoria": "riesgo_controlado",
-        "probabilidad": 48.5,
+        "probabilidad": 37.0,
         "favorito_atacable": false
       },
-      "justificacion_final": "Decision FIJO 1: margen 26.3 puntos, indice sorpresa 30.9.",
+      "justificacion_final": "Decision FIJO 1: margen 40.7 puntos, indice sorpresa 9.4.",
       "en_elige8": true,
       "elige8_modo": "economico",
       "elige8_modo_real": "probabilidad_real_de_acierto_por_coste",
-      "probabilidad_acierto_elige8": 55.9,
-      "elige8_probabilidad_acierto": 55.9,
-      "elige8_probabilidad_cubierta": 55.9,
-      "elige8_eficiencia": 55.9,
-      "elige8_seguro_score": 55.9,
-      "elige8_confianza_real": 55.9,
+      "probabilidad_acierto_elige8": 63.0,
+      "elige8_probabilidad_acierto": 63.0,
+      "elige8_probabilidad_cubierta": 63.0,
+      "elige8_eficiencia": 63.0,
+      "elige8_seguro_score": 63.0,
+      "elige8_confianza_real": 63.0,
       "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 2,
+      "elige8_seguro_posicion": 1,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 55.9,
-      "elige8_seguro_margen": 26.3,
+      "elige8_seguro_probabilidad_top": 63.0,
+      "elige8_seguro_margen": 40.7,
       "elige8_maxima_seguridad": true,
       "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
     },
@@ -2247,40 +2309,40 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 45.8,
-        "X": 32.4,
-        "2": 21.7
+        "1": 52.7,
+        "X": 29.8,
+        "2": 17.5
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 45.85,
+          "probabilidad": 52.7,
           "nivel": "media"
         },
         "X": {
-          "probabilidad": 32.43,
+          "probabilidad": 29.8,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 21.72,
+          "probabilidad": 17.5,
           "nivel": "baja"
         }
       },
       "signo_base": "1",
       "signo_final": "1",
       "tipo": "FIJO",
-      "incertidumbre": 123.29,
-      "probabilidad_sorpresa": 62.5,
-      "prioridad_cobertura_triple": 493.81,
-      "prioridad_cobertura_doble": 241.79,
-      "penalizacion_elige8": 9.29,
-      "probabilidad_top": 45.8,
-      "margen_probabilidad": 13.4,
-      "tercera_probabilidad": 21.7,
+      "incertidumbre": 112.88,
+      "probabilidad_sorpresa": 53.0,
+      "prioridad_cobertura_triple": 212.13,
+      "prioridad_cobertura_doble": 172.13,
+      "penalizacion_elige8": 8.29,
+      "probabilidad_top": 52.7,
+      "margen_probabilidad": 22.9,
+      "tercera_probabilidad": 17.5,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 76.4,
-      "surprise_score": 76.4,
-      "categoria_sorpresa": "favorito_muy_atacable",
-      "favorito_atacable": true,
+      "indice_sorpresa_quinielistica": 47.4,
+      "surprise_score": 47.4,
+      "categoria_sorpresa": "sorpresa_vigilada",
+      "favorito_atacable": false,
       "favorito": "1",
       "favorito_nombre": "UD Las Palmas",
       "signo_sorpresa_principal": "X",
@@ -2288,9 +2350,8 @@
         "X",
         "2"
       ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "cobertura_sorpresa_sugerida": "FIJO",
       "motivos_sorpresa": [
-        "favorito por debajo del 50%",
         "favorito encaja demasiado para ser fijo limpio",
         "el no favorito llega con mejor forma reciente"
       ],
@@ -2298,14 +2359,14 @@
         "candidato": false,
         "signo_favorito": "1",
         "signo_alternativo": "",
-        "indice_sorpresa": 76.4,
+        "indice_sorpresa": 47.4,
         "motivos_contextuales": [],
         "justificacion": "Sin evidencia contextual suficiente -ir contra el favorito aqui seria azar puro, no una apuesta informada."
       },
-      "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+      "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
       "calidad_datos": "alta",
       "trazabilidad_datos": {
-        "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+        "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
         "calidad_datos": "alta",
         "memoria_estadistica": {
           "local": true,
@@ -2335,17 +2396,26 @@
             "2": 30.4
           },
           "probabilidades_previas": {
-            "1": 41.5,
-            "X": 31.0,
-            "2": 27.4
+            "1": 53.7,
+            "X": 26.6,
+            "2": 19.7
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "liga_extranjera",
           "baseline_modelo": {
             "1": 44.7,
             "X": 23.8,
             "2": 31.5
+          }
+        },
+        "dixon_coles": {
+          "activo": true,
+          "peso": 0.7,
+          "probs_dc": {
+            "1": 58.8,
+            "X": 24.8,
+            "2": 16.4
           }
         }
       },
@@ -2404,11 +2474,11 @@
           "2": 30.4
         },
         "probabilidades_previas": {
-          "1": 41.5,
-          "X": 31.0,
-          "2": 27.4
+          "1": 53.7,
+          "X": 26.6,
+          "2": 19.7
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "liga_extranjera",
         "baseline_modelo": {
@@ -2501,41 +2571,41 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=45.8%, X=32.4%, 2=21.7%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=76.4/100 o sorpresa=62.5%. Favorito o signo de referencia: UD Las Palmas. Motivos principales: favorito por debajo del 50%; favorito encaja demasiado para ser fijo limpio; el no favorito llega con mejor forma reciente. Decision final: 1.",
+      "razonamiento": "Probabilidades IA: 1=52.7%, X=29.8%, 2=17.5%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=47.4/100 o sorpresa=53.0%. Favorito o signo de referencia: UD Las Palmas. Motivos principales: favorito encaja demasiado para ser fijo limpio; el no favorito llega con mejor forma reciente. Decision final: 1.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "1 como signo dominante (45.8%).",
-        "hipotesis_alternativa": "X como alternativa (32.4%).",
+        "hipotesis_principal": "1 como signo dominante (52.7%).",
+        "hipotesis_alternativa": "X como alternativa (29.8%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
-          "probabilidad": 62.5,
-          "favorito_atacable": true
+          "categoria": "sorpresa_vigilada",
+          "probabilidad": 53.0,
+          "favorito_atacable": false
         },
-        "justificacion_final": "Decision FIJO 1: margen 13.4 puntos, indice sorpresa 76.4."
+        "justificacion_final": "Decision FIJO 1: margen 22.9 puntos, indice sorpresa 47.4."
       },
-      "hipotesis_principal": "1 como signo dominante (45.8%).",
-      "hipotesis_alternativa": "X como alternativa (32.4%).",
+      "hipotesis_principal": "1 como signo dominante (52.7%).",
+      "hipotesis_alternativa": "X como alternativa (29.8%).",
       "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
       "riesgo_de_sorpresa": {
-        "categoria": "favorito_muy_atacable",
-        "probabilidad": 62.5,
-        "favorito_atacable": true
+        "categoria": "sorpresa_vigilada",
+        "probabilidad": 53.0,
+        "favorito_atacable": false
       },
-      "justificacion_final": "Decision FIJO 1: margen 13.4 puntos, indice sorpresa 76.4.",
+      "justificacion_final": "Decision FIJO 1: margen 22.9 puntos, indice sorpresa 47.4.",
       "en_elige8": true,
       "elige8_modo": "economico",
       "elige8_modo_real": "probabilidad_real_de_acierto_por_coste",
-      "probabilidad_acierto_elige8": 45.8,
-      "elige8_probabilidad_acierto": 45.8,
-      "elige8_probabilidad_cubierta": 45.8,
-      "elige8_eficiencia": 45.8,
-      "elige8_seguro_score": 45.8,
-      "elige8_confianza_real": 45.8,
+      "probabilidad_acierto_elige8": 52.7,
+      "elige8_probabilidad_acierto": 52.7,
+      "elige8_probabilidad_cubierta": 52.7,
+      "elige8_eficiencia": 52.7,
+      "elige8_seguro_score": 52.7,
+      "elige8_confianza_real": 52.7,
       "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 5,
+      "elige8_seguro_posicion": 4,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 45.8,
-      "elige8_seguro_margen": 13.4,
+      "elige8_seguro_probabilidad_top": 52.7,
+      "elige8_seguro_margen": 22.9,
       "elige8_maxima_seguridad": false,
       "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
     },
@@ -2546,17 +2616,17 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 45.1,
-        "X": 33.6,
+        "1": 47.4,
+        "X": 31.3,
         "2": 21.3
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 45.1,
+          "probabilidad": 47.4,
           "nivel": "media"
         },
         "X": {
-          "probabilidad": 33.6,
+          "probabilidad": 31.3,
           "nivel": "baja"
         },
         "2": {
@@ -2565,20 +2635,20 @@
         }
       },
       "signo_base": "1",
-      "signo_final": "1",
-      "tipo": "FIJO",
-      "incertidumbre": 128.87,
-      "probabilidad_sorpresa": 64.6,
-      "prioridad_cobertura_triple": 514.87,
-      "prioridad_cobertura_doble": 288.12,
-      "penalizacion_elige8": 9.67,
-      "probabilidad_top": 45.1,
-      "margen_probabilidad": 11.5,
+      "signo_final": "1X",
+      "tipo": "DOBLE",
+      "incertidumbre": 123.47,
+      "probabilidad_sorpresa": 61.0,
+      "prioridad_cobertura_triple": 311.72,
+      "prioridad_cobertura_doble": 358.49,
+      "penalizacion_elige8": 9.22,
+      "probabilidad_top": 47.4,
+      "margen_probabilidad": 16.1,
       "tercera_probabilidad": 21.3,
       "riesgo_necesidad_real": false,
-      "indice_sorpresa_quinielistica": 85.0,
-      "surprise_score": 85.0,
-      "categoria_sorpresa": "favorito_muy_atacable",
+      "indice_sorpresa_quinielistica": 70.6,
+      "surprise_score": 70.6,
+      "categoria_sorpresa": "favorito_atacable",
       "favorito_atacable": true,
       "favorito": "1",
       "favorito_nombre": "Girona FC",
@@ -2587,27 +2657,25 @@
         "X",
         "2"
       ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "cobertura_sorpresa_sugerida": "DOBLE",
       "motivos_sorpresa": [
-        "favorito con ventaja moderada, no dominante",
         "favorito por debajo del 50%",
-        "empate con peso alto",
         "Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 6 cruces con cuotas conocidas de las ultimas 3 temporadas."
       ],
       "riesgo_millonario": {
         "candidato": true,
         "signo_favorito": "1",
         "signo_alternativo": "X",
-        "indice_sorpresa": 85.0,
+        "indice_sorpresa": 70.6,
         "motivos_contextuales": [
           "Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 6 cruces con cuotas conocidas de las ultimas 3 temporadas."
         ],
         "justificacion": "Evidencia contextual real, no solo estadistica: Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 6 cruces con cuotas conocidas de las ultimas 3 temporadas.."
       },
-      "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+      "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
       "calidad_datos": "alta",
       "trazabilidad_datos": {
-        "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+        "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
         "calidad_datos": "alta",
         "memoria_estadistica": {
           "local": true,
@@ -2637,17 +2705,26 @@
             "2": 30.4
           },
           "probabilidades_previas": {
-            "1": 43.9,
-            "X": 32.3,
-            "2": 23.9
+            "1": 47.9,
+            "X": 28.3,
+            "2": 23.8
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "segunda_division",
           "baseline_modelo": {
             "1": 39.1,
             "X": 28.4,
             "2": 32.5
+          }
+        },
+        "dixon_coles": {
+          "activo": true,
+          "peso": 0.7,
+          "probs_dc": {
+            "1": 49.7,
+            "X": 26.6,
+            "2": 23.7
           }
         }
       },
@@ -2707,11 +2784,11 @@
           "2": 30.4
         },
         "probabilidades_previas": {
-          "1": 43.9,
-          "X": 32.3,
-          "2": 23.9
+          "1": 47.9,
+          "X": 28.3,
+          "2": 23.8
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "segunda_division",
         "baseline_modelo": {
@@ -2820,42 +2897,42 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": true,
-      "razonamiento": "Probabilidades IA: 1=45.1%, X=33.6%, 2=21.3%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=85.0/100 o sorpresa=64.6%. Favorito o signo de referencia: Girona FC. Motivos principales: favorito con ventaja moderada, no dominante; favorito por debajo del 50%; empate con peso alto. Decision final: 1.",
+      "razonamiento": "Probabilidades IA: 1=47.4%, X=31.3%, 2=21.3%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=70.6/100, sorpresa=61.0%, incertidumbre=123.5 y margen=16.1. Favorito o signo de referencia: Girona FC. Motivos principales: favorito por debajo del 50%; Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 6 cruces con cuotas conocidas de las ultimas 3 temporadas.. Decision final: 1X.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "1 como signo dominante (45.1%).",
-        "hipotesis_alternativa": "X como alternativa (33.6%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "hipotesis_principal": "1 como signo dominante (47.4%).",
+        "hipotesis_alternativa": "X como alternativa (31.3%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
         "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
-          "probabilidad": 64.6,
+          "categoria": "favorito_atacable",
+          "probabilidad": 61.0,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision FIJO 1: margen 11.5 puntos, indice sorpresa 85.0."
+        "justificacion_final": "Decision DOBLE 1X: margen 16.1 puntos, indice sorpresa 70.6."
       },
-      "hipotesis_principal": "1 como signo dominante (45.1%).",
-      "hipotesis_alternativa": "X como alternativa (33.6%).",
-      "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+      "hipotesis_principal": "1 como signo dominante (47.4%).",
+      "hipotesis_alternativa": "X como alternativa (31.3%).",
+      "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
       "riesgo_de_sorpresa": {
-        "categoria": "favorito_muy_atacable",
-        "probabilidad": 64.6,
+        "categoria": "favorito_atacable",
+        "probabilidad": 61.0,
         "favorito_atacable": true
       },
-      "justificacion_final": "Decision FIJO 1: margen 11.5 puntos, indice sorpresa 85.0.",
+      "justificacion_final": "Decision DOBLE 1X: margen 16.1 puntos, indice sorpresa 70.6.",
       "en_elige8": true,
       "elige8_modo": "economico",
       "elige8_modo_real": "probabilidad_real_de_acierto_por_coste",
-      "probabilidad_acierto_elige8": 45.1,
-      "elige8_probabilidad_acierto": 45.1,
-      "elige8_probabilidad_cubierta": 45.1,
-      "elige8_eficiencia": 45.1,
-      "elige8_seguro_score": 45.1,
-      "elige8_confianza_real": 45.1,
-      "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 6,
+      "probabilidad_acierto_elige8": 78.7,
+      "elige8_probabilidad_acierto": 78.7,
+      "elige8_probabilidad_cubierta": 78.7,
+      "elige8_eficiencia": 39.35,
+      "elige8_seguro_score": 78.7,
+      "elige8_confianza_real": 78.7,
+      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_seguro_posicion": 8,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 45.1,
-      "elige8_seguro_margen": 11.5,
-      "elige8_maxima_seguridad": false,
+      "elige8_seguro_probabilidad_top": 47.4,
+      "elige8_seguro_margen": 16.1,
+      "elige8_maxima_seguridad": true,
       "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
     },
     {
@@ -2865,46 +2942,46 @@
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "probabilidades": {
-        "1": 27.8,
-        "X": 34.2,
-        "2": 37.9
+        "1": 37.0,
+        "X": 34.1,
+        "2": 28.9
       },
       "confianza_signos": {
         "1": {
-          "probabilidad": 27.83,
-          "nivel": "baja"
+          "probabilidad": 37.0,
+          "nivel": "media"
         },
         "X": {
-          "probabilidad": 34.23,
+          "probabilidad": 34.1,
           "nivel": "baja"
         },
         "2": {
-          "probabilidad": 37.94,
-          "nivel": "media"
+          "probabilidad": 28.9,
+          "nivel": "baja"
         }
       },
-      "signo_base": "2",
-      "signo_final": "1X2",
-      "tipo": "TRIPLE",
-      "incertidumbre": 144.92,
+      "signo_base": "1",
+      "signo_final": "1X",
+      "tipo": "DOBLE",
+      "incertidumbre": 145.69,
       "probabilidad_sorpresa": 70,
-      "prioridad_cobertura_triple": 663.12,
-      "prioridad_cobertura_doble": 378.12,
-      "penalizacion_elige8": 10.75,
-      "probabilidad_top": 37.9,
-      "margen_probabilidad": 3.7,
-      "tercera_probabilidad": 27.8,
+      "prioridad_cobertura_triple": 568.69,
+      "prioridad_cobertura_doble": 283.69,
+      "penalizacion_elige8": 10.78,
+      "probabilidad_top": 37.0,
+      "margen_probabilidad": 2.9,
+      "tercera_probabilidad": 28.9,
       "riesgo_necesidad_real": false,
       "indice_sorpresa_quinielistica": 100.0,
       "surprise_score": 100.0,
       "categoria_sorpresa": "favorito_muy_atacable",
       "favorito_atacable": true,
-      "favorito": "2",
-      "favorito_nombre": "Tenerife",
+      "favorito": "1",
+      "favorito_nombre": "Cordoba CF",
       "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
         "X",
-        "1"
+        "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "motivos_sorpresa": [
@@ -2917,7 +2994,7 @@
       ],
       "riesgo_millonario": {
         "candidato": true,
-        "signo_favorito": "2",
+        "signo_favorito": "1",
         "signo_alternativo": "X",
         "indice_sorpresa": 100.0,
         "motivos_contextuales": [
@@ -2926,10 +3003,10 @@
         ],
         "justificacion": "Evidencia contextual real, no solo estadistica: Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 2 cruces con cuotas conocidas de las ultimas 3 temporadas.; Visitante del top 10 frente a un local de la segunda mitad de la tabla: 62.5% de sorpresas historicas.."
       },
-      "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+      "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
       "calidad_datos": "alta",
       "trazabilidad_datos": {
-        "origen_probabilidades": "estadistica_equipos+modelo_entrenado",
+        "origen_probabilidades": "estadistica_equipos+modelo_entrenado+dixon_coles",
         "calidad_datos": "alta",
         "memoria_estadistica": {
           "local": true,
@@ -2959,17 +3036,26 @@
             "2": 34.1
           },
           "probabilidades_previas": {
-            "1": 18.6,
-            "X": 26.9,
-            "2": 54.5
+            "1": 40.5,
+            "X": 26.6,
+            "2": 32.9
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "segunda_division",
           "baseline_modelo": {
             "1": 33.8,
             "X": 20.4,
             "2": 45.8
+          }
+        },
+        "dixon_coles": {
+          "activo": true,
+          "peso": 0.7,
+          "probs_dc": {
+            "1": 49.9,
+            "X": 26.5,
+            "2": 23.6
           }
         }
       },
@@ -3027,11 +3113,11 @@
           "2": 34.1
         },
         "probabilidades_previas": {
-          "1": 18.6,
-          "X": 26.9,
-          "2": 54.5
+          "1": 40.5,
+          "X": 26.6,
+          "2": 32.9
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "segunda_division",
         "baseline_modelo": {
@@ -3078,7 +3164,7 @@
         "activo": true,
         "riesgo_extra": 6.0,
         "lecturas": [
-          "Mercado Losilla: el consenso publico (1) no coincide con el favorito del motor (2).",
+          "Mercado Losilla: el consenso publico (1) no coincide con el favorito del motor (X).",
           "Mercado Losilla: consenso publico integrado con peso 0.20 (calidad_datos=alta)."
         ]
       },
@@ -3125,41 +3211,41 @@
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
       "elige8": false,
-      "razonamiento": "Probabilidades IA: 1=27.8%, X=34.2%, 2=37.9%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=144.9 y margen=3.7. Favorito o signo de referencia: Tenerife. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X2.",
+      "razonamiento": "Probabilidades IA: 1=37.0%, X=34.1%, 2=28.9%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=145.7 y margen=2.9. Favorito o signo de referencia: Cordoba CF. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X.",
       "explicabilidad_ia": {
-        "hipotesis_principal": "2 como signo dominante (37.9%).",
-        "hipotesis_alternativa": "X como alternativa (34.2%).",
-        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "hipotesis_principal": "1 como signo dominante (37.0%).",
+        "hipotesis_alternativa": "X como alternativa (34.1%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
         "riesgo_de_sorpresa": {
           "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision TRIPLE 1X2: margen 3.7 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision DOBLE 1X: margen 2.9 puntos, indice sorpresa 100.0."
       },
-      "hipotesis_principal": "2 como signo dominante (37.9%).",
-      "hipotesis_alternativa": "X como alternativa (34.2%).",
-      "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+      "hipotesis_principal": "1 como signo dominante (37.0%).",
+      "hipotesis_alternativa": "X como alternativa (34.1%).",
+      "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
       "riesgo_de_sorpresa": {
         "categoria": "favorito_muy_atacable",
         "probabilidad": 70.0,
         "favorito_atacable": true
       },
-      "justificacion_final": "Decision TRIPLE 1X2: margen 3.7 puntos, indice sorpresa 100.0.",
+      "justificacion_final": "Decision DOBLE 1X: margen 2.9 puntos, indice sorpresa 100.0.",
       "en_elige8": false,
       "elige8_modo": "economico",
       "elige8_modo_real": "probabilidad_real_de_acierto_por_coste",
-      "probabilidad_acierto_elige8": 100.0,
-      "elige8_probabilidad_acierto": 100.0,
-      "elige8_probabilidad_cubierta": 100.0,
-      "elige8_eficiencia": 33.333,
-      "elige8_seguro_score": 100.0,
-      "elige8_confianza_real": 100.0,
-      "elige8_tipo_cobertura": "TRIPLE",
-      "elige8_seguro_posicion": 14,
+      "probabilidad_acierto_elige8": 71.1,
+      "elige8_probabilidad_acierto": 71.1,
+      "elige8_probabilidad_cubierta": 71.1,
+      "elige8_eficiencia": 35.55,
+      "elige8_seguro_score": 71.1,
+      "elige8_confianza_real": 71.1,
+      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_seguro_posicion": 12,
       "elige8_seguro_cumple_umbral": true,
-      "elige8_seguro_probabilidad_top": 37.9,
-      "elige8_seguro_margen": 3.7,
+      "elige8_seguro_probabilidad_top": 37.0,
+      "elige8_seguro_margen": 2.9,
       "elige8_maxima_seguridad": true
     },
     {
@@ -3259,7 +3345,7 @@
             "X": 34.3,
             "2": 31.6
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "desconocida",
           "baseline_modelo": {
@@ -3267,6 +3353,9 @@
             "X": 17.3,
             "2": 23.9
           }
+        },
+        "dixon_coles": {
+          "activo": false
         }
       },
       "perfil_autonomo_local": {
@@ -3325,7 +3414,7 @@
           "X": 34.3,
           "2": 31.6
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "desconocida",
         "baseline_modelo": {
@@ -3449,7 +3538,7 @@
       "elige8_seguro_score": 62.1,
       "elige8_confianza_real": 62.1,
       "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 1,
+      "elige8_seguro_posicion": 2,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 62.1,
       "elige8_seguro_margen": 40.7,
@@ -3553,7 +3642,7 @@
             "X": 34.7,
             "2": 29.4
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "desconocida",
           "baseline_modelo": {
@@ -3561,6 +3650,9 @@
             "X": 28.1,
             "2": 30.3
           }
+        },
+        "dixon_coles": {
+          "activo": false
         }
       },
       "perfil_autonomo_local": {
@@ -3621,7 +3713,7 @@
           "X": 34.7,
           "2": 29.4
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "desconocida",
         "baseline_modelo": {
@@ -3852,7 +3944,7 @@
             "X": 33.4,
             "2": 32.4
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "desconocida",
           "baseline_modelo": {
@@ -3860,6 +3952,9 @@
             "X": 25.6,
             "2": 35.9
           }
+        },
+        "dixon_coles": {
+          "activo": false
         }
       },
       "perfil_autonomo_local": {
@@ -3918,7 +4013,7 @@
           "X": 33.4,
           "2": 32.4
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "desconocida",
         "baseline_modelo": {
@@ -4042,7 +4137,7 @@
       "elige8_seguro_score": 37.0,
       "elige8_confianza_real": 37.0,
       "elige8_tipo_cobertura": "FIJO",
-      "elige8_seguro_posicion": 11,
+      "elige8_seguro_posicion": 10,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 37.0,
       "elige8_seguro_margen": 3.4,
@@ -4146,7 +4241,7 @@
             "X": 34.5,
             "2": 30.0
           },
-          "version_id": "20261002T072919Z",
+          "version_id": "20261002T073434Z",
           "estado_modelo": "modelo_calibrado_entrenado",
           "competicion": "desconocida",
           "baseline_modelo": {
@@ -4154,6 +4249,9 @@
             "X": 24.5,
             "2": 34.3
           }
+        },
+        "dixon_coles": {
+          "activo": false
         }
       },
       "perfil_autonomo_local": {
@@ -4200,7 +4298,7 @@
           "X": 34.5,
           "2": 30.0
         },
-        "version_id": "20261002T072919Z",
+        "version_id": "20261002T073434Z",
         "estado_modelo": "modelo_calibrado_entrenado",
         "competicion": "desconocida",
         "baseline_modelo": {
@@ -4324,7 +4422,7 @@
       "elige8_seguro_score": 73.0,
       "elige8_confianza_real": 73.0,
       "elige8_tipo_cobertura": "DOBLE",
-      "elige8_seguro_posicion": 12,
+      "elige8_seguro_posicion": 11,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 45.3,
       "elige8_seguro_margen": 17.6,
@@ -4351,15 +4449,15 @@
         "num": 3,
         "local": "Cadiz CF",
         "visitante": "CD Leganes",
-        "signo": "X",
-        "es_cambio_millonario": true
+        "signo": "1X2",
+        "es_cambio_millonario": false
       },
       {
         "num": 4,
         "local": "Sabadell",
         "visitante": "FC Andorra",
         "signo": "X",
-        "es_cambio_millonario": false
+        "es_cambio_millonario": true
       },
       {
         "num": 5,
@@ -4372,7 +4470,7 @@
         "num": 6,
         "local": "Real Sporting de Gijon",
         "visitante": "Celta Fortuna",
-        "signo": "1X",
+        "signo": "1",
         "es_cambio_millonario": false
       },
       {
@@ -4394,7 +4492,7 @@
         "local": "Girona FC",
         "visitante": "RCD Mallorca",
         "signo": "X",
-        "es_cambio_millonario": true
+        "es_cambio_millonario": false
       },
       {
         "num": 10,
@@ -4442,32 +4540,24 @@
         "justificacion": "Evidencia contextual real, no solo estadistica: Visitante del top 10 frente a un local de la segunda mitad de la tabla: 62.5% de sorpresas historicas.."
       },
       {
-        "num": 3,
-        "local": "Cadiz CF",
-        "visitante": "CD Leganes",
-        "signo_conservador": "2",
-        "signo_millonario": "X",
-        "justificacion": "Evidencia contextual real, no solo estadistica: Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 2 cruces con cuotas conocidas de las ultimas 3 temporadas.; Visitante del top 10 frente a un local de la segunda mitad de la tabla: 62.5% de sorpresas historicas.."
-      },
-      {
-        "num": 9,
-        "local": "Girona FC",
-        "visitante": "RCD Mallorca",
+        "num": 4,
+        "local": "Sabadell",
+        "visitante": "FC Andorra",
         "signo_conservador": "1",
         "signo_millonario": "X",
-        "justificacion": "Evidencia contextual real, no solo estadistica: Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 6 cruces con cuotas conocidas de las ultimas 3 temporadas.."
+        "justificacion": "Evidencia contextual real, no solo estadistica: Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas.."
       }
     ],
-    "total_cambios": 3,
-    "resumen": "3 partido(s) con evidencia contextual real para ir a por la sorpresa."
+    "total_cambios": 2,
+    "resumen": "2 partido(s) con evidencia contextual real para ir a por la sorpresa."
   },
   "criterio_cobertura": "Boleto alineado con analisis critico: triples para maxima incertidumbre, dobles para riesgos siguientes, y aviso explicito cuando un fijo queda sin cobertura por presupuesto.",
   "ataques_favorito_prioritarios": [
     {
-      "num": 3,
-      "partido": "Cadiz CF - CD Leganes",
+      "num": 1,
+      "partido": "Albacete Balompie - SD Eibar",
       "favorito": "2",
-      "favorito_nombre": "CD Leganes",
+      "favorito_nombre": "SD Eibar",
       "indice_sorpresa_quinielistica": 100.0,
       "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
@@ -4477,7 +4567,23 @@
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "tipo_final": "FIJO",
       "signo_final": "2",
-      "motivo_sorpresa": "favorito con ventaja moderada, no dominante; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple"
+      "motivo_sorpresa": "margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto"
+    },
+    {
+      "num": 3,
+      "partido": "Cadiz CF - CD Leganes",
+      "favorito": null,
+      "favorito_nombre": "Empate",
+      "indice_sorpresa_quinielistica": 100.0,
+      "signo_sorpresa_principal": "2",
+      "signos_contra_favorito": [
+        "2",
+        "1"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "tipo_final": "TRIPLE",
+      "signo_final": "1X2",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
     },
     {
       "num": 5,
@@ -4498,17 +4604,17 @@
     {
       "num": 10,
       "partido": "Cordoba CF - Tenerife",
-      "favorito": "2",
-      "favorito_nombre": "Tenerife",
+      "favorito": "1",
+      "favorito_nombre": "Cordoba CF",
       "indice_sorpresa_quinielistica": 100.0,
       "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
         "X",
-        "1"
+        "2"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
-      "tipo_final": "TRIPLE",
-      "signo_final": "1X2",
+      "tipo_final": "DOBLE",
+      "signo_final": "1X",
       "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
     },
     {
@@ -4528,59 +4634,27 @@
       "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple"
     },
     {
-      "num": 9,
-      "partido": "Girona FC - RCD Mallorca",
-      "favorito": "1",
-      "favorito_nombre": "Girona FC",
-      "indice_sorpresa_quinielistica": 85.0,
-      "signo_sorpresa_principal": "X",
-      "signos_contra_favorito": [
-        "X",
-        "2"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "tipo_final": "FIJO",
-      "signo_final": "1",
-      "motivo_sorpresa": "favorito con ventaja moderada, no dominante; favorito por debajo del 50%; empate con peso alto"
-    },
-    {
-      "num": 1,
-      "partido": "Albacete Balompie - SD Eibar",
-      "favorito": "2",
-      "favorito_nombre": "SD Eibar",
-      "indice_sorpresa_quinielistica": 81.5,
-      "signo_sorpresa_principal": "X",
-      "signos_contra_favorito": [
-        "X",
-        "1"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "tipo_final": "FIJO",
-      "signo_final": "2",
-      "motivo_sorpresa": "favorito por debajo del 50%; Visitante del top 10 frente a un local de la segunda mitad de la tabla: 62.5% de sorpresas historicas.; Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '2' solo al 48.7% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa."
-    },
-    {
-      "num": 8,
-      "partido": "UD Las Palmas - R. Valladolid",
-      "favorito": "1",
-      "favorito_nombre": "UD Las Palmas",
-      "indice_sorpresa_quinielistica": 76.4,
-      "signo_sorpresa_principal": "X",
-      "signos_contra_favorito": [
-        "X",
-        "2"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "tipo_final": "FIJO",
-      "signo_final": "1",
-      "motivo_sorpresa": "favorito por debajo del 50%; favorito encaja demasiado para ser fijo limpio; el no favorito llega con mejor forma reciente"
-    },
-    {
       "num": 4,
       "partido": "Sabadell - FC Andorra",
       "favorito": "1",
       "favorito_nombre": "Sabadell",
-      "indice_sorpresa_quinielistica": 71.3,
+      "indice_sorpresa_quinielistica": 77.1,
+      "signo_sorpresa_principal": "X",
+      "signos_contra_favorito": [
+        "X",
+        "2"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "tipo_final": "FIJO",
+      "signo_final": "1",
+      "motivo_sorpresa": "favorito por debajo del 50%; Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas.; Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '1' solo al 49.5% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa."
+    },
+    {
+      "num": 9,
+      "partido": "Girona FC - RCD Mallorca",
+      "favorito": "1",
+      "favorito_nombre": "Girona FC",
+      "indice_sorpresa_quinielistica": 70.6,
       "signo_sorpresa_principal": "X",
       "signos_contra_favorito": [
         "X",
@@ -4589,27 +4663,61 @@
       "cobertura_sorpresa_sugerida": "DOBLE",
       "tipo_final": "DOBLE",
       "signo_final": "1X",
-      "motivo_sorpresa": "Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas.; Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '1' solo al 50.0% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa."
+      "motivo_sorpresa": "favorito por debajo del 50%; Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 6 cruces con cuotas conocidas de las ultimas 3 temporadas."
+    },
+    {
+      "num": 2,
+      "partido": "UD Almeria - Burgos CF",
+      "favorito": "1",
+      "favorito_nombre": "UD Almeria",
+      "indice_sorpresa_quinielistica": 65.5,
+      "signo_sorpresa_principal": "X",
+      "signos_contra_favorito": [
+        "X",
+        "2"
+      ],
+      "cobertura_sorpresa_sugerida": "DOBLE",
+      "tipo_final": "DOBLE",
+      "signo_final": "1X",
+      "motivo_sorpresa": "Historial de enfrentamientos directos entre estos dos equipos: 75.0% de sorpresas en 4 cruces con cuotas conocidas de las ultimas 3 temporadas.; rival del favorito llega sin perder"
     }
   ],
   "ranking_incertidumbre_coberturas": [
     {
-      "num": 10,
-      "partido": "Cordoba CF - Tenerife",
-      "tipo_final": "TRIPLE",
-      "incertidumbre": 144.92,
-      "probabilidad_sorpresa": 70,
-      "surprise_score": 100.0,
-      "margen_probabilidad": 3.7
-    },
-    {
       "num": 5,
       "partido": "Real Sociedad B - Granada CF",
       "tipo_final": "TRIPLE",
-      "incertidumbre": 143.02,
+      "incertidumbre": 146.68,
       "probabilidad_sorpresa": 70,
       "surprise_score": 100.0,
-      "margen_probabilidad": 0.9
+      "margen_probabilidad": 0.7
+    },
+    {
+      "num": 10,
+      "partido": "Cordoba CF - Tenerife",
+      "tipo_final": "DOBLE",
+      "incertidumbre": 145.69,
+      "probabilidad_sorpresa": 70,
+      "surprise_score": 100.0,
+      "margen_probabilidad": 2.9
+    },
+    {
+      "num": 3,
+      "partido": "Cadiz CF - CD Leganes",
+      "tipo_final": "TRIPLE",
+      "incertidumbre": 145.52,
+      "probabilidad_sorpresa": 70,
+      "surprise_score": 100.0,
+      "margen_probabilidad": 2.9
+    },
+    {
+      "num": 1,
+      "partido": "Albacete Balompie - SD Eibar",
+      "tipo_final": "FIJO",
+      "incertidumbre": 139.48,
+      "probabilidad_sorpresa": 70,
+      "surprise_score": 100.0,
+      "margen_probabilidad": 5.5
     },
     {
       "num": 13,
@@ -4621,42 +4729,6 @@
       "margen_probabilidad": 3.4
     },
     {
-      "num": 6,
-      "partido": "Real Sporting de Gijon - Celta Fortuna",
-      "tipo_final": "DOBLE",
-      "incertidumbre": 130.31,
-      "probabilidad_sorpresa": 63.4,
-      "surprise_score": 70.0,
-      "margen_probabilidad": 13.1
-    },
-    {
-      "num": 3,
-      "partido": "Cadiz CF - CD Leganes",
-      "tipo_final": "FIJO",
-      "incertidumbre": 129.83,
-      "probabilidad_sorpresa": 65.8,
-      "surprise_score": 100.0,
-      "margen_probabilidad": 11.4
-    },
-    {
-      "num": 9,
-      "partido": "Girona FC - RCD Mallorca",
-      "tipo_final": "FIJO",
-      "incertidumbre": 128.87,
-      "probabilidad_sorpresa": 64.6,
-      "surprise_score": 85.0,
-      "margen_probabilidad": 11.5
-    },
-    {
-      "num": 1,
-      "partido": "Albacete Balompie - SD Eibar",
-      "tipo_final": "FIJO",
-      "incertidumbre": 126.15,
-      "probabilidad_sorpresa": 60.3,
-      "surprise_score": 81.5,
-      "margen_probabilidad": 18.0
-    },
-    {
       "num": 14,
       "partido": "Tenerife (F) - Logroño (F)",
       "tipo_final": "DOBLE",
@@ -4664,24 +4736,42 @@
       "probabilidad_sorpresa": 63.2,
       "surprise_score": 63.1,
       "margen_probabilidad": 17.6
+    },
+    {
+      "num": 9,
+      "partido": "Girona FC - RCD Mallorca",
+      "tipo_final": "DOBLE",
+      "incertidumbre": 123.47,
+      "probabilidad_sorpresa": 61.0,
+      "surprise_score": 70.6,
+      "margen_probabilidad": 16.1
+    },
+    {
+      "num": 12,
+      "partido": "Deportivo (F) - At. Madrid (F)",
+      "tipo_final": "FIJO",
+      "incertidumbre": 120.52,
+      "probabilidad_sorpresa": 54.5,
+      "surprise_score": 39.7,
+      "margen_probabilidad": 27.1
     }
   ],
   "ranking_elige8_confianza_real": [
     {
-      "num": 5,
-      "partido": "Real Sociedad B - Granada CF",
+      "num": 3,
+      "partido": "Cadiz CF - CD Leganes",
       "signo_final": "1X2",
-      "probabilidad_top": 35.8,
-      "margen_probabilidad": 0.9,
+      "probabilidad_top": 36.2,
+      "margen_probabilidad": 2.9,
       "surprise_score": 100.0,
       "elige8": false
     },
     {
-      "num": 10,
-      "partido": "Cordoba CF - Tenerife",
+      "num": 5,
+      "partido": "Real Sociedad B - Granada CF",
       "signo_final": "1X2",
-      "probabilidad_top": 37.9,
-      "margen_probabilidad": 3.7,
+      "probabilidad_top": 35.4,
+      "margen_probabilidad": 0.7,
       "surprise_score": 100.0,
       "elige8": false
     },
@@ -4689,27 +4779,18 @@
       "num": 2,
       "partido": "UD Almeria - Burgos CF",
       "signo_final": "1X",
-      "probabilidad_top": 51.2,
-      "margen_probabilidad": 19.0,
-      "surprise_score": 66.4,
+      "probabilidad_top": 52.3,
+      "margen_probabilidad": 23.4,
+      "surprise_score": 65.5,
       "elige8": false
     },
     {
-      "num": 4,
-      "partido": "Sabadell - FC Andorra",
+      "num": 9,
+      "partido": "Girona FC - RCD Mallorca",
       "signo_final": "1X",
-      "probabilidad_top": 50.0,
-      "margen_probabilidad": 19.0,
-      "surprise_score": 71.3,
-      "elige8": false
-    },
-    {
-      "num": 6,
-      "partido": "Real Sporting de Gijon - Celta Fortuna",
-      "signo_final": "1X",
-      "probabilidad_top": 46.7,
-      "margen_probabilidad": 13.1,
-      "surprise_score": 70.0,
+      "probabilidad_top": 47.4,
+      "margen_probabilidad": 16.1,
+      "surprise_score": 70.6,
       "elige8": false
     },
     {
@@ -4722,6 +4803,24 @@
       "elige8": false
     },
     {
+      "num": 10,
+      "partido": "Cordoba CF - Tenerife",
+      "signo_final": "1X",
+      "probabilidad_top": 37.0,
+      "margen_probabilidad": 2.9,
+      "surprise_score": 100.0,
+      "elige8": false
+    },
+    {
+      "num": 7,
+      "partido": "CD Castellon - AD Ceuta FC",
+      "signo_final": "1",
+      "probabilidad_top": 63.0,
+      "margen_probabilidad": 40.7,
+      "surprise_score": 9.4,
+      "elige8": false
+    },
+    {
       "num": 11,
       "partido": "Barcelona (F) - Real Madrid (F)",
       "signo_final": "1",
@@ -4729,48 +4828,18 @@
       "margen_probabilidad": 40.7,
       "surprise_score": 9.1,
       "elige8": false
-    },
-    {
-      "num": 7,
-      "partido": "CD Castellon - AD Ceuta FC",
-      "signo_final": "1",
-      "probabilidad_top": 55.9,
-      "margen_probabilidad": 26.3,
-      "surprise_score": 30.9,
-      "elige8": false
     }
   ],
   "riesgos_detectados": [
     {
-      "num": 10,
-      "partido": "Cordoba CF - Tenerife",
-      "incertidumbre": 144.92,
-      "probabilidad_sorpresa": 70.0,
-      "probabilidad_top": 37.9,
-      "margen": 3.7,
-      "tercera_probabilidad": 27.8,
-      "prioridad_cobertura": 428.12,
-      "indice_sorpresa_quinielistica": 100.0,
-      "categoria_sorpresa": "favorito_muy_atacable",
-      "favorito": "2",
-      "favorito_nombre": "Tenerife",
-      "favorito_atacable": true,
-      "signos_contra_favorito": [
-        "X",
-        "1"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
-    },
-    {
       "num": 5,
       "partido": "Real Sociedad B - Granada CF",
-      "incertidumbre": 143.02,
+      "incertidumbre": 146.68,
       "probabilidad_sorpresa": 70.0,
-      "probabilidad_top": 35.8,
-      "margen": 0.9,
-      "tercera_probabilidad": 29.3,
-      "prioridad_cobertura": 381.22,
+      "probabilidad_top": 35.4,
+      "margen": 0.7,
+      "tercera_probabilidad": 29.9,
+      "prioridad_cobertura": 384.88,
       "indice_sorpresa_quinielistica": 100.0,
       "categoria_sorpresa": "partido_muy_abierto",
       "favorito": null,
@@ -4786,23 +4855,65 @@
     {
       "num": 3,
       "partido": "Cadiz CF - CD Leganes",
-      "incertidumbre": 129.83,
-      "probabilidad_sorpresa": 65.8,
-      "probabilidad_top": 44.2,
-      "margen": 11.4,
-      "tercera_probabilidad": 23.0,
-      "prioridad_cobertura": 307.83,
+      "incertidumbre": 145.52,
+      "probabilidad_sorpresa": 70.0,
+      "probabilidad_top": 36.2,
+      "margen": 2.9,
+      "tercera_probabilidad": 30.5,
+      "prioridad_cobertura": 384.72,
+      "indice_sorpresa_quinielistica": 100.0,
+      "categoria_sorpresa": "partido_muy_abierto",
+      "favorito": null,
+      "favorito_nombre": "Empate",
+      "favorito_atacable": false,
+      "signos_contra_favorito": [
+        "2",
+        "1"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
+    },
+    {
+      "num": 10,
+      "partido": "Cordoba CF - Tenerife",
+      "incertidumbre": 145.69,
+      "probabilidad_sorpresa": 70.0,
+      "probabilidad_top": 37.0,
+      "margen": 2.9,
+      "tercera_probabilidad": 28.9,
+      "prioridad_cobertura": 333.69,
+      "indice_sorpresa_quinielistica": 100.0,
+      "categoria_sorpresa": "favorito_muy_atacable",
+      "favorito": "1",
+      "favorito_nombre": "Cordoba CF",
+      "favorito_atacable": true,
+      "signos_contra_favorito": [
+        "X",
+        "2"
+      ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto"
+    },
+    {
+      "num": 1,
+      "partido": "Albacete Balompie - SD Eibar",
+      "incertidumbre": 139.48,
+      "probabilidad_sorpresa": 70.0,
+      "probabilidad_top": 38.6,
+      "margen": 5.5,
+      "tercera_probabilidad": 28.4,
+      "prioridad_cobertura": 327.48,
       "indice_sorpresa_quinielistica": 100.0,
       "categoria_sorpresa": "favorito_muy_atacable",
       "favorito": "2",
-      "favorito_nombre": "CD Leganes",
+      "favorito_nombre": "SD Eibar",
       "favorito_atacable": true,
       "signos_contra_favorito": [
         "X",
         "1"
       ],
       "cobertura_sorpresa_sugerida": "TRIPLE",
-      "motivo_sorpresa": "favorito con ventaja moderada, no dominante; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple"
+      "motivo_sorpresa": "margen corto entre favorito y alternativa; ningun signo supera claramente el 45%; empate con peso alto"
     },
     {
       "num": 13,
@@ -4826,79 +4937,16 @@
       "motivo_sorpresa": "margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple"
     },
     {
-      "num": 9,
-      "partido": "Girona FC - RCD Mallorca",
-      "incertidumbre": 128.87,
-      "probabilidad_sorpresa": 64.6,
-      "probabilidad_top": 45.1,
-      "margen": 11.5,
-      "tercera_probabilidad": 21.3,
-      "prioridad_cobertura": 288.12,
-      "indice_sorpresa_quinielistica": 85.0,
-      "categoria_sorpresa": "favorito_muy_atacable",
-      "favorito": "1",
-      "favorito_nombre": "Girona FC",
-      "favorito_atacable": true,
-      "signos_contra_favorito": [
-        "X",
-        "2"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "motivo_sorpresa": "favorito con ventaja moderada, no dominante; favorito por debajo del 50%; empate con peso alto"
-    },
-    {
-      "num": 1,
-      "partido": "Albacete Balompie - SD Eibar",
-      "incertidumbre": 126.15,
-      "probabilidad_sorpresa": 60.3,
-      "probabilidad_top": 48.7,
-      "margen": 18.0,
-      "tercera_probabilidad": 20.6,
-      "prioridad_cobertura": 263.02,
-      "indice_sorpresa_quinielistica": 81.5,
-      "categoria_sorpresa": "favorito_muy_atacable",
-      "favorito": "2",
-      "favorito_nombre": "SD Eibar",
-      "favorito_atacable": true,
-      "signos_contra_favorito": [
-        "X",
-        "1"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "motivo_sorpresa": "favorito por debajo del 50%; Visitante del top 10 frente a un local de la segunda mitad de la tabla: 62.5% de sorpresas historicas.; Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '2' solo al 48.7% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa."
-    },
-    {
-      "num": 8,
-      "partido": "UD Las Palmas - R. Valladolid",
-      "incertidumbre": 123.29,
-      "probabilidad_sorpresa": 62.5,
-      "probabilidad_top": 45.8,
-      "margen": 13.4,
-      "tercera_probabilidad": 21.7,
-      "prioridad_cobertura": 271.79,
-      "indice_sorpresa_quinielistica": 76.4,
-      "categoria_sorpresa": "favorito_muy_atacable",
-      "favorito": "1",
-      "favorito_nombre": "UD Las Palmas",
-      "favorito_atacable": true,
-      "signos_contra_favorito": [
-        "X",
-        "2"
-      ],
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "motivo_sorpresa": "favorito por debajo del 50%; favorito encaja demasiado para ser fijo limpio; el no favorito llega con mejor forma reciente"
-    },
-    {
       "num": 4,
       "partido": "Sabadell - FC Andorra",
-      "incertidumbre": 117.2,
-      "probabilidad_sorpresa": 56.8,
-      "probabilidad_top": 50.0,
-      "margen": 19.0,
-      "tercera_probabilidad": 19.0,
-      "prioridad_cobertura": 241.32,
-      "indice_sorpresa_quinielistica": 71.3,
-      "categoria_sorpresa": "favorito_atacable",
+      "incertidumbre": 118.1,
+      "probabilidad_sorpresa": 57.5,
+      "probabilidad_top": 49.5,
+      "margen": 18.2,
+      "tercera_probabilidad": 19.2,
+      "prioridad_cobertura": 249.47,
+      "indice_sorpresa_quinielistica": 77.1,
+      "categoria_sorpresa": "favorito_muy_atacable",
       "favorito": "1",
       "favorito_nombre": "Sabadell",
       "favorito_atacable": true,
@@ -4906,20 +4954,62 @@
         "X",
         "2"
       ],
+      "cobertura_sorpresa_sugerida": "TRIPLE",
+      "motivo_sorpresa": "favorito por debajo del 50%; Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas.; Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '1' solo al 49.5% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa."
+    },
+    {
+      "num": 9,
+      "partido": "Girona FC - RCD Mallorca",
+      "incertidumbre": 123.47,
+      "probabilidad_sorpresa": 61.0,
+      "probabilidad_top": 47.4,
+      "margen": 16.1,
+      "tercera_probabilidad": 21.3,
+      "prioridad_cobertura": 246.72,
+      "indice_sorpresa_quinielistica": 70.6,
+      "categoria_sorpresa": "favorito_atacable",
+      "favorito": "1",
+      "favorito_nombre": "Girona FC",
+      "favorito_atacable": true,
+      "signos_contra_favorito": [
+        "X",
+        "2"
+      ],
       "cobertura_sorpresa_sugerida": "DOBLE",
-      "motivo_sorpresa": "Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas.; Brecha de tabla (top10 vs resto) sin margen real amplio -favorito de tabla '1' solo al 50.0% (por debajo del 55%): 61.5% de sorpresas historicas cuando esto pasa."
+      "motivo_sorpresa": "favorito por debajo del 50%; Historial de enfrentamientos directos entre estos dos equipos: 50.0% de sorpresas en 6 cruces con cuotas conocidas de las ultimas 3 temporadas."
+    },
+    {
+      "num": 2,
+      "partido": "UD Almeria - Burgos CF",
+      "incertidumbre": 116.06,
+      "probabilidad_sorpresa": 54.2,
+      "probabilidad_top": 52.3,
+      "margen": 23.4,
+      "tercera_probabilidad": 18.8,
+      "prioridad_cobertura": 232.94,
+      "indice_sorpresa_quinielistica": 65.5,
+      "categoria_sorpresa": "favorito_atacable",
+      "favorito": "1",
+      "favorito_nombre": "UD Almeria",
+      "favorito_atacable": true,
+      "signos_contra_favorito": [
+        "X",
+        "2"
+      ],
+      "cobertura_sorpresa_sugerida": "DOBLE",
+      "motivo_sorpresa": "Historial de enfrentamientos directos entre estos dos equipos: 75.0% de sorpresas en 4 cruces con cuotas conocidas de las ultimas 3 temporadas.; rival del favorito llega sin perder"
     }
   ],
   "riesgos_no_cubiertos_por_presupuesto": [
     {
-      "num": 3,
-      "partido": "Cadiz CF - CD Leganes",
+      "num": 1,
+      "partido": "Albacete Balompie - SD Eibar",
       "tipo_final": "FIJO",
       "signo_final": "2",
       "cobertura_sorpresa_sugerida": "TRIPLE",
       "indice_sorpresa_quinielistica": 100.0,
-      "tercera_probabilidad": 23.0,
-      "probabilidad_sorpresa": 65.8,
+      "tercera_probabilidad": 28.4,
+      "probabilidad_sorpresa": 70,
       "calidad_datos": "alta",
       "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
     },
@@ -4936,38 +5026,14 @@
       "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
     },
     {
-      "num": 9,
-      "partido": "Girona FC - RCD Mallorca",
+      "num": 4,
+      "partido": "Sabadell - FC Andorra",
       "tipo_final": "FIJO",
       "signo_final": "1",
       "cobertura_sorpresa_sugerida": "TRIPLE",
-      "indice_sorpresa_quinielistica": 85.0,
-      "tercera_probabilidad": 21.3,
-      "probabilidad_sorpresa": 64.6,
-      "calidad_datos": "alta",
-      "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
-    },
-    {
-      "num": 1,
-      "partido": "Albacete Balompie - SD Eibar",
-      "tipo_final": "FIJO",
-      "signo_final": "2",
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "indice_sorpresa_quinielistica": 81.5,
-      "tercera_probabilidad": 20.6,
-      "probabilidad_sorpresa": 60.3,
-      "calidad_datos": "alta",
-      "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
-    },
-    {
-      "num": 8,
-      "partido": "UD Las Palmas - R. Valladolid",
-      "tipo_final": "FIJO",
-      "signo_final": "1",
-      "cobertura_sorpresa_sugerida": "TRIPLE",
-      "indice_sorpresa_quinielistica": 76.4,
-      "tercera_probabilidad": 21.7,
-      "probabilidad_sorpresa": 62.5,
+      "indice_sorpresa_quinielistica": 77.1,
+      "tercera_probabilidad": 19.2,
+      "probabilidad_sorpresa": 57.5,
       "calidad_datos": "alta",
       "motivo": "Riesgo detectado, pero no cubierto por el limite de dobles/triples del boleto."
     },
@@ -4988,7 +5054,7 @@
     {
       "nivel": "media",
       "titulo": "Riesgos no cubiertos por presupuesto",
-      "detalle": "6 partidos quedan como FIJO pese a tener senales de sorpresa o datos insuficientes para tratarlos como seguros."
+      "detalle": "4 partidos quedan como FIJO pese a tener senales de sorpresa o datos insuficientes para tratarlos como seguros."
     }
   ],
   "contexto_equipos": {
@@ -5001,7 +5067,7 @@
     ]
   },
   "contexto_competitivo": {
-    "generado_en": "2026-10-02T07:29:10.430130+00:00",
+    "generado_en": "2026-10-02T07:34:25.306448+00:00",
     "reglas": {
       "primera": {
         "nombre": "LALIGA EA SPORTS",
@@ -5056,7 +5122,7 @@
       ]
     },
     "pesos_dinamicos": {
-      "generado_en": "2026-10-02T07:29:09.930069+00:00",
+      "generado_en": "2026-10-02T07:34:24.994409+00:00",
       "pesos": {
         "forma_reciente": 0.1055,
         "casa_fuera": 0.0915,
@@ -5156,9 +5222,9 @@
     "activo": true,
     "motivo": "ok",
     "manifest": {
-      "version_id": "20261002T072919Z",
+      "version_id": "20261002T073434Z",
       "dataset_hash": "8e07ec800c531b2a4ce188b398f33a1f3c94968f31842effec38e20ccb848427",
-      "generado_en": "2026-10-02T07:29:37.259292+00:00",
+      "generado_en": "2026-10-02T07:34:42.331232+00:00",
       "estado": "modelo_calibrado_entrenado",
       "muestras": 1033,
       "modelo_calibrado": true,
@@ -5168,8 +5234,8 @@
         "rutas": [
           "data/modelo_predictivo/modelo_entrenado.joblib",
           "data/modelo_predictivo/modelo_calibrado.joblib",
-          "data/modelo_predictivo/versiones/20261002T072919Z/modelo_entrenado.joblib",
-          "data/modelo_predictivo/versiones/20261002T072919Z/modelo_calibrado.joblib"
+          "data/modelo_predictivo/versiones/20261002T073434Z/modelo_entrenado.joblib",
+          "data/modelo_predictivo/versiones/20261002T073434Z/modelo_calibrado.joblib"
         ]
       }
     }
@@ -5232,7 +5298,7 @@
     "dobles": 4,
     "triples": 2,
     "elige8_seleccionados": 8,
-    "favoritos_atacables": 10,
+    "favoritos_atacables": 7,
     "indice_sorpresa_max": 100.0,
     "calidad_datos": {
       "alta": 10,
@@ -5242,7 +5308,7 @@
     },
     "elige8_seguro_recomendado": true,
     "elige8_regla": "probabilidad_real_de_acierto_por_coste",
-    "elige8_aviso": "Modo economico: 0.7% de probabilidad conjunta estimada de acertar los 8 (eslabon mas debil: P3 Cadiz CF - CD Leganes al 44.2%). Modo maxima seguridad: 13.7% pagando +71.00€ mas de Elige8. Jornada internacional (premio tipico Elige8 ≈32.62€ segun mediana historica real): valor esperado extra ≈+4.26€ por +71.00€ de coste extra -NO compensa en valor esperado (estimacion basada en la mediana historica de esta temporada, no una prediccion del premio real de esta semana)."
+    "elige8_aviso": "Modo economico: 1.8% de probabilidad conjunta estimada de acertar los 8 (eslabon mas debil: P4 Sabadell - FC Andorra al 49.5%). Modo maxima seguridad: 13.0% pagando +70.00€ mas de Elige8. Jornada internacional (premio tipico Elige8 ≈32.62€ segun mediana historica real): valor esperado extra ≈+3.64€ por +70.00€ de coste extra -NO compensa en valor esperado (estimacion basada en la mediana historica de esta temporada, no una prediccion del premio real de esta semana)."
   },
   "snapshot_pre_cierre": {
     "creado": false,
@@ -5400,7 +5466,7 @@
       76
     ],
     "jornadas_intermedias_faltantes": [],
-    "generado_en": "2026-10-02T07:29:39.490609+00:00",
+    "generado_en": "2026-10-02T07:34:43.729846+00:00",
     "jornada_anterior": 10,
     "prediccion_permitida": true,
     "motivo": "",
@@ -5411,7 +5477,7 @@
     "en_espera": false,
     "resultados_completos_anterior": true,
     "aprendizaje_aplicado_anterior": true,
-    "actualizado_en": "2026-10-02T07:29:39.515968+00:00",
+    "actualizado_en": "2026-10-02T07:34:43.746763+00:00",
     "detalle_cierre_anterior": {
       "ok": true,
       "total": 14,
@@ -5430,7 +5496,7 @@
     "motivo_bloqueo": ""
   },
   "calibracion_probabilidades": {
-    "generado_en": "2026-10-02T07:29:45.780726+00:00",
+    "generado_en": "2026-10-02T07:34:50.635327+00:00",
     "estado": "calibracion_operativa",
     "muestra": "media",
     "partidos_evaluados": 293,
@@ -5440,15 +5506,15 @@
   },
   "elige8_seguro": {
     "version": "2.3",
-    "generado_en": "2026-10-02T07:29:46.839811+00:00",
+    "generado_en": "2026-10-02T07:34:51.279346+00:00",
     "modo": "economico",
     "modo_real": "probabilidad_real_de_acierto_por_coste",
     "regla_activa": "Elige 8 se selecciona por la probabilidad real de acierto NORMALIZADA por el coste que ese partido añade al Elige8 (eficiencia_elige8 = probabilidad_acierto / multiplicador) -un doble o un triple solo entra por delante de un fijo solido si su probabilidad de acierto compensa de verdad pagar 2x o 3x mas caro, no por defecto.",
     "recomendado": true,
     "seleccionados": [
-      1,
       2,
-      3,
+      4,
+      6,
       7,
       8,
       9,
@@ -5456,6 +5522,28 @@
       12
     ],
     "ranking": [
+      {
+        "num": 7,
+        "partido": "CD Castellon - AD Ceuta FC",
+        "signo_final": "1",
+        "tipo_cobertura": "FIJO",
+        "signo_mas_probable": "1",
+        "probabilidad_top": 63.0,
+        "probabilidad_acierto": 63.0,
+        "probabilidad_cubierta": 63.0,
+        "eficiencia_elige8": 63.0,
+        "margen": 40.7,
+        "tercera_probabilidad": 14.6,
+        "incertidumbre": 78.53,
+        "probabilidad_sorpresa": 37.0,
+        "indice_sorpresa_quinielistica": 9.4,
+        "calidad_datos": "alta",
+        "score_seguridad": 63.0,
+        "confianza_real": 63.0,
+        "cumple_umbral_seguro": true,
+        "posicion": 1,
+        "seleccionado": true
+      },
       {
         "num": 11,
         "partido": "Barcelona (F) - Real Madrid (F)",
@@ -5474,28 +5562,6 @@
         "calidad_datos": "baja",
         "score_seguridad": 62.1,
         "confianza_real": 62.1,
-        "cumple_umbral_seguro": true,
-        "posicion": 1,
-        "seleccionado": true
-      },
-      {
-        "num": 7,
-        "partido": "CD Castellon - AD Ceuta FC",
-        "signo_final": "1",
-        "tipo_cobertura": "FIJO",
-        "signo_mas_probable": "1",
-        "probabilidad_top": 55.9,
-        "probabilidad_acierto": 55.9,
-        "probabilidad_cubierta": 55.9,
-        "eficiencia_elige8": 55.9,
-        "margen": 26.3,
-        "tercera_probabilidad": 14.6,
-        "incertidumbre": 107.53,
-        "probabilidad_sorpresa": 48.5,
-        "indice_sorpresa_quinielistica": 30.9,
-        "calidad_datos": "alta",
-        "score_seguridad": 55.9,
-        "confianza_real": 55.9,
         "cumple_umbral_seguro": true,
         "posicion": 2,
         "seleccionado": true
@@ -5523,91 +5589,69 @@
         "seleccionado": true
       },
       {
-        "num": 1,
-        "partido": "Albacete Balompie - SD Eibar",
-        "signo_final": "2",
-        "tipo_cobertura": "FIJO",
-        "signo_mas_probable": "2",
-        "probabilidad_top": 48.7,
-        "probabilidad_acierto": 48.7,
-        "probabilidad_cubierta": 48.7,
-        "eficiencia_elige8": 48.7,
-        "margen": 18.0,
-        "tercera_probabilidad": 20.6,
-        "incertidumbre": 126.15,
-        "probabilidad_sorpresa": 60.3,
-        "indice_sorpresa_quinielistica": 81.5,
-        "calidad_datos": "alta",
-        "score_seguridad": 48.7,
-        "confianza_real": 48.7,
-        "cumple_umbral_seguro": true,
-        "posicion": 4,
-        "seleccionado": true
-      },
-      {
         "num": 8,
         "partido": "UD Las Palmas - R. Valladolid",
         "signo_final": "1",
         "tipo_cobertura": "FIJO",
         "signo_mas_probable": "1",
-        "probabilidad_top": 45.8,
-        "probabilidad_acierto": 45.8,
-        "probabilidad_cubierta": 45.8,
-        "eficiencia_elige8": 45.8,
-        "margen": 13.4,
-        "tercera_probabilidad": 21.7,
-        "incertidumbre": 123.29,
-        "probabilidad_sorpresa": 62.5,
-        "indice_sorpresa_quinielistica": 76.4,
+        "probabilidad_top": 52.7,
+        "probabilidad_acierto": 52.7,
+        "probabilidad_cubierta": 52.7,
+        "eficiencia_elige8": 52.7,
+        "margen": 22.9,
+        "tercera_probabilidad": 17.5,
+        "incertidumbre": 112.88,
+        "probabilidad_sorpresa": 53.0,
+        "indice_sorpresa_quinielistica": 47.4,
         "calidad_datos": "alta",
-        "score_seguridad": 45.8,
-        "confianza_real": 45.8,
+        "score_seguridad": 52.7,
+        "confianza_real": 52.7,
+        "cumple_umbral_seguro": true,
+        "posicion": 4,
+        "seleccionado": true
+      },
+      {
+        "num": 6,
+        "partido": "Real Sporting de Gijon - Celta Fortuna",
+        "signo_final": "1",
+        "tipo_cobertura": "FIJO",
+        "signo_mas_probable": "1",
+        "probabilidad_top": 52.0,
+        "probabilidad_acierto": 52.0,
+        "probabilidad_cubierta": 52.0,
+        "eficiencia_elige8": 52.0,
+        "margen": 21.5,
+        "tercera_probabilidad": 17.5,
+        "incertidumbre": 114.82,
+        "probabilidad_sorpresa": 54.2,
+        "indice_sorpresa_quinielistica": 34.0,
+        "calidad_datos": "alta",
+        "score_seguridad": 52.0,
+        "confianza_real": 52.0,
         "cumple_umbral_seguro": true,
         "posicion": 5,
         "seleccionado": true
       },
       {
-        "num": 9,
-        "partido": "Girona FC - RCD Mallorca",
+        "num": 4,
+        "partido": "Sabadell - FC Andorra",
         "signo_final": "1",
         "tipo_cobertura": "FIJO",
         "signo_mas_probable": "1",
-        "probabilidad_top": 45.1,
-        "probabilidad_acierto": 45.1,
-        "probabilidad_cubierta": 45.1,
-        "eficiencia_elige8": 45.1,
-        "margen": 11.5,
-        "tercera_probabilidad": 21.3,
-        "incertidumbre": 128.87,
-        "probabilidad_sorpresa": 64.6,
-        "indice_sorpresa_quinielistica": 85.0,
+        "probabilidad_top": 49.5,
+        "probabilidad_acierto": 49.5,
+        "probabilidad_cubierta": 49.5,
+        "eficiencia_elige8": 49.5,
+        "margen": 18.2,
+        "tercera_probabilidad": 19.2,
+        "incertidumbre": 118.1,
+        "probabilidad_sorpresa": 57.5,
+        "indice_sorpresa_quinielistica": 77.1,
         "calidad_datos": "alta",
-        "score_seguridad": 45.1,
-        "confianza_real": 45.1,
+        "score_seguridad": 49.5,
+        "confianza_real": 49.5,
         "cumple_umbral_seguro": true,
         "posicion": 6,
-        "seleccionado": true
-      },
-      {
-        "num": 3,
-        "partido": "Cadiz CF - CD Leganes",
-        "signo_final": "2",
-        "tipo_cobertura": "FIJO",
-        "signo_mas_probable": "2",
-        "probabilidad_top": 44.2,
-        "probabilidad_acierto": 44.2,
-        "probabilidad_cubierta": 44.2,
-        "eficiencia_elige8": 44.2,
-        "margen": 11.4,
-        "tercera_probabilidad": 23.0,
-        "incertidumbre": 129.83,
-        "probabilidad_sorpresa": 65.8,
-        "indice_sorpresa_quinielistica": 100.0,
-        "calidad_datos": "alta",
-        "score_seguridad": 44.2,
-        "confianza_real": 44.2,
-        "cumple_umbral_seguro": true,
-        "posicion": 7,
         "seleccionado": true
       },
       {
@@ -5616,64 +5660,64 @@
         "signo_final": "1X",
         "tipo_cobertura": "DOBLE",
         "signo_mas_probable": "1",
-        "probabilidad_top": 51.2,
-        "probabilidad_acierto": 83.4,
-        "probabilidad_cubierta": 83.4,
-        "eficiencia_elige8": 41.7,
-        "margen": 19.0,
-        "tercera_probabilidad": 16.6,
-        "incertidumbre": 121.62,
-        "probabilidad_sorpresa": 56.7,
-        "indice_sorpresa_quinielistica": 66.4,
+        "probabilidad_top": 52.3,
+        "probabilidad_acierto": 81.2,
+        "probabilidad_cubierta": 81.2,
+        "eficiencia_elige8": 40.6,
+        "margen": 23.4,
+        "tercera_probabilidad": 18.8,
+        "incertidumbre": 116.06,
+        "probabilidad_sorpresa": 54.2,
+        "indice_sorpresa_quinielistica": 65.5,
         "calidad_datos": "alta",
-        "score_seguridad": 83.4,
-        "confianza_real": 83.4,
+        "score_seguridad": 81.2,
+        "confianza_real": 81.2,
+        "cumple_umbral_seguro": true,
+        "posicion": 7,
+        "seleccionado": true
+      },
+      {
+        "num": 9,
+        "partido": "Girona FC - RCD Mallorca",
+        "signo_final": "1X",
+        "tipo_cobertura": "DOBLE",
+        "signo_mas_probable": "1",
+        "probabilidad_top": 47.4,
+        "probabilidad_acierto": 78.7,
+        "probabilidad_cubierta": 78.7,
+        "eficiencia_elige8": 39.35,
+        "margen": 16.1,
+        "tercera_probabilidad": 21.3,
+        "incertidumbre": 123.47,
+        "probabilidad_sorpresa": 61.0,
+        "indice_sorpresa_quinielistica": 70.6,
+        "calidad_datos": "alta",
+        "score_seguridad": 78.7,
+        "confianza_real": 78.7,
         "cumple_umbral_seguro": true,
         "posicion": 8,
         "seleccionado": true
       },
       {
-        "num": 4,
-        "partido": "Sabadell - FC Andorra",
-        "signo_final": "1X",
-        "tipo_cobertura": "DOBLE",
-        "signo_mas_probable": "1",
-        "probabilidad_top": 50.0,
-        "probabilidad_acierto": 81.0,
-        "probabilidad_cubierta": 81.0,
-        "eficiencia_elige8": 40.5,
-        "margen": 19.0,
-        "tercera_probabilidad": 19.0,
-        "incertidumbre": 117.2,
-        "probabilidad_sorpresa": 56.8,
-        "indice_sorpresa_quinielistica": 71.3,
+        "num": 1,
+        "partido": "Albacete Balompie - SD Eibar",
+        "signo_final": "2",
+        "tipo_cobertura": "FIJO",
+        "signo_mas_probable": "2",
+        "probabilidad_top": 38.6,
+        "probabilidad_acierto": 38.6,
+        "probabilidad_cubierta": 38.6,
+        "eficiencia_elige8": 38.6,
+        "margen": 5.5,
+        "tercera_probabilidad": 28.4,
+        "incertidumbre": 139.48,
+        "probabilidad_sorpresa": 70.0,
+        "indice_sorpresa_quinielistica": 100.0,
         "calidad_datos": "alta",
-        "score_seguridad": 81.0,
-        "confianza_real": 81.0,
+        "score_seguridad": 38.6,
+        "confianza_real": 38.6,
         "cumple_umbral_seguro": true,
         "posicion": 9,
-        "seleccionado": false
-      },
-      {
-        "num": 6,
-        "partido": "Real Sporting de Gijon - Celta Fortuna",
-        "signo_final": "1X",
-        "tipo_cobertura": "DOBLE",
-        "signo_mas_probable": "1",
-        "probabilidad_top": 46.7,
-        "probabilidad_acierto": 80.3,
-        "probabilidad_cubierta": 80.3,
-        "eficiencia_elige8": 40.15,
-        "margen": 13.1,
-        "tercera_probabilidad": 19.7,
-        "incertidumbre": 130.31,
-        "probabilidad_sorpresa": 63.4,
-        "indice_sorpresa_quinielistica": 70.0,
-        "calidad_datos": "alta",
-        "score_seguridad": 80.3,
-        "confianza_real": 80.3,
-        "cumple_umbral_seguro": true,
-        "posicion": 10,
         "seleccionado": false
       },
       {
@@ -5695,7 +5739,7 @@
         "score_seguridad": 37.0,
         "confianza_real": 37.0,
         "cumple_umbral_seguro": true,
-        "posicion": 11,
+        "posicion": 10,
         "seleccionado": false
       },
       {
@@ -5717,22 +5761,44 @@
         "score_seguridad": 73.0,
         "confianza_real": 73.0,
         "cumple_umbral_seguro": true,
+        "posicion": 11,
+        "seleccionado": false
+      },
+      {
+        "num": 10,
+        "partido": "Cordoba CF - Tenerife",
+        "signo_final": "1X",
+        "tipo_cobertura": "DOBLE",
+        "signo_mas_probable": "1",
+        "probabilidad_top": 37.0,
+        "probabilidad_acierto": 71.1,
+        "probabilidad_cubierta": 71.1,
+        "eficiencia_elige8": 35.55,
+        "margen": 2.9,
+        "tercera_probabilidad": 28.9,
+        "incertidumbre": 145.69,
+        "probabilidad_sorpresa": 70.0,
+        "indice_sorpresa_quinielistica": 100.0,
+        "calidad_datos": "alta",
+        "score_seguridad": 71.1,
+        "confianza_real": 71.1,
+        "cumple_umbral_seguro": true,
         "posicion": 12,
         "seleccionado": false
       },
       {
-        "num": 5,
-        "partido": "Real Sociedad B - Granada CF",
+        "num": 3,
+        "partido": "Cadiz CF - CD Leganes",
         "signo_final": "1X2",
         "tipo_cobertura": "TRIPLE",
         "signo_mas_probable": "X",
-        "probabilidad_top": 35.8,
+        "probabilidad_top": 36.2,
         "probabilidad_acierto": 100.0,
         "probabilidad_cubierta": 100.0,
         "eficiencia_elige8": 33.333,
-        "margen": 0.9,
-        "tercera_probabilidad": 29.3,
-        "incertidumbre": 143.02,
+        "margen": 2.9,
+        "tercera_probabilidad": 30.5,
+        "incertidumbre": 145.52,
         "probabilidad_sorpresa": 70.0,
         "indice_sorpresa_quinielistica": 100.0,
         "calidad_datos": "alta",
@@ -5743,18 +5809,18 @@
         "seleccionado": false
       },
       {
-        "num": 10,
-        "partido": "Cordoba CF - Tenerife",
+        "num": 5,
+        "partido": "Real Sociedad B - Granada CF",
         "signo_final": "1X2",
         "tipo_cobertura": "TRIPLE",
-        "signo_mas_probable": "2",
-        "probabilidad_top": 37.9,
+        "signo_mas_probable": "X",
+        "probabilidad_top": 35.4,
         "probabilidad_acierto": 100.0,
         "probabilidad_cubierta": 100.0,
         "eficiencia_elige8": 33.333,
-        "margen": 3.7,
-        "tercera_probabilidad": 27.8,
-        "incertidumbre": 144.92,
+        "margen": 0.7,
+        "tercera_probabilidad": 29.9,
+        "incertidumbre": 146.68,
         "probabilidad_sorpresa": 70.0,
         "indice_sorpresa_quinielistica": 100.0,
         "calidad_datos": "alta",
@@ -5774,15 +5840,15 @@
   },
   "elige8_modos": {
     "version": "2.3",
-    "generado_en": "2026-10-02T07:29:46.840306+00:00",
+    "generado_en": "2026-10-02T07:34:51.279655+00:00",
     "modo_activo": "economico",
     "regla_activa": "Elige 8 se selecciona por la probabilidad real de acierto NORMALIZADA por el coste que ese partido añade al Elige8 (eficiencia_elige8 = probabilidad_acierto / multiplicador) -un doble o un triple solo entra por delante de un fijo solido si su probabilidad de acierto compensa de verdad pagar 2x o 3x mas caro, no por defecto.",
     "modos": {
       "economico": {
         "seleccionados": [
-          1,
           2,
-          3,
+          4,
+          6,
           7,
           8,
           9,
@@ -5790,6 +5856,28 @@
           12
         ],
         "ranking": [
+          {
+            "num": 7,
+            "partido": "CD Castellon - AD Ceuta FC",
+            "signo_final": "1",
+            "tipo_cobertura": "FIJO",
+            "signo_mas_probable": "1",
+            "probabilidad_top": 63.0,
+            "probabilidad_acierto": 63.0,
+            "probabilidad_cubierta": 63.0,
+            "eficiencia_elige8": 63.0,
+            "margen": 40.7,
+            "tercera_probabilidad": 14.6,
+            "incertidumbre": 78.53,
+            "probabilidad_sorpresa": 37.0,
+            "indice_sorpresa_quinielistica": 9.4,
+            "calidad_datos": "alta",
+            "score_seguridad": 63.0,
+            "confianza_real": 63.0,
+            "cumple_umbral_seguro": true,
+            "posicion": 1,
+            "seleccionado": true
+          },
           {
             "num": 11,
             "partido": "Barcelona (F) - Real Madrid (F)",
@@ -5808,28 +5896,6 @@
             "calidad_datos": "baja",
             "score_seguridad": 62.1,
             "confianza_real": 62.1,
-            "cumple_umbral_seguro": true,
-            "posicion": 1,
-            "seleccionado": true
-          },
-          {
-            "num": 7,
-            "partido": "CD Castellon - AD Ceuta FC",
-            "signo_final": "1",
-            "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "1",
-            "probabilidad_top": 55.9,
-            "probabilidad_acierto": 55.9,
-            "probabilidad_cubierta": 55.9,
-            "eficiencia_elige8": 55.9,
-            "margen": 26.3,
-            "tercera_probabilidad": 14.6,
-            "incertidumbre": 107.53,
-            "probabilidad_sorpresa": 48.5,
-            "indice_sorpresa_quinielistica": 30.9,
-            "calidad_datos": "alta",
-            "score_seguridad": 55.9,
-            "confianza_real": 55.9,
             "cumple_umbral_seguro": true,
             "posicion": 2,
             "seleccionado": true
@@ -5857,91 +5923,69 @@
             "seleccionado": true
           },
           {
-            "num": 1,
-            "partido": "Albacete Balompie - SD Eibar",
-            "signo_final": "2",
-            "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "2",
-            "probabilidad_top": 48.7,
-            "probabilidad_acierto": 48.7,
-            "probabilidad_cubierta": 48.7,
-            "eficiencia_elige8": 48.7,
-            "margen": 18.0,
-            "tercera_probabilidad": 20.6,
-            "incertidumbre": 126.15,
-            "probabilidad_sorpresa": 60.3,
-            "indice_sorpresa_quinielistica": 81.5,
-            "calidad_datos": "alta",
-            "score_seguridad": 48.7,
-            "confianza_real": 48.7,
-            "cumple_umbral_seguro": true,
-            "posicion": 4,
-            "seleccionado": true
-          },
-          {
             "num": 8,
             "partido": "UD Las Palmas - R. Valladolid",
             "signo_final": "1",
             "tipo_cobertura": "FIJO",
             "signo_mas_probable": "1",
-            "probabilidad_top": 45.8,
-            "probabilidad_acierto": 45.8,
-            "probabilidad_cubierta": 45.8,
-            "eficiencia_elige8": 45.8,
-            "margen": 13.4,
-            "tercera_probabilidad": 21.7,
-            "incertidumbre": 123.29,
-            "probabilidad_sorpresa": 62.5,
-            "indice_sorpresa_quinielistica": 76.4,
+            "probabilidad_top": 52.7,
+            "probabilidad_acierto": 52.7,
+            "probabilidad_cubierta": 52.7,
+            "eficiencia_elige8": 52.7,
+            "margen": 22.9,
+            "tercera_probabilidad": 17.5,
+            "incertidumbre": 112.88,
+            "probabilidad_sorpresa": 53.0,
+            "indice_sorpresa_quinielistica": 47.4,
             "calidad_datos": "alta",
-            "score_seguridad": 45.8,
-            "confianza_real": 45.8,
+            "score_seguridad": 52.7,
+            "confianza_real": 52.7,
+            "cumple_umbral_seguro": true,
+            "posicion": 4,
+            "seleccionado": true
+          },
+          {
+            "num": 6,
+            "partido": "Real Sporting de Gijon - Celta Fortuna",
+            "signo_final": "1",
+            "tipo_cobertura": "FIJO",
+            "signo_mas_probable": "1",
+            "probabilidad_top": 52.0,
+            "probabilidad_acierto": 52.0,
+            "probabilidad_cubierta": 52.0,
+            "eficiencia_elige8": 52.0,
+            "margen": 21.5,
+            "tercera_probabilidad": 17.5,
+            "incertidumbre": 114.82,
+            "probabilidad_sorpresa": 54.2,
+            "indice_sorpresa_quinielistica": 34.0,
+            "calidad_datos": "alta",
+            "score_seguridad": 52.0,
+            "confianza_real": 52.0,
             "cumple_umbral_seguro": true,
             "posicion": 5,
             "seleccionado": true
           },
           {
-            "num": 9,
-            "partido": "Girona FC - RCD Mallorca",
+            "num": 4,
+            "partido": "Sabadell - FC Andorra",
             "signo_final": "1",
             "tipo_cobertura": "FIJO",
             "signo_mas_probable": "1",
-            "probabilidad_top": 45.1,
-            "probabilidad_acierto": 45.1,
-            "probabilidad_cubierta": 45.1,
-            "eficiencia_elige8": 45.1,
-            "margen": 11.5,
-            "tercera_probabilidad": 21.3,
-            "incertidumbre": 128.87,
-            "probabilidad_sorpresa": 64.6,
-            "indice_sorpresa_quinielistica": 85.0,
+            "probabilidad_top": 49.5,
+            "probabilidad_acierto": 49.5,
+            "probabilidad_cubierta": 49.5,
+            "eficiencia_elige8": 49.5,
+            "margen": 18.2,
+            "tercera_probabilidad": 19.2,
+            "incertidumbre": 118.1,
+            "probabilidad_sorpresa": 57.5,
+            "indice_sorpresa_quinielistica": 77.1,
             "calidad_datos": "alta",
-            "score_seguridad": 45.1,
-            "confianza_real": 45.1,
+            "score_seguridad": 49.5,
+            "confianza_real": 49.5,
             "cumple_umbral_seguro": true,
             "posicion": 6,
-            "seleccionado": true
-          },
-          {
-            "num": 3,
-            "partido": "Cadiz CF - CD Leganes",
-            "signo_final": "2",
-            "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "2",
-            "probabilidad_top": 44.2,
-            "probabilidad_acierto": 44.2,
-            "probabilidad_cubierta": 44.2,
-            "eficiencia_elige8": 44.2,
-            "margen": 11.4,
-            "tercera_probabilidad": 23.0,
-            "incertidumbre": 129.83,
-            "probabilidad_sorpresa": 65.8,
-            "indice_sorpresa_quinielistica": 100.0,
-            "calidad_datos": "alta",
-            "score_seguridad": 44.2,
-            "confianza_real": 44.2,
-            "cumple_umbral_seguro": true,
-            "posicion": 7,
             "seleccionado": true
           },
           {
@@ -5950,64 +5994,64 @@
             "signo_final": "1X",
             "tipo_cobertura": "DOBLE",
             "signo_mas_probable": "1",
-            "probabilidad_top": 51.2,
-            "probabilidad_acierto": 83.4,
-            "probabilidad_cubierta": 83.4,
-            "eficiencia_elige8": 41.7,
-            "margen": 19.0,
-            "tercera_probabilidad": 16.6,
-            "incertidumbre": 121.62,
-            "probabilidad_sorpresa": 56.7,
-            "indice_sorpresa_quinielistica": 66.4,
+            "probabilidad_top": 52.3,
+            "probabilidad_acierto": 81.2,
+            "probabilidad_cubierta": 81.2,
+            "eficiencia_elige8": 40.6,
+            "margen": 23.4,
+            "tercera_probabilidad": 18.8,
+            "incertidumbre": 116.06,
+            "probabilidad_sorpresa": 54.2,
+            "indice_sorpresa_quinielistica": 65.5,
             "calidad_datos": "alta",
-            "score_seguridad": 83.4,
-            "confianza_real": 83.4,
+            "score_seguridad": 81.2,
+            "confianza_real": 81.2,
+            "cumple_umbral_seguro": true,
+            "posicion": 7,
+            "seleccionado": true
+          },
+          {
+            "num": 9,
+            "partido": "Girona FC - RCD Mallorca",
+            "signo_final": "1X",
+            "tipo_cobertura": "DOBLE",
+            "signo_mas_probable": "1",
+            "probabilidad_top": 47.4,
+            "probabilidad_acierto": 78.7,
+            "probabilidad_cubierta": 78.7,
+            "eficiencia_elige8": 39.35,
+            "margen": 16.1,
+            "tercera_probabilidad": 21.3,
+            "incertidumbre": 123.47,
+            "probabilidad_sorpresa": 61.0,
+            "indice_sorpresa_quinielistica": 70.6,
+            "calidad_datos": "alta",
+            "score_seguridad": 78.7,
+            "confianza_real": 78.7,
             "cumple_umbral_seguro": true,
             "posicion": 8,
             "seleccionado": true
           },
           {
-            "num": 4,
-            "partido": "Sabadell - FC Andorra",
-            "signo_final": "1X",
-            "tipo_cobertura": "DOBLE",
-            "signo_mas_probable": "1",
-            "probabilidad_top": 50.0,
-            "probabilidad_acierto": 81.0,
-            "probabilidad_cubierta": 81.0,
-            "eficiencia_elige8": 40.5,
-            "margen": 19.0,
-            "tercera_probabilidad": 19.0,
-            "incertidumbre": 117.2,
-            "probabilidad_sorpresa": 56.8,
-            "indice_sorpresa_quinielistica": 71.3,
+            "num": 1,
+            "partido": "Albacete Balompie - SD Eibar",
+            "signo_final": "2",
+            "tipo_cobertura": "FIJO",
+            "signo_mas_probable": "2",
+            "probabilidad_top": 38.6,
+            "probabilidad_acierto": 38.6,
+            "probabilidad_cubierta": 38.6,
+            "eficiencia_elige8": 38.6,
+            "margen": 5.5,
+            "tercera_probabilidad": 28.4,
+            "incertidumbre": 139.48,
+            "probabilidad_sorpresa": 70.0,
+            "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "alta",
-            "score_seguridad": 81.0,
-            "confianza_real": 81.0,
+            "score_seguridad": 38.6,
+            "confianza_real": 38.6,
             "cumple_umbral_seguro": true,
             "posicion": 9,
-            "seleccionado": false
-          },
-          {
-            "num": 6,
-            "partido": "Real Sporting de Gijon - Celta Fortuna",
-            "signo_final": "1X",
-            "tipo_cobertura": "DOBLE",
-            "signo_mas_probable": "1",
-            "probabilidad_top": 46.7,
-            "probabilidad_acierto": 80.3,
-            "probabilidad_cubierta": 80.3,
-            "eficiencia_elige8": 40.15,
-            "margen": 13.1,
-            "tercera_probabilidad": 19.7,
-            "incertidumbre": 130.31,
-            "probabilidad_sorpresa": 63.4,
-            "indice_sorpresa_quinielistica": 70.0,
-            "calidad_datos": "alta",
-            "score_seguridad": 80.3,
-            "confianza_real": 80.3,
-            "cumple_umbral_seguro": true,
-            "posicion": 10,
             "seleccionado": false
           },
           {
@@ -6029,7 +6073,7 @@
             "score_seguridad": 37.0,
             "confianza_real": 37.0,
             "cumple_umbral_seguro": true,
-            "posicion": 11,
+            "posicion": 10,
             "seleccionado": false
           },
           {
@@ -6051,22 +6095,44 @@
             "score_seguridad": 73.0,
             "confianza_real": 73.0,
             "cumple_umbral_seguro": true,
+            "posicion": 11,
+            "seleccionado": false
+          },
+          {
+            "num": 10,
+            "partido": "Cordoba CF - Tenerife",
+            "signo_final": "1X",
+            "tipo_cobertura": "DOBLE",
+            "signo_mas_probable": "1",
+            "probabilidad_top": 37.0,
+            "probabilidad_acierto": 71.1,
+            "probabilidad_cubierta": 71.1,
+            "eficiencia_elige8": 35.55,
+            "margen": 2.9,
+            "tercera_probabilidad": 28.9,
+            "incertidumbre": 145.69,
+            "probabilidad_sorpresa": 70.0,
+            "indice_sorpresa_quinielistica": 100.0,
+            "calidad_datos": "alta",
+            "score_seguridad": 71.1,
+            "confianza_real": 71.1,
+            "cumple_umbral_seguro": true,
             "posicion": 12,
             "seleccionado": false
           },
           {
-            "num": 5,
-            "partido": "Real Sociedad B - Granada CF",
+            "num": 3,
+            "partido": "Cadiz CF - CD Leganes",
             "signo_final": "1X2",
             "tipo_cobertura": "TRIPLE",
             "signo_mas_probable": "X",
-            "probabilidad_top": 35.8,
+            "probabilidad_top": 36.2,
             "probabilidad_acierto": 100.0,
             "probabilidad_cubierta": 100.0,
             "eficiencia_elige8": 33.333,
-            "margen": 0.9,
-            "tercera_probabilidad": 29.3,
-            "incertidumbre": 143.02,
+            "margen": 2.9,
+            "tercera_probabilidad": 30.5,
+            "incertidumbre": 145.52,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "alta",
@@ -6077,18 +6143,18 @@
             "seleccionado": false
           },
           {
-            "num": 10,
-            "partido": "Cordoba CF - Tenerife",
+            "num": 5,
+            "partido": "Real Sociedad B - Granada CF",
             "signo_final": "1X2",
             "tipo_cobertura": "TRIPLE",
-            "signo_mas_probable": "2",
-            "probabilidad_top": 37.9,
+            "signo_mas_probable": "X",
+            "probabilidad_top": 35.4,
             "probabilidad_acierto": 100.0,
             "probabilidad_cubierta": 100.0,
             "eficiencia_elige8": 33.333,
-            "margen": 3.7,
-            "tercera_probabilidad": 27.8,
-            "incertidumbre": 144.92,
+            "margen": 0.7,
+            "tercera_probabilidad": 29.9,
+            "incertidumbre": 146.68,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "alta",
@@ -6099,34 +6165,34 @@
             "seleccionado": false
           }
         ],
-        "apuestas_elige8": 2,
-        "importe_elige8": 1.0
+        "apuestas_elige8": 4,
+        "importe_elige8": 2.0
       },
       "maxima_seguridad": {
         "seleccionados": [
           2,
-          4,
+          3,
           5,
-          6,
           7,
+          9,
           10,
           11,
           14
         ],
         "ranking": [
           {
-            "num": 5,
-            "partido": "Real Sociedad B - Granada CF",
+            "num": 3,
+            "partido": "Cadiz CF - CD Leganes",
             "signo_final": "1X2",
             "tipo_cobertura": "TRIPLE",
             "signo_mas_probable": "X",
-            "probabilidad_top": 35.8,
+            "probabilidad_top": 36.2,
             "probabilidad_acierto": 100.0,
             "probabilidad_cubierta": 100.0,
             "eficiencia_elige8": 33.333,
-            "margen": 0.9,
-            "tercera_probabilidad": 29.3,
-            "incertidumbre": 143.02,
+            "margen": 2.9,
+            "tercera_probabilidad": 30.5,
+            "incertidumbre": 145.52,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "alta",
@@ -6136,18 +6202,18 @@
             "seleccionado": true
           },
           {
-            "num": 10,
-            "partido": "Cordoba CF - Tenerife",
+            "num": 5,
+            "partido": "Real Sociedad B - Granada CF",
             "signo_final": "1X2",
             "tipo_cobertura": "TRIPLE",
-            "signo_mas_probable": "2",
-            "probabilidad_top": 37.9,
+            "signo_mas_probable": "X",
+            "probabilidad_top": 35.4,
             "probabilidad_acierto": 100.0,
             "probabilidad_cubierta": 100.0,
             "eficiencia_elige8": 33.333,
-            "margen": 3.7,
-            "tercera_probabilidad": 27.8,
-            "incertidumbre": 144.92,
+            "margen": 0.7,
+            "tercera_probabilidad": 29.9,
+            "incertidumbre": 146.68,
             "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "alta",
@@ -6162,60 +6228,39 @@
             "signo_final": "1X",
             "tipo_cobertura": "DOBLE",
             "signo_mas_probable": "1",
-            "probabilidad_top": 51.2,
-            "probabilidad_acierto": 83.4,
-            "probabilidad_cubierta": 83.4,
-            "eficiencia_elige8": 41.7,
-            "margen": 19.0,
-            "tercera_probabilidad": 16.6,
-            "incertidumbre": 121.62,
-            "probabilidad_sorpresa": 56.7,
-            "indice_sorpresa_quinielistica": 66.4,
+            "probabilidad_top": 52.3,
+            "probabilidad_acierto": 81.2,
+            "probabilidad_cubierta": 81.2,
+            "eficiencia_elige8": 40.6,
+            "margen": 23.4,
+            "tercera_probabilidad": 18.8,
+            "incertidumbre": 116.06,
+            "probabilidad_sorpresa": 54.2,
+            "indice_sorpresa_quinielistica": 65.5,
             "calidad_datos": "alta",
-            "score_seguridad": 83.4,
-            "confianza_real": 83.4,
+            "score_seguridad": 81.2,
+            "confianza_real": 81.2,
             "cumple_umbral_seguro": true,
             "seleccionado": true
           },
           {
-            "num": 4,
-            "partido": "Sabadell - FC Andorra",
+            "num": 9,
+            "partido": "Girona FC - RCD Mallorca",
             "signo_final": "1X",
             "tipo_cobertura": "DOBLE",
             "signo_mas_probable": "1",
-            "probabilidad_top": 50.0,
-            "probabilidad_acierto": 81.0,
-            "probabilidad_cubierta": 81.0,
-            "eficiencia_elige8": 40.5,
-            "margen": 19.0,
-            "tercera_probabilidad": 19.0,
-            "incertidumbre": 117.2,
-            "probabilidad_sorpresa": 56.8,
-            "indice_sorpresa_quinielistica": 71.3,
+            "probabilidad_top": 47.4,
+            "probabilidad_acierto": 78.7,
+            "probabilidad_cubierta": 78.7,
+            "eficiencia_elige8": 39.35,
+            "margen": 16.1,
+            "tercera_probabilidad": 21.3,
+            "incertidumbre": 123.47,
+            "probabilidad_sorpresa": 61.0,
+            "indice_sorpresa_quinielistica": 70.6,
             "calidad_datos": "alta",
-            "score_seguridad": 81.0,
-            "confianza_real": 81.0,
-            "cumple_umbral_seguro": true,
-            "seleccionado": true
-          },
-          {
-            "num": 6,
-            "partido": "Real Sporting de Gijon - Celta Fortuna",
-            "signo_final": "1X",
-            "tipo_cobertura": "DOBLE",
-            "signo_mas_probable": "1",
-            "probabilidad_top": 46.7,
-            "probabilidad_acierto": 80.3,
-            "probabilidad_cubierta": 80.3,
-            "eficiencia_elige8": 40.15,
-            "margen": 13.1,
-            "tercera_probabilidad": 19.7,
-            "incertidumbre": 130.31,
-            "probabilidad_sorpresa": 63.4,
-            "indice_sorpresa_quinielistica": 70.0,
-            "calidad_datos": "alta",
-            "score_seguridad": 80.3,
-            "confianza_real": 80.3,
+            "score_seguridad": 78.7,
+            "confianza_real": 78.7,
             "cumple_umbral_seguro": true,
             "seleccionado": true
           },
@@ -6237,6 +6282,48 @@
             "calidad_datos": "baja",
             "score_seguridad": 73.0,
             "confianza_real": 73.0,
+            "cumple_umbral_seguro": true,
+            "seleccionado": true
+          },
+          {
+            "num": 10,
+            "partido": "Cordoba CF - Tenerife",
+            "signo_final": "1X",
+            "tipo_cobertura": "DOBLE",
+            "signo_mas_probable": "1",
+            "probabilidad_top": 37.0,
+            "probabilidad_acierto": 71.1,
+            "probabilidad_cubierta": 71.1,
+            "eficiencia_elige8": 35.55,
+            "margen": 2.9,
+            "tercera_probabilidad": 28.9,
+            "incertidumbre": 145.69,
+            "probabilidad_sorpresa": 70.0,
+            "indice_sorpresa_quinielistica": 100.0,
+            "calidad_datos": "alta",
+            "score_seguridad": 71.1,
+            "confianza_real": 71.1,
+            "cumple_umbral_seguro": true,
+            "seleccionado": true
+          },
+          {
+            "num": 7,
+            "partido": "CD Castellon - AD Ceuta FC",
+            "signo_final": "1",
+            "tipo_cobertura": "FIJO",
+            "signo_mas_probable": "1",
+            "probabilidad_top": 63.0,
+            "probabilidad_acierto": 63.0,
+            "probabilidad_cubierta": 63.0,
+            "eficiencia_elige8": 63.0,
+            "margen": 40.7,
+            "tercera_probabilidad": 14.6,
+            "incertidumbre": 78.53,
+            "probabilidad_sorpresa": 37.0,
+            "indice_sorpresa_quinielistica": 9.4,
+            "calidad_datos": "alta",
+            "score_seguridad": 63.0,
+            "confianza_real": 63.0,
             "cumple_umbral_seguro": true,
             "seleccionado": true
           },
@@ -6262,27 +6349,6 @@
             "seleccionado": true
           },
           {
-            "num": 7,
-            "partido": "CD Castellon - AD Ceuta FC",
-            "signo_final": "1",
-            "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "1",
-            "probabilidad_top": 55.9,
-            "probabilidad_acierto": 55.9,
-            "probabilidad_cubierta": 55.9,
-            "eficiencia_elige8": 55.9,
-            "margen": 26.3,
-            "tercera_probabilidad": 14.6,
-            "incertidumbre": 107.53,
-            "probabilidad_sorpresa": 48.5,
-            "indice_sorpresa_quinielistica": 30.9,
-            "calidad_datos": "alta",
-            "score_seguridad": 55.9,
-            "confianza_real": 55.9,
-            "cumple_umbral_seguro": true,
-            "seleccionado": true
-          },
-          {
             "num": 12,
             "partido": "Deportivo (F) - At. Madrid (F)",
             "signo_final": "2",
@@ -6304,86 +6370,86 @@
             "seleccionado": false
           },
           {
-            "num": 1,
-            "partido": "Albacete Balompie - SD Eibar",
-            "signo_final": "2",
-            "tipo_cobertura": "FIJO",
-            "signo_mas_probable": "2",
-            "probabilidad_top": 48.7,
-            "probabilidad_acierto": 48.7,
-            "probabilidad_cubierta": 48.7,
-            "eficiencia_elige8": 48.7,
-            "margen": 18.0,
-            "tercera_probabilidad": 20.6,
-            "incertidumbre": 126.15,
-            "probabilidad_sorpresa": 60.3,
-            "indice_sorpresa_quinielistica": 81.5,
-            "calidad_datos": "alta",
-            "score_seguridad": 48.7,
-            "confianza_real": 48.7,
-            "cumple_umbral_seguro": true,
-            "seleccionado": false
-          },
-          {
             "num": 8,
             "partido": "UD Las Palmas - R. Valladolid",
             "signo_final": "1",
             "tipo_cobertura": "FIJO",
             "signo_mas_probable": "1",
-            "probabilidad_top": 45.8,
-            "probabilidad_acierto": 45.8,
-            "probabilidad_cubierta": 45.8,
-            "eficiencia_elige8": 45.8,
-            "margen": 13.4,
-            "tercera_probabilidad": 21.7,
-            "incertidumbre": 123.29,
-            "probabilidad_sorpresa": 62.5,
-            "indice_sorpresa_quinielistica": 76.4,
+            "probabilidad_top": 52.7,
+            "probabilidad_acierto": 52.7,
+            "probabilidad_cubierta": 52.7,
+            "eficiencia_elige8": 52.7,
+            "margen": 22.9,
+            "tercera_probabilidad": 17.5,
+            "incertidumbre": 112.88,
+            "probabilidad_sorpresa": 53.0,
+            "indice_sorpresa_quinielistica": 47.4,
             "calidad_datos": "alta",
-            "score_seguridad": 45.8,
-            "confianza_real": 45.8,
+            "score_seguridad": 52.7,
+            "confianza_real": 52.7,
             "cumple_umbral_seguro": true,
             "seleccionado": false
           },
           {
-            "num": 9,
-            "partido": "Girona FC - RCD Mallorca",
+            "num": 6,
+            "partido": "Real Sporting de Gijon - Celta Fortuna",
             "signo_final": "1",
             "tipo_cobertura": "FIJO",
             "signo_mas_probable": "1",
-            "probabilidad_top": 45.1,
-            "probabilidad_acierto": 45.1,
-            "probabilidad_cubierta": 45.1,
-            "eficiencia_elige8": 45.1,
-            "margen": 11.5,
-            "tercera_probabilidad": 21.3,
-            "incertidumbre": 128.87,
-            "probabilidad_sorpresa": 64.6,
-            "indice_sorpresa_quinielistica": 85.0,
+            "probabilidad_top": 52.0,
+            "probabilidad_acierto": 52.0,
+            "probabilidad_cubierta": 52.0,
+            "eficiencia_elige8": 52.0,
+            "margen": 21.5,
+            "tercera_probabilidad": 17.5,
+            "incertidumbre": 114.82,
+            "probabilidad_sorpresa": 54.2,
+            "indice_sorpresa_quinielistica": 34.0,
             "calidad_datos": "alta",
-            "score_seguridad": 45.1,
-            "confianza_real": 45.1,
+            "score_seguridad": 52.0,
+            "confianza_real": 52.0,
             "cumple_umbral_seguro": true,
             "seleccionado": false
           },
           {
-            "num": 3,
-            "partido": "Cadiz CF - CD Leganes",
+            "num": 4,
+            "partido": "Sabadell - FC Andorra",
+            "signo_final": "1",
+            "tipo_cobertura": "FIJO",
+            "signo_mas_probable": "1",
+            "probabilidad_top": 49.5,
+            "probabilidad_acierto": 49.5,
+            "probabilidad_cubierta": 49.5,
+            "eficiencia_elige8": 49.5,
+            "margen": 18.2,
+            "tercera_probabilidad": 19.2,
+            "incertidumbre": 118.1,
+            "probabilidad_sorpresa": 57.5,
+            "indice_sorpresa_quinielistica": 77.1,
+            "calidad_datos": "alta",
+            "score_seguridad": 49.5,
+            "confianza_real": 49.5,
+            "cumple_umbral_seguro": true,
+            "seleccionado": false
+          },
+          {
+            "num": 1,
+            "partido": "Albacete Balompie - SD Eibar",
             "signo_final": "2",
             "tipo_cobertura": "FIJO",
             "signo_mas_probable": "2",
-            "probabilidad_top": 44.2,
-            "probabilidad_acierto": 44.2,
-            "probabilidad_cubierta": 44.2,
-            "eficiencia_elige8": 44.2,
-            "margen": 11.4,
-            "tercera_probabilidad": 23.0,
-            "incertidumbre": 129.83,
-            "probabilidad_sorpresa": 65.8,
+            "probabilidad_top": 38.6,
+            "probabilidad_acierto": 38.6,
+            "probabilidad_cubierta": 38.6,
+            "eficiencia_elige8": 38.6,
+            "margen": 5.5,
+            "tercera_probabilidad": 28.4,
+            "incertidumbre": 139.48,
+            "probabilidad_sorpresa": 70.0,
             "indice_sorpresa_quinielistica": 100.0,
             "calidad_datos": "alta",
-            "score_seguridad": 44.2,
-            "confianza_real": 44.2,
+            "score_seguridad": 38.6,
+            "confianza_real": 38.6,
             "cumple_umbral_seguro": true,
             "seleccionado": false
           },
@@ -6415,21 +6481,21 @@
     },
     "aviso": {
       "eslabon_mas_debil_economico": {
-        "num": 3,
-        "partido": "Cadiz CF - CD Leganes",
-        "probabilidad_acierto": 44.2
+        "num": 4,
+        "partido": "Sabadell - FC Andorra",
+        "probabilidad_acierto": 49.5
       },
-      "probabilidad_conjunta_economico": 0.6835,
-      "probabilidad_conjunta_maxima_seguridad": 13.7465,
-      "extra_coste_elige8": 71.0,
-      "extra_probabilidad_conjunta": 13.06,
+      "probabilidad_conjunta_economico": 1.8008,
+      "probabilidad_conjunta_maxima_seguridad": 12.9764,
+      "extra_coste_elige8": 70.0,
+      "extra_probabilidad_conjunta": 11.18,
       "tipo_jornada": "internacional",
       "premio_tipico_elige8": 32.62,
-      "valor_esperado_economico": 0.22,
-      "valor_esperado_maxima_seguridad": 4.48,
-      "extra_valor_esperado": 4.26,
+      "valor_esperado_economico": 0.59,
+      "valor_esperado_maxima_seguridad": 4.23,
+      "extra_valor_esperado": 3.64,
       "compensa_pagar_mas": false,
-      "mensaje": "Modo economico: 0.7% de probabilidad conjunta estimada de acertar los 8 (eslabon mas debil: P3 Cadiz CF - CD Leganes al 44.2%). Modo maxima seguridad: 13.7% pagando +71.00€ mas de Elige8. Jornada internacional (premio tipico Elige8 ≈32.62€ segun mediana historica real): valor esperado extra ≈+4.26€ por +71.00€ de coste extra -NO compensa en valor esperado (estimacion basada en la mediana historica de esta temporada, no una prediccion del premio real de esta semana)."
+      "mensaje": "Modo economico: 1.8% de probabilidad conjunta estimada de acertar los 8 (eslabon mas debil: P4 Sabadell - FC Andorra al 49.5%). Modo maxima seguridad: 13.0% pagando +70.00€ mas de Elige8. Jornada internacional (premio tipico Elige8 ≈32.62€ segun mediana historica real): valor esperado extra ≈+3.64€ por +70.00€ de coste extra -NO compensa en valor esperado (estimacion basada en la mediana historica de esta temporada, no una prediccion del premio real de esta semana)."
     },
     "rendimiento": {
       "selecciones_evaluadas": 176,
