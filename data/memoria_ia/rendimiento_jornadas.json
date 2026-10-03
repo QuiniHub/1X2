@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-03T17:55:32.120090+00:00",
+  "generado_en": "2026-10-03T20:56:20.515163+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -1404,17 +1404,17 @@
     },
     "11": {
       "jornada": 11,
-      "partidos_cerrados": 3,
-      "partidos_con_prediccion": 3,
-      "precision_boleto": 100.0,
-      "precision_top1": 100.0,
-      "brier_medio": 0.4171,
-      "logloss_medio": 0.7478,
+      "partidos_cerrados": 5,
+      "partidos_con_prediccion": 5,
+      "precision_boleto": 80.0,
+      "precision_top1": 60.0,
+      "brier_medio": 0.5464,
+      "logloss_medio": 0.9336,
       "por_tipo": {
         "FIJO": {
-          "total": 2,
+          "total": 3,
           "aciertos": 2,
-          "precision": 100.0
+          "precision": 66.67
         },
         "DOBLE": {
           "total": 1,
@@ -1422,18 +1422,32 @@
           "precision": 100.0
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0,
-          "precision": null
+          "total": 1,
+          "aciertos": 1,
+          "precision": 100.0
         }
       },
       "elige8": {
-        "selecciones": 1,
-        "aciertos": 1,
+        "selecciones": 2,
+        "aciertos": 2,
         "precision": 100.0
       },
-      "surprise_score_medio": 32.33,
+      "surprise_score_medio": 42.15,
       "ranking_incertidumbre": [
+        {
+          "num": 3,
+          "partido": "Cadiz CF - CD Leganes",
+          "incertidumbre": 145.65,
+          "surprise_score": 52.02,
+          "margen_probabilidad": 2.7027
+        },
+        {
+          "num": 13,
+          "partido": "Madrid CFF - Athletic Club (F)",
+          "incertidumbre": 140.16,
+          "surprise_score": 61.74,
+          "margen_probabilidad": 2.1
+        },
         {
           "num": 1,
           "partido": "Albacete Balompie - SD Eibar",
@@ -1458,6 +1472,12 @@
       ],
       "ranking_elige8_confianza_real": [
         {
+          "num": 3,
+          "partido": "Cadiz CF - CD Leganes",
+          "confianza_real_elige8": 57.62,
+          "elige8": true
+        },
+        {
           "num": 2,
           "partido": "UD Almeria - Burgos CF",
           "confianza_real_elige8": 51.01,
@@ -1473,6 +1493,12 @@
           "num": 1,
           "partido": "Albacete Balompie - SD Eibar",
           "confianza_real_elige8": 1.95,
+          "elige8": false
+        },
+        {
+          "num": 13,
+          "partido": "Madrid CFF - Athletic Club (F)",
+          "confianza_real_elige8": 0.0,
           "elige8": false
         }
       ]
