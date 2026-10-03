@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-03T13:44:06.987946+00:00",
+  "generado_en": "2026-10-03T17:56:08.083563+00:00",
   "estado": "operativo_con_avisos",
   "score_salud": 72,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
@@ -63,13 +63,13 @@
         "jornada": 11,
         "fecha": "Domingo, 4 de octubre de 2026",
         "fecha_orden": "2026-10-05",
-        "estado": "abierta",
+        "estado": "en_juego",
         "partidos": 14,
-        "cerrados": 0,
-        "pendientes": 14,
-        "pendientes_totales_con_pleno15": 15,
+        "cerrados": 3,
+        "pendientes": 11,
+        "pendientes_totales_con_pleno15": 12,
         "pleno15_cerrado": false,
-        "ultima_actualizacion_partido": "2026-10-03T13:40:04Z",
+        "ultima_actualizacion_partido": "2026-10-03T17:52:10Z",
         "path": "data/jornadas/jornada_11.json"
       },
       {
@@ -116,7 +116,7 @@
   },
   "prediccion": {
     "jornada": 12,
-    "generado_en": "2026-10-03T13:44:00.001940+00:00",
+    "generado_en": "2026-10-03T17:56:01.244989+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 14,
@@ -133,7 +133,7 @@
       }
     },
     "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 11 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 12 hasta cerrar y aprender la 11."
+    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 11 solo tiene 3 de 14 resultados oficiales. No se genera prediccion para la jornada 12 hasta cerrar y aprender la 11."
   },
   "clasificaciones": {
     "primera": {
@@ -178,7 +178,7 @@
         {
           "posicion": 3,
           "equipo": "UD Almeria",
-          "puntos": 15
+          "puntos": 18
         }
       ]
     }
@@ -186,7 +186,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 5.19,
+    "contexto_equipos_horas": 0.02,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -260,7 +260,7 @@
     "partidos_cerrados": 293,
     "aciertos": 176,
     "precision": 60.07,
-    "generado_en": "2026-10-03T08:45:40.093641+00:00",
+    "generado_en": "2026-10-03T13:44:08.023718+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -298,7 +298,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-10-03T13:44:06.987946+00:00",
+    "generado_en": "2026-10-03T17:56:08.083563+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
@@ -346,8 +346,8 @@
           "fecha": "Domingo, 4 de octubre de 2026",
           "fecha_orden": "2026-10-05",
           "partidos": 14,
-          "cerrados": 0,
-          "pendientes": 14,
+          "cerrados": 3,
+          "pendientes": 11,
           "path": "data/jornadas/jornada_11.json"
         },
         {
@@ -379,13 +379,13 @@
         "leganes": {
           "posicion": 10,
           "equipo": "CD Leganes",
-          "pj": 7,
+          "pj": 8,
           "g": 3,
           "e": 2,
-          "p": 2,
+          "p": 3,
           "gf": 6,
-          "gc": 7,
-          "dg": -1,
+          "gc": 8,
+          "dg": -2,
           "puntos": 11,
           "pts": 11,
           "racha_actual": {
@@ -396,10 +396,10 @@
             "sin_perder": 0
           },
           "tendencias": {
-            "puntos_por_partido": 1.571,
-            "goles_favor_por_partido": 0.857,
+            "puntos_por_partido": 1.375,
+            "goles_favor_por_partido": 0.75,
             "goles_contra_por_partido": 1.0,
-            "empates_pct": 28.57,
+            "empates_pct": 25.0,
             "forma_5_pts": 7,
             "forma_10_pts": 11
           }
@@ -408,11 +408,11 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-10-03T13:43:29.814595+00:00"
+      "generado_en": "2026-10-03T17:55:32.299495+00:00"
     },
     "prediccion": {
       "jornada": 12,
-      "generado_en": "2026-10-03T13:44:00.001940+00:00",
+      "generado_en": "2026-10-03T17:56:01.244989+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 14,
@@ -429,7 +429,7 @@
         }
       },
       "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 11 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 12 hasta cerrar y aprender la 11."
+      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 11 solo tiene 3 de 14 resultados oficiales. No se genera prediccion para la jornada 12 hasta cerrar y aprender la 11."
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -477,8 +477,8 @@
         "fecha": "Domingo, 4 de octubre de 2026",
         "fecha_orden": "2026-10-05",
         "partidos": 14,
-        "cerrados": 0,
-        "pendientes": 14,
+        "cerrados": 3,
+        "pendientes": 11,
         "path": "data/jornadas/jornada_11.json"
       },
       {
@@ -510,13 +510,13 @@
       "leganes": {
         "posicion": 10,
         "equipo": "CD Leganes",
-        "pj": 7,
+        "pj": 8,
         "g": 3,
         "e": 2,
-        "p": 2,
+        "p": 3,
         "gf": 6,
-        "gc": 7,
-        "dg": -1,
+        "gc": 8,
+        "dg": -2,
         "puntos": 11,
         "pts": 11,
         "racha_actual": {
@@ -527,10 +527,10 @@
           "sin_perder": 0
         },
         "tendencias": {
-          "puntos_por_partido": 1.571,
-          "goles_favor_por_partido": 0.857,
+          "puntos_por_partido": 1.375,
+          "goles_favor_por_partido": 0.75,
           "goles_contra_por_partido": 1.0,
-          "empates_pct": 28.57,
+          "empates_pct": 25.0,
           "forma_5_pts": 7,
           "forma_10_pts": 11
         }
@@ -539,6 +539,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-10-03T13:43:29.814595+00:00"
+    "generado_en": "2026-10-03T17:55:32.299495+00:00"
   }
 }

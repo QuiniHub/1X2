@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-03T13:44:08.023718+00:00",
+  "generado_en": "2026-10-03T17:56:09.120118+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 22,
-    "partidos_cerrados": 293,
-    "aciertos": 176,
-    "precision": 60.07
+    "partidos_cerrados": 296,
+    "aciertos": 179,
+    "precision": 60.47
   },
   "jornadas": [
     {
@@ -522,10 +522,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_11.json",
       "creado_en": "2026-10-01T21:17:32.286396+00:00",
       "prediccion_generada_en": "2026-10-01T21:17:32.286056+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
-      "aciertos": 0,
-      "precision": null,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 3,
+      "aciertos": 3,
+      "precision": 100.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -546,19 +546,65 @@
       },
       "por_tipo": {
         "FIJO": {
-          "total": 0,
-          "aciertos": 0
+          "total": 2,
+          "aciertos": 2
         },
         "DOBLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 1,
+          "aciertos": 1
         },
         "TRIPLE": {
           "total": 0,
           "aciertos": 0
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 1,
+          "partido": "Albacete Balompie - SD Eibar",
+          "jugado": "2",
+          "tipo": "FIJO",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 20.7,
+            "X": 30.7,
+            "2": 48.6
+          },
+          "incertidumbre": 126.25,
+          "probabilidad_sorpresa": 60.5
+        },
+        {
+          "num": 2,
+          "partido": "UD Almeria - Burgos CF",
+          "jugado": "1X",
+          "tipo": "DOBLE",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 51.1,
+            "X": 32.3,
+            "2": 16.7
+          },
+          "incertidumbre": 121.85,
+          "probabilidad_sorpresa": 56.9
+        },
+        {
+          "num": 12,
+          "partido": "Deportivo (F) - At. Madrid (F)",
+          "jugado": "2",
+          "tipo": "FIJO",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 21.3,
+            "X": 26.2,
+            "2": 52.5
+          },
+          "incertidumbre": 121.39,
+          "probabilidad_sorpresa": 55.3
+        }
+      ]
     },
     {
       "jornada": 2,
