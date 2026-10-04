@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-04T16:03:02.489455+00:00",
-  "estado": "critico_actualizacion",
-  "score_salud": 45,
+  "generado_en": "2026-10-04T19:35:06.693881+00:00",
+  "estado": "operativo_con_avisos",
+  "score_salud": 72,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
@@ -65,11 +65,11 @@
         "fecha_orden": "2026-10-05",
         "estado": "en_juego",
         "partidos": 14,
-        "cerrados": 8,
-        "pendientes": 6,
-        "pendientes_totales_con_pleno15": 6,
+        "cerrados": 12,
+        "pendientes": 2,
+        "pendientes_totales_con_pleno15": 2,
         "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "2026-10-04T15:58:32Z",
+        "ultima_actualizacion_partido": "2026-10-04T19:31:57Z",
         "path": "data/jornadas/jornada_11.json"
       },
       {
@@ -116,7 +116,7 @@
   },
   "prediccion": {
     "jornada": 12,
-    "generado_en": "2026-10-04T16:02:54.953249+00:00",
+    "generado_en": "2026-10-04T19:35:00.471080+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 14,
@@ -133,7 +133,7 @@
       }
     },
     "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 11 solo tiene 8 de 14 resultados oficiales. No se genera prediccion para la jornada 12 hasta cerrar y aprender la 11."
+    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 11 solo tiene 12 de 14 resultados oficiales. No se genera prediccion para la jornada 12 hasta cerrar y aprender la 11."
   },
   "clasificaciones": {
     "primera": {
@@ -173,7 +173,7 @@
         {
           "posicion": 2,
           "equipo": "CD Castellon",
-          "puntos": 19
+          "puntos": 20
         },
         {
           "posicion": 3,
@@ -186,7 +186,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.02,
+    "contexto_equipos_horas": 3.56,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -257,18 +257,13 @@
   "backtesting_pre_cierre": {
     "estado": "operativo",
     "jornadas_snapshot": 22,
-    "partidos_cerrados": 298,
-    "aciertos": 179,
-    "precision": 60.07,
-    "generado_en": "2026-10-04T11:18:35.278369+00:00",
+    "partidos_cerrados": 301,
+    "aciertos": 181,
+    "precision": 60.13,
+    "generado_en": "2026-10-04T16:03:03.537626+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
-    {
-      "nivel": "critica",
-      "titulo": "Clasificacion segunda congelada",
-      "detalle": "FC Andorra tiene 7 PJ en tabla, pero el calendario ya tiene 8 resultados."
-    },
     {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
@@ -303,16 +298,10 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-10-04T16:03:02.489455+00:00",
-    "estado": "critico",
-    "score": 0,
-    "alertas": [
-      {
-        "nivel": "critica",
-        "titulo": "Clasificacion segunda congelada",
-        "detalle": "FC Andorra tiene 7 PJ en tabla, pero el calendario ya tiene 8 resultados."
-      }
-    ],
+    "generado_en": "2026-10-04T19:35:06.693881+00:00",
+    "estado": "operativo",
+    "score": 100,
+    "alertas": [],
     "jornadas": {
       "total": 76,
       "actual": {
@@ -357,8 +346,8 @@
           "fecha": "Domingo, 4 de octubre de 2026",
           "fecha_orden": "2026-10-05",
           "partidos": 14,
-          "cerrados": 8,
-          "pendientes": 6,
+          "cerrados": 12,
+          "pendientes": 2,
           "path": "data/jornadas/jornada_11.json"
         },
         {
@@ -388,7 +377,7 @@
         "racing": null,
         "deportivo": null,
         "leganes": {
-          "posicion": 12,
+          "posicion": 13,
           "equipo": "CD Leganes",
           "pj": 8,
           "g": 3,
@@ -419,11 +408,11 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-10-04T16:02:23.258339+00:00"
+      "generado_en": "2026-10-04T19:34:32.052819+00:00"
     },
     "prediccion": {
       "jornada": 12,
-      "generado_en": "2026-10-04T16:02:54.953249+00:00",
+      "generado_en": "2026-10-04T19:35:00.471080+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 14,
@@ -440,7 +429,7 @@
         }
       },
       "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 11 solo tiene 8 de 14 resultados oficiales. No se genera prediccion para la jornada 12 hasta cerrar y aprender la 11."
+      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 11 solo tiene 12 de 14 resultados oficiales. No se genera prediccion para la jornada 12 hasta cerrar y aprender la 11."
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -488,8 +477,8 @@
         "fecha": "Domingo, 4 de octubre de 2026",
         "fecha_orden": "2026-10-05",
         "partidos": 14,
-        "cerrados": 8,
-        "pendientes": 6,
+        "cerrados": 12,
+        "pendientes": 2,
         "path": "data/jornadas/jornada_11.json"
       },
       {
@@ -519,7 +508,7 @@
       "racing": null,
       "deportivo": null,
       "leganes": {
-        "posicion": 12,
+        "posicion": 13,
         "equipo": "CD Leganes",
         "pj": 8,
         "g": 3,
@@ -550,6 +539,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-10-04T16:02:23.258339+00:00"
+    "generado_en": "2026-10-04T19:34:32.052819+00:00"
   }
 }
