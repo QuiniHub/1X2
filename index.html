@@ -401,6 +401,22 @@
       .teams-list { grid-template-columns: 1fr; }
       .status-pill { justify-content: center; }
     }
+    /* Panel de avisos compacto (05/10/2026): semaforo + casillas de signos +
+       motivo en chips; el texto largo vive en el <details> de cada fila */
+    .aviso-fila { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:6px 4px; border-bottom:1px solid rgba(0,0,0,.06); }
+    .aviso-fila.cubierto { opacity:.55; }
+    .aviso-sem { font-size:14px; width:18px; text-align:center; flex:none; }
+    .aviso-partido { font-weight:700; min-width:150px; flex:1 1 150px; }
+    .sign-mini { display:inline-block; min-width:20px; text-align:center; padding:1px 4px; margin:0 1px; border-radius:4px; border:1px solid var(--muted,#94a3b8); font-weight:800; font-size:12px; }
+    .sign-mini.rec { background:#1d4ed8; color:#fff; border-color:#1d4ed8; }
+    .sign-mini.sorpresa { background:#b45309; color:#fff; border-color:#b45309; }
+    .aviso-chip { font-size:11px; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(148,163,184,.18); white-space:nowrap; }
+    .aviso-chip.rojo { background:rgba(220,38,38,.14); color:#b91c1c; }
+    .aviso-estado { font-size:11px; font-weight:800; white-space:nowrap; }
+    details.aviso-det { width:100%; }
+    details.aviso-det > summary { list-style:none; cursor:pointer; }
+    details.aviso-det > summary::-webkit-details-marker { display:none; }
+    .aviso-texto-largo { font-size:12px; color:var(--muted,#64748b); padding:6px 2px 2px 26px; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -1156,37 +1172,123 @@
           if (normalizeSignText(selectedSigns(m) || '').includes('X')) xCubiertas += 1;
         });
         const hayJugada = partidos.some(m => normalizeSignText(selectedSigns(m) || ''));
-        if (!hayJugada) {
-          items.push(`<li>⚖ <strong>Regla 15 (empates)</strong>: esta jornada se esperan ~${xEsperadas.toFixed(1)} X — al generar o marcar tu quiniela se medirá cuántas cubres (brecha > 2 = recolocar dobles).</li>`);
+        const bolas = '●'.repeat(Math.min(xCubiertas, 8)) + '○'.repeat(Math.max(0, Math.round(xEsperadas) - xCubiertas));
+        if (xEsperadas < 0.5) {
+          // prediccion bloqueada o sin probabilidades publicadas: sin datos
+          // no hay medidor que valga (evita el "se esperan ~0.0 X")
+        } else if (!hayJugada) {
+          items.push(`<li>⚖ <strong>Regla 15</strong>: se esperan ~${xEsperadas.toFixed(1)} X <span style="color:var(--muted)">(marca tu quiniela para medir cobertura)</span></li>`);
         } else {
           const brecha = xEsperadas - xCubiertas;
-          items.push(`<li>${brecha > 2 ? '🚨' : '⚖'} <strong>Regla 15 (empates)</strong>: esta jornada se esperan ~${xEsperadas.toFixed(1)} X y tu jugada cubre la X en <b>${xCubiertas}</b> partido${xCubiertas === 1 ? '' : 's'}${brecha > 2 ? ' — <b>brecha alta (' + brecha.toFixed(1) + '): replantea dónde van los dobles</b>' : ' — brecha ' + brecha.toFixed(1) + ', cobertura razonable'}.</li>`);
+          items.push(`<li>${brecha > 2 ? '🚨' : '⚖'} <strong>Regla 15</strong>: X cubiertas <b>${xCubiertas}</b> de ~${xEsperadas.toFixed(1)} ${bolas}${brecha > 2 ? ' · <b style="color:#b91c1c">brecha alta: recoloca dobles</b>' : ''}</li>`);
         }
       }
+      // Rediseno compacto (05/10/2026, peticion de Marc: "a primer vistazo
+      // opciones claras, el texto largo solo al clicar"): cada aviso es UNA
+      // fila con semaforo + casillas de signos (sorpresa en dorado) + motivo
+      // en chips + estado vivo contra la jugada ACTUAL (cubierto/descubierto,
+      // recalculado en cada re-render del boleto). El texto completo de
+      // siempre vive dentro del <details> de la fila. Los descubiertos van
+      // arriba; los cubiertos se atenuan y bajan al fondo.
+      const hayJugadaRows = partidos.some(m => normalizeSignText(selectedSigns(m) || ''));
+      const filas = [];
       partidos.forEach(match => {
         const num = match.num ?? match.numero ?? match.partido;
         const nombre = `${match.local || match.equipo_local || ''} - ${match.visitante || match.equipo_visitante || ''}`;
         const enElige8 = isElige8Match(match);
-        // Un solo <li> por partido aunque tenga riesgo Y millonario (antes
-        // salian dos lineas casi iguales -"salen dobladas", Marc 11/09/2026)
         const cambio = boletoMillonarioCambio(match);
         const riesgo = esRiesgoAlto(match);
-        if (riesgo) {
-          const rec = recomendacionPresupuesto(match);
-          const probsM = match.probabilidades || match.probabilidad_signos || {};
-          const probSorpresa = Number(probsM[rec.sorpresa]) || 0;
-          items.push(`<li>${cambio ? '💰' : '⚠'} <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: sorpresa <b>${escapeHtml(rec.sorpresa)}</b> (${probSorpresa.toFixed(0)}%) · doble <b>${escapeHtml(rec.doble)}</b> · fijo <b>${escapeHtml(rec.fijo)}</b>${cambio ? ' · con evidencia real' : ''}${rec.sorpresaFueraDelDoble ? ' <span class="aviso-elige8">(la sorpresa queda fuera del doble)</span>' : ''}${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
-        } else if (cambio) {
-          const jugadoAhora = selectedSigns(match) || cambio.signo_conservador || '';
-          const cubierta = jugadoAhora && cambio.signo_millonario && jugadoAhora.includes(cambio.signo_millonario);
-          items.push(`<li>💰 <strong>P${escapeHtml(num)} ${escapeHtml(nombre)}</strong>: el motor ve posible ${escapeHtml(cambio.signo_millonario || '')}${cubierta ? ' (ya cubierta en tu jugada)' : ` en vez de ${escapeHtml(jugadoAhora)}`}${enElige8 ? ' <span class="aviso-elige8">— ¡ESTÁ EN TU ELIGE 8!</span>' : ''}</li>`);
+        const chipsEquipos = [
+          ...chipsEquipoEstudio(match.local || match.equipo_local, true),
+          ...chipsEquipoEstudio(match.visitante || match.equipo_visitante, false),
+        ];
+        if (!riesgo && !cambio && !chipsEquipos.length) return;
+        const probsM = match.probabilidades || match.probabilidad_signos || {};
+        const jugado = normalizeSignText(selectedSigns(match) || '');
+        const rec = riesgo ? recomendacionPresupuesto(match) : null;
+        const signoSorpresa = rec ? rec.sorpresa : (cambio ? cambio.signo_millonario : (chipsEquipos.some(c => c.esX) ? 'X' : ''));
+        const probSorpresa = Number(probsM[signoSorpresa]) || 0;
+        const chips = [];
+        if (cambio) chips.push({ tx: '💰 millonario' });
+        if (rec && rec.sorpresaFueraDelDoble) chips.push({ tx: 'sorpresa fuera del doble', rojo: true });
+        chipsEquipos.forEach(c => chips.push(c));
+        // estado vivo contra la jugada actual
+        let cubierto = null; // null = aun sin jugada generada/marcada
+        if (hayJugadaRows && jugado) {
+          cubierto = signoSorpresa ? jugado.includes(signoSorpresa) : jugado.length === 3;
         }
+        if (enElige8 && cubierto !== true) chips.push({ tx: '¡EN TU ELIGE 8!', rojo: true });
+        const sem = cubierto === true ? '✅' : (cubierto === false ? '🔴' : '🟡');
+        const casillas = ['1', 'X', '2'].map(s => {
+          const esSorp = s === signoSorpresa;
+          const esRec = rec ? rec.doble.includes(s) : jugado.includes(s);
+          const cls = esSorp ? 'sign-mini sorpresa' : (esRec ? 'sign-mini rec' : 'sign-mini');
+          const titulo = esSorp ? ` title="sorpresa ${probSorpresa.toFixed(0)}%"` : '';
+          return `<span class="${cls}"${titulo}>${s}${esSorp && probSorpresa ? `<small> ${probSorpresa.toFixed(0)}%</small>` : ''}</span>`;
+        }).join('');
+        const chipsHtml = chips.map(c => `<span class="aviso-chip${c.rojo ? ' rojo' : ''}">${escapeHtml(c.tx)}</span>`).join(' ');
+        const estado = cubierto === true ? '<span class="aviso-estado" style="color:#15803d">cubierto</span>'
+          : (cubierto === false ? '<span class="aviso-estado" style="color:#b91c1c">DESCUBIERTO</span>' : '');
+        // el texto largo de siempre, ahora dentro del desplegable
+        const detalle = rec
+          ? `sorpresa <b>${escapeHtml(rec.sorpresa)}</b> (${probSorpresa.toFixed(0)}%) · doble recomendado <b>${escapeHtml(rec.doble)}</b> · fijo <b>${escapeHtml(rec.fijo)}</b>${cambio ? ' · con evidencia real del millonario' : ''}${rec.sorpresaFueraDelDoble ? ' · la sorpresa queda fuera del doble' : ''}`
+          : (cambio ? `el motor ve posible <b>${escapeHtml(cambio.signo_millonario || '')}</b>${jugado ? ` (tu jugada: ${escapeHtml(jugado)})` : ''}` : '');
+        const detalleEquipos = chipsEquipos.map(c => c.detalle).filter(Boolean).join(' · ');
+        filas.push({
+          orden: cubierto === true ? 2 : (cubierto === false ? 0 : 1),
+          prob: probSorpresa,
+          html: `<div class="aviso-fila${cubierto === true ? ' cubierto' : ''}"><details class="aviso-det"><summary>
+            <span class="aviso-sem">${sem}</span>
+            <span class="aviso-partido">P${escapeHtml(num)} ${escapeHtml(nombre)}</span>
+            ${casillas} ${chipsHtml} ${estado}
+          </summary><div class="aviso-texto-largo">${detalle}${detalle && detalleEquipos ? ' · ' : ''}${detalleEquipos}</div></details></div>`,
+        });
       });
-      if (!items.length) { cont.innerHTML = ''; return; }
+      if (!filas.length && !items.length) { cont.innerHTML = ''; return; }
+      filas.sort((a, b) => a.orden - b.orden || b.prob - a.prob);
+      const descubiertos = filas.filter(f => f.orden === 0).length;
+      const cubiertos = filas.filter(f => f.orden === 2).length;
+      const contador = hayJugadaRows ? ` — con tu jugada: <b style="color:#b91c1c">${descubiertos} descubierto${descubiertos === 1 ? '' : 's'}</b> · <b style="color:#15803d">${cubiertos} cubierto${cubiertos === 1 ? '' : 's'}</b>` : '';
       cont.innerHTML = `<div class="avisos-jornada">
-        <div class="avisos-titulo"><span class="punto"></span>⚠ AVISOS DE ESTA JORNADA — léelos antes de jugar</div>
-        <ul>${items.join('')}</ul>
+        <div class="avisos-titulo"><span class="punto"></span>⚠ AVISOS DE ESTA JORNADA${contador}</div>
+        <ul style="margin:4px 0">${items.join('')}</ul>
+        ${filas.map(f => f.html).join('')}
       </div>`;
+    }
+
+    // Chips "empatador"/"nemesis" desde el estudio equipos_x_fiabilidad.json
+    // (05/10/2026). Emparejado por clave normalizada EXACTA (mismo normalizador
+    // que el estudio Python) -nada de substrings, que ya nos mordieron 12 veces.
+    function normalizarEquipoEstudio(nombre) {
+      let t = String(nombre || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+      t = t.replace(/\b(cd|cf|fc|ud|sd|rc|rcd|ca|ce|ad|cp|r|real|club|deportivo|de|la|el|los|las|balompie|futbol)\b/g, ' ');
+      t = t.replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+      const alias = { 'rayo vallecano madrid': 'vallecano', 'rayo vallecano': 'vallecano', 'athletic': 'ath bilbao', 'athletic bilbao': 'ath bilbao', 'atletico madrid': 'ath madrid', 'sporting gijon': 'sp gijon', 'racing santander': 'santander', 'espanyol barcelona': 'espanol', 'espanyol': 'espanol', 'coruna': 'la coruna' };
+      return alias[t] || t;
+    }
+
+    function chipsEquipoEstudio(nombre, esLocal) {
+      const est = state.equiposXFiabilidad || {};
+      const clave = normalizarEquipoEstudio(nombre);
+      if (!clave) return [];
+      const chips = [];
+      for (const f of arr(est.fiabilidad_nuestra_por_equipo)) {
+        if (f.equipo === clave && Number(f.apariciones) >= 6 && Number(f.acierto_pct) <= 33) {
+          chips.push({ tx: '🔴 némesis', rojo: true, detalle: `${escapeHtml(nombre)}: solo ${f.acierto_pct}% de acierto nuestro en ${f.apariciones} boletos (${f.fallos_por_x} fallos por X)` });
+        }
+      }
+      for (const f of arr(est.equipos_empatadores)) {
+        if (f.equipo !== clave) continue;
+        if (esLocal && Number(f.x_casa_pct) >= 40) {
+          chips.push({ tx: `⚖ empatador en casa ${f.x_casa_pct}%`, esX: true, detalle: `${escapeHtml(nombre)} empata el ${f.x_casa_pct}% de sus partidos EN CASA (historico ${f.pj} pj)` });
+        } else if (Number(f.x_pct) >= 32) {
+          chips.push({ tx: `⚖ empatador ${f.x_pct}%`, esX: true, detalle: `${escapeHtml(nombre)} empata el ${f.x_pct}% historico` });
+        } else if (f.x_2627_pct != null && Number(f.x_2627_pct) >= 40) {
+          chips.push({ tx: `⚖ empatador 26/27 ${f.x_2627_pct}%`, esX: true, detalle: `${escapeHtml(nombre)} empata el ${f.x_2627_pct}% esta temporada (muestra corta: ${f.pj_2627} pj)` });
+        }
+        break;
+      }
+      return chips;
     }
 
     function renderTicket() {
@@ -4165,6 +4267,10 @@ No inventes — solo lo que ves con fondo oscuro.`;
       // sepa lo mismo sin depender de un modelo de pago. Carga aparte para
       // no reordenar el destructuring gigante de arriba.
       state.memoriaSocio = await getJson('data/memoria_ia/memoria_socio.json', null);
+      // Estudio de equipos empatadores y nuestra fiabilidad por equipo
+      // (05/10/2026): alimenta los chips "empatador"/"nemesis" del panel de
+      // avisos. Carga aparte por el mismo motivo que memoria_socio.
+      state.equiposXFiabilidad = await getJson('data/memoria_ia/equipos_x_fiabilidad.json', null);
       state.prediccion = pred;
       state.pleno15Data = pleno;
       state.aprendizaje = apr;
