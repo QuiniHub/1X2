@@ -410,6 +410,8 @@
     .sign-mini { display:inline-block; min-width:20px; text-align:center; padding:1px 4px; margin:0 1px; border-radius:4px; border:1px solid var(--muted,#94a3b8); font-weight:800; font-size:12px; }
     .sign-mini.rec { background:#1d4ed8; color:#fff; border-color:#1d4ed8; }
     .sign-mini.sorpresa { background:#b45309; color:#fff; border-color:#b45309; }
+    /* "vigila este signo" (aviso de estudio, NO pronostico): contorno ambar sin relleno */
+    .sign-mini.vigila { background:transparent; color:#b45309; border:2px dashed #b45309; }
     .aviso-chip { font-size:11px; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(148,163,184,.18); white-space:nowrap; }
     .aviso-chip.rojo { background:rgba(220,38,38,.14); color:#b91c1c; }
     .aviso-estado { font-size:11px; font-weight:800; white-space:nowrap; }
@@ -1206,7 +1208,14 @@
         const probsM = match.probabilidades || match.probabilidad_signos || {};
         const jugado = normalizeSignText(selectedSigns(match) || '');
         const rec = riesgo ? recomendacionPresupuesto(match) : null;
-        const signoSorpresa = rec ? rec.sorpresa : (cambio ? cambio.signo_millonario : (chipsEquipos.some(c => c.esX) ? 'X' : ''));
+        // DOS señales distintas, DOS pintas distintas (confusion real de Marc,
+        // 05/10/2026: siete X doradas parecian "pronostico X en todo"):
+        //  - signoSorpresa (dorado SOLIDO + %): sorpresa PRONOSTICADA por el
+        //    motor/millonario en este partido concreto
+        //  - signoVigilar (contorno ambar discontinuo): "vigila este signo",
+        //    aviso estadistico del estudio de equipos, NO un pronostico
+        const signoSorpresa = rec ? rec.sorpresa : (cambio ? cambio.signo_millonario : '');
+        const signoVigilar = !signoSorpresa && chipsEquipos.some(c => c.esX) ? 'X' : '';
         const probSorpresa = Number(probsM[signoSorpresa]) || 0;
         const chips = [];
         if (cambio) chips.push({ tx: '💰 millonario' });
@@ -1215,15 +1224,17 @@
         // estado vivo contra la jugada actual
         let cubierto = null; // null = aun sin jugada generada/marcada
         if (hayJugadaRows && jugado) {
-          cubierto = signoSorpresa ? jugado.includes(signoSorpresa) : jugado.length === 3;
+          const signoClave = signoSorpresa || signoVigilar;
+          cubierto = signoClave ? jugado.includes(signoClave) : jugado.length === 3;
         }
         if (enElige8 && cubierto !== true) chips.push({ tx: '¡EN TU ELIGE 8!', rojo: true });
         const sem = cubierto === true ? '✅' : (cubierto === false ? '🔴' : '🟡');
         const casillas = ['1', 'X', '2'].map(s => {
           const esSorp = s === signoSorpresa;
+          const esVigila = s === signoVigilar;
           const esRec = rec ? rec.doble.includes(s) : jugado.includes(s);
-          const cls = esSorp ? 'sign-mini sorpresa' : (esRec ? 'sign-mini rec' : 'sign-mini');
-          const titulo = esSorp ? ` title="sorpresa ${probSorpresa.toFixed(0)}%"` : '';
+          const cls = esSorp ? 'sign-mini sorpresa' : (esVigila ? 'sign-mini vigila' : (esRec ? 'sign-mini rec' : 'sign-mini'));
+          const titulo = esSorp ? ` title="sorpresa pronosticada ${probSorpresa.toFixed(0)}%"` : (esVigila ? ' title="vigilar: aviso estadistico, no pronostico"' : '');
           return `<span class="${cls}"${titulo}>${s}${esSorp && probSorpresa ? `<small> ${probSorpresa.toFixed(0)}%</small>` : ''}</span>`;
         }).join('');
         const chipsHtml = chips.map(c => `<span class="aviso-chip${c.rojo ? ' rojo' : ''}">${escapeHtml(c.tx)}</span>`).join(' ');
@@ -1251,6 +1262,7 @@
       const contador = hayJugadaRows ? ` — con tu jugada: <b style="color:#b91c1c">${descubiertos} descubierto${descubiertos === 1 ? '' : 's'}</b> · <b style="color:#15803d">${cubiertos} cubierto${cubiertos === 1 ? '' : 's'}</b>` : '';
       cont.innerHTML = `<div class="avisos-jornada">
         <div class="avisos-titulo"><span class="punto"></span>⚠ AVISOS DE ESTA JORNADA${contador}</div>
+        <div style="font-size:11px;color:var(--muted);margin:2px 0 6px"><span class="sign-mini sorpresa">X</span> sorpresa pronosticada (con %) · <span class="sign-mini vigila">X</span> vigilar: estadística del equipo, NO pronóstico · <span class="sign-mini rec">1</span> cobertura recomendada</div>
         <ul style="margin:4px 0">${items.join('')}</ul>
         ${filas.map(f => f.html).join('')}
       </div>`;
