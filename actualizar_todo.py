@@ -117,6 +117,12 @@ SCRIPTS_ACTIVOS = [
     # archivo publicado ni siquiera era el que consumian sorpresas/pesos/
     # compuerta. Un solo escritor canonico: construir_memoria_ia.py.
     "construir_memoria_ia.py",
+    # Equipos empatadores + nuestra fiabilidad por equipo (06/10/2026): el
+    # panel de avisos de la web consume equipos_x_fiabilidad.json (chips
+    # "empatador"/"nemesis"); sin regenerarlo cada ciclo, los porcentajes se
+    # quedarian congelados en la foto del 05/10. Va despues de
+    # construir_memoria_ia porque lee el diario de aprendizaje recien escrito.
+    "estudio_equipos_x_y_fiabilidad.py",
     "aprender_de_historial_resultados.py",
     "memoria_autonoma_quiniela.py",
     "sincronizar_dinamicas_memoria.py",
