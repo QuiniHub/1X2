@@ -1204,7 +1204,8 @@
           ...chipsEquipoEstudio(match.local || match.equipo_local, true),
           ...chipsEquipoEstudio(match.visitante || match.equipo_visitante, false),
         ];
-        if (!riesgo && !cambio && !chipsEquipos.length) return;
+        const revulsivo = match.ajuste_revulsivo;
+        if (!riesgo && !cambio && !chipsEquipos.length && !(revulsivo && revulsivo.activo)) return;
         const probsM = match.probabilidades || match.probabilidad_signos || {};
         const jugado = normalizeSignText(selectedSigns(match) || '');
         const rec = riesgo ? recomendacionPresupuesto(match) : null;
@@ -1218,6 +1219,7 @@
         const signoVigilar = !signoSorpresa && chipsEquipos.some(c => c.esX) ? 'X' : '';
         const probSorpresa = Number(probsM[signoSorpresa]) || 0;
         const chips = [];
+        if (revulsivo && revulsivo.activo) chips.push({ tx: `🔄 revulsivo (${revulsivo.etapa || 'debut'} ${revulsivo.lado === 'visitante' ? 'fuera' : 'en casa'})`, rojo: revulsivo.lado === 'visitante', detalle: `${escapeHtml(revulsivo.equipo || '')}: ${revulsivo.etapa || 'debut'} de ${escapeHtml(revulsivo.tecnico || 'técnico nuevo')} ${revulsivo.lado === 'visitante' ? 'FUERA (escenario infravalorado por el mercado: +0,26 sobre cuotas en 70 casos)' : 'EN CASA (escenario sobrevalorado: −0,48 medido)'}` });
         if (cambio) chips.push({ tx: '💰 millonario' });
         if (rec && rec.sorpresaFueraDelDoble) chips.push({ tx: 'sorpresa fuera del doble', rojo: true });
         chipsEquipos.forEach(c => chips.push(c));

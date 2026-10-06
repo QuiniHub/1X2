@@ -1585,6 +1585,145 @@ def ajustar_por_lesiones_laliga(probs, lesiones_local, lesiones_visitante):
     return normalizar_probs(p), riesgo_extra, lecturas
 
 
+# Revulsivo de entrenador nuevo (06/10/2026, aprobado por Marc: "es necesaria
+# esa info, en casa o fuera... todo cuenta"). Cuantificado en el estudio de 70
+# ceses reales 23/24-25/26 (data/memoria_ia/efecto_revulsivo.json): el mercado
+# ya descuenta el rebote del cambio de banquillo SALVO en el debut FUERA de
+# casa (infravalorado: +0,26 pts sobre cuotas, 36% de victoria) -en casa esta
+# SOBREvalorado (-0,48: la presion de la grada propia aplasta al vestuario
+# fragil, mecanismo de Marc). Fuente de ceses de la temporada en curso:
+# data/memoria_ia/ceses_actuales.json, mantenida a mano en los analisis
+# semanales. El efecto se aplica al debut (factor 1.0) y al 2o partido
+# (factor 0.5) tras el evento mas reciente (cese o nombramiento definitivo).
+EFECTO_REVULSIVO_DEBUT_FUERA = 5.0
+EFECTO_REVULSIVO_DEBUT_CASA = 3.5
+CESES_ACTUALES_PATH = DATA / "memoria_ia" / "ceses_actuales.json"
+_CAL_REVULSIVO_CACHE = None
+
+
+def _norm_revulsivo(texto):
+    import unicodedata as _ud
+    texto = str(texto or "").lower()
+    texto = _ud.normalize("NFD", texto)
+    texto = "".join(c for c in texto if _ud.category(c) != "Mn")
+    texto = re.sub(r"\b(cd|cf|fc|ud|sd|rc|rcd|ca|ce|ad|cp|real|club|deportivo|de|la|el|los|las|balompie|futbol)\b", " ", texto)
+    return re.sub(r"[^a-z0-9]+", " ", texto).strip()
+
+
+def _partidos_oficiales_entre(nombre_equipo, desde, hasta):
+    """Cuantos partidos de liga con resultado jugo el equipo en (desde, hasta).
+    Lee los calendarios de 1a y 2a (cacheados por proceso). None si el equipo
+    no aparece en ningun calendario (p.ej. un club extranjero)."""
+    global _CAL_REVULSIVO_CACHE
+    if _CAL_REVULSIVO_CACHE is None:
+        partidos = []
+        for archivo in (DATA / "calendario_primera.json", DATA / "calendario_segunda.json"):
+            try:
+                data = json.loads(archivo.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            for jornada in data.get("jornadas", []):
+                for p in jornada.get("partidos", []):
+                    partidos.append(p)
+        _CAL_REVULSIVO_CACHE = partidos
+    clave = _norm_revulsivo(nombre_equipo)
+    visto = False
+    jugados = 0
+    for p in _CAL_REVULSIVO_CACHE:
+        es_local = _norm_revulsivo(p.get("local")) == clave
+        es_visitante = _norm_revulsivo(p.get("visitante")) == clave
+        if not (es_local or es_visitante):
+            continue
+        visto = True
+        if not re.match(r"^\s*\d+\s*-\s*\d+\s*$", str(p.get("resultado") or "")):
+            continue
+        try:
+            fecha = datetime.strptime(str(p.get("fecha") or "")[:10], "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        if desde < fecha < hasta:
+            jugados += 1
+    return jugados if visto else None
+
+
+def ajustar_por_revulsivo(probs, partido, ceses=None, contador=None):
+    """Aplica el efecto revulsivo medido cuando uno de los dos equipos juega
+    el debut o 2o partido tras un cambio de banquillo a mitad de temporada.
+    Devuelve (probs, riesgo_extra, lecturas, traza)."""
+    if ceses is None:
+        ceses = (cargar_json_generico(CESES_ACTUALES_PATH) or {}).get("ceses") or []
+    if not ceses:
+        return probs, 0.0, [], {"activo": False}
+    try:
+        fecha_partido = datetime.strptime(str(partido.get("fecha") or "")[:10], "%Y-%m-%d").date()
+    except ValueError:
+        return probs, 0.0, [], {"activo": False}
+    contador = contador or _partidos_oficiales_entre
+    p = dict(probs)
+    lecturas = []
+    riesgo = 0.0
+    traza = {"activo": False}
+    for lado, signo_equipo, signo_rival in (("local", "1", "2"), ("visitante", "2", "1")):
+        nombre = partido.get(lado) or ""
+        clave = _norm_revulsivo(nombre)
+        for cese in ceses:
+            if _norm_revulsivo(cese.get("equipo")) != clave:
+                continue
+            evento = None
+            for campo in ("fecha_nuevo", "fecha_cese"):
+                try:
+                    candidata = datetime.strptime(str(cese.get(campo) or "")[:10], "%Y-%m-%d").date()
+                except ValueError:
+                    continue
+                if candidata <= fecha_partido and (evento is None or candidata > evento):
+                    evento = candidata
+            if evento is None:
+                continue
+            jugados = contador(nombre, evento, fecha_partido)
+            if jugados is None or jugados >= 2:
+                continue
+            factor = 1.0 if jugados == 0 else 0.5
+            tecnico = cese.get("nuevo") or cese.get("interino") or "tecnico nuevo"
+            etapa = "debut" if jugados == 0 else "2o partido"
+            if lado == "visitante":
+                ajuste = EFECTO_REVULSIVO_DEBUT_FUERA * factor
+                p[signo_equipo] = float(p.get(signo_equipo, 0)) + ajuste
+                p[signo_rival] = float(p.get(signo_rival, 0)) - ajuste * 0.7
+                p["X"] = float(p.get("X", 0)) - ajuste * 0.3
+                lecturas.append(
+                    f"Revulsivo: {nombre} juega el {etapa} de {tecnico} FUERA de casa -escenario "
+                    f"infravalorado por el mercado (+0,26 sobre cuotas y 36% de victoria en 70 ceses 23/24-25/26)."
+                )
+            else:
+                ajuste = EFECTO_REVULSIVO_DEBUT_CASA * factor
+                p[signo_equipo] = float(p.get(signo_equipo, 0)) - ajuste
+                p[signo_rival] = float(p.get(signo_rival, 0)) + ajuste * 0.6
+                p["X"] = float(p.get("X", 0)) + ajuste * 0.4
+                lecturas.append(
+                    f"Revulsivo: {nombre} juega el {etapa} de {tecnico} EN CASA -el mercado SOBREvalora "
+                    f"el empuje de la grada propia (-0,48 medido): se recorta su signo."
+                )
+            riesgo += 6.0 * factor
+            traza = {
+                "activo": True,
+                "equipo": nombre,
+                "lado": lado,
+                "etapa": etapa,
+                "tecnico": tecnico,
+                "partidos_desde_evento": jugados,
+            }
+    if not lecturas:
+        return probs, 0.0, [], {"activo": False}
+    return normalizar_probs(p), riesgo, lecturas, traza
+
+
+def cargar_json_generico(path):
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
 def ajustar_por_datos_profesionales(probs, datos_partido):
     if not datos_partido:
         return probs, 0.0, [], resumen_datos_profesionales_partido(None)
@@ -2967,6 +3106,8 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             probs, lesiones_laliga_local, lesiones_laliga_visitante
         )
         lecturas_motivacion.extend(lecturas_lesiones_laliga)
+        probs, riesgo_revulsivo, lecturas_revulsivo, ajuste_revulsivo = ajustar_por_revulsivo(probs, partido)
+        lecturas_motivacion.extend(lecturas_revulsivo)
         ajuste_motivacion_competitiva = calcular_ajuste_motivacion({**partido, "probabilidades": probs}, clasificaciones_mundial, fuente_losilla)
         probs = aplicar_ajuste_motivacion_competitiva(probs, ajuste_motivacion_competitiva)
         riesgo_motivacion_competitiva = 0.0
@@ -3047,6 +3188,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             },
             "lesiones_laliga_local": lesiones_laliga_local,
             "lesiones_laliga_visitante": lesiones_laliga_visitante,
+            "ajuste_revulsivo": {**ajuste_revulsivo, "riesgo_extra": riesgo_revulsivo, "lecturas": lecturas_revulsivo},
             "ajuste_lesiones_laliga": {
                 "activo": bool(lecturas_lesiones_laliga),
                 "riesgo_extra": riesgo_lesiones_laliga,
@@ -3176,6 +3318,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "ajuste_mercado_losilla": partido["ajuste_mercado_losilla"],
             "lesiones_laliga_local": partido["lesiones_laliga_local"],
             "lesiones_laliga_visitante": partido["lesiones_laliga_visitante"],
+            "ajuste_revulsivo": partido["ajuste_revulsivo"],
             "ajuste_lesiones_laliga": partido["ajuste_lesiones_laliga"],
             "ajuste_motivacion": partido["ajuste_motivacion"],
             "alertas_motivacion": partido["alertas_motivacion"],

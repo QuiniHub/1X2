@@ -1230,3 +1230,17 @@ walk-forward), reutilizable si en el futuro hay más datos o features.
 mix 0,7 en el mismo benchmark (0,2013 vs 0,2035) — tercera vez que apunta igual; se
 mantiene 0,7 por disciplina anti-sobreajuste (n=83), pero cuando haya ~150 partidos
 26/27 toca re-evaluar el peso con datos frescos.
+
+### 2026-10-06 — Señal revulsivo integrada al motor (ajustar_por_revulsivo)
+
+Marc: "es necesaria esa info de revulsivo, en casa o fuera... todo cuenta". El motor era
+ciego a los banquillos: lo de Aguirre (debut fuera, J12) se aplicaba a mano. Ahora:
+`data/memoria_ia/ceses_actuales.json` (ceses de MITAD de temporada, mantenido a mano en
+los análisis semanales — los proyectos de verano NO cuentan) + `ajustar_por_revulsivo()`
+tras el ajuste de lesiones. Efecto del estudio de 70 casos (efecto_revulsivo.json):
+debut FUERA +5 pts al equipo del técnico nuevo (infravalorado: +0,26 sobre cuotas, 36%
+de victoria); debut EN CASA −3,5 (sobrevalorado: −0,48). El 2º partido aplica la mitad;
+del 3º en adelante, nada. Se exporta `ajuste_revulsivo` por partido y el panel de avisos
+muestra el chip 🔄. 6 tests incluyendo el caso real P7 Racing-Valencia (Aguirre).
+**Mantenimiento:** al detectar un cese en los análisis semanales, añadir la entrada al
+JSON — sin entrada no hay señal. Candidato futuro: scraper de ceses.
