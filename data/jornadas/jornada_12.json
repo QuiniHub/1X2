@@ -2,8 +2,8 @@
   "jornada": 12,
   "fecha": "Domingo, 11 de octubre de 2026",
   "fuente": "https://www.quinielafutbol.info/proximas-jornadas-de-la-quiniela.html",
-  "estado": "abierta",
-  "actualizado_en": "2026-10-10T09:38:31.110895+00:00",
+  "estado": "en_juego",
+  "actualizado_en": "2026-10-10T15:48:07.612798+00:00",
   "partidos": [
     {
       "num": 1,
@@ -11,9 +11,10 @@
       "visitante": "Athletic Club",
       "fecha": "2026-10-10",
       "hora": "14:00",
-      "resultado": "Pendiente",
-      "signo_oficial": "Pendiente",
+      "resultado": "0-0",
+      "signo_oficial": "X",
       "signo_nuestro": "No jugada",
+      "actualizado_en": "2026-10-10T15:48:35Z",
       "competicion_resuelta": "primera_division",
       "modelo_datos_recomendado": "modelo_liga_espana_primera",
       "resolucion_competicion": {
@@ -199,32 +200,32 @@
     },
     {
       "num": 7,
-      "local": "Real Racing Club de Santander",
+      "local": "R. Santander",
       "visitante": "Valencia CF",
       "fecha": "2026-10-11",
       "hora": "21:00",
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "signo_nuestro": "No jugada",
-      "competicion_resuelta": "primera_division",
-      "modelo_datos_recomendado": "modelo_liga_espana_primera",
+      "fuente_equipos": "quiniela15_resultados",
+      "actualizado_en": "2026-10-10T15:48:13Z",
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
       "resolucion_competicion": {
-        "competicion": "primera_division",
-        "modelo_recomendado": "modelo_liga_espana_primera",
-        "confianza": 0.94,
-        "motivo": "Ambos equipos estan en Primera.",
-        "lectura": "Usar clasificacion de Primera, forma, casa/fuera, objetivos y bajas.",
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
         "datos_minimos": [
           "resultados",
-          "clasificacion",
+          "clasificacion_liga",
           "forma",
-          "casa_fuera",
-          "lesiones",
-          "alineaciones",
-          "xg"
+          "ranking_elo",
+          "lesiones"
         ],
         "equipos_normalizados": {
-          "local": "racing santander",
+          "local": "r santander",
           "visitante": "valencia"
         }
       }
@@ -486,11 +487,14 @@
       }
     }
   },
+  "fuente_boleto_vivo": "https://www.quiniela15.com/resultados-quiniela",
+  "boleto_vivo_actualizado_en": "2026-10-10T15:48:13Z",
   "resolucion_competiciones": {
-    "generado_en": "2026-10-10T09:42:12.809760+00:00",
+    "generado_en": "2026-10-10T15:52:26.234387+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
-      "primera_division": 8,
+      "primera_division": 7,
+      "liga_extranjera": 1,
       "segunda_division": 6
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
