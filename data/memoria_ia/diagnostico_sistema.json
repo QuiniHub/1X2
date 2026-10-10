@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-10T19:59:58.880763+00:00",
-  "estado": "operativo_con_avisos",
-  "score_salud": 72,
+  "generado_en": "2026-10-10T23:28:02.668902+00:00",
+  "estado": "critico_actualizacion",
+  "score_salud": 45,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
@@ -41,8 +41,8 @@
         "partidos": 14,
         "cerrados": 4,
         "pendientes": 10,
-        "pendientes_totales_con_pleno15": 11,
-        "pleno15_cerrado": false,
+        "pendientes_totales_con_pleno15": 10,
+        "pleno15_cerrado": true,
         "ultima_actualizacion_partido": "2026-10-10T19:56:42Z",
         "path": "data/jornadas/jornada_12.json"
       },
@@ -116,7 +116,7 @@
   },
   "prediccion": {
     "jornada": 13,
-    "generado_en": "2026-10-10T19:59:51.742315+00:00",
+    "generado_en": "2026-10-10T23:27:56.116029+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 14,
@@ -155,7 +155,7 @@
         {
           "posicion": 3,
           "equipo": "Real Madrid CF",
-          "puntos": 16
+          "puntos": 18
         }
       ]
     },
@@ -186,7 +186,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 4.15,
+    "contexto_equipos_horas": 0.02,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -257,13 +257,18 @@
   "backtesting_pre_cierre": {
     "estado": "operativo",
     "jornadas_snapshot": 23,
-    "partidos_cerrados": 308,
-    "aciertos": 186,
-    "precision": 60.39,
-    "generado_en": "2026-10-10T15:52:54.193204+00:00",
+    "partidos_cerrados": 311,
+    "aciertos": 189,
+    "precision": 60.77,
+    "generado_en": "2026-10-10T20:00:00.199980+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
+    {
+      "nivel": "critica",
+      "titulo": "Clasificacion primera congelada",
+      "detalle": "Athletic Club tiene 6 PJ en tabla, pero el calendario ya tiene 7 resultados."
+    },
     {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
@@ -298,10 +303,16 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-10-10T19:59:58.880763+00:00",
-    "estado": "operativo",
-    "score": 100,
-    "alertas": [],
+    "generado_en": "2026-10-10T23:28:02.668902+00:00",
+    "estado": "critico",
+    "score": 0,
+    "alertas": [
+      {
+        "nivel": "critica",
+        "titulo": "Clasificacion primera congelada",
+        "detalle": "Athletic Club tiene 6 PJ en tabla, pero el calendario ya tiene 7 resultados."
+      }
+    ],
     "jornadas": {
       "total": 76,
       "actual": {
@@ -408,11 +419,11 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-10-10T19:59:18.045856+00:00"
+      "generado_en": "2026-10-10T23:27:28.216348+00:00"
     },
     "prediccion": {
       "jornada": 13,
-      "generado_en": "2026-10-10T19:59:51.742315+00:00",
+      "generado_en": "2026-10-10T23:27:56.116029+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 14,
@@ -539,6 +550,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-10-10T19:59:18.045856+00:00"
+    "generado_en": "2026-10-10T23:27:28.216348+00:00"
   }
 }
