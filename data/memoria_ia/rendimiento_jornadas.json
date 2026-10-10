@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-10T15:51:53.366578+00:00",
+  "generado_en": "2026-10-10T19:59:17.691074+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -1544,22 +1544,22 @@
     },
     "12": {
       "jornada": 12,
-      "partidos_cerrados": 1,
-      "partidos_con_prediccion": 1,
-      "precision_boleto": 100.0,
-      "precision_top1": 100.0,
-      "brier_medio": 0.599,
-      "logloss_medio": 0.9916,
+      "partidos_cerrados": 4,
+      "partidos_con_prediccion": 4,
+      "precision_boleto": 75.0,
+      "precision_top1": 75.0,
+      "brier_medio": 0.4894,
+      "logloss_medio": 0.857,
       "por_tipo": {
         "FIJO": {
-          "total": 0,
-          "aciertos": 0,
-          "precision": null
+          "total": 3,
+          "aciertos": 3,
+          "precision": 100.0
         },
         "DOBLE": {
           "total": 1,
-          "aciertos": 1,
-          "precision": 100.0
+          "aciertos": 0,
+          "precision": 0.0
         },
         "TRIPLE": {
           "total": 0,
@@ -1568,26 +1568,65 @@
         }
       },
       "elige8": {
-        "selecciones": 1,
+        "selecciones": 2,
         "aciertos": 1,
-        "precision": 100.0
+        "precision": 50.0
       },
-      "surprise_score_medio": 39.0,
+      "surprise_score_medio": 38.72,
       "ranking_incertidumbre": [
         {
           "num": 1,
           "partido": "Rayo Vallecano de Madrid - Athletic Club",
           "incertidumbre": 167.1,
-          "surprise_score": 39.0,
+          "surprise_score": 64.31,
           "margen_probabilidad": 0.4
+        },
+        {
+          "num": 9,
+          "partido": "Eldense - Cordoba CF",
+          "incertidumbre": 139.6,
+          "surprise_score": 39.31,
+          "margen_probabilidad": 2.7
+        },
+        {
+          "num": 2,
+          "partido": "Deportivo Alaves - Club Atletico de Madrid",
+          "incertidumbre": 127.07,
+          "surprise_score": 30.35,
+          "margen_probabilidad": 21.5785
+        },
+        {
+          "num": 3,
+          "partido": "FC Barcelona - Getafe CF",
+          "incertidumbre": 75.76,
+          "surprise_score": 20.89,
+          "margen_probabilidad": 46.2
         }
       ],
       "ranking_elige8_confianza_real": [
+        {
+          "num": 3,
+          "partido": "FC Barcelona - Getafe CF",
+          "confianza_real_elige8": 49.42,
+          "elige8": true
+        },
         {
           "num": 1,
           "partido": "Rayo Vallecano de Madrid - Athletic Club",
           "confianza_real_elige8": 30.21,
           "elige8": true
+        },
+        {
+          "num": 2,
+          "partido": "Deportivo Alaves - Club Atletico de Madrid",
+          "confianza_real_elige8": 19.96,
+          "elige8": false
+        },
+        {
+          "num": 9,
+          "partido": "Eldense - Cordoba CF",
+          "confianza_real_elige8": 0.33,
+          "elige8": false
         }
       ]
     },
