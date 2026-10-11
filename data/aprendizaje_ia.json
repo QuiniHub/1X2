@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 66.42,
+  "precision": 66.75,
   "jornadas_revisadas": 30,
-  "partidos_revisados": 411,
-  "aciertos": 273,
+  "partidos_revisados": 415,
+  "aciertos": 277,
   "fallos": 138,
   "fallos_por_tipo": {
     "Doble insuficiente": 28,
@@ -22,16 +22,16 @@
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 104,
-      "aciertos": 76,
+      "total": 106,
+      "aciertos": 78,
       "fallos": 28,
-      "precision": 73.08
+      "precision": 73.58
     },
     "FIJO": {
-      "total": 255,
-      "aciertos": 145,
+      "total": 257,
+      "aciertos": 147,
       "fallos": 110,
-      "precision": 56.86
+      "precision": 57.2
     },
     "TRIPLE": {
       "total": 52,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 185,
-      "aciertos": 151,
+      "total": 189,
+      "aciertos": 155,
       "fallos": 34,
-      "precision": 81.62
+      "precision": 82.01
     },
     "2": {
       "total": 133,
@@ -61,473 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 70,
-      "partido": "Egipto - Irán",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_70.json",
-      "probabilidades_usadas": {
-        "1": 47.6,
-        "X": 34.3,
-        "2": 18.1
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_equipos",
-        "mundial_2026",
-        "mundial_2026_resultados_y_modelo_base"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Egipto",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Irán",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (35.5%).",
-        "hipotesis_alternativa": "X como alternativa (34.7%).",
-        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
-        "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
-          "probabilidad": 70.0,
-          "favorito_atacable": true
-        },
-        "justificacion_final": "Decision TRIPLE 1X2: margen 0.8 puntos, indice sorpresa 100.0."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 18.46,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 9.94,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.72,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Egipto: ppp=1.34; perfil visitante Irán: ppp=1.00.",
-          "Memoria autonoma: tendencia de empate conjunta alta (74.6%).",
-          "Memoria autonoma: historial de sorpresa medio elevado (49.0)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Egipto",
-        "partidos_total": 2,
-        "puntos_por_partido": 2.014,
-        "empates_pct": 49.28,
-        "surprise_score_medio": 51.01,
-        "forma_5_ppp": 2.0,
-        "forma_10_ppp": 2.0,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Irán",
-        "partidos_total": 2,
-        "puntos_por_partido": 1.0,
-        "empates_pct": 100.0,
-        "surprise_score_medio": 46.94,
-        "forma_5_ppp": 1.0,
-        "forma_10_ppp": 1.0,
-        "racha_actual": {
-          "tipo": "E",
-          "partidos": 2
-        }
-      }
-    },
-    {
-      "jornada": 70,
-      "partido": "Nueva Zelanda - Bélgica",
-      "pronostico": "2",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-5",
-      "resultado_final": "1-5",
-      "signo_real": "2",
-      "signos_cubiertos": "2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_70.json",
-      "probabilidades_usadas": {
-        "1": 15.6,
-        "X": 29.6,
-        "2": 54.8
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_equipos",
-        "mundial_2026",
-        "mundial_2026_resultados_y_modelo_base"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Nueva Zelanda",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Bélgica",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "X como signo dominante (34.8%).",
-        "hipotesis_alternativa": "2 como alternativa (33.1%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
-          "probabilidad": 70.0,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision FIJO X: margen 1.7 puntos, indice sorpresa 100.0."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 18.46,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 9.94,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.17,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Nueva Zelanda: ppp=0.22; perfil visitante Bélgica: ppp=1.12.",
-          "Memoria autonoma: tendencia de empate conjunta alta (49.5%).",
-          "Memoria autonoma: historial de sorpresa medio elevado (46.0)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Nueva Zelanda",
-        "partidos_total": 3,
-        "puntos_por_partido": 0.333,
-        "empates_pct": 33.32,
-        "surprise_score_medio": 52.63,
-        "forma_5_ppp": 0.333,
-        "forma_10_ppp": 0.333,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Bélgica",
-        "partidos_total": 3,
-        "puntos_por_partido": 1.686,
-        "empates_pct": 65.7,
-        "surprise_score_medio": 39.27,
-        "forma_5_ppp": 1.667,
-        "forma_10_ppp": 1.667,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 1
-        }
-      }
-    },
-    {
-      "jornada": 70,
-      "partido": "Panamá - Inglaterra",
-      "pronostico": "2",
-      "tipo_pronostico": "FIJO",
-      "resultado": "0-2",
-      "resultado_final": "0-2",
-      "signo_real": "2",
-      "signos_cubiertos": "2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_70.json",
-      "probabilidades_usadas": {
-        "1": 3.2,
-        "X": 28.8,
-        "2": 68.1
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "mundial_2026",
-        "mundial_2026_resultados_y_modelo_base"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Panamá",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Inglaterra",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "X como signo dominante (36.2%).",
-        "hipotesis_alternativa": "2 como alternativa (33.1%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
-          "probabilidad": 70.0,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision FIJO X: margen 3.1 puntos, indice sorpresa 100.0."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 18.46,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 11.1,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.98,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Panamá: ppp=1.35; perfil visitante Inglaterra: ppp=2.33.",
-          "Memoria autonoma: historial de sorpresa medio elevado (50.5)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Panamá",
-        "partidos_total": 3,
-        "puntos_por_partido": 1.362,
-        "empates_pct": 33.32,
-        "surprise_score_medio": 61.33,
-        "forma_5_ppp": 1.333,
-        "forma_10_ppp": 1.333,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Inglaterra",
-        "partidos_total": 5,
-        "puntos_por_partido": 1.977,
-        "empates_pct": 19.41,
-        "surprise_score_medio": 39.61,
-        "forma_5_ppp": 2.0,
-        "forma_10_ppp": 2.0,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 1
-        }
-      }
-    },
-    {
-      "jornada": 70,
-      "partido": "Croacia - Ghana",
-      "pronostico": "X2",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "2-1",
-      "resultado_final": "2-1",
-      "signo_real": "1",
-      "signos_cubiertos": "X2",
-      "signo_omitido": "1",
-      "acierto": false,
-      "motivo_error": "Doble insuficiente",
-      "origen": "data/predicciones/jornada_70.json",
-      "probabilidades_usadas": {
-        "1": 19.2,
-        "X": 33.7,
-        "2": 47.1
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "mundial_2026",
-        "mundial_2026_resultados_y_modelo_base"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Croacia",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Ghana",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "X como signo dominante (39.5%).",
-        "hipotesis_alternativa": "1 como alternativa (35.7%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
-          "probabilidad": 70.0,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision FIJO X: margen 3.8 puntos, indice sorpresa 100.0."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 18.46,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 11.1,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.04,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Croacia: ppp=3.00; perfil visitante Ghana: ppp=1.00.",
-          "Memoria autonoma: tendencia de empate conjunta alta (50.0%).",
-          "Memoria autonoma: historial de sorpresa medio elevado (45.2)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Croacia",
-        "partidos_total": 2,
-        "puntos_por_partido": 3.0,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 51.23,
-        "forma_5_ppp": 3.0,
-        "forma_10_ppp": 3.0,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 2
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Ghana",
-        "partidos_total": 1,
-        "puntos_por_partido": 1.0,
-        "empates_pct": 100.0,
-        "surprise_score_medio": 39.25,
-        "forma_5_ppp": 1.0,
-        "forma_10_ppp": 1.0,
-        "racha_actual": {
-          "tipo": "E",
-          "partidos": 1
-        }
-      }
-    },
     {
       "jornada": 70,
       "partido": "Colombia - Portugal",
@@ -28457,6 +27990,242 @@
     },
     {
       "jornada": 12,
+      "partido": "Real Sociedad de Futbol - RC Deportivo de La Coruna",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "3-2",
+      "resultado_final": "3-2",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_12.json",
+      "probabilidades_usadas": {
+        "1": 47.5,
+        "X": 31.5,
+        "2": 21.1
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Real Sociedad de Futbol",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "RC Deportivo de La Coruna",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (47.5%).",
+        "hipotesis_alternativa": "X como alternativa (31.5%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 62.4,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 16.0 puntos, indice sorpresa 75.1."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.52,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local R. Sociedad: ppp=0.33; perfil visitante RC Deportivo de La Coruna: ppp=1.66.",
+          "Memoria autonoma: tendencia de empate conjunta alta (41.6%)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "R. Sociedad",
+        "partidos_total": 2,
+        "puntos_por_partido": 0.493,
+        "empates_pct": 49.28,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 0.5,
+        "forma_10_ppp": 0.5,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "RC Deportivo de La Coruna",
+        "partidos_total": 6,
+        "puntos_por_partido": 1.337,
+        "empates_pct": 33.83,
+        "surprise_score_medio": 50.05,
+        "forma_5_ppp": 1.6,
+        "forma_10_ppp": 1.333,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 12,
+      "partido": "Real Betis Balompie - CA Osasuna",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "5-2",
+      "resultado_final": "5-2",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_12.json",
+      "probabilidades_usadas": {
+        "1": 56.4,
+        "X": 30.0,
+        "2": 13.6
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Real Betis Balompie",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "CA Osasuna",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (56.4%).",
+        "hipotesis_alternativa": "X como alternativa (30.0%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 47.2,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 26.4 puntos, indice sorpresa 28.7."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 7.2,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.06,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Bélgica: ppp=3.00; perfil visitante CA Osasuna: ppp=0.59.",
+          "Memoria autonoma: historial de sorpresa medio elevado (45.3)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Bélgica",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 40.3,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "CA Osasuna",
+        "partidos_total": 8,
+        "puntos_por_partido": 0.742,
+        "empates_pct": 37.35,
+        "surprise_score_medio": 50.34,
+        "forma_5_ppp": 0.8,
+        "forma_10_ppp": 0.75,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 12,
       "partido": "Eldense - Cordoba CF",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -28693,6 +28462,244 @@
           "partidos": 5
         }
       }
+    },
+    {
+      "jornada": 12,
+      "partido": "UD Almeria - CD Leganes",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "3-0",
+      "resultado_final": "3-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_12.json",
+      "probabilidades_usadas": {
+        "1": 51.1,
+        "X": 30.5,
+        "2": 18.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "UD Almeria",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "CD Leganes",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (51.1%).",
+        "hipotesis_alternativa": "X como alternativa (30.5%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_atacable",
+          "probabilidad": 54.1,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 20.6 puntos, indice sorpresa 61.9."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 9.38,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.34,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local UD Almeria: ppp=1.89; perfil visitante CD Leganes: ppp=0.57.",
+          "Memoria autonoma: historial de sorpresa medio elevado (46.9)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "UD Almeria",
+        "partidos_total": 29,
+        "puntos_por_partido": 1.589,
+        "empates_pct": 15.37,
+        "surprise_score_medio": 49.14,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 1.9,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "CD Leganes",
+        "partidos_total": 22,
+        "puntos_por_partido": 0.882,
+        "empates_pct": 26.77,
+        "surprise_score_medio": 44.59,
+        "forma_5_ppp": 0.2,
+        "forma_10_ppp": 0.5,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 12,
+      "partido": "RCD Mallorca - UD Las Palmas",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "3-1",
+      "resultado_final": "3-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_12.json",
+      "probabilidades_usadas": {
+        "1": 47.6,
+        "X": 31.5,
+        "2": 21.0
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "RCD Mallorca",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "UD Las Palmas",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (47.6%).",
+        "hipotesis_alternativa": "X como alternativa (31.5%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 60.5,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 1: margen 16.1 puntos, indice sorpresa 86.7."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 13.52,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 1.13,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local RCD Mallorca: ppp=1.48; perfil visitante UD Las Palmas: ppp=1.74.",
+          "Memoria autonoma: historial de sorpresa medio elevado (51.3)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "RCD Mallorca",
+        "partidos_total": 26,
+        "puntos_por_partido": 1.166,
+        "empates_pct": 15.79,
+        "surprise_score_medio": 52.18,
+        "forma_5_ppp": 1.4,
+        "forma_10_ppp": 0.8,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "UD Las Palmas",
+        "partidos_total": 27,
+        "puntos_por_partido": 1.592,
+        "empates_pct": 21.55,
+        "surprise_score_medio": 50.39,
+        "forma_5_ppp": 2.4,
+        "forma_10_ppp": 1.9,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 4
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -28706,19 +28713,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 411,
+    "partidos_base": 415,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 33.58,
+      "fallos_total_pct": 33.25,
       "no_cubrio_empate_sobre_fallos_pct": 36.23,
-      "no_cubrio_empate_sobre_total_pct": 12.17,
+      "no_cubrio_empate_sobre_total_pct": 12.05,
       "fijo_fallado_sobre_fallos_pct": 43.48,
-      "fijo_fallado_sobre_total_pct": 14.6,
-      "doble_insuficiente_sobre_total_pct": 6.81
+      "fijo_fallado_sobre_total_pct": 14.46,
+      "doble_insuficiente_sobre_total_pct": 6.75
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 3.78,
-    "riesgo_extra_triple_insuficiente": 2.53,
+    "riesgo_extra_fijo_fragil": 3.66,
+    "riesgo_extra_triple_insuficiente": 2.48,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,
