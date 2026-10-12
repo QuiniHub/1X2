@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-12T13:32:48.338628+00:00",
+  "generado_en": "2026-10-12T21:54:55.456168+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -1544,17 +1544,17 @@
     },
     "12": {
       "jornada": 12,
-      "partidos_cerrados": 11,
-      "partidos_con_prediccion": 11,
-      "precision_boleto": 72.73,
-      "precision_top1": 72.73,
-      "brier_medio": 0.4927,
-      "logloss_medio": 0.851,
+      "partidos_cerrados": 14,
+      "partidos_con_prediccion": 14,
+      "precision_boleto": 71.43,
+      "precision_top1": 57.14,
+      "brier_medio": 0.5475,
+      "logloss_medio": 0.932,
       "por_tipo": {
         "FIJO": {
-          "total": 7,
+          "total": 8,
           "aciertos": 5,
-          "precision": 71.43
+          "precision": 62.5
         },
         "DOBLE": {
           "total": 4,
@@ -1562,17 +1562,17 @@
           "precision": 75.0
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0,
-          "precision": null
+          "total": 2,
+          "aciertos": 2,
+          "precision": 100.0
         }
       },
       "elige8": {
-        "selecciones": 6,
-        "aciertos": 5,
-        "precision": 83.33
+        "selecciones": 8,
+        "aciertos": 7,
+        "precision": 87.5
       },
-      "surprise_score_medio": 39.54,
+      "surprise_score_medio": 43.09,
       "ranking_incertidumbre": [
         {
           "num": 1,
@@ -1582,11 +1582,25 @@
           "margen_probabilidad": 0.4
         },
         {
+          "num": 8,
+          "partido": "Levante UD - Sevilla FC",
+          "incertidumbre": 152.28,
+          "surprise_score": 48.76,
+          "margen_probabilidad": 0.1
+        },
+        {
           "num": 4,
           "partido": "Elche CF - RC Celta de Vigo",
           "incertidumbre": 151.96,
           "surprise_score": 56.33,
           "margen_probabilidad": 1.9
+        },
+        {
+          "num": 14,
+          "partido": "Real Oviedo - SD Eibar",
+          "incertidumbre": 144.63,
+          "surprise_score": 49.81,
+          "margen_probabilidad": 2.3
         },
         {
           "num": 9,
@@ -1615,23 +1629,21 @@
           "incertidumbre": 127.07,
           "surprise_score": 30.35,
           "margen_probabilidad": 21.5785
-        },
-        {
-          "num": 10,
-          "partido": "FC Andorra - CD Castellon",
-          "incertidumbre": 125.28,
-          "surprise_score": 65.82,
-          "margen_probabilidad": 14.2
-        },
-        {
-          "num": 12,
-          "partido": "RCD Mallorca - UD Las Palmas",
-          "incertidumbre": 122.5,
-          "surprise_score": 32.52,
-          "margen_probabilidad": 16.0839
         }
       ],
       "ranking_elige8_confianza_real": [
+        {
+          "num": 14,
+          "partido": "Real Oviedo - SD Eibar",
+          "confianza_real_elige8": 57.67,
+          "elige8": true
+        },
+        {
+          "num": 8,
+          "partido": "Levante UD - Sevilla FC",
+          "confianza_real_elige8": 56.27,
+          "elige8": true
+        },
         {
           "num": 11,
           "partido": "UD Almeria - CD Leganes",
@@ -1667,18 +1679,6 @@
           "partido": "Rayo Vallecano de Madrid - Athletic Club",
           "confianza_real_elige8": 30.21,
           "elige8": true
-        },
-        {
-          "num": 2,
-          "partido": "Deportivo Alaves - Club Atletico de Madrid",
-          "confianza_real_elige8": 19.96,
-          "elige8": false
-        },
-        {
-          "num": 12,
-          "partido": "RCD Mallorca - UD Las Palmas",
-          "confianza_real_elige8": 16.54,
-          "elige8": false
         }
       ]
     },
@@ -5450,7 +5450,7 @@
     }
   },
   "resumen": {
-    "jornadas_evaluadas": 25,
+    "jornadas_evaluadas": 26,
     "precision_media_ultimas_8": 72.32,
     "criterio_aprendizaje": "tras cada jornada cerrada se compara prediccion vs resultado y se reentrena la memoria"
   }

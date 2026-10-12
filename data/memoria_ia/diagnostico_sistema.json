@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-12T13:33:23.992608+00:00",
+  "generado_en": "2026-10-12T21:55:35.395645+00:00",
   "estado": "critico_actualizacion",
   "score_salud": 45,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
@@ -37,13 +37,13 @@
         "jornada": 12,
         "fecha": "Domingo, 11 de octubre de 2026",
         "fecha_orden": "2026-10-12",
-        "estado": "en_juego",
+        "estado": "cerrada",
         "partidos": 14,
-        "cerrados": 11,
-        "pendientes": 3,
-        "pendientes_totales_con_pleno15": 3,
+        "cerrados": 14,
+        "pendientes": 0,
+        "pendientes_totales_con_pleno15": 0,
         "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "2026-10-11T23:54:11Z",
+        "ultima_actualizacion_partido": "2026-10-12T21:50:57Z",
         "path": "data/jornadas/jornada_12.json"
       },
       {
@@ -103,9 +103,9 @@
   "memoria_quinielas": {
     "jugadas_persistidas_json": 30,
     "jornadas_validadas_historial": 30,
-    "jornadas_memoria_real_total": 85,
-    "jornadas_con_signo_nuestro": 25,
-    "signos_nuestros_en_jornadas": 350,
+    "jornadas_memoria_real_total": 86,
+    "jornadas_con_signo_nuestro": 26,
+    "signos_nuestros_en_jornadas": 364,
     "estado": "memoria_propia_disponible",
     "fuentes_validas": [
       "data/quinielas_jugadas.json",
@@ -116,24 +116,24 @@
   },
   "prediccion": {
     "jornada": 13,
-    "generado_en": "2026-10-12T13:33:16.305329+00:00",
+    "generado_en": "2026-10-12T21:55:21.750864+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 9,
+      "dobles": 4,
+      "triples": 1,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 5,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
         "alta": 0,
         "media": 0,
-        "media_baja": 0,
-        "baja": 0
+        "media_baja": 7,
+        "baja": 7
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 12 solo tiene 11 de 14 resultados oficiales. No se genera prediccion para la jornada 13 hasta cerrar y aprender la 12."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "clasificaciones": {
     "primera": {
@@ -167,12 +167,12 @@
       "top_3": [
         {
           "posicion": 1,
-          "equipo": "SD Eibar",
+          "equipo": "UD Almeria",
           "puntos": 21
         },
         {
           "posicion": 2,
-          "equipo": "UD Almeria",
+          "equipo": "SD Eibar",
           "puntos": 21
         },
         {
@@ -260,7 +260,7 @@
     "partidos_cerrados": 318,
     "aciertos": 195,
     "precision": 61.32,
-    "generado_en": "2026-10-12T05:33:25.078520+00:00",
+    "generado_en": "2026-10-12T13:33:25.082645+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -270,6 +270,11 @@
       "detalle": "Athletic Club tiene 6 PJ en tabla, pero el calendario ya tiene 7 resultados."
     },
     {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 16 pero la última predicción dice 13."
+    },
+    {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
       "detalle": "La jornada 13 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
@@ -277,14 +282,8 @@
     },
     {
       "nivel": "media",
-      "titulo": "Prediccion demasiado rigida",
-      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
-      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
-    },
-    {
-      "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 7 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -303,7 +302,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-10-12T13:33:23.992608+00:00",
+    "generado_en": "2026-10-12T21:55:35.395645+00:00",
     "estado": "critico",
     "score": 0,
     "alertas": [
@@ -311,6 +310,11 @@
         "nivel": "critica",
         "titulo": "Clasificacion primera congelada",
         "detalle": "Athletic Club tiene 6 PJ en tabla, pero el calendario ya tiene 7 resultados."
+      },
+      {
+        "nivel": "alta",
+        "titulo": "Predicción de jornada antigua",
+        "detalle": "La jornada activa es 16 pero la última predicción dice 13."
       }
     ],
     "jornadas": {
@@ -339,8 +343,8 @@
           "fecha": "Domingo, 11 de octubre de 2026",
           "fecha_orden": "2026-10-12",
           "partidos": 14,
-          "cerrados": 11,
-          "pendientes": 3,
+          "cerrados": 14,
+          "pendientes": 0,
           "path": "data/jornadas/jornada_12.json"
         },
         {
@@ -419,28 +423,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-10-12T13:32:48.529935+00:00"
+      "generado_en": "2026-10-12T21:54:55.606667+00:00"
     },
     "prediccion": {
       "jornada": 13,
-      "generado_en": "2026-10-12T13:33:16.305329+00:00",
+      "generado_en": "2026-10-12T21:55:21.750864+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 14,
-        "dobles": 0,
-        "triples": 0,
+        "fijos": 9,
+        "dobles": 4,
+        "triples": 1,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 0,
-        "indice_sorpresa_max": 0.0,
+        "favoritos_atacables": 5,
+        "indice_sorpresa_max": 100.0,
         "calidad_datos": {
           "alta": 0,
           "media": 0,
-          "media_baja": 0,
-          "baja": 0
+          "media_baja": 7,
+          "baja": 7
         }
       },
-      "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 12 solo tiene 11 de 14 resultados oficiales. No se genera prediccion para la jornada 13 hasta cerrar y aprender la 12."
+      "retenida_por_compuerta": false,
+      "motivo_bloqueo": null
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -470,8 +474,8 @@
         "fecha": "Domingo, 11 de octubre de 2026",
         "fecha_orden": "2026-10-12",
         "partidos": 14,
-        "cerrados": 11,
-        "pendientes": 3,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_12.json"
       },
       {
@@ -550,6 +554,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-10-12T13:32:48.529935+00:00"
+    "generado_en": "2026-10-12T21:54:55.606667+00:00"
   }
 }
