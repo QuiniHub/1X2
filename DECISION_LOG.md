@@ -1244,3 +1244,21 @@ del 3º en adelante, nada. Se exporta `ajuste_revulsivo` por partido y el panel 
 muestra el chip 🔄. 6 tests incluyendo el caso real P7 Racing-Valencia (Aguirre).
 **Mantenimiento:** al detectar un cese en los análisis semanales, añadir la entrada al
 JSON — sin entrada no hay señal. Candidato futuro: scraper de ceses.
+
+## 2026-10-13 — Re-evaluacion del peso Dixon-Coles (0,7): SE MANTIENE, con datos
+
+Tres backtests previos avisaban "el D-C puro gana al mix 0,7" — pero comparaban D-C
+contra el motor VIEJO (sin D-C dentro). Barrido nuevo walk-forward sobre los 107
+partidos espanoles de la 26/27 (J1-J12, scratchpad sweep_peso_dc.py, mezcla
+(1-u)*probabilidades_finales + u*dc con D-C entrenado hasta la vispera de cada jornada):
+
+- J1-J9 (final = motor viejo, 83 partidos): mas D-C siempre mejora; puro 0,20131/53,0%.
+  Confirma lo ya sabido: el motor viejo era peor que el D-C.
+- **J10-J12 (final = pipeline ACTUAL con D-C 0,7 + suelo de mercado + contexto, 24
+  partidos): anadir mas D-C encima es PLANO** (0,18430 en u=0 vs 0,18395 en el optimo
+  u=0,3; mejora 0,00035, muy por debajo del umbral prerregistrado 0,002) y el D-C puro
+  encima EMPEORA (0,18519). El pipeline actual ya extrae casi todo el valor del D-C.
+
+Decision: PESO_DIXON_COLES queda en 0,7. Los "3 avisos" quedan respondidos: median
+una comparacion contra el motor retirado, no contra el actual. Re-evaluar cuando haya
+~60 partidos de la era D-C (hoy 24; hacia la J18-J20).
