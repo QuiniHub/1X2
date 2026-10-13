@@ -45,6 +45,7 @@ SCRIPTS_NO_CRITICOS_RED = {
     "actualizar_detalles_partidos.py",
     "recalcular_dinamicas_calendario.py",
     "actualizar_fuente_losilla.py",
+    "actualizar_porcentajes_lae.py",
     "actualizar_fuente_lesiones_laliga.py",
     "actualizar_fuente_lesiones_jornadaperfecta.py",
     "actualizar_contexto_equipos.py",
@@ -60,6 +61,7 @@ SCRIPTS_NO_CRITICOS_RED = {
     "alimentar_sorpresas_mercado.py",
     "construir_memoria_historica_profunda.py",
     "aprender_de_historial_resultados.py",
+    "optimizador_ev_premio.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
     "actualizar_resultados_apis.py",
@@ -105,6 +107,10 @@ SCRIPTS_ACTIVOS = [
     "actualizar_detalles_partidos.py",
     "recalcular_dinamicas_calendario.py",
     "actualizar_fuente_losilla.py",
+    # Versiona el % de apostantes LAE por jornada (columna "lae" de Losilla)
+    # y captura el escrutinio real de jornadas cerradas: insumos del
+    # optimizador de EV del premio y de su backtest (candidato 3).
+    "actualizar_porcentajes_lae.py",
     "actualizar_fuente_lesiones_laliga.py",
     "actualizar_fuente_lesiones_jornadaperfecta.py",
     "actualizar_contexto_equipos.py",
@@ -156,6 +162,9 @@ SCRIPTS_ACTIVOS = [
     "generar_estado_vivo_ia.py",
     "ajustar_estado_vivo_motivacion.py",
     "corregir_emparejamiento_equipos.py",
+    # Boleto EV del premio (candidato 3): lee la prediccion ya corregida y
+    # anade el bloque boleto_ev_premio sin tocar la recomendacion conservadora.
+    "optimizador_ev_premio.py",
 
     # --- Premios ---
     "calcular_premios.py",

@@ -1262,3 +1262,59 @@ partidos espanoles de la 26/27 (J1-J12, scratchpad sweep_peso_dc.py, mezcla
 Decision: PESO_DIXON_COLES queda en 0,7. Los "3 avisos" quedan respondidos: median
 una comparacion contra el motor retirado, no contra el actual. Re-evaluar cuando haya
 ~60 partidos de la era D-C (hoy 24; hacia la J18-J20).
+
+### 2026-10-13 — Candidato 3 implantado: optimizador de EV del premio (estilo peña Q84), con backtest prerregistrado que deja la foto honesta
+
+Marc pidió "ir perfeccionando la web predictiva para poco a poco ir recuperando" y la
+investigación mundial (INVESTIGACION_METODOS_MUNDIALES.md) señalaba el candidato 3 como
+"la grande": maximizar E[euros] en vez de P(aciertos), porque el reparto pari-mutuel paga
+lo que la masa falla. Piezas: `actualizar_porcentajes_lae.py` (versiona el % de apostantes
+LAE por jornada desde la columna "lae" de Losilla, ya presente en fuente_losilla.json, y
+captura el escrutinio real de jornadas cerradas; histórico J1-J13 reconstruido del git
+history con commits pre-cierre, sin fuga de futuro), `modelo_reparto_quiniela.py` (modelo
+de reparto + evaluador de EV), `optimizador_ev_premio.py` (bloque `boleto_ev_premio` en
+ultima_prediccion.json, tarjeta propia en la web junto al boleto conservador) y
+`backtest_ev_premio.py`. La conservadora y el boleto millonario quedan intactos.
+
+**Descubrimientos del reparto, calibrados EXACTOS contra 11 escrutinios reales 26/27**
+(los cocientes premio×acertantes/recaudación clavan las fracciones): 14→16%, 13/12/11→7,5%,
+10→9% (no el 6,5% que se suele citar), Pleno al 15→7,5%. Los premios publicados y cobrados
+son NETOS del gravamen del 20% sobre el exceso de 40.000€ (J1: 273.214,44 brutos −20% del
+exceso = 226.571,55 ✓ al céntimo; también J3, J6, J9). Premio por apuesta < ~1,5€ no se
+paga (J8: 1,46€ calculado → 0,00€ pagado; el umbral real está entre 1,46 y 2,32).
+
+**Lección técnica (quedó test permanente):** optimizar EV por Monte Carlo puro es una
+trampa — el hill-climbing elige el candidato con suerte EN SUS MUESTRAS (winner's curse):
+el primer "optimizado" marcaba 58€ en sus muestras y 3€ con muestras frescas. Solución:
+categorías 12-14 EXACTAS por formas cerradas de la cola Poisson-binomial (simétricas
+elementales de (1−q)/q; verificado contra la convolución de referencia), Monte Carlo solo
+para 10-11, EV publicado sobre muestras independientes y salvaguarda final (si el
+optimizado no supera a la conservadora con muestras frescas, se publica la conservadora).
+
+**Backtest prerregistrado (data/memoria_ia/backtest_ev_premio.json):**
+- TEST A (modelo de reparto vs escrutinios reales, umbral mediana modelo/real en
+  [0,67-1,5] sobre celdas con ≥10 acertantes): **PASA** — mediana 1,042 en 47 celdas de
+  11 jornadas. Sesgo conocido y documentado: subestima acertantes en jornadas de
+  favoritos (la masa juega correlacionada: reducidas/peñas) y los sobreestima en
+  jornadas de sorpresas.
+- TEST B (walk-forward con snapshots pre-cierre inmutables y mismo presupuesto que lo
+  realmente jugado, umbral de sanidad: simulado ≥50% de lo cobrado): **NO PASA** —
+  39,64€ simulados vs 159,74€ reales en 11 jornadas. Es lo esperable de una estrategia
+  de cola: suelta los premios pequeños frecuentes (los 4,64€/6,52€/39,52€/109,06€ que
+  cobramos vienen de boletos "con la masa") a cambio de colas raras que en 11 jornadas
+  no aparecen — pero el prerregistro es el prerregistro.
+
+**Consecuencia honesta aplicada:** el bloque se publica en la web como
+"experimental · contra la masa" CON la advertencia del backtest incrustada en rojo en la
+propia tarjeta (el optimizador la lee del JSON del backtest y la incluye en el bloque; si
+algún día el backtest mejora, la advertencia cambia sola). No sustituye ninguna
+recomendación y jugar dinero real lo decide siempre Marc. **Cautela adicional sobre los
+EV absolutos:** el EV de cola se apoya en la probabilidad conjunta de 14 signos de la
+mezcla motor+Losilla — un pequeño optimismo por partido se compone a la 14ª potencia, así
+que los €/jornada mostrados son techo, no promesa (los EV modelo de lo jugado promedian
+~26€/jornada frente a los ~14,5€/jornada cobrados de verdad).
+
+**Para la próxima revisión:** re-evaluar TEST B cuando haya ~25 jornadas con % LAE
+capturados en vivo (hacia marzo 2027); candidato natural: corrección de correlación de
+masa (overdispersión) y jugar el boleto EV solo en semanas de bote (protocolo de bote,
+donde el EV de cola se dispara con fondo extra).

@@ -43,6 +43,7 @@ CAMPOS_RAIZ_PREDICTIVOS = [
     "criterio_cobertura",
     "ataques_favorito_prioritarios",
     "alertas_boleto",
+    "boleto_ev_premio",
 ]
 
 

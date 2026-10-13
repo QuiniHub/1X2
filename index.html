@@ -514,6 +514,17 @@
           <div class="card-body"><div class="pleno-grid" id="pleno15"></div></div>
         </div>
       </div>
+
+      <!-- Boleto EV del premio (candidato 3, estilo peña Q84): tercera lectura
+           junto a la conservadora y la millonaria. Lo calcula
+           optimizador_ev_premio.py (bloque boleto_ev_premio del JSON). -->
+      <div class="card" id="evPremioCard" style="display:none;margin-top:16px">
+        <div class="card-head">
+          <h2>💶 Boleto EV del premio</h2>
+          <span class="tag" id="evPremioTag" style="background:#b8860b22;color:#7a5a06">contra la masa · experimental</span>
+        </div>
+        <div class="card-body" id="evPremioBody"></div>
+      </div>
     </section>
 
     <section id="aprendizaje" class="tab-panel">
@@ -1305,6 +1316,59 @@
       return chips;
     }
 
+    // Boleto EV del premio (candidato 3): el optimizador maximiza E[euros]
+    // (reparto pari-mutuel: columna rara que acierta = premio gordo) en vez
+    // de P(aciertos). Se muestra ENTERO con su EV en euros, como tercera
+    // lectura junto a la conservadora -nunca la sustituye.
+    function renderBoletoEvPremio() {
+      const card = qs('#evPremioCard');
+      if (!card) return;
+      const bloque = state.prediccion?.boleto_ev_premio;
+      if (!bloque || bloque.estado !== 'ok' || !arr(bloque.partidos).length) {
+        card.style.display = 'none';
+        return;
+      }
+      card.style.display = 'block';
+      const evEv = Number(bloque.ev_premio_eur || 0);
+      const evCons = Number(bloque.ev_boleto_conservador_eur || 0);
+      const cambios = arr(bloque.cambios_respecto_a_conservadora);
+      const signosHtml = arr(bloque.partidos).map(p => {
+        const cambio = cambios.find(c => Number(c.num) === Number(p.num));
+        const title = cambio
+          ? `${escapeHtml(p.local || '')} - ${escapeHtml(p.visitante || '')}: conservadora ${escapeHtml(cambio.signo_conservador || '?')} → EV ${escapeHtml(p.signo || '?')}`
+          : `${escapeHtml(p.local || '')} - ${escapeHtml(p.visitante || '')}`;
+        return `<div title="${title}" style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:34px">
+          <span style="font-size:10px;color:var(--muted,#888)">${escapeHtml(p.num)}</span>
+          <span style="font-weight:800;padding:4px 6px;border-radius:8px;font-size:13px;${p.es_cambio_ev
+            ? 'background:#b8860b22;border:1.5px solid #b8860b88;color:#7a5a06'
+            : 'background:var(--surface2,#f5f5f5);border:1px solid var(--border,#ddd)'}">${escapeHtml(p.signo || '?')}</span>
+        </div>`;
+      }).join('');
+      qs('#evPremioBody').innerHTML = `
+        <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">EV estimado</span>
+            <span style="font-size:24px;font-weight:800;color:#7a5a06">${evEv.toFixed(2)} €/jornada</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">EV conservadora</span>
+            <span style="font-size:18px;font-weight:700">${evCons.toFixed(2)} €</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">P(algún premio)</span>
+            <span style="font-size:18px;font-weight:700">${(Number(bloque.probabilidad_algun_premio || 0) * 100).toFixed(1)}%</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Coste</span>
+            <span style="font-size:18px;font-weight:700">${Number(bloque.coste_eur || 0).toFixed(2)} € · ${escapeHtml(bloque.apuestas)} apuestas</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${signosHtml}</div>
+        <p class="subtitle" style="margin:0 0 4px">${escapeHtml(bloque.resumen || '')}</p>
+        ${bloque.advertencia_backtest ? `<p class="subtitle" style="margin:0 0 4px;padding:8px 10px;border-radius:8px;background:#b91c1c14;border:1px solid #b91c1c44;color:#991b1b">⚠ ${escapeHtml(bloque.advertencia_backtest)}</p>` : ''}
+        <p class="subtitle" style="margin:0;color:var(--muted,#888)">${escapeHtml(bloque.aviso || '')}</p>`;
+    }
+
     function renderTicket() {
       const matches = predictionMatches();
       // Do NOT reset state.generated here — only the generate button controls it.
@@ -1354,6 +1418,7 @@
       }).join('');
       qs('#ticketList').innerHTML = html || '<div class="empty">No hay partidos cargados todavía.</div>';
       renderAvisosJornada();
+      renderBoletoEvPremio();
       applyTicketVisibility();
     }
 
@@ -3116,6 +3181,16 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         bloqueBoletoMillonario = `\nBOLETO MILLONARIO J${jornadaActual}: sin cambios respecto a la conservadora (0 cambios) -normal en jornadas de ligas nordicas/no LaLiga, esa señal solo esta activa con datos de Primera/Segunda.`;
       }
 
+      // Boleto EV del premio (candidato 3, optimizador_ev_premio.py): la
+      // lectura "contra la masa" con su EV en euros, para que el chat pueda
+      // compararla con la conservadora y el millonario.
+      let bloqueBoletoEv = '';
+      const boletoEv = state.prediccion?.boleto_ev_premio;
+      if (boletoEv && boletoEv.estado === 'ok') {
+        const signosEv = arr(boletoEv.partidos).map(p => `${p.num}:${p.signo}`).join(' ');
+        bloqueBoletoEv = `\nBOLETO EV DEL PREMIO J${jornadaActual} (maximiza euros esperados, no aciertos; experimental): ${signosEv}. EV estimado ${boletoEv.ev_premio_eur} EUR/jornada vs ${boletoEv.ev_boleto_conservador_eur} EUR de la conservadora, ${boletoEv.total_cambios} cambio(s), mismo presupuesto (${boletoEv.apuestas} apuestas). P(algun premio)=${Math.round((boletoEv.probabilidad_algun_premio || 0) * 100)}%. ${boletoEv.aviso || ''}`;
+      }
+
       // Aviso Elige8 economico vs maxima seguridad (valor esperado en euros
       // segun el premio tipico real de esta jornada, domestica o
       // internacional) -calculado en aplicar_elige8_seguro.py pero nunca
@@ -3218,6 +3293,7 @@ ${bloqueSorpresas}
 ${bloqueRiesgosPresupuesto}
 ${bloqueEstadoVivo}
 ${bloqueBoletoMillonario}
+${bloqueBoletoEv}
 ${bloqueAvisoElige8}
 ${bloqueCalibracion}
 ${bloqueDetallesH2H}

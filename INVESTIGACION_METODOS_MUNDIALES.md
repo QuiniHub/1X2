@@ -64,3 +64,14 @@ vive en la conversación de esa fecha y en los informes de los agentes.
 Nada entra al motor sin backtest previo con el método estándar (snapshots git pre-cierre +
 código nuevo + comparación de señales/RPS sobre jornadas reales). Marc decide qué candidatos
 se implementan y en qué orden.
+
+## 6. Estado de los candidatos (actualizado 2026-10-13)
+
+- 1 y 2 (Dixon-Coles + devig Shin): **implantados** el 2026-10-02 (peso 0,7 re-evaluado
+  y mantenido el 2026-10-13). Ver DECISION_LOG.
+- 3 (EV del premio estilo Q84): **implantado** el 2026-10-13 — bloque `boleto_ev_premio`
+  + modelo de reparto calibrado con escrutinios reales + backtest prerregistrado (TEST A
+  pasa, TEST B de sanidad no: estrategia de cola, advertencia visible en la web). Ver
+  DECISION_LOG 2026-10-13.
+- 4 (pi-ratings): **probado y NO desplegado** (2026-10-03, por debajo del umbral).
+- 5-8: pendientes.

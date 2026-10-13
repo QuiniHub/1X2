@@ -6585,5 +6585,169 @@
       "precision": 76.56,
       "fuente": "data/memoria_ia/aprendizaje_elige8.json"
     }
+  },
+  "boleto_ev_premio": {
+    "estado": "ok",
+    "generado_en": "2026-10-13T07:31:06.875930+00:00",
+    "jornada": 13,
+    "metodo": "EV del premio (pari-mutuel): mezcla motor+Losilla 50/50 como probabilidad real, % apostantes LAE como masa, modelo de reparto validado con escrutinios reales, hill-climbing multi-arranque sobre 20000 muestras Monte Carlo (14 exacta) y EV publicado sobre 60000 muestras independientes (semillas fijas).",
+    "fuente_masa": "porcentajes_lae/2026_2027/jornada_13.json",
+    "recaudacion_estimada_eur": 2193063.27,
+    "escrutinios_usados_para_recaudacion": 11,
+    "presupuesto_apuestas": 48,
+    "apuestas": 48,
+    "coste_eur": 36.0,
+    "ev_premio_eur": 27.78,
+    "ev_por_categoria": {
+      "10": 3.169,
+      "11": 3.427,
+      "12": 4.42,
+      "13": 5.701,
+      "14": 11.068
+    },
+    "probabilidad_algun_premio": 0.139,
+    "ev_boleto_conservador_eur": 18.71,
+    "probabilidad_algun_premio_conservador": 0.46,
+    "partidos": [
+      {
+        "num": 1,
+        "local": "Villarreal CF",
+        "visitante": "Nápoles",
+        "signo": "1",
+        "es_cambio_ev": false
+      },
+      {
+        "num": 2,
+        "local": "Club Atletico de Madrid",
+        "visitante": "Manchester United",
+        "signo": "1",
+        "es_cambio_ev": false
+      },
+      {
+        "num": 3,
+        "local": "Arsenal",
+        "visitante": "Lille",
+        "signo": "1",
+        "es_cambio_ev": false
+      },
+      {
+        "num": 4,
+        "local": "Galatasaray",
+        "visitante": "FC Barcelona",
+        "signo": "X",
+        "es_cambio_ev": true
+      },
+      {
+        "num": 5,
+        "local": "Inter de Milán",
+        "visitante": "Brujas",
+        "signo": "1",
+        "es_cambio_ev": false
+      },
+      {
+        "num": 6,
+        "local": "Viking",
+        "visitante": "Bayern Múnich",
+        "signo": "2",
+        "es_cambio_ev": false
+      },
+      {
+        "num": 7,
+        "local": "Feyenoord",
+        "visitante": "Como 1907",
+        "signo": "X2",
+        "es_cambio_ev": true
+      },
+      {
+        "num": 8,
+        "local": "LASK Linz",
+        "visitante": "Liverpool",
+        "signo": "X",
+        "es_cambio_ev": true
+      },
+      {
+        "num": 9,
+        "local": "Real Betis Balompie",
+        "visitante": "Oporto",
+        "signo": "1",
+        "es_cambio_ev": false
+      },
+      {
+        "num": 10,
+        "local": "Bodo Glimt",
+        "visitante": "Borussia Dortmund",
+        "signo": "1X",
+        "es_cambio_ev": true
+      },
+      {
+        "num": 11,
+        "local": "Man. City",
+        "visitante": "Paris Saint-Germain",
+        "signo": "1",
+        "es_cambio_ev": false
+      },
+      {
+        "num": 12,
+        "local": "Union SG",
+        "visitante": "Real Sociedad de Futbol",
+        "signo": "1X2",
+        "es_cambio_ev": false
+      },
+      {
+        "num": 13,
+        "local": "RC Celta de Vigo",
+        "visitante": "Juventus",
+        "signo": "1X",
+        "es_cambio_ev": true
+      },
+      {
+        "num": 14,
+        "local": "U. Craiova",
+        "visitante": "Getafe CF",
+        "signo": "X2",
+        "es_cambio_ev": false
+      }
+    ],
+    "cambios_respecto_a_conservadora": [
+      {
+        "num": 4,
+        "local": "Galatasaray",
+        "visitante": "FC Barcelona",
+        "signo_conservador": "2",
+        "signo_ev": "X"
+      },
+      {
+        "num": 7,
+        "local": "Feyenoord",
+        "visitante": "Como 1907",
+        "signo_conservador": "12",
+        "signo_ev": "X2"
+      },
+      {
+        "num": 8,
+        "local": "LASK Linz",
+        "visitante": "Liverpool",
+        "signo_conservador": "2",
+        "signo_ev": "X"
+      },
+      {
+        "num": 10,
+        "local": "Bodo Glimt",
+        "visitante": "Borussia Dortmund",
+        "signo_conservador": "12",
+        "signo_ev": "1X"
+      },
+      {
+        "num": 13,
+        "local": "RC Celta de Vigo",
+        "visitante": "Juventus",
+        "signo_conservador": "X2",
+        "signo_ev": "1X"
+      }
+    ],
+    "total_cambios": 5,
+    "resumen": "Boleto EV del premio: 5 cambio(s) sobre la conservadora con el mismo presupuesto (48 apuestas). EV estimado 27.78 EUR/jornada frente a 18.71 EUR de la conservadora. Es la lectura 'contra la masa' (premios mas grandes cuando acierta, acierta menos veces): informativa, NO sustituye a la recomendacion conservadora.",
+    "aviso": "EV en euros solo de las categorias 10-14 (sin Pleno al 15 ni Elige 8). Jugar dinero real lo decide siempre Marc.",
+    "advertencia_backtest": "Backtest 26/27 (11 jornadas cerradas): este optimizador habria cobrado 39.64 EUR frente a los 159.74 EUR reales de lo jugado. Es una estrategia de cola (bote/categorias altas): pierde los premios pequenos frecuentes a cambio de premios raros y grandes que en una muestra corta no aparecen. Umbral prerregistrado de sanidad (>=50% de lo real): NO cumplido."
   }
 }
