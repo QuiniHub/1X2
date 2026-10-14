@@ -1318,3 +1318,58 @@ que los €/jornada mostrados son techo, no promesa (los EV modelo de lo jugado 
 capturados en vivo (hacia marzo 2027); candidato natural: corrección de correlación de
 masa (overdispersión) y jugar el boleto EV solo en semanas de bote (protocolo de bote,
 donde el EV de cola se dispara con fondo extra).
+
+### 2026-10-14 — La Valiente en modo sombra: una sorpresa formal por jornada, publicada y medida, sin dinero hasta graduarse
+
+Marc pidió "un peldaño de aprendizaje" para que la web se atreva a señalar resultados
+sorpresa. La investigación mundial (INVESTIGACION_SORPRESAS.md) dice que nadie predice la
+sorpresa concreta, y el experimento del mismo día lo confirmó en casa: el selector ingenuo
+(máxima brecha modelo-vs-masa) acertó 1/13 (8%) declarando 28% — cosechaba las
+sobreestimaciones de X del propio motor (winner's curse), no los errores de la masa. Las
+valientes que SÍ pagaron (Regla 14a, 4 confirmaciones) tenían señal contextual dura detrás.
+`senal_valiente.py` formaliza exactamente eso.
+
+**Criterio prerregistrado (en el docstring del módulo; no se toca sin nuevo backtest):**
+signo no-favorito con prob motor 18-45% que cumpla (a) al menos UNA señal contextual dura
+— revulsivo con debut/2º partido FUERA (ceses_actuales + ajuste_revulsivo del motor),
+empatador/némesis cuando el signo es X (equipos_x_fiabilidad), H2H caótico ≥50% de
+sorpresas (historial_enfrentamientos, ≥2 casos con cuotas), o sobre-compra del público
+(el rival favorito viene de ≥2 sorpresas positivas en sus últimos 3 partidos Y la masa
+juega su signo ≥10 pts por encima del motor) — y (b) FILTRO de pago: % de apostantes LAE
+del signo ≥8 pts por debajo de la prob del motor. Máximo UNA por jornada (mayor ventaja
+sobre la masa; desempate por nº de señales y nº de partido). Si ninguna cumple, se declara
+"no hay valiente": decirlo es parte del diseño.
+
+**Backtest retrospectivo prerregistrado (`backtest_valiente.py`, ejecutado ANTES de
+desplegar, snapshots pre-cierre inmutables + % LAE versionados, sin fuga de futuro):**
+10 valientes en 13 jornadas (J5, J10 y J13 sin valiente — el criterio supo callarse),
+**4 aciertos cuando se esperaban 3,08** (40% real vs 31% medio declarado); pago hipotético
+36,16€ sobre 10€ apostados (1€/valiente a cuota pari-mutuel 100/%masa). Veredicto
+prerregistrado: **VERDE** (aciertos ≥ esperados con ≥2 aciertos) — la señal merece la
+sombra, sigue sin merecer dinero. Contraste con el selector ingenuo refutado el mismo día:
+1/13 (8%) vs 28% declarado. Caveat honesto, documentado también en el JSON: las señales
+empatador/némesis usan la foto de HOY de equipos_x_fiabilidad (los umbrales son históricos
+23/24-25/26 y apenas se mueven, pero la columna 26/27 y la fiabilidad-némesis incorporan
+jornadas ya jugadas → fuga leve); el H2H es de temporadas anteriores (limpio); revulsivo y
+sobrecompra se reconstruyen con fechas (limpios). Y la muestra es 13: por eso sombra.
+
+**Marcador de sombra (`data/memoria_ia/marcador_valiente.json`, enganchado al ciclo de
+aprendizaje en generar_artefactos_compuerta_aprendizaje):** registra cada valiente al
+cerrar su jornada (verificando nombres del fixture, no solo el nº — la numeración se
+reinicia cada temporada) con prob declarada, % masa, señales, acierto y pago hipotético.
+**Criterio de graduación prerregistrado (también escrito en el propio JSON):** con ≥12
+valientes, si aciertos reales ≥ esperados (suma de probs declaradas) y ≥3 aciertos →
+"candidata_a_dinero" y se avisa a Marc; si aciertos < 60% de lo esperado → "suspendida";
+entre medias sigue en sombra. El criterio no se cambia después de ver los datos.
+
+**Piezas:** `senal_valiente.py` (pipeline, tras el optimizador EV; bloque `valiente` en
+ultima_prediccion.json y en el espejo de jornada; retirado por limpiar_prediccion_bloqueada
+cuando la predicción se bloquea), `backtest_valiente.py` (bajo demanda), tarjeta
+"🎯 La Valiente · modo sombra" en la pestaña Predicción (pick, señales, marcador acumulado,
+advertencia del backtest incrustada y aviso "sin dinero hasta graduarse"; si no hay
+valiente, la tarjeta lo dice). La recomendación conservadora, el boleto millonario y el
+boleto EV quedan intactos. 37 tests nuevos (tests/test_senal_valiente.py).
+
+**Nota:** el punto "tabla de calibración por bandas del favorito" de la misma petición ya
+estaba implantado desde el candidato 5 (`calibracion_favorito` dentro de rps_calibracion en
+metricas_probabilisticas.json + tabla en la tarjeta "Calidad probabilística"): no se duplica.

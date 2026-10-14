@@ -1,0 +1,607 @@
+"""La Valiente (modo sombra): UNA sorpresa formal por jornada, publicada y medida.
+
+La investigacion mundial (INVESTIGACION_SORPRESAS.md, 14/10/2026) concluye que
+nadie predice la sorpresa concreta, y el experimento del selector ingenuo
+(maxima brecha modelo-vs-masa) lo confirmo en casa: 1/13 aciertos (8%) cuando
+declaraba 28% -cosechaba las sobreestimaciones de X del propio motor (winner's
+curse), no los errores de la masa. Las valientes que SI pagaron historicamente
+(Regla 14a, 4 confirmaciones) tenian señal contextual dura detras. Este modulo
+formaliza exactamente eso, SIN dinero hasta validarse.
+
+CRITERIO PRERREGISTRADO (no se cambia despues de ver los datos):
+
+Una valiente es un signo NO favorito del motor con probabilidad en [18, 45]
+que cumple (a) y (b):
+
+(a) SEÑAL contextual dura -al menos una de:
+    - revulsivo_fuera: el equipo del signo juega el debut o 2o partido de un
+      tecnico nuevo FUERA de casa (ceses_actuales.json + ajuste_revulsivo del
+      motor; el unico escenario infravalorado por el mercado: +0,26 pts).
+    - empatador / nemesis (solo signo X): equipo empatador historico de
+      equipos_x_fiabilidad.json (x_pct>=32, o >=40 en su rol casa/fuera), o
+      equipo nemesis nuestro (>=6 apariciones con <=33% de acierto).
+    - h2h_caotico: tasa de sorpresa historica >=50% en este emparejamiento
+      (historial_enfrentamientos.json, minimo 2 casos con cuotas).
+    - sobrecompra_publico: el rival favorito viene de >=2 sorpresas positivas
+      (victorias sin ser favorito del motor) en sus ultimos 3 partidos
+      evaluados Y la masa LAE juega su signo >=10 puntos por encima de la
+      probabilidad del motor -la overreaction documentada en la investigacion.
+
+(b) FILTRO de pago: el % de apostantes LAE del signo esta al menos 8 puntos
+    por debajo de la probabilidad del motor (si acierta, paga de verdad).
+
+Se elige COMO MAXIMO UNA por jornada: la de mayor ventaja sobre la masa
+(prob motor - % masa); desempate por numero de señales y despues por numero de
+partido. Si ninguna candidata cumple (a)+(b), NO hay valiente esa jornada:
+decirlo es parte del diseño.
+
+GRADUACION (marcador de sombra, data/memoria_ia/marcador_valiente.json):
+con >=12 valientes evaluadas, si aciertos reales >= esperados (suma de
+probabilidades declaradas) Y aciertos >= 3 -> "candidata_a_dinero" (avisar a
+Marc); si aciertos < 60% de lo esperado -> "suspendida"; en otro caso sigue
+"en_sombra". El pago hipotetico es ilustrativo: 1 EUR por valiente a cuota
+justa pari-mutuel 100/% masa.
+
+Exporta el bloque "valiente" en ultima_prediccion.json SIN tocar la
+recomendacion conservadora, el boleto millonario ni el boleto EV. Jugar
+dinero real lo decide siempre Marc.
+"""
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+
+from actualizar_porcentajes_lae import ruta_porcentajes, temporada_etiqueta
+from modelo_dixon_coles import clave_equipo
+from motor_prediccion_quiniela import (
+    _norm_revulsivo,
+    _partidos_oficiales_entre,
+    clave_par_equipos_h2h,
+)
+from optimizador_ev_premio import cargar_json, guardar_json, porcentajes_masa
+
+ROOT = Path(__file__).resolve().parent
+DATA = ROOT / "data"
+PREDICCION = DATA / "predicciones" / "ultima_prediccion.json"
+FUENTE_LOSILLA = DATA / "memoria_ia" / "fuente_losilla.json"
+CESES = DATA / "memoria_ia" / "ceses_actuales.json"
+ESTUDIO_X = DATA / "memoria_ia" / "equipos_x_fiabilidad.json"
+HISTORIAL_H2H = DATA / "memoria_ia" / "historial_enfrentamientos.json"
+APRENDIZAJE = DATA / "aprendizaje_ia.json"
+MARCADOR = DATA / "memoria_ia" / "marcador_valiente.json"
+BACKTEST = DATA / "memoria_ia" / "backtest_valiente.json"
+JORNADAS_DIR = DATA / "jornadas"
+PREDICCIONES_DIR = DATA / "predicciones"
+
+SIGNOS = ("1", "X", "2")
+
+# --- Umbrales prerregistrados (ver docstring; no tocar sin nuevo backtest) ---
+PROB_MIN = 18.0
+PROB_MAX = 45.0
+FILTRO_PAGO_PUNTOS = 8.0
+H2H_TASA_MIN = 50.0
+H2H_CASOS_MIN = 2
+SOBRECOMPRA_PUNTOS = 10.0
+SORPRESAS_RECIENTES_MIN = 2
+VENTANA_PARTIDOS_RIVAL = 3
+EMPATADOR_X_PCT = 32.0
+EMPATADOR_ROL_PCT = 40.0
+NEMESIS_APARICIONES_MIN = 6
+NEMESIS_ACIERTO_MAX = 33.0
+GRADUACION_MIN_VALIENTES = 12
+GRADUACION_MIN_ACIERTOS = 3
+SUSPENSION_FRACCION = 0.6
+APUESTA_HIPOTETICA_EUR = 1.0
+
+CRITERIO_GRADUACION = (
+    f"Prerregistrado: con >={GRADUACION_MIN_VALIENTES} valientes evaluadas, si aciertos "
+    f"reales >= esperados (suma de probabilidades declaradas) y aciertos >= "
+    f"{GRADUACION_MIN_ACIERTOS} -> 'candidata_a_dinero' (avisar a Marc); si aciertos < "
+    f"{int(SUSPENSION_FRACCION * 100)}% de lo esperado -> 'suspendida'; en otro caso "
+    "sigue 'en_sombra'. El criterio no se cambia despues de ver los datos."
+)
+
+AVISO_SOMBRA = (
+    "Experimental, MODO SOMBRA: se publica y se mide, pero no entra en ningun boleto "
+    "hasta graduarse con el criterio prerregistrado del marcador. Jugar dinero real "
+    "lo decide siempre Marc."
+)
+
+
+# ---------------------------------------------------------------------------
+# Señales contextuales duras
+# ---------------------------------------------------------------------------
+
+def senal_revulsivo(partido, signo, ceses=None, contador=None):
+    """Señal revulsivo_fuera: el equipo del signo '2' juega el debut o el 2o
+    partido de un tecnico nuevo FUERA de casa (el unico escenario que el
+    mercado infravalora segun el estudio de 70 ceses). Usa la traza
+    ajuste_revulsivo del motor si el partido la trae; si no (backtest),
+    la reconstruye con ceses_actuales + calendarios, como el motor."""
+    traza = partido.get("ajuste_revulsivo")
+    if isinstance(traza, dict) and "activo" in traza:
+        if traza.get("activo") and traza.get("lado") == "visitante" and signo == "2":
+            return {
+                "tipo": "revulsivo_fuera",
+                "texto": (
+                    f"{partido.get('visitante')} juega el {traza.get('etapa', 'debut')} de "
+                    f"{traza.get('tecnico', 'su tecnico nuevo')} FUERA de casa: el unico escenario "
+                    "de cambio de banquillo que el mercado infravalora (+0,26 pts, 70 ceses 23/24-25/26)."
+                ),
+            }
+        return None
+    if signo != "2":
+        return None
+    if ceses is None:
+        ceses = (cargar_json(CESES, {}) or {}).get("ceses") or []
+    try:
+        fecha_partido = datetime.strptime(str(partido.get("fecha") or "")[:10], "%Y-%m-%d").date()
+    except ValueError:
+        return None
+    contador = contador or _partidos_oficiales_entre
+    nombre = partido.get("visitante") or ""
+    clave = _norm_revulsivo(nombre)
+    for cese in ceses:
+        if _norm_revulsivo(cese.get("equipo")) != clave:
+            continue
+        evento = None
+        for campo in ("fecha_nuevo", "fecha_cese"):
+            try:
+                candidata = datetime.strptime(str(cese.get(campo) or "")[:10], "%Y-%m-%d").date()
+            except ValueError:
+                continue
+            if candidata <= fecha_partido and (evento is None or candidata > evento):
+                evento = candidata
+        if evento is None:
+            continue
+        jugados = contador(nombre, evento, fecha_partido)
+        if jugados is None or jugados >= 2:
+            continue
+        etapa = "debut" if jugados == 0 else "2o partido"
+        tecnico = cese.get("nuevo") or cese.get("interino") or "tecnico nuevo"
+        return {
+            "tipo": "revulsivo_fuera",
+            "texto": (
+                f"{nombre} juega el {etapa} de {tecnico} FUERA de casa: el unico escenario "
+                "de cambio de banquillo que el mercado infravalora (+0,26 pts, 70 ceses 23/24-25/26)."
+            ),
+        }
+    return None
+
+
+def senal_empatador(partido, signo, estudio=None):
+    """Señal empatador/nemesis, SOLO para signo X: alguno de los dos equipos
+    es empatador historico (umbral general 32%, o 40% en su rol casa/fuera) o
+    nemesis nuestro (>=6 apariciones con <=33% de acierto, fallos por X)."""
+    if signo != "X":
+        return None
+    if estudio is None:
+        estudio = cargar_json(ESTUDIO_X, {})
+    empatadores = {f.get("equipo"): f for f in estudio.get("equipos_empatadores") or []}
+    nemesis = {f.get("equipo"): f for f in estudio.get("fiabilidad_nuestra_por_equipo") or []}
+    for nombre, rol in ((partido.get("local"), "casa"), (partido.get("visitante"), "fuera")):
+        clave = clave_equipo(nombre)
+        f = empatadores.get(clave)
+        if f:
+            rol_pct = f.get(f"x_{rol}_pct")
+            if (f.get("x_pct") or 0) >= EMPATADOR_X_PCT:
+                return {
+                    "tipo": "empatador",
+                    "texto": f"{nombre} empata el {f['x_pct']}% historico ({f.get('pj')} pj) -equipo empatador.",
+                }
+            if rol_pct is not None and rol_pct >= EMPATADOR_ROL_PCT:
+                return {
+                    "tipo": "empatador",
+                    "texto": f"{nombre} empata el {rol_pct}% de sus partidos jugando {'en casa' if rol == 'casa' else 'fuera'} ({f.get('pj')} pj).",
+                }
+        n = nemesis.get(clave)
+        if n and (n.get("apariciones") or 0) >= NEMESIS_APARICIONES_MIN and (n.get("acierto_pct") or 100) <= NEMESIS_ACIERTO_MAX:
+            return {
+                "tipo": "nemesis",
+                "texto": (
+                    f"{nombre} es nuestra nemesis: solo {n['acierto_pct']}% de acierto en "
+                    f"{n['apariciones']} boletos ({n.get('fallos_por_x', 0)} fallos por X)."
+                ),
+            }
+    return None
+
+
+def senal_h2h(partido, historial=None):
+    """Señal h2h_caotico: este emparejamiento concreto tiene una tasa de
+    sorpresa historica >=50% con al menos 2 casos con cuotas."""
+    if historial is None:
+        historial = cargar_json(HISTORIAL_H2H, {})
+    clave = clave_par_equipos_h2h(partido.get("local", ""), partido.get("visitante", ""))
+    h2h = (historial.get("enfrentamientos") or {}).get(clave)
+    if not h2h:
+        return None
+    casos = h2h.get("casos_con_cuotas") or 0
+    tasa = h2h.get("tasa_sorpresa_historica")
+    if casos >= H2H_CASOS_MIN and tasa is not None and tasa >= H2H_TASA_MIN:
+        return {
+            "tipo": "h2h_caotico",
+            "texto": (
+                f"Emparejamiento caotico: {tasa}% de sorpresas historicas entre "
+                f"{partido.get('local')} y {partido.get('visitante')} ({casos} precedentes con cuotas)."
+            ),
+        }
+    return None
+
+
+def senal_sobrecompra(partido, signo, masa_partido, sorpresas_equipo):
+    """Señal sobrecompra_publico: el rival (el equipo favorito del motor en
+    este partido) viene de >=2 sorpresas positivas en sus ultimos 3 partidos
+    evaluados Y la masa LAE juega su signo >=10 puntos por encima de la
+    probabilidad del motor (overreaction del publico)."""
+    probs = partido.get("probabilidades") or {}
+    if not probs or not masa_partido:
+        return None
+    favorito = max(SIGNOS, key=lambda s: float(probs.get(s) or 0))
+    if favorito == signo or favorito == "X":
+        return None
+    rival = partido.get("local") if favorito == "1" else partido.get("visitante")
+    prob_fav = float(probs.get(favorito) or 0)
+    masa_fav = float(masa_partido.get(favorito) or 0)
+    if masa_fav < prob_fav + SOBRECOMPRA_PUNTOS:
+        return None
+    historial = (sorpresas_equipo or {}).get(clave_equipo(rival)) or []
+    recientes = historial[-VENTANA_PARTIDOS_RIVAL:]
+    n_sorpresas = sum(1 for s in recientes if s)
+    if n_sorpresas < SORPRESAS_RECIENTES_MIN:
+        return None
+    return {
+        "tipo": "sobrecompra_publico",
+        "texto": (
+            f"El publico sobre-compra a {rival}: viene de {n_sorpresas} sorpresas positivas en sus "
+            f"ultimos {len(recientes)} partidos y la masa juega su signo al {masa_fav:.0f}% cuando el "
+            f"motor le da {prob_fav:.0f}% (+{masa_fav - prob_fav:.0f} pts de overreaction)."
+        ),
+    }
+
+
+def sorpresas_por_equipo(detalle, jornadas_validas, jornada_limite):
+    """{clave_equipo: [bool, ...]} cronologico dentro de la temporada: True si
+    el equipo GANO sin ser el favorito del motor (sorpresa positiva). Solo
+    jornadas de jornadas_validas anteriores a jornada_limite -sin fuga de
+    futuro, y sin mezclar temporadas (la numeracion se reinicia)."""
+    por_equipo = {}
+    items = [
+        it for it in detalle or []
+        if it.get("jornada") in jornadas_validas and it.get("jornada") < jornada_limite
+        and str(it.get("signo_real") or "").upper() in SIGNOS
+        and it.get("probabilidades_usadas")
+    ]
+    items.sort(key=lambda it: it.get("jornada"))
+    for it in items:
+        partes = str(it.get("partido") or "").split(" - ", 1)
+        if len(partes) != 2:
+            continue
+        probs = it["probabilidades_usadas"]
+        favorito = max(SIGNOS, key=lambda s: float(probs.get(s) or 0))
+        signo_real = str(it["signo_real"]).upper()
+        for nombre, signo_equipo in ((partes[0].strip(), "1"), (partes[1].strip(), "2")):
+            clave = clave_equipo(nombre)
+            if not clave:
+                continue
+            sorpresa = signo_real == signo_equipo and favorito != signo_equipo
+            por_equipo.setdefault(clave, []).append(sorpresa)
+    return por_equipo
+
+
+def jornadas_con_porcentajes(etiqueta, hasta=60):
+    """Jornadas de la temporada etiquetada con % LAE versionados: el conjunto
+    de 'jornadas de esta temporada' sin depender de la numeracion (que se
+    reinicia cada temporada)."""
+    return {j for j in range(1, hasta + 1) if ruta_porcentajes(j, etiqueta).exists()}
+
+
+# ---------------------------------------------------------------------------
+# Seleccion de la valiente (nucleo puro, testeable)
+# ---------------------------------------------------------------------------
+
+def cargar_fuentes():
+    return {
+        "ceses": (cargar_json(CESES, {}) or {}).get("ceses") or [],
+        "estudio_x": cargar_json(ESTUDIO_X, {}),
+        "h2h": cargar_json(HISTORIAL_H2H, {}),
+        "sorpresas_equipo": {},
+        "contador": None,
+    }
+
+
+def evaluar_candidato(partido, signo, masa_partido, fuentes):
+    """Devuelve el candidato (con señales y filtro de pago) o None."""
+    probs = partido.get("probabilidades") or {}
+    prob = float(probs.get(signo) or 0)
+    if not (PROB_MIN <= prob <= PROB_MAX):
+        return None
+    masa = masa_partido.get(signo)
+    if masa is None:
+        return None
+    masa = float(masa)
+    if masa > prob - FILTRO_PAGO_PUNTOS:
+        return None  # filtro de pago: si la masa ya lo juega, no paga
+    senales = []
+    for senal in (
+        senal_revulsivo(partido, signo, fuentes.get("ceses"), fuentes.get("contador")),
+        senal_empatador(partido, signo, fuentes.get("estudio_x")),
+        senal_h2h(partido, fuentes.get("h2h")),
+        senal_sobrecompra(partido, signo, masa_partido, fuentes.get("sorpresas_equipo")),
+    ):
+        if senal:
+            senales.append(senal)
+    if not senales:
+        return None
+    return {
+        "num": partido.get("num"),
+        "local": partido.get("local"),
+        "visitante": partido.get("visitante"),
+        "signo": signo,
+        "prob_motor": round(prob, 1),
+        "masa_pct": round(masa, 1),
+        "ventaja_sobre_masa": round(prob - masa, 1),
+        "senales": senales,
+    }
+
+
+def elegir_valiente(partidos, masa, fuentes):
+    """Como maximo UNA valiente: la de mayor ventaja sobre la masa entre las
+    candidatas con señal dura + filtro de pago; desempate por numero de
+    señales y despues por numero de partido (prerregistrado)."""
+    candidatos = []
+    evaluados = 0
+    for partido in partidos:
+        probs = partido.get("probabilidades") or {}
+        num = partido.get("num")
+        masa_partido = (masa or {}).get(num) or {}
+        if not probs or not masa_partido:
+            continue
+        favorito = max(SIGNOS, key=lambda s: float(probs.get(s) or 0))
+        for signo in SIGNOS:
+            if signo == favorito:
+                continue
+            evaluados += 1
+            candidato = evaluar_candidato(partido, signo, masa_partido, fuentes)
+            if candidato:
+                candidatos.append(candidato)
+    if not candidatos:
+        return None, evaluados
+    candidatos.sort(key=lambda c: (-c["ventaja_sobre_masa"], -len(c["senales"]), c["num"] or 99))
+    return candidatos[0], evaluados
+
+
+def advertencia_backtest():
+    """Resumen honesto del backtest retrospectivo prerregistrado, incrustado
+    en el propio bloque para que la web nunca lo venda sin contexto (mismo
+    patron que el boleto EV)."""
+    datos = cargar_json(BACKTEST, {})
+    resumen = datos.get("resumen") or {}
+    n = resumen.get("valientes")
+    aciertos = resumen.get("aciertos")
+    esperados = resumen.get("esperados")
+    if not n or aciertos is None or esperados is None:
+        return None
+    veredicto = resumen.get("veredicto") or ""
+    return (
+        f"Backtest retrospectivo J1-J13 26/27 (criterio identico, sin fuga de futuro): "
+        f"{aciertos} acierto(s) en {n} valientes cuando se esperaban {esperados:.1f}. "
+        f"{veredicto} Muestra pequeña: por eso esta en modo sombra y no toca ningun boleto."
+    )
+
+
+def construir_bloque_no_disponible(motivo):
+    return {
+        "estado": "no_disponible",
+        "modo": "sombra",
+        "motivo": motivo,
+        "generado_en": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+def construir_bloque_valiente(prediccion, fuente_losilla, fuentes=None):
+    """Nucleo del bloque `valiente` de ultima_prediccion.json (testeable)."""
+    jornada = prediccion.get("jornada")
+    partidos = sorted(
+        [p for p in prediccion.get("partidos") or []
+         if isinstance(p.get("num"), int) and 1 <= p["num"] <= 14],
+        key=lambda p: p["num"],
+    )
+    if len(partidos) != 14 or any(not p.get("probabilidades") for p in partidos):
+        return construir_bloque_no_disponible(
+            "La prediccion no tiene los 14 partidos con probabilidades del motor."
+        )
+    masa, fuente_masa = porcentajes_masa(jornada, fuente_losilla)
+    if not masa:
+        return construir_bloque_no_disponible(
+            "Sin % de apostantes LAE para esta jornada: sin masa no hay filtro de pago."
+        )
+    if fuentes is None:
+        fuentes = cargar_fuentes()
+        etiqueta = temporada_etiqueta(datetime.now())
+        validas = jornadas_con_porcentajes(etiqueta)
+        detalle = (cargar_json(APRENDIZAJE, {}) or {}).get("detalle") or []
+        fuentes["sorpresas_equipo"] = sorpresas_por_equipo(
+            detalle, validas, jornada if isinstance(jornada, int) else 0
+        )
+    eleccion, evaluados = elegir_valiente(partidos, masa, fuentes)
+    base = {
+        "modo": "sombra",
+        "generado_en": datetime.now(timezone.utc).isoformat(),
+        "jornada": jornada,
+        "fuente_masa": fuente_masa,
+        "candidatos_evaluados": evaluados,
+        "criterio": (
+            "Signo no-favorito con prob motor 18-45%, al menos una señal contextual dura "
+            "(revulsivo fuera, empatador/nemesis en X, H2H caotico >=50%, sobrecompra del publico) "
+            "y % de masa LAE al menos 8 puntos por debajo de la prob del motor. Maximo una por jornada."
+        ),
+        "aviso": AVISO_SOMBRA,
+        "advertencia_backtest": advertencia_backtest(),
+    }
+    if eleccion is None:
+        return {
+            **base,
+            "estado": "sin_valiente",
+            "motivo": (
+                "Ninguna candidata cumple señal dura + filtro de pago esta jornada. "
+                "No se fuerza: declarar 'no hay valiente' es parte del diseño."
+            ),
+        }
+    return {**base, "estado": "ok", **eleccion}
+
+
+# ---------------------------------------------------------------------------
+# Marcador de sombra (se engancha al ciclo de aprendizaje)
+# ---------------------------------------------------------------------------
+
+def _signo_real_verificado(bloque, dir_jornadas):
+    """Signo oficial del partido de la valiente, verificando ademas que los
+    nombres del fixture coinciden (la numeracion de jornadas se reinicia cada
+    temporada: sin esta verificacion, una J14 vieja podria puntuar una J14
+    nueva). Basta con que UNO de los dos nombres case -el num ya ancla el
+    partido y el propio motor usa alias legitimos ("Celta B"/"Celta Fortuna").
+    None si la jornada aun no esta cerrada o ningun nombre casa."""
+    datos = cargar_json(Path(dir_jornadas) / f"jornada_{bloque.get('jornada')}.json", {})
+    for p in datos.get("partidos") or []:
+        if p.get("num") != bloque.get("num"):
+            continue
+        if (clave_equipo(p.get("local")) != clave_equipo(bloque.get("local"))
+                and clave_equipo(p.get("visitante")) != clave_equipo(bloque.get("visitante"))):
+            return None
+        signo = str(p.get("signo_oficial") or "").upper()
+        return signo if signo in SIGNOS else None
+    return None
+
+
+def _resumen_marcador(valientes):
+    evaluadas = [v for v in valientes if v.get("acierto") in (True, False)]
+    aciertos = sum(1 for v in evaluadas if v["acierto"])
+    esperados = round(sum(float(v.get("prob_declarada") or 0) for v in evaluadas) / 100.0, 2)
+    cobrado = round(sum(float(v.get("pago_hipotetico_eur") or 0) for v in evaluadas), 2)
+    estado = "en_sombra"
+    if len(evaluadas) >= GRADUACION_MIN_VALIENTES:
+        if aciertos >= esperados and aciertos >= GRADUACION_MIN_ACIERTOS:
+            estado = "candidata_a_dinero"
+        elif aciertos < SUSPENSION_FRACCION * esperados:
+            estado = "suspendida"
+    return {
+        "evaluadas": len(evaluadas),
+        "aciertos": aciertos,
+        "esperados": esperados,
+        "apostado_hipotetico_eur": round(len(evaluadas) * APUESTA_HIPOTETICA_EUR, 2),
+        "cobrado_hipotetico_eur": cobrado,
+        "estado": estado,
+        "avisar_a_marc": estado == "candidata_a_dinero",
+    }
+
+
+def actualizar_marcador_valiente(dir_predicciones=None, dir_jornadas=None,
+                                 ruta_marcador=None, etiqueta=None, ahora=None):
+    """Al cerrar cada jornada, registra si la valiente publicada acerto y
+    actualiza el acumulado con el criterio de graduacion prerregistrado.
+    Idempotente: cada (temporada, jornada) se registra una sola vez."""
+    dir_predicciones = Path(dir_predicciones or PREDICCIONES_DIR)
+    dir_jornadas = Path(dir_jornadas or JORNADAS_DIR)
+    ruta_marcador = Path(ruta_marcador or MARCADOR)
+    ahora = ahora or datetime.now(timezone.utc)
+    etiqueta = etiqueta or temporada_etiqueta(datetime.now())
+
+    marcador = cargar_json(ruta_marcador, {})
+    valientes = marcador.get("valientes") or []
+    registradas = {(v.get("temporada"), v.get("jornada")) for v in valientes}
+    nuevas = 0
+    for path in sorted(dir_predicciones.glob("jornada_*.json")):
+        bloque = (cargar_json(path, {}) or {}).get("valiente") or {}
+        if bloque.get("estado") != "ok":
+            continue
+        jornada = bloque.get("jornada")
+        if (etiqueta, jornada) in registradas:
+            continue
+        signo_real = _signo_real_verificado(bloque, dir_jornadas)
+        if signo_real is None:
+            continue  # jornada aun abierta o fixture de otra temporada
+        acierto = signo_real == str(bloque.get("signo") or "").upper()
+        masa = float(bloque.get("masa_pct") or 0)
+        pago = round(100.0 / masa * APUESTA_HIPOTETICA_EUR, 2) if acierto and masa > 0 else 0.0
+        valientes.append({
+            "temporada": etiqueta,
+            "jornada": jornada,
+            "num": bloque.get("num"),
+            "partido": f"{bloque.get('local')} - {bloque.get('visitante')}",
+            "signo": bloque.get("signo"),
+            "prob_declarada": bloque.get("prob_motor"),
+            "masa_pct": bloque.get("masa_pct"),
+            "senales": [s.get("tipo") for s in bloque.get("senales") or []],
+            "signo_real": signo_real,
+            "acierto": acierto,
+            "pago_hipotetico_eur": pago,
+            "modo": "sombra",
+            "registrado_en": ahora.isoformat(),
+        })
+        registradas.add((etiqueta, jornada))
+        nuevas += 1
+
+    resumen = _resumen_marcador(valientes)
+    marcador = {
+        "version": 1,
+        "descripcion": (
+            "Marcador de sombra de La Valiente: una sorpresa formal por jornada, publicada y "
+            "medida sin dinero. El pago hipotetico es ilustrativo (1 EUR por valiente a cuota "
+            "justa pari-mutuel 100/% masa)."
+        ),
+        "criterio_graduacion": CRITERIO_GRADUACION,
+        "actualizado_en": ahora.isoformat(),
+        "valientes": valientes,
+        "resumen": resumen,
+    }
+    guardar_json(ruta_marcador, marcador)
+    if resumen["avisar_a_marc"]:
+        print(
+            "LA_VALIENTE_CANDIDATA_A_DINERO: el marcador de sombra cumple el criterio "
+            f"prerregistrado ({resumen['aciertos']} aciertos vs {resumen['esperados']} esperados "
+            f"en {resumen['evaluadas']} valientes). Avisar a Marc antes de tocar dinero."
+        )
+    return {"nuevas": nuevas, "resumen": resumen}
+
+
+# ---------------------------------------------------------------------------
+# Script de pipeline (patron optimizador_ev_premio)
+# ---------------------------------------------------------------------------
+
+def main():
+    prediccion = cargar_json(PREDICCION, {})
+    if not prediccion:
+        print("Sin ultima_prediccion.json; nada que señalar.")
+        return
+    if not prediccion.get("prediccion_disponible") or not prediccion.get("prediccion_permitida"):
+        if prediccion.pop("valiente", None) is not None:
+            guardar_json(PREDICCION, prediccion)
+        print("Prediccion bloqueada o no disponible; bloque valiente retirado.")
+        return
+
+    fuente_losilla = cargar_json(FUENTE_LOSILLA, {})
+    bloque = construir_bloque_valiente(prediccion, fuente_losilla)
+    prediccion["valiente"] = bloque
+    guardar_json(PREDICCION, prediccion)
+
+    # mantener coherente el espejo por jornada que escribe el motor
+    jornada = prediccion.get("jornada")
+    espejo = PREDICCIONES_DIR / f"jornada_{jornada}.json"
+    if isinstance(jornada, int) and espejo.exists():
+        datos_espejo = cargar_json(espejo, {})
+        if datos_espejo.get("jornada") == jornada:
+            datos_espejo["valiente"] = bloque
+            guardar_json(espejo, datos_espejo)
+
+    if bloque.get("estado") == "ok":
+        senales = ", ".join(s["tipo"] for s in bloque.get("senales") or [])
+        print(
+            f"La Valiente (sombra) J{jornada}: {bloque['local']} - {bloque['visitante']} -> "
+            f"{bloque['signo']} ({bloque['prob_motor']}% motor vs {bloque['masa_pct']}% masa; "
+            f"señales: {senales})."
+        )
+    else:
+        print(f"La Valiente (sombra) J{jornada}: {bloque.get('estado')} - {bloque.get('motivo')}")
+
+
+if __name__ == "__main__":
+    main()

@@ -62,6 +62,7 @@ SCRIPTS_NO_CRITICOS_RED = {
     "construir_memoria_historica_profunda.py",
     "aprender_de_historial_resultados.py",
     "optimizador_ev_premio.py",
+    "senal_valiente.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
     "actualizar_resultados_apis.py",
@@ -165,6 +166,11 @@ SCRIPTS_ACTIVOS = [
     # Boleto EV del premio (candidato 3): lee la prediccion ya corregida y
     # anade el bloque boleto_ev_premio sin tocar la recomendacion conservadora.
     "optimizador_ev_premio.py",
+    # La Valiente (modo sombra, 14/10/2026): una sorpresa formal por jornada
+    # con señal contextual dura + filtro de pago, publicada y medida SIN
+    # dinero (bloque "valiente"). Corre tras el optimizador EV: lee la misma
+    # prediccion corregida y los mismos % de apostantes LAE.
+    "senal_valiente.py",
 
     # --- Premios ---
     "calcular_premios.py",

@@ -525,6 +525,18 @@
         </div>
         <div class="card-body" id="evPremioBody"></div>
       </div>
+
+      <!-- La Valiente (14/10/2026): UNA sorpresa formal por jornada con señal
+           contextual dura + filtro de pago, publicada y medida SIN dinero
+           hasta graduarse. La calcula senal_valiente.py (bloque "valiente");
+           el marcador acumulado vive en data/memoria_ia/marcador_valiente.json. -->
+      <div class="card" id="valienteCard" style="display:none;margin-top:16px">
+        <div class="card-head">
+          <h2>🎯 La Valiente</h2>
+          <span class="tag" id="valienteTag" style="background:#7c3aed22;color:#5b21b6">modo sombra · sin dinero</span>
+        </div>
+        <div class="card-body" id="valienteBody"></div>
+      </div>
     </section>
 
     <section id="aprendizaje" class="tab-panel">
@@ -1369,6 +1381,85 @@
         <p class="subtitle" style="margin:0;color:var(--muted,#888)">${escapeHtml(bloque.aviso || '')}</p>`;
     }
 
+    // La Valiente (modo sombra): la sorpresa formal de la jornada con señal
+    // contextual dura + filtro de pago (senal_valiente.py). Se publica y se
+    // mide SIN dinero; "no hay valiente esta jornada" tambien se muestra,
+    // porque decirlo es parte del diseño.
+    function renderValiente() {
+      const card = qs('#valienteCard');
+      if (!card) return;
+      const bloque = state.prediccion?.valiente;
+      const resumen = state.marcadorValiente?.resumen;
+      const hayMarcador = resumen && Number(resumen.evaluadas) > 0;
+      if (!bloque && !hayMarcador) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+
+      let pickHtml = '';
+      if (bloque && bloque.estado === 'ok') {
+        const senales = arr(bloque.senales)
+          .map(s => `<li style="margin:3px 0">${escapeHtml(s.texto || s.tipo || '')}</li>`)
+          .join('');
+        pickHtml = `
+          <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">El pick</span>
+              <span style="font-size:18px;font-weight:800">${escapeHtml(bloque.local || '')} - ${escapeHtml(bloque.visitante || '')}
+                <span style="padding:3px 10px;border-radius:8px;background:#7c3aed22;border:1.5px solid #7c3aed88;color:#5b21b6;margin-left:6px">${escapeHtml(bloque.signo || '?')}</span>
+              </span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Motor</span>
+              <span style="font-size:20px;font-weight:800;color:#5b21b6">${fmt(bloque.prob_motor, '-')}%</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">La masa lo juega</span>
+              <span style="font-size:20px;font-weight:800">${fmt(bloque.masa_pct, '-')}%</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Ventaja sobre la masa</span>
+              <span style="font-size:20px;font-weight:800;color:#15803d">+${fmt(bloque.ventaja_sobre_masa, '-')} pts</span>
+            </div>
+          </div>
+          <p class="subtitle" style="margin:0 0 4px"><b>Señales duras detrás del pick:</b></p>
+          <ul style="margin:0 0 10px;padding-left:20px;color:var(--fg,#333)">${senales}</ul>`;
+      } else if (bloque) {
+        pickHtml = `<p class="subtitle" style="margin:0 0 10px;padding:8px 10px;border-radius:8px;background:var(--surface2,#f5f5f5);border:1px solid var(--border,#ddd)">
+          🤫 <b>Esta jornada NO hay valiente.</b> ${escapeHtml(bloque.motivo || 'Ninguna candidata cumple señal dura + filtro de pago.')}</p>`;
+      } else {
+        pickHtml = `<p class="subtitle" style="margin:0 0 10px">Sin pick esta jornada (predicción bloqueada o pendiente de generar).</p>`;
+      }
+
+      let marcadorHtml = '';
+      if (hayMarcador) {
+        const estados = {
+          en_sombra: ['en sombra', 'var(--muted,#888)'],
+          candidata_a_dinero: ['🏆 CANDIDATA A DINERO — avisar a Marc', '#15803d'],
+          suspendida: ['⛔ suspendida', '#b91c1c']
+        };
+        const [estTx, estColor] = estados[resumen.estado] || [resumen.estado || '', 'var(--muted,#888)'];
+        marcadorHtml = `<p class="subtitle" style="margin:0 0 4px">
+          <b>Marcador en sombra:</b> ${resumen.aciertos} acierto${resumen.aciertos === 1 ? '' : 's'} de ${resumen.evaluadas}
+          (esperados ${fmt(resumen.esperados, '-')}) · hipotético: ${fmt(resumen.cobrado_hipotetico_eur, '0')} € cobrados
+          sobre ${fmt(resumen.apostado_hipotetico_eur, '0')} € apostados ·
+          <span style="font-weight:700;color:${estColor}">${escapeHtml(estTx)}</span></p>`;
+      } else {
+        marcadorHtml = `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> aún sin valientes evaluadas — empieza a contar cuando cierre la primera jornada con pick.</p>`;
+      }
+
+      const advertencia = bloque?.advertencia_backtest
+        ? `<p class="subtitle" style="margin:0 0 4px;padding:8px 10px;border-radius:8px;background:#b8860b14;border:1px solid #b8860b44;color:#7a5a06">📋 ${escapeHtml(bloque.advertencia_backtest)}</p>`
+        : '';
+      const criterio = state.marcadorValiente?.criterio_graduacion
+        ? `<p class="subtitle" style="margin:0 0 4px;color:var(--muted,#888)">${escapeHtml(state.marcadorValiente.criterio_graduacion)}</p>`
+        : '';
+      qs('#valienteBody').innerHTML = `
+        ${pickHtml}
+        ${marcadorHtml}
+        ${advertencia}
+        ${criterio}
+        <p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ ${escapeHtml(bloque?.aviso || 'Experimental: modo sombra, sin dinero hasta graduarse con el criterio prerregistrado.')}</p>`;
+    }
+
     function renderTicket() {
       const matches = predictionMatches();
       // Do NOT reset state.generated here — only the generate button controls it.
@@ -1419,6 +1510,7 @@
       qs('#ticketList').innerHTML = html || '<div class="empty">No hay partidos cargados todavía.</div>';
       renderAvisosJornada();
       renderBoletoEvPremio();
+      renderValiente();
       applyTicketVisibility();
     }
 
@@ -4361,6 +4453,9 @@ No inventes — solo lo que ves con fondo oscuro.`;
       // (05/10/2026): alimenta los chips "empatador"/"nemesis" del panel de
       // avisos. Carga aparte por el mismo motivo que memoria_socio.
       state.equiposXFiabilidad = await getJson('data/memoria_ia/equipos_x_fiabilidad.json', null);
+      // Marcador de sombra de La Valiente (14/10/2026): acumulado de la
+      // sorpresa formal por jornada. Carga aparte, mismo motivo que arriba.
+      state.marcadorValiente = await getJson('data/memoria_ia/marcador_valiente.json', null);
       state.prediccion = pred;
       state.pleno15Data = pleno;
       state.aprendizaje = apr;

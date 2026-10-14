@@ -44,6 +44,7 @@ CAMPOS_RAIZ_PREDICTIVOS = [
     "ataques_favorito_prioritarios",
     "alertas_boleto",
     "boleto_ev_premio",
+    "valiente",
 ]
 
 

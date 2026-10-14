@@ -257,6 +257,19 @@ def construir_fiabilidad(aprendizaje, revisiones, generado_en):
     }
 
 
+def actualizar_marcador_valiente_seguro():
+    """Marcador de sombra de La Valiente (14/10/2026): se actualiza en el
+    mismo ciclo de aprendizaje que el RPS/calibracion, pero un fallo suyo
+    jamas debe tumbar los artefactos de la compuerta (import tardio + try)."""
+    try:
+        from senal_valiente import actualizar_marcador_valiente
+        resultado = actualizar_marcador_valiente()
+        return resultado.get("nuevas", 0)
+    except Exception as exc:
+        print(f"AVISO: marcador de La Valiente no actualizado: {exc}")
+        return 0
+
+
 def generar_artefactos(aprendizaje=None):
     aprendizaje = aprendizaje or cargar_json(APRENDIZAJE, {})
     generado_en = ahora_iso()
@@ -266,7 +279,8 @@ def generar_artefactos(aprendizaje=None):
     guardar_json(REVISIONES, revisiones)
     guardar_json(METRICAS, metricas)
     guardar_json(FIABILIDAD, fiabilidad)
-    return {"revisiones": revisiones.get("total_revisiones", 0), "partidos_evaluados": metricas.get("partidos_evaluados", 0), "equipos": len(fiabilidad.get("equipos") or {})}
+    valientes_nuevas = actualizar_marcador_valiente_seguro()
+    return {"revisiones": revisiones.get("total_revisiones", 0), "partidos_evaluados": metricas.get("partidos_evaluados", 0), "equipos": len(fiabilidad.get("equipos") or {}), "valientes_nuevas": valientes_nuevas}
 
 
 def main():
