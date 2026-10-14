@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "generado_en": "2026-10-14T06:46:06.341952+00:00",
+  "version": 2,
+  "generado_en": "2026-10-14T12:31:32.477862+00:00",
   "descripcion": "Backtest retrospectivo prerregistrado de La Valiente en J1-J13 2026/27, con snapshots pre-cierre inmutables y % LAE versionados (sin fuga de futuro; caveat leve en empatadores/nemesis, documentado en DECISION_LOG.md).",
   "criterios_prerregistrados": {
     "verde": "aciertos >= esperados y aciertos >= 2",
@@ -12,6 +12,7 @@
       "jornada": 1,
       "estado": "valiente",
       "candidatos_evaluados": 28,
+      "partidos_vetados": [],
       "num": 7,
       "partido": "Cadiz CF - Celta B",
       "signo": "X",
@@ -31,6 +32,7 @@
       "jornada": 2,
       "estado": "valiente",
       "candidatos_evaluados": 28,
+      "partidos_vetados": [],
       "num": 8,
       "partido": "Real Oviedo - CD Leganes",
       "signo": "2",
@@ -50,6 +52,7 @@
       "jornada": 3,
       "estado": "valiente",
       "candidatos_evaluados": 28,
+      "partidos_vetados": [],
       "num": 4,
       "partido": "Real Madrid CF - Malaga CF",
       "signo": "X",
@@ -69,6 +72,7 @@
       "jornada": 4,
       "estado": "valiente",
       "candidatos_evaluados": 28,
+      "partidos_vetados": [],
       "num": 10,
       "partido": "UD Almeria - Cadiz CF",
       "signo": "X",
@@ -89,12 +93,14 @@
     {
       "jornada": 5,
       "estado": "sin_valiente",
-      "candidatos_evaluados": 28
+      "candidatos_evaluados": 28,
+      "partidos_vetados": []
     },
     {
       "jornada": 6,
       "estado": "valiente",
       "candidatos_evaluados": 28,
+      "partidos_vetados": [],
       "num": 1,
       "partido": "Athletic Club - Elche CF",
       "signo": "X",
@@ -116,6 +122,7 @@
       "jornada": 7,
       "estado": "valiente",
       "candidatos_evaluados": 28,
+      "partidos_vetados": [],
       "num": 3,
       "partido": "Elche CF - Real Madrid CF",
       "signo": "X",
@@ -135,6 +142,7 @@
       "jornada": 8,
       "estado": "valiente",
       "candidatos_evaluados": 28,
+      "partidos_vetados": [],
       "num": 6,
       "partido": "Villarreal CF - Levante UD",
       "signo": "X",
@@ -154,6 +162,7 @@
       "jornada": 9,
       "estado": "valiente",
       "candidatos_evaluados": 28,
+      "partidos_vetados": [],
       "num": 7,
       "partido": "Burgos CF - Eldense",
       "signo": "X",
@@ -172,12 +181,14 @@
     {
       "jornada": 10,
       "estado": "sin_valiente",
-      "candidatos_evaluados": 28
+      "candidatos_evaluados": 28,
+      "partidos_vetados": []
     },
     {
       "jornada": 11,
       "estado": "valiente",
       "candidatos_evaluados": 28,
+      "partidos_vetados": [],
       "num": 7,
       "partido": "CD Castellon - AD Ceuta FC",
       "signo": "X",
@@ -197,6 +208,7 @@
       "jornada": 12,
       "estado": "valiente",
       "candidatos_evaluados": 28,
+      "partidos_vetados": [],
       "num": 6,
       "partido": "Real Betis Balompie - CA Osasuna",
       "signo": "X",
@@ -215,7 +227,8 @@
     {
       "jornada": 13,
       "estado": "sin_valiente",
-      "candidatos_evaluados": 28
+      "candidatos_evaluados": 28,
+      "partidos_vetados": []
     }
   ],
   "resumen": {
@@ -226,5 +239,583 @@
     "apostado_hipotetico_eur": 10.0,
     "cobrado_hipotetico_eur": 36.16,
     "veredicto": "VERDE segun el prerregistro (aciertos >= esperados con >=2 aciertos): la señal merece la sombra, sigue sin merecer dinero."
+  },
+  "experimento_vetos_v2": {
+    "descripcion": "Vetos aprobados por Marc (14/10/2026): nada contra grandes que casi nunca empatan siendo favoritos (<18% de X historico) ni contra favoritos >=55%. Regla de despliegue prerregistrada ANTES de ejecutar: solo si v2 mantiene VERDE y el ratio aciertos/esperados no baja del de v1.",
+    "ratio_v1": 1.3,
+    "ratio_v2": 1.05,
+    "resumen": {
+      "jornadas_evaluadas": 13,
+      "valientes": 9,
+      "aciertos": 3,
+      "esperados": 2.87,
+      "apostado_hipotetico_eur": 9.0,
+      "cobrado_hipotetico_eur": 17.1,
+      "veredicto": "VERDE segun el prerregistro (aciertos >= esperados con >=2 aciertos): la señal merece la sombra, sigue sin merecer dinero."
+    },
+    "jornadas": [
+      {
+        "jornada": 1,
+        "estado": "valiente",
+        "candidatos_evaluados": 28,
+        "partidos_vetados": [],
+        "num": 7,
+        "partido": "Cadiz CF - Celta B",
+        "signo": "X",
+        "prob_declarada": 36.2,
+        "masa_pct": 17.0,
+        "senales": [
+          "empatador"
+        ],
+        "senales_textos": [
+          "Cadiz CF empata el 32.1% historico (131 pj) -equipo empatador."
+        ],
+        "signo_real": "X",
+        "acierto": true,
+        "pago_hipotetico_eur": 5.88
+      },
+      {
+        "jornada": 2,
+        "estado": "valiente",
+        "candidatos_evaluados": 28,
+        "partidos_vetados": [],
+        "num": 8,
+        "partido": "Real Oviedo - CD Leganes",
+        "signo": "2",
+        "prob_declarada": 25.3,
+        "masa_pct": 15.0,
+        "senales": [
+          "h2h_caotico"
+        ],
+        "senales_textos": [
+          "Emparejamiento caotico: 50.0% de sorpresas historicas entre Real Oviedo y CD Leganes (2 precedentes con cuotas)."
+        ],
+        "signo_real": "2",
+        "acierto": true,
+        "pago_hipotetico_eur": 6.67
+      },
+      {
+        "jornada": 3,
+        "estado": "valiente",
+        "candidatos_evaluados": 24,
+        "partidos_vetados": [
+          {
+            "num": 3,
+            "local": "Sevilla FC",
+            "visitante": "Club Atletico de Madrid",
+            "vetos": [
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 4,
+            "local": "Real Madrid CF",
+            "visitante": "Malaga CF",
+            "vetos": [
+              "grande_favorito"
+            ]
+          }
+        ],
+        "num": 9,
+        "partido": "Cadiz CF - Real Valladolid CF",
+        "signo": "2",
+        "prob_declarada": 29.6,
+        "masa_pct": 19.0,
+        "senales": [
+          "h2h_caotico"
+        ],
+        "senales_textos": [
+          "Emparejamiento caotico: 50.0% de sorpresas historicas entre Cadiz CF y Real Valladolid CF (2 precedentes con cuotas)."
+        ],
+        "signo_real": "X",
+        "acierto": false,
+        "pago_hipotetico_eur": 0.0
+      },
+      {
+        "jornada": 4,
+        "estado": "valiente",
+        "candidatos_evaluados": 18,
+        "partidos_vetados": [
+          {
+            "num": 1,
+            "local": "Athletic Club",
+            "visitante": "Club Atletico de Madrid",
+            "vetos": [
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 4,
+            "local": "Valencia CF",
+            "visitante": "FC Barcelona",
+            "vetos": [
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 11,
+            "local": "Sevilla (F)",
+            "visitante": "Barcelona (F)",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 13,
+            "local": "Atlético de Madrid (F)",
+            "visitante": "Alavés (F)",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 14,
+            "local": "Real Madrid (F)",
+            "visitante": "Eibar (F)",
+            "vetos": [
+              "favorito_claro"
+            ]
+          }
+        ],
+        "num": 10,
+        "partido": "UD Almeria - Cadiz CF",
+        "signo": "X",
+        "prob_declarada": 34.9,
+        "masa_pct": 23.0,
+        "senales": [
+          "empatador",
+          "h2h_caotico"
+        ],
+        "senales_textos": [
+          "Cadiz CF empata el 32.1% historico (131 pj) -equipo empatador.",
+          "Emparejamiento caotico: 50.0% de sorpresas historicas entre UD Almeria y Cadiz CF (6 precedentes con cuotas)."
+        ],
+        "signo_real": "1",
+        "acierto": false,
+        "pago_hipotetico_eur": 0.0
+      },
+      {
+        "jornada": 5,
+        "estado": "sin_valiente",
+        "candidatos_evaluados": 18,
+        "partidos_vetados": [
+          {
+            "num": 4,
+            "local": "Real Madrid CF",
+            "visitante": "Inter de Milán",
+            "vetos": [
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 5,
+            "local": "FC Barcelona",
+            "visitante": "Feyenoord",
+            "vetos": [
+              "favorito_claro",
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 6,
+            "local": "Paris Saint-Germain",
+            "visitante": "Slovan Bratislava",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 12,
+            "local": "Bayern de Múnich",
+            "visitante": "Bodø/Glimt",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 13,
+            "local": "Manchester United",
+            "visitante": "Sabah",
+            "vetos": [
+              "favorito_claro"
+            ]
+          }
+        ]
+      },
+      {
+        "jornada": 6,
+        "estado": "valiente",
+        "candidatos_evaluados": 22,
+        "partidos_vetados": [
+          {
+            "num": 1,
+            "local": "Athletic Club",
+            "visitante": "Elche CF",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 2,
+            "local": "Levante UD",
+            "visitante": "FC Barcelona",
+            "vetos": [
+              "favorito_claro",
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 5,
+            "local": "Real Madrid CF",
+            "visitante": "Rayo Vallecano de Madrid",
+            "vetos": [
+              "favorito_claro",
+              "grande_favorito"
+            ]
+          }
+        ],
+        "num": 10,
+        "partido": "Real Valladolid CF - Real Oviedo",
+        "signo": "2",
+        "prob_declarada": 30.9,
+        "masa_pct": 22.0,
+        "senales": [
+          "h2h_caotico"
+        ],
+        "senales_textos": [
+          "Emparejamiento caotico: 50.0% de sorpresas historicas entre Real Valladolid CF y Real Oviedo (2 precedentes con cuotas)."
+        ],
+        "signo_real": "2",
+        "acierto": true,
+        "pago_hipotetico_eur": 4.55
+      },
+      {
+        "jornada": 7,
+        "estado": "sin_valiente",
+        "candidatos_evaluados": 18,
+        "partidos_vetados": [
+          {
+            "num": 2,
+            "local": "Deportivo Alaves",
+            "visitante": "Valencia CF",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 3,
+            "local": "Elche CF",
+            "visitante": "Real Madrid CF",
+            "vetos": [
+              "favorito_claro",
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 4,
+            "local": "Club Atletico de Madrid",
+            "visitante": "CA Osasuna",
+            "vetos": [
+              "favorito_claro",
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 6,
+            "local": "FC Barcelona",
+            "visitante": "Real Racing Club de Santander",
+            "vetos": [
+              "favorito_claro",
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 8,
+            "local": "Real Betis Balompie",
+            "visitante": "Getafe CF",
+            "vetos": [
+              "favorito_claro"
+            ]
+          }
+        ]
+      },
+      {
+        "jornada": 8,
+        "estado": "valiente",
+        "candidatos_evaluados": 22,
+        "partidos_vetados": [
+          {
+            "num": 3,
+            "local": "Sevilla FC",
+            "visitante": "FC Barcelona",
+            "vetos": [
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 11,
+            "local": "Atlético de Madrid (F)",
+            "visitante": "Logroño (F)",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 13,
+            "local": "Real Madrid (F)",
+            "visitante": "Valencia (F)",
+            "vetos": [
+              "favorito_claro"
+            ]
+          }
+        ],
+        "num": 6,
+        "partido": "Villarreal CF - Levante UD",
+        "signo": "X",
+        "prob_declarada": 31.2,
+        "masa_pct": 13.0,
+        "senales": [
+          "empatador"
+        ],
+        "senales_textos": [
+          "Levante UD empata el 34.9% historico (129 pj) -equipo empatador."
+        ],
+        "signo_real": "1",
+        "acierto": false,
+        "pago_hipotetico_eur": 0.0
+      },
+      {
+        "jornada": 9,
+        "estado": "valiente",
+        "candidatos_evaluados": 24,
+        "partidos_vetados": [
+          {
+            "num": 11,
+            "local": "Athletic Club (F)",
+            "visitante": "At. Madrid (F)",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 13,
+            "local": "Sevilla (F)",
+            "visitante": "Eibar (F)",
+            "vetos": [
+              "favorito_claro"
+            ]
+          }
+        ],
+        "num": 7,
+        "partido": "Burgos CF - Eldense",
+        "signo": "X",
+        "prob_declarada": 36.4,
+        "masa_pct": 14.0,
+        "senales": [
+          "h2h_caotico"
+        ],
+        "senales_textos": [
+          "Emparejamiento caotico: 50.0% de sorpresas historicas entre Burgos CF y Eldense (4 precedentes con cuotas)."
+        ],
+        "signo_real": "1",
+        "acierto": false,
+        "pago_hipotetico_eur": 0.0
+      },
+      {
+        "jornada": 10,
+        "estado": "sin_valiente",
+        "candidatos_evaluados": 16,
+        "partidos_vetados": [
+          {
+            "num": 2,
+            "local": "Eslovaquia",
+            "visitante": "Kazajistán",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 3,
+            "local": "Rep. Checa",
+            "visitante": "Inglaterra",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 6,
+            "local": "San Marino",
+            "visitante": "Albania",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 8,
+            "local": "Azerbaiyán",
+            "visitante": "Liechtenstein",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 10,
+            "local": "Alemania",
+            "visitante": "Serbia",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 13,
+            "local": "Malta",
+            "visitante": "Gibraltar",
+            "vetos": [
+              "favorito_claro"
+            ]
+          }
+        ]
+      },
+      {
+        "jornada": 11,
+        "estado": "valiente",
+        "candidatos_evaluados": 24,
+        "partidos_vetados": [
+          {
+            "num": 7,
+            "local": "CD Castellon",
+            "visitante": "AD Ceuta FC",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 11,
+            "local": "Barcelona (F)",
+            "visitante": "Real Madrid (F)",
+            "vetos": [
+              "favorito_claro"
+            ]
+          }
+        ],
+        "num": 2,
+        "partido": "UD Almeria - Burgos CF",
+        "signo": "X",
+        "prob_declarada": 32.3,
+        "masa_pct": 22.0,
+        "senales": [
+          "h2h_caotico"
+        ],
+        "senales_textos": [
+          "Emparejamiento caotico: 75.0% de sorpresas historicas entre UD Almeria y Burgos CF (4 precedentes con cuotas)."
+        ],
+        "signo_real": "1",
+        "acierto": false,
+        "pago_hipotetico_eur": 0.0
+      },
+      {
+        "jornada": 12,
+        "estado": "valiente",
+        "candidatos_evaluados": 22,
+        "partidos_vetados": [
+          {
+            "num": 2,
+            "local": "Deportivo Alaves",
+            "visitante": "Club Atletico de Madrid",
+            "vetos": [
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 3,
+            "local": "FC Barcelona",
+            "visitante": "Getafe CF",
+            "vetos": [
+              "favorito_claro",
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 6,
+            "local": "Real Betis Balompie",
+            "visitante": "CA Osasuna",
+            "vetos": [
+              "favorito_claro"
+            ]
+          }
+        ],
+        "num": 11,
+        "partido": "UD Almeria - CD Leganes",
+        "signo": "X",
+        "prob_declarada": 30.5,
+        "masa_pct": 14.0,
+        "senales": [
+          "empatador"
+        ],
+        "senales_textos": [
+          "CD Leganes empata el 32.1% historico (131 pj) -equipo empatador."
+        ],
+        "signo_real": "1",
+        "acierto": false,
+        "pago_hipotetico_eur": 0.0
+      },
+      {
+        "jornada": 13,
+        "estado": "sin_valiente",
+        "candidatos_evaluados": 16,
+        "partidos_vetados": [
+          {
+            "num": 2,
+            "local": "Club Atletico de Madrid",
+            "visitante": "Manchester United",
+            "vetos": [
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 3,
+            "local": "Arsenal",
+            "visitante": "Lille",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 4,
+            "local": "Galatasaray",
+            "visitante": "FC Barcelona",
+            "vetos": [
+              "favorito_claro",
+              "grande_favorito"
+            ]
+          },
+          {
+            "num": 5,
+            "local": "Inter de Milán",
+            "visitante": "Brujas",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 6,
+            "local": "Viking",
+            "visitante": "Bayern Múnich",
+            "vetos": [
+              "favorito_claro"
+            ]
+          },
+          {
+            "num": 8,
+            "local": "LASK Linz",
+            "visitante": "Liverpool",
+            "vetos": [
+              "favorito_claro"
+            ]
+          }
+        ]
+      }
+    ],
+    "decision": "NO DESPLEGADOS: el ratio paso de 1.3 a 1.05 y el pago hipotetico de 36.16 a 17.1 EUR. En la ejecucion original (14/10/2026) los vetos quitaron 2 de los 4 aciertos (favoritos de 55,3% y 55,8%) y los picks sustitutos fallaron. El criterio vivo sigue siendo v1; reactivar los vetos exige nuevo prerregistro con mas jornadas."
   }
 }

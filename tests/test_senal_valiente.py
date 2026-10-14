@@ -162,21 +162,22 @@ class ElegirValienteTests(unittest.TestCase):
     def test_elige_la_candidata_con_senal_y_filtro(self):
         masa = {1: {"1": 55.0, "X": 20.0, "2": 25.0}, 2: {"1": 70.0, "X": 20.0, "2": 10.0}}
         fuentes = _fuentes(estudio_x=_estudio_empatador())
-        eleccion, evaluados = sv.elegir_valiente(self._partidos(), masa, fuentes)
+        eleccion, evaluados, vetados = sv.elegir_valiente(self._partidos(), masa, fuentes)
         self.assertIsNotNone(eleccion)
         self.assertEqual((eleccion["num"], eleccion["signo"]), (1, "X"))
         self.assertEqual(eleccion["ventaja_sobre_masa"], 13.0)
         self.assertEqual(evaluados, 4)
+        self.assertEqual(vetados, [])
 
     def test_sin_senal_no_hay_valiente(self):
         masa = {1: {"1": 55.0, "X": 20.0, "2": 25.0}, 2: {"1": 70.0, "X": 20.0, "2": 10.0}}
-        eleccion, _ = sv.elegir_valiente(self._partidos(), masa, _fuentes())
+        eleccion, _, _ = sv.elegir_valiente(self._partidos(), masa, _fuentes())
         self.assertIsNone(eleccion)
 
     def test_filtro_de_pago_descarta_masa_alta(self):
         # la masa ya juega la X del partido 1 (33 - 8 = 25 > 27 no cumple)
         masa = {1: {"1": 48.0, "X": 27.0, "2": 25.0}, 2: {"1": 70.0, "X": 20.0, "2": 10.0}}
-        eleccion, _ = sv.elegir_valiente(self._partidos(), masa, _fuentes(estudio_x=_estudio_empatador()))
+        eleccion, _, _ = sv.elegir_valiente(self._partidos(), masa, _fuentes(estudio_x=_estudio_empatador()))
         self.assertIsNone(eleccion)
 
     def test_prob_fuera_de_rango_descartada(self):
@@ -184,7 +185,7 @@ class ElegirValienteTests(unittest.TestCase):
         masa = {1: {"1": 50.0, "X": 25.0, "2": 25.0}}
         # X es favorita (no candidata) y 1 esta en rango pero sin senal; con
         # senal empatadora la X seguiria fuera por ser favorita del motor
-        eleccion, _ = sv.elegir_valiente(partidos, masa, _fuentes(estudio_x=_estudio_empatador()))
+        eleccion, _, _ = sv.elegir_valiente(partidos, masa, _fuentes(estudio_x=_estudio_empatador()))
         self.assertIsNone(eleccion)
 
     def test_gana_la_mayor_ventaja_sobre_la_masa(self):
@@ -201,8 +202,93 @@ class ElegirValienteTests(unittest.TestCase):
             ],
             "fiabilidad_nuestra_por_equipo": [],
         }
-        eleccion, _ = sv.elegir_valiente(partidos, masa, _fuentes(estudio_x=estudio))
+        eleccion, _, _ = sv.elegir_valiente(partidos, masa, _fuentes(estudio_x=estudio))
         self.assertEqual(eleccion["num"], 2)  # ventaja 21 > 13
+
+
+class VetosV2Tests(unittest.TestCase):
+    """Vetos del prerregistro v2 (14/10/2026): probados y NO desplegados -su
+    backtest empeoro el criterio vivo (ratio 1,30 -> 1,05)- pero el codigo
+    queda testeado y reproducible por si un futuro backtest los reivindica."""
+
+    def _estudio_madrid(self):
+        return {
+            "equipos_empatadores": [
+                {"equipo": "madrid", "pj": 122, "x_pct": 15.6,
+                 "x_casa_pct": 14.0, "x_fuera_pct": 17.0},
+            ],
+            "fiabilidad_nuestra_por_equipo": [],
+        }
+
+    def test_veto_grande_favorito(self):
+        partido = _partido(local="Real Madrid CF", visitante="Malaga CF",
+                           probs={"1": 53.5, "X": 33.2, "2": 13.3})
+        vetos = sv.vetos_partido(partido, self._estudio_madrid())
+        self.assertEqual([v["tipo"] for v in vetos], ["grande_favorito"])
+
+    def test_veto_favorito_claro(self):
+        partido = _partido(local="Real Betis Balompie", visitante="CA Osasuna",
+                           probs={"1": 58.0, "X": 29.6, "2": 12.4})
+        vetos = sv.vetos_partido(partido, {"equipos_empatadores": []})
+        self.assertEqual([v["tipo"] for v in vetos], ["favorito_claro"])
+
+    def test_partido_parejo_sin_vetos(self):
+        partido = _partido(probs={"1": 45.0, "X": 33.0, "2": 22.0})
+        self.assertEqual(sv.vetos_partido(partido, self._estudio_madrid()), [])
+
+    def test_grande_no_favorito_no_veta(self):
+        # el grande juega pero el favorito del motor es el OTRO equipo
+        partido = _partido(local="Real Madrid CF", visitante="FC Barcelona",
+                           probs={"1": 30.0, "X": 25.0, "2": 45.0})
+        vetos = sv.vetos_partido(partido, self._estudio_madrid())
+        self.assertEqual(vetos, [])
+
+    def test_casos_reales_j3_y_j12_quedarian_vetados(self):
+        # Con los datos REALES del repo: Madrid-Malaga (J3) y Betis-Osasuna
+        # (J12), los dos fallos que señalo Marc, caen cada uno por su veto.
+        estudio = json.loads(
+            (ROOT / "data" / "memoria_ia" / "equipos_x_fiabilidad.json").read_text(encoding="utf-8-sig"))
+        j3 = _partido(local="Real Madrid CF", visitante="Malaga CF",
+                      probs={"1": 53.5, "X": 33.2, "2": 13.3})
+        j12 = _partido(local="Real Betis Balompie", visitante="CA Osasuna",
+                       probs={"1": 58.0, "X": 29.6, "2": 12.4})
+        self.assertIn("grande_favorito", [v["tipo"] for v in sv.vetos_partido(j3, estudio)])
+        self.assertIn("favorito_claro", [v["tipo"] for v in sv.vetos_partido(j12, estudio)])
+
+    def test_elegir_con_vetos_salta_el_partido(self):
+        partidos = [_partido(num=1, local="Real Madrid CF", visitante="Malaga CF",
+                             probs={"1": 53.5, "X": 33.2, "2": 13.3})]
+        masa = {1: {"1": 70.0, "X": 5.0, "2": 25.0}}
+        estudio = self._estudio_madrid()
+        estudio["equipos_empatadores"].append(
+            {"equipo": "malaga", "pj": 92, "x_pct": 33.7, "x_casa_pct": 37.0, "x_fuera_pct": 30.4})
+        eleccion, _, vetados = sv.elegir_valiente(
+            partidos, masa, _fuentes(estudio_x=estudio), aplicar_vetos=True)
+        self.assertIsNone(eleccion)
+        self.assertEqual(vetados[0]["vetos"], ["grande_favorito"])
+
+    def test_por_defecto_los_vetos_no_se_aplican(self):
+        # prerregistro v2 fallido: VETOS_V2_ACTIVOS debe seguir en False y la
+        # seleccion por defecto NO veta (criterio vivo = v1)
+        self.assertFalse(sv.VETOS_V2_ACTIVOS)
+        partidos = [_partido(num=1, local="Real Madrid CF", visitante="Malaga CF",
+                             probs={"1": 53.5, "X": 33.2, "2": 13.3})]
+        masa = {1: {"1": 70.0, "X": 5.0, "2": 25.0}}
+        estudio = self._estudio_madrid()
+        estudio["equipos_empatadores"].append(
+            {"equipo": "malaga", "pj": 92, "x_pct": 33.7, "x_casa_pct": 37.0, "x_fuera_pct": 30.4})
+        eleccion, _, vetados = sv.elegir_valiente(partidos, masa, _fuentes(estudio_x=estudio))
+        self.assertIsNotNone(eleccion)
+        self.assertEqual(vetados, [])
+
+    def test_experimento_v2_documentado_en_el_backtest(self):
+        datos = json.loads(
+            (ROOT / "data" / "memoria_ia" / "backtest_valiente.json").read_text(encoding="utf-8"))
+        exp = datos["experimento_vetos_v2"]
+        self.assertIn("decision", exp)
+        self.assertIn("ratio_v1", exp)
+        self.assertIn("ratio_v2", exp)
+        self.assertIn("veredicto", exp["resumen"])
 
 
 class BloqueValienteTests(unittest.TestCase):

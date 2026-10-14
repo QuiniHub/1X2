@@ -1373,3 +1373,38 @@ boleto EV quedan intactos. 37 tests nuevos (tests/test_senal_valiente.py).
 **Nota:** el punto "tabla de calibración por bandas del favorito" de la misma petición ya
 estaba implantado desde el candidato 5 (`calibracion_favorito` dentro de rps_calibracion en
 metricas_probabilisticas.json + tabla en la tarjeta "Calidad probabilística"): no se duplica.
+
+### 2026-10-14 — Vetos v2 de La Valiente: prerregistrados, probados y NO desplegados (el prerregistro manda)
+
+Marc revisó el backtest v1 y su crítica era certera: "meterle sorpresa al Real Madrid no
+es ser valiente, es suicidio colectivo; y al Betis-Osasuna tampoco" — los 6 fallos
+compartían firma (X contra favorito claro) y nuestro propio estudio dice que los grandes
+casi nunca empatan (Barcelona 9,8% X, Madrid 15,6%, Atleti 17,2%). Se aprobaron dos vetos:
+**VETO GRANDES** (nada en partidos donde un equipo con <18% de X histórico en
+equipos_x_fiabilidad.json sea el favorito del motor — cubre a los tres grandes y al
+Cartagena 16,7% sin hardcodear nombres) y **VETO FAVORITO CLARO** (nada contra favoritos
+del motor ≥55%). Regla de despliegue prerregistrada ANTES de re-ejecutar: v2 se despliega
+solo si mantiene el veredicto VERDE y el ratio aciertos/esperados no baja del 1,30 de v1.
+
+**Resultado del backtest v2 (mismos snapshots pre-cierre y % LAE):** 9 valientes,
+**3 aciertos vs 2,87 esperados (ratio 1,05)** y 17,10€ hipotéticos sobre 9€ — frente a
+los 10/4/3,08 (ratio 1,30) y 36,16€/10€ de v1. Sigue VERDE, pero empeora en las dos
+métricas. El porqué, visto en el detalle: los vetos efectivamente quitan Madrid-Málaga
+(J3, grandes), Elche-Madrid (J7, grandes) y Betis-Osasuna (J12, favorito 58%)... pero
+también **2 de los 4 aciertos** (Athletic-Elche J6 con favorito 55,3% y Castellón-Ceuta
+J11 con 55,8% — la X pagó en ambos), y los picks sustitutos que emergen al re-ranquear
+las jornadas vetadas fallaron 3 de 4 (J3 Cádiz-Valladolid, J11 Almería-Burgos,
+J12 Almería-Leganés; solo acertó J6 Valladolid-Oviedo). La intuición de "no desafíes al
+Madrid" es correcta y el veto GRANDES solo quitó fallos; el umbral del 55% es el que
+corta carne además de grasa — la zona 55-56% fue justo donde la X valiente pagó.
+
+**Consecuencia aplicada (el prerregistro manda):** los vetos quedan en el código,
+testeados y reproducibles, pero **desactivados** (`VETOS_V2_ACTIVOS = False` en
+senal_valiente.py); el criterio vivo sigue siendo v1 y la advertencia de la web sigue
+leyendo el backtest canónico (4/10). El experimento completo queda versionado en
+`backtest_valiente.json` → `experimento_vetos_v2` (ratios, jornadas, decisión). Para la
+próxima revisión, con ~25 jornadas: re-probar los vetos POR SEPARADO (el de grandes solo
+quitó fallos y probablemente merece vivir; el del 55% necesita más muestra o un umbral
+más alto), siempre con nuevo prerregistro — y nunca ajustando el umbral después de ver
+los datos, que es exactamente el pecado que este log existe para impedir. 8 tests nuevos
+(45 en el módulo, suite completa en verde).

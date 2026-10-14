@@ -30,6 +30,28 @@ que cumple (a) y (b):
 (b) FILTRO de pago: el % de apostantes LAE del signo esta al menos 8 puntos
     por debajo de la probabilidad del motor (si acierta, paga de verdad).
 
+PRERREGISTRO v2 (14/10/2026, afinado aprobado por Marc tras revisar el
+backtest v1: "meterle sorpresa al Real Madrid no es ser valiente, es suicidio
+colectivo"): dos VETOS de partido, decididos y escritos ANTES de re-ejecutar
+el backtest, con su regla de despliegue tambien prerregistrada (v2 se
+despliega solo si mantiene el veredicto VERDE y el ratio aciertos/esperados
+no baja del 1,30 de v1; si empeora, los vetos NO se despliegan y se reporta).
+RESULTADO (14/10/2026): v2 dio 9 valientes, 3 aciertos vs 2,87 esperados
+(ratio 1,05 < 1,30) y 17,10 EUR/9 EUR (vs 36,16/10 de v1) -los vetos quitaron
+2 de los 4 aciertos (J6 Athletic 55,3% y J11 Castellon 55,8%) y los picks
+sustitutos fallaron 3 de 4. El prerregistro manda: los vetos QUEDAN
+DESACTIVADOS (VETOS_V2_ACTIVOS = False) y el criterio vivo sigue siendo v1;
+el experimento completo esta en backtest_valiente.json y DECISION_LOG.md:
+
+- VETO GRANDES: ningun pick en partidos donde participe un equipo con tasa
+  historica de X < 18% (equipos_x_fiabilidad.json) Y ese equipo sea el
+  favorito del motor (cubre Madrid 15,6% / Barcelona 9,8% / Atleti 17,2%
+  sin hardcodear nombres; los grandes casi nunca empatan y Madrid es
+  nuestro talisman 7/7).
+- VETO FAVORITO CLARO: ningun pick en partidos donde el favorito del motor
+  tenga probabilidad >= 55% -la valentia es para partidos parejos con
+  señal, no para desafiar favoritos solidos.
+
 Se elige COMO MAXIMO UNA por jornada: la de mayor ventaja sobre la masa
 (prob motor - % masa); desempate por numero de señales y despues por numero de
 partido. Si ninguna candidata cumple (a)+(b), NO hay valiente esa jornada:
@@ -87,6 +109,13 @@ EMPATADOR_X_PCT = 32.0
 EMPATADOR_ROL_PCT = 40.0
 NEMESIS_APARICIONES_MIN = 6
 NEMESIS_ACIERTO_MAX = 33.0
+VETO_GRANDES_X_PCT = 18.0
+VETO_FAVORITO_CLARO_PROB = 55.0
+# Prerregistro v2 fallido (14/10/2026): el backtest con vetos bajo el ratio
+# aciertos/esperados de 1,30 a 1,05, asi que NO se despliegan. El codigo se
+# conserva (testeado y reproducible) por si un futuro backtest con mas
+# jornadas los reivindica -reactivarlos exige nuevo prerregistro.
+VETOS_V2_ACTIVOS = False
 GRADUACION_MIN_VALIENTES = 12
 GRADUACION_MIN_ACIERTOS = 3
 SUSPENSION_FRACCION = 0.6
@@ -308,6 +337,41 @@ def cargar_fuentes():
     }
 
 
+def vetos_partido(partido, estudio=None):
+    """Vetos del prerregistro v2: si alguno aplica, el partido entero queda
+    fuera de la seleccion (ninguna valiente, ni X ni contraria)."""
+    probs = partido.get("probabilidades") or {}
+    if not probs:
+        return []
+    favorito = max(SIGNOS, key=lambda s: float(probs.get(s) or 0))
+    prob_fav = float(probs.get(favorito) or 0)
+    vetos = []
+    if prob_fav >= VETO_FAVORITO_CLARO_PROB:
+        vetos.append({
+            "tipo": "favorito_claro",
+            "texto": (
+                f"Favorito del motor al {prob_fav:.1f}% (>= {VETO_FAVORITO_CLARO_PROB:.0f}%): "
+                "la valentia es para partidos parejos, no para desafiar favoritos solidos."
+            ),
+        })
+    if estudio is None:
+        estudio = cargar_json(ESTUDIO_X, {})
+    empatadores = {f.get("equipo"): f for f in estudio.get("equipos_empatadores") or []}
+    for nombre, signo_equipo in ((partido.get("local"), "1"), (partido.get("visitante"), "2")):
+        if favorito != signo_equipo:
+            continue
+        f = empatadores.get(clave_equipo(nombre))
+        if f and f.get("x_pct") is not None and float(f["x_pct"]) < VETO_GRANDES_X_PCT:
+            vetos.append({
+                "tipo": "grande_favorito",
+                "texto": (
+                    f"{nombre} es favorito y casi nunca empata ({f['x_pct']}% de X historico, "
+                    f"< {VETO_GRANDES_X_PCT:.0f}%): contra un grande asi no hay valiente que valga."
+                ),
+            })
+    return vetos
+
+
 def evaluar_candidato(partido, signo, masa_partido, fuentes):
     """Devuelve el candidato (con señales y filtro de pago) o None."""
     probs = partido.get("probabilidades") or {}
@@ -343,17 +407,31 @@ def evaluar_candidato(partido, signo, masa_partido, fuentes):
     }
 
 
-def elegir_valiente(partidos, masa, fuentes):
+def elegir_valiente(partidos, masa, fuentes, aplicar_vetos=None):
     """Como maximo UNA valiente: la de mayor ventaja sobre la masa entre las
     candidatas con señal dura + filtro de pago; desempate por numero de
-    señales y despues por numero de partido (prerregistrado)."""
+    señales y despues por numero de partido (prerregistrado). Los vetos v2
+    solo se aplican si aplicar_vetos es True (o VETOS_V2_ACTIVOS: hoy False,
+    su prerregistro fallo). Devuelve (eleccion, evaluados, partidos_vetados)."""
+    if aplicar_vetos is None:
+        aplicar_vetos = VETOS_V2_ACTIVOS
     candidatos = []
     evaluados = 0
+    vetados = []
     for partido in partidos:
         probs = partido.get("probabilidades") or {}
         num = partido.get("num")
         masa_partido = (masa or {}).get(num) or {}
         if not probs or not masa_partido:
+            continue
+        vetos = vetos_partido(partido, fuentes.get("estudio_x")) if aplicar_vetos else []
+        if vetos:
+            vetados.append({
+                "num": num,
+                "local": partido.get("local"),
+                "visitante": partido.get("visitante"),
+                "vetos": [v["tipo"] for v in vetos],
+            })
             continue
         favorito = max(SIGNOS, key=lambda s: float(probs.get(s) or 0))
         for signo in SIGNOS:
@@ -364,9 +442,9 @@ def elegir_valiente(partidos, masa, fuentes):
             if candidato:
                 candidatos.append(candidato)
     if not candidatos:
-        return None, evaluados
+        return None, evaluados, vetados
     candidatos.sort(key=lambda c: (-c["ventaja_sobre_masa"], -len(c["senales"]), c["num"] or 99))
-    return candidatos[0], evaluados
+    return candidatos[0], evaluados, vetados
 
 
 def advertencia_backtest():
@@ -422,17 +500,20 @@ def construir_bloque_valiente(prediccion, fuente_losilla, fuentes=None):
         fuentes["sorpresas_equipo"] = sorpresas_por_equipo(
             detalle, validas, jornada if isinstance(jornada, int) else 0
         )
-    eleccion, evaluados = elegir_valiente(partidos, masa, fuentes)
+    eleccion, evaluados, vetados = elegir_valiente(partidos, masa, fuentes)
     base = {
         "modo": "sombra",
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "jornada": jornada,
         "fuente_masa": fuente_masa,
         "candidatos_evaluados": evaluados,
+        "partidos_vetados": vetados,
         "criterio": (
             "Signo no-favorito con prob motor 18-45%, al menos una señal contextual dura "
             "(revulsivo fuera, empatador/nemesis en X, H2H caotico >=50%, sobrecompra del publico) "
-            "y % de masa LAE al menos 8 puntos por debajo de la prob del motor. Maximo una por jornada."
+            "y % de masa LAE al menos 8 puntos por debajo de la prob del motor. Maximo una por "
+            "jornada. (Vetos v2 probados y NO desplegados: su backtest prerregistrado empeoro "
+            "el criterio vivo; ver DECISION_LOG.md 14/10/2026.)"
         ),
         "aviso": AVISO_SOMBRA,
         "advertencia_backtest": advertencia_backtest(),

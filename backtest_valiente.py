@@ -18,6 +18,17 @@ las jornadas 1-13 de 2026/27 con datos estrictamente pre-cierre:
   esas dos señales tienen una fuga leve inevitable. Queda documentado en
   DECISION_LOG.md.
 
+PRERREGISTRO v2 (14/10/2026, antes de re-ejecutar): se añaden los dos VETOS
+aprobados por Marc (ver senal_valiente.py: nada contra grandes que casi nunca
+empatan siendo favoritos, ni contra favoritos >=55%). REGLA DE DESPLIEGUE
+prerregistrada: los vetos se despliegan solo si el backtest v2 mantiene el
+veredicto VERDE y el ratio aciertos/esperados no baja del 1,30 de v1
+(v1: 10 valientes, 4 aciertos, 3,08 esperados, 36,16 EUR / 10 EUR). Si
+empeora, los vetos NO se despliegan y se reporta tal cual.
+RESULTADO: v2 dio 9 valientes, 3 aciertos vs 2,87 esperados (ratio 1,05) y
+17,10 EUR/9 EUR -> vetos NO desplegados; el JSON canonico es el criterio
+vivo (sin vetos) y el experimento queda en "experimento_vetos_v2".
+
 CRITERIOS PRERREGISTRADOS (escritos antes de la primera ejecucion):
 - VERDE: aciertos reales >= esperados (suma de probabilidades declaradas) y
   al menos 2 aciertos.
@@ -113,7 +124,8 @@ def masa_jornada(jornada):
     return masa if len(masa) >= 14 else None
 
 
-def ejecutar_backtest():
+def evaluar_criterio(aplicar_vetos=False):
+    """Corre el criterio sobre J1-J13 y devuelve (filas, resumen)."""
     detalle = (cargar_json(APRENDIZAJE, {}) or {}).get("detalle") or []
     jornadas = sorted(jornadas_con_porcentajes(ETIQUETA))
     fuentes_base = cargar_fuentes()
@@ -130,12 +142,14 @@ def ejecutar_backtest():
             continue
         fuentes = dict(fuentes_base)
         fuentes["sorpresas_equipo"] = sorpresas_por_equipo(detalle, set(jornadas), jornada)
-        eleccion, evaluados = elegir_valiente(partidos, masa, fuentes)
+        eleccion, evaluados, vetados = elegir_valiente(
+            partidos, masa, fuentes, aplicar_vetos=aplicar_vetos)
         if eleccion is None:
             filas.append({
                 "jornada": jornada,
                 "estado": "sin_valiente",
                 "candidatos_evaluados": evaluados,
+                "partidos_vetados": vetados,
             })
             continue
         elegido = next(p for p in partidos if p["num"] == eleccion["num"])
@@ -170,6 +184,7 @@ def ejecutar_backtest():
             "jornada": jornada,
             "estado": "valiente",
             "candidatos_evaluados": evaluados,
+            "partidos_vetados": vetados,
             "num": eleccion["num"],
             "partido": f"{eleccion['local']} - {eleccion['visitante']}",
             "signo": eleccion["signo"],
@@ -202,8 +217,27 @@ def ejecutar_backtest():
             "NEUTRO segun el prerregistro (entre el 60% y el 100% de lo esperado): sombra sin "
             "advertencia roja, muestra insuficiente para concluir."
         )
+    resumen = {
+        "jornadas_evaluadas": len([f for f in filas if f.get("estado") != "fixture_incompleto"]),
+        "valientes": len(valientes),
+        "aciertos": aciertos,
+        "esperados": esperados,
+        "apostado_hipotetico_eur": round(len(valientes) * APUESTA_HIPOTETICA_EUR, 2),
+        "cobrado_hipotetico_eur": cobrado,
+        "veredicto": veredicto,
+    }
+    return filas, resumen
+
+
+def ejecutar_backtest():
+    """JSON canonico: el criterio VIVO (hoy sin vetos, su prerregistro fallo)
+    + el experimento de vetos v2 documentado dentro, con su regla y decision."""
+    filas, resumen = evaluar_criterio(aplicar_vetos=False)
+    filas_v2, resumen_v2 = evaluar_criterio(aplicar_vetos=True)
+    ratio_v1 = round(resumen["aciertos"] / resumen["esperados"], 2) if resumen["esperados"] else None
+    ratio_v2 = round(resumen_v2["aciertos"] / resumen_v2["esperados"], 2) if resumen_v2["esperados"] else None
     resultado = {
-        "version": 1,
+        "version": 2,
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "descripcion": (
             "Backtest retrospectivo prerregistrado de La Valiente en J1-J13 2026/27, con "
@@ -216,14 +250,34 @@ def ejecutar_backtest():
             "neutro": "entre medias",
         },
         "jornadas": filas,
-        "resumen": {
-            "jornadas_evaluadas": len([f for f in filas if f.get("estado") != "fixture_incompleto"]),
-            "valientes": len(valientes),
-            "aciertos": aciertos,
-            "esperados": esperados,
-            "apostado_hipotetico_eur": round(len(valientes) * APUESTA_HIPOTETICA_EUR, 2),
-            "cobrado_hipotetico_eur": cobrado,
-            "veredicto": veredicto,
+        "resumen": resumen,
+        "experimento_vetos_v2": {
+            "descripcion": (
+                "Vetos aprobados por Marc (14/10/2026): nada contra grandes que casi nunca "
+                "empatan siendo favoritos (<18% de X historico) ni contra favoritos >=55%. "
+                "Regla de despliegue prerregistrada ANTES de ejecutar: solo si v2 mantiene "
+                "VERDE y el ratio aciertos/esperados no baja del de v1."
+            ),
+            "ratio_v1": ratio_v1,
+            "ratio_v2": ratio_v2,
+            "resumen": resumen_v2,
+            "jornadas": filas_v2,
+            "decision": (
+                (
+                    "Cumpliria la regla de despliegue (ratio {v2} >= {v1} manteniendo VERDE), "
+                    "pero activarlos de verdad exige decision explicita de Marc y nuevo "
+                    "prerregistro (VETOS_V2_ACTIVOS sigue en False)."
+                ) if (ratio_v1 is not None and ratio_v2 is not None and ratio_v2 >= ratio_v1
+                      and resumen_v2["veredicto"].startswith("VERDE")) else (
+                    "NO DESPLEGADOS: el ratio paso de {v1} a {v2} y el pago hipotetico de "
+                    "{c1} a {c2} EUR. En la ejecucion original (14/10/2026) los vetos quitaron "
+                    "2 de los 4 aciertos (favoritos de 55,3% y 55,8%) y los picks sustitutos "
+                    "fallaron. El criterio vivo sigue siendo v1; reactivar los vetos exige "
+                    "nuevo prerregistro con mas jornadas."
+                )
+            ).format(v1=ratio_v1, v2=ratio_v2,
+                     c1=resumen["cobrado_hipotetico_eur"],
+                     c2=resumen_v2["cobrado_hipotetico_eur"]),
         },
     }
     guardar_json(SALIDA, resultado)
