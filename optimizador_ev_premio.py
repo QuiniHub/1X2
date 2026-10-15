@@ -40,6 +40,7 @@ DATA = ROOT / "data"
 PREDICCION = DATA / "predicciones" / "ultima_prediccion.json"
 FUENTE_LOSILLA = DATA / "memoria_ia" / "fuente_losilla.json"
 BACKTEST = DATA / "memoria_ia" / "backtest_ev_premio.json"
+AJUSTES_AUTOMATICOS = DATA / "memoria_ia" / "ajustes_automaticos.json"
 
 OPCIONES_SIGNOS = ("1", "X", "2", "1X", "12", "X2", "1X2")
 # Dos conjuntos de muestras INDEPENDIENTES: uno para que el hill-climbing
@@ -110,6 +111,24 @@ def porcentajes_masa(jornada, fuente_losilla):
         if len(partidos) >= 14:
             return partidos, "fuente_losilla.json (columna LAE, sin versionar)"
     return None, None
+
+
+def factor_acertantes_actual(ruta=None):
+    """Factor de overdispersion de acertantes del meta-aprendizaje
+    (aprendizaje_modulos.py, 15/10/2026): re-ajustado con cada escrutinio
+    nuevo SOLO con >=10 escrutinios y acotado a [0,5x - 2x] (el clamp se
+    repite en EvaluadorEV por si el JSON llegara corrupto). Devuelve
+    (factor, descripcion_origen); 1.0 si aun no hay ajuste."""
+    datos = cargar_json(Path(ruta) if ruta else AJUSTES_AUTOMATICOS, {})
+    bloque = datos.get("factor_acertantes") or {}
+    valor = bloque.get("valor")
+    if not isinstance(valor, (int, float)) or valor <= 0:
+        return 1.0, "sin ajuste (modelo original)"
+    factor = min(max(float(valor), 0.5), 2.0)
+    return factor, (
+        f"meta-aprendizaje: mediana real/modelo sobre {bloque.get('celdas', '?')} celdas de "
+        f"{bloque.get('escrutinios', '?')} escrutinios reales, acotado [0,5x-2x]"
+    )
 
 
 def recaudacion_estimada():
@@ -250,8 +269,10 @@ def calcular_bloque_ev(prediccion, fuente_losilla, n_muestras=N_MUESTRAS_SELECCI
     if presupuesto < 1:
         presupuesto = columnas_boleto(boleto_conservador)
 
+    factor_acertantes, origen_factor = factor_acertantes_actual()
     evaluador = EvaluadorEV(p_real, pct_masa, recaudacion=recaudacion,
-                            n_muestras=n_muestras, semilla=semilla)
+                            n_muestras=n_muestras, semilla=semilla,
+                            factor_acertantes=factor_acertantes)
 
     # arranques alternativos: favoritos puros y señal de valor (prob/masa)
     arranque_favorito = [
@@ -271,7 +292,8 @@ def calcular_bloque_ev(prediccion, fuente_losilla, n_muestras=N_MUESTRAS_SELECCI
 
     # EV publicado: muestras frescas e independientes de las de seleccion.
     evaluador_final = EvaluadorEV(p_real, pct_masa, recaudacion=recaudacion,
-                                  n_muestras=n_muestras_final, semilla=semilla + 1)
+                                  n_muestras=n_muestras_final, semilla=semilla + 1,
+                                  factor_acertantes=factor_acertantes)
     eval_ev = evaluador_final.evaluar(boleto_ev)
     eval_conservador = evaluador_final.evaluar(boleto_conservador)
     # Salvaguarda anti-ruido: si con muestras frescas el optimizado no supera
@@ -307,6 +329,8 @@ def calcular_bloque_ev(prediccion, fuente_losilla, n_muestras=N_MUESTRAS_SELECCI
         "fuente_masa": fuente_masa,
         "recaudacion_estimada_eur": recaudacion,
         "escrutinios_usados_para_recaudacion": n_escrutinios,
+        "factor_acertantes": factor_acertantes,
+        "factor_acertantes_origen": origen_factor,
         "presupuesto_apuestas": presupuesto,
         "apuestas": apuestas,
         "coste_eur": round(max(apuestas * PRECIO_APUESTA, 1.5), 2),

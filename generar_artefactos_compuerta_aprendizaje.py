@@ -270,6 +270,19 @@ def actualizar_marcador_valiente_seguro():
         return 0
 
 
+def actualizar_aprendizaje_modulos_seguro():
+    """Cuaderno de meta-aprendizaje por modulo + auto-correcciones acotadas +
+    auditoria cada 5 jornadas (15/10/2026): corre en el mismo ciclo que el
+    marcador de La Valiente y, como el, un fallo suyo jamas debe tumbar los
+    artefactos de la compuerta (import tardio + try)."""
+    try:
+        from aprendizaje_modulos import actualizar_todo
+        return actualizar_todo()
+    except Exception as exc:
+        print(f"AVISO: cuaderno de meta-aprendizaje no actualizado: {exc}")
+        return None
+
+
 def generar_artefactos(aprendizaje=None):
     aprendizaje = aprendizaje or cargar_json(APRENDIZAJE, {})
     generado_en = ahora_iso()
@@ -280,7 +293,8 @@ def generar_artefactos(aprendizaje=None):
     guardar_json(METRICAS, metricas)
     guardar_json(FIABILIDAD, fiabilidad)
     valientes_nuevas = actualizar_marcador_valiente_seguro()
-    return {"revisiones": revisiones.get("total_revisiones", 0), "partidos_evaluados": metricas.get("partidos_evaluados", 0), "equipos": len(fiabilidad.get("equipos") or {}), "valientes_nuevas": valientes_nuevas}
+    meta_modulos = actualizar_aprendizaje_modulos_seguro()
+    return {"revisiones": revisiones.get("total_revisiones", 0), "partidos_evaluados": metricas.get("partidos_evaluados", 0), "equipos": len(fiabilidad.get("equipos") or {}), "valientes_nuevas": valientes_nuevas, "meta_modulos": meta_modulos}
 
 
 def main():

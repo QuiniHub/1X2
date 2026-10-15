@@ -120,6 +120,16 @@ GRADUACION_MIN_VALIENTES = 12
 GRADUACION_MIN_ACIERTOS = 3
 SUSPENSION_FRACCION = 0.6
 APUESTA_HIPOTETICA_EUR = 1.0
+# Freno de suspension POR SEÑAL (15/10/2026, meta-aprendizaje aprobado por
+# Marc): una señal concreta (empatador, nemesis, h2h_caotico, revulsivo_fuera,
+# sobrecompra_publico) se SUSPENDE sola -deja de contar como señal dura al
+# elegir valiente- cuando acumula >=8 valientes propias en el marcador de
+# sombra REAL y sus aciertos quedan por debajo del 50% de los esperados
+# (suma de probabilidades declaradas). Se anuncia en el marcador y en el
+# bloque publicado; ningun umbral estructural (18-45%, filtro de pago,
+# vetos...) se auto-cambia. Reactivarla exige decision explicita de Marc.
+SENAL_SUSPENSION_MIN_VALIENTES = 8
+SENAL_SUSPENSION_FRACCION = 0.5
 
 CRITERIO_GRADUACION = (
     f"Prerregistrado: con >={GRADUACION_MIN_VALIENTES} valientes evaluadas, si aciertos "
@@ -384,6 +394,9 @@ def evaluar_candidato(partido, signo, masa_partido, fuentes):
     masa = float(masa)
     if masa > prob - FILTRO_PAGO_PUNTOS:
         return None  # filtro de pago: si la masa ya lo juega, no paga
+    # Señales suspendidas por el freno del marcador (15/10/2026): dejan de
+    # contar como señal dura hasta que Marc decida reactivarlas.
+    suspendidas = set(fuentes.get("senales_suspendidas") or ())
     senales = []
     for senal in (
         senal_revulsivo(partido, signo, fuentes.get("ceses"), fuentes.get("contador")),
@@ -391,7 +404,7 @@ def evaluar_candidato(partido, signo, masa_partido, fuentes):
         senal_h2h(partido, fuentes.get("h2h")),
         senal_sobrecompra(partido, signo, masa_partido, fuentes.get("sorpresas_equipo")),
     ):
-        if senal:
+        if senal and senal.get("tipo") not in suspendidas:
             senales.append(senal)
     if not senales:
         return None
@@ -407,12 +420,16 @@ def evaluar_candidato(partido, signo, masa_partido, fuentes):
     }
 
 
-def elegir_valiente(partidos, masa, fuentes, aplicar_vetos=None):
+def elegir_valiente(partidos, masa, fuentes, aplicar_vetos=None, tipos_vetos=None):
     """Como maximo UNA valiente: la de mayor ventaja sobre la masa entre las
     candidatas con señal dura + filtro de pago; desempate por numero de
     señales y despues por numero de partido (prerregistrado). Los vetos v2
     solo se aplican si aplicar_vetos es True (o VETOS_V2_ACTIVOS: hoy False,
-    su prerregistro fallo). Devuelve (eleccion, evaluados, partidos_vetados)."""
+    su prerregistro fallo). tipos_vetos (solo para la auditoria automatica,
+    15/10/2026) limita que vetos se aplican -p.ej. {"grande_favorito"} para
+    re-probar el veto grandes POR SEPARADO, como pide DECISION_LOG 14/10;
+    no cambia nada cuando es None. Devuelve (eleccion, evaluados,
+    partidos_vetados)."""
     if aplicar_vetos is None:
         aplicar_vetos = VETOS_V2_ACTIVOS
     candidatos = []
@@ -425,6 +442,8 @@ def elegir_valiente(partidos, masa, fuentes, aplicar_vetos=None):
         if not probs or not masa_partido:
             continue
         vetos = vetos_partido(partido, fuentes.get("estudio_x")) if aplicar_vetos else []
+        if tipos_vetos is not None:
+            vetos = [v for v in vetos if v["tipo"] in tipos_vetos]
         if vetos:
             vetados.append({
                 "num": num,
@@ -500,7 +519,12 @@ def construir_bloque_valiente(prediccion, fuente_losilla, fuentes=None):
         fuentes["sorpresas_equipo"] = sorpresas_por_equipo(
             detalle, validas, jornada if isinstance(jornada, int) else 0
         )
+        # Freno del meta-aprendizaje (15/10/2026): las señales suspendidas por
+        # el marcador real dejan de contar como señal dura en el bloque VIVO
+        # (el backtest prerregistrado sigue evaluando el criterio v1 integro).
+        fuentes.setdefault("senales_suspendidas", senales_suspendidas_actuales())
     eleccion, evaluados, vetados = elegir_valiente(partidos, masa, fuentes)
+    suspendidas = sorted(fuentes.get("senales_suspendidas") or [])
     base = {
         "modo": "sombra",
         "generado_en": datetime.now(timezone.utc).isoformat(),
@@ -517,6 +541,7 @@ def construir_bloque_valiente(prediccion, fuente_losilla, fuentes=None):
         ),
         "aviso": AVISO_SOMBRA,
         "advertencia_backtest": advertencia_backtest(),
+        "senales_suspendidas": suspendidas,
     }
     if eleccion is None:
         return {
@@ -553,6 +578,28 @@ def _signo_real_verificado(bloque, dir_jornadas):
     return None
 
 
+def _atribucion_por_senal(evaluadas):
+    """Atribucion POR SEÑAL del marcador (15/10/2026): una valiente con dos
+    señales suma en ambas (la señal estuvo detras del pick). Con el freno
+    prerregistrado de suspension: >=8 valientes propias y aciertos < 50% de
+    esperados -> la señal se suspende sola."""
+    por_senal = {}
+    for v in evaluadas:
+        prob = float(v.get("prob_declarada") or 0) / 100.0
+        for tipo in v.get("senales") or []:
+            reg = por_senal.setdefault(tipo, {"valientes": 0, "aciertos": 0, "esperados": 0.0})
+            reg["valientes"] += 1
+            reg["aciertos"] += 1 if v.get("acierto") else 0
+            reg["esperados"] += prob
+    for tipo, reg in por_senal.items():
+        reg["esperados"] = round(reg["esperados"], 2)
+        reg["suspendida"] = bool(
+            reg["valientes"] >= SENAL_SUSPENSION_MIN_VALIENTES
+            and reg["aciertos"] < SENAL_SUSPENSION_FRACCION * reg["esperados"]
+        )
+    return por_senal
+
+
 def _resumen_marcador(valientes):
     evaluadas = [v for v in valientes if v.get("acierto") in (True, False)]
     aciertos = sum(1 for v in evaluadas if v["acierto"])
@@ -564,6 +611,8 @@ def _resumen_marcador(valientes):
             estado = "candidata_a_dinero"
         elif aciertos < SUSPENSION_FRACCION * esperados:
             estado = "suspendida"
+    por_senal = _atribucion_por_senal(evaluadas)
+    suspendidas = sorted(t for t, reg in por_senal.items() if reg["suspendida"])
     return {
         "evaluadas": len(evaluadas),
         "aciertos": aciertos,
@@ -572,7 +621,22 @@ def _resumen_marcador(valientes):
         "cobrado_hipotetico_eur": cobrado,
         "estado": estado,
         "avisar_a_marc": estado == "candidata_a_dinero",
+        "por_senal": por_senal,
+        "senales_suspendidas": suspendidas,
+        "criterio_suspension_senal": (
+            f"Prerregistrado (15/10/2026): una señal con >={SENAL_SUSPENSION_MIN_VALIENTES} "
+            f"valientes propias y aciertos < {int(SENAL_SUSPENSION_FRACCION * 100)}% de los "
+            "esperados se suspende sola (deja de contar como señal dura) y se anuncia. "
+            "Reactivarla la decide Marc."
+        ),
     }
+
+
+def senales_suspendidas_actuales(ruta_marcador=None):
+    """Señales suspendidas por el freno prerregistrado, leidas del marcador
+    de sombra REAL (no del backtest, que es una foto fija ya auditada)."""
+    marcador = cargar_json(Path(ruta_marcador or MARCADOR), {})
+    return set((marcador.get("resumen") or {}).get("senales_suspendidas") or [])
 
 
 def actualizar_marcador_valiente(dir_predicciones=None, dir_jornadas=None,
@@ -635,6 +699,15 @@ def actualizar_marcador_valiente(dir_predicciones=None, dir_jornadas=None,
         "resumen": resumen,
     }
     guardar_json(ruta_marcador, marcador)
+    if resumen.get("senales_suspendidas"):
+        print(
+            "LA_VALIENTE_SENAL_SUSPENDIDA: "
+            + ", ".join(resumen["senales_suspendidas"])
+            + " suspendida(s) por el freno prerregistrado (>="
+            + f"{SENAL_SUSPENSION_MIN_VALIENTES} valientes propias y aciertos < "
+            + f"{int(SENAL_SUSPENSION_FRACCION * 100)}% de esperados). Dejan de contar "
+            + "como señal dura; reactivarlas lo decide Marc."
+        )
     if resumen["avisar_a_marc"]:
         print(
             "LA_VALIENTE_CANDIDATA_A_DINERO: el marcador de sombra cumple el criterio "

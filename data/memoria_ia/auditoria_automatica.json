@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "descripcion": "Auto-auditoria con puerta del meta-aprendizaje (15/10/2026): cada 5 jornadas cerradas re-corre los barridos prerregistrados y SOLO reporta. Nada se aplica sin decision explicita de Marc.",
+  "generado_en": "2026-10-15T06:47:16.975007+00:00",
+  "jornadas_cerradas_al_auditar": 11,
+  "proxima_auditoria_con_jornadas": 16,
+  "frenos": "Cada 5 jornadas cerradas; peso D-C: candidato solo con mejora RPS > 0.002 y >=60 partidos era-D-C; vetos Valiente por separado: candidato solo con >=25 jornadas, veredicto VERDE y ratio >= al del criterio vivo. NUNCA aplica nada: decide Marc.",
+  "resultados": [
+    {
+      "modulo": "dixon_coles",
+      "titulo": "Peso Dixon-Coles (barrido era-D-C acumulada)",
+      "estado": "sin_cambios",
+      "detalle": "Sin cambios: mejor peso extra 1.0 con mejora 0.00763 sobre 14 partidos (umbral 0.002 con >=60 partidos).",
+      "numeros": {
+        "estado": "ok",
+        "partidos": 14,
+        "jornadas": [
+          12
+        ],
+        "rps_por_peso_extra": {
+          "0.0": 0.18121,
+          "0.1": 0.18006,
+          "0.2": 0.179,
+          "0.3": 0.17803,
+          "0.4": 0.17714,
+          "0.5": 0.17633,
+          "0.6": 0.17561,
+          "0.7": 0.17498,
+          "0.8": 0.17442,
+          "0.9": 0.17396,
+          "1.0": 0.17358
+        },
+        "mejor_peso_extra": 1.0,
+        "mejora_rps_vs_actual": 0.00763,
+        "umbral_mejora": 0.002,
+        "minimo_partidos": 60,
+        "candidato": false
+      }
+    },
+    {
+      "modulo": "veto_grandes",
+      "titulo": "La Valiente: veto grandes (por separado)",
+      "estado": "sin_cambios",
+      "detalle": "Sin cambios: 10 valientes, ratio 1.29 vs 1.3 del vivo en 13 jornadas (hacen falta >=25, VERDE y ratio >= vivo).",
+      "numeros": {
+        "ratio": 1.29,
+        "ratio_vivo": 1.3,
+        "candidato": false,
+        "minimo_jornadas": 25
+      },
+      "resumen_backtest": {
+        "jornadas_evaluadas": 13,
+        "valientes": 10,
+        "aciertos": 4,
+        "esperados": 3.09,
+        "apostado_hipotetico_eur": 10.0,
+        "cobrado_hipotetico_eur": 36.16,
+        "veredicto": "VERDE segun el prerregistro (aciertos >= esperados con >=2 aciertos): la señal merece la sombra, sigue sin merecer dinero."
+      }
+    },
+    {
+      "modulo": "veto_favorito_55",
+      "titulo": "La Valiente: veto favorito >=55% (por separado)",
+      "estado": "sin_cambios",
+      "detalle": "Sin cambios: 9 valientes, ratio 1.03 vs 1.3 del vivo en 13 jornadas (hacen falta >=25, VERDE y ratio >= vivo).",
+      "numeros": {
+        "ratio": 1.03,
+        "ratio_vivo": 1.3,
+        "candidato": false,
+        "minimo_jornadas": 25
+      },
+      "resumen_backtest": {
+        "jornadas_evaluadas": 13,
+        "valientes": 9,
+        "aciertos": 3,
+        "esperados": 2.91,
+        "apostado_hipotetico_eur": 9.0,
+        "cobrado_hipotetico_eur": 17.1,
+        "veredicto": "VERDE segun el prerregistro (aciertos >= esperados con >=2 aciertos): la señal merece la sombra, sigue sin merecer dinero."
+      }
+    }
+  ],
+  "candidatos": []
+}

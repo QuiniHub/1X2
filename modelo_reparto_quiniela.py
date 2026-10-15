@@ -134,12 +134,21 @@ class EvaluadorEV:
     """
 
     def __init__(self, p_real, pct_masa, recaudacion=RECAUDACION_DEFECTO,
-                 n_muestras=4000, semilla=20261013):
+                 n_muestras=4000, semilla=20261013, factor_acertantes=1.0):
         if len(p_real) != len(pct_masa):
             raise ValueError("p_real y pct_masa deben tener el mismo numero de partidos")
         self.n_partidos = len(p_real)
         self.recaudacion = float(recaudacion)
         self.n_muestras = int(n_muestras)
+        # Correccion de overdispersion de acertantes (meta-aprendizaje
+        # 15/10/2026): el modelo multinomial independiente subestima
+        # acertantes en jornadas de favoritos (masa correlacionada por
+        # reducidas/peñas, sesgo documentado en el TEST A del backtest). El
+        # factor multiplica el numero esperado de acertantes rivales (lam) y
+        # se re-ajusta solo con >=10 escrutinios reales, SIEMPRE acotado a
+        # [0,5x - 2x] -el freno se re-aplica aqui por si el JSON llegara
+        # corrupto. 1.0 = modelo original sin correccion.
+        self.factor_acertantes = min(max(float(factor_acertantes or 1.0), 0.5), 2.0)
         probs = np.array([[normalizar_probs(p)[s] for s in SIGNOS] for p in p_real])
         masa = np.array([[normalizar_probs(m)[s] for s in SIGNOS] for m in pct_masa])
         # suelos minimos: evitar divisiones por cero en las formas cerradas
@@ -169,7 +178,7 @@ class EvaluadorEV:
             nueva[:, 1:] += dist[:, :-1] * p[:, 0][:, None]
             dist = nueva
 
-        apuestas_totales = self.recaudacion / PRECIO_APUESTA
+        apuestas_totales = self.recaudacion / PRECIO_APUESTA * self.factor_acertantes
         cats = np.array(CATEGORIAS)
         lam = apuestas_totales * dist[:, cats]  # (n_muestras, 5)
         fondo = np.array([FRACCION_RECAUDACION[k] for k in CATEGORIAS]) * self.recaudacion
@@ -240,7 +249,7 @@ class EvaluadorEV:
         columnas = np.array(list(itertools.product(*opciones)))  # (C, 14)
         n_cols, n = columnas.shape
         pos = np.arange(n)
-        apuestas_totales = self.recaudacion / PRECIO_APUESTA
+        apuestas_totales = self.recaudacion / PRECIO_APUESTA * self.factor_acertantes
 
         p_col = self._probs[pos, columnas]   # (C, 14) prob real del signo jugado
         q_col = self._masa[pos, columnas]    # (C, 14) % masa del signo jugado

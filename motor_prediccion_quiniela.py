@@ -1597,8 +1597,41 @@ def ajustar_por_lesiones_laliga(probs, lesiones_local, lesiones_visitante):
 # (factor 0.5) tras el evento mas reciente (cese o nombramiento definitivo).
 EFECTO_REVULSIVO_DEBUT_FUERA = 5.0
 EFECTO_REVULSIVO_DEBUT_CASA = 3.5
+# Freno del meta-aprendizaje (15/10/2026): la re-estimacion automatica de los
+# efectos (bloque reestimacion_2627 de efecto_revulsivo.json, escrita por
+# aprendizaje_modulos.py solo con >=10 casos nuevos 26/27 por lado) queda
+# SIEMPRE acotada a +-8 puntos. El clamp se re-aplica aqui por si el JSON
+# llegara corrupto.
+EFECTO_REVULSIVO_MAX_PTS = 8.0
+EFECTO_REVULSIVO_PATH = DATA / "memoria_ia" / "efecto_revulsivo.json"
 CESES_ACTUALES_PATH = DATA / "memoria_ia" / "ceses_actuales.json"
 _CAL_REVULSIVO_CACHE = None
+_EFECTOS_REVULSIVO_CACHE = None
+
+
+def _efectos_revulsivo(datos=None):
+    """(efecto_debut_fuera, efecto_debut_casa) vivos: los del estudio base
+    (+5 boost fuera, 3,5 de recorte en casa) salvo re-estimacion del
+    meta-aprendizaje con >=10 casos nuevos 26/27, acotada a +-8 pts.
+    `datos` permite inyectar el JSON en tests; sin el, cache por proceso."""
+    global _EFECTOS_REVULSIVO_CACHE
+    if datos is None and _EFECTOS_REVULSIVO_CACHE is not None:
+        return _EFECTOS_REVULSIVO_CACHE
+    contenido = datos if datos is not None else cargar_json_generico(EFECTO_REVULSIVO_PATH)
+    bloque = (contenido or {}).get("reestimacion_2627") or {}
+    fuera, casa = EFECTO_REVULSIVO_DEBUT_FUERA, EFECTO_REVULSIVO_DEBUT_CASA
+    for campo, defecto in (("debut_fuera_pts", fuera), ("debut_casa_pts", casa)):
+        valor = bloque.get(campo)
+        if isinstance(valor, (int, float)):
+            acotado = max(-EFECTO_REVULSIVO_MAX_PTS, min(EFECTO_REVULSIVO_MAX_PTS, float(valor)))
+            if campo == "debut_fuera_pts":
+                fuera = acotado
+            else:
+                casa = acotado
+    resultado = (fuera, casa)
+    if datos is None:
+        _EFECTOS_REVULSIVO_CACHE = resultado
+    return resultado
 
 
 def _norm_revulsivo(texto):
@@ -1685,8 +1718,9 @@ def ajustar_por_revulsivo(probs, partido, ceses=None, contador=None):
             factor = 1.0 if jugados == 0 else 0.5
             tecnico = cese.get("nuevo") or cese.get("interino") or "tecnico nuevo"
             etapa = "debut" if jugados == 0 else "2o partido"
+            efecto_fuera, efecto_casa = _efectos_revulsivo()
             if lado == "visitante":
-                ajuste = EFECTO_REVULSIVO_DEBUT_FUERA * factor
+                ajuste = efecto_fuera * factor
                 p[signo_equipo] = float(p.get(signo_equipo, 0)) + ajuste
                 p[signo_rival] = float(p.get(signo_rival, 0)) - ajuste * 0.7
                 p["X"] = float(p.get("X", 0)) - ajuste * 0.3
@@ -1695,7 +1729,7 @@ def ajustar_por_revulsivo(probs, partido, ceses=None, contador=None):
                     f"infravalorado por el mercado (+0,26 sobre cuotas y 36% de victoria en 70 ceses 23/24-25/26)."
                 )
             else:
-                ajuste = EFECTO_REVULSIVO_DEBUT_CASA * factor
+                ajuste = efecto_casa * factor
                 p[signo_equipo] = float(p.get(signo_equipo, 0)) - ajuste
                 p[signo_rival] = float(p.get(signo_rival, 0)) + ajuste * 0.6
                 p["X"] = float(p.get("X", 0)) + ajuste * 0.4
@@ -1711,6 +1745,9 @@ def ajustar_por_revulsivo(probs, partido, ceses=None, contador=None):
                 "etapa": etapa,
                 "tecnico": tecnico,
                 "partidos_desde_evento": jugados,
+                "efecto_pts": round(ajuste, 2),
+                "efecto_reestimado": (efecto_fuera, efecto_casa) != (
+                    EFECTO_REVULSIVO_DEBUT_FUERA, EFECTO_REVULSIVO_DEBUT_CASA),
             }
     if not lecturas:
         return probs, 0.0, [], {"activo": False}

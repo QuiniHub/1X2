@@ -419,6 +419,36 @@
     details.aviso-det > summary { list-style:none; cursor:pointer; }
     details.aviso-det > summary::-webkit-details-marker { display:none; }
     .aviso-texto-largo { font-size:12px; color:var(--muted,#64748b); padding:6px 2px 2px 26px; }
+    /* 🧪 Laboratorio (15/10/2026): portada de 4 tarjetas grandes -icono, UN
+       numero titular y UN semaforo- que se despliegan (details) a su tabla
+       jornada a jornada. Condicion de Marc: entenderse a la 1a. */
+    .lab-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:14px; }
+    .lab-card { background:var(--card); border:1px solid var(--soft); border-radius:var(--radius); box-shadow:0 10px 28px rgba(23,32,51,.05); padding:18px; }
+    .lab-card .lab-icono { font-size:26px; }
+    .lab-card h3 { font-size:16px; margin:6px 0 2px; letter-spacing:-.02em; }
+    .lab-card .lab-promesa { font-size:11px; color:var(--muted); min-height:28px; }
+    .lab-card .lab-numero { font-size:clamp(19px, 2.6vw, 24px); font-weight:900; letter-spacing:-.04em; margin:8px 0 6px; line-height:1.2; }
+    .lab-sem { display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:800; padding:5px 10px; border-radius:999px; background:var(--soft-2); }
+    .lab-sem .punto-sem { width:10px; height:10px; border-radius:50%; flex:none; }
+    .lab-sem.verde { color:#136b4f; } .lab-sem.verde .punto-sem { background:var(--green); }
+    .lab-sem.ambar { color:#8a5312; } .lab-sem.ambar .punto-sem { background:var(--amber); }
+    .lab-sem.rojo  { color:#992f2f; } .lab-sem.rojo  .punto-sem { background:var(--danger); }
+    details.lab-det { margin-top:12px; border-top:1px solid var(--soft); padding-top:8px; }
+    details.lab-det > summary { list-style:none; cursor:pointer; font-size:12px; font-weight:800; color:var(--blue); }
+    details.lab-det > summary::-webkit-details-marker { display:none; }
+    details.lab-det[open] > summary .lab-flecha { transform:rotate(90deg); }
+    .lab-flecha { display:inline-block; transition:transform .15s ease; }
+    .lab-tabla-wrap { overflow-x:auto; margin-top:8px; }
+    .lab-tabla { width:100%; border-collapse:collapse; font-size:11.5px; }
+    .lab-tabla th { text-align:left; color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.04em; padding:4px 6px; border-bottom:1px solid var(--soft); white-space:nowrap; }
+    .lab-tabla td { padding:4px 6px; border-bottom:1px solid var(--soft-2); white-space:nowrap; }
+    .lab-ajuste { margin-top:8px; font-size:11px; color:var(--muted); background:var(--soft-2); border-radius:9px; padding:7px 9px; }
+    .lab-candidato { margin-bottom:14px; padding:12px 14px; border-radius:14px;
+      background:linear-gradient(135deg, #b8860b12, #534ab710); border:2px solid #b8860b55;
+      font-size:13px; line-height:1.55; }
+    .lab-candidato .lab-cand-titulo { font-weight:900; font-size:14px; color:#8a6206; display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+    .lab-candidato .lab-cand-titulo .punto { width:10px; height:10px; border-radius:50%; background:var(--amber); animation:avisoPulso 1.4s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { .lab-candidato .lab-cand-titulo .punto { animation:none; } }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -441,6 +471,7 @@
       <button class="tab-btn" data-tab="historial">Historial</button>
       <button class="tab-btn" data-tab="jugadas">Quinielas Jugadas</button>
       <button class="tab-btn" data-tab="liga" id="tabLigaLabel">Liga 26/27</button>
+      <button class="tab-btn" data-tab="laboratorio">🧪 Laboratorio</button>
       <button class="tab-btn" data-tab="chat">🧠 IA</button>
     </nav>
 
@@ -622,6 +653,22 @@
         </div>
         <div class="card-body" id="calContent" style="padding:8px 0"></div>
       </div>
+    </section>
+
+    <!-- 🧪 Laboratorio (15/10/2026): el cuaderno de meta-aprendizaje por
+         modulo (aprendizaje_modulos.py). Portada = 4 tarjetas grandes con un
+         numero y un semaforo cada una; la tabla jornada a jornada vive dentro
+         del details de cada tarjeta. La banda "candidato a cambio" solo
+         aparece cuando auditoria_automatica.json trae candidatos. -->
+    <section id="laboratorio" class="tab-panel">
+      <div id="labCandidato"></div>
+      <div class="lab-grid" id="labCards"></div>
+      <p class="subtitle" id="labLeyenda" style="margin-top:14px;font-size:13px">
+        <span class="lab-sem verde"><span class="punto-sem"></span>verde</span> cumple su promesa ·
+        <span class="lab-sem ambar"><span class="punto-sem"></span>ámbar</span> en vigilancia ·
+        <span class="lab-sem rojo"><span class="punto-sem"></span>rojo</span> suspendido o bajo promesa
+        — todo medido con datos congelados antes de cada cierre, sin trampas retrospectivas.
+      </p>
     </section>
 
     <section id="chat" class="tab-panel">
@@ -1458,6 +1505,164 @@
         ${advertencia}
         ${criterio}
         <p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ ${escapeHtml(bloque?.aviso || 'Experimental: modo sombra, sin dinero hasta graduarse con el criterio prerregistrado.')}</p>`;
+    }
+
+    // 🧪 Laboratorio (15/10/2026): pinta el cuaderno de meta-aprendizaje por
+    // modulo (aprendizaje_modulos.json). La logica de semaforos/numeros vive
+    // en Python y esta testeada; aqui SOLO se pinta. Portada = 4 tarjetas
+    // grandes con un numero y un semaforo; la tabla jornada a jornada va en
+    // el <details> de cada tarjeta (mismo patron que el panel de avisos).
+    function labNum(v, dec = 2) {
+      if (v === null || v === undefined || v === '' || Number.isNaN(Number(v))) return '—';
+      return Number(v).toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    }
+    function labSemaforo(resumen) {
+      const sem = ['verde', 'ambar', 'rojo'].includes(resumen?.semaforo) ? resumen.semaforo : 'ambar';
+      const texto = resumen?.texto_semaforo || 'en vigilancia';
+      return `<span class="lab-sem ${sem}"><span class="punto-sem"></span>${escapeHtml(texto)}</span>`;
+    }
+    function labAjuste(ajuste, textoSinAjuste) {
+      if (!ajuste || ajuste.estado !== 'ajustado') {
+        const motivo = ajuste?.motivo || textoSinAjuste || 'sin ajustes automáticos aplicados';
+        return `<div class="lab-ajuste">🔧 <b>Último ajuste automático:</b> ninguno — ${escapeHtml(motivo)}</div>`;
+      }
+      const fecha = ajuste.actualizado_en ? new Date(ajuste.actualizado_en).toLocaleDateString('es-ES') : '?';
+      let magnitud = '';
+      if (ajuste.valor !== undefined) magnitud = `factor de acertantes ×${labNum(ajuste.valor)} (${ajuste.escrutinios} escrutinios reales)`;
+      else if (ajuste.debut_fuera_pts !== undefined || ajuste.debut_casa_pts !== undefined) {
+        magnitud = ['debut fuera ' + (ajuste.debut_fuera_pts !== undefined ? labNum(ajuste.debut_fuera_pts, 1) + ' pts' : 'sin tocar'),
+          'casa ' + (ajuste.debut_casa_pts !== undefined ? labNum(ajuste.debut_casa_pts, 1) + ' pts' : 'sin tocar')].join(' · ');
+      } else if (arr(ajuste.senales_suspendidas).length) {
+        magnitud = `señal(es) suspendida(s): ${arr(ajuste.senales_suspendidas).join(', ')}`;
+      }
+      return `<div class="lab-ajuste">🔧 <b>Último ajuste automático</b> (${escapeHtml(fecha)}): ${escapeHtml(magnitud)}<br>Freno: ${escapeHtml(ajuste.freno || '')}</div>`;
+    }
+    function labTabla(cabeceras, filas) {
+      if (!filas.length) return '<p class="subtitle" style="font-size:12px;margin:8px 0 0">Sin filas todavía.</p>';
+      return `<div class="lab-tabla-wrap"><table class="lab-tabla">
+        <thead><tr>${cabeceras.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead>
+        <tbody>${filas.map(f => `<tr>${f.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table></div>`;
+    }
+    function labCard(icono, titulo, promesa, resumen, numeroHtml, detalleHtml, ajusteHtml) {
+      return `<div class="lab-card">
+        <div class="lab-icono">${icono}</div>
+        <h3>${escapeHtml(titulo)}</h3>
+        <div class="lab-promesa">${escapeHtml(promesa)}</div>
+        <div class="lab-numero">${numeroHtml}</div>
+        ${labSemaforo(resumen)}
+        <details class="lab-det"><summary><span class="lab-flecha">▸</span> ver jornada a jornada</summary>
+          ${detalleHtml}
+          ${ajusteHtml}
+        </details>
+      </div>`;
+    }
+    // Un check (verde) o una cruz segun acierto; '—' si no hay dato.
+    function labOk(v) { return v === true ? '✅' : (v === false ? '❌' : '—'); }
+
+    function renderLaboratorio() {
+      const cont = qs('#labCards');
+      const banda = qs('#labCandidato');
+      if (!cont) return;
+      const cuaderno = state.aprendizajeModulos;
+      const auditoria = state.auditoriaAutomatica;
+
+      // Banda "candidato a cambio": SOLO visible cuando la auditoria trae
+      // candidatos (mismo lenguaje que el panel de avisos, punto pulsante).
+      const candidatos = arr(auditoria?.candidatos);
+      if (candidatos.length) {
+        banda.innerHTML = `<div class="lab-candidato">
+          <div class="lab-cand-titulo"><span class="punto"></span>🔔 CANDIDATO A CAMBIO (la auditoría automática encontró algo)</div>
+          ${candidatos.map(c => `<div style="margin:3px 0">${escapeHtml(c.mensaje || '')}</div>`).join('')}
+          <div style="margin-top:6px;font-weight:800">Nada se aplica solo: decides tú.</div>
+        </div>`;
+      } else {
+        banda.innerHTML = auditoria?.generado_en
+          ? `<p class="subtitle" style="margin:0 0 14px;font-size:12.5px">🔎 Última auditoría automática con ${fmt(auditoria.jornadas_cerradas_al_auditar, '?')} jornadas cerradas: <b>sin cambios que proponer</b>. La próxima corre sola al llegar a ${fmt(auditoria.proxima_auditoria_con_jornadas, '?')}.</p>`
+          : '';
+      }
+
+      const jornadas = cuaderno?.jornadas || {};
+      const claves = Object.keys(jornadas).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
+      if (!cuaderno || !claves.length) {
+        cont.innerHTML = `<div class="card" style="grid-column:1/-1"><div class="card-body" style="text-align:center;padding:36px">
+          <div style="font-size:30px;margin-bottom:8px">🧪</div>
+          <div style="font-weight:800;font-size:16px">El cuaderno se estrena al cerrar la próxima jornada.</div>
+          <p class="subtitle" style="margin-top:6px">Cada módulo (Dixon-Coles, boleto EV, La Valiente, revulsivo) apuntará aquí qué prometió y qué entregó, jornada a jornada.</p>
+        </div></div>`;
+        return;
+      }
+      const res = cuaderno.resumen || {};
+
+      // --- Dixon-Coles ---
+      const rDc = res.dixon_coles || {};
+      const filasDc = claves.map(j => {
+        const f = jornadas[j]?.dixon_coles || {};
+        if (f.estado !== 'ok') return [`J${j}`, `<span style="color:var(--muted)">${escapeHtml(f.motivo || f.estado || 'sin datos')}</span>`, '', '', '', '', ''];
+        const sesgoX = f.sesgo_dc_por_signo?.X?.sesgo_puntos;
+        return [`J${j}`, f.partidos, labNum(f.rps_dc, 3), labNum(f.rps_motor, 3), labNum(f.rps_mercado, 3),
+          `${fmt(f.aciertos_dc)}/${fmt(f.aciertos_motor)}/${fmt(f.aciertos_mercado)}`,
+          sesgoX === undefined ? '—' : `${sesgoX > 0 ? '+' : ''}${labNum(sesgoX, 1)} pts`];
+      });
+      const cardDc = labCard('📐', 'Dixon-Coles', 'Su promesa: igualar o batir al mercado (RPS, menor = mejor)', rDc,
+        rDc.valor == null ? 'sin datos aún' : `${labNum(rDc.valor, 3)} <span style="color:var(--muted);font-weight:700;font-size:14px">vs mercado</span> ${labNum(rDc.comparacion, 3)}`,
+        labTabla(['Jornada', 'Partidos', 'RPS D-C', 'RPS motor', 'RPS mercado', 'Aciertos D-C/motor/mercado', 'Sesgo X'], filasDc),
+        labAjuste(null, 'el peso 0,7 del D-C es estructural: solo cambia con backtest prerregistrado y entrada en DECISION_LOG'));
+
+      // --- Boleto EV ---
+      const rEv = res.boleto_ev || {};
+      const filasEv = claves.map(j => {
+        const f = jornadas[j]?.boleto_ev || {};
+        if (f.estado !== 'ok') return [`J${j}`, `<span style="color:var(--muted)">${escapeHtml(f.motivo || f.estado || 'sin datos')}</span>`, '', '', '', ''];
+        const p = f.premios_tabla_real_eur;
+        const eur = v => (p && v !== null && v !== undefined ? labNum(v) + ' €' : '—');
+        return [`J${j}`, fmt(f.aciertos_ev), fmt(f.aciertos_conservador), fmt(f.aciertos_jugado),
+          p ? `${eur(p.ev)} / ${eur(p.conservador)} / ${eur(p.jugado)}` : `<span style="color:var(--muted)">${escapeHtml(f.motivo_sin_premios || 'sin escrutinio')}</span>`,
+          f.fuente_boleto_ev === 'snapshot_pre_cierre' ? 'pre-cierre' : 'backtest'];
+      });
+      const cardEv = labCard('💶', 'Boleto EV del premio', 'Su promesa: maximizar euros, no aciertos (umbral: ≥50% de lo jugado)', rEv,
+        rEv.valor == null ? 'sin datos aún' : `${labNum(rEv.valor)} € <span style="color:var(--muted);font-weight:700;font-size:14px">vs nuestros</span> ${labNum(rEv.comparacion)} €`,
+        labTabla(['Jornada', 'Aciertos EV', 'Conserv.', 'Jugado', '€ EV / conserv. / jugado (tabla real)', 'Fuente'], filasEv),
+        labAjuste(rEv.ultimo_ajuste, 'hacen falta ≥10 escrutinios reales para re-ajustar el factor de acertantes'));
+
+      // --- La Valiente ---
+      const rVal = res.valiente || {};
+      const filasVal = claves.map(j => {
+        const f = jornadas[j]?.valiente || {};
+        if (f.estado !== 'valiente') return [`J${j}`, `<span style="color:var(--muted)">${escapeHtml(f.estado === 'sin_valiente' ? 'sin valiente (el criterio supo callarse)' : (f.estado || 'sin dato'))}</span>`, '', '', '', ''];
+        return [`J${j}`, escapeHtml(f.partido || ''), `<b>${escapeHtml(f.signo || '')}</b> (${labNum(f.prob_declarada, 0)}% vs masa ${labNum(f.masa_pct, 0)}%)`,
+          escapeHtml(arr(f.senales).join(', ')), labOk(f.acierto), f.pago_hipotetico_eur ? labNum(f.pago_hipotetico_eur) + ' €' : '0 €'];
+      });
+      const porSenal = rVal.por_senal || {};
+      const senalesHtml = Object.keys(porSenal).length
+        ? labTabla(['Señal', 'Valientes', 'Aciertos', 'Esperados', 'Estado'],
+            Object.entries(porSenal).map(([tipo, s]) => [escapeHtml(tipo), s.valientes, s.aciertos, labNum(s.esperados, 1),
+              s.suspendida ? '<b style="color:var(--danger)">SUSPENDIDA</b>' : 'activa']))
+        : '<p class="subtitle" style="font-size:12px;margin:8px 0 0">La atribución por señal empieza a contar con las valientes del marcador real (las de arriba con fuente backtest no puntúan señales).</p>';
+      const cardVal = labCard('🎯', 'La Valiente', 'Su promesa (en sombra): acertar al menos lo que declara', rVal,
+        `${fmt(rVal.valor, '—')} <span style="color:var(--muted);font-weight:700;font-size:14px">aciertos vs</span> ${labNum(rVal.comparacion, 1)} <span style="color:var(--muted);font-weight:700;font-size:14px">esperados</span>`,
+        labTabla(['Jornada', 'Pick', 'Signo', 'Señales', '¿Acertó?', 'Pago hipotético'], filasVal) + senalesHtml,
+        labAjuste(rVal.ultimo_ajuste, 'ninguna señal cumple el freno de suspensión (≥8 valientes propias y <50% de lo esperado)'));
+
+      // --- Revulsivo ---
+      const rRev = res.revulsivo || {};
+      const filasRev = [];
+      claves.forEach(j => {
+        const f = jornadas[j]?.revulsivo || {};
+        if (f.estado !== 'ok') { filasRev.push([`J${j}`, `<span style="color:var(--muted)">${escapeHtml(f.motivo || 'sin traza')}</span>`, '', '', '']); return; }
+        const casos = arr(f.casos);
+        if (!casos.length) { filasRev.push([`J${j}`, '<span style="color:var(--muted)">sin cambios de banquillo activos</span>', '', '', '']); return; }
+        casos.forEach(c => {
+          const vered = { ayudo: '<b style="color:var(--green)">ayudó</b>', neutro: 'neutro', perjudico: '<b style="color:var(--danger)">perjudicó</b>' }[c.veredicto] || 'pendiente';
+          filasRev.push([`J${j}`, escapeHtml(c.partido || ''), `${escapeHtml(c.equipo || '')} · ${escapeHtml(c.etapa || '')} ${c.lado === 'visitante' ? 'fuera' : 'en casa'} (${escapeHtml(c.tecnico || '')})`, escapeHtml(c.signo_real || '—'), vered]);
+        });
+      });
+      const cardRev = labCard('🔄', 'Revulsivo (cambio de banquillo)', 'Su promesa: el ajuste ±pts debe ayudar más de lo que estorba', rRev,
+        `${fmt(rRev.valor, '—')} <span style="color:var(--muted);font-weight:700;font-size:14px">ayudó de</span> ${fmt(rRev.comparacion, '—')} <span style="color:var(--muted);font-weight:700;font-size:14px">casos</span>`,
+        labTabla(['Jornada', 'Partido', 'Caso', 'Salió', 'Veredicto'], filasRev),
+        labAjuste(rRev.ultimo_ajuste, 'hacen falta ≥10 casos nuevos 26/27 por lado para re-estimar el efecto'));
+
+      cont.innerHTML = cardDc + cardEv + cardVal + cardRev;
     }
 
     function renderTicket() {
@@ -3303,6 +3508,25 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         bloqueCalibracion = `\nCALIBRACION REAL DE PROBABILIDADES (honestidad sobre fiabilidad, ${calibGlobal.partidos} partidos evaluados, muestra=${calibGlobal.muestra}):\nEl signo "top" del motor acierta el ${calibGlobal.precision_real ?? calibGlobal.precision_top}% de las veces en la practica (Brier=${calibGlobal.brier_medio}, logloss=${calibGlobal.logloss_medio}). Si preguntan por la fiabilidad de las probabilidades, cita este numero real en vez de asumir que un 50-60% de probabilidad del motor equivale a acertar ese % de veces.`;
       }
 
+      // 🧪 Meta-aprendizaje por modulo + auditoria automatica (15/10/2026):
+      // semaforos del Laboratorio y, sobre todo, los CANDIDATOS A CAMBIO que
+      // la auditoria haya encontrado (nunca se aplican solos: decide Marc).
+      let bloqueMetaAprendizaje = '';
+      const resMod = (state.aprendizajeModulos || {}).resumen || {};
+      const lineasMod = Object.entries(resMod).map(([mod, r]) =>
+        `${mod}: ${r.semaforo || '?'} (${r.titular || ''} — ${r.texto_semaforo || ''})`);
+      const auditoriaIA = state.auditoriaAutomatica || {};
+      const candidatosIA = arr(auditoriaIA.candidatos);
+      if (lineasMod.length || candidatosIA.length) {
+        bloqueMetaAprendizaje = `\nMETA-APRENDIZAJE POR MODULO (pestaña Laboratorio; verde=cumple su promesa, ambar=en vigilancia, rojo=suspendido/bajo promesa):\n${lineasMod.join('\n')}`;
+        if (candidatosIA.length) {
+          bloqueMetaAprendizaje += `\nAUDITORIA AUTOMATICA — CANDIDATOS A CAMBIO (SIN aplicar; la decision es siempre de Marc):\n` +
+            candidatosIA.map(c => `- ${c.mensaje}`).join('\n');
+        } else if (auditoriaIA.generado_en) {
+          bloqueMetaAprendizaje += `\nAuditoria automatica: sin cambios que proponer (ultima con ${auditoriaIA.jornadas_cerradas_al_auditar} jornadas cerradas; la proxima al llegar a ${auditoriaIA.proxima_auditoria_con_jornadas}).`;
+        }
+      }
+
       // Estado vivo IA -autocritica y clasificacion propia del motor sobre
       // esta misma jornada (generar_estado_vivo_ia.py +
       // ajustar_estado_vivo_motivacion.py), calculado pero nunca conectado
@@ -3388,6 +3612,7 @@ ${bloqueBoletoMillonario}
 ${bloqueBoletoEv}
 ${bloqueAvisoElige8}
 ${bloqueCalibracion}
+${bloqueMetaAprendizaje}
 ${bloqueDetallesH2H}
 ${bloqueLesionesLaliga}
 
@@ -4456,6 +4681,11 @@ No inventes — solo lo que ves con fondo oscuro.`;
       // Marcador de sombra de La Valiente (14/10/2026): acumulado de la
       // sorpresa formal por jornada. Carga aparte, mismo motivo que arriba.
       state.marcadorValiente = await getJson('data/memoria_ia/marcador_valiente.json', null);
+      // 🧪 Laboratorio (15/10/2026): cuaderno de meta-aprendizaje por modulo
+      // y auditoria automatica con puerta. Carga aparte, mismo motivo: si aun
+      // no existen, la pestaña lo dice claro en vez de romperse.
+      state.aprendizajeModulos = await getJson('data/memoria_ia/aprendizaje_modulos.json', null);
+      state.auditoriaAutomatica = await getJson('data/memoria_ia/auditoria_automatica.json', null);
       state.prediccion = pred;
       state.pleno15Data = pleno;
       state.aprendizaje = apr;
@@ -4532,6 +4762,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       renderHistory();
       renderQuinielasJugadas();
       renderLeague();
+      renderLaboratorio();
       restaurarHistorialChat();
     }
 

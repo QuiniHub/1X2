@@ -124,8 +124,11 @@ def masa_jornada(jornada):
     return masa if len(masa) >= 14 else None
 
 
-def evaluar_criterio(aplicar_vetos=False):
-    """Corre el criterio sobre J1-J13 y devuelve (filas, resumen)."""
+def evaluar_criterio(aplicar_vetos=False, tipos_vetos=None):
+    """Corre el criterio sobre las jornadas con % LAE versionados y devuelve
+    (filas, resumen). tipos_vetos (auditoria automatica, 15/10/2026) permite
+    re-probar cada veto v2 POR SEPARADO como pide DECISION_LOG 14/10; con
+    None el comportamiento es identico al original."""
     detalle = (cargar_json(APRENDIZAJE, {}) or {}).get("detalle") or []
     jornadas = sorted(jornadas_con_porcentajes(ETIQUETA))
     fuentes_base = cargar_fuentes()
@@ -143,7 +146,8 @@ def evaluar_criterio(aplicar_vetos=False):
         fuentes = dict(fuentes_base)
         fuentes["sorpresas_equipo"] = sorpresas_por_equipo(detalle, set(jornadas), jornada)
         eleccion, evaluados, vetados = elegir_valiente(
-            partidos, masa, fuentes, aplicar_vetos=aplicar_vetos)
+            partidos, masa, fuentes, aplicar_vetos=aplicar_vetos,
+            tipos_vetos=tipos_vetos)
         if eleccion is None:
             filas.append({
                 "jornada": jornada,

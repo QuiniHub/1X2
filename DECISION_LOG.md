@@ -1408,3 +1408,78 @@ quitó fallos y probablemente merece vivir; el del 55% necesita más muestra o u
 más alto), siempre con nuevo prerregistro — y nunca ajustando el umbral después de ver
 los datos, que es exactamente el pecado que este log existe para impedir. 8 tests nuevos
 (45 en el módulo, suite completa en verde).
+
+### 2026-10-15 — Meta-aprendizaje por módulo + pestaña 🧪 Laboratorio (frenos prerregistrados; nada estructural se auto-cambia)
+
+Marc aprobó que cada módulo con promesa propia lleve su cuaderno y que la web lo cuente
+"a la 1ª y de manera clara". Pieza central: `aprendizaje_modulos.py`, enganchado al ciclo
+de aprendizaje (`generar_artefactos_compuerta_aprendizaje.py`, mismo patrón que el
+marcador de La Valiente: import tardío + try, un fallo suyo no tumba la compuerta).
+
+**1) Cuaderno (`data/memoria_ia/aprendizaje_modulos.json`)**, por jornada cerrada de la
+temporada (filtro anti-reinicio-de-numeración: % LAE versionados, como la Valiente), todo
+con datos pre-cierre (snapshots inmutables + % LAE versionados):
+- **Dixon-Coles**: re-entrenado a la víspera (patrón test_b del backtest), RPS propio vs
+  motor completo vs mercado Losilla, aciertos y sesgo por signo. Foto J1-J12 (100
+  partidos cubiertos): **RPS D-C 0,200 vs mercado 0,206 vs motor 0,213** — cumple su
+  promesa de igualar/batir al mercado. La fila D-C se cachea por jornada (entrenar es
+  caro); el resto se recalcula cada ciclo para recoger datos que llegan tarde
+  (escrutinios).
+- **Boleto EV**: signos (del snapshot pre-cierre desde la J14; para J1-J12, la
+  reconstrucción walk-forward del backtest prerregistrado), aciertos y premio hipotético
+  con la TABLA REAL del escrutinio (`calcular_premio_multicolumna`), vs conservadora y
+  vs lo jugado. Foto: 39,67€ vs 64,63€ (conservadora) vs 159,74€ (jugado) — coherente
+  con el TEST B (39,64€/159,74€); sigue bajo su umbral de sanidad y así se muestra.
+- **La Valiente**: fila del marcador de sombra (o del backtest mientras se estrena) +
+  **atribución POR SEÑAL** nueva en `marcador_valiente.json` (resumen.por_senal:
+  valientes/aciertos/esperados por señal; una valiente con dos señales suma en ambas).
+- **Revulsivo**: cada caso activado con resultado y veredicto prerregistrado por
+  dirección del empuje (fuera sube el 2: ayudó=2, neutro=X, perjudicó=1; en casa recorta
+  el 1: perjudicó=1, ayudó=X/2) + sorpresa_vs_mercado del caso (puntos reales − puntos
+  esperados por el mercado Losilla del snapshot). Único caso 26/27: Valencia debut de
+  Aguirre fuera (J12, salió X → neutro). Jornadas anteriores al módulo: "sin_traza",
+  honesto.
+
+**2) Auto-correcciones acotadas** (solo parámetros finos; el peso D-C y los
+umbrales/vetos de la Valiente NUNCA se auto-cambian), cada freno escrito en el código:
+- **Factor de overdispersión de acertantes** (reparto EV): mediana real/modelo sobre
+  celdas con ≥10 acertantes reales, SOLO con ≥10 escrutinios, acotado [0,5x-2x]
+  (`ajustes_automaticos.json` → lo lee `optimizador_ev_premio` y lo re-acota
+  `EvaluadorEV` por si el JSON llegara corrupto). Reconstrucción walk-forward sin fuga:
+  con 8-9 escrutinios NO dispara; con 10 → 0,94; con 11 → **0,96** (cuadra con el TEST A:
+  mediana modelo/real 1,042 ⇒ real/modelo ≈0,96 — el modelo SOBRE-estima levemente los
+  acertantes y el factor lo corrige hacia abajo, EV ligeramente más alto y más honesto).
+- **Re-estimación del efecto revulsivo**: agrega los casos 26/27 al estudio base (70
+  ceses) con su MISMO factor de conversión pts/sorpresa, SOLO con ≥10 casos nuevos por
+  lado, acotado ±8 pts (bloque `reestimacion_2627` de `efecto_revulsivo.json`; el motor
+  lo lee en `_efectos_revulsivo()` re-acotando). Hoy: 1 caso fuera, 0 en casa → freno
+  activo, sin ajuste (verificado).
+- **Suspensión por señal de La Valiente** (`senal_valiente.py`): una señal con ≥8
+  valientes propias en el marcador REAL y aciertos <50% de esperados se suspende sola
+  (deja de contar como señal dura en el bloque VIVO; el backtest canónico sigue
+  evaluando v1 íntegro), se anuncia (`LA_VALIENTE_SENAL_SUSPENDIDA`) y reactivarla lo
+  decide Marc. Hoy: 0 valientes reales → nada suspendido (verificado).
+
+**3) Auto-auditoría con puerta** (`auditoria_automatica.json`, cada 5 jornadas
+cerradas, SIN aplicar nada): barrido del peso D-C sobre la era-D-C acumulada (jornadas
+cuyo snapshot ya traza dixon_coles; candidato solo con mejora RPS >0,002 y ≥60 partidos,
+los umbrales del 13/10) y vetos v2 de la Valiente POR SEPARADO vía
+`evaluar_criterio(tipos_vetos=...)` (candidato solo con ≥25 jornadas, VERDE y ratio ≥
+vivo, la regla del 14/10). Primera ejecución (11 cerradas): **sin cambios** — mejor peso
+extra 1,0 con mejora 0,0076 pero solo 14 partidos era-D-C (<60); veto grandes ratio 1,29
+vs 1,30 del vivo y veto 55% ratio 1,03, ambos con 13 jornadas (<25). Próxima a las 16.
+Los candidatos, cuando los haya, salen como banda "CANDIDATO A CAMBIO … decides tú" en
+la pestaña Laboratorio y como bloque en el contexto del chat IA.
+
+**Pestaña 🧪 Laboratorio** (tras Liga 26/27): portada SIN tablas — 4 tarjetas grandes
+(icono, UN número titular, UN semáforo con texto corto: verde=cumple su promesa,
+ámbar=en vigilancia, rojo=suspendido/bajo promesa), cada una desplegable (details) a su
+tabla jornada a jornada con el "último ajuste automático" (fecha, magnitud, freno);
+leyenda de colores al pie; si el cuaderno no existe aún, "el cuaderno se estrena al
+cerrar la próxima jornada". Los semáforos/números se calculan en Python (testeados), la
+web solo pinta. Verificado en navegador real (servidor estático): con datos, con los
+JSON ausentes y en ancho móvil; consola limpia.
+
+**Tests**: 38 nuevos (`tests/test_aprendizaje_modulos.py`) — cuaderno, cada freno
+incluido que NO dispara bajo mínimos, clamps (2x, ±8), puerta de la auditoría, semáforos
+y cableado web. Suite completa: **591 en verde**.
