@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-17T14:11:22.987599+00:00",
+  "generado_en": "2026-10-17T17:00:54.829742+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -1824,22 +1824,22 @@
     },
     "14": {
       "jornada": 14,
-      "partidos_cerrados": 1,
-      "partidos_con_prediccion": 1,
-      "precision_boleto": 100.0,
-      "precision_top1": 100.0,
-      "brier_medio": 0.4247,
-      "logloss_medio": 0.7529,
+      "partidos_cerrados": 4,
+      "partidos_con_prediccion": 4,
+      "precision_boleto": 75.0,
+      "precision_top1": 50.0,
+      "brier_medio": 0.5258,
+      "logloss_medio": 0.8837,
       "por_tipo": {
         "FIJO": {
+          "total": 3,
+          "aciertos": 2,
+          "precision": 66.67
+        },
+        "DOBLE": {
           "total": 1,
           "aciertos": 1,
           "precision": 100.0
-        },
-        "DOBLE": {
-          "total": 0,
-          "aciertos": 0,
-          "precision": null
         },
         "TRIPLE": {
           "total": 0,
@@ -1848,25 +1848,64 @@
         }
       },
       "elige8": {
-        "selecciones": 0,
-        "aciertos": 0,
-        "precision": null
+        "selecciones": 1,
+        "aciertos": 1,
+        "precision": 100.0
       },
-      "surprise_score_medio": 32.8,
+      "surprise_score_medio": 43.0,
       "ranking_incertidumbre": [
+        {
+          "num": 8,
+          "partido": "SD Eibar - RCD Mallorca",
+          "incertidumbre": 132.81,
+          "surprise_score": 57.27,
+          "margen_probabilidad": 6.006
+        },
         {
           "num": 1,
           "partido": "RCD Espanyol de Barcelona - Club Atletico de Madrid",
           "incertidumbre": 128.61,
           "surprise_score": 32.8,
           "margen_probabilidad": 15.7
+        },
+        {
+          "num": 2,
+          "partido": "Villarreal CF - Elche CF",
+          "incertidumbre": 119.66,
+          "surprise_score": 56.87,
+          "margen_probabilidad": 20.0
+        },
+        {
+          "num": 11,
+          "partido": "Athletic Club (F) - Valencia (F)",
+          "incertidumbre": 103.76,
+          "surprise_score": 25.05,
+          "margen_probabilidad": 35.6
         }
       ],
       "ranking_elige8_confianza_real": [
         {
+          "num": 2,
+          "partido": "Villarreal CF - Elche CF",
+          "confianza_real_elige8": 46.52,
+          "elige8": true
+        },
+        {
+          "num": 11,
+          "partido": "Athletic Club (F) - Valencia (F)",
+          "confianza_real_elige8": 17.75,
+          "elige8": false
+        },
+        {
           "num": 1,
           "partido": "RCD Espanyol de Barcelona - Club Atletico de Madrid",
           "confianza_real_elige8": 14.63,
+          "elige8": false
+        },
+        {
+          "num": 8,
+          "partido": "SD Eibar - RCD Mallorca",
+          "confianza_real_elige8": 6.48,
           "elige8": false
         }
       ]
