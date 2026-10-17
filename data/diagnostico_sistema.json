@@ -1,25 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-17T06:05:23.269463+00:00",
+  "generado_en": "2026-10-17T08:40:57.287111+00:00",
   "estado": "critico_actualizacion",
   "score_salud": 45,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
     "jornada_actual": {
-      "jornada": 14,
-      "fecha": "Domingo, 18 de octubre de 2026",
-      "fecha_orden": "2026-10-18",
-      "estado": "abierta",
-      "partidos": 14,
-      "cerrados": 0,
-      "pendientes": 14,
-      "pendientes_totales_con_pleno15": 15,
-      "pleno15_cerrado": false,
-      "ultima_actualizacion_partido": "",
-      "path": "data/jornadas/jornada_14.json"
-    },
-    "proxima_jornada": {
       "jornada": 15,
       "fecha": "Miércoles, 21 de octubre de 2026",
       "fecha_orden": "2026-10-22",
@@ -31,6 +18,19 @@
       "pleno15_cerrado": false,
       "ultima_actualizacion_partido": "",
       "path": "data/jornadas/jornada_15.json"
+    },
+    "proxima_jornada": {
+      "jornada": 16,
+      "fecha": "Domingo, 25 de octubre de 2026",
+      "fecha_orden": "2026-10-26",
+      "estado": "abierta",
+      "partidos": 14,
+      "cerrados": 0,
+      "pendientes": 14,
+      "pendientes_totales_con_pleno15": 15,
+      "pleno15_cerrado": false,
+      "ultima_actualizacion_partido": "",
+      "path": "data/jornadas/jornada_16.json"
     },
     "ultimas": [
       {
@@ -101,9 +101,9 @@
     ]
   },
   "memoria_quinielas": {
-    "jugadas_persistidas_json": 31,
-    "jornadas_validadas_historial": 31,
-    "jornadas_memoria_real_total": 90,
+    "jugadas_persistidas_json": 32,
+    "jornadas_validadas_historial": 32,
+    "jornadas_memoria_real_total": 92,
     "jornadas_con_signo_nuestro": 28,
     "signos_nuestros_en_jornadas": 392,
     "estado": "memoria_propia_disponible",
@@ -115,25 +115,25 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 14,
-    "generado_en": "2026-10-17T06:04:57.155325+00:00",
+    "jornada": 15,
+    "generado_en": "2026-10-17T08:40:48.513477+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 8,
-      "dobles": 4,
-      "triples": 2,
+      "fijos": 14,
+      "dobles": 0,
+      "triples": 0,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 8,
-      "indice_sorpresa_max": 100.0,
+      "favoritos_atacables": 0,
+      "indice_sorpresa_max": 0.0,
       "calidad_datos": {
-        "alta": 10,
+        "alta": 0,
         "media": 0,
         "media_baja": 0,
-        "baja": 4
+        "baja": 0
       }
     },
-    "retenida_por_compuerta": false,
-    "motivo_bloqueo": null
+    "retenida_por_compuerta": true,
+    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 14 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 15 hasta cerrar y aprender la 14."
   },
   "clasificaciones": {
     "primera": {
@@ -184,9 +184,9 @@
     }
   },
   "fuentes": {
-    "memoria_horas": 0.02,
-    "estado_vivo_horas": 0.01,
-    "contexto_equipos_horas": 0.03,
+    "memoria_horas": 0.01,
+    "estado_vivo_horas": 0.0,
+    "contexto_equipos_horas": 2.62,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -260,7 +260,7 @@
     "partidos_cerrados": 336,
     "aciertos": 207,
     "precision": 61.61,
-    "generado_en": "2026-10-17T01:16:33.516042+00:00",
+    "generado_en": "2026-10-17T06:05:23.990548+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -270,20 +270,21 @@
       "detalle": "Athletic Club tiene 6 PJ en tabla, pero el calendario ya tiene 7 resultados."
     },
     {
-      "nivel": "alta",
-      "titulo": "Predicción de jornada antigua",
-      "detalle": "La jornada activa es 16 pero la última predicción dice 14."
-    },
-    {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
-      "detalle": "La jornada 14 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "detalle": "La jornada 15 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
       "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
     },
     {
       "nivel": "media",
+      "titulo": "Prediccion demasiado rigida",
+      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
+      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
+    },
+    {
+      "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 10 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -302,7 +303,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-10-17T06:05:23.269463+00:00",
+    "generado_en": "2026-10-17T08:40:57.287111+00:00",
     "estado": "critico",
     "score": 0,
     "alertas": [
@@ -310,11 +311,6 @@
         "nivel": "critica",
         "titulo": "Clasificacion primera congelada",
         "detalle": "Athletic Club tiene 6 PJ en tabla, pero el calendario ya tiene 7 resultados."
-      },
-      {
-        "nivel": "alta",
-        "titulo": "Predicción de jornada antigua",
-        "detalle": "La jornada activa es 16 pero la última predicción dice 14."
       }
     ],
     "jornadas": {
@@ -423,28 +419,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-10-17T06:04:26.237409+00:00"
+      "generado_en": "2026-10-17T08:40:20.180243+00:00"
     },
     "prediccion": {
-      "jornada": 14,
-      "generado_en": "2026-10-17T06:04:57.155325+00:00",
+      "jornada": 15,
+      "generado_en": "2026-10-17T08:40:48.513477+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 8,
-        "dobles": 4,
-        "triples": 2,
+        "fijos": 14,
+        "dobles": 0,
+        "triples": 0,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 8,
-        "indice_sorpresa_max": 100.0,
+        "favoritos_atacables": 0,
+        "indice_sorpresa_max": 0.0,
         "calidad_datos": {
-          "alta": 10,
+          "alta": 0,
           "media": 0,
           "media_baja": 0,
-          "baja": 4
+          "baja": 0
         }
       },
-      "retenida_por_compuerta": false,
-      "motivo_bloqueo": null
+      "retenida_por_compuerta": true,
+      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 14 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 15 hasta cerrar y aprender la 14."
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -554,6 +550,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-10-17T06:04:26.237409+00:00"
+    "generado_en": "2026-10-17T08:40:20.180243+00:00"
   }
 }
