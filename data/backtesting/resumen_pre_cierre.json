@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-17T10:36:58.279973+00:00",
+  "generado_en": "2026-10-17T14:12:10.490110+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 25,
-    "partidos_cerrados": 336,
-    "aciertos": 207,
-    "precision": 61.61
+    "partidos_cerrados": 337,
+    "aciertos": 208,
+    "precision": 61.72
   },
   "jornadas": [
     {
@@ -1284,10 +1284,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_14.json",
       "creado_en": "2026-10-15T22:43:58.692718+00:00",
       "prediccion_generada_en": "2026-10-15T22:43:58.692432+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
-      "aciertos": 0,
-      "precision": null,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 1,
+      "aciertos": 1,
+      "precision": 100.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -1308,8 +1308,8 @@
       },
       "por_tipo": {
         "FIJO": {
-          "total": 0,
-          "aciertos": 0
+          "total": 1,
+          "aciertos": 1
         },
         "DOBLE": {
           "total": 0,
@@ -1320,7 +1320,23 @@
           "aciertos": 0
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 1,
+          "partido": "RCD Espanyol de Barcelona - Club Atletico de Madrid",
+          "jugado": "2",
+          "tipo": "FIJO",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 19.1,
+            "X": 31.7,
+            "2": 49.2
+          },
+          "incertidumbre": 130.91,
+          "probabilidad_sorpresa": 61.0
+        }
+      ]
     },
     {
       "jornada": 2,
