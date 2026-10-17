@@ -1,0 +1,324 @@
+{
+  "version": 1,
+  "generado_en": "2026-10-17T16:52:48.974808+00:00",
+  "descripcion": "Estudio prerregistrado de precursores de sorpresa en NUESTROS datos (sorpresa = no gana el favorito). Prerregistro completo en el docstring de estudio_ver_sorpresas.py; umbrales fijados antes de calcular.",
+  "prerregistro": {
+    "veredicto": "UTILIZABLE: n_con>=30 y |diff|>=2*SE; DEBIL: >=1*SE; clustering: p<0.05. Candidata solo si UTILIZABLE, sube la tasa y es coherente entre datasets.",
+    "aviso_multiples_contrastes": "Con ~14 contrastes, un falso positivo a 2 SE es esperable: ninguna candidata se integra sin su propio backtest de señal prerregistrado.",
+    "avisos_fuga": [
+      "equipos_x_fiabilidad.json incluye los pocos partidos ya jugados de 26/27 (fuga minima declarada en A6/A7).",
+      "El archivo H2H agregado solo se aplica a filas 26/27 (A8); en B5 se recalcula acumulado y limpio."
+    ]
+  },
+  "dataset_motor": {
+    "partidos": 393,
+    "temporadas": [
+      "2025_2026",
+      "2026_2027"
+    ],
+    "tasa_sorpresa_base_pct": 45.5,
+    "tasa_sorpresa_maxima_pct": 18.6,
+    "features": [
+      {
+        "feature": "A1_banda_prob_favorito",
+        "descripcion": "Favorito motor <45% (con) vs >=55% (sin); banda intermedia excluida.",
+        "n_con": 205,
+        "tasa_sorpresa_con_pct": 52.2,
+        "n_sin": 67,
+        "tasa_sorpresa_sin_pct": 28.4,
+        "diff_puntos": 23.8,
+        "se_puntos": 6.5,
+        "z": 3.65,
+        "veredicto": "UTILIZABLE"
+      },
+      {
+        "feature": "A2_favorito_distinto_mercado",
+        "descripcion": "El favorito del motor no coincide con el del mercado losilla pre-cierre.",
+        "n_con": 56,
+        "tasa_sorpresa_con_pct": 64.3,
+        "n_sin": 143,
+        "tasa_sorpresa_sin_pct": 41.3,
+        "diff_puntos": 23.0,
+        "se_puntos": 7.6,
+        "z": 3.02,
+        "veredicto": "UTILIZABLE"
+      },
+      {
+        "feature": "A3_masa_favorito_cara",
+        "descripcion": "La masa LAE juega el favorito al >=70% (solo 26/27 con % versionados).",
+        "n_con": 49,
+        "tasa_sorpresa_con_pct": 20.4,
+        "n_sin": 134,
+        "tasa_sorpresa_sin_pct": 59.0,
+        "diff_puntos": -38.6,
+        "se_puntos": 7.2,
+        "z": -5.39,
+        "veredicto": "UTILIZABLE"
+      },
+      {
+        "feature": "A4_sobrecompra_publico",
+        "descripcion": "Masa LAE del favorito >= prob motor + 10 pts.",
+        "n_con": 82,
+        "tasa_sorpresa_con_pct": 34.1,
+        "n_sin": 101,
+        "tasa_sorpresa_sin_pct": 60.4,
+        "diff_puntos": -26.3,
+        "se_puntos": 7.1,
+        "z": -3.68,
+        "veredicto": "UTILIZABLE"
+      },
+      {
+        "feature": "A5_racha_favorito",
+        "descripcion": "El favorito trae >=2 sorpresas positivas en sus ultimos 3 evaluados.",
+        "n_con": 8,
+        "tasa_sorpresa_con_pct": 75.0,
+        "n_sin": 111,
+        "tasa_sorpresa_sin_pct": 44.1,
+        "diff_puntos": 30.9,
+        "se_puntos": 16.0,
+        "z": 1.93,
+        "veredicto": "NADA"
+      },
+      {
+        "feature": "A6_empatador_en_partido",
+        "descripcion": "Algun equipo empatador historico (x_pct >= 32%).",
+        "n_con": 55,
+        "tasa_sorpresa_con_pct": 45.5,
+        "n_sin": 338,
+        "tasa_sorpresa_sin_pct": 45.6,
+        "diff_puntos": -0.1,
+        "se_puntos": 7.2,
+        "z": -0.01,
+        "veredicto": "NADA"
+      },
+      {
+        "feature": "A7_nemesis_en_partido",
+        "descripcion": "Algun equipo nemesis nuestro (>=6 apariciones, <=33% acierto).",
+        "n_con": 31,
+        "tasa_sorpresa_con_pct": 64.5,
+        "n_sin": 362,
+        "tasa_sorpresa_sin_pct": 43.9,
+        "diff_puntos": 20.6,
+        "se_puntos": 9.0,
+        "z": 2.29,
+        "veredicto": "UTILIZABLE"
+      },
+      {
+        "feature": "A8_h2h_caotico",
+        "descripcion": "Cruce con tasa de sorpresa historica >=50% (2+ casos); solo filas 26/27.",
+        "n_con": 27,
+        "tasa_sorpresa_con_pct": 51.9,
+        "n_sin": 184,
+        "tasa_sorpresa_sin_pct": 46.2,
+        "diff_puntos": 5.7,
+        "se_puntos": 10.3,
+        "z": 0.55,
+        "veredicto": "NADA"
+      },
+      {
+        "feature": "A9_favorito_visitante",
+        "descripcion": "El favorito del motor juega fuera (signo 2) vs en casa (signo 1).",
+        "n_con": 116,
+        "tasa_sorpresa_con_pct": 44.0,
+        "n_sin": 215,
+        "tasa_sorpresa_sin_pct": 39.5,
+        "diff_puntos": 4.5,
+        "se_puntos": 5.7,
+        "z": 0.79,
+        "veredicto": "NADA"
+      },
+      {
+        "feature": "A10_entre_semana",
+        "descripcion": "Partido en martes-jueves vs resto (solo filas con fecha por partido).",
+        "n_con": 73,
+        "tasa_sorpresa_con_pct": 47.9,
+        "n_sin": 320,
+        "tasa_sorpresa_sin_pct": 45.0,
+        "diff_puntos": 2.9,
+        "se_puntos": 6.5,
+        "z": 0.45,
+        "veredicto": "NADA"
+      }
+    ]
+  },
+  "dataset_cuotas": {
+    "partidos": 2525,
+    "tasa_sorpresa_base_pct": 48.6,
+    "tasa_por_banda_cuota": {
+      "1.50-1.99": {
+        "n": 913,
+        "sorpresas": 395,
+        "tasa_pct": 43.3
+      },
+      "2.00-2.49": {
+        "n": 1015,
+        "sorpresas": 565,
+        "tasa_pct": 55.7
+      },
+      "<1.50": {
+        "n": 243,
+        "sorpresas": 50,
+        "tasa_pct": 20.6
+      },
+      ">=2.50": {
+        "n": 354,
+        "sorpresas": 217,
+        "tasa_pct": 61.3
+      }
+    },
+    "features": [
+      {
+        "feature": "B1_banda_cuota_favorito",
+        "descripcion": "Favorito a cuota <1.50 (con) vs >=2.50 (sin); bandas intermedias excluidas.",
+        "n_con": 243,
+        "tasa_sorpresa_con_pct": 20.6,
+        "n_sin": 354,
+        "tasa_sorpresa_sin_pct": 61.3,
+        "diff_puntos": -40.7,
+        "se_puntos": 3.7,
+        "z": -11.1,
+        "veredicto": "UTILIZABLE"
+      },
+      {
+        "feature": "B2_favorito_visitante",
+        "descripcion": "El favorito por cuotas juega fuera vs en casa.",
+        "n_con": 572,
+        "tasa_sorpresa_con_pct": 51.7,
+        "n_sin": 1945,
+        "tasa_sorpresa_sin_pct": 47.7,
+        "diff_puntos": 4.0,
+        "se_puntos": 2.4,
+        "z": 1.68,
+        "veredicto": "DEBIL"
+      },
+      {
+        "feature": "B3_entre_semana",
+        "descripcion": "Partido en martes-jueves vs resto.",
+        "n_con": 195,
+        "tasa_sorpresa_con_pct": 44.6,
+        "n_sin": 2330,
+        "tasa_sorpresa_sin_pct": 48.9,
+        "diff_puntos": -4.3,
+        "se_puntos": 3.7,
+        "z": -1.16,
+        "veredicto": "DEBIL"
+      },
+      {
+        "feature": "B4_racha_favorito",
+        "descripcion": "Favorito con >=2 sorpresas positivas en sus ultimos 3 partidos (acumulado sin fuga).",
+        "n_con": 78,
+        "tasa_sorpresa_con_pct": 51.3,
+        "n_sin": 2369,
+        "tasa_sorpresa_sin_pct": 48.4,
+        "diff_puntos": 2.9,
+        "se_puntos": 5.8,
+        "z": 0.5,
+        "veredicto": "NADA"
+      },
+      {
+        "feature": "B5_h2h_previo_caotico",
+        "descripcion": "El par trae >=50% de sorpresas en >=2 cruces anteriores (acumulado sin fuga).",
+        "n_con": 651,
+        "tasa_sorpresa_con_pct": 49.3,
+        "n_sin": 401,
+        "tasa_sorpresa_sin_pct": 47.6,
+        "diff_puntos": 1.7,
+        "se_puntos": 3.2,
+        "z": 0.54,
+        "veredicto": "NADA"
+      },
+      {
+        "feature": "B6_favorito_europeo",
+        "descripcion": "El favorito disputa competicion europea esa temporada (solo Primera; proxy, no 'jugo esa semana').",
+        "n_con": 624,
+        "tasa_sorpresa_con_pct": 39.9,
+        "n_sin": 514,
+        "tasa_sorpresa_sin_pct": 51.2,
+        "diff_puntos": -11.3,
+        "se_puntos": 3.0,
+        "z": -3.83,
+        "veredicto": "UTILIZABLE"
+      }
+    ]
+  },
+  "clustering": {
+    "C1_permutacion_estratificada": {
+      "jornadas": 223,
+      "partidos": 3122,
+      "varianza_observada": 3.97,
+      "varianza_media_permutada": 3.79,
+      "ratio": 1.05,
+      "p_valor": 0.2895,
+      "permutaciones": 2000,
+      "veredicto": "NADA"
+    },
+    "C2_persistencia_jornada_loca": {
+      "definicion": "jornada loca = >=8 sorpresas del favorito del publico (de 14)",
+      "jornadas": 223,
+      "jornadas_locas": 72,
+      "base_pct": 32.3,
+      "tras_loca_n": 70,
+      "tras_loca_pct": 35.7,
+      "diff_puntos": 3.4,
+      "se_puntos": 6.5,
+      "z": 0.53,
+      "veredicto": "NADA"
+    },
+    "C3_permutacion_favoritos_claros": {
+      "jornadas": 223,
+      "partidos": 739,
+      "varianza_observada": 0.74,
+      "varianza_media_permutada": 0.81,
+      "ratio": 0.92,
+      "p_valor": 0.8285,
+      "permutaciones": 2000,
+      "veredicto": "NADA"
+    },
+    "C4_jornada_entre_semana": {
+      "n_entre_semana": 924,
+      "tasa_entre_semana_pct": 41.9,
+      "n_fin_de_semana": 2198,
+      "tasa_fin_de_semana_pct": 47.0,
+      "diff_puntos": -5.1,
+      "se_puntos": 1.9,
+      "z": -2.63,
+      "veredicto": "UTILIZABLE"
+    },
+    "C5_dispersion_motor": {
+      "jornadas_completas": 28,
+      "sorpresas_medias_por_jornada": 6.39,
+      "esperadas_por_el_motor": 7.61,
+      "varianza_observada": 4.77,
+      "varianza_si_independientes": 3.79,
+      "ratio_dispersion": 1.26
+    },
+    "C6_perfil_sorpresas_jornada_loca": {
+      "descripcion": "De las sorpresas de cada tipo de jornada, % que tumbaron a un favorito claro del publico (>=60% de masa). Descriptivo, sin veredicto.",
+      "sorpresas_en_jornadas_locas": 618,
+      "pct_favorito_claro_en_locas": 10.8,
+      "sorpresas_en_jornadas_normales": 801,
+      "pct_favorito_claro_en_normales": 12.7
+    }
+  },
+  "candidatas_senal_valiente": [
+    {
+      "feature": "A2_favorito_distinto_mercado",
+      "descripcion": "El favorito del motor no coincide con el del mercado losilla pre-cierre.",
+      "diff_puntos": 23.0,
+      "z": 3.02,
+      "n_con": 56,
+      "coherente_entre_datasets": true,
+      "estado": "candidata_pendiente_de_backtest_de_senal"
+    },
+    {
+      "feature": "A7_nemesis_en_partido",
+      "descripcion": "Algun equipo nemesis nuestro (>=6 apariciones, <=33% acierto).",
+      "diff_puntos": 20.6,
+      "z": 2.29,
+      "n_con": 31,
+      "coherente_entre_datasets": true,
+      "estado": "candidata_pendiente_de_backtest_de_senal"
+    }
+  ],
+  "utilizables_descartadas": []
+}

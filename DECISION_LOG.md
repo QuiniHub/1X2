@@ -1483,3 +1483,120 @@ JSON ausentes y en ancho móvil; consola limpia.
 **Tests**: 38 nuevos (`tests/test_aprendizaje_modulos.py`) — cuaderno, cada freno
 incluido que NO dispara bajo mínimos, clamps (2x, ±8), puerta de la auditoría, semáforos
 y cableado web. Suite completa: **591 en verde**.
+
+### 2026-10-17 — Fijos calibrados: la DECISIÓN de cobertura ve al favorito corregido por su banda real (prerregistro ANTES de ejecutar el backtest)
+
+Petición de Marc (17/10, tras caer Villarreal 62% y Eibar 42% como fijos asumidos):
+"saber dónde colocamos fijos acertables". El diagnóstico ya estaba medido: la tabla
+`rps_calibracion.calibracion_favorito` (250 partidos) dice que el motor es INFRAconfiado
+en favoritos (30-40→40,5% real, 40-50→56,4%, 50-60→64,6%, 60-70→74,1% con n=27), pero
+las asignaciones fijo/doble/triple (`prioridad_cobertura/doble/triple` y los campos
+`prioridad_cobertura_*` que consume `computeAssignments` en la web) seguían usando las
+probabilidades CRUDAS. Esto NO toca las probabilidades publicadas, ni el RPS, ni la
+recomendación conservadora, ni `ajustar_por_calibracion` (que corrige el número final
+publicado con sus propios frenos): solo cambia QUÉ partidos se llevan los dobles/triples.
+
+**Diseño** (`motor_prediccion_quiniela.py`): `puntos_calibracion_favorito` (solo bandas
+con n≥30, mismo freno de muestra que `ajustar_por_calibracion`) +
+`prob_calibrada_favorito` (interpolación lineal de la corrección ENTRE centros de banda
+— nada de escalones — con decaimiento a 0 en una banda fuera de los centros medidos y
+identidad más allá o sin datos) + `probs_calibradas_cobertura` (favorito a su tasa real,
+los otros dos signos reescalados proporcionalmente: el orden 2º/3º no cambia y el doble
+cubre los mismos signos; solo cambia la COLOCACIÓN). Entra por la clave interna
+`_probs_cobertura`, que `prioridad_cobertura/doble/triple` leen con preferencia, detrás
+del flag `USAR_CALIBRACION_EN_COBERTURA`. Nota consciente: en la zona de decaimiento el
+mapa puede ser levemente no monótono (62%→64,4 vs 54,3%→64,6); afecta décimas de margen,
+se asume y queda escrito antes de mirar resultados.
+
+**PRERREGISTRO del backtest** (`backtest_fijos_calibrados.py`, escrito ANTES de la
+primera ejecución): reconstruir la colocación de las jornadas 26/27 cerradas con
+snapshots INMUTABLES pre-cierre, presupuesto = la estructura REALMENTE jugada por
+jornada (`quinielas_jugadas.json`, solo lectura), tabla de bandas reconstruida
+WALK-FORWARD por jornada (solo revisiones de jornadas cerradas antes de N; las de la
+temporada anterior siempre cuentan como pasado), y comparar signos-cubiertos-acertados
+crudo vs calibrado. La puntuación calibrada se calcula como prioridad exportada + delta
+de las funciones REALES del motor con/sin `_probs_cobertura` (lo que la reconstrucción
+no capte se cancela en la resta; el desvío reconstrucción-vs-exportado se reporta).
+CAVEAT honesto: `probabilidades_usadas` de las revisiones vienen del espejo
+`data/predicciones/` (la misma fuente de la tabla de producción); el corte walk-forward
+es por jornada, no por commit.
+
+**UMBRAL PRERREGISTRADO** (escrito aquí antes de ver ningún número): la colocación
+calibrada debe (a) cubrir en el ACUMULADO al menos los mismos signos acertados que la
+cruda y (b) ganar ≥1 acierto neto acumulado. Si no cumple AMBAS,
+`USAR_CALIBRACION_EN_COBERTURA` se queda en `False` y el experimento queda documentado
+con sus números (patrón vetos v2 de La Valiente: el prerregistro manda).
+
+**RESULTADO** (ejecutado tras escribir lo de arriba; `data/memoria_ia/
+backtest_fijos_calibrados.json`): 9 jornadas evaluables (J5-J13; J1-J4 quedan fuera
+honestamente porque su snapshot pre-cierre es de un motor anterior al 06/09 y no exporta
+`prioridad_cobertura_*`). **Signos cubiertos acertados: 88 calibrado vs 87 crudo (+1
+neto)**, ninguna jornada empeora, y el desvío máximo entre la prioridad cruda
+reconstruida y la exportada fue ≤0,01 (la reconstrucción es fiel). Los cambios de
+colocación fueron pocos y quirúrgicos: en J13 el calibrado movió el doble a
+Bodø/Glimt-Dortmund (1X2... crudo "2" falló, calibrado "12" acertó el 1) financiándolo
+desde Celta-Juventus (quedó fijo "2", que igualmente acertó). **Cumple el umbral
+prerregistrado al milímetro → `USAR_CALIBRACION_EN_COBERTURA = True`.** Lectura honesta:
++1 sobre 9 jornadas es señal débil; el prerregistro manda en ambas direcciones, así que
+se activa, pero queda apuntado que el seguimiento vivo es la tarjeta "Fijos por banda"
+del Laboratorio (abajo) y que si en ~10 jornadas más la colocación calibrada acumula
+peor que la cruda, se re-ejecuta este mismo backtest y el flag vuelve a `False` con
+nueva entrada aquí.
+
+**Aviso web "FIJO FORZADO"** (misma sesión): en el panel de avisos de `index.html`,
+cuando un partido queda FIJO en la jugada ACTUAL (selectedSigns, como los avisos
+existentes) y la probabilidad calibrada de su favorito queda <60%, sale la fila
+"🎯 FIJO FORZADO: <partido> fijo al N% (banda real M%) — candidato nºK si sueltas un
+doble", ordenadas de más débil a menos (nº1 = el primero a cubrir). La web replica la
+interpolación en JS (`probCalibradaFavorito`, mismas reglas: n≥30, decaimiento,
+identidad sin datos) leyendo la tabla de `metricas_probabilisticas.json` que ya carga;
+sin métricas no se muestra nada (identidad ⇒ sin falsa alarma). Se oculta en cuanto el
+partido se cubre con doble/triple.
+
+**Tarjeta Laboratorio "Fijos por banda"** (misma sesión): `aprendizaje_modulos.py` añade
+al cuaderno la fila `fijos_banda` (por jornada cerrada, los FIJOS realmente jugados de
+`quinielas_jugadas.json` con la probabilidad pre-cierre de su signo, agrupados por banda
+y comparados con la promesa de la banda real) y el resumen con semáforo (verde si los
+fijos aciertan ≥ lo que prometen sus bandas; ámbar en vigilancia/muestra <10; rojo por
+debajo). Solo reporta: ninguna auto-corrección nueva.
+
+## 2026-10-17 — Estudio "VER sorpresas": precursores en NUESTROS datos, prerregistrado
+
+**Contexto**: Marc pidió estudiar si se puede "aprender a VER los resultados sorpresa, con
+todo lo aprendido que sucede en varios partidos". La investigación mundial (14/10) dejó
+cerrada la sorpresa concreta (nadie la predice) y abierto minar los datos propios con
+prerregistro. Estudio on-demand nuevo: `estudio_ver_sorpresas.py` (patrón
+`estudio_distribucion_signos.py`), salida `data/memoria_ia/estudio_ver_sorpresas.json`,
+Parte 4 nueva en `INVESTIGACION_SORPRESAS.md`.
+
+**PRERREGISTRO** (en el docstring del script, escrito ANTES de calcular): sorpresa = no
+gana el favorito (motor: mayor probabilidad; cuotas: cuota mínima). 16 features en lista
+cerrada (A1-A10 sobre 393 partidos del motor 25/26-26/27; B1-B6 sobre 2.525 partidos con
+cuotas 23/24-25/26) + 6 tests de clustering (C1-C6 sobre 223 jornadas LAE con % público).
+Veredicto: UTILIZABLE = n≥30 y |diff| ≥ 2 EE; DÉBIL ≥ 1 EE; clustering p<0,05
+(permutación estratificada por banda de favorito, 2.000 permutaciones, semilla fija
+20261017). Candidata a señal solo si UTILIZABLE, sube la tasa y es coherente entre
+datasets. Sin fuga de futuro: rachas y H2H del dataset B recalculados acumulados; el
+archivo H2H agregado solo se aplica a filas 26/27; fuga mínima declarada en
+equipos_x_fiabilidad (incluye los pocos partidos 26/27 ya jugados).
+
+**RESULTADOS** (tabla completa en la Parte 4):
+- Clustering: NO hay. C1 p=0,29; C3 (favoritos claros) p=0,83; persistencia tras jornada
+  loca z=0,5; dispersión motor 1,26 (28 jornadas, compatible con 1). La independencia de
+  la literatura, confirmada en casa; "tras jornada loca no tocar nada" queda con número.
+- Lo único que VE la sorpresa es la probabilidad misma (A1/B1, calibración pura).
+- La brecha masa-motor mide el error del MOTOR (A4: masa ≥ motor+10 → 34,1% de sorpresa
+  vs 60,4% sin; el motor espera 7,61 sorpresas/jornada y salen 6,39). Coherente con el
+  selector ingenuo refutado el 14/10.
+- Enterrados con número propio: racha del favorito (B4 z=0,5), H2H caótico (A8 z=0,55,
+  B5 z=0,54 — la señal h2h_caotico de La Valiente queda bajo vigilancia de su freno),
+  "Europa tumba favoritos" (B6: −11,3 pts, caen MENOS) y "entre semana hay más sorpresa"
+  (C4: −5,1 pts, hay MENOS).
+- **Candidatas (2)**, pendientes de backtest de señal con su propio prerregistro, SIN
+  tocar `senal_valiente.py` hoy: `favorito_distinto_mercado` (64,3% de caída del favorito
+  del motor cuando losilla no lo comparte, n=56, z=3,0) y `nemesis_en_partido` (+20,6
+  pts, n=31, z=2,3, con circularidad in-sample declarada: exige walk-forward).
+
+**Tests**: 13 nuevos (`tests/test_estudio_ver_sorpresas.py`): carga y definición de
+sorpresa, veredictos sintéticos, racha sin fuga de futuro, fechas en los 4 formatos
+reales, permutación detecta clustering extremo. Suite completa en verde antes del push.

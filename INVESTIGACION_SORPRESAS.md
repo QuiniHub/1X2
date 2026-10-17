@@ -108,3 +108,100 @@ la varianza (el edge se destruye cambiando de método tras una mala racha).
 
 *Fuentes completas en los tres informes de agentes (13 papers peer-reviewed citados con
 DOI/arXiv, más Clair-Letscher 2007, Buchdahl, Q84, Stryktipset y los históricos de pools).*
+
+## Parte 4 — Lo que dicen NUESTROS datos (17/10/2026)
+
+Estudio prerregistrado (`estudio_ver_sorpresas.py`, lista de features y umbrales escritos
+en el docstring ANTES de calcular; números completos en
+`data/memoria_ia/estudio_ver_sorpresas.json`). Pregunta de Marc: ¿qué sucedió ANTES de
+nuestras sorpresas reales, medible y sin fuga de futuro — y hay patrones "en varios
+partidos"?
+
+**Datasets**: (A) 393 partidos evaluados por el motor con probabilidades pre-partido y
+resultado oficial (25/26 J61-74 + 26/27 J1-13; sorpresa = no gana el favorito del motor,
+base 45,5%, tercer signo 18,6%); (B) 2.525 partidos de Primera/Segunda 23/24-25/26 con
+cuotas (favorito = cuota mínima, base 48,6%); (C) 223 jornadas LAE completas con % de
+apostantes (favorito del público). Veredicto prerregistrado: UTILIZABLE = n≥30 y
+diferencia ≥2 errores estándar; DÉBIL = ≥1 EE; clustering: p<0,05 (permutación
+estratificada por banda de favorito, 2.000 permutaciones, semilla fija).
+
+### Tabla de features (tasa de sorpresa con/sin, n, veredicto)
+
+| Feature | Con | Sin | diff (EE) | Veredicto |
+|---|---|---|---|---|
+| A1 prob favorito <45% vs ≥55% | 52,2% (205) | 28,4% (67) | +23,8 (6,5) | UTILIZABLE* |
+| A2 favorito motor ≠ favorito mercado | 64,3% (56) | 41,3% (143) | +23,0 (7,6) | **UTILIZABLE** |
+| A3 masa LAE del favorito ≥70% | 20,4% (49) | 59,0% (134) | −38,6 (7,2) | UTILIZABLE (dir. −) |
+| A4 sobrecompra: masa ≥ motor+10 pts | 34,1% (82) | 60,4% (101) | −26,3 (7,1) | UTILIZABLE (dir. −) |
+| A5 racha del favorito (≥2 sorpresas+ en 3) | 75,0% (8) | 44,1% (111) | +30,9 (16,0) | NADA (n=8) |
+| A6 empatador en el partido | 45,5% (55) | 45,6% (338) | −0,1 (7,2) | NADA |
+| A7 némesis nuestro en el partido | 64,5% (31) | 43,9% (362) | +20,6 (9,0) | UTILIZABLE** |
+| A8 H2H caótico histórico (solo 26/27) | 51,9% (27) | 46,2% (184) | +5,7 (10,3) | NADA |
+| A9 favorito visitante | 44,0% (116) | 39,5% (215) | +4,5 (5,7) | NADA |
+| A10 partido entre semana | 47,9% (73) | 45,0% (320) | +2,9 (6,5) | NADA |
+| B1 cuota favorito <1,50 vs ≥2,50 | 20,6% (243) | 61,3% (354) | −40,7 (3,7) | UTILIZABLE* |
+| B2 favorito visitante | 51,7% (572) | 47,7% (1.945) | +4,0 (2,4) | DÉBIL |
+| B3 partido entre semana | 44,6% (195) | 48,9% (2.330) | −4,3 (3,7) | DÉBIL (dir. −) |
+| B4 racha del favorito (acumulado limpio) | 51,3% (78) | 48,4% (2.369) | +2,9 (5,8) | NADA |
+| B5 H2H previo caótico (acumulado limpio) | 49,3% (651) | 47,6% (401) | +1,7 (3,2) | NADA |
+| B6 favorito con Europa esa temporada | 39,9% (624) | 51,2% (514) | −11,3 (2,9) | UTILIZABLE (dir. −) |
+
+\* A1/B1 son **calibración**, no señal accionable: la probabilidad ya está en el motor.
+Por banda de cuota: <1,50 → 20,6%; 1,50-1,99 → 43,3%; 2,00-2,49 → 55,7%; ≥2,50 → 61,3%.
+\** A7 con asterisco grande: el perfil "némesis" se calculó sobre NUESTROS boletos
+históricos, que solapan con este mismo dataset — el número está inflado por circularidad
+in-sample. Solo un backtest walk-forward (némesis decidido con jornadas anteriores) diría
+la verdad.
+
+### La pregunta estrella: ¿las sorpresas vienen en grupo?
+
+**No, tampoco en casa.** Cuatro tests independientes y ninguno encuentra contagio:
+
+- **C1** permutación estratificada sobre 223 jornadas LAE (3.122 partidos): varianza
+  observada 3,97 vs 3,79 permutada (ratio 1,05), **p=0,29**.
+- **C3** solo favoritos claros del público (≥60% masa, 739 partidos): ratio 0,92,
+  **p=0,83** — los favoritos caros NO caen juntos más de lo que dicta el azar.
+- **C2** persistencia: tras una jornada loca (≥8 sorpresas), la siguiente es loca el
+  35,7% vs 32,3% de base (z=0,5) — **nada**. Confirma la regla de memoria: tras jornada
+  loca, NO tocar nada.
+- **C5** con las probabilidades del motor (28 jornadas): ratio de dispersión 1,26,
+  compatible con 1 a esta muestra.
+- **C6** (descriptivo): en jornadas locas las sorpresas NO son más de favoritos claros
+  (10,8% de ellas vs 12,7% en jornadas normales) — la jornada loca es "muchas sorpresas
+  baratas a la vez", no "caen los grandes en cadena".
+
+La literatura decía independencia entre partidos; nuestros datos lo confirman.
+
+### Hallazgos colaterales (mitos con número propio)
+
+1. **La brecha masa-motor mide el error del MOTOR, no el del público** (A3/A4): cuando la
+   masa juega al favorito 10+ pts por encima del motor, el favorito cae MENOS (34,1% vs
+   60,4%). Es el mismo mecanismo del selector ingenuo refutado el 14/10 (winner's curse).
+   De hecho el motor espera 7,61 sorpresas/jornada y salen 6,39: infra-estima a sus
+   favoritos — exactamente lo que la calibración por bandas está corrigiendo.
+2. **La racha/overreaction no es medible como precursor** (A5 n=8; B4 z=0,5 con 2.447
+   partidos limpios). El mito de "viene crecido, lo tumban", enterrado también en casa.
+3. **El H2H caótico no sostiene su número** (A8 z=0,55; B5 z=0,54 con el acumulado limpio
+   de 3 temporadas). La señal `h2h_caotico` de La Valiente no encuentra soporte aquí; el
+   freno por señal del marcador de sombra (15/10) ya la vigilará sola con datos reales.
+4. **Europa no tumba favoritos** (B6): los favoritos con competición europea caen MENOS
+   (−11,3 pts) — confundido con que son los equipos más fuertes. El "jugó el jueves en
+   Europa" exacto NO es medible con nuestros datos (dicho honestamente); lo medible apunta
+   al revés del mito.
+5. **Entre semana hay MENOS sorpresa, no más** (C4: 41,9% vs 47,0%, z=−2,6, 924 partidos
+   LAE entre semana).
+
+### Candidatas a señal nueva de La Valiente (0-3, con números)
+
+1. **`favorito_distinto_mercado`** (A2): cuando el favorito del motor NO coincide con el
+   del mercado losilla pre-cierre, el favorito del motor cae el 64,3% (n=56, +23,0 pts,
+   z=3,0). Lectura: el mercado manda sobre el motor en los partidos en disputa —
+   desconfiar del fijo cuando losilla no lo comparte, y es terreno natural de valiente.
+   **Pendiente de backtest de señal** con su propio prerregistro (no se toca
+   `senal_valiente.py` en este estudio).
+2. **`nemesis_en_partido`** (A7): +20,6 pts (n=31, z=2,3), PERO con la circularidad
+   declarada arriba. Más que señal nueva, refuerza la señal empatador/némesis que La
+   Valiente ya tiene; solo merece backtest walk-forward out-of-sample antes de creérsela.
+
+Ninguna otra feature supera el umbral prerregistrado. Con ~14 contrastes, un falso
+positivo a 2 EE es esperable: por eso ninguna candidata se integra sin su propio backtest.
