@@ -62,6 +62,7 @@ MARCADOR_VALIENTE = MEMORIA / "marcador_valiente.json"
 BACKTEST_VALIENTE = MEMORIA / "backtest_valiente.json"
 BACKTEST_EV = MEMORIA / "backtest_ev_premio.json"
 QUINIELAS_JUGADAS = DATA / "quinielas_jugadas.json"
+METRICAS_PROBABILISTICAS = MEMORIA / "metricas_probabilisticas.json"
 PRE_CIERRE = DATA / "backtesting" / "pre_cierre"
 JORNADAS = DATA / "jornadas"
 PREDICCIONES = DATA / "predicciones"
@@ -81,6 +82,8 @@ AUDITORIA_DC_UMBRAL_RPS = 0.002       # DECISION_LOG 13/10: mejora minima real
 AUDITORIA_DC_MIN_PARTIDOS = 60        # DECISION_LOG 13/10: ~60 partidos era-D-C
 AUDITORIA_VETOS_MIN_JORNADAS = 25     # DECISION_LOG 14/10: re-probar con ~25
 VERSION_CALCULO_DC = 1                # subirla fuerza recalcular filas D-C cacheadas
+FIJOS_BANDA_N_MINIMO = 30             # DECISION_LOG 17/10: una banda solo "promete" con n>=30
+FIJOS_BANDA_MUESTRA_MINIMA = 10       # con menos fijos evaluados, el semaforo se queda en ambar
 
 # Estudio base del revulsivo (70 ceses 23/24-25/26, efecto_revulsivo.json):
 # el efecto en puntos se mapeo linealmente desde sorpresa_vs_mercado_media
@@ -813,6 +816,104 @@ def resumen_revulsivo(filas, ultimo_ajuste=None):
 
 
 # ---------------------------------------------------------------------------
+# (e) Cuaderno "fijos por banda" (17/10/2026, proyecto fijos calibrados):
+# de los FIJOS realmente jugados (quinielas_jugadas.json, solo lectura),
+# cuantos acerto cada banda de probabilidad pre-cierre, comparado con lo que
+# esa banda PROMETE segun la calibracion real del favorito
+# (rps_calibracion.calibracion_favorito). SOLO reporta: ninguna
+# auto-correccion nueva -la colocacion calibrada tiene su propio backtest
+# prerregistrado (backtest_fijos_calibrados.py, DECISION_LOG 17/10).
+# ---------------------------------------------------------------------------
+
+def fila_fijos_banda(jornada, etiqueta, fixture, prediccion_snapshot, datos_jugadas=None):
+    """Los FIJOS realmente jugados de la jornada, con la probabilidad
+    pre-cierre de su signo, su banda y si acertaron."""
+    jugada = jugada_temporada(jornada, etiqueta, datos_jugadas)
+    if not jugada:
+        return {"estado": "sin_jugada_real", "motivo": "Jornada sin quiniela validada esta temporada."}
+    partidos = {p["num"]: p for p in partidos_snapshot(prediccion_snapshot)}
+    if not partidos:
+        return {"estado": "sin_snapshot", "motivo": "Sin snapshot pre-cierre inmutable."}
+    fijos = []
+    sin_probabilidad = 0
+    for num, signo in enumerate(jugada, start=1):
+        limpio = "".join(s for s in SIGNOS if s in signo)
+        if len(limpio) != 1:
+            continue  # dobles y triples no son fijos
+        probs = (partidos.get(num) or {}).get("probabilidades") or {}
+        try:
+            prob = float(probs[limpio])
+        except (KeyError, TypeError, ValueError):
+            sin_probabilidad += 1
+            continue
+        real = (fixture.get(num) or {}).get("signo_oficial")
+        p = partidos.get(num) or {}
+        fijos.append({
+            "num": num,
+            "partido": f"{p.get('local', '')} - {p.get('visitante', '')}",
+            "signo": limpio,
+            "probabilidad": round(prob, 1),
+            "banda": f"{int(prob // 10) * 10}-{int(prob // 10) * 10 + 10}",
+            "acierto": (real == limpio) if real in SIGNOS else None,
+        })
+    return {"estado": "ok", "fijos": fijos, "fijos_sin_probabilidad": sin_probabilidad}
+
+
+def resumen_fijos_banda(filas, bandas_promesa=None):
+    """Promesa: los fijos jugados deben acertar al menos lo que promete su
+    banda REAL medida. El esperado de cada fijo es el acierto_real_pct de su
+    banda (solo bandas con n>=30); sin promesa medida, su propia probabilidad
+    dicha (identidad honesta)."""
+    if bandas_promesa is None:
+        metricas = cargar_json(METRICAS_PROBABILISTICAS, {})
+        bandas_promesa = ((metricas.get("rps_calibracion") or {}).get("calibracion_favorito") or {})
+    fijos = [f for fila in filas if fila.get("estado") == "ok" for f in fila.get("fijos") or []]
+    evaluados = [f for f in fijos if f.get("acierto") is not None]
+    por_banda = {}
+    esperados = 0.0
+    for f in evaluados:
+        datos = (bandas_promesa or {}).get(f["banda"]) or {}
+        promesa = None
+        try:
+            if int(datos.get("n") or 0) >= FIJOS_BANDA_N_MINIMO:
+                promesa = float(datos["acierto_real_pct"])
+        except (KeyError, TypeError, ValueError):
+            promesa = None
+        reg = por_banda.setdefault(f["banda"], {"jugados": 0, "aciertos": 0, "promesa_pct": None})
+        reg["jugados"] += 1
+        reg["aciertos"] += 1 if f["acierto"] else 0
+        if promesa is not None:
+            reg["promesa_pct"] = promesa
+        esperados += (promesa if promesa is not None else f["probabilidad"]) / 100.0
+    for reg in por_banda.values():
+        reg["acierto_pct"] = round(100.0 * reg["aciertos"] / reg["jugados"], 1)
+    aciertos = sum(1 for f in evaluados if f["acierto"])
+    esperados = round(esperados, 2)
+    if not evaluados:
+        semaforo, texto = "ambar", "en vigilancia: aun sin fijos evaluables"
+    elif len(evaluados) < FIJOS_BANDA_MUESTRA_MINIMA:
+        semaforo, texto = "ambar", f"en vigilancia: muestra minima ({len(evaluados)} fijos)"
+    elif aciertos >= esperados:
+        semaforo, texto = "verde", "cumple su promesa: tus fijos rinden lo que promete su banda real"
+    elif aciertos >= esperados - 2:
+        semaforo, texto = "ambar", "en vigilancia: algo por debajo de lo que prometen sus bandas"
+    else:
+        semaforo, texto = "rojo", "bajo promesa: los fijos jugados rinden claramente menos que su banda real"
+    return {
+        "semaforo": semaforo, "texto_semaforo": texto,
+        "titular": f"{aciertos} de {len(evaluados)} fijos vs {_fmt(esperados, 1)} esperados",
+        "valor": aciertos, "comparacion": esperados,
+        "fijos_evaluados": len(evaluados),
+        "por_banda": dict(sorted(por_banda.items())),
+        "promesa": (
+            "Los fijos realmente jugados deben acertar al menos lo que promete su banda real "
+            f"(calibracion del favorito, solo bandas con n>={FIJOS_BANDA_N_MINIMO})."
+        ),
+        "ultimo_ajuste": None,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Auto-auditoria con puerta (cada 5 jornadas cerradas; NUNCA aplica nada)
 # ---------------------------------------------------------------------------
 
@@ -1066,6 +1167,7 @@ def actualizar_cuaderno(etiqueta=None, ahora=None, proveedor=None):
             "boleto_ev": fila_ev,
             "valiente": fila_valiente(j, etiqueta, marcador, backtest_valiente_json),
             "revulsivo": fila_rev,
+            "fijos_banda": fila_fijos_banda(j, etiqueta, fixture, prediccion, datos_jugadas),
         }
 
     # Auto-correcciones acotadas (cada una escribe su propio archivo y
@@ -1085,6 +1187,7 @@ def actualizar_cuaderno(etiqueta=None, ahora=None, proveedor=None):
     filas_dc = [jornadas[k]["dixon_coles"] for k in jornadas]
     filas_ev = [jornadas[k]["boleto_ev"] for k in jornadas]
     filas_rev = [jornadas[k]["revulsivo"] for k in jornadas]
+    filas_fb = [jornadas[k]["fijos_banda"] for k in jornadas]
     cuaderno = {
         "version": 1,
         "descripcion": (
@@ -1101,6 +1204,7 @@ def actualizar_cuaderno(etiqueta=None, ahora=None, proveedor=None):
             "boleto_ev": resumen_boleto_ev(filas_ev, ultimo_ajuste=ajuste_factor),
             "valiente": resumen_valiente(marcador, backtest_valiente_json, ultimo_ajuste=ajuste_valiente),
             "revulsivo": resumen_revulsivo(filas_rev, ultimo_ajuste=ajuste_revulsivo),
+            "fijos_banda": resumen_fijos_banda(filas_fb),
         },
         "frenos": FRENOS_TEXTO,
     }

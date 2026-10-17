@@ -38,6 +38,7 @@ PERFILES_EQUIPOS = DATA / "memoria_ia" / "perfiles_equipos.json"
 CLASIFICACIONES_MUNDIAL = DATA / "memoria_ia" / "clasificaciones_mundial_2026.json"
 FUENTE_LOSILLA = DATA / "memoria_ia" / "fuente_losilla.json"
 CALIBRACION_PROBABILIDADES = DATA / "memoria_ia" / "calibracion_probabilidades.json"
+METRICAS_PROBABILISTICAS = DATA / "memoria_ia" / "metricas_probabilisticas.json"
 PRETEMPORADA = DATA / "memoria_ia" / "pretemporada_2026_2027.json"
 FUENTE_LESIONES_LALIGA = DATA / "memoria_ia" / "fuente_lesiones_laliga.json"
 FUENTE_LESIONES_RESPALDO = DATA / "memoria_ia" / "fuente_lesiones_jornadaperfecta.json"
@@ -2567,6 +2568,115 @@ def indice_sorpresa_partido(partido):
     return float(partido.get("indice_sorpresa_quinielistica") or 0)
 
 
+# ---------------------------------------------------------------------------
+# Fijos calibrados (17/10/2026): la tabla real por bandas del favorito
+# (rps_calibracion.calibracion_favorito de metricas_probabilisticas.json)
+# midio que el motor es INFRAconfiado en favoritos (su banda 40-50 acierta el
+# 56%, la 50-60 el 64,6%), y los fallos recurrentes del boleto se concentran
+# justo en fijos de esa franja. Las probabilidades PUBLICADAS no se tocan (el
+# RPS y la recomendacion conservadora las miden tal cual): la correccion solo
+# alimenta la DECISION de cobertura (prioridad_cobertura/doble/triple y los
+# campos prioridad_cobertura_* que consume computeAssignments en la web) via
+# la clave interna _probs_cobertura.
+# El flag se enciende SOLO si pasa el backtest prerregistrado de colocacion
+# (backtest_fijos_calibrados.py, umbral escrito antes de mirar resultados en
+# DECISION_LOG.md 2026-10-17) -mismo patron que los vetos v2 de La Valiente.
+# RESULTADO 17/10/2026: 9 jornadas evaluables (J5-J13 26/27), 88 signos
+# cubiertos acertados vs 87 de la colocacion cruda (+1 neto, ninguna jornada
+# empeora, desvio de reconstruccion <=0,01) -> cumple el umbral y se activa.
+USAR_CALIBRACION_EN_COBERTURA = True
+CALIBRACION_COBERTURA_N_MINIMO = 30  # mismo freno de muestra que ajustar_por_calibracion
+
+
+def puntos_calibracion_favorito(bandas):
+    """(centro_de_banda, correccion) de las bandas con muestra suficiente
+    (n>=CALIBRACION_COBERTURA_N_MINIMO), ordenados por centro. La correccion
+    es acierto_real_pct - prob_media: cuanto se queda corto (o se pasa) el
+    motor cuando dice ese numero."""
+    puntos = []
+    for datos in (bandas or {}).values():
+        try:
+            n = int((datos or {}).get("n") or 0)
+            centro = float(datos["prob_media"])
+            real = float(datos["acierto_real_pct"])
+        except (TypeError, ValueError, KeyError):
+            continue
+        if n >= CALIBRACION_COBERTURA_N_MINIMO:
+            puntos.append((centro, real - centro))
+    return sorted(puntos)
+
+
+def prob_calibrada_favorito(p_cruda, puntos):
+    """Mapea la probabilidad cruda del favorito a su tasa real de acierto
+    interpolando ENTRE centros de banda (nada de escalones: un 49,9% y un
+    50,1% no pueden recibir correcciones que salten 8 puntos). Fuera de los
+    centros medidos la correccion decae linealmente a 0 en una banda (10 pts)
+    y mas alla queda la identidad; sin bandas validas, identidad."""
+    try:
+        p = float(p_cruda)
+    except (TypeError, ValueError):
+        return p_cruda
+    if not puntos:
+        return p
+    anclas = [(puntos[0][0] - 10.0, 0.0)] + list(puntos) + [(puntos[-1][0] + 10.0, 0.0)]
+    if p <= anclas[0][0] or p >= anclas[-1][0]:
+        return p
+    for (x0, c0), (x1, c1) in zip(anclas, anclas[1:]):
+        if x0 <= p <= x1:
+            correccion = c0 if x1 <= x0 else c0 + (p - x0) * (c1 - c0) / (x1 - x0)
+            return round(min(max(p + correccion, 1.0), 99.0), 2)
+    return p
+
+
+def probs_calibradas_cobertura(probs, puntos):
+    """Copia de las probabilidades con el favorito llevado a su tasa real de
+    banda y los otros dos signos reescalados proporcionalmente (el orden
+    2o/3o no cambia, asi el doble cubre los mismos signos). SOLO alimenta la
+    decision de cobertura: jamas sustituye a las publicadas."""
+    top = signo_top(probs)
+    try:
+        p_top = float(probs.get(top, 0.0))
+    except (TypeError, ValueError):
+        return dict(probs)
+    p_cal = prob_calibrada_favorito(p_top, puntos)
+    if abs(p_cal - p_top) < 1e-9 or p_top >= 100.0:
+        return dict(probs)
+    factor = (100.0 - p_cal) / (100.0 - p_top)
+    return {
+        s: round(p_cal if s == top else float(probs.get(s, 0.0) or 0.0) * factor, 2)
+        for s in ("1", "X", "2")
+    }
+
+
+def probs_para_cobertura(partido):
+    """Probabilidades que alimentan la DECISION de cobertura: las calibradas
+    si estan calculadas (_probs_cobertura), si no las publicadas."""
+    return partido.get("_probs_cobertura") or partido.get("probabilidades", {})
+
+
+def aplicar_calibracion_cobertura(evaluados, metricas=None):
+    """Marca _probs_cobertura en cada partido evaluado cuando el flag esta
+    activo y la tabla tiene muestra. Devuelve el bloque de trazabilidad que
+    se publica junto a criterio_cobertura."""
+    if not USAR_CALIBRACION_EN_COBERTURA:
+        return {
+            "activa": False,
+            "motivo": "flag desactivado: el backtest prerregistrado de colocacion no lo ha aprobado (DECISION_LOG 2026-10-17)",
+        }
+    datos = metricas if metricas is not None else cargar_json(METRICAS_PROBABILISTICAS, {})
+    bandas = ((datos.get("rps_calibracion") or {}).get("calibracion_favorito") or {})
+    puntos = puntos_calibracion_favorito(bandas)
+    if not puntos:
+        return {"activa": False, "motivo": f"sin bandas con n>={CALIBRACION_COBERTURA_N_MINIMO}"}
+    for partido in evaluados:
+        partido["_probs_cobertura"] = probs_calibradas_cobertura(partido.get("probabilidades", {}), puntos)
+    return {
+        "activa": True,
+        "bandas_usadas": len(puntos),
+        "lectura": "Colocacion de dobles/triples decidida con el favorito corregido a su tasa real de banda; probabilidades publicadas intactas.",
+    }
+
+
 # Colocacion de dobles/triples: cuanto pesa que el mercado Losilla no este
 # de acuerdo con el favorito del motor. Los 4 fallos de la autopsia J4 26/27
 # (y los 3 casos de aviso predictivo del Elige8) compartian esa firma: el
@@ -2578,7 +2688,7 @@ PESO_PRIORIDAD_DESACUERDO_MERCADO = 80.0
 
 
 def prioridad_cobertura(partido):
-    probs = partido.get("probabilidades", {})
+    probs = probs_para_cobertura(partido)
     valores = sorted(probs.values(), reverse=True)
     margen = valores[0] - valores[1] if len(valores) > 1 else 0
     local_comp = partido.get("contexto_competitivo_local")
@@ -2631,7 +2741,7 @@ def tercera_probabilidad(partido):
 
 
 def prioridad_triple(partido):
-    probs = partido.get("probabilidades", {})
+    probs = probs_para_cobertura(partido)
     valores = sorted(probs.values(), reverse=True)
     tercera = valores[2] if len(valores) > 2 else 0
     local_comp = partido.get("contexto_competitivo_local")
@@ -2685,7 +2795,7 @@ def prioridad_triple(partido):
 
 
 def prioridad_doble(partido):
-    probs = partido.get("probabilidades", {})
+    probs = probs_para_cobertura(partido)
     valores = sorted(probs.values(), reverse=True)
     margen = valores[0] - valores[1] if len(valores) > 1 else 0
     tercera = valores[2] if len(valores) > 2 else 0
@@ -3255,6 +3365,11 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         evaluado["riesgo_millonario"] = evaluar_riesgo_millonario(indice_sorpresa)
         evaluados.append(evaluado)
 
+    # Fijos calibrados: corrige el favorito a su tasa real de banda SOLO para
+    # decidir cobertura (prioridad_*). Va antes de cobertura_automatica para
+    # que todo el reparto de dobles/triples vea las mismas probabilidades.
+    calibracion_cobertura = aplicar_calibracion_cobertura(evaluados)
+
     cobertura_auto = dobles is None and triples is None
     criterio_cobertura = "Cobertura indicada manualmente."
     if cobertura_auto:
@@ -3478,6 +3593,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         "partidos": partidos,
         "boleto_millonario": construir_boleto_millonario(partidos),
         "criterio_cobertura": criterio_cobertura,
+        "calibracion_cobertura": calibracion_cobertura,
         "ataques_favorito_prioritarios": ataques_favorito_prioritarios,
         "ranking_incertidumbre_coberturas": ranking_incertidumbre_coberturas[:8],
         "ranking_elige8_confianza_real": ranking_elige8_confianza_real,

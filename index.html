@@ -1080,6 +1080,35 @@
       return '';
     }
 
+    // Réplica JS de prob_calibrada_favorito() del motor (fijos calibrados,
+    // 17/10/2026): misma tabla (rps_calibracion.calibracion_favorito de
+    // metricas_probabilisticas.json, que la web ya carga en state.metricas) y
+    // mismos frenos -solo bandas con n>=30, interpolación lineal de la
+    // corrección ENTRE centros de banda, decaimiento a 0 en una banda (10
+    // pts) fuera de los centros, identidad más allá. Devuelve null cuando no
+    // hay tabla con muestra: sin datos reales no se acusa a ningún fijo.
+    function probCalibradaFavorito(p) {
+      p = Number(p);
+      if (!Number.isFinite(p) || p <= 0) return null;
+      const bandas = ((state.metricas || {}).rps_calibracion || {}).calibracion_favorito || {};
+      const puntos = Object.values(bandas)
+        .filter(b => Number(b?.n) >= 30 && Number.isFinite(Number(b?.prob_media)) && Number.isFinite(Number(b?.acierto_real_pct)))
+        .map(b => [Number(b.prob_media), Number(b.acierto_real_pct) - Number(b.prob_media)])
+        .sort((a, b) => a[0] - b[0]);
+      if (!puntos.length) return null;
+      const anclas = [[puntos[0][0] - 10, 0], ...puntos, [puntos[puntos.length - 1][0] + 10, 0]];
+      if (p <= anclas[0][0] || p >= anclas[anclas.length - 1][0]) return p;
+      for (let i = 0; i < anclas.length - 1; i++) {
+        const [x0, c0] = anclas[i];
+        const [x1, c1] = anclas[i + 1];
+        if (p >= x0 && p <= x1) {
+          const corr = x1 <= x0 ? c0 : c0 + (p - x0) * (c1 - c0) / (x1 - x0);
+          return Math.min(Math.max(p + corr, 1), 99);
+        }
+      }
+      return p;
+    }
+
     // Aviso explicito cuando lo realmente jugado cubre MENOS de lo que el
     // propio motor pedia -el caso real que investigamos con Marc: J1 tuvo
     // 8 partidos asi, y los 5 fallos reales de esa jornada salieron todos
@@ -1254,6 +1283,31 @@
           const brecha = xEsperadas - xCubiertas;
           items.push(`<li>${brecha > 2 ? '🚨' : '⚖'} <strong>Regla 15</strong>: X cubiertas <b>${xCubiertas}</b> de ~${xEsperadas.toFixed(1)} ${bolas}${brecha > 2 ? ' · <b style="color:#b91c1c">brecha alta: recoloca dobles</b>' : ''}</li>`);
         }
+      }
+      // 🎯 FIJO FORZADO (17/10/2026, proyecto fijos calibrados): los fallos
+      // recurrentes del boleto son fijos de la banda 40-62% (hoy mismo
+      // Villarreal 62% y Eibar 42%). La tabla real de calibración dice cuánto
+      // acierta DE VERDAD el favorito cuando el motor dice N%; si en tu
+      // jugada ACTUAL (selectedSigns, como los demás avisos) un partido queda
+      // a un solo signo con probabilidad calibrada del favorito <60%, es un
+      // fijo forzado: candidato natural a llevarse un doble si sueltas uno.
+      // Ordenados del más débil al menos; desaparecen al cubrir el partido.
+      if (partidos.some(m => normalizeSignText(selectedSigns(m) || ''))) {
+        const forzados = [];
+        partidos.forEach(m => {
+          const jugado = normalizeSignText(selectedSigns(m) || '');
+          if (jugado.length !== 1) return; // sin jugada aún, o ya cubierto con doble/triple
+          const probs = m.probabilidades || m.probabilidad_signos || {};
+          const pTop = Math.max(...['1', 'X', '2'].map(s => Number(probs[s]) || 0));
+          const pCal = probCalibradaFavorito(pTop);
+          if (pCal === null || pCal >= 60) return;
+          const nombre = `${m.local || m.equipo_local || ''} - ${m.visitante || m.equipo_visitante || ''}`;
+          forzados.push({ num: m.num ?? m.numero ?? m.partido, nombre, pTop, pCal });
+        });
+        forzados.sort((a, b) => a.pCal - b.pCal);
+        forzados.forEach((f, i) => items.push(
+          `<li>🎯 <strong>FIJO FORZADO</strong>: P${escapeHtml(f.num)} ${escapeHtml(f.nombre)} fijo al ${f.pTop.toFixed(0)}% <span style="color:var(--muted)">(banda real ${f.pCal.toFixed(0)}%)</span> — <b style="color:#b91c1c">candidato nº${i + 1} si sueltas un doble</b></li>`
+        ));
       }
       // Rediseno compacto (05/10/2026, peticion de Marc: "a primer vistazo
       // opciones claras, el texto largo solo al clicar"): cada aviso es UNA
@@ -1662,7 +1716,31 @@
         labTabla(['Jornada', 'Partido', 'Caso', 'Salió', 'Veredicto'], filasRev),
         labAjuste(rRev.ultimo_ajuste, 'hacen falta ≥10 casos nuevos 26/27 por lado para re-estimar el efecto'));
 
-      cont.innerHTML = cardDc + cardEv + cardVal + cardRev;
+      // --- Fijos por banda (17/10/2026, proyecto fijos calibrados) ---
+      const rFb = res.fijos_banda || {};
+      const porBanda = rFb.por_banda || {};
+      const filasFb = Object.entries(porBanda).map(([banda, b]) => [
+        `${escapeHtml(banda)}%`, fmt(b.jugados), fmt(b.aciertos),
+        `<b>${labNum(b.acierto_pct, 1)}%</b>`,
+        b.promesa_pct === null || b.promesa_pct === undefined
+          ? '<span style="color:var(--muted)">sin promesa (n&lt;30)</span>'
+          : `${labNum(b.promesa_pct, 1)}%`,
+      ]);
+      const filasFbJ = claves.map(j => {
+        const f = jornadas[j]?.fijos_banda || {};
+        if (f.estado !== 'ok') return [`J${j}`, `<span style="color:var(--muted)">${escapeHtml(f.motivo || f.estado || 'sin datos')}</span>`, ''];
+        const fijos = arr(f.fijos);
+        const ok = fijos.filter(x => x.acierto === true).length;
+        const eval_ = fijos.filter(x => x.acierto === true || x.acierto === false).length;
+        return [`J${j}`, `${ok}/${eval_}`, fijos.filter(x => x.acierto === false).map(x => `${escapeHtml(x.banda)}% ${escapeHtml(x.partido || '')}`).join(' · ') || '<span style="color:var(--muted)">sin fallos</span>'];
+      });
+      const cardFb = labCard('📌', 'Fijos por banda', 'Su promesa: tus fijos deben acertar lo que promete su banda real', rFb,
+        rFb.valor == null ? 'sin datos aún' : `${fmt(rFb.valor)} <span style="color:var(--muted);font-weight:700;font-size:14px">de ${fmt(rFb.fijos_evaluados)} fijos vs</span> ${labNum(rFb.comparacion, 1)} <span style="color:var(--muted);font-weight:700;font-size:14px">esperados</span>`,
+        labTabla(['Cuando jugamos un fijo al...', 'Jugados', 'Aciertos', 'Aciertan', 'Promesa (banda real)'], filasFb)
+          + labTabla(['Jornada', 'Fijos acertados', 'Fijos fallados (banda y partido)'], filasFbJ),
+        labAjuste(null, 'solo reporta: la colocación calibrada de dobles/triples tiene su propio backtest prerregistrado (DECISION_LOG 17/10)'));
+
+      cont.innerHTML = cardDc + cardEv + cardVal + cardRev + cardFb;
     }
 
     function renderTicket() {
