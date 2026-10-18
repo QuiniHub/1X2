@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-18T19:37:57.851374+00:00",
+  "generado_en": "2026-10-18T22:24:39.515018+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -1824,17 +1824,17 @@
     },
     "14": {
       "jornada": 14,
-      "partidos_cerrados": 12,
-      "partidos_con_prediccion": 12,
-      "precision_boleto": 83.33,
-      "precision_top1": 75.0,
-      "brier_medio": 0.5157,
-      "logloss_medio": 0.8806,
+      "partidos_cerrados": 14,
+      "partidos_con_prediccion": 14,
+      "precision_boleto": 78.57,
+      "precision_top1": 71.43,
+      "brier_medio": 0.5,
+      "logloss_medio": 0.8585,
       "por_tipo": {
         "FIJO": {
-          "total": 6,
-          "aciertos": 4,
-          "precision": 66.67
+          "total": 8,
+          "aciertos": 5,
+          "precision": 62.5
         },
         "DOBLE": {
           "total": 4,
@@ -1848,11 +1848,11 @@
         }
       },
       "elige8": {
-        "selecciones": 7,
-        "aciertos": 7,
+        "selecciones": 8,
+        "aciertos": 8,
         "precision": 100.0
       },
-      "surprise_score_medio": 39.46,
+      "surprise_score_medio": 39.32,
       "ranking_incertidumbre": [
         {
           "num": 4,
@@ -1867,6 +1867,13 @@
           "incertidumbre": 149.2,
           "surprise_score": 38.81,
           "margen_probabilidad": 3.0
+        },
+        {
+          "num": 10,
+          "partido": "Burgos CF - Sabadell",
+          "incertidumbre": 148.39,
+          "surprise_score": 57.12,
+          "margen_probabilidad": 3.4
         },
         {
           "num": 5,
@@ -1902,13 +1909,6 @@
           "incertidumbre": 128.86,
           "surprise_score": 34.78,
           "margen_probabilidad": 14.6
-        },
-        {
-          "num": 1,
-          "partido": "RCD Espanyol de Barcelona - Club Atletico de Madrid",
-          "incertidumbre": 128.61,
-          "surprise_score": 32.8,
-          "margen_probabilidad": 15.7
         }
       ],
       "ranking_elige8_confianza_real": [
@@ -1922,6 +1922,12 @@
           "num": 5,
           "partido": "RC Celta de Vigo - Deportivo Alaves",
           "confianza_real_elige8": 57.24,
+          "elige8": true
+        },
+        {
+          "num": 7,
+          "partido": "Real Madrid CF - Sevilla FC",
+          "confianza_real_elige8": 50.35,
           "elige8": true
         },
         {
@@ -1953,12 +1959,6 @@
           "partido": "Valencia CF - Athletic Club",
           "confianza_real_elige8": 29.69,
           "elige8": true
-        },
-        {
-          "num": 11,
-          "partido": "Athletic Club (F) - Valencia (F)",
-          "confianza_real_elige8": 17.75,
-          "elige8": false
         }
       ]
     },
@@ -5662,7 +5662,7 @@
     }
   },
   "resumen": {
-    "jornadas_evaluadas": 28,
+    "jornadas_evaluadas": 29,
     "precision_media_ultimas_8": 72.32,
     "criterio_aprendizaje": "tras cada jornada cerrada se compara prediccion vs resultado y se reentrena la memoria"
   }
