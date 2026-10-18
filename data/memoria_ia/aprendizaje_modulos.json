@@ -2,7 +2,7 @@
   "version": 1,
   "descripcion": "Cuaderno de meta-aprendizaje por modulo (15/10/2026): que prometio cada modulo y que entrego, jornada a jornada, con datos pre-cierre (snapshots inmutables + % LAE versionados). Los semaforos y auto-correcciones llevan sus frenos prerregistrados.",
   "temporada": "2026_2027",
-  "actualizado_en": "2026-10-18T13:34:45.126379+00:00",
+  "actualizado_en": "2026-10-18T17:15:48.407296+00:00",
   "jornadas_cerradas": [
     1,
     2,
@@ -1994,7 +1994,7 @@
         "escrutinios": 13,
         "celdas": 55,
         "freno": "Solo con >=10 escrutinios reales; mediana real/modelo sobre celdas con >=10 acertantes; acotado a [0.5x - 2.0x].",
-        "actualizado_en": "2026-10-18T13:34:45.126379+00:00",
+        "actualizado_en": "2026-10-18T17:15:48.407296+00:00",
         "historial": [
           {
             "fecha": "2026-10-15T06:46:27.417986+00:00",
@@ -2014,19 +2014,26 @@
     "valiente": {
       "semaforo": "verde",
       "texto_semaforo": "cumple su promesa: acierta mas de lo que declara",
-      "titular": "4 aciertos vs 2,9 esperados",
-      "valor": 4,
-      "comparacion": 2.85,
-      "evaluadas": 9,
-      "fuente": "backtest prerregistrado",
+      "titular": "1 aciertos vs 0,3 esperados",
+      "valor": 1,
+      "comparacion": 0.28,
+      "evaluadas": 1,
+      "fuente": "marcador de sombra",
       "senales_suspendidas": [],
-      "por_senal": {},
+      "por_senal": {
+        "sobrecompra_publico": {
+          "valientes": 1,
+          "aciertos": 1,
+          "esperados": 0.28,
+          "suspendida": false
+        }
+      },
       "promesa": "En sombra: aciertos reales >= esperados (suma de probabilidades declaradas).",
       "ultimo_ajuste": {
         "estado": "sin_ajuste",
         "senales_suspendidas": [],
         "freno": "Una señal con >=8 valientes propias y aciertos < 50% de esperados se suspende sola (senal_valiente.py) y se anuncia. Ningun umbral estructural se auto-cambia.",
-        "actualizado_en": "2026-10-18T13:34:45.126379+00:00",
+        "actualizado_en": "2026-10-18T17:15:48.407296+00:00",
         "motivo": "Ninguna señal cumple el freno de suspension (>=8 propias y <50% de esperados)."
       }
     },
@@ -2047,15 +2054,15 @@
         },
         "estado": "sin_ajuste",
         "motivo": "Freno: hacen falta >=10 casos nuevos 26/27 por lado (hay fuera=1, casa=0).",
-        "actualizado_en": "2026-10-18T13:34:45.126379+00:00"
+        "actualizado_en": "2026-10-18T17:15:48.407296+00:00"
       }
     },
     "fijos_banda": {
       "semaforo": "verde",
       "texto_semaforo": "cumple su promesa: tus fijos rinden lo que promete su banda real",
-      "titular": "65 de 119 fijos vs 62,6 esperados",
+      "titular": "65 de 119 fijos vs 62,4 esperados",
       "valor": 65,
-      "comparacion": 62.56,
+      "comparacion": 62.38,
       "fijos_evaluados": 119,
       "por_banda": {
         "10-20": {
@@ -2073,13 +2080,13 @@
         "30-40": {
           "jugados": 15,
           "aciertos": 6,
-          "promesa_pct": 40.3,
+          "promesa_pct": 41.7,
           "acierto_pct": 40.0
         },
         "40-50": {
           "jugados": 39,
           "aciertos": 20,
-          "promesa_pct": 54.5,
+          "promesa_pct": 53.5,
           "acierto_pct": 51.3
         },
         "50-60": {
