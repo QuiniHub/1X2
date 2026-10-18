@@ -99,6 +99,9 @@ def partidos_snapshot(jornada, fixture):
             "local": p.get("local"),
             "visitante": p.get("visitante"),
             "probabilidades": p.get("probabilidades"),
+            # para la señal favorito_distinto_mercado (prerregistro v3): el
+            # mercado Losilla congelado en el propio snapshot pre-cierre
+            "mercado_losilla": p.get("mercado_losilla"),
         }
         fx = fixture.get(num) or {}
         # Al menos UNO de los dos nombres debe casar (el num ya ancla el
@@ -124,11 +127,14 @@ def masa_jornada(jornada):
     return masa if len(masa) >= 14 else None
 
 
-def evaluar_criterio(aplicar_vetos=False, tipos_vetos=None):
+def evaluar_criterio(aplicar_vetos=False, tipos_vetos=None, senales_suspendidas=None):
     """Corre el criterio sobre las jornadas con % LAE versionados y devuelve
     (filas, resumen). tipos_vetos (auditoria automatica, 15/10/2026) permite
     re-probar cada veto v2 POR SEPARADO como pide DECISION_LOG 14/10; con
-    None el comportamiento es identico al original."""
+    None el comportamiento es identico al original. senales_suspendidas
+    (prerregistro v3, 17/10/2026) permite evaluar variantes del juego de
+    señales -p.ej. {"favorito_distinto_mercado"} reproduce el criterio v1
+    sin la señal nueva, {"h2h_caotico"} prueba su jubilacion."""
     detalle = (cargar_json(APRENDIZAJE, {}) or {}).get("detalle") or []
     jornadas = sorted(jornadas_con_porcentajes(ETIQUETA))
     fuentes_base = cargar_fuentes()
@@ -145,7 +151,9 @@ def evaluar_criterio(aplicar_vetos=False, tipos_vetos=None):
             continue
         fuentes = dict(fuentes_base)
         fuentes["sorpresas_equipo"] = sorpresas_por_equipo(detalle, set(jornadas), jornada)
-        eleccion, evaluados, vetados = elegir_valiente(
+        if senales_suspendidas is not None:
+            fuentes["senales_suspendidas"] = set(senales_suspendidas)
+        eleccion, evaluados, vetados, _candidatos = elegir_valiente(
             partidos, masa, fuentes, aplicar_vetos=aplicar_vetos,
             tipos_vetos=tipos_vetos)
         if eleccion is None:
@@ -233,11 +241,27 @@ def evaluar_criterio(aplicar_vetos=False, tipos_vetos=None):
     return filas, resumen
 
 
+def _resumen_variante(nombre, susp):
+    filas, res = evaluar_criterio(senales_suspendidas=susp)
+    res = dict(res)
+    res["variante"] = nombre
+    res["ratio"] = round(res["aciertos"] / res["esperados"], 2) if res["esperados"] else None
+    return filas, res
+
+
 def ejecutar_backtest():
-    """JSON canonico: el criterio VIVO (hoy sin vetos, su prerregistro fallo)
-    + el experimento de vetos v2 documentado dentro, con su regla y decision."""
-    filas, resumen = evaluar_criterio(aplicar_vetos=False)
-    filas_v2, resumen_v2 = evaluar_criterio(aplicar_vetos=True)
+    """JSON canonico: el criterio VIVO (v3: sin vetos, sin h2h_caotico, con la
+    señal favorito_distinto_mercado) + los experimentos documentados dentro
+    (vetos v2 y variantes v3), cada uno con su regla y decision."""
+    from senal_valiente import SENALES_RETIRADAS
+    filas, resumen = evaluar_criterio(senales_suspendidas=set(SENALES_RETIRADAS))
+    filas_v2, resumen_v2 = evaluar_criterio(aplicar_vetos=True,
+                                            senales_suspendidas=set(SENALES_RETIRADAS))
+    # Variantes del prerregistro v3 (17/10/2026), evaluadas POR SEPARADO:
+    _, res_v1 = _resumen_variante("v1 (criterio 14/10)", {"favorito_distinto_mercado"})
+    _, res_v1A = _resumen_variante("v1+A (señal mercado)", set())
+    _, res_v1B = _resumen_variante("v1-B (sin h2h)", {"favorito_distinto_mercado", "h2h_caotico"})
+    _, res_v1AB = _resumen_variante("v1+A-B (criterio vivo v3)", {"h2h_caotico"})
     ratio_v1 = round(resumen["aciertos"] / resumen["esperados"], 2) if resumen["esperados"] else None
     ratio_v2 = round(resumen_v2["aciertos"] / resumen_v2["esperados"], 2) if resumen_v2["esperados"] else None
     resultado = {
@@ -255,6 +279,23 @@ def ejecutar_backtest():
         },
         "jornadas": filas,
         "resumen": resumen,
+        "experimento_palpitos_v3": {
+            "descripcion": (
+                "Prerregistro v3 (17/10/2026, DECISION_LOG): CAMBIO A = señal nueva "
+                "favorito_distinto_mercado (estudio_ver_sorpresas: favorito motor != mercado "
+                "-> el del motor cae 64,3%, n=56, z=3,0); CAMBIO B = jubilar h2h_caotico "
+                "(sin soporte en nuestros datos). Reglas escritas ANTES de ejecutar: A se "
+                "despliega si v1+A mantiene VERDE con ratio >=1,15 y aciertos >= v1; B se "
+                "jubila si v1-B no reduce aciertos ni ratio."
+            ),
+            "variantes": [res_v1, res_v1A, res_v1B, res_v1AB],
+            "decision": (
+                "A DESPLEGADA (v1+A: VERDE, ratio {ra}, aciertos {aa} >= {a1}; en J1-J13 no "
+                "cambio ningun pick, se estrena en vivo) y B JUBILADA (v1-B: mismos {ab} "
+                "aciertos con ratio {rb} >= {r1}). Criterio vivo = v1+A-B."
+            ).format(ra=res_v1A["ratio"], aa=res_v1A["aciertos"], a1=res_v1["aciertos"],
+                     ab=res_v1B["aciertos"], rb=res_v1B["ratio"], r1=res_v1["ratio"]),
+        },
         "experimento_vetos_v2": {
             "descripcion": (
                 "Vetos aprobados por Marc (14/10/2026): nada contra grandes que casi nunca "

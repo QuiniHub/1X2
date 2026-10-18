@@ -1600,3 +1600,40 @@ equipos_x_fiabilidad (incluye los pocos partidos 26/27 ya jugados).
 **Tests**: 13 nuevos (`tests/test_estudio_ver_sorpresas.py`): carga y definición de
 sorpresa, veredictos sintéticos, racha sin fuga de futuro, fechas en los 4 formatos
 reales, permutación detecta clustering extremo. Suite completa en verde antes del push.
+
+## 2026-10-17 — PRERREGISTRO La Valiente v3: señal nueva, jubilación y pálpitos
+
+Marc pidió que la máquina "sienta" las sorpresas con lo aprendido. Base: el estudio
+propio del 17/10 (estudio_ver_sorpresas.py, commit 8822bc64b3) encontró la señal más
+fuerte de la casa —favorito del motor ≠ favorito del mercado Losilla → el favorito
+del motor cae el 64,3% (n=56, z=3,0)— y desmontó la señal h2h_caotico (sin soporte
+en nuestros datos). Se prerregistran DOS cambios de criterio y uno de presentación,
+con reglas de despliegue escritas ANTES de ejecutar el backtest (variantes por
+separado, lección de los vetos v2):
+
+- CAMBIO A (señal nueva `favorito_distinto_mercado`): para un candidato de signo S
+  no-favorito del motor, dispara si el favorito del mercado Losilla del partido
+  (mercado_losilla, presente en snapshots pre-cierre y en la predicción viva) es
+  exactamente S. REGLA: se despliega solo si la variante v1+A mantiene el veredicto
+  VERDE, su ratio aciertos/esperados es >= 1,15 y sus aciertos son >= los de v1 (4).
+- CAMBIO B (jubilar `h2h_caotico`): REGLA: se jubila solo si la variante v1-B no
+  reduce ni los aciertos ni el ratio respecto a v1 (es decir, la señal no aportaba).
+- CAMBIO C (presentación, sin regla de datos): el bloque publica hasta 3 PÁLPITOS
+  ordenados por el ranking ya prerregistrado (ventaja sobre masa, nº señales, num);
+  el marcador de sombra y la graduación siguen midiendo SOLO el pálpito nº1 (la
+  valiente); los nº2/3 se registran aparte como informativos, sin graduación.
+
+El criterio vivo final = v1 + los cambios que pasen SU regla individual (verificando
+también la variante combinada). Resultados y decisión: más abajo tras la ejecución.
+
+**RESULTADO del prerregistro v3 (ejecutado 17-18/10/2026, backtest_valiente.json →
+experimento_palpitos_v3):** v1 = 10 valientes, 4 aciertos, ratio 1,30 · v1+A = idéntico
+(la señal nueva no cambió ningún pick en J1-J13: PASA su regla y se estrena en vivo) ·
+v1−B = 9 valientes, mismos 4 aciertos, ratio 1,40 (la única valiente que aportaba el
+h2h era un fallo: PASA, se jubila) · v1+A−B (criterio vivo nuevo) = 9/4/1,40, VERDE,
+34,75€ hipotéticos sobre 9€. Aplicado: SENALES_RETIRADAS = {h2h_caotico} en
+senal_valiente.py, señal favorito_distinto_mercado activa, y el bloque publica hasta
+3 PÁLPITOS ordenados (el nº1 sigue siendo la única valiente que mide el marcador).
+Nota de los datos vivos: equipos_x_fiabilidad y fiabilidad-némesis se regeneran cada
+ciclo, así que los picks reconstruidos de v1 difieren levemente de la foto del 14/10
+(caveat ya documentado entonces); los totales se mantienen (10/4/1,30).

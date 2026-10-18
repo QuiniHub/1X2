@@ -162,7 +162,7 @@ class ElegirValienteTests(unittest.TestCase):
     def test_elige_la_candidata_con_senal_y_filtro(self):
         masa = {1: {"1": 55.0, "X": 20.0, "2": 25.0}, 2: {"1": 70.0, "X": 20.0, "2": 10.0}}
         fuentes = _fuentes(estudio_x=_estudio_empatador())
-        eleccion, evaluados, vetados = sv.elegir_valiente(self._partidos(), masa, fuentes)
+        eleccion, evaluados, vetados, _c = sv.elegir_valiente(self._partidos(), masa, fuentes)
         self.assertIsNotNone(eleccion)
         self.assertEqual((eleccion["num"], eleccion["signo"]), (1, "X"))
         self.assertEqual(eleccion["ventaja_sobre_masa"], 13.0)
@@ -171,13 +171,13 @@ class ElegirValienteTests(unittest.TestCase):
 
     def test_sin_senal_no_hay_valiente(self):
         masa = {1: {"1": 55.0, "X": 20.0, "2": 25.0}, 2: {"1": 70.0, "X": 20.0, "2": 10.0}}
-        eleccion, _, _ = sv.elegir_valiente(self._partidos(), masa, _fuentes())
+        eleccion, _, _, _c = sv.elegir_valiente(self._partidos(), masa, _fuentes())
         self.assertIsNone(eleccion)
 
     def test_filtro_de_pago_descarta_masa_alta(self):
         # la masa ya juega la X del partido 1 (33 - 8 = 25 > 27 no cumple)
         masa = {1: {"1": 48.0, "X": 27.0, "2": 25.0}, 2: {"1": 70.0, "X": 20.0, "2": 10.0}}
-        eleccion, _, _ = sv.elegir_valiente(self._partidos(), masa, _fuentes(estudio_x=_estudio_empatador()))
+        eleccion, _, _, _c = sv.elegir_valiente(self._partidos(), masa, _fuentes(estudio_x=_estudio_empatador()))
         self.assertIsNone(eleccion)
 
     def test_prob_fuera_de_rango_descartada(self):
@@ -185,7 +185,7 @@ class ElegirValienteTests(unittest.TestCase):
         masa = {1: {"1": 50.0, "X": 25.0, "2": 25.0}}
         # X es favorita (no candidata) y 1 esta en rango pero sin senal; con
         # senal empatadora la X seguiria fuera por ser favorita del motor
-        eleccion, _, _ = sv.elegir_valiente(partidos, masa, _fuentes(estudio_x=_estudio_empatador()))
+        eleccion, _, _, _c = sv.elegir_valiente(partidos, masa, _fuentes(estudio_x=_estudio_empatador()))
         self.assertIsNone(eleccion)
 
     def test_gana_la_mayor_ventaja_sobre_la_masa(self):
@@ -202,7 +202,7 @@ class ElegirValienteTests(unittest.TestCase):
             ],
             "fiabilidad_nuestra_por_equipo": [],
         }
-        eleccion, _, _ = sv.elegir_valiente(partidos, masa, _fuentes(estudio_x=estudio))
+        eleccion, _, _, _c = sv.elegir_valiente(partidos, masa, _fuentes(estudio_x=estudio))
         self.assertEqual(eleccion["num"], 2)  # ventaja 21 > 13
 
 
@@ -262,7 +262,7 @@ class VetosV2Tests(unittest.TestCase):
         estudio = self._estudio_madrid()
         estudio["equipos_empatadores"].append(
             {"equipo": "malaga", "pj": 92, "x_pct": 33.7, "x_casa_pct": 37.0, "x_fuera_pct": 30.4})
-        eleccion, _, vetados = sv.elegir_valiente(
+        eleccion, _, vetados, _c = sv.elegir_valiente(
             partidos, masa, _fuentes(estudio_x=estudio), aplicar_vetos=True)
         self.assertIsNone(eleccion)
         self.assertEqual(vetados[0]["vetos"], ["grande_favorito"])
@@ -277,7 +277,7 @@ class VetosV2Tests(unittest.TestCase):
         estudio = self._estudio_madrid()
         estudio["equipos_empatadores"].append(
             {"equipo": "malaga", "pj": 92, "x_pct": 33.7, "x_casa_pct": 37.0, "x_fuera_pct": 30.4})
-        eleccion, _, vetados = sv.elegir_valiente(partidos, masa, _fuentes(estudio_x=estudio))
+        eleccion, _, vetados, _c = sv.elegir_valiente(partidos, masa, _fuentes(estudio_x=estudio))
         self.assertIsNotNone(eleccion)
         self.assertEqual(vetados, [])
 
@@ -472,3 +472,80 @@ class PipelineTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SenalFavoritoMercadoTests(unittest.TestCase):
+    def test_dispara_cuando_el_mercado_prefiere_el_signo_candidato(self):
+        partido = _partido(probs={"1": 40.0, "X": 30.0, "2": 30.0},
+                           mercado_losilla={"1": 30.0, "X": 25.0, "2": 45.0})
+        senal = sv.senal_favorito_mercado(partido, "2")
+        self.assertIsNotNone(senal)
+        self.assertEqual(senal["tipo"], "favorito_distinto_mercado")
+
+    def test_no_dispara_si_mercado_y_motor_coinciden(self):
+        partido = _partido(probs={"1": 40.0, "X": 30.0, "2": 30.0},
+                           mercado_losilla={"1": 50.0, "X": 25.0, "2": 25.0})
+        self.assertIsNone(sv.senal_favorito_mercado(partido, "2"))
+
+    def test_no_dispara_para_otro_signo_ni_sin_mercado(self):
+        partido = _partido(probs={"1": 40.0, "X": 30.0, "2": 30.0},
+                           mercado_losilla={"1": 30.0, "X": 25.0, "2": 45.0})
+        self.assertIsNone(sv.senal_favorito_mercado(partido, "X"))
+        self.assertIsNone(sv.senal_favorito_mercado(_partido(), "2"))
+
+
+class PalpitosV3Tests(unittest.TestCase):
+    def test_h2h_retirada_en_el_criterio_vivo(self):
+        self.assertIn("h2h_caotico", sv.SENALES_RETIRADAS)
+        # con la señal en suspendidas (como hace el bloque vivo), un candidato
+        # cuyo unico apoyo era el h2h ya no es valiente
+        partido = _partido(probs={"1": 45.0, "X": 30.0, "2": 25.0})
+        fuentes = _fuentes(h2h={
+            "enfrentamientos": {
+                clave_par_equipos_h2h("Cadiz CF", "Levante UD"): {
+                    "casos_con_cuotas": 3, "tasa_sorpresa_historica": 60.0,
+                }
+            }
+        }, senales_suspendidas={"h2h_caotico"})
+        masa = {1: {"1": 40.0, "X": 10.0, "2": 50.0}}
+        eleccion, _, _, _c = sv.elegir_valiente([partido], masa, fuentes)
+        self.assertIsNone(eleccion)
+
+    def test_palpitos_ordenados_y_el_primero_es_la_valiente(self):
+        partidos = [
+            _partido(num=1, probs={"1": 45.0, "X": 36.0, "2": 19.0}),
+            _partido(num=2, local="Cadiz CF", visitante="Getafe CF",
+                     probs={"1": 45.0, "X": 36.0, "2": 19.0}),
+        ]
+        estudio = _estudio_empatador(x_pct=36.0)
+        masa = {1: {"1": 60.0, "X": 10.0, "2": 30.0}, 2: {"1": 55.0, "X": 20.0, "2": 25.0}}
+        prediccion = {
+            "jornada": 99,
+            "partidos": partidos + [
+                _partido(num=n, probs={"1": 70.0, "X": 20.0, "2": 10.0}) for n in range(3, 15)
+            ],
+        }
+        masa_completa = {n: {"1": 70.0, "X": 20.0, "2": 10.0} for n in range(3, 15)}
+        masa_completa.update(masa)
+        import optimizador_ev_premio as ev
+        original = ev.porcentajes_masa
+        ev_pm = lambda jornada, fl: (masa_completa, "test")
+        try:
+            import senal_valiente as mod
+            mod_pm = mod.porcentajes_masa
+            mod.porcentajes_masa = ev_pm
+            bloque = mod.construir_bloque_valiente(
+                prediccion, {}, fuentes=_fuentes(
+                    estudio_x=estudio, senales_suspendidas=set()))
+        finally:
+            mod.porcentajes_masa = mod_pm
+        self.assertEqual(bloque.get("estado"), "ok")
+        palpitos = bloque.get("palpitos") or []
+        self.assertGreaterEqual(len(palpitos), 2)
+        self.assertLessEqual(len(palpitos), sv.PALPITOS_MAX)
+        self.assertTrue(palpitos[0]["es_la_valiente"])
+        self.assertEqual(palpitos[0]["num"], bloque["num"])
+        self.assertGreaterEqual(palpitos[0]["ventaja_sobre_masa"],
+                                palpitos[1]["ventaja_sobre_masa"])
+        for i, p in enumerate(palpitos, start=1):
+            self.assertEqual(p["orden"], i)

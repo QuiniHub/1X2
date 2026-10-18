@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "generado_en": "2026-10-14T12:31:32.477862+00:00",
+  "generado_en": "2026-10-17T18:30:03.809235+00:00",
   "descripcion": "Backtest retrospectivo prerregistrado de La Valiente en J1-J13 2026/27, con snapshots pre-cierre inmutables y % LAE versionados (sin fuga de futuro; caveat leve en empatadores/nemesis, documentado en DECISION_LOG.md).",
   "criterios_prerregistrados": {
     "verde": "aciertos >= esperados y aciertos >= 2",
@@ -30,23 +30,9 @@
     },
     {
       "jornada": 2,
-      "estado": "valiente",
+      "estado": "sin_valiente",
       "candidatos_evaluados": 28,
-      "partidos_vetados": [],
-      "num": 8,
-      "partido": "Real Oviedo - CD Leganes",
-      "signo": "2",
-      "prob_declarada": 25.3,
-      "masa_pct": 15.0,
-      "senales": [
-        "h2h_caotico"
-      ],
-      "senales_textos": [
-        "Emparejamiento caotico: 50.0% de sorpresas historicas entre Real Oviedo y CD Leganes (2 precedentes con cuotas)."
-      ],
-      "signo_real": "2",
-      "acierto": true,
-      "pago_hipotetico_eur": 6.67
+      "partidos_vetados": []
     },
     {
       "jornada": 3,
@@ -79,12 +65,10 @@
       "prob_declarada": 34.9,
       "masa_pct": 23.0,
       "senales": [
-        "empatador",
-        "h2h_caotico"
+        "empatador"
       ],
       "senales_textos": [
-        "Cadiz CF empata el 32.1% historico (131 pj) -equipo empatador.",
-        "Emparejamiento caotico: 50.0% de sorpresas historicas entre UD Almeria y Cadiz CF (6 precedentes con cuotas)."
+        "Cadiz CF empata el 32.1% historico (131 pj) -equipo empatador."
       ],
       "signo_real": "1",
       "acierto": false,
@@ -107,11 +91,11 @@
       "prob_declarada": 26.6,
       "masa_pct": 9.0,
       "senales": [
-        "h2h_caotico",
+        "nemesis",
         "sobrecompra_publico"
       ],
       "senales_textos": [
-        "Emparejamiento caotico: 50.0% de sorpresas historicas entre Athletic Club y Elche CF (2 precedentes con cuotas).",
+        "Athletic Club es nuestra nemesis: solo 30.0% de acierto en 10 boletos (2 fallos por X).",
         "El publico sobre-compra a Athletic Club: viene de 2 sorpresas positivas en sus ultimos 3 partidos y la masa juega su signo al 85% cuando el motor le da 55% (+30 pts de overreaction)."
       ],
       "signo_real": "X",
@@ -123,18 +107,18 @@
       "estado": "valiente",
       "candidatos_evaluados": 28,
       "partidos_vetados": [],
-      "num": 3,
-      "partido": "Elche CF - Real Madrid CF",
+      "num": 8,
+      "partido": "Real Betis Balompie - Getafe CF",
       "signo": "X",
-      "prob_declarada": 24.6,
-      "masa_pct": 10.0,
+      "prob_declarada": 29.3,
+      "masa_pct": 18.0,
       "senales": [
-        "h2h_caotico"
+        "empatador"
       ],
       "senales_textos": [
-        "Emparejamiento caotico: 50.0% de sorpresas historicas entre Elche CF y Real Madrid CF (2 precedentes con cuotas)."
+        "Real Betis Balompie empata el 35.2% historico (122 pj) -equipo empatador."
       ],
-      "signo_real": "2",
+      "signo_real": "1",
       "acierto": false,
       "pago_hipotetico_eur": 0.0
     },
@@ -163,20 +147,20 @@
       "estado": "valiente",
       "candidatos_evaluados": 28,
       "partidos_vetados": [],
-      "num": 7,
-      "partido": "Burgos CF - Eldense",
+      "num": 4,
+      "partido": "Tenerife - Cadiz CF",
       "signo": "X",
-      "prob_declarada": 36.4,
-      "masa_pct": 14.0,
+      "prob_declarada": 34.0,
+      "masa_pct": 19.0,
       "senales": [
-        "h2h_caotico"
+        "nemesis"
       ],
       "senales_textos": [
-        "Emparejamiento caotico: 50.0% de sorpresas historicas entre Burgos CF y Eldense (4 precedentes con cuotas)."
+        "Tenerife es nuestra nemesis: solo 28.6% de acierto en 7 boletos (2 fallos por X)."
       ],
-      "signo_real": "1",
-      "acierto": false,
-      "pago_hipotetico_eur": 0.0
+      "signo_real": "X",
+      "acierto": true,
+      "pago_hipotetico_eur": 5.26
     },
     {
       "jornada": 10,
@@ -229,28 +213,90 @@
       "estado": "sin_valiente",
       "candidatos_evaluados": 28,
       "partidos_vetados": []
+    },
+    {
+      "jornada": 14,
+      "estado": "valiente_pendiente",
+      "num": 13,
+      "partido": "Eibar (F) - Deportivo (F)",
+      "signo": "2",
+      "prob_declarada": 28.2,
+      "masa_pct": 14.0,
+      "senales": [
+        "sobrecompra_publico"
+      ]
     }
   ],
   "resumen": {
-    "jornadas_evaluadas": 13,
-    "valientes": 10,
+    "jornadas_evaluadas": 14,
+    "valientes": 9,
     "aciertos": 4,
-    "esperados": 3.08,
-    "apostado_hipotetico_eur": 10.0,
-    "cobrado_hipotetico_eur": 36.16,
+    "esperados": 2.85,
+    "apostado_hipotetico_eur": 9.0,
+    "cobrado_hipotetico_eur": 34.75,
     "veredicto": "VERDE segun el prerregistro (aciertos >= esperados con >=2 aciertos): la señal merece la sombra, sigue sin merecer dinero."
+  },
+  "experimento_palpitos_v3": {
+    "descripcion": "Prerregistro v3 (17/10/2026, DECISION_LOG): CAMBIO A = señal nueva favorito_distinto_mercado (estudio_ver_sorpresas: favorito motor != mercado -> el del motor cae 64,3%, n=56, z=3,0); CAMBIO B = jubilar h2h_caotico (sin soporte en nuestros datos). Reglas escritas ANTES de ejecutar: A se despliega si v1+A mantiene VERDE con ratio >=1,15 y aciertos >= v1; B se jubila si v1-B no reduce aciertos ni ratio.",
+    "variantes": [
+      {
+        "jornadas_evaluadas": 14,
+        "valientes": 10,
+        "aciertos": 4,
+        "esperados": 3.08,
+        "apostado_hipotetico_eur": 10.0,
+        "cobrado_hipotetico_eur": 36.16,
+        "veredicto": "VERDE segun el prerregistro (aciertos >= esperados con >=2 aciertos): la señal merece la sombra, sigue sin merecer dinero.",
+        "variante": "v1 (criterio 14/10)",
+        "ratio": 1.3
+      },
+      {
+        "jornadas_evaluadas": 14,
+        "valientes": 10,
+        "aciertos": 4,
+        "esperados": 3.08,
+        "apostado_hipotetico_eur": 10.0,
+        "cobrado_hipotetico_eur": 36.16,
+        "veredicto": "VERDE segun el prerregistro (aciertos >= esperados con >=2 aciertos): la señal merece la sombra, sigue sin merecer dinero.",
+        "variante": "v1+A (señal mercado)",
+        "ratio": 1.3
+      },
+      {
+        "jornadas_evaluadas": 14,
+        "valientes": 9,
+        "aciertos": 4,
+        "esperados": 2.85,
+        "apostado_hipotetico_eur": 9.0,
+        "cobrado_hipotetico_eur": 34.75,
+        "veredicto": "VERDE segun el prerregistro (aciertos >= esperados con >=2 aciertos): la señal merece la sombra, sigue sin merecer dinero.",
+        "variante": "v1-B (sin h2h)",
+        "ratio": 1.4
+      },
+      {
+        "jornadas_evaluadas": 14,
+        "valientes": 9,
+        "aciertos": 4,
+        "esperados": 2.85,
+        "apostado_hipotetico_eur": 9.0,
+        "cobrado_hipotetico_eur": 34.75,
+        "veredicto": "VERDE segun el prerregistro (aciertos >= esperados con >=2 aciertos): la señal merece la sombra, sigue sin merecer dinero.",
+        "variante": "v1+A-B (criterio vivo v3)",
+        "ratio": 1.4
+      }
+    ],
+    "decision": "A DESPLEGADA (v1+A: VERDE, ratio 1.3, aciertos 4 >= 4; en J1-J13 no cambio ningun pick, se estrena en vivo) y B JUBILADA (v1-B: mismos 4 aciertos con ratio 1.4 >= 1.3). Criterio vivo = v1+A-B."
   },
   "experimento_vetos_v2": {
     "descripcion": "Vetos aprobados por Marc (14/10/2026): nada contra grandes que casi nunca empatan siendo favoritos (<18% de X historico) ni contra favoritos >=55%. Regla de despliegue prerregistrada ANTES de ejecutar: solo si v2 mantiene VERDE y el ratio aciertos/esperados no baja del de v1.",
-    "ratio_v1": 1.3,
-    "ratio_v2": 1.05,
+    "ratio_v1": 1.4,
+    "ratio_v2": 1.2,
     "resumen": {
-      "jornadas_evaluadas": 13,
-      "valientes": 9,
-      "aciertos": 3,
-      "esperados": 2.87,
-      "apostado_hipotetico_eur": 9.0,
-      "cobrado_hipotetico_eur": 17.1,
+      "jornadas_evaluadas": 14,
+      "valientes": 5,
+      "aciertos": 2,
+      "esperados": 1.67,
+      "apostado_hipotetico_eur": 5.0,
+      "cobrado_hipotetico_eur": 11.14,
       "veredicto": "VERDE segun el prerregistro (aciertos >= esperados con >=2 aciertos): la señal merece la sombra, sigue sin merecer dinero."
     },
     "jornadas": [
@@ -276,27 +322,13 @@
       },
       {
         "jornada": 2,
-        "estado": "valiente",
+        "estado": "sin_valiente",
         "candidatos_evaluados": 28,
-        "partidos_vetados": [],
-        "num": 8,
-        "partido": "Real Oviedo - CD Leganes",
-        "signo": "2",
-        "prob_declarada": 25.3,
-        "masa_pct": 15.0,
-        "senales": [
-          "h2h_caotico"
-        ],
-        "senales_textos": [
-          "Emparejamiento caotico: 50.0% de sorpresas historicas entre Real Oviedo y CD Leganes (2 precedentes con cuotas)."
-        ],
-        "signo_real": "2",
-        "acierto": true,
-        "pago_hipotetico_eur": 6.67
+        "partidos_vetados": []
       },
       {
         "jornada": 3,
-        "estado": "valiente",
+        "estado": "sin_valiente",
         "candidatos_evaluados": 24,
         "partidos_vetados": [
           {
@@ -315,21 +347,7 @@
               "grande_favorito"
             ]
           }
-        ],
-        "num": 9,
-        "partido": "Cadiz CF - Real Valladolid CF",
-        "signo": "2",
-        "prob_declarada": 29.6,
-        "masa_pct": 19.0,
-        "senales": [
-          "h2h_caotico"
-        ],
-        "senales_textos": [
-          "Emparejamiento caotico: 50.0% de sorpresas historicas entre Cadiz CF y Real Valladolid CF (2 precedentes con cuotas)."
-        ],
-        "signo_real": "X",
-        "acierto": false,
-        "pago_hipotetico_eur": 0.0
+        ]
       },
       {
         "jornada": 4,
@@ -383,12 +401,10 @@
         "prob_declarada": 34.9,
         "masa_pct": 23.0,
         "senales": [
-          "empatador",
-          "h2h_caotico"
+          "empatador"
         ],
         "senales_textos": [
-          "Cadiz CF empata el 32.1% historico (131 pj) -equipo empatador.",
-          "Emparejamiento caotico: 50.0% de sorpresas historicas entre UD Almeria y Cadiz CF (6 precedentes con cuotas)."
+          "Cadiz CF empata el 32.1% historico (131 pj) -equipo empatador."
         ],
         "signo_real": "1",
         "acierto": false,
@@ -444,7 +460,7 @@
       },
       {
         "jornada": 6,
-        "estado": "valiente",
+        "estado": "sin_valiente",
         "candidatos_evaluados": 22,
         "partidos_vetados": [
           {
@@ -473,21 +489,7 @@
               "grande_favorito"
             ]
           }
-        ],
-        "num": 10,
-        "partido": "Real Valladolid CF - Real Oviedo",
-        "signo": "2",
-        "prob_declarada": 30.9,
-        "masa_pct": 22.0,
-        "senales": [
-          "h2h_caotico"
-        ],
-        "senales_textos": [
-          "Emparejamiento caotico: 50.0% de sorpresas historicas entre Real Valladolid CF y Real Oviedo (2 precedentes con cuotas)."
-        ],
-        "signo_real": "2",
-        "acierto": true,
-        "pago_hipotetico_eur": 4.55
+        ]
       },
       {
         "jornada": 7,
@@ -606,20 +608,20 @@
             ]
           }
         ],
-        "num": 7,
-        "partido": "Burgos CF - Eldense",
+        "num": 4,
+        "partido": "Tenerife - Cadiz CF",
         "signo": "X",
-        "prob_declarada": 36.4,
-        "masa_pct": 14.0,
+        "prob_declarada": 34.0,
+        "masa_pct": 19.0,
         "senales": [
-          "h2h_caotico"
+          "nemesis"
         ],
         "senales_textos": [
-          "Emparejamiento caotico: 50.0% de sorpresas historicas entre Burgos CF y Eldense (4 precedentes con cuotas)."
+          "Tenerife es nuestra nemesis: solo 28.6% de acierto en 7 boletos (2 fallos por X)."
         ],
-        "signo_real": "1",
-        "acierto": false,
-        "pago_hipotetico_eur": 0.0
+        "signo_real": "X",
+        "acierto": true,
+        "pago_hipotetico_eur": 5.26
       },
       {
         "jornada": 10,
@@ -678,7 +680,7 @@
       },
       {
         "jornada": 11,
-        "estado": "valiente",
+        "estado": "sin_valiente",
         "candidatos_evaluados": 24,
         "partidos_vetados": [
           {
@@ -697,21 +699,7 @@
               "favorito_claro"
             ]
           }
-        ],
-        "num": 2,
-        "partido": "UD Almeria - Burgos CF",
-        "signo": "X",
-        "prob_declarada": 32.3,
-        "masa_pct": 22.0,
-        "senales": [
-          "h2h_caotico"
-        ],
-        "senales_textos": [
-          "Emparejamiento caotico: 75.0% de sorpresas historicas entre UD Almeria y Burgos CF (4 precedentes con cuotas)."
-        ],
-        "signo_real": "1",
-        "acierto": false,
-        "pago_hipotetico_eur": 0.0
+        ]
       },
       {
         "jornada": 12,
@@ -814,8 +802,20 @@
             ]
           }
         ]
+      },
+      {
+        "jornada": 14,
+        "estado": "valiente_pendiente",
+        "num": 13,
+        "partido": "Eibar (F) - Deportivo (F)",
+        "signo": "2",
+        "prob_declarada": 28.2,
+        "masa_pct": 14.0,
+        "senales": [
+          "sobrecompra_publico"
+        ]
       }
     ],
-    "decision": "NO DESPLEGADOS: el ratio paso de 1.3 a 1.05 y el pago hipotetico de 36.16 a 17.1 EUR. En la ejecucion original (14/10/2026) los vetos quitaron 2 de los 4 aciertos (favoritos de 55,3% y 55,8%) y los picks sustitutos fallaron. El criterio vivo sigue siendo v1; reactivar los vetos exige nuevo prerregistro con mas jornadas."
+    "decision": "NO DESPLEGADOS: el ratio paso de 1.4 a 1.2 y el pago hipotetico de 34.75 a 11.14 EUR. En la ejecucion original (14/10/2026) los vetos quitaron 2 de los 4 aciertos (favoritos de 55,3% y 55,8%) y los picks sustitutos fallaron. El criterio vivo sigue siendo v1; reactivar los vetos exige nuevo prerregistro con mas jornadas."
   }
 }

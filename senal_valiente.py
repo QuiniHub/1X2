@@ -130,6 +130,20 @@ APUESTA_HIPOTETICA_EUR = 1.0
 # vetos...) se auto-cambia. Reactivarla exige decision explicita de Marc.
 SENAL_SUSPENSION_MIN_VALIENTES = 8
 SENAL_SUSPENSION_FRACCION = 0.5
+# Prerregistro v3 (17/10/2026, "los palpitos de la maquina"): señal nueva
+# favorito_distinto_mercado (estudio_ver_sorpresas: favorito motor != mercado
+# -> el del motor cae 64,3%, n=56, z=3,0) y jubilacion de h2h_caotico (sin
+# soporte en nuestros datos), cada una con SU regla de despliegue escrita en
+# DECISION_LOG ANTES del backtest. SENALES_RETIRADAS se fija con el resultado:
+# las señales que esten aqui no cuentan en el criterio VIVO (el backtest las
+# sigue pudiendo evaluar por variantes).
+# RESULTADO v3 (17/10/2026, backtest por variantes en backtest_valiente.json):
+# A (señal nueva) PASA su regla (v1+A VERDE, ratio 1,30>=1,15, aciertos 4>=4;
+# en J1-J13 no cambio ningun pick: se estrena en vivo). B (jubilar h2h) PASA
+# (v1-B: 9 valientes, mismos 4 aciertos, ratio sube 1,30->1,40: la unica
+# valiente que aportaba era un fallo). Criterio vivo = v1 + A - B.
+SENALES_RETIRADAS = frozenset({"h2h_caotico"})
+PALPITOS_MAX = 3
 
 CRITERIO_GRADUACION = (
     f"Prerregistrado: con >={GRADUACION_MIN_VALIENTES} valientes evaluadas, si aciertos "
@@ -264,6 +278,37 @@ def senal_h2h(partido, historial=None):
             ),
         }
     return None
+
+
+def senal_favorito_mercado(partido, signo):
+    """Señal favorito_distinto_mercado (prerregistro v3, 17/10/2026): el
+    favorito del mercado Losilla en este partido es exactamente el signo
+    candidato, distinto del favorito del motor. Fundamento: estudio propio
+    estudio_ver_sorpresas.py -cuando motor y mercado no coinciden en
+    favorito, el favorito del motor cae el 64,3% (n=56, z=3,0), la señal
+    mas fuerte encontrada en casa. Usa mercado_losilla del propio partido
+    (presente igual en la prediccion viva y en los snapshots pre-cierre:
+    mismo camino, sin fuga)."""
+    probs = partido.get("probabilidades") or {}
+    mercado = partido.get("mercado_losilla") or {}
+    if not probs or not mercado:
+        return None
+    try:
+        fav_motor = max(SIGNOS, key=lambda s: float(probs.get(s) or 0))
+        fav_mercado = max(SIGNOS, key=lambda s: float(mercado.get(s) or 0))
+    except (TypeError, ValueError):
+        return None
+    if fav_mercado == fav_motor or fav_mercado != signo:
+        return None
+    return {
+        "tipo": "favorito_distinto_mercado",
+        "texto": (
+            f"El mercado ve otro partido: Losilla hace favorito al {signo} "
+            f"({float(mercado.get(signo) or 0):.0f}%) donde el motor prefiere el "
+            f"{fav_motor} -cuando discrepan asi, el favorito del motor cae el 64% "
+            "(56 casos propios, la señal mas fuerte de la casa)."
+        ),
+    }
 
 
 def senal_sobrecompra(partido, signo, masa_partido, sorpresas_equipo):
@@ -403,6 +448,7 @@ def evaluar_candidato(partido, signo, masa_partido, fuentes):
         senal_empatador(partido, signo, fuentes.get("estudio_x")),
         senal_h2h(partido, fuentes.get("h2h")),
         senal_sobrecompra(partido, signo, masa_partido, fuentes.get("sorpresas_equipo")),
+        senal_favorito_mercado(partido, signo),
     ):
         if senal and senal.get("tipo") not in suspendidas:
             senales.append(senal)
@@ -429,7 +475,9 @@ def elegir_valiente(partidos, masa, fuentes, aplicar_vetos=None, tipos_vetos=Non
     15/10/2026) limita que vetos se aplican -p.ej. {"grande_favorito"} para
     re-probar el veto grandes POR SEPARADO, como pide DECISION_LOG 14/10;
     no cambia nada cuando es None. Devuelve (eleccion, evaluados,
-    partidos_vetados)."""
+    partidos_vetados, candidatos_ordenados) -los candidatos ordenados son los
+    PALPITOS del prerregistro v3 (mismo ranking de siempre; el nº1 es la
+    valiente)."""
     if aplicar_vetos is None:
         aplicar_vetos = VETOS_V2_ACTIVOS
     candidatos = []
@@ -461,9 +509,9 @@ def elegir_valiente(partidos, masa, fuentes, aplicar_vetos=None, tipos_vetos=Non
             if candidato:
                 candidatos.append(candidato)
     if not candidatos:
-        return None, evaluados, vetados
+        return None, evaluados, vetados, []
     candidatos.sort(key=lambda c: (-c["ventaja_sobre_masa"], -len(c["senales"]), c["num"] or 99))
-    return candidatos[0], evaluados, vetados
+    return candidatos[0], evaluados, vetados, candidatos
 
 
 def advertencia_backtest():
@@ -522,8 +570,11 @@ def construir_bloque_valiente(prediccion, fuente_losilla, fuentes=None):
         # Freno del meta-aprendizaje (15/10/2026): las señales suspendidas por
         # el marcador real dejan de contar como señal dura en el bloque VIVO
         # (el backtest prerregistrado sigue evaluando el criterio v1 integro).
-        fuentes.setdefault("senales_suspendidas", senales_suspendidas_actuales())
-    eleccion, evaluados, vetados = elegir_valiente(partidos, masa, fuentes)
+        fuentes.setdefault(
+            "senales_suspendidas",
+            senales_suspendidas_actuales() | set(SENALES_RETIRADAS),
+        )
+    eleccion, evaluados, vetados, candidatos = elegir_valiente(partidos, masa, fuentes)
     suspendidas = sorted(fuentes.get("senales_suspendidas") or [])
     base = {
         "modo": "sombra",
@@ -534,10 +585,11 @@ def construir_bloque_valiente(prediccion, fuente_losilla, fuentes=None):
         "partidos_vetados": vetados,
         "criterio": (
             "Signo no-favorito con prob motor 18-45%, al menos una señal contextual dura "
-            "(revulsivo fuera, empatador/nemesis en X, H2H caotico >=50%, sobrecompra del publico) "
-            "y % de masa LAE al menos 8 puntos por debajo de la prob del motor. Maximo una por "
-            "jornada. (Vetos v2 probados y NO desplegados: su backtest prerregistrado empeoro "
-            "el criterio vivo; ver DECISION_LOG.md 14/10/2026.)"
+            "(revulsivo fuera, empatador/nemesis en X, sobrecompra del publico, favorito distinto "
+            "en el mercado -v3) y % de masa LAE al menos 8 puntos por debajo de la prob del motor. "
+            "Hasta 3 palpitos ordenados; el nº1 es la valiente y el unico que mide el marcador. "
+            "(Vetos v2 no desplegados y señal h2h_caotico jubilada por backtest: DECISION_LOG "
+            "14/10 y 17/10/2026.)"
         ),
         "aviso": AVISO_SOMBRA,
         "advertencia_backtest": advertencia_backtest(),
@@ -552,7 +604,18 @@ def construir_bloque_valiente(prediccion, fuente_losilla, fuentes=None):
                 "No se fuerza: declarar 'no hay valiente' es parte del diseño."
             ),
         }
-    return {**base, "estado": "ok", **eleccion}
+    # Palpitos (prerregistro v3): hasta 3 candidatos con el MISMO ranking de
+    # siempre. El nº1 es la valiente (unico que mide el marcador/graduacion);
+    # los demas son informativos, cada uno con su intensidad legible.
+    palpitos = []
+    for i, c in enumerate(candidatos[:PALPITOS_MAX], start=1):
+        palpitos.append({
+            "orden": i,
+            "es_la_valiente": i == 1,
+            "intensidad": min(3, len(c["senales"])) + (1 if c["ventaja_sobre_masa"] >= 15 else 0),
+            **c,
+        })
+    return {**base, "estado": "ok", "palpitos": palpitos, **eleccion}
 
 
 # ---------------------------------------------------------------------------
