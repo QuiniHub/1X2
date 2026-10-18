@@ -1523,6 +1523,21 @@
           </div>
           <p class="subtitle" style="margin:0 0 4px"><b>Señales duras detrás del pick:</b></p>
           <ul style="margin:0 0 10px;padding-left:20px;color:var(--fg,#333)">${senales}</ul>`;
+        // Pálpitos v3 (17/10/2026): los candidatos 2 y 3 del MISMO ranking,
+        // informativos — solo el nº1 (arriba) mide el marcador de sombra.
+        const otros = arr(bloque.palpitos).filter(p => Number(p.orden) > 1);
+        if (otros.length) {
+          const filas = otros.map(p => {
+            const fuego = '🔥'.repeat(Math.max(1, Math.min(4, Number(p.intensidad) || 1)));
+            const tipos = arr(p.senales).map(s => escapeHtml((s.tipo || '').replace(/_/g, ' '))).join(' · ');
+            return `<li style="margin:4px 0">${fuego} ${escapeHtml(p.local || '')} - ${escapeHtml(p.visitante || '')}
+              <span style="padding:1px 8px;border-radius:7px;background:#7c3aed14;border:1px solid #7c3aed55;color:#5b21b6;font-weight:700">${escapeHtml(p.signo || '?')}</span>
+              <span style="color:var(--muted,#888)">motor ${fmt(p.prob_motor, '-')}% · masa ${fmt(p.masa_pct, '-')}% · ${tipos}</span></li>`;
+          }).join('');
+          pickHtml += `
+          <p class="subtitle" style="margin:0 0 2px"><b>Otros pálpitos de la máquina</b> (informativos, no miden en el marcador):</p>
+          <ul style="margin:0 0 10px;padding-left:20px;color:var(--fg,#333)">${filas}</ul>`;
+        }
       } else if (bloque) {
         pickHtml = `<p class="subtitle" style="margin:0 0 10px;padding:8px 10px;border-radius:8px;background:var(--surface2,#f5f5f5);border:1px solid var(--border,#ddd)">
           🤫 <b>Esta jornada NO hay valiente.</b> ${escapeHtml(bloque.motivo || 'Ninguna candidata cumple señal dura + filtro de pago.')}</p>`;
