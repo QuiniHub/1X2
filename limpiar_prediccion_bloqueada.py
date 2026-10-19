@@ -45,6 +45,7 @@ CAMPOS_RAIZ_PREDICTIVOS = [
     "alertas_boleto",
     "boleto_ev_premio",
     "valiente",
+    "tercero_valor",
 ]
 
 

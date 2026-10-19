@@ -568,6 +568,19 @@
         </div>
         <div class="card-body" id="valienteBody"></div>
       </div>
+
+      <!-- Tercero de Valor (19/10/2026): el tercero (signo de menor
+           probabilidad) mejor pagado de la jornada — probabilidad CALIBRADA
+           por signo muy por encima del % de masa LAE — publicado y medido
+           SIN dinero. Lo calcula tercero_valor.py (bloque "tercero_valor");
+           el marcador vive en data/memoria_ia/marcador_tercero_valor.json. -->
+      <div class="card" id="terceroValorCard" style="display:none;margin-top:16px">
+        <div class="card-head">
+          <h2>💎 Tercero de Valor</h2>
+          <span class="tag" id="terceroValorTag" style="background:#0e749022;color:#0e7490">modo sombra · sin dinero</span>
+        </div>
+        <div class="card-body" id="terceroValorBody"></div>
+      </div>
     </section>
 
     <section id="aprendizaje" class="tab-panel">
@@ -1294,6 +1307,41 @@
           items.push(`<li>${brecha > 2 ? '🚨' : '⚖'} <strong>Regla 15</strong>: X cubiertas <b>${xCubiertas}</b> de ~${xEsperadas.toFixed(1)} ${bolas}${brecha > 2 ? ' · <b style="color:#b91c1c">brecha alta: recoloca dobles</b>' : ''}</li>`);
         }
       }
+      // 💎 Regla de los Terceros (19/10/2026, hallazgo con datos propios
+      // 26/27): el signo de MENOR probabilidad ("el tercero") cae ~3 veces
+      // por jornada y NINGUNA jornada tuvo cero. No se sabe CUÁL caerá
+      // (nadie lo logra: INVESTIGACION_SORPRESAS.md), pero tu jugada decide
+      // a cuáles sobrevives: cubres el tercero de un partido solo si tu
+      // doble/triple lo incluye. Reactivo a la jugada ACTUAL (selectedSigns),
+      // como la Regla 15; sin probabilidades publicadas no pinta nada (ni
+      // rompe). Mismo desempate que tercero_valor.py: a prob igual, el
+      // primero en el orden 1, X, 2.
+      if (partidos.length) {
+        let tEsperados = 0; const sobreviven = [], caen = [];
+        partidos.forEach(m => {
+          const probs = m.probabilidades || m.probabilidad_signos || {};
+          const vals = ['1', 'X', '2'].map(s => Number(probs[s]) || 0);
+          if (!vals.some(v => v > 0)) return;
+          let tercero = '1', minP = Infinity;
+          ['1', 'X', '2'].forEach(s => { const v = Number(probs[s]) || 0; if (v < minP) { minP = v; tercero = s; } });
+          tEsperados += minP / 100;
+          const jugado = normalizeSignText(selectedSigns(m) || '');
+          if (!jugado) return;
+          const num = m.num ?? m.numero ?? m.partido;
+          (jugado.includes(tercero) ? sobreviven : caen).push(`P${escapeHtml(String(num))}`);
+        });
+        const hayJugadaTerceros = partidos.some(m => normalizeSignText(selectedSigns(m) || ''));
+        if (tEsperados >= 0.5) {
+          if (!hayJugadaTerceros) {
+            items.push(`<li>💎 <strong>Regla de los Terceros</strong>: se esperan ~${tEsperados.toFixed(1)} terceros (el signo menos probable de cada partido) <span style="color:var(--muted)">(marca tu quiniela para ver cuáles te tumban)</span></li>`);
+          } else {
+            const tx = caen.length
+              ? `tu jugada sobrevive a los de [${sobreviven.join(', ') || '—'}] y cae con los de <b style="color:#b91c1c">[${caen.join(', ')}]</b>`
+              : `tu jugada sobrevive a todos los terceros que cubre [${sobreviven.join(', ') || '—'}]`;
+            items.push(`<li>💎 <strong>Regla de los Terceros</strong>: se esperan ~${tEsperados.toFixed(1)} · ${tx}</li>`);
+          }
+        }
+      }
       // 🎯 FIJO FORZADO (17/10/2026, proyecto fijos calibrados): los fallos
       // recurrentes del boleto son fijos de la banda 40-62% (hoy mismo
       // Villarreal 62% y Eibar 42%). La tabla real de calibración dice cuánto
@@ -1586,6 +1634,117 @@
         <p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ ${escapeHtml(bloque?.aviso || 'Experimental: modo sombra, sin dinero hasta graduarse con el criterio prerregistrado.')}</p>`;
     }
 
+    // 💎 Tercero de Valor (19/10/2026): pinta el bloque tercero_valor que
+    // calcula tercero_valor.py — el tercero mejor pagado de la jornada con su
+    // porqué en llano, el top-3 informativo, el marcador de sombra y la
+    // advertencia del backtest incrustada (en ROJO si el veredicto fue rojo:
+    // el prerregistro manda publicarla igualmente). NO toca la recomendación
+    // conservadora ni ningún boleto. Sin JSON (bloque o marcador ausentes) la
+    // tarjeta simplemente se oculta, sin romperse.
+    function renderTerceroValor() {
+      const card = qs('#terceroValorCard');
+      if (!card) return;
+      const bloque = state.prediccion?.tercero_valor;
+      const resumen = state.marcadorTerceroValor?.resumen;
+      const hayMarcador = resumen && Number(resumen.evaluados) > 0;
+      if (!bloque && !hayMarcador) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+
+      let pickHtml = '';
+      if (bloque && bloque.estado === 'ok') {
+        const pago = Number(bloque.pago_estimado_eur);
+        pickHtml = `
+          <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">El tercero</span>
+              <span style="font-size:18px;font-weight:800">${escapeHtml(bloque.local || '')} - ${escapeHtml(bloque.visitante || '')}
+                <span style="padding:3px 10px;border-radius:8px;background:#0e749022;border:1.5px solid #0e749088;color:#0e7490;margin-left:6px">${escapeHtml(bloque.signo || '?')}</span>
+              </span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Motor</span>
+              <span style="font-size:20px;font-weight:800">${fmt(bloque.prob_motor, '-')}%</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Calibrada</span>
+              <span style="font-size:20px;font-weight:800;color:#0e7490">${fmt(bloque.prob_calibrada, '-')}%</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">La masa lo juega</span>
+              <span style="font-size:20px;font-weight:800">${fmt(bloque.masa_pct, '-')}%</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Ventaja sobre la masa</span>
+              <span style="font-size:20px;font-weight:800;color:#15803d">+${fmt(bloque.ventaja_sobre_masa, '-')} pts</span>
+            </div>
+          </div>
+          <p class="subtitle" style="margin:0 0 8px">💡 <b>El porqué, en llano:</b> los terceros (el signo menos probable) caen ~3 por jornada
+            y nadie sabe cuáles. Pero la masa solo juega ESTE al ${fmt(bloque.masa_pct, '-')}% cuando su probabilidad
+            calibrada es del ${fmt(bloque.prob_calibrada, '-')}%: si cae, el reparto pari-mutuel pagaría
+            ~<b>${Number.isFinite(pago) ? pago.toFixed(0) : '?'}€ por cada 1€</b> (cuota justa 100/masa). Eso es lo que se mide aquí — en sombra.</p>`;
+        const decl = bloque.calibracion?.declaracion;
+        if (decl) {
+          pickHtml += `<p class="subtitle" style="margin:0 0 8px;color:var(--muted,#888)">🧮 ${escapeHtml(decl)}</p>`;
+        }
+      } else if (bloque) {
+        pickHtml = `<p class="subtitle" style="margin:0 0 10px;padding:8px 10px;border-radius:8px;background:var(--surface2,#f5f5f5);border:1px solid var(--border,#ddd)">
+          🤫 <b>Esta jornada NO hay Tercero de Valor.</b> ${escapeHtml(bloque.motivo || 'Ningún tercero cumple los umbrales prerregistrados.')}</p>`;
+      } else {
+        pickHtml = `<p class="subtitle" style="margin:0 0 10px">Sin chip esta jornada (predicción bloqueada o pendiente de generar).</p>`;
+      }
+
+      // top-3 informativo del ranking completo (solo el chip mide el marcador)
+      const top3 = arr(bloque?.top3);
+      if (top3.length) {
+        const filas = top3.map(t => {
+          const chip = t.es_el_chip ? ' 💎' : '';
+          const cumple = t.cumple_umbrales ? '' : ' <span style="color:var(--muted,#888)">(no cumple umbrales)</span>';
+          return `<li style="margin:4px 0">#${escapeHtml(String(t.orden || '?'))}${chip} ${escapeHtml(t.local || '')} - ${escapeHtml(t.visitante || '')}
+            <span style="padding:1px 8px;border-radius:7px;background:#0e749014;border:1px solid #0e749055;color:#0e7490;font-weight:700">${escapeHtml(t.signo || '?')}</span>
+            <span style="color:var(--muted,#888)">calibrada ${fmt(t.prob_calibrada, '-')}% · masa ${fmt(t.masa_pct, '-')}% · ventaja ${fmt(t.ventaja_sobre_masa, '-')} pts</span>${cumple}</li>`;
+        }).join('');
+        pickHtml += `
+          <p class="subtitle" style="margin:0 0 2px"><b>Top-3 del ranking</b> (informativo; solo el 💎 mide en el marcador):</p>
+          <ul style="margin:0 0 10px;padding-left:20px;color:var(--fg,#333)">${filas}</ul>`;
+      }
+
+      let marcadorHtml = '';
+      if (hayMarcador) {
+        const estados = {
+          en_sombra: ['en sombra', 'var(--muted,#888)'],
+          candidata_a_dinero: ['🏆 CANDIDATA A DINERO — avisar a Marc', '#15803d'],
+          suspendida: ['⛔ suspendida', '#b91c1c']
+        };
+        const [estTx, estColor] = estados[resumen.estado] || [resumen.estado || '', 'var(--muted,#888)'];
+        marcadorHtml = `<p class="subtitle" style="margin:0 0 4px">
+          <b>Marcador en sombra:</b> ${resumen.aciertos} acierto${resumen.aciertos === 1 ? '' : 's'} de ${resumen.evaluados}
+          (esperados ${fmt(resumen.esperados, '-')}) · hipotético: ${fmt(resumen.cobrado_hipotetico_eur, '0')} € cobrados
+          sobre ${fmt(resumen.apostado_hipotetico_eur, '0')} € apostados ·
+          <span style="font-weight:700;color:${estColor}">${escapeHtml(estTx)}</span></p>`;
+      } else {
+        marcadorHtml = `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> aún sin chips evaluados — empieza a contar cuando cierre la primera jornada con chip.</p>`;
+      }
+
+      // advertencia del backtest: ROJA si el veredicto prerregistrado fue rojo
+      let advertencia = '';
+      if (bloque?.advertencia_backtest) {
+        const esRojo = /ROJO/.test(bloque.advertencia_backtest);
+        const estilo = esRojo
+          ? 'background:#b91c1c14;border:1px solid #b91c1c55;color:#b91c1c'
+          : 'background:#b8860b14;border:1px solid #b8860b44;color:#7a5a06';
+        advertencia = `<p class="subtitle" style="margin:0 0 4px;padding:8px 10px;border-radius:8px;${estilo}">${esRojo ? '🚨' : '📋'} ${escapeHtml(bloque.advertencia_backtest)}</p>`;
+      }
+      const criterio = state.marcadorTerceroValor?.criterio_graduacion
+        ? `<p class="subtitle" style="margin:0 0 4px;color:var(--muted,#888)">${escapeHtml(state.marcadorTerceroValor.criterio_graduacion)}</p>`
+        : '';
+      qs('#terceroValorBody').innerHTML = `
+        ${pickHtml}
+        ${marcadorHtml}
+        ${advertencia}
+        ${criterio}
+        <p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ ${escapeHtml(bloque?.aviso || 'Experimental: modo sombra, sin dinero hasta graduarse con el criterio prerregistrado.')}</p>`;
+    }
+
     // 🧪 Laboratorio (15/10/2026): pinta el cuaderno de meta-aprendizaje por
     // modulo (aprendizaje_modulos.json). La logica de semaforos/numeros vive
     // en Python y esta testeada; aqui SOLO se pinta. Portada = 4 tarjetas
@@ -1820,6 +1979,7 @@
       renderAvisosJornada();
       renderBoletoEvPremio();
       renderValiente();
+      renderTerceroValor();
       applyTicketVisibility();
     }
 
@@ -4785,6 +4945,9 @@ No inventes — solo lo que ves con fondo oscuro.`;
       // Marcador de sombra de La Valiente (14/10/2026): acumulado de la
       // sorpresa formal por jornada. Carga aparte, mismo motivo que arriba.
       state.marcadorValiente = await getJson('data/memoria_ia/marcador_valiente.json', null);
+      // Marcador de sombra del Tercero de Valor (19/10/2026): acumulado del
+      // tercero mejor pagado por jornada. Carga aparte, mismo motivo.
+      state.marcadorTerceroValor = await getJson('data/memoria_ia/marcador_tercero_valor.json', null);
       // 🧪 Laboratorio (15/10/2026): cuaderno de meta-aprendizaje por modulo
       // y auditoria automatica con puerta. Carga aparte, mismo motivo: si aun
       // no existen, la pestaña lo dice claro en vez de romperse.

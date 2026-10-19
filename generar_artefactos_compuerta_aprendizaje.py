@@ -257,6 +257,19 @@ def construir_fiabilidad(aprendizaje, revisiones, generado_en):
     }
 
 
+def actualizar_marcador_tercero_valor_seguro():
+    """Marcador de sombra del Tercero de Valor (19/10/2026): mismo patron que
+    el de La Valiente -se actualiza en el ciclo de aprendizaje, pero un fallo
+    suyo jamas debe tumbar los artefactos de la compuerta."""
+    try:
+        from tercero_valor import actualizar_marcador_tercero_valor
+        resultado = actualizar_marcador_tercero_valor()
+        return resultado.get("nuevos", 0)
+    except Exception as exc:
+        print(f"AVISO: marcador del Tercero de Valor no actualizado: {exc}")
+        return 0
+
+
 def actualizar_marcador_valiente_seguro():
     """Marcador de sombra de La Valiente (14/10/2026): se actualiza en el
     mismo ciclo de aprendizaje que el RPS/calibracion, pero un fallo suyo
@@ -293,8 +306,9 @@ def generar_artefactos(aprendizaje=None):
     guardar_json(METRICAS, metricas)
     guardar_json(FIABILIDAD, fiabilidad)
     valientes_nuevas = actualizar_marcador_valiente_seguro()
+    terceros_nuevos = actualizar_marcador_tercero_valor_seguro()
     meta_modulos = actualizar_aprendizaje_modulos_seguro()
-    return {"revisiones": revisiones.get("total_revisiones", 0), "partidos_evaluados": metricas.get("partidos_evaluados", 0), "equipos": len(fiabilidad.get("equipos") or {}), "valientes_nuevas": valientes_nuevas, "meta_modulos": meta_modulos}
+    return {"revisiones": revisiones.get("total_revisiones", 0), "partidos_evaluados": metricas.get("partidos_evaluados", 0), "equipos": len(fiabilidad.get("equipos") or {}), "valientes_nuevas": valientes_nuevas, "terceros_nuevos": terceros_nuevos, "meta_modulos": meta_modulos}
 
 
 def main():

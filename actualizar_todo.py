@@ -63,6 +63,7 @@ SCRIPTS_NO_CRITICOS_RED = {
     "aprender_de_historial_resultados.py",
     "optimizador_ev_premio.py",
     "senal_valiente.py",
+    "tercero_valor.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
     "actualizar_resultados_apis.py",
@@ -171,6 +172,11 @@ SCRIPTS_ACTIVOS = [
     # dinero (bloque "valiente"). Corre tras el optimizador EV: lee la misma
     # prediccion corregida y los mismos % de apostantes LAE.
     "senal_valiente.py",
+    # Tercero de Valor (modo sombra, 19/10/2026): el tercero (signo de menor
+    # probabilidad) mejor pagado de la jornada -prob CALIBRADA por signo muy
+    # por encima del % de masa LAE- publicado y medido SIN dinero (bloque
+    # "tercero_valor"). Corre tras La Valiente: misma prediccion y misma masa.
+    "tercero_valor.py",
 
     # --- Premios ---
     "calcular_premios.py",

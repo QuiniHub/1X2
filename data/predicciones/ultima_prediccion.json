@@ -6922,5 +6922,76 @@
       "precision": 77.31,
       "fuente": "data/memoria_ia/aprendizaje_elige8.json"
     }
+  },
+  "tercero_valor": {
+    "modo": "sombra",
+    "generado_en": "2026-10-19T12:21:46.080253+00:00",
+    "jornada": 15,
+    "fuente_masa": "porcentajes_lae/2026_2027/jornada_15.json",
+    "calibracion": {
+      "metodo": "factor_global_por_signo",
+      "n": 250,
+      "factores": {
+        "1": 1.1083,
+        "X": 0.7261,
+        "2": 1.1333
+      },
+      "declaracion": "Prob calibrada = prob del motor x (frecuencia real / prob media) de su signo, medido sobre 250 partidos evaluados (calibracion_por_signo de metricas_probabilisticas.json). Es calibracion GLOBAL por signo, no por bandas: para signos no-favoritos no existe tabla por bandas con base estadistica."
+    },
+    "criterio": "Se clasifican los 14 terceros (el signo de MENOR probabilidad del motor de cada partido) por ventaja = prob CALIBRADA - % masa LAE. Chip: el mejor con prob calibrada >= 18% y ventaja >= 6 puntos (umbrales prerregistrados antes del backtest). La calibracion corrige el sesgo global por signo del motor -la trampa del selector ingenuo refutado el 14/10/2026 era justo comparar la prob CRUDA con la masa. Solo el chip mide en el marcador; el top-3 es informativo.",
+    "aviso": "Experimental, MODO SOMBRA: se publica y se mide, pero no entra en ningun boleto hasta graduarse con el criterio prerregistrado del marcador. Jugar dinero real lo decide siempre Marc.",
+    "advertencia_backtest": "Backtest retrospectivo 26/27 (criterio identico, calibracion reconstruida sin fuga de futuro): 1 acierto(s) en 14 chips cuando se esperaban 3.8. ROJO segun el prerregistro (aciertos < 60% de lo esperado): se despliega en sombra igualmente, con esta advertencia visible. Muestra pequeña: por eso esta en modo sombra y no toca ningun boleto.",
+    "top3": [
+      {
+        "orden": 1,
+        "es_el_chip": true,
+        "num": 2,
+        "local": "Liverpool",
+        "visitante": "Villarreal CF",
+        "signo": "2",
+        "prob_motor": 25.4,
+        "prob_calibrada": 28.8,
+        "masa_pct": 11.0,
+        "ventaja_sobre_masa": 17.8,
+        "cumple_umbrales": true
+      },
+      {
+        "orden": 2,
+        "es_el_chip": false,
+        "num": 14,
+        "local": "Getafe CF",
+        "visitante": "Lugano",
+        "signo": "2",
+        "prob_motor": 26.6,
+        "prob_calibrada": 30.1,
+        "masa_pct": 15.0,
+        "ventaja_sobre_masa": 15.1,
+        "cumple_umbrales": true
+      },
+      {
+        "orden": 3,
+        "es_el_chip": false,
+        "num": 8,
+        "local": "Brujas",
+        "visitante": "Lens",
+        "signo": "2",
+        "prob_motor": 25.3,
+        "prob_calibrada": 28.7,
+        "masa_pct": 16.0,
+        "ventaja_sobre_masa": 12.7,
+        "cumple_umbrales": true
+      }
+    ],
+    "estado": "ok",
+    "num": 2,
+    "local": "Liverpool",
+    "visitante": "Villarreal CF",
+    "signo": "2",
+    "prob_motor": 25.4,
+    "prob_calibrada": 28.8,
+    "masa_pct": 11.0,
+    "ventaja_sobre_masa": 17.8,
+    "cumple_umbrales": true,
+    "pago_estimado_eur": 9.09
   }
 }

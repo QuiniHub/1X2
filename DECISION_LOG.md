@@ -1651,3 +1651,86 @@ a propósito. Trazada en el bloque (campo x_de_autor con razón) y banda propia 
 web; la examinan cada jornada la calibración por signo y las estadísticas de X fija
 de la Regla 15. Solo aplica al FIJO: dobles y triples ya cubren la X por su criterio.
 6 tests nuevos (suite 647 OK).
+
+## 2026-10-19 — PRERREGISTRO: chip "💎 Tercero de Valor" (monetizar el pari-mutuel de los terceros)
+
+Hallazgo que lo motiva (datos propios 26/27, sesión del 19-20/10): el signo de MENOR
+probabilidad del motor ("el tercero") salió 42 veces en 196 partidos — 3 por jornada
+de media, NINGUNA jornada con cero — cuando el modelo esperaba 44. El motor está bien
+calibrado EN CONJUNTO y no hay edge en predecir CUÁL tercero cae (nadie lo logra:
+INVESTIGACION_SORPRESAS.md). La monetización posible está en el pari-mutuel: terceros
+que la masa juega muy por debajo de su probabilidad calibrada pagan desproporcionado
+al caer (J14: el 2 del Depor, 28% real vs 15% de masa, acertado).
+
+ADVERTENCIA de diseño que condiciona todo: el selector ingenuo de máxima brecha
+modelo-vs-masa ya fue refutado en casa (14/10: 1/13 aciertos vs 28% declarado —
+cosechaba las sobreestimaciones de X del propio motor). Por eso aquí la probabilidad
+del tercero va CALIBRADA antes de compararla con la masa.
+
+PRERREGISTRO (escrito ANTES de ejecutar el backtest; umbrales solo ajustables en este
+prerregistro inicial, jamás tras ver resultados):
+
+- Tercero = signo de MENOR probabilidad cruda del motor por partido (desempate: el
+  primero en el orden 1, X, 2).
+- CORRECCIÓN DE CALIBRACIÓN ELEGIDA (documentación exigida por el encargo): para
+  signos no-favoritos NO existe tabla por bandas (solo el favorito la tiene:
+  rps_calibracion.calibracion_favorito). `calibracion_por_signo` de
+  metricas_probabilisticas.json tampoco tiene bandas: es el sesgo GLOBAL por signo
+  (hoy n=250; la X se pronostica de media al 30,3% y sale el 22,0%). Se usa factor
+  MULTIPLICATIVO por signo: prob_calibrada = prob_cruda × (frecuencia_real_pct /
+  prob_media_pronosticada). Multiplicativo y no aditivo porque el sesgo está medido
+  en la media (~30 pts): restar 8,3 puntos planos a un tercero del 18% lo
+  sobrecorrige (y puede dar negativo). Freno de muestra prerregistrado: con menos de
+  100 partidos evaluados se usa la probabilidad CRUDA y se DECLARA en el bloque
+  (calibracion.metodo = "cruda_sin_calibrar"). El bloque publicado declara siempre
+  método, n y factores (campo `calibracion`).
+- Umbrales del chip: prob_calibrada >= 18% Y ventaja (prob_calibrada − % masa LAE
+  del tercero) >= 6 puntos.
+- Ranking de los 14 terceros por ventaja desc (desempate: prob_calibrada desc, luego
+  nº de partido). El chip = mejor clasificado que cumple AMBOS umbrales (único que
+  mide el marcador de sombra); se publica además el top-3 del ranking como
+  informativo con su flag cumple_umbrales. Sin candidatos → "sin_tercero_valor".
+- Backtest (backtest_tercero_valor.py): snapshots pre-cierre inmutables + % LAE
+  versionados; la calibración se RECONSTRUYE por jornada sin fuga de futuro (misma
+  fórmula que el artefacto vivo, solo con partidos evaluados antes de cada jornada;
+  por debajo del freno de 100, esa jornada va con prob cruda y así queda registrado).
+  Criterios: VERDE = aciertos >= esperados (suma de prob CALIBRADAS declaradas) y
+  >= 2 aciertos; ROJO = aciertos < 60% de esperados → se publica en sombra con
+  advertencia ROJA incrustada (como el EV); NEUTRO entre medias. Se despliega en
+  sombra DECIDA LO QUE DECIDA el backtest.
+- Graduación del marcador de sombra (marcador_tercero_valor.json, enganchado al
+  ciclo de aprendizaje, idempotente por temporada+jornada con verificación de
+  nombres del fixture como La Valiente): con >=12 chips evaluados, aciertos >=
+  esperados y >= 3 → candidata_a_dinero (avisar a Marc); < 60% de esperados →
+  suspendida; en medio, en_sombra.
+- NO toca la recomendación conservadora ni ningún boleto; jugar dinero lo decide
+  siempre Marc. Resultados del backtest: más abajo tras la ejecución.
+
+**RESULTADO del prerregistro (ejecutado 19/10/2026, backtest_tercero_valor.json):**
+14 chips en 15 jornadas (J15 pendiente), **1 acierto vs 3,83 esperados calibrados**
+(3,47 crudos) → **ROJO** (26% de lo esperado, muy por debajo del 60%). Pago
+hipotético 4,76€ sobre 14€ (el único acierto: J7 Deportivo-Sevilla → 2, masa 21%).
+J1-J4 fueron con probabilidad cruda declarada (muestra < 100); J5-J14 con factor
+por signo (la calibración movió el chip de signo X hacia 1/2 en varias jornadas:
+el factor X ~0,73 hace justo lo que debía). Lectura honesta: incluso CALIBRADO,
+el tercero de máxima ventaja sobre la masa sigue cosechando errores del motor más
+que errores de la masa — coherente con el selector ingenuo refutado el 14/10 y
+con la investigación (la sorpresa concreta no se predice). El prerregistro manda:
+SE DESPLIEGA EN SOMBRA IGUALMENTE con la advertencia ROJA incrustada en el bloque
+y pintada en rojo en la tarjeta web (como el EV), y el marcador de sombra decidirá
+con el criterio de graduación (suspensión automática si sigue < 60% con >=12
+chips). Los umbrales NO se retocan tras ver estos resultados.
+
+Desplegado: `tercero_valor.py` (pipeline, tras senal_valiente.py), bloque
+`tercero_valor` en ultima_prediccion.json + espejo (retirado por
+limpiar_prediccion_bloqueada si la predicción se bloquea), marcador
+`marcador_tercero_valor.json` enganchado a generar_artefactos_compuerta_aprendizaje
+(idempotente por temporada+jornada, verificación de nombres del fixture),
+medidor "💎 Regla de los Terceros" junto a la Regla 15 del panel de avisos
+(reactivo a selectedSigns; sin probabilidades no pinta nada) y tarjeta
+"💎 Tercero de Valor" tras La Valiente (se oculta sin datos). Verificado en
+navegador real: tarjeta con chip J15 (Liverpool-Villarreal → 2, 28,8% calibrada
+vs 11% masa) y advertencia roja; medidor en los tres estados (sin jugada /
+14 fijos → cae con los 14 / 3 dobles+1 triple → sobrevive a P12); ambas piezas
+sin romperse con los JSON/probabilidades ausentes y consola sin errores.
+39 tests nuevos (tests/test_tercero_valor.py); suite 686 OK.
