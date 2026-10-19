@@ -1411,6 +1411,67 @@ def signo_top(probs):
     return sorted(probs.items(), key=lambda x: x[1], reverse=True)[0][0]
 
 
+# --- X de autor (19/10/2026, peticion de Marc: "la maquina nunca pone una X
+# fija... no ha aprendido a tomar esas decisiones") -------------------------
+# Politica de decision del FIJO, backtesteada ANTES de desplegar sobre los 250
+# partidos aprendidos (prerregistro exprés del 18/10, reglas R1/R2/R3 en el
+# chat + DECISION_LOG): jugar X FIJA cuando (a) la X esta a <=3 puntos del
+# signo maximo Y (b) hay un equipo empatador en el partido. Resultado: empata
+# en aciertos totales con el argmax puro (137/250 ambas) y sus X fijas
+# aciertan el 50% (2/4) frente al ~24% base de la X -valentia sin coste
+# medible, con la X de autor trazada para que el Laboratorio y la calibracion
+# por signo la examinen jornada a jornada. Solo aplica al FIJO (dobles y
+# triples ya cubren la X por su propio criterio).
+X_AUTOR_MARGEN_MAX = 3.0
+X_AUTOR_EMPATADOR_PCT = 32.0
+X_AUTOR_EMPATADOR_ROL_PCT = 40.0
+
+_estudio_x_autor_cache = None
+
+
+def _empatadores_estudio():
+    global _estudio_x_autor_cache
+    if _estudio_x_autor_cache is None:
+        datos = cargar_json_generico(DATA / "memoria_ia" / "equipos_x_fiabilidad.json") or {}
+        _estudio_x_autor_cache = {
+            str(f.get("equipo") or ""): f
+            for f in datos.get("equipos_empatadores") or []
+        }
+    return _estudio_x_autor_cache
+
+
+def x_de_autor(probs, local, visitante, estudio=None):
+    """Devuelve la traza de la X de autor si la politica aplica, o None."""
+    try:
+        tope = max(float(v) for v in probs.values())
+        px = float(probs.get("X") or 0)
+    except (TypeError, ValueError):
+        return None
+    if signo_top(probs) == "X" or tope - px > X_AUTOR_MARGEN_MAX:
+        return None
+    from modelo_dixon_coles import clave_equipo  # mismo normalizador que el estudio
+    empatadores = estudio if estudio is not None else _empatadores_estudio()
+    for nombre, rol in ((local, "casa"), (visitante, "fuera")):
+        f = empatadores.get(clave_equipo(nombre))
+        if not f:
+            continue
+        pct = f.get("x_pct")
+        rol_pct = f.get(f"x_{rol}_pct")
+        if (pct is not None and float(pct) >= X_AUTOR_EMPATADOR_PCT) or (
+                rol_pct is not None and float(rol_pct) >= X_AUTOR_EMPATADOR_ROL_PCT):
+            return {
+                "activo": True,
+                "equipo": nombre,
+                "razon": (
+                    f"X DE AUTOR: la X esta a {tope - px:.1f} pts del maximo y "
+                    f"{nombre} es equipo empatador ({pct if pct is not None else rol_pct}% de X). "
+                    "Politica backtesteada 18/10/2026: mismas totales que el favorito puro, "
+                    "X fijas al 50% historico."
+                ),
+            }
+    return None
+
+
 def capas_profesionales_relevantes(datos_partido):
     capas = (datos_partido or {}).get("capas_disponibles") or {}
     return {
@@ -3398,6 +3459,15 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         else:
             signo = partido["signo_base"]
             tipo = "FIJO"
+            # X de autor (19/10/2026): en el fijo, la maquina se atreve con la
+            # X cuando esta pegada al maximo Y hay empatador -politica
+            # backtesteada, trazada abajo para la web y el Laboratorio.
+            autor = x_de_autor(
+                partido["probabilidades"], partido.get("local"), partido.get("visitante")
+            )
+            if autor:
+                signo = "X"
+                partido["_x_de_autor"] = autor
 
         explicacion = explicabilidad_partido(partido, signo, tipo)
         razonamiento = explicar(
@@ -3428,6 +3498,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "signo_base": partido["signo_base"],
             "signo_final": signo,
             "tipo": tipo,
+            "x_de_autor": partido.get("_x_de_autor") or {"activo": False},
             "incertidumbre": partido["incertidumbre"],
             "probabilidad_sorpresa": partido["probabilidad_sorpresa"],
             # Puntuaciones REALES de colocacion, exportadas para que la web

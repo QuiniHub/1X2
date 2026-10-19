@@ -1637,3 +1637,17 @@ senal_valiente.py, señal favorito_distinto_mercado activa, y el bloque publica 
 Nota de los datos vivos: equipos_x_fiabilidad y fiabilidad-némesis se regeneran cada
 ciclo, así que los picks reconstruidos de v1 difieren levemente de la foto del 14/10
 (caveat ya documentado entonces); los totales se mantienen (10/4/1,30).
+
+## 2026-10-19 — X DE AUTOR: el fijo aprende a jugarse el empate
+
+Marc señaló (con razón) que el motor JAMÁS pone una X fija: el signo del fijo era
+argmax puro, así que la decisión "me juego el empate" no existía. Política nueva en
+el punto de decisión del FIJO (motor_prediccion_quiniela.py, x_de_autor()): X FIJA
+cuando la X está a <=3 puntos del signo máximo Y hay equipo empatador en el partido
+(umbral 32% general / 40% en su rol). Backtest previo (18/10, 250 partidos
+aprendidos): empata en aciertos totales con el argmax (137/250 ambas) y sus X fijas
+aciertan el 50% (2/4) vs ~24% base de la X. Dispara ~4 veces por 250 partidos: rara
+a propósito. Trazada en el bloque (campo x_de_autor con razón) y banda propia en la
+web; la examinan cada jornada la calibración por signo y las estadísticas de X fija
+de la Regla 15. Solo aplica al FIJO: dobles y triples ya cubren la X por su criterio.
+6 tests nuevos (suite 647 OK).

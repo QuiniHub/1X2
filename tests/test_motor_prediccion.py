@@ -1094,3 +1094,41 @@ class PrioridadDesacuerdoMercadoTests(unittest.TestCase):
         sin = motor.prioridad_cobertura(self._partido({}))
         nulo = motor.prioridad_cobertura(self._partido({"1": 0.0, "X": 0.0, "2": 0.0}))
         self.assertEqual(sin, nulo)
+
+
+class XDeAutorTests(unittest.TestCase):
+    """Politica X de autor (19/10/2026): X fija cuando esta a <=3 pts del
+    maximo Y hay empatador (backtest 18/10: 137/250 = argmax puro, X al 50%)."""
+
+    def _estudio(self, x_pct=36.0, x_casa=None, x_fuera=None):
+        return {"cadiz": {"equipo": "cadiz", "x_pct": x_pct,
+                          "x_casa_pct": x_casa, "x_fuera_pct": x_fuera}}
+
+    def test_dispara_con_margen_corto_y_empatador(self):
+        autor = motor.x_de_autor({"1": 38.0, "X": 35.5, "2": 26.5},
+                                 "Cadiz CF", "Levante UD", estudio=self._estudio())
+        self.assertIsNotNone(autor)
+        self.assertTrue(autor["activo"])
+        self.assertIn("X DE AUTOR", autor["razon"])
+
+    def test_no_dispara_con_margen_largo(self):
+        self.assertIsNone(motor.x_de_autor({"1": 42.0, "X": 35.0, "2": 23.0},
+                                           "Cadiz CF", "Levante UD", estudio=self._estudio()))
+
+    def test_no_dispara_sin_empatador(self):
+        self.assertIsNone(motor.x_de_autor({"1": 38.0, "X": 35.5, "2": 26.5},
+                                           "Rayo", "Levante UD", estudio={}))
+
+    def test_no_dispara_si_la_x_ya_es_top(self):
+        self.assertIsNone(motor.x_de_autor({"1": 30.0, "X": 40.0, "2": 30.0},
+                                           "Cadiz CF", "Levante UD", estudio=self._estudio()))
+
+    def test_dispara_por_rol_casa(self):
+        estudio = self._estudio(x_pct=25.0, x_casa=45.0)
+        autor = motor.x_de_autor({"1": 37.0, "X": 34.5, "2": 28.5},
+                                 "Cadiz CF", "Levante UD", estudio=estudio)
+        self.assertIsNotNone(autor)
+
+    def test_probs_rotas_no_rompen(self):
+        self.assertIsNone(motor.x_de_autor({"1": None, "X": "x", "2": 30},
+                                           "Cadiz CF", "Levante UD", estudio=self._estudio()))

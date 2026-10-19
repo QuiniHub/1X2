@@ -1217,6 +1217,16 @@
       return { fijo: orden[0], doble, sorpresa, sorpresaFueraDelDoble: !doble.includes(sorpresa) };
     }
 
+    // X de autor (19/10/2026): el motor se juega la X FIJA por politica
+    // backtesteada (X a <=3 pts del maximo + empatador). Banda propia para
+    // que se vea que es una decision de autor, no un argmax.
+    function xDeAutorBanda(match) {
+      const autor = match.x_de_autor;
+      if (!autor || !autor.activo) return '';
+      return `<div style="margin:6px 0;padding:7px 10px;border-radius:8px;background:#7c3aed14;border:1.5px dashed #7c3aed88;color:#5b21b6;font-size:13px">
+        🫀 <b>X DE AUTOR</b> — ${escapeHtml(autor.razon || 'la maquina se juega el empate por politica backtesteada.')}</div>`;
+    }
+
     function avisoRiesgoBanda(match) {
       if (!esRiesgoAlto(match)) return '';
       const motivos = arr(match.motivos_sorpresa).slice(0, 2).join(' · ');
@@ -1795,6 +1805,7 @@
           <div class="teams">
             <strong>${escapeHtml(match.local || match.equipo_local)} <span style="color:var(--muted);font-weight:700">vs</span> ${escapeHtml(match.visitante || match.equipo_visitante)}</strong>
             <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8Label}${probabilityText(match)}</div>
+            ${xDeAutorBanda(match)}
             ${avisoRiesgoBanda(match)}
             ${avisoMillonarioBanda(match)}
             ${coberturaMismatchNote(match)}
