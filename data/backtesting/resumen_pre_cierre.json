@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-20T20:26:45.335324+00:00",
+  "generado_en": "2026-10-20T23:24:33.409882+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 26,
-    "partidos_cerrados": 350,
-    "aciertos": 218,
-    "precision": 62.29
+    "partidos_cerrados": 355,
+    "aciertos": 221,
+    "precision": 62.25
   },
   "jornadas": [
     {
@@ -1538,10 +1538,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_15.json",
       "creado_en": "2026-10-18T22:25:12.271371+00:00",
       "prediccion_generada_en": "2026-10-18T22:25:12.270926+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
-      "aciertos": 0,
-      "precision": null,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 5,
+      "aciertos": 3,
+      "precision": 60.0,
       "configuracion": {
         "dobles": 4,
         "triples": 2,
@@ -1562,19 +1562,95 @@
       },
       "por_tipo": {
         "FIJO": {
-          "total": 0,
+          "total": 2,
           "aciertos": 0
         },
         "DOBLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 2,
+          "aciertos": 2
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 1,
+          "aciertos": 1
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 1,
+          "partido": "Oporto - Psv",
+          "jugado": "X2",
+          "tipo": "DOBLE",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 22.9,
+            "X": 28.4,
+            "2": 48.7
+          },
+          "incertidumbre": 127.43,
+          "probabilidad_sorpresa": 60.7
+        },
+        {
+          "num": 2,
+          "partido": "Liverpool - Villarreal CF",
+          "jugado": "1X",
+          "tipo": "DOBLE",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 49.3,
+            "X": 26.5,
+            "2": 24.2
+          },
+          "incertidumbre": 121.56,
+          "probabilidad_sorpresa": 58.6
+        },
+        {
+          "num": 3,
+          "partido": "Manchester City - Aek Atenas",
+          "jugado": "2",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": false,
+          "probabilidades": {
+            "1": 19.2,
+            "X": 22.1,
+            "2": 58.7
+          },
+          "incertidumbre": 107.99,
+          "probabilidad_sorpresa": 45.8
+        },
+        {
+          "num": 4,
+          "partido": "Nápoles - Bodo Glimt",
+          "jugado": "2",
+          "tipo": "FIJO",
+          "oficial": "1",
+          "acierto": false,
+          "probabilidades": {
+            "1": 31.7,
+            "X": 32.1,
+            "2": 36.2
+          },
+          "incertidumbre": 143.99,
+          "probabilidad_sorpresa": 70
+        },
+        {
+          "num": 5,
+          "partido": "Stuttgart - Club Atletico de Madrid",
+          "jugado": "1X2",
+          "tipo": "TRIPLE",
+          "oficial": "X",
+          "acierto": true,
+          "probabilidades": {
+            "1": 35.0,
+            "X": 32.5,
+            "2": 32.5
+          },
+          "incertidumbre": 146.93,
+          "probabilidad_sorpresa": 70
+        }
+      ]
     },
     {
       "jornada": 2,
