@@ -1734,3 +1734,32 @@ vs 11% masa) y advertencia roja; medidor en los tres estados (sin jugada /
 14 fijos → cae con los 14 / 3 dobles+1 triple → sobrevive a P12); ambas piezas
 sin romperse con los JSON/probabilidades ausentes y consola sin errores.
 39 tests nuevos (tests/test_tercero_valor.py); suite 686 OK.
+
+## 2026-10-21 — Estudio TERCEROS España (J1-14 2026-27) + autopsia Oporto-PSV
+
+Peticion de Marc tras el 0-1 del Oporto (tercero con 13% de masa): buscar patron en
+TODOS los resultados de Primera/Segunda/Liga F que salieron con el signo menos
+apostado. `estudio_terceros_espana.py` (prerregistrado, solo reporta), informe en
+`data/memoria_ia/estudio_terceros_espana.json`. Dataset: 139 partidos, 25 terceros (18%).
+
+Veredictos prereg: T1 valor oculto x0,8 DESCARTADA (winner's curse, coincide con
+backtest rojo de Tercero de Valor); T2 sobrecompra x0,46 DESCARTADA para terceros
+(la sobrecompra tumba al favorito hacia la X, no hacia el tercero); T3 favorito
+motor!=Losilla x0,96 DESCARTADA para terceros (sigue viva para "favorito cae");
+T4 calidad/incertidumbre x0,99 DESCARTADA; T7 revulsivo/alertas x0,57 DESCARTADA;
+T5 partido sin dueño (top<45) x1,48 INDETERMINADA (unica que roza; 21,4% vs 14,5%),
+a seguimiento prospectivo. T6: Segunda 20% > Primera 16%; Liga F 18%.
+
+Hallazgos descriptivos solidos: el tercero NUNCA fue X (0/25): es el 2 de un
+visitante despreciado (19) o el 1 de un local sin respeto (6). Y hay equipos
+tercero-genicos: Eibar F en 4 de los 5 terceros de Liga F; Levante en casa 2 de
+los 6 "unos"; Real Oviedo y Granada 3 apariciones cada uno (ganan fuera cuando
+nadie los ve, caen en casa de favoritos). Athletic masculino 3.
+
+Autopsia Oporto-PSV (agente web): la señal ex-ante real era FAVORITO INFLADO
+(8/8 en liga blanda + 0 pts y 5 encajados en Champions + 2-1 tirado en Sevilla
+6 dias antes) -> valor honesto ~50/22/28, partido de cubrir, no de fijar. El 2
+concreto era impredecible (mercado movio la linea HACIA el Oporto; PSV con 3
+derrotas fuera seguidas y 6-7 bajas). Nueva pregunta de ojeador para favoritos
+europeos en casa: "¿su fama viene de su liga o de Europa?". Caso 1 del cuaderno:
+Brujas-Lens J15 (farol a medias; veredicto esta noche).
