@@ -64,6 +64,7 @@ SCRIPTS_NO_CRITICOS_RED = {
     "optimizador_ev_premio.py",
     "senal_valiente.py",
     "tercero_valor.py",
+    "radar_tormenta.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
     "actualizar_resultados_apis.py",
@@ -177,6 +178,11 @@ SCRIPTS_ACTIVOS = [
     # por encima del % de masa LAE- publicado y medido SIN dinero (bloque
     # "tercero_valor"). Corre tras La Valiente: misma prediccion y misma masa.
     "tercero_valor.py",
+    # Radar de Tormenta (modo sombra, 21/10/2026): hasta 3 partidos en "zona
+    # de tormenta" (sin dueño / equipos del caos del estudio de terceros) con
+    # su signo del rayo (no-X de menor masa), publicado y medido SIN dinero
+    # (bloque "radar_tormenta"). Corre tras Tercero de Valor: misma masa.
+    "radar_tormenta.py",
 
     # --- Premios ---
     "calcular_premios.py",

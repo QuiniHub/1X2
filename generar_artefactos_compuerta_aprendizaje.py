@@ -283,6 +283,18 @@ def actualizar_marcador_valiente_seguro():
         return 0
 
 
+def actualizar_marcador_radar_seguro():
+    """Marcador de sombra del Radar de Tormenta (21/10/2026): mismo patron
+    que el de La Valiente -un fallo suyo jamas tumba la compuerta."""
+    try:
+        from radar_tormenta import actualizar_marcador_radar
+        resultado = actualizar_marcador_radar()
+        return resultado.get("nuevas", 0)
+    except Exception as exc:
+        print(f"AVISO: marcador del Radar de Tormenta no actualizado: {exc}")
+        return 0
+
+
 def actualizar_aprendizaje_modulos_seguro():
     """Cuaderno de meta-aprendizaje por modulo + auto-correcciones acotadas +
     auditoria cada 5 jornadas (15/10/2026): corre en el mismo ciclo que el
@@ -307,8 +319,9 @@ def generar_artefactos(aprendizaje=None):
     guardar_json(FIABILIDAD, fiabilidad)
     valientes_nuevas = actualizar_marcador_valiente_seguro()
     terceros_nuevos = actualizar_marcador_tercero_valor_seguro()
+    radar_nuevas = actualizar_marcador_radar_seguro()
     meta_modulos = actualizar_aprendizaje_modulos_seguro()
-    return {"revisiones": revisiones.get("total_revisiones", 0), "partidos_evaluados": metricas.get("partidos_evaluados", 0), "equipos": len(fiabilidad.get("equipos") or {}), "valientes_nuevas": valientes_nuevas, "terceros_nuevos": terceros_nuevos, "meta_modulos": meta_modulos}
+    return {"revisiones": revisiones.get("total_revisiones", 0), "partidos_evaluados": metricas.get("partidos_evaluados", 0), "equipos": len(fiabilidad.get("equipos") or {}), "valientes_nuevas": valientes_nuevas, "terceros_nuevos": terceros_nuevos, "radar_nuevas": radar_nuevas, "meta_modulos": meta_modulos}
 
 
 def main():

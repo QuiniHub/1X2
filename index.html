@@ -1240,6 +1240,22 @@
         🫀 <b>X DE AUTOR</b> — ${escapeHtml(autor.razon || 'la maquina se juega el empate por politica backtesteada.')}</div>`;
     }
 
+    // Radar de Tormenta (21/10/2026, sombra): la zona donde es más probable
+    // que caiga el resultado que nadie ve (estudio de terceros J1-14, DECISION_LOG
+    // 21/10). No cambia ningún signo: insignia informativa con el signo del rayo.
+    function radarTormentaBanda(match) {
+      const radar = state.prediccion?.radar_tormenta;
+      if (!radar || radar.estado !== 'ok') return '';
+      const num = Number(match.num ?? match.numero ?? match.partido);
+      const z = arr(radar.zona).find(x => Number(x.num) === num);
+      if (!z) return '';
+      const motivos = arr(z.motivos).slice(0, 2).join(' · ');
+      return `<div style="margin:6px 0;padding:7px 10px;border-radius:8px;background:#0ea5e914;border:1.5px dashed #0ea5e988;color:#075985;font-size:13px">
+        ⛈️ <b>ZONA DE TORMENTA</b> — si hoy cae la sorpresa que nadie ve, el radar la espera aquí: rayo al <b>${escapeHtml(z.signo_rayo || '')}</b>${z.masa_rayo != null ? ` (solo lo juega el ${labNum(z.masa_rayo, 0)}% de España)` : ''}
+        <div class="aviso-detalle">${escapeHtml(motivos)} · sombra: no cambia tu signo</div>
+      </div>`;
+    }
+
     function avisoRiesgoBanda(match) {
       if (!esRiesgoAlto(match)) return '';
       const motivos = arr(match.motivos_sorpresa).slice(0, 2).join(' · ');
@@ -1924,7 +1940,31 @@
           + labTabla(['Jornada', 'Fijos acertados', 'Fijos fallados (banda y partido)'], filasFbJ),
         labAjuste(null, 'solo reporta: la colocación calibrada de dobles/triples tiene su propio backtest prerregistrado (DECISION_LOG 17/10)'));
 
-      cont.innerHTML = cardDc + cardEv + cardVal + cardRev + cardFb;
+      // --- Radar de Tormenta (21/10/2026, estudio de terceros España) ---
+      const mRadar = state.marcadorRadar || {};
+      const rRadar = mRadar.resumen || {};
+      const radarVivo = state.prediccion?.radar_tormenta;
+      const semRadar = {
+        semaforo: rRadar.veredicto === 'candidata' ? 'verde' : (rRadar.veredicto === 'despido' ? 'rojo' : 'ambar'),
+        texto_semaforo: rRadar.veredicto === 'candidata' ? 'candidata a graduarse'
+          : rRadar.veredicto === 'despido' ? 'despido: no concentra terceros'
+          : `en prueba (${fmt(rRadar.jornadas_evaluadas, 0)} de 10 jornadas)`,
+      };
+      const filasRadar = arr(mRadar.jornadas).map(j => [
+        `J${fmt(j.jornada, '?')}`,
+        arr(j.zona).map(z => `${escapeHtml(z.partido || '')} ⛈️${escapeHtml(z.signo_rayo || '')}`).join('<br>') || '<span style="color:var(--muted)">sin zona</span>',
+        `${fmt(j.terceros_en_zona)}/${fmt(j.terceros_totales)}`,
+        fmt(j.rayos_acertados),
+      ]);
+      const zonaVivaHtml = radarVivo && radarVivo.estado === 'ok'
+        ? `<p class="subtitle" style="font-size:12.5px;margin:8px 0 0">⛈️ Zona viva de esta jornada: ${arr(radarVivo.zona).map(z => `${escapeHtml(z.local || '')} - ${escapeHtml(z.visitante || '')} (rayo ${escapeHtml(z.signo_rayo || '')})`).join(' · ')}</p>`
+        : (radarVivo ? `<p class="subtitle" style="font-size:12.5px;margin:8px 0 0">${escapeHtml(radarVivo.motivo || 'sin zona esta jornada')}</p>` : '');
+      const cardRadar = labCard('⛈️', 'Radar de Tormenta', 'Su promesa (en sombra): los terceros caen DENTRO de su zona más que fuera (≥1,5×)', semRadar,
+        rRadar.jornadas_evaluadas ? `${labNum(rRadar.tasa_terceros_dentro_pct, 1)}% <span style="color:var(--muted);font-weight:700;font-size:14px">dentro vs</span> ${labNum(rRadar.tasa_terceros_fuera_pct, 1)}% <span style="color:var(--muted);font-weight:700;font-size:14px">fuera</span>` : 'sin jornadas aún',
+        labTabla(['Jornada', 'Zona marcada', 'Terceros en zona / totales', 'Rayos exactos'], filasRadar) + zonaVivaHtml,
+        labAjuste(null, 'umbrales y lista de equipos del caos congelados (DECISION_LOG 21/10): el examen es solo con jornadas nuevas'));
+
+      cont.innerHTML = cardDc + cardEv + cardVal + cardRev + cardFb + cardRadar;
     }
 
     function renderTicket() {
@@ -1964,6 +2004,7 @@
           <div class="teams">
             <strong>${escapeHtml(match.local || match.equipo_local)} <span style="color:var(--muted);font-weight:700">vs</span> ${escapeHtml(match.visitante || match.equipo_visitante)}</strong>
             <div class="line-meta"><span class="bet-type">${escapeHtml(betType(match))}</span>${elige8Label}${probabilityText(match)}</div>
+            ${radarTormentaBanda(match)}
             ${xDeAutorBanda(match)}
             ${avisoRiesgoBanda(match)}
             ${avisoMillonarioBanda(match)}
@@ -4948,6 +4989,9 @@ No inventes — solo lo que ves con fondo oscuro.`;
       // Marcador de sombra del Tercero de Valor (19/10/2026): acumulado del
       // tercero mejor pagado por jornada. Carga aparte, mismo motivo.
       state.marcadorTerceroValor = await getJson('data/memoria_ia/marcador_tercero_valor.json', null);
+      // Marcador de sombra del Radar de Tormenta (21/10/2026): concentración
+      // de terceros dentro/fuera de la zona. Carga aparte, mismo motivo.
+      state.marcadorRadar = await getJson('data/memoria_ia/marcador_radar_tormenta.json', null);
       // 🧪 Laboratorio (15/10/2026): cuaderno de meta-aprendizaje por modulo
       // y auditoria automatica con puerta. Carga aparte, mismo motivo: si aun
       // no existen, la pestaña lo dice claro en vez de romperse.

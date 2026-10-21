@@ -1763,3 +1763,24 @@ concreto era impredecible (mercado movio la linea HACIA el Oporto; PSV con 3
 derrotas fuera seguidas y 6-7 bajas). Nueva pregunta de ojeador para favoritos
 europeos en casa: "¿su fama viene de su liga o de Europa?". Caso 1 del cuaderno:
 Brujas-Lens J15 (farol a medias; veredicto esta noche).
+
+## 2026-10-21 — Radar de Tormenta desplegado en MODO SOMBRA
+
+Peticion de Marc ("¿no hay algoritmo que ayude a VISUALIZAR que partido tendra el
+resultado que nadie vaticina?"). Respuesta honesta: el partido exacto no lo predice
+nadie (3 estudios + bibliografia); lo que si se puede señalar es la ZONA. Nuevo
+`radar_tormenta.py` (patron senal_valiente): hasta 3 partidos con score >= 2
+(+2 favorito motor <45% "sin dueño", unica hipotesis que rozo umbral en el estudio
+de terceros; +2 por equipo del caos en su contexto: Eibar F, Levante en casa,
+Oviedo/Granada fuera, Athletic), cada uno con su "signo del rayo" = signo NO-X de
+menor masa LAE (los 25 terceros de J1-14: 19 doses, 6 unos, 0 equis). Publica el
+bloque `radar_tormenta` en ultima_prediccion + espejo; insignia ⛈️ en la web sobre
+el partido y tarjeta propia en el Laboratorio. Marcador prospectivo
+`marcador_radar_tormenta.json` (concentracion de terceros dentro/fuera de zona;
+graduacion prerregistrada: >=10 jornadas, dentro >= 1,5x fuera y >=5 capturados;
+despido si dentro <= fuera). Advertencia de circularidad declarada: la lista de
+caos sale de J1-14, el examen solo cuenta jornadas posteriores al despliegue.
+Umbrales y lista congelados: cambiarlos exige nueva entrada aqui. En pipeline tras
+tercero_valor.py; marcador en la compuerta de aprendizaje. 20 tests nuevos
+(tests/test_radar_tormenta.py), suite 706 OK. Dry-run J15 (sin publicar): zona
+Celtic-Celta rayo 2, Como-United rayo 1, Bayern-Arsenal rayo 2.
