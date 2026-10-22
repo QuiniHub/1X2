@@ -74,7 +74,7 @@ derrite (5-1, 4-0). TRIPLE DE LIBRO. La tijera aquí está PROHIBIDA.
 **P14 Real Madrid F–Costa Adeje:** el fijo del lote femenino. Única grieta: la X
 (ya firmó un 0-0 en casa este año). 1.
 
-**P15 PLENO — EL CLÁSICO (Montjuïc/Camp Nou):** Barça perfecto en liga (9 de 9, 39
+**P15 PLENO — EL CLÁSICO (Camp Nou, en obras, ~60.000):** Barça perfecto en liga (9 de 9, 39
 goles) pero tocado: perdió 4-2 en París el martes, sin Olmo (roto en París), Koundé
 casi descartado. El Madrid de Mourinho sin Vinícius (4 de sanción), sin Rodrygo, pero
 con Mbappé (12 goles en 10 partidos al Barça) y más fresco (jugó en casa). El Madrid
