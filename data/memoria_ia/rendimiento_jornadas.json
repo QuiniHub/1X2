@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-22T20:32:29.712649+00:00",
+  "generado_en": "2026-10-22T23:37:08.754537+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -1964,17 +1964,17 @@
     },
     "15": {
       "jornada": 15,
-      "partidos_cerrados": 12,
-      "partidos_con_prediccion": 12,
-      "precision_boleto": 75.0,
-      "precision_top1": 66.67,
-      "brier_medio": 0.5126,
-      "logloss_medio": 0.8903,
+      "partidos_cerrados": 14,
+      "partidos_con_prediccion": 14,
+      "precision_boleto": 78.57,
+      "precision_top1": 64.29,
+      "brier_medio": 0.5184,
+      "logloss_medio": 0.8977,
       "por_tipo": {
         "FIJO": {
-          "total": 7,
-          "aciertos": 5,
-          "precision": 71.43
+          "total": 8,
+          "aciertos": 6,
+          "precision": 75.0
         },
         "DOBLE": {
           "total": 4,
@@ -1982,18 +1982,25 @@
           "precision": 75.0
         },
         "TRIPLE": {
-          "total": 1,
-          "aciertos": 1,
+          "total": 2,
+          "aciertos": 2,
           "precision": 100.0
         }
       },
       "elige8": {
-        "selecciones": 7,
-        "aciertos": 6,
-        "precision": 85.71
+        "selecciones": 8,
+        "aciertos": 7,
+        "precision": 87.5
       },
-      "surprise_score_medio": 41.1,
+      "surprise_score_medio": 41.19,
       "ranking_incertidumbre": [
+        {
+          "num": 12,
+          "partido": "Celtic - RC Celta de Vigo",
+          "incertidumbre": 152.58,
+          "surprise_score": 51.61,
+          "margen_probabilidad": 4.0
+        },
         {
           "num": 4,
           "partido": "Nápoles - Bodo Glimt",
@@ -2037,21 +2044,20 @@
           "margen_probabilidad": 16.3
         },
         {
-          "num": 2,
-          "partido": "Liverpool - Villarreal CF",
-          "incertidumbre": 122.94,
-          "surprise_score": 32.12,
-          "margen_probabilidad": 21.5
-        },
-        {
-          "num": 1,
-          "partido": "Oporto - Psv",
-          "incertidumbre": 114.5,
-          "surprise_score": 76.31,
-          "margen_probabilidad": 31.9
+          "num": 13,
+          "partido": "Lillestrøm SK - Real Sociedad de Futbol",
+          "incertidumbre": 123.69,
+          "surprise_score": 31.81,
+          "margen_probabilidad": 20.3
         }
       ],
       "ranking_elige8_confianza_real": [
+        {
+          "num": 12,
+          "partido": "Celtic - RC Celta de Vigo",
+          "confianza_real_elige8": 47.56,
+          "elige8": true
+        },
         {
           "num": 6,
           "partido": "Como 1907 - Man. United",
@@ -2092,12 +2098,6 @@
           "num": 9,
           "partido": "Inter Milan - Shakhtar Donetsk",
           "confianza_real_elige8": 24.21,
-          "elige8": true
-        },
-        {
-          "num": 8,
-          "partido": "Brujas - Lens",
-          "confianza_real_elige8": 21.19,
           "elige8": true
         }
       ]
@@ -5768,7 +5768,7 @@
     }
   },
   "resumen": {
-    "jornadas_evaluadas": 29,
+    "jornadas_evaluadas": 30,
     "precision_media_ultimas_8": 72.32,
     "criterio_aprendizaje": "tras cada jornada cerrada se compara prediccion vs resultado y se reentrena la memoria"
   }

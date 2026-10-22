@@ -2,7 +2,7 @@
   "version": 1,
   "descripcion": "Cuaderno de meta-aprendizaje por modulo (15/10/2026): que prometio cada modulo y que entrego, jornada a jornada, con datos pre-cierre (snapshots inmutables + % LAE versionados). Los semaforos y auto-correcciones llevan sus frenos prerregistrados.",
   "temporada": "2026_2027",
-  "actualizado_en": "2026-10-22T20:32:28.512479+00:00",
+  "actualizado_en": "2026-10-22T23:37:05.940480+00:00",
   "jornadas_cerradas": [
     1,
     2,
@@ -17,7 +17,8 @@
     11,
     12,
     13,
-    14
+    14,
+    15
   ],
   "jornadas": {
     "1": {
@@ -2113,6 +2114,106 @@
         ],
         "fijos_sin_probabilidad": 0
       }
+    },
+    "15": {
+      "dixon_coles": {
+        "estado": "sin_cobertura",
+        "partidos": 0,
+        "sin_cobertura": 14,
+        "motivo": "Dixon-Coles no cubre ningun partido de la jornada (selecciones/ligas extranjeras).",
+        "version_calculo": 1
+      },
+      "boleto_ev": {
+        "estado": "sin_boleto_ev",
+        "motivo": "Jornada sin bloque boleto_ev_premio pre-cierre ni fila en el backtest."
+      },
+      "valiente": {
+        "estado": "sin_dato",
+        "fuente": null
+      },
+      "revulsivo": {
+        "estado": "ok",
+        "casos": [],
+        "fuente": "snapshot_pre_cierre"
+      },
+      "fijos_banda": {
+        "estado": "ok",
+        "fijos": [
+          {
+            "num": 1,
+            "partido": "Oporto - Psv",
+            "signo": "1",
+            "probabilidad": 22.9,
+            "banda": "20-30",
+            "acierto": false
+          },
+          {
+            "num": 3,
+            "partido": "Manchester City - Aek Atenas",
+            "signo": "1",
+            "probabilidad": 19.2,
+            "banda": "10-20",
+            "acierto": true
+          },
+          {
+            "num": 5,
+            "partido": "Stuttgart - Club Atletico de Madrid",
+            "signo": "2",
+            "probabilidad": 32.5,
+            "banda": "30-40",
+            "acierto": false
+          },
+          {
+            "num": 8,
+            "partido": "Brujas - Lens",
+            "signo": "1",
+            "probabilidad": 38.1,
+            "banda": "30-40",
+            "acierto": true
+          },
+          {
+            "num": 9,
+            "partido": "Inter de Milán - Shakhtar",
+            "signo": "1",
+            "probabilidad": 30.0,
+            "banda": "30-40",
+            "acierto": true
+          },
+          {
+            "num": 10,
+            "partido": "Real Betis Balompie - Feyenoord",
+            "signo": "1",
+            "probabilidad": 47.6,
+            "banda": "40-50",
+            "acierto": true
+          },
+          {
+            "num": 11,
+            "partido": "Real Madrid CF - Leipzig",
+            "signo": "1",
+            "probabilidad": 57.1,
+            "banda": "50-60",
+            "acierto": true
+          },
+          {
+            "num": 13,
+            "partido": "Lillestrom - Real Sociedad de Futbol",
+            "signo": "2",
+            "probabilidad": 32.5,
+            "banda": "30-40",
+            "acierto": true
+          },
+          {
+            "num": 14,
+            "partido": "Getafe CF - Lugano",
+            "signo": "1",
+            "probabilidad": 54.0,
+            "banda": "50-60",
+            "acierto": false
+          }
+        ],
+        "fijos_sin_probabilidad": 0
+      }
     }
   },
   "resumen": {
@@ -2138,12 +2239,12 @@
       "promesa": "Maximizar euros, no aciertos. Umbral de sanidad prerregistrado: cobrar >=50% de lo realmente jugado (es estrategia de cola: pierde premios pequeños a cambio de colas raras).",
       "ultimo_ajuste": {
         "estado": "ajustado",
-        "valor": 0.976,
-        "mediana_sin_acotar": 0.976,
-        "escrutinios": 14,
-        "celdas": 55,
+        "valor": 0.988,
+        "mediana_sin_acotar": 0.988,
+        "escrutinios": 15,
+        "celdas": 59,
         "freno": "Solo con >=10 escrutinios reales; mediana real/modelo sobre celdas con >=10 acertantes; acotado a [0.5x - 2.0x].",
-        "actualizado_en": "2026-10-22T20:32:28.512479+00:00",
+        "actualizado_en": "2026-10-22T23:37:05.940480+00:00",
         "historial": [
           {
             "fecha": "2026-10-15T06:46:27.417986+00:00",
@@ -2156,6 +2257,12 @@
             "valor": 0.976,
             "escrutinios": 13,
             "celdas": 55
+          },
+          {
+            "fecha": "2026-10-22T23:37:05.940480+00:00",
+            "valor": 0.988,
+            "escrutinios": 15,
+            "celdas": 59
           }
         ]
       }
@@ -2182,7 +2289,7 @@
         "estado": "sin_ajuste",
         "senales_suspendidas": [],
         "freno": "Una señal con >=8 valientes propias y aciertos < 50% de esperados se suspende sola (senal_valiente.py) y se anuncia. Ningun umbral estructural se auto-cambia.",
-        "actualizado_en": "2026-10-22T20:32:28.512479+00:00",
+        "actualizado_en": "2026-10-22T23:37:05.940480+00:00",
         "motivo": "Ninguna señal cumple el freno de suspension (>=8 propias y <50% de esperados)."
       }
     },
@@ -2203,46 +2310,46 @@
         },
         "estado": "sin_ajuste",
         "motivo": "Freno: hacen falta >=10 casos nuevos 26/27 por lado (hay fuera=1, casa=2).",
-        "actualizado_en": "2026-10-22T20:32:28.512479+00:00"
+        "actualizado_en": "2026-10-22T23:37:05.940480+00:00"
       }
     },
     "fijos_banda": {
       "semaforo": "verde",
       "texto_semaforo": "cumple su promesa: tus fijos rinden lo que promete su banda real",
-      "titular": "71 de 127 fijos vs 69,5 esperados",
-      "valor": 71,
-      "comparacion": 69.51,
-      "fijos_evaluados": 127,
+      "titular": "77 de 136 fijos vs 74,1 esperados",
+      "valor": 77,
+      "comparacion": 74.06,
+      "fijos_evaluados": 136,
       "por_banda": {
         "10-20": {
-          "jugados": 1,
-          "aciertos": 0,
+          "jugados": 2,
+          "aciertos": 1,
           "promesa_pct": null,
-          "acierto_pct": 0.0
+          "acierto_pct": 50.0
         },
         "20-30": {
-          "jugados": 16,
+          "jugados": 17,
           "aciertos": 5,
           "promesa_pct": null,
-          "acierto_pct": 31.2
+          "acierto_pct": 29.4
         },
         "30-40": {
-          "jugados": 16,
-          "aciertos": 7,
-          "promesa_pct": 40.6,
-          "acierto_pct": 43.8
+          "jugados": 20,
+          "aciertos": 10,
+          "promesa_pct": 40.0,
+          "acierto_pct": 50.0
         },
         "40-50": {
-          "jugados": 41,
-          "aciertos": 21,
-          "promesa_pct": 51.0,
-          "acierto_pct": 51.2
+          "jugados": 42,
+          "aciertos": 22,
+          "promesa_pct": 52.0,
+          "acierto_pct": 52.4
         },
         "50-60": {
-          "jugados": 28,
-          "aciertos": 18,
-          "promesa_pct": 65.4,
-          "acierto_pct": 64.3
+          "jugados": 30,
+          "aciertos": 19,
+          "promesa_pct": 66.7,
+          "acierto_pct": 63.3
         },
         "60-70": {
           "jugados": 25,
