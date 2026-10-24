@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-24T13:35:54.267310+00:00",
+  "generado_en": "2026-10-24T17:21:57.333664+00:00",
   "estado": "critico_actualizacion",
   "score_salud": 45,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
@@ -63,13 +63,13 @@
         "jornada": 16,
         "fecha": "Domingo, 25 de octubre de 2026",
         "fecha_orden": "2026-10-26",
-        "estado": "abierta",
+        "estado": "en_juego",
         "partidos": 14,
-        "cerrados": 0,
-        "pendientes": 14,
-        "pendientes_totales_con_pleno15": 15,
+        "cerrados": 3,
+        "pendientes": 11,
+        "pendientes_totales_con_pleno15": 12,
         "pleno15_cerrado": false,
-        "ultima_actualizacion_partido": "2026-10-24T13:32:06Z",
+        "ultima_actualizacion_partido": "2026-10-24T17:18:36Z",
         "path": "data/jornadas/jornada_16.json"
       },
       {
@@ -116,7 +116,7 @@
   },
   "prediccion": {
     "jornada": 17,
-    "generado_en": "2026-10-24T13:35:43.755758+00:00",
+    "generado_en": "2026-10-24T17:21:47.225263+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 14,
@@ -133,7 +133,7 @@
       }
     },
     "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 16 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 17 hasta cerrar y aprender la 16."
+    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 16 solo tiene 3 de 14 resultados oficiales. No se genera prediccion para la jornada 17 hasta cerrar y aprender la 16."
   },
   "clasificaciones": {
     "primera": {
@@ -186,7 +186,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.02,
+    "contexto_equipos_horas": 3.79,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -260,7 +260,7 @@
     "partidos_cerrados": 364,
     "aciertos": 226,
     "precision": 62.09,
-    "generado_en": "2026-10-24T09:29:08.755380+00:00",
+    "generado_en": "2026-10-24T13:35:55.434896+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -303,7 +303,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-10-24T13:35:54.267310+00:00",
+    "generado_en": "2026-10-24T17:21:57.333664+00:00",
     "estado": "critico",
     "score": 0,
     "alertas": [
@@ -357,8 +357,8 @@
           "fecha": "Domingo, 25 de octubre de 2026",
           "fecha_orden": "2026-10-26",
           "partidos": 14,
-          "cerrados": 0,
-          "pendientes": 14,
+          "cerrados": 3,
+          "pendientes": 11,
           "path": "data/jornadas/jornada_16.json"
         },
         {
@@ -390,15 +390,15 @@
         "leganes": {
           "posicion": 17,
           "equipo": "CD Leganes",
-          "pj": 10,
+          "pj": 11,
           "g": 3,
-          "e": 2,
+          "e": 3,
           "p": 5,
-          "gf": 6,
-          "gc": 15,
+          "gf": 7,
+          "gc": 16,
           "dg": -9,
-          "puntos": 11,
-          "pts": 11,
+          "puntos": 12,
+          "pts": 12,
           "racha_actual": {
             "victorias": 0,
             "empates": 0,
@@ -407,10 +407,10 @@
             "sin_perder": 0
           },
           "tendencias": {
-            "puntos_por_partido": 1.1,
-            "goles_favor_por_partido": 0.6,
-            "goles_contra_por_partido": 1.5,
-            "empates_pct": 20.0,
+            "puntos_por_partido": 1.091,
+            "goles_favor_por_partido": 0.636,
+            "goles_contra_por_partido": 1.455,
+            "empates_pct": 27.27,
             "forma_5_pts": 3,
             "forma_10_pts": 11
           }
@@ -419,11 +419,11 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-10-24T13:35:14.786078+00:00"
+      "generado_en": "2026-10-24T17:21:18.969903+00:00"
     },
     "prediccion": {
       "jornada": 17,
-      "generado_en": "2026-10-24T13:35:43.755758+00:00",
+      "generado_en": "2026-10-24T17:21:47.225263+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 14,
@@ -440,7 +440,7 @@
         }
       },
       "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 16 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 17 hasta cerrar y aprender la 16."
+      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 16 solo tiene 3 de 14 resultados oficiales. No se genera prediccion para la jornada 17 hasta cerrar y aprender la 16."
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -488,8 +488,8 @@
         "fecha": "Domingo, 25 de octubre de 2026",
         "fecha_orden": "2026-10-26",
         "partidos": 14,
-        "cerrados": 0,
-        "pendientes": 14,
+        "cerrados": 3,
+        "pendientes": 11,
         "path": "data/jornadas/jornada_16.json"
       },
       {
@@ -521,15 +521,15 @@
       "leganes": {
         "posicion": 17,
         "equipo": "CD Leganes",
-        "pj": 10,
+        "pj": 11,
         "g": 3,
-        "e": 2,
+        "e": 3,
         "p": 5,
-        "gf": 6,
-        "gc": 15,
+        "gf": 7,
+        "gc": 16,
         "dg": -9,
-        "puntos": 11,
-        "pts": 11,
+        "puntos": 12,
+        "pts": 12,
         "racha_actual": {
           "victorias": 0,
           "empates": 0,
@@ -538,10 +538,10 @@
           "sin_perder": 0
         },
         "tendencias": {
-          "puntos_por_partido": 1.1,
-          "goles_favor_por_partido": 0.6,
-          "goles_contra_por_partido": 1.5,
-          "empates_pct": 20.0,
+          "puntos_por_partido": 1.091,
+          "goles_favor_por_partido": 0.636,
+          "goles_contra_por_partido": 1.455,
+          "empates_pct": 27.27,
           "forma_5_pts": 3,
           "forma_10_pts": 11
         }
@@ -550,6 +550,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-10-24T13:35:14.786078+00:00"
+    "generado_en": "2026-10-24T17:21:18.969903+00:00"
   }
 }
