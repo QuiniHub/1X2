@@ -1,37 +1,37 @@
 {
   "version": "1.2",
-  "precision": 68.09,
+  "precision": 67.93,
   "jornadas_revisadas": 34,
-  "partidos_revisados": 470,
-  "aciertos": 320,
-  "fallos": 150,
+  "partidos_revisados": 474,
+  "aciertos": 322,
+  "fallos": 152,
   "fallos_por_tipo": {
     "Doble insuficiente": 29,
     "Fijo fallado": 67,
-    "No cubrio empate": 54
+    "No cubrio empate": 56
   },
   "fallos_por_signo_real": {
     "1": 36,
     "2": 60,
-    "X": 54
+    "X": 56
   },
   "signos_omitidos_en_fallo": {
     "1": 36,
     "2": 60,
-    "X": 54
+    "X": 56
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 121,
-      "aciertos": 92,
+      "total": 122,
+      "aciertos": 93,
       "fallos": 29,
-      "precision": 76.03
+      "precision": 76.23
     },
     "FIJO": {
-      "total": 288,
-      "aciertos": 167,
-      "fallos": 121,
-      "precision": 57.99
+      "total": 291,
+      "aciertos": 168,
+      "fallos": 123,
+      "precision": 57.73
     },
     "TRIPLE": {
       "total": 61,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 215,
-      "aciertos": 179,
+      "total": 216,
+      "aciertos": 180,
       "fallos": 36,
-      "precision": 83.26
+      "precision": 83.33
     },
     "2": {
       "total": 149,
@@ -54,470 +54,13 @@
       "precision": 59.73
     },
     "X": {
-      "total": 106,
-      "aciertos": 52,
-      "fallos": 54,
-      "precision": 49.06
+      "total": 109,
+      "aciertos": 53,
+      "fallos": 56,
+      "precision": 48.62
     }
   },
   "detalle": [
-    {
-      "jornada": 74,
-      "partido": "Sirius - IFK Göteborg",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "4-1",
-      "resultado_final": "4-1",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_74.json",
-      "probabilidades_usadas": {
-        "1": 57.9,
-        "X": 23.8,
-        "2": 18.3
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "fallback_posicion+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Sirius",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "IFK Göteborg",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (57.9%).",
-        "hipotesis_alternativa": "X como alternativa (23.8%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "riesgo_controlado",
-          "probabilidad": 46.4,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision FIJO 1: margen 34.1 puntos, indice sorpresa 24.2."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 13.74,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 11.1,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.0,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Sirius: ppp=1.67; perfil visitante GAIS Göteborg: ppp=0.00."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Sirius",
-        "partidos_total": 2,
-        "puntos_por_partido": 2.014,
-        "empates_pct": 49.28,
-        "surprise_score_medio": 39.16,
-        "forma_5_ppp": 2.0,
-        "forma_10_ppp": 2.0,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "GAIS Göteborg",
-        "partidos_total": 1,
-        "puntos_por_partido": 0.0,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 39.74,
-        "forma_5_ppp": 0.0,
-        "forma_10_ppp": 0.0,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 1
-        }
-      }
-    },
-    {
-      "jornada": 74,
-      "partido": "Brommapojkarna - Hammarby",
-      "pronostico": "2",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "2",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "data/predicciones/jornada_74.json",
-      "probabilidades_usadas": {
-        "1": 22.4,
-        "X": 26.4,
-        "2": 51.2
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "fallback_posicion+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Brommapojkarna",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Hammarby",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "2 como signo dominante (51.2%).",
-        "hipotesis_alternativa": "X como alternativa (26.4%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "riesgo_controlado",
-          "probabilidad": 57.1,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision FIJO 2: margen 24.8 puntos, indice sorpresa 42.4."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 13.74,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 11.1,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.0,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Brommapojkarna: ppp=0.00; perfil visitante Hammarby: ppp=2.00."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Brommapojkarna",
-        "partidos_total": 1,
-        "puntos_por_partido": 0.0,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 39.76,
-        "forma_5_ppp": 0.0,
-        "forma_10_ppp": 0.0,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Hammarby",
-        "partidos_total": 1,
-        "puntos_por_partido": 3.0,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 34.29,
-        "forma_5_ppp": 3.0,
-        "forma_10_ppp": 3.0,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 1
-        }
-      }
-    },
-    {
-      "jornada": 74,
-      "partido": "GAIS Göteborg - Halmstad",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "data/predicciones/jornada_74.json",
-      "probabilidades_usadas": {
-        "1": 59.9,
-        "X": 22.3,
-        "2": 17.9
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "fallback_posicion+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "GAIS Göteborg",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Halmstad",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (59.9%).",
-        "hipotesis_alternativa": "X como alternativa (22.3%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "riesgo_controlado",
-          "probabilidad": 43.4,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision FIJO 1: margen 37.6 puntos, indice sorpresa 12.7."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 13.74,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 11.1,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.0,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local GAIS Göteborg: ppp=0.00; perfil visitante Halmstad: ppp=0.00."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "GAIS Göteborg",
-        "partidos_total": 1,
-        "puntos_por_partido": 0.0,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 39.74,
-        "forma_5_ppp": 0.0,
-        "forma_10_ppp": 0.0,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Halmstad",
-        "partidos_total": 2,
-        "puntos_por_partido": 0.0,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 39.03,
-        "forma_5_ppp": 0.0,
-        "forma_10_ppp": 0.0,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 2
-        }
-      }
-    },
-    {
-      "jornada": 74,
-      "partido": "Malmoe - Elfsborg",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "1-2",
-      "resultado_final": "1-2",
-      "signo_real": "2",
-      "signos_cubiertos": "1X",
-      "signo_omitido": "2",
-      "acierto": false,
-      "motivo_error": "Doble insuficiente",
-      "origen": "data/predicciones/jornada_74.json",
-      "probabilidades_usadas": {
-        "1": 49.1,
-        "X": 29.2,
-        "2": 21.8
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "fallback_posicion+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Malmoe",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Elfsborg",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (49.1%).",
-        "hipotesis_alternativa": "X como alternativa (29.2%).",
-        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
-        "riesgo_de_sorpresa": {
-          "categoria": "sorpresa_vigilada",
-          "probabilidad": 59.4,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision DOBLE 1X: margen 19.9 puntos, indice sorpresa 53.9."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 13.74,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 11.1,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.65,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Malmoe: ppp=1.33; perfil visitante Elfsborg: ppp=0.00.",
-          "Memoria autonoma: historial de sorpresa medio elevado (48.6)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Malmoe",
-        "partidos_total": 2,
-        "puntos_por_partido": 1.986,
-        "empates_pct": 50.72,
-        "surprise_score_medio": 57.93,
-        "forma_5_ppp": 2.0,
-        "forma_10_ppp": 2.0,
-        "racha_actual": {
-          "tipo": "E",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Elfsborg",
-        "partidos_total": 1,
-        "puntos_por_partido": 0.0,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 39.25,
-        "forma_5_ppp": 0.0,
-        "forma_10_ppp": 0.0,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 1
-        }
-      }
-    },
     {
       "jornada": 75,
       "partido": "vaasa PS - Inter Turku",
@@ -28424,6 +27967,246 @@
     },
     {
       "jornada": 16,
+      "partido": "Athletic Club - Getafe CF",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "4-0",
+      "resultado_final": "4-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_16.json",
+      "probabilidades_usadas": {
+        "1": 47.2,
+        "X": 34.2,
+        "2": 18.6
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Athletic Club",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Getafe CF",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (47.2%).",
+        "hipotesis_alternativa": "X como alternativa (34.2%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 64.8,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 1: margen 13.0 puntos, indice sorpresa 98.6."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 12.94,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.99,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 1.32,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Athletic Club: ppp=1.27; perfil visitante Getafe CF: ppp=1.64.",
+          "Memoria autonoma: historial de sorpresa medio elevado (52.3)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Athletic Club",
+        "partidos_total": 29,
+        "puntos_por_partido": 1.217,
+        "empates_pct": 25.95,
+        "surprise_score_medio": 59.42,
+        "forma_5_ppp": 1.4,
+        "forma_10_ppp": 1.4,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Getafe CF",
+        "partidos_total": 32,
+        "puntos_por_partido": 1.271,
+        "empates_pct": 7.23,
+        "surprise_score_medio": 45.2,
+        "forma_5_ppp": 2.4,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 16,
+      "partido": "RC Celta de Vigo - Real Betis Balompie",
+      "pronostico": "X2",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "0-0",
+      "resultado_final": "0-0",
+      "signo_real": "X",
+      "signos_cubiertos": "X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_16.json",
+      "probabilidades_usadas": {
+        "1": 27.1,
+        "X": 33.4,
+        "2": 39.5
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "RC Celta de Vigo",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Real Betis Balompie",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (39.5%).",
+        "hipotesis_alternativa": "X como alternativa (33.4%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 2: margen 6.1 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 12.94,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.96,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.13,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local RC Celta de Vigo: ppp=1.38; perfil visitante Bélgica: ppp=2.00.",
+          "Memoria autonoma: historial de sorpresa medio elevado (45.7)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "RC Celta de Vigo",
+        "partidos_total": 9,
+        "puntos_por_partido": 1.352,
+        "empates_pct": 32.02,
+        "surprise_score_medio": 51.1,
+        "forma_5_ppp": 1.4,
+        "forma_10_ppp": 1.333,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Bélgica",
+        "partidos_total": 1,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 40.3,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 16,
       "partido": "CD Leganes - RCD Mallorca",
       "pronostico": "1X2",
       "tipo_pronostico": "TRIPLE",
@@ -28663,6 +28446,127 @@
     },
     {
       "jornada": 16,
+      "partido": "Sabadell - Tenerife",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "1-1",
+      "resultado_final": "1-1",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_16.json",
+      "probabilidades_usadas": {
+        "1": 43.3,
+        "X": 36.8,
+        "2": 19.9
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Sabadell",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Tenerife",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (43.3%).",
+        "hipotesis_alternativa": "X como alternativa (36.8%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 68.7,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 6.5 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 12.94,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.96,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.81,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Sabadell: ppp=0.58; perfil visitante Tenerife: ppp=1.15.",
+          "Memoria autonoma: tendencia de empate conjunta alta (46.8%).",
+          "Memoria autonoma: historial de sorpresa medio elevado (49.5)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Sabadell",
+        "partidos_total": 6,
+        "puntos_por_partido": 0.647,
+        "empates_pct": 64.72,
+        "surprise_score_medio": 50.25,
+        "forma_5_ppp": 0.6,
+        "forma_10_ppp": 0.667,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Tenerife",
+        "partidos_total": 7,
+        "puntos_por_partido": 1.514,
+        "empates_pct": 28.97,
+        "surprise_score_medio": 48.77,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.571,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 16,
       "partido": "Edf Logroño - Badalona Women",
       "pronostico": "1X2",
       "tipo_pronostico": "TRIPLE",
@@ -28870,6 +28774,124 @@
     },
     {
       "jornada": 16,
+      "partido": "Eibar (F) - Madrid CFF",
+      "pronostico": "2",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-2",
+      "resultado_final": "2-2",
+      "signo_real": "X",
+      "signos_cubiertos": "2",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_16.json",
+      "probabilidades_usadas": {
+        "1": 29.3,
+        "X": 30.8,
+        "2": 39.9
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Eibar (F)",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Madrid CFF",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (39.9%).",
+        "hipotesis_alternativa": "X como alternativa (30.8%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 2: margen 9.1 puntos, indice sorpresa 89.6."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 11.74,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.76,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Eibar (F): ppp=1.50; perfil visitante At. Madrid (F): ppp=1.83.",
+          "Memoria autonoma: historial de sorpresa medio elevado (49.2)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Eibar (F)",
+        "partidos_total": 6,
+        "puntos_por_partido": 1.652,
+        "empates_pct": 15.94,
+        "surprise_score_medio": 66.73,
+        "forma_5_ppp": 1.4,
+        "forma_10_ppp": 1.667,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "At. Madrid (F)",
+        "partidos_total": 6,
+        "puntos_por_partido": 2.029,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 31.75,
+        "forma_5_ppp": 2.4,
+        "forma_10_ppp": 2.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 16,
       "partido": "Real Madrid (F) - Tenerife (F)",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -28997,19 +29019,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 470,
+    "partidos_base": 474,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 31.91,
-      "no_cubrio_empate_sobre_fallos_pct": 36.0,
-      "no_cubrio_empate_sobre_total_pct": 11.49,
-      "fijo_fallado_sobre_fallos_pct": 44.67,
-      "fijo_fallado_sobre_total_pct": 14.26,
-      "doble_insuficiente_sobre_total_pct": 6.17
+      "fallos_total_pct": 32.07,
+      "no_cubrio_empate_sobre_fallos_pct": 36.84,
+      "no_cubrio_empate_sobre_total_pct": 11.81,
+      "fijo_fallado_sobre_fallos_pct": 44.08,
+      "fijo_fallado_sobre_total_pct": 14.14,
+      "doble_insuficiente_sobre_total_pct": 6.12
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 3.74,
-    "riesgo_extra_triple_insuficiente": 1.95,
+    "riesgo_extra_fijo_fragil": 3.53,
+    "riesgo_extra_triple_insuficiente": 1.91,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,
