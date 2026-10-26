@@ -1784,3 +1784,18 @@ Umbrales y lista congelados: cambiarlos exige nueva entrada aqui. En pipeline tr
 tercero_valor.py; marcador en la compuerta de aprendizaje. 20 tests nuevos
 (tests/test_radar_tormenta.py), suite 706 OK. Dry-run J15 (sin publicar): zona
 Celtic-Celta rayo 2, Como-United rayo 1, Bayern-Arsenal rayo 2.
+
+## 2026-10-26 — Estudio Copa del Rey 1ª eliminatoria (J17 sera la primera quiniela de Copa)
+
+`ESTUDIO_COPA_1A_ELIMINATORIA.md` (3 temporadas, 110 cruces federacion vs 1ª/2ª,
+listados Wikipedia completos). Claves: (1) Norma 40ª SELAE: LA PRORROGA CUENTA en
+el signo (penaltis no) — corrige la intuicion "signo a 90'"; la X de Copa es
+rarisima (5%) y esta sobrecomprada por la masa que no conoce la regla. (2) Vs
+Primera el pequeño no gano en el campo NI UNA VEZ en 3 años (96% de doses). (3)
+El 1 (12%) dobla a la X (5%) y vive solo contra SEGUNDA: la cobertura de sorpresa
+en Copa es 12, jamas 2X/X (coincide con la doctrina del no-X). (4) Base por boleto
+de 14: ~11,6 doses / ~1,7 unos / ~0,7 equis. (5) Aplazamiento por meteo → sorteo.
+Ojeador J17: 4 cruces NO son David-Goliat (Minera-Cartagena derbi+artificial,
+Don Benito-Extremadura, Arosa-Pontevedra, Tudelano-Zaragoza post-descenso); el
+motor esta ciego (equipos de federacion sin datos, competicion mal resuelta como
+"liga_extranjera" — pendiente arreglo del resolutor para Copa).
