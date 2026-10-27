@@ -3,7 +3,7 @@
   "fecha": "Domingo, 8 de noviembre de 2026",
   "fuente": "https://www.quinielafutbol.info/proximas-jornadas-de-la-quiniela.html",
   "estado": "abierta",
-  "actualizado_en": "2026-10-27T08:00:41.990127+00:00",
+  "actualizado_en": "2026-10-27T10:52:15.703398+00:00",
   "partidos": [
     {
       "num": 1,
@@ -296,32 +296,30 @@
     {
       "num": 10,
       "local": "Real Sporting de Gijon",
-      "visitante": "Real Valladolid CF",
+      "visitante": "R. Valladolid",
       "fecha": "2026-11-08",
       "hora": "18:30",
       "resultado": "Pendiente",
       "signo_oficial": "Pendiente",
       "signo_nuestro": "No jugada",
-      "competicion_resuelta": "segunda_division",
-      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
       "resolucion_competicion": {
-        "competicion": "segunda_division",
-        "modelo_recomendado": "modelo_liga_espana_segunda",
-        "confianza": 0.94,
-        "motivo": "Ambos equipos estan en Segunda.",
-        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
         "datos_minimos": [
           "resultados",
-          "clasificacion",
+          "clasificacion_liga",
           "forma",
-          "casa_fuera",
-          "lesiones",
-          "alineaciones",
-          "xg"
+          "ranking_elo",
+          "lesiones"
         ],
         "equipos_normalizados": {
           "local": "sporting gijon",
-          "visitante": "valladolid"
+          "visitante": "r valladolid"
         }
       }
     },
@@ -471,11 +469,12 @@
     }
   },
   "resolucion_competiciones": {
-    "generado_en": "2026-10-27T08:05:02.679550+00:00",
+    "generado_en": "2026-10-27T10:55:30.421152+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
       "primera_division": 7,
-      "segunda_division": 3,
+      "segunda_division": 2,
+      "liga_extranjera": 1,
       "liga_f": 4
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
