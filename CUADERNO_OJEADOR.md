@@ -94,3 +94,21 @@ Lillestrøm–Real Sociedad y Getafe–Lugano (se juegan el jueves por la noche)
 confirmación de que el Rayo–Elche no se suspende; convocatoria del Clásico (Koundé).
 **Al cierre de la J16:** comparar esta lectura con los resultados, partido a partido,
 y anotar aquí el veredicto del olfato.
+
+### Veredicto J16 (cierre 27/10): olfato contra hoja de calculo
+
+Señales 12/14; 1a Multiple Reducida de la historia del proyecto; premio 24,26 EUR.
+- ACIERTOS del olfato: el polvorin se derrumbo 4-0 (cubierto 1X); la doble resaca
+  de Balaidos murio 0-0 (X2); la Real euforica cumplio su fijo rectificado 2-1;
+  el Depor F gano EN CASA por primera vez justo tras señalarlo como chirrido (el
+  miedo no mordio); Butarque 1-1 y Eibar F 2-2: los dos triples del Radar pagaron.
+- FALLOS: Rayo 0-3 Elche (guerra institucional: el visitante solido gano, 4o caso
+  "1X del 1er partido roto por el 2") y Almeria 2-2 Oviedo (su PRIMER empate de la
+  temporada, contra el caos: azar puro, nada que corregir).
+- Radar oficial, 1a jornada medida: 1 de los 2 terceros cayo DENTRO de su zona
+  (la X del Eibar F, masa 27%); el otro (2 del Elche) quedo fuera por decimas de
+  umbral. Clasico: Barcelona 1-2 Real Madrid - el 1-1 de Marc y el 2-1 del estudio
+  fallaron ambos (Mourinho en el Camp Nou).
+- Leccion prerregistrada nueva: señal "forma invertida fuerte" (local favorito con
+  visitante 4+ pts mejor de forma: el favorito cae al 62%, n=185) pendiente de
+  backtest formal para el Radar antes de la J17... aplazada a J18 (la J17 es Copa).
