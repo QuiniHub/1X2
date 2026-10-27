@@ -2,7 +2,7 @@
   "version": 1,
   "descripcion": "Cuaderno de meta-aprendizaje por modulo (15/10/2026): que prometio cada modulo y que entrego, jornada a jornada, con datos pre-cierre (snapshots inmutables + % LAE versionados). Los semaforos y auto-correcciones llevan sus frenos prerregistrados.",
   "temporada": "2026_2027",
-  "actualizado_en": "2026-10-26T20:44:37.771431+00:00",
+  "actualizado_en": "2026-10-27T00:22:36.686853+00:00",
   "jornadas_cerradas": [
     1,
     2,
@@ -18,7 +18,8 @@
     12,
     13,
     14,
-    15
+    15,
+    16
   ],
   "jornadas": {
     "1": {
@@ -2214,17 +2215,138 @@
         ],
         "fijos_sin_probabilidad": 0
       }
+    },
+    "16": {
+      "dixon_coles": {
+        "estado": "ok",
+        "partidos": 10,
+        "sin_cobertura": 4,
+        "rps_dc": 0.16424,
+        "rps_motor": 0.16901,
+        "rps_mercado": 0.15984,
+        "partidos_con_mercado": 10,
+        "aciertos_dc": 5,
+        "aciertos_motor": 5,
+        "aciertos_mercado": 5,
+        "sesgo_dc_por_signo": {
+          "1": {
+            "prob_media": 47.7,
+            "frecuencia_real_pct": 40.0,
+            "sesgo_puntos": 7.7
+          },
+          "X": {
+            "prob_media": 26.7,
+            "frecuencia_real_pct": 40.0,
+            "sesgo_puntos": -13.3
+          },
+          "2": {
+            "prob_media": 25.6,
+            "frecuencia_real_pct": 20.0,
+            "sesgo_puntos": 5.6
+          }
+        },
+        "version_calculo": 1
+      },
+      "boleto_ev": {
+        "estado": "sin_boleto_ev",
+        "motivo": "Jornada sin bloque boleto_ev_premio pre-cierre ni fila en el backtest."
+      },
+      "valiente": {
+        "estado": "valiente",
+        "fuente": "marcador_sombra",
+        "partido": "Club Atletico de Madrid - RC Deportivo de La Coruna",
+        "signo": "X",
+        "prob_declarada": 26.0,
+        "masa_pct": 8.0,
+        "senales": [
+          "empatador"
+        ],
+        "signo_real": "1",
+        "acierto": false,
+        "pago_hipotetico_eur": 0.0
+      },
+      "revulsivo": {
+        "estado": "ok",
+        "casos": [
+          {
+            "num": 7,
+            "partido": "Sevilla FC - CA Osasuna",
+            "equipo": "CA Osasuna",
+            "lado": "visitante",
+            "etapa": "2o partido",
+            "tecnico": "Jagoba Arrasate",
+            "signo_real": "1",
+            "veredicto": "perjudico",
+            "sorpresa_vs_mercado": -0.8
+          }
+        ],
+        "fuente": "snapshot_pre_cierre"
+      },
+      "fijos_banda": {
+        "estado": "ok",
+        "fijos": [
+          {
+            "num": 3,
+            "partido": "Club Atletico de Madrid - RC Deportivo de La Coruna",
+            "signo": "1",
+            "probabilidad": 63.9,
+            "banda": "60-70",
+            "acierto": true
+          },
+          {
+            "num": 6,
+            "partido": "Real Sociedad de Futbol - Levante UD",
+            "signo": "1",
+            "probabilidad": 50.8,
+            "banda": "50-60",
+            "acierto": true
+          },
+          {
+            "num": 7,
+            "partido": "Sevilla FC - CA Osasuna",
+            "signo": "1",
+            "probabilidad": 44.1,
+            "banda": "40-50",
+            "acierto": true
+          },
+          {
+            "num": 9,
+            "partido": "UD Almeria - Real Oviedo",
+            "signo": "1",
+            "probabilidad": 51.7,
+            "banda": "50-60",
+            "acierto": false
+          },
+          {
+            "num": 12,
+            "partido": "Deportivo (F) - Alavés (F)",
+            "signo": "1",
+            "probabilidad": 49.6,
+            "banda": "40-50",
+            "acierto": true
+          },
+          {
+            "num": 14,
+            "partido": "Real Madrid (F) - Tenerife (F)",
+            "signo": "1",
+            "probabilidad": 60.0,
+            "banda": "60-70",
+            "acierto": true
+          }
+        ],
+        "fijos_sin_probabilidad": 0
+      }
     }
   },
   "resumen": {
     "dixon_coles": {
       "semaforo": "verde",
       "texto_semaforo": "cumple su promesa: iguala o bate al mercado",
-      "titular": "RPS 0,197 vs mercado 0,199",
-      "valor": 0.19746,
-      "comparacion": 0.19944,
-      "rps_motor": 0.2104,
-      "partidos": 118,
+      "titular": "RPS 0,195 vs mercado 0,196",
+      "valor": 0.19486,
+      "comparacion": 0.19634,
+      "rps_motor": 0.20717,
+      "partidos": 128,
       "promesa": "Igualar o batir al mercado en RPS (menor = mejor; referencia mundial 0,19-0,21).",
       "ultimo_ajuste": null
     },
@@ -2239,12 +2361,12 @@
       "promesa": "Maximizar euros, no aciertos. Umbral de sanidad prerregistrado: cobrar >=50% de lo realmente jugado (es estrategia de cola: pierde premios pequeños a cambio de colas raras).",
       "ultimo_ajuste": {
         "estado": "ajustado",
-        "valor": 0.988,
-        "mediana_sin_acotar": 0.988,
-        "escrutinios": 15,
-        "celdas": 59,
+        "valor": 0.982,
+        "mediana_sin_acotar": 0.982,
+        "escrutinios": 16,
+        "celdas": 64,
         "freno": "Solo con >=10 escrutinios reales; mediana real/modelo sobre celdas con >=10 acertantes; acotado a [0.5x - 2.0x].",
-        "actualizado_en": "2026-10-26T20:44:37.771431+00:00",
+        "actualizado_en": "2026-10-27T00:22:36.686853+00:00",
         "historial": [
           {
             "fecha": "2026-10-15T06:46:27.417986+00:00",
@@ -2263,6 +2385,12 @@
             "valor": 0.988,
             "escrutinios": 15,
             "celdas": 59
+          },
+          {
+            "fecha": "2026-10-27T00:22:36.686853+00:00",
+            "valor": 0.982,
+            "escrutinios": 16,
+            "celdas": 64
           }
         ]
       }
@@ -2295,37 +2423,37 @@
         "estado": "sin_ajuste",
         "senales_suspendidas": [],
         "freno": "Una señal con >=8 valientes propias y aciertos < 50% de esperados se suspende sola (senal_valiente.py) y se anuncia. Ningun umbral estructural se auto-cambia.",
-        "actualizado_en": "2026-10-26T20:44:37.771431+00:00",
+        "actualizado_en": "2026-10-27T00:22:36.686853+00:00",
         "motivo": "Ninguna señal cumple el freno de suspension (>=8 propias y <50% de esperados)."
       }
     },
     "revulsivo": {
       "semaforo": "verde",
       "texto_semaforo": "cumple su promesa: el ajuste ayuda mas de lo que estorba",
-      "titular": "ayudo 2 de 3 casos",
+      "titular": "ayudo 2 de 4 casos",
       "valor": 2,
-      "comparacion": 3,
-      "perjudico": 0,
+      "comparacion": 4,
+      "perjudico": 1,
       "promesa": "El ajuste (+5 fuera / -3,5 casa, del estudio de 70 ceses) debe ayudar mas de lo que estorba.",
       "ultimo_ajuste": {
         "descripcion": "Re-estimacion automatica del efecto revulsivo agregando los casos 26/27 al estudio base (70 ceses 23/24-25/26) con su mismo factor de conversion pts/sorpresa.",
         "freno": "Solo con >=10 casos nuevos 26/27 por lado; se agregan al estudio base (70 ceses) con su factor de conversion; acotado a +-8 pts.",
         "casos_nuevos": {
-          "fuera": 1,
+          "fuera": 2,
           "casa": 2
         },
         "estado": "sin_ajuste",
-        "motivo": "Freno: hacen falta >=10 casos nuevos 26/27 por lado (hay fuera=1, casa=2).",
-        "actualizado_en": "2026-10-26T20:44:37.771431+00:00"
+        "motivo": "Freno: hacen falta >=10 casos nuevos 26/27 por lado (hay fuera=2, casa=2).",
+        "actualizado_en": "2026-10-27T00:22:36.686853+00:00"
       }
     },
     "fijos_banda": {
       "semaforo": "verde",
       "texto_semaforo": "cumple su promesa: tus fijos rinden lo que promete su banda real",
-      "titular": "77 de 136 fijos vs 73,8 esperados",
-      "valor": 77,
-      "comparacion": 73.84,
-      "fijos_evaluados": 136,
+      "titular": "82 de 142 fijos vs 77,8 esperados",
+      "valor": 82,
+      "comparacion": 77.76,
+      "fijos_evaluados": 142,
       "por_banda": {
         "10-20": {
           "jugados": 2,
@@ -2346,22 +2474,22 @@
           "acierto_pct": 50.0
         },
         "40-50": {
-          "jugados": 42,
-          "aciertos": 22,
-          "promesa_pct": 51.5,
-          "acierto_pct": 52.4
+          "jugados": 44,
+          "aciertos": 24,
+          "promesa_pct": 51.9,
+          "acierto_pct": 54.5
         },
         "50-60": {
-          "jugados": 30,
-          "aciertos": 19,
-          "promesa_pct": 67.4,
-          "acierto_pct": 63.3
+          "jugados": 32,
+          "aciertos": 20,
+          "promesa_pct": 66.7,
+          "acierto_pct": 62.5
         },
         "60-70": {
-          "jugados": 25,
-          "aciertos": 20,
+          "jugados": 27,
+          "aciertos": 22,
           "promesa_pct": 79.4,
-          "acierto_pct": 80.0
+          "acierto_pct": 81.5
         }
       },
       "promesa": "Los fijos realmente jugados deben acertar al menos lo que promete su banda real (calibracion del favorito, solo bandas con n>=30).",

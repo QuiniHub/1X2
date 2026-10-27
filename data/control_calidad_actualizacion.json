@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-26T20:45:19.349530+00:00",
+  "generado_en": "2026-10-27T00:23:40.450327+00:00",
   "estado": "critico",
   "score": 0,
   "alertas": [
@@ -8,6 +8,11 @@
       "nivel": "critica",
       "titulo": "Clasificacion primera congelada",
       "detalle": "Athletic Club tiene 9 PJ en tabla, pero el calendario ya tiene 10 resultados."
+    },
+    {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 20 pero la última predicción dice 17."
     }
   ],
   "jornadas": {
@@ -36,8 +41,8 @@
         "fecha": "Domingo, 25 de octubre de 2026",
         "fecha_orden": "2026-10-26",
         "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_16.json"
       },
       {
@@ -116,28 +121,28 @@
     }
   },
   "contexto_competitivo": {
-    "generado_en": "2026-10-26T20:44:39.217193+00:00"
+    "generado_en": "2026-10-27T00:22:42.537919+00:00"
   },
   "prediccion": {
     "jornada": 17,
-    "generado_en": "2026-10-26T20:45:08.180948+00:00",
+    "generado_en": "2026-10-27T00:23:07.972126+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 9,
+      "dobles": 4,
+      "triples": 1,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 3,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
         "alta": 0,
         "media": 0,
-        "media_baja": 0,
-        "baja": 0
+        "media_baja": 10,
+        "baja": 4
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 16 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 17 hasta cerrar y aprender la 16."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
 }

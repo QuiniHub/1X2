@@ -1,37 +1,41 @@
 {
   "version": 1,
   "descripcion": "Auto-auditoria con puerta del meta-aprendizaje (15/10/2026): cada 5 jornadas cerradas re-corre los barridos prerregistrados y SOLO reporta. Nada se aplica sin decision explicita de Marc.",
-  "generado_en": "2026-10-15T06:47:16.975007+00:00",
-  "jornadas_cerradas_al_auditar": 11,
-  "proxima_auditoria_con_jornadas": 16,
+  "generado_en": "2026-10-27T00:22:41.253975+00:00",
+  "jornadas_cerradas_al_auditar": 16,
+  "proxima_auditoria_con_jornadas": 21,
   "frenos": "Cada 5 jornadas cerradas; peso D-C: candidato solo con mejora RPS > 0.002 y >=60 partidos era-D-C; vetos Valiente por separado: candidato solo con >=25 jornadas, veredicto VERDE y ratio >= al del criterio vivo. NUNCA aplica nada: decide Marc.",
   "resultados": [
     {
       "modulo": "dixon_coles",
       "titulo": "Peso Dixon-Coles (barrido era-D-C acumulada)",
       "estado": "sin_cambios",
-      "detalle": "Sin cambios: mejor peso extra 1.0 con mejora 0.00763 sobre 14 partidos (umbral 0.002 con >=60 partidos).",
+      "detalle": "Sin cambios: mejor peso extra 0.8 con mejora 0.00322 sobre 34 partidos (umbral 0.002 con >=60 partidos).",
       "numeros": {
         "estado": "ok",
-        "partidos": 14,
+        "partidos": 34,
         "jornadas": [
-          12
+          12,
+          13,
+          14,
+          15,
+          16
         ],
         "rps_por_peso_extra": {
-          "0.0": 0.18121,
-          "0.1": 0.18006,
-          "0.2": 0.179,
-          "0.3": 0.17803,
-          "0.4": 0.17714,
-          "0.5": 0.17633,
-          "0.6": 0.17561,
-          "0.7": 0.17498,
-          "0.8": 0.17442,
-          "0.9": 0.17396,
-          "1.0": 0.17358
+          "0.0": 0.17644,
+          "0.1": 0.17569,
+          "0.2": 0.17503,
+          "0.3": 0.17448,
+          "0.4": 0.17403,
+          "0.5": 0.17367,
+          "0.6": 0.17342,
+          "0.7": 0.17327,
+          "0.8": 0.17322,
+          "0.9": 0.17328,
+          "1.0": 0.17343
         },
-        "mejor_peso_extra": 1.0,
-        "mejora_rps_vs_actual": 0.00763,
+        "mejor_peso_extra": 0.8,
+        "mejora_rps_vs_actual": 0.00322,
         "umbral_mejora": 0.002,
         "minimo_partidos": 60,
         "candidato": false
@@ -41,20 +45,20 @@
       "modulo": "veto_grandes",
       "titulo": "La Valiente: veto grandes (por separado)",
       "estado": "sin_cambios",
-      "detalle": "Sin cambios: 10 valientes, ratio 1.29 vs 1.3 del vivo en 13 jornadas (hacen falta >=25, VERDE y ratio >= vivo).",
+      "detalle": "Sin cambios: 13 valientes, ratio 1.01 vs 1.01 del vivo en 17 jornadas (hacen falta >=25, VERDE y ratio >= vivo).",
       "numeros": {
-        "ratio": 1.29,
-        "ratio_vivo": 1.3,
+        "ratio": 1.01,
+        "ratio_vivo": 1.01,
         "candidato": false,
         "minimo_jornadas": 25
       },
       "resumen_backtest": {
-        "jornadas_evaluadas": 13,
-        "valientes": 10,
+        "jornadas_evaluadas": 17,
+        "valientes": 13,
         "aciertos": 4,
-        "esperados": 3.09,
-        "apostado_hipotetico_eur": 10.0,
-        "cobrado_hipotetico_eur": 36.16,
+        "esperados": 3.96,
+        "apostado_hipotetico_eur": 13.0,
+        "cobrado_hipotetico_eur": 37.42,
         "veredicto": "VERDE segun el prerregistro (aciertos >= esperados con >=2 aciertos): la señal merece la sombra, sigue sin merecer dinero."
       }
     },
@@ -62,21 +66,21 @@
       "modulo": "veto_favorito_55",
       "titulo": "La Valiente: veto favorito >=55% (por separado)",
       "estado": "sin_cambios",
-      "detalle": "Sin cambios: 9 valientes, ratio 1.03 vs 1.3 del vivo en 13 jornadas (hacen falta >=25, VERDE y ratio >= vivo).",
+      "detalle": "Sin cambios: 12 valientes, ratio 0.79 vs 1.01 del vivo en 17 jornadas (hacen falta >=25, VERDE y ratio >= vivo).",
       "numeros": {
-        "ratio": 1.03,
-        "ratio_vivo": 1.3,
+        "ratio": 0.79,
+        "ratio_vivo": 1.01,
         "candidato": false,
         "minimo_jornadas": 25
       },
       "resumen_backtest": {
-        "jornadas_evaluadas": 13,
-        "valientes": 9,
+        "jornadas_evaluadas": 17,
+        "valientes": 12,
         "aciertos": 3,
-        "esperados": 2.91,
-        "apostado_hipotetico_eur": 9.0,
-        "cobrado_hipotetico_eur": 17.1,
-        "veredicto": "VERDE segun el prerregistro (aciertos >= esperados con >=2 aciertos): la señal merece la sombra, sigue sin merecer dinero."
+        "esperados": 3.78,
+        "apostado_hipotetico_eur": 12.0,
+        "cobrado_hipotetico_eur": 18.36,
+        "veredicto": "NEUTRO segun el prerregistro (entre el 60% y el 100% de lo esperado): sombra sin advertencia roja, muestra insuficiente para concluir."
       }
     }
   ],
