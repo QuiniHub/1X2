@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-27T20:57:33.986089+00:00",
+  "generado_en": "2026-10-28T00:26:05.663675+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
     "jornadas_snapshot": 28,
-    "partidos_cerrados": 378,
-    "aciertos": 237,
-    "precision": 62.7
+    "partidos_cerrados": 382,
+    "aciertos": 240,
+    "precision": 62.83
   },
   "jornadas": [
     {
@@ -2046,10 +2046,10 @@
       "snapshot": "data/backtesting/pre_cierre/jornada_17.json",
       "creado_en": "2026-10-27T00:23:07.972480+00:00",
       "prediccion_generada_en": "2026-10-27T00:23:07.972126+00:00",
-      "estado": "pendiente_resultados",
-      "partidos_cerrados": 0,
-      "aciertos": 0,
-      "precision": null,
+      "estado": "cerrada_o_parcial",
+      "partidos_cerrados": 4,
+      "aciertos": 3,
+      "precision": 75.0,
       "configuracion": {
         "dobles": 4,
         "triples": 1,
@@ -2070,19 +2070,80 @@
       },
       "por_tipo": {
         "FIJO": {
-          "total": 0,
-          "aciertos": 0
+          "total": 2,
+          "aciertos": 2
         },
         "DOBLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 2,
+          "aciertos": 1
         },
         "TRIPLE": {
           "total": 0,
           "aciertos": 0
         }
       },
-      "partidos": []
+      "partidos": [
+        {
+          "num": 1,
+          "partido": "Rsd Alcalá - UD Las Palmas",
+          "jugado": "2",
+          "tipo": "FIJO",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 18.1,
+            "X": 24.9,
+            "2": 57.0
+          },
+          "incertidumbre": 100.1,
+          "probabilidad_sorpresa": 45.5
+        },
+        {
+          "num": 3,
+          "partido": "Arosa Sc - Pontevedra Cf",
+          "jugado": "X2",
+          "tipo": "DOBLE",
+          "oficial": "1",
+          "acierto": false,
+          "probabilidades": {
+            "1": 25.7,
+            "X": 26.6,
+            "2": 47.7
+          },
+          "incertidumbre": 124.49,
+          "probabilidad_sorpresa": 60.9
+        },
+        {
+          "num": 10,
+          "partido": "Cd Don Benito - Cd Extremadura",
+          "jugado": "12",
+          "tipo": "DOBLE",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 28.7,
+            "X": 27.5,
+            "2": 43.7
+          },
+          "incertidumbre": 130.91,
+          "probabilidad_sorpresa": 66.5
+        },
+        {
+          "num": 13,
+          "partido": "Cd Tudelano - R. Zaragoza",
+          "jugado": "2",
+          "tipo": "FIJO",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 24.1,
+            "X": 24.1,
+            "2": 51.8
+          },
+          "incertidumbre": 121.02,
+          "probabilidad_sorpresa": 56.0
+        }
+      ]
     },
     {
       "jornada": 2,
