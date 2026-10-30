@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-30T01:49:59.920187+00:00",
+  "generado_en": "2026-10-30T07:52:12.217593+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -2244,12 +2244,12 @@
     },
     "17": {
       "jornada": 17,
-      "partidos_cerrados": 13,
-      "partidos_con_prediccion": 13,
-      "precision_boleto": 92.31,
-      "precision_top1": 84.62,
-      "brier_medio": 0.4045,
-      "logloss_medio": 0.7329,
+      "partidos_cerrados": 14,
+      "partidos_con_prediccion": 14,
+      "precision_boleto": 92.86,
+      "precision_top1": 78.57,
+      "brier_medio": 0.4243,
+      "logloss_medio": 0.7604,
       "por_tipo": {
         "FIJO": {
           "total": 9,
@@ -2262,18 +2262,25 @@
           "precision": 75.0
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0,
-          "precision": null
+          "total": 1,
+          "aciertos": 1,
+          "precision": 100.0
         }
       },
       "elige8": {
-        "selecciones": 7,
-        "aciertos": 6,
-        "precision": 85.71
+        "selecciones": 8,
+        "aciertos": 7,
+        "precision": 87.5
       },
-      "surprise_score_medio": 34.03,
+      "surprise_score_medio": 35.2,
       "ranking_incertidumbre": [
+        {
+          "num": 9,
+          "partido": "Deportiva Minera - Cartagena",
+          "incertidumbre": 142.18,
+          "surprise_score": 50.51,
+          "margen_probabilidad": 4.6
+        },
         {
           "num": 10,
           "partido": "Don Benito - Extremadura",
@@ -2322,16 +2329,15 @@
           "incertidumbre": 106.57,
           "surprise_score": 27.78,
           "margen_probabilidad": 29.8
-        },
-        {
-          "num": 2,
-          "partido": "Alcoyano - RCD Mallorca",
-          "incertidumbre": 105.25,
-          "surprise_score": 27.0,
-          "margen_probabilidad": 32.5675
         }
       ],
       "ranking_elige8_confianza_real": [
+        {
+          "num": 9,
+          "partido": "Deportiva Minera - Cartagena",
+          "confianza_real_elige8": 40.33,
+          "elige8": true
+        },
         {
           "num": 12,
           "partido": "Numancia - Real Oviedo",
@@ -2372,12 +2378,6 @@
           "num": 8,
           "partido": "Covadonga - Real Valladolid CF",
           "confianza_real_elige8": 22.61,
-          "elige8": false
-        },
-        {
-          "num": 11,
-          "partido": "Laredo - Burgos CF",
-          "confianza_real_elige8": 22.55,
           "elige8": false
         }
       ]
@@ -5980,7 +5980,7 @@
     }
   },
   "resumen": {
-    "jornadas_evaluadas": 31,
+    "jornadas_evaluadas": 32,
     "precision_media_ultimas_8": 72.32,
     "criterio_aprendizaje": "tras cada jornada cerrada se compara prediccion vs resultado y se reentrena la memoria"
   }

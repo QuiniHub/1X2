@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-10-30T01:50:41.229162+00:00",
+  "generado_en": "2026-10-30T07:53:17.754872+00:00",
   "estado": "critico_actualizacion",
   "score_salud": 45,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
@@ -50,13 +50,13 @@
         "jornada": 17,
         "fecha": "Miércoles, 28 de octubre de 2026",
         "fecha_orden": "2026-10-29",
-        "estado": "en_juego",
+        "estado": "cerrada",
         "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
-        "pendientes_totales_con_pleno15": 1,
+        "cerrados": 14,
+        "pendientes": 0,
+        "pendientes_totales_con_pleno15": 0,
         "pleno15_cerrado": true,
-        "ultima_actualizacion_partido": "2026-10-30T01:46:50Z",
+        "ultima_actualizacion_partido": "2026-10-30T07:49:04Z",
         "path": "data/jornadas/jornada_17.json"
       },
       {
@@ -103,9 +103,9 @@
   "memoria_quinielas": {
     "jugadas_persistidas_json": 35,
     "jornadas_validadas_historial": 35,
-    "jornadas_memoria_real_total": 101,
-    "jornadas_con_signo_nuestro": 31,
-    "signos_nuestros_en_jornadas": 434,
+    "jornadas_memoria_real_total": 102,
+    "jornadas_con_signo_nuestro": 32,
+    "signos_nuestros_en_jornadas": 448,
     "estado": "memoria_propia_disponible",
     "fuentes_validas": [
       "data/quinielas_jugadas.json",
@@ -116,24 +116,24 @@
   },
   "prediccion": {
     "jornada": 18,
-    "generado_en": "2026-10-30T01:50:30.084922+00:00",
+    "generado_en": "2026-10-30T07:52:40.844529+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 14,
-      "dobles": 0,
-      "triples": 0,
+      "fijos": 8,
+      "dobles": 4,
+      "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 0,
-      "indice_sorpresa_max": 0.0,
+      "favoritos_atacables": 7,
+      "indice_sorpresa_max": 100.0,
       "calidad_datos": {
-        "alta": 0,
+        "alta": 10,
         "media": 0,
         "media_baja": 0,
-        "baja": 0
+        "baja": 4
       }
     },
-    "retenida_por_compuerta": true,
-    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 17 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 18 hasta cerrar y aprender la 17."
+    "retenida_por_compuerta": false,
+    "motivo_bloqueo": null
   },
   "clasificaciones": {
     "primera": {
@@ -184,9 +184,9 @@
     }
   },
   "fuentes": {
-    "memoria_horas": 0.01,
-    "estado_vivo_horas": 0.0,
-    "contexto_equipos_horas": 0.02,
+    "memoria_horas": 0.02,
+    "estado_vivo_horas": 0.01,
+    "contexto_equipos_horas": 0.03,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -258,9 +258,9 @@
     "estado": "operativo",
     "jornadas_snapshot": 28,
     "partidos_cerrados": 391,
-    "aciertos": 248,
-    "precision": 63.43,
-    "generado_en": "2026-10-29T21:45:41.961516+00:00",
+    "aciertos": 249,
+    "precision": 63.68,
+    "generado_en": "2026-10-30T01:50:42.460474+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -270,6 +270,11 @@
       "detalle": "Athletic Club tiene 9 PJ en tabla, pero el calendario ya tiene 10 resultados."
     },
     {
+      "nivel": "alta",
+      "titulo": "Predicción de jornada antigua",
+      "detalle": "La jornada activa es 20 pero la última predicción dice 18."
+    },
+    {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
       "detalle": "La jornada 18 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
@@ -277,14 +282,8 @@
     },
     {
       "nivel": "media",
-      "titulo": "Prediccion demasiado rigida",
-      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
-      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
-    },
-    {
-      "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 10 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -303,7 +302,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-10-30T01:50:41.229162+00:00",
+    "generado_en": "2026-10-30T07:53:17.754872+00:00",
     "estado": "critico",
     "score": 0,
     "alertas": [
@@ -311,6 +310,11 @@
         "nivel": "critica",
         "titulo": "Clasificacion primera congelada",
         "detalle": "Athletic Club tiene 9 PJ en tabla, pero el calendario ya tiene 10 resultados."
+      },
+      {
+        "nivel": "alta",
+        "titulo": "Predicción de jornada antigua",
+        "detalle": "La jornada activa es 20 pero la última predicción dice 18."
       }
     ],
     "jornadas": {
@@ -348,8 +352,8 @@
           "fecha": "Miércoles, 28 de octubre de 2026",
           "fecha_orden": "2026-10-29",
           "partidos": 14,
-          "cerrados": 13,
-          "pendientes": 1,
+          "cerrados": 14,
+          "pendientes": 0,
           "path": "data/jornadas/jornada_17.json"
         },
         {
@@ -419,28 +423,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-10-30T01:50:00.119936+00:00"
+      "generado_en": "2026-10-30T07:52:12.397556+00:00"
     },
     "prediccion": {
       "jornada": 18,
-      "generado_en": "2026-10-30T01:50:30.084922+00:00",
+      "generado_en": "2026-10-30T07:52:40.844529+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 14,
-        "dobles": 0,
-        "triples": 0,
+        "fijos": 8,
+        "dobles": 4,
+        "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 0,
-        "indice_sorpresa_max": 0.0,
+        "favoritos_atacables": 7,
+        "indice_sorpresa_max": 100.0,
         "calidad_datos": {
-          "alta": 0,
+          "alta": 10,
           "media": 0,
           "media_baja": 0,
-          "baja": 0
+          "baja": 4
         }
       },
-      "retenida_por_compuerta": true,
-      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 17 solo tiene 13 de 14 resultados oficiales. No se genera prediccion para la jornada 18 hasta cerrar y aprender la 17."
+      "retenida_por_compuerta": false,
+      "motivo_bloqueo": null
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -479,8 +483,8 @@
         "fecha": "Miércoles, 28 de octubre de 2026",
         "fecha_orden": "2026-10-29",
         "partidos": 14,
-        "cerrados": 13,
-        "pendientes": 1,
+        "cerrados": 14,
+        "pendientes": 0,
         "path": "data/jornadas/jornada_17.json"
       },
       {
@@ -550,6 +554,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-10-30T01:50:00.119936+00:00"
+    "generado_en": "2026-10-30T07:52:12.397556+00:00"
   }
 }
