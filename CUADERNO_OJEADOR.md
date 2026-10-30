@@ -112,3 +112,17 @@ Señales 12/14; 1a Multiple Reducida de la historia del proyecto; premio 24,26 E
 - Leccion prerregistrada nueva: señal "forma invertida fuerte" (local favorito con
   visitante 4+ pts mejor de forma: el favorito cae al 62%, n=185) pendiente de
   backtest formal para el Radar antes de la J17... aplazada a J18 (la J17 es Copa).
+
+### Veredicto J17 — primera Copa (cierre 30/10): 12/14 señales, 0 EUR
+
+Jornada historica: aplazamiento por la tragedia de Urda y primer SORTEO oficial
+que vivimos (acta SELAE 29/10: P2, P5 y P9 salieron 2 por bombo; los 3 cubiertos,
+el triple de la Minera a 100 bolas). Fallos: Arosa 2-0 (la permuta del lunes: 5a
+confirmacion de que la cobertura nueva no se financia desnudando otra guerra
+señalada) y Numancia 3-3 (la UNICA X de la jornada, en el partido que el propio
+analisis nombro como candidato a X: cuando el analisis nombra UN partido como LA
+X de la jornada, esa X vale cobertura). La combinacion fue 13 doses + 1 X: el
+paraiso de la masa (319 plenos de 14 a 301 EUR; el 13 a 4,65). Leccion grande:
+la 1a ronda de Copa se juega BARATA (2a o 3a reduccion, 12-18 EUR) o no se juega
+cara: nuestra ventaja anti-masa solo cobra si el futbol se tuerce, y en esta
+ronda casi nunca se tuerce. El metodo aguanto en terreno desconocido: 12/14.
