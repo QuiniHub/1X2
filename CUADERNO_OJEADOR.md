@@ -173,3 +173,13 @@ y el 1-1 de Marc estan de acuerdo.
 4) Eibar-Almeria 5) Rayo-Celta. **Riesgo asumido y nombrado**: si la estructura
 no da para todo, el fijo que se queda al aire es el 2 del Atleti en el Ciutat
 (58 real) — nombrado ANTES, no despues.
+
+### Caso espía viernes 30/10 (fuera de boleto): Villarreal 1-2 Espanyol
+
+Pronostico escrito ANTES: "1 corto sufriendo, pero jamas fijo; el 2 del Espanyol
+seria la sorpresa que el revulsivo-fuera bendeciria". Salio el 2. Señal
+revulsivo DEBUT FUERA confirmada otra vez (interino Sergio Garcia, Sarabia
+firmado esperando): el unico revulsivo que paga segun nuestros 70 casos. Y el
+farol del Villarreal (12º con escudo de Champions) confirmado. El olfato vio el
+perfil pero firmo el signo equivocado por respeto al escudo: cuando señal
+validada (+farol) choca con "la calidad acaba pesando", la señal manda.
