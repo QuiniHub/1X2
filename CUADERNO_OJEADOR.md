@@ -126,3 +126,50 @@ paraiso de la masa (319 plenos de 14 a 301 EUR; el 13 a 4,65). Leccion grande:
 la 1a ronda de Copa se juega BARATA (2a o 3a reduccion, 12-18 EUR) o no se juega
 cara: nuestra ventaja anti-masa solo cobra si el futbol se tuerce, y en esta
 ronda casi nunca se tuerce. El metodo aguanto en terreno desconocido: 12/14.
+
+## J18 (31/10-2/11/2026) — lectura pre-cierre, escrita el viernes 30/10
+
+Jornada de ONCE guerras en 14 partidos; Europa entre semana (Bayern-Atleti y
+Villa-Barça el martes, Dortmund-Betis y AEK-Madrid el miercoles, Lyon-Real,
+USG-Celta y el Brighton historico del Getafe el jueves). Señal nueva en uso:
+FORMA INVERTIDA (validada en holdout: favorito local 4+ pts peor = cae al 62%).
+
+**P1 Levante-Atleti**: el Ciutat ya cazo al Betis (5-2) y al Athletic (3-1). El
+Atleti viene de 3 victorias de fontaneria contra la zona baja, con el Bayern el
+martes y partido a las 14:00. Sobrecompra +17 (masa 75 vs 58 real). TORMENTA 1.
+**P2 Rayo-Celta**: tregua social que caduca si no hay reunion antes del partido;
+Celta rey del empate (7 jornadas invicto). HUELE A X; tormenta 2.
+**P3 Betis-Malaga**: fijo 1 con asterisco de rotacion pre-Dortmund.
+**P4 Barça-Alaves**: semana negra y defensa en los huesos (sin Kounde, Eric,
+Christensen), pero +29 de diferencia y el Alaves 1 pt de 9. Fijo 1 con ruido.
+**P5 Getafe-Sevilla**: LA GUERRA TOTAL — fortin del Coliseum (9 de 9 en casa, 0
+fuera) herido y con el Brighton en la cabeza, vs Sevilla blando (46% de masa).
+Resaca de Copa de 60h con susto en Lebrija. TRIPLE.
+**P6 Racing-Madrid**: fiesta en El Sardinero (primera visita en 15 años, reventa
+a 429E, "no firmo el empate"), Racing reservo a los 11 titulares en Copa... y aun
+asi: Madrid 5 victorias seguidas, Mbappe. Fijo 2.
+**P7 Elche-Valencia**: el Elche NO ha ganado en casa; el Valencia no gana nunca
+(Aguirre 0 victorias). Derbi de miedo escenico: 1X con el empate corto logico.
+**P8 Eibar-Almeria**: lider con PRORROGA del martes en las piernas y racha rota
+en el 89', vs nuestro Eibar del caos con tecnico nuevo (Aranbarri) y descansado.
+TRIPLE (zona radar, rayo 2).
+**P9 Eldense-Granada**: mercado hace favorito al Eldense que llega 6 pts peor
+(inversion condicional); Granada 4 victorias seguidas pero jugo el JUEVES y
+repite domingo 14:00. Zona radar (rayo 1). X2.
+**P10 Burgos-Castellon**: lider solido (22GF/4GC) pero sus pinchazos son a
+domicilio en campos chicos, y El Plantio con el Burgos en racha es eso. X2.
+**P11 Alaves F-Real F**: la Real post-gesta (tumbo al Barça) en derbi; urgencia
+local. 2 con respeto... cubierto X2 si cabe. **P12 CFF-Depor F**: FORMA INVERTIDA
+LIMPIA + farol confirmado + Depor en extasis: X2 ANTI-MASA (masa 67 al 1, +18 de
+sobrecompra, la mayor de la jornada). **P13 Sevilla F-RM F**: fijo 2.
+**P14 Tenerife F-Athletic F**: lunes + viaje a islas + favorito sin gol. 1X
+(zona radar, rayo 1).
+**P15 PLENO derbi vasco**: la Real llega 9 de 9 y el Athletic gripado (Terzic
+señalado), pero San Mames recupera a Laporte y Sancet. Derbis cortos (4 de los
+ultimos 6 con <=2 goles). MARCADOR: 1-1 (alternativa 1-2). Por fin la ortodoxia
+y el 1-1 de Marc estan de acuerdo.
+
+**RANKING TORMENTA J18**: 1) Getafe-Sevilla 2) Levante-Atleti 3) CFF-Depor F
+4) Eibar-Almeria 5) Rayo-Celta. **Riesgo asumido y nombrado**: si la estructura
+no da para todo, el fijo que se queda al aire es el 2 del Atleti en el Ciutat
+(58 real) — nombrado ANTES, no despues.
