@@ -174,12 +174,18 @@ y el 1-1 de Marc estan de acuerdo.
 no da para todo, el fijo que se queda al aire es el 2 del Atleti en el Ciutat
 (58 real) — nombrado ANTES, no despues.
 
-### Caso espía viernes 30/10 (fuera de boleto): Villarreal 1-2 Espanyol
+### Caso espía viernes 30/10 (fuera de boleto): Villarreal - Espanyol, PRONOSTICOS PRE-PARTIDO
 
-Pronostico escrito ANTES: "1 corto sufriendo, pero jamas fijo; el 2 del Espanyol
-seria la sorpresa que el revulsivo-fuera bendeciria". Salio el 2. Señal
-revulsivo DEBUT FUERA confirmada otra vez (interino Sergio Garcia, Sarabia
-firmado esperando): el unico revulsivo que paga segun nuestros 70 casos. Y el
-farol del Villarreal (12º con escudo de Champions) confirmado. El olfato vio el
-perfil pero firmo el signo equivocado por respeto al escudo: cuando señal
-validada (+farol) choca con "la calidad acaba pesando", la señal manda.
+SE JUEGA ESTA NOCHE (30/10, 20:00). Pronosticos escritos ANTES, para examinar despues:
+- Claude: "1 corto sufriendo (1-0 / 2-1), jamas fijo; el 2 del Espanyol seria la
+  sorpresa que el revulsivo-fuera bendeciria" — señal revulsivo DEBUT FUERA activa
+  (interino Sergio Garcia debuta a domicilio, Sarabia firmado esperando) + farol
+  parcial del Villarreal (12º con escudo de Champions).
+- Marc: X2, con corazonada de 1-2.
+- Los numeros del mundo: xG previsto 2,22-0,89 para el Villarreal, cuota 1,74 y
+  bajando, modelos recomendando hasta el handicap -1. Todos con el escudo.
+Si sale X o 2: caso 71 del revulsivo-fuera y farol confirmado, y la corazonada de
+Marc por delante del olfato de Claude. Si sale 1: los numeros mandaban.
+NOTA DE AUTOCRITICA (30/10): Claude registro erroneamente el "1-2" de Marc como
+resultado final y lo celebro como caso confirmado — era su PRONOSTICO. Corregido
+antes del partido. Regla: un resultado solo existe con fuente y fecha.
