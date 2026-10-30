@@ -1799,3 +1799,15 @@ Ojeador J17: 4 cruces NO son David-Goliat (Minera-Cartagena derbi+artificial,
 Don Benito-Extremadura, Arosa-Pontevedra, Tudelano-Zaragoza post-descenso); el
 motor esta ciego (equipos de federacion sin datos, competicion mal resuelta como
 "liga_extranjera" — pendiente arreglo del resolutor para Copa).
+
+## 2026-10-30 — Señal FORMA INVERTIDA FUERTE validada en holdout
+
+Backtest formal prerregistrado (umbral >=4 pts declarado el 24/10 tras el 0-3 de
+Vallecas): entreno 23/24+24/25 (zona n=128: favorito local 38%/X 34%/2 28%) y
+examen en frio con 25/26 (n=57: 39%/33%/28%; fuera de zona el favorito gana 55%).
+Criterio de despliegue (favorito <=45% y n>=30 en holdout) superado. DESPLIEGUE:
+señal oficial del OJEADOR desde la J18 (se calcula en los barridos y pesa en la
+decision: favorito en zona = nunca fijo, cobertura con el signo del rayo o triple).
+Integracion en radar_tormenta.py pendiente de un feed de forma por equipo en el
+motor (candidato tecnico; no se improvisa). La X sigue siendo la escapatoria mas
+frecuente en zona (33-34%): la señal degrada al favorito, no elige el signo.
