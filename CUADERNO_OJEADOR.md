@@ -193,3 +193,17 @@ cuando la señal validada choca con el respeto al escudo, LA SEÑAL MANDA.
 NOTA DE AUTOCRITICA (30/10): Claude registro erroneamente el "1-2" de Marc como
 resultado final y lo celebro como caso confirmado — era su PRONOSTICO. Corregido
 antes del partido. Regla: un resultado solo existe con fuente y fecha.
+
+### J18 SELLADA (31/10, 09:32, eduardolosilla.es) — estado para la proxima sesion
+
+Boleto a la carta: REDUCIDA SUPER13 de Losilla, 7 TRIPLES (P2 Rayo-Celta, P5
+Getafe-Sevilla, P7 Elche-Valencia, P8 Eibar-Almeria, P9 Eldense-Granada, P12
+CFF-Depor, P14 Tenerife-Athletic F) + 1 DOBLE (P10 X2 Burgos-Castellon) + 6
+fijos (P1 Atleti 2, P3 Betis 1, P4 Barça 1, P6 Madrid 2, P11 R.Sociedad F 2,
+P13 R.Madrid F 2). Pleno 2-2 (eleccion de Marc). 333 columnas, 249,75 EUR,
+semana de bote 2,7M. Desarrollo AUDITADO por nosotros: garantia al 13 verificada
+por fuerza bruta (4.374 combos, distancia maxima 1). Renuncias nombradas: el 1
+del Burgos (sin Karrikaburu ni David), la X del Cholo en el Ciutat, Mendizorroza
+a fijo. Apuesta mas grande de la historia del proyecto. Al cierre: retrospectiva
+partido a partido contra esta lectura + autocritica del socio + premio contra
+escrutinio oficial LAE.
