@@ -184,8 +184,12 @@ SE JUEGA ESTA NOCHE (30/10, 20:00). Pronosticos escritos ANTES, para examinar de
 - Marc: X2, con corazonada de 1-2.
 - Los numeros del mundo: xG previsto 2,22-0,89 para el Villarreal, cuota 1,74 y
   bajando, modelos recomendando hasta el handicap -1. Todos con el escudo.
-Si sale X o 2: caso 71 del revulsivo-fuera y farol confirmado, y la corazonada de
-Marc por delante del olfato de Claude. Si sale 1: los numeros mandaban.
+RESULTADO (fuente: Eurosport/ElGolDigital, 30/10/2026): Villarreal 0-1 Espanyol,
+gol de Cabrera min 60; 63% de posesion local esteril. SALIO EL 2: caso 71 del
+revulsivo debut-fuera CONFIRMADO, farol del Villarreal confirmado, y la
+corazonada de Marc (X2) por delante del olfato de Claude (2-1) y de todos los
+numeros del mundo (cuota 1,74, handicap -1). Leccion repetida 2 veces en 24h:
+cuando la señal validada choca con el respeto al escudo, LA SEÑAL MANDA.
 NOTA DE AUTOCRITICA (30/10): Claude registro erroneamente el "1-2" de Marc como
 resultado final y lo celebro como caso confirmado — era su PRONOSTICO. Corregido
 antes del partido. Regla: un resultado solo existe con fuente y fecha.
