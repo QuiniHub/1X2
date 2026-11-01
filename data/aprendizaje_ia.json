@@ -1,31 +1,31 @@
 {
   "version": "1.2",
-  "precision": 69.15,
+  "precision": 69.01,
   "jornadas_revisadas": 36,
-  "partidos_revisados": 496,
+  "partidos_revisados": 497,
   "aciertos": 343,
-  "fallos": 153,
+  "fallos": 154,
   "fallos_por_tipo": {
-    "Doble insuficiente": 30,
+    "Doble insuficiente": 31,
     "Fijo fallado": 67,
     "No cubrio empate": 56
   },
   "fallos_por_signo_real": {
-    "1": 37,
+    "1": 38,
     "2": 60,
     "X": 56
   },
   "signos_omitidos_en_fallo": {
-    "1": 37,
+    "1": 38,
     "2": 60,
     "X": 56
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 129,
+      "total": 130,
       "aciertos": 99,
-      "fallos": 30,
-      "precision": 76.74
+      "fallos": 31,
+      "precision": 76.15
     },
     "FIJO": {
       "total": 304,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 223,
+      "total": 224,
       "aciertos": 186,
-      "fallos": 37,
-      "precision": 83.41
+      "fallos": 38,
+      "precision": 83.04
     },
     "2": {
       "total": 162,
@@ -61,122 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 76,
-      "partido": "Mjällby - Elfsborg",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "0-1",
-      "resultado_final": "0-1",
-      "signo_real": "2",
-      "signos_cubiertos": "1",
-      "signo_omitido": "2",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "data/predicciones/jornada_76.json",
-      "probabilidades_usadas": {
-        "1": 40.2,
-        "X": 30.7,
-        "2": 29.0
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "fallback_posicion+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Mjällby",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Elfsborg",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (40.2%).",
-        "hipotesis_alternativa": "X como alternativa (30.7%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
-          "probabilidad": 70.0,
-          "favorito_atacable": true
-        },
-        "justificacion_final": "Decision FIJO 1: margen 9.5 puntos, indice sorpresa 89.7."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 12.29,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 11.1,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.7,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Mjällby: ppp=0.77; perfil visitante Elfsborg: ppp=2.01.",
-          "Memoria autonoma: tendencia de empate conjunta alta (32.9%).",
-          "Memoria autonoma: historial de sorpresa medio elevado (48.9)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Mjällby",
-        "partidos_total": 3,
-        "puntos_por_partido": 0.657,
-        "empates_pct": 65.7,
-        "surprise_score_medio": 42.13,
-        "forma_5_ppp": 0.667,
-        "forma_10_ppp": 0.667,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Elfsborg",
-        "partidos_total": 2,
-        "puntos_por_partido": 1.522,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 55.67,
-        "forma_5_ppp": 1.5,
-        "forma_10_ppp": 1.5,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 1
-        }
-      }
-    },
     {
       "jornada": 76,
       "partido": "Hammarby - Häcken",
@@ -28869,6 +28753,108 @@
     },
     {
       "jornada": 18,
+      "partido": "Alavés Femenino - R. Sociedad (F)",
+      "pronostico": "X2",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "2-1",
+      "resultado_final": "2-1",
+      "signo_real": "1",
+      "signos_cubiertos": "X2",
+      "signo_omitido": "1",
+      "acierto": false,
+      "motivo_error": "Doble insuficiente",
+      "origen": "data/predicciones/jornada_18.json",
+      "probabilidades_usadas": {
+        "1": 24.1,
+        "X": 28.6,
+        "2": 47.3
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Alavés Femenino",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "R. Sociedad (F)",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (47.3%).",
+        "hipotesis_alternativa": "X como alternativa (28.6%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "sorpresa_vigilada",
+          "probabilidad": 62.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision DOBLE X2: margen 18.7 puntos, indice sorpresa 57.9."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 11.0,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Alavés Femenino",
+        "partidos_total": 4,
+        "puntos_por_partido": 1.478,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 30.19,
+        "forma_5_ppp": 1.5,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {}
+    },
+    {
+      "jornada": 18,
       "partido": "Madrid CFF - Deportivo (F)",
       "pronostico": "1",
       "tipo_pronostico": "FIJO",
@@ -28996,19 +28982,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 496,
+    "partidos_base": 497,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 30.85,
-      "no_cubrio_empate_sobre_fallos_pct": 36.6,
-      "no_cubrio_empate_sobre_total_pct": 11.29,
-      "fijo_fallado_sobre_fallos_pct": 43.79,
-      "fijo_fallado_sobre_total_pct": 13.51,
-      "doble_insuficiente_sobre_total_pct": 6.05
+      "fallos_total_pct": 30.99,
+      "no_cubrio_empate_sobre_fallos_pct": 36.36,
+      "no_cubrio_empate_sobre_total_pct": 11.27,
+      "fijo_fallado_sobre_fallos_pct": 43.51,
+      "fijo_fallado_sobre_total_pct": 13.48,
+      "doble_insuficiente_sobre_total_pct": 6.24
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 2.97,
-    "riesgo_extra_triple_insuficiente": 1.84,
+    "riesgo_extra_fijo_fragil": 2.89,
+    "riesgo_extra_triple_insuficiente": 2.02,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,
