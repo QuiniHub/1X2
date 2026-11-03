@@ -1,533 +1,66 @@
 {
   "version": "1.2",
-  "precision": 69.05,
-  "jornadas_revisadas": 36,
-  "partidos_revisados": 504,
-  "aciertos": 348,
-  "fallos": 156,
+  "precision": 69.09,
+  "jornadas_revisadas": 37,
+  "partidos_revisados": 508,
+  "aciertos": 351,
+  "fallos": 157,
   "fallos_por_tipo": {
     "Doble insuficiente": 31,
     "Fijo fallado": 68,
-    "No cubrio empate": 57
+    "No cubrio empate": 58
   },
   "fallos_por_signo_real": {
     "1": 38,
     "2": 61,
-    "X": 57
+    "X": 58
   },
   "signos_omitidos_en_fallo": {
     "1": 38,
     "2": 61,
-    "X": 57
+    "X": 58
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 131,
-      "aciertos": 100,
+      "total": 132,
+      "aciertos": 101,
       "fallos": 31,
-      "precision": 76.34
+      "precision": 76.52
     },
     "FIJO": {
-      "total": 309,
-      "aciertos": 184,
-      "fallos": 125,
-      "precision": 59.55
+      "total": 311,
+      "aciertos": 185,
+      "fallos": 126,
+      "precision": 59.49
     },
     "TRIPLE": {
-      "total": 64,
-      "aciertos": 64,
+      "total": 65,
+      "aciertos": 65,
       "fallos": 0,
       "precision": 100.0
     }
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 225,
-      "aciertos": 187,
+      "total": 227,
+      "aciertos": 189,
       "fallos": 38,
-      "precision": 83.11
+      "precision": 83.26
     },
     "2": {
-      "total": 166,
-      "aciertos": 105,
+      "total": 167,
+      "aciertos": 106,
       "fallos": 61,
-      "precision": 63.25
+      "precision": 63.47
     },
     "X": {
-      "total": 113,
+      "total": 114,
       "aciertos": 56,
-      "fallos": 57,
-      "precision": 49.56
+      "fallos": 58,
+      "precision": 49.12
     }
   },
   "detalle": [
-    {
-      "jornada": 1,
-      "partido": "R. Santander - Villarreal CF",
-      "pronostico": "X2",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "2-2",
-      "resultado_final": "2-2",
-      "signo_real": "X",
-      "signos_cubiertos": "X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_1.json",
-      "probabilidades_usadas": {
-        "1": 12.8,
-        "X": 38.8,
-        "2": 48.4
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_competitivo",
-        "estadistica_equipos+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "R. Santander",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Villarreal CF",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "2 como signo dominante (48.4%).",
-        "hipotesis_alternativa": "X como alternativa (38.8%).",
-        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
-        "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
-          "probabilidad": 63.6,
-          "favorito_atacable": true
-        },
-        "justificacion_final": "Decision DOBLE X2: margen 9.6 puntos, indice sorpresa 99.7."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 11.76,
-        "lecturas": [
-          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 11.62,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
-          "Pesos dinamicos: la necesidad competitiva viva tiene mas peso acumulado."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.66,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local R. Santander: ppp=1.00; perfil visitante Villarreal CF: ppp=0.99.",
-          "Memoria autonoma: tendencia de empate conjunta alta (56.3%).",
-          "Memoria autonoma: historial de sorpresa medio elevado (48.7)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "R. Santander",
-        "partidos_total": 1,
-        "puntos_por_partido": 1.0,
-        "empates_pct": 100.0,
-        "surprise_score_medio": 48.13,
-        "forma_5_ppp": 1.0,
-        "forma_10_ppp": 1.0,
-        "racha_actual": {
-          "tipo": "E",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Villarreal CF",
-        "partidos_total": 41,
-        "puntos_por_partido": 1.361,
-        "empates_pct": 12.69,
-        "surprise_score_medio": 49.19,
-        "forma_5_ppp": 0.6,
-        "forma_10_ppp": 0.5,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 3
-        }
-      }
-    },
-    {
-      "jornada": 1,
-      "partido": "RCD Espanyol de Barcelona - Levante UD",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
-      "resultado": "3-0",
-      "resultado_final": "3-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1X",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_1.json",
-      "probabilidades_usadas": {
-        "1": 30.7,
-        "X": 40.6,
-        "2": 28.7
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_competitivo",
-        "contexto_equipos",
-        "estadistica_equipos+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "RCD Espanyol de Barcelona",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Levante UD",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "X como signo dominante (40.6%).",
-        "hipotesis_alternativa": "1 como alternativa (30.7%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
-          "probabilidad": 70.0,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision FIJO X: margen 9.9 puntos, indice sorpresa 100.0."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 13.94,
-        "lecturas": [
-          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 10.42,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la necesidad competitiva viva tiene mas peso acumulado."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 1.51,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local RCD Espanyol de Barcelona: ppp=3.00; perfil visitante Levante UD: ppp=0.91.",
-          "Memoria autonoma: historial de sorpresa medio elevado (53.4)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "RCD Espanyol de Barcelona",
-        "partidos_total": 1,
-        "puntos_por_partido": 3.0,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 53.24,
-        "forma_5_ppp": 3.0,
-        "forma_10_ppp": 3.0,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Levante UD",
-        "partidos_total": 30,
-        "puntos_por_partido": 1.035,
-        "empates_pct": 24.85,
-        "surprise_score_medio": 53.55,
-        "forma_5_ppp": 0.8,
-        "forma_10_ppp": 1.0,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 1
-        }
-      }
-    },
-    {
-      "jornada": 1,
-      "partido": "RC Celta de Vigo - CA Osasuna",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "0-0",
-      "resultado_final": "0-0",
-      "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "data/predicciones/jornada_1.json",
-      "probabilidades_usadas": {
-        "1": 36.4,
-        "X": 34.8,
-        "2": 28.7
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_competitivo",
-        "estadistica_equipos+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "RC Celta de Vigo",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "CA Osasuna",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (36.4%).",
-        "hipotesis_alternativa": "X como alternativa (34.8%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
-          "probabilidad": 70.0,
-          "favorito_atacable": true
-        },
-        "justificacion_final": "Decision FIJO 1: margen 1.6 puntos, indice sorpresa 100.0."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 13.94,
-        "lecturas": [
-          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 11.62,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
-          "Pesos dinamicos: la necesidad competitiva viva tiene mas peso acumulado."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 1.17,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local RC Celta de Vigo: ppp=1.99; perfil visitante CA Osasuna: ppp=0.50.",
-          "Memoria autonoma: tendencia de empate conjunta alta (50.7%).",
-          "Memoria autonoma: historial de sorpresa medio elevado (51.5)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "RC Celta de Vigo",
-        "partidos_total": 2,
-        "puntos_por_partido": 1.986,
-        "empates_pct": 50.72,
-        "surprise_score_medio": 40.19,
-        "forma_5_ppp": 2.0,
-        "forma_10_ppp": 2.0,
-        "racha_actual": {
-          "tipo": "E",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "CA Osasuna",
-        "partidos_total": 2,
-        "puntos_por_partido": 0.507,
-        "empates_pct": 50.72,
-        "surprise_score_medio": 62.76,
-        "forma_5_ppp": 0.5,
-        "forma_10_ppp": 0.5,
-        "racha_actual": {
-          "tipo": "E",
-          "partidos": 1
-        }
-      }
-    },
-    {
-      "jornada": 1,
-      "partido": "FC Andorra - AD Ceuta FC",
-      "pronostico": "X",
-      "tipo_pronostico": "FIJO",
-      "resultado": "5-1",
-      "resultado_final": "5-1",
-      "signo_real": "1",
-      "signos_cubiertos": "X",
-      "signo_omitido": "1",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "data/predicciones/jornada_1.json",
-      "probabilidades_usadas": {
-        "1": 32.0,
-        "X": 39.7,
-        "2": 28.3
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_competitivo",
-        "estadistica_equipos+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "FC Andorra",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "AD Ceuta FC",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "X como signo dominante (39.7%).",
-        "hipotesis_alternativa": "1 como alternativa (32.0%).",
-        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
-        "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
-          "probabilidad": 70.0,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision TRIPLE 1X2: margen 7.7 puntos, indice sorpresa 100.0."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 13.94,
-        "lecturas": [
-          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 10.42,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la necesidad competitiva viva tiene mas peso acumulado."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.0,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local FC Andorra: ppp=1.29; perfil visitante AD Ceuta FC: ppp=1.81."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "FC Andorra",
-        "partidos_total": 24,
-        "puntos_por_partido": 1.346,
-        "empates_pct": 18.37,
-        "surprise_score_medio": 39.88,
-        "forma_5_ppp": 1.0,
-        "forma_10_ppp": 1.1,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "AD Ceuta FC",
-        "partidos_total": 3,
-        "puntos_por_partido": 1.971,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 44.37,
-        "forma_5_ppp": 2.0,
-        "forma_10_ppp": 2.0,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 1
-        }
-      }
-    },
     {
       "jornada": 1,
       "partido": "Cadiz CF - Celta Fortuna",
@@ -28988,6 +28521,480 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 19,
+      "partido": "FC Barcelona - Aston Villa FC",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "3-0",
+      "resultado_final": "3-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_19.json",
+      "probabilidades_usadas": {
+        "1": 59.2,
+        "X": 22.7,
+        "2": 18.1
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "fallback_posicion_con_contexto+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "FC Barcelona",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Aston Villa FC",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (59.2%).",
+        "hipotesis_alternativa": "X como alternativa (22.7%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 44.4,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 36.5 puntos, indice sorpresa 21.9."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 12.05,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.96,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local FC Barcelona: ppp=2.65; perfil visitante Aston Villa: ppp=3.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "FC Barcelona",
+        "partidos_total": 39,
+        "puntos_por_partido": 2.552,
+        "empates_pct": 3.44,
+        "surprise_score_medio": 29.7,
+        "forma_5_ppp": 2.4,
+        "forma_10_ppp": 2.2,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Aston Villa",
+        "partidos_total": 6,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 0.0,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 6
+        }
+      }
+    },
+    {
+      "jornada": 19,
+      "partido": "Bodo Glimt - Lille",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-0",
+      "resultado_final": "0-0",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_19.json",
+      "probabilidades_usadas": {
+        "1": 51.5,
+        "X": 27.1,
+        "2": 21.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_equipos",
+        "fallback_posicion_con_contexto+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Bodo Glimt",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Lille",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (51.5%).",
+        "hipotesis_alternativa": "X como alternativa (27.1%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 54.7,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 24.4 puntos, indice sorpresa 37.3."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 10.85,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Bodo-Glimt: ppp=2.13; perfil visitante Lille: ppp=0.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Bodo-Glimt",
+        "partidos_total": 12,
+        "puntos_por_partido": 2.053,
+        "empates_pct": 8.66,
+        "surprise_score_medio": 36.11,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 1.9,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Lille",
+        "partidos_total": 6,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 28.83,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 6
+        }
+      }
+    },
+    {
+      "jornada": 19,
+      "partido": "Man. United - Roma",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "3-2",
+      "resultado_final": "3-2",
+      "signo_real": "1",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_19.json",
+      "probabilidades_usadas": {
+        "1": 39.1,
+        "X": 29.7,
+        "2": 31.1
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Man. United",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Roma",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (39.1%).",
+        "hipotesis_alternativa": "2 como alternativa (31.1%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision TRIPLE 1X2: margen 8.0 puntos, indice sorpresa 94.2."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 10.85,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Man. United: ppp=1.66; perfil visitante Roma: ppp=0.77.",
+          "Memoria autonoma: tendencia de empate conjunta alta (32.9%)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Man. United",
+        "partidos_total": 3,
+        "puntos_por_partido": 0.971,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 30.03,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Roma",
+        "partidos_total": 3,
+        "puntos_por_partido": 0.657,
+        "empates_pct": 65.7,
+        "surprise_score_medio": 51.35,
+        "forma_5_ppp": 0.667,
+        "forma_10_ppp": 0.667,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
+    },
+    {
+      "jornada": 19,
+      "partido": "Villarreal CF - Paris Saint-Germain",
+      "pronostico": "12",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "0-6",
+      "resultado_final": "0-6",
+      "signo_real": "2",
+      "signos_cubiertos": "12",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_19.json",
+      "probabilidades_usadas": {
+        "1": 26.7,
+        "X": 24.0,
+        "2": 49.4
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "fallback_posicion_con_contexto+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Villarreal CF",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Paris Saint-Germain",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (49.4%).",
+        "hipotesis_alternativa": "1 como alternativa (26.7%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_atacable",
+          "probabilidad": 57.8,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE 12: margen 22.7 puntos, indice sorpresa 65.7."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 12.05,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.96,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Villarreal CF: ppp=1.09; perfil visitante Paris Saint-Germain: ppp=3.00."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Villarreal CF",
+        "partidos_total": 36,
+        "puntos_por_partido": 1.326,
+        "empates_pct": 12.03,
+        "surprise_score_medio": 39.93,
+        "forma_5_ppp": 0.2,
+        "forma_10_ppp": 1.3,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Paris Saint-Germain",
+        "partidos_total": 2,
+        "puntos_por_partido": 3.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 40.01,
+        "forma_5_ppp": 3.0,
+        "forma_10_ppp": 3.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -29001,19 +29008,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 504,
+    "partidos_base": 508,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 30.95,
-      "no_cubrio_empate_sobre_fallos_pct": 36.54,
-      "no_cubrio_empate_sobre_total_pct": 11.31,
-      "fijo_fallado_sobre_fallos_pct": 43.59,
-      "fijo_fallado_sobre_total_pct": 13.49,
-      "doble_insuficiente_sobre_total_pct": 6.15
+      "fallos_total_pct": 30.91,
+      "no_cubrio_empate_sobre_fallos_pct": 36.94,
+      "no_cubrio_empate_sobre_total_pct": 11.42,
+      "fijo_fallado_sobre_fallos_pct": 43.31,
+      "fijo_fallado_sobre_total_pct": 13.39,
+      "doble_insuficiente_sobre_total_pct": 6.1
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 2.91,
-    "riesgo_extra_triple_insuficiente": 1.94,
+    "riesgo_extra_fijo_fragil": 2.77,
+    "riesgo_extra_triple_insuficiente": 1.89,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,
