@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-05T21:55:45.893366+00:00",
+  "generado_en": "2026-11-06T02:11:50.176490+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -2524,12 +2524,12 @@
     },
     "19": {
       "jornada": 19,
-      "partidos_cerrados": 13,
-      "partidos_con_prediccion": 13,
-      "precision_boleto": 76.92,
-      "precision_top1": 76.92,
-      "brier_medio": 0.4918,
-      "logloss_medio": 0.851,
+      "partidos_cerrados": 14,
+      "partidos_con_prediccion": 14,
+      "precision_boleto": 71.43,
+      "precision_top1": 71.43,
+      "brier_medio": 0.5152,
+      "logloss_medio": 0.8848,
       "por_tipo": {
         "FIJO": {
           "total": 8,
@@ -2537,9 +2537,9 @@
           "precision": 62.5
         },
         "DOBLE": {
-          "total": 3,
+          "total": 4,
           "aciertos": 3,
-          "precision": 100.0
+          "precision": 75.0
         },
         "TRIPLE": {
           "total": 2,
@@ -2548,11 +2548,11 @@
         }
       },
       "elige8": {
-        "selecciones": 7,
+        "selecciones": 8,
         "aciertos": 7,
-        "precision": 100.0
+        "precision": 87.5
       },
-      "surprise_score_medio": 39.33,
+      "surprise_score_medio": 41.23,
       "ranking_incertidumbre": [
         {
           "num": 3,
@@ -2590,6 +2590,13 @@
           "margen_probabilidad": 17.5
         },
         {
+          "num": 13,
+          "partido": "RC Celta de Vigo - Union St. Gilloise",
+          "incertidumbre": 125.96,
+          "surprise_score": 65.96,
+          "margen_probabilidad": 15.2
+        },
+        {
           "num": 12,
           "partido": "Real Sociedad de Futbol - Lyon",
           "incertidumbre": 118.73,
@@ -2602,13 +2609,6 @@
           "incertidumbre": 118.71,
           "surprise_score": 31.4,
           "margen_probabilidad": 22.6773
-        },
-        {
-          "num": 2,
-          "partido": "Bodo Glimt - Lille",
-          "incertidumbre": 114.85,
-          "surprise_score": 67.53,
-          "margen_probabilidad": 24.4
         }
       ],
       "ranking_elige8_confianza_real": [
@@ -2637,6 +2637,12 @@
           "elige8": true
         },
         {
+          "num": 13,
+          "partido": "RC Celta de Vigo - Union St. Gilloise",
+          "confianza_real_elige8": 29.46,
+          "elige8": true
+        },
+        {
           "num": 7,
           "partido": "B. Dortmund - Real Betis Balompie",
           "confianza_real_elige8": 27.9,
@@ -2653,12 +2659,6 @@
           "partido": "FC Barcelona - Aston Villa FC",
           "confianza_real_elige8": 26.09,
           "elige8": false
-        },
-        {
-          "num": 10,
-          "partido": "Leipzig - Man. City",
-          "confianza_real_elige8": 20.38,
-          "elige8": true
         }
       ]
     },
@@ -6192,7 +6192,7 @@
     }
   },
   "resumen": {
-    "jornadas_evaluadas": 33,
+    "jornadas_evaluadas": 34,
     "precision_media_ultimas_8": 72.32,
     "criterio_aprendizaje": "tras cada jornada cerrada se compara prediccion vs resultado y se reentrena la memoria"
   }
