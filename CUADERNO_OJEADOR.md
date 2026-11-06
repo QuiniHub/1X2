@@ -218,3 +218,60 @@ recortado, y el Celta 1-2 USG — LA SEÑAL DEL FAROL ACERTO (X2 original cazaba
 zigzag por la humildad post-CFF costo el acierto; marcador de la señal en vivo:
 1-1). Pleno: Atleti 0-2 Bayern sin Kompany — M-M de Marc y 2-1 del estudio, KO.
 Leccion nueva prerregistrada: AVISO DECLARADO EN EL CRUCE = minimo no-fijo.
+
+## J20 (7-8/11/2026) — lectura pre-cierre, escrita el viernes 6/11 (presupuesto 30 EUR)
+
+Jornada de luto: muerte de Jesus de Miguel (Tenerife) el 3/11; LaLiga mantiene la
+jornada con homenaje (minuto 9). APLAZADO el P14 Tenerife F - Alaves F (Liga F,
+comunicado 5/11, sin fecha) -> signo por SORTEO de 100 bolas segun masa LAE
+(73/16/11): el 1 queda al 73%, mas firme que el 59% del motor. Bote 1,39M (un
+acertante 2,2M), sin escalon de protocolo. Europa entre semana: Madrid (mie, Atenas
+2-3), Betis (mie, Dortmund 1-2), Atleti (mar, 0-2 Bayern), Barca (mar, 3-0 Villa),
+Villarreal (mar, 0-6 PSG), Real (jue, 1-1 Lyon), Celta (jue, 1-2 USG), Getafe (jue,
+0-1 Brighton). Athletic, Rayo, Levante, Elche, Osasuna y toda la Segunda: frescos.
+
+**P1 Malaga-Racing**: colista sin ganar en 11 (5 X, 45% de empates), Funes en la
+cuerda floja ("si no gana al Racing"), Racing 0 puntos fuera (18 GC en 5) y 6
+cruces sin ganar el Malaga. Toss puro con olor a X. TRIPLE (motor).
+**P2 Osasuna-Athletic**: El Sadar cerrado (3 GC en 5), Arrasate ya sin efecto
+revulsivo (1V 2D), Athletic recupera a Nico, Berchiche y Sancet y viene del derbi.
+Ultimos 5: 0 victorias locales, 3 X. Zona radar (rayo 1, masa 24). TRIPLE.
+**P3 Valencia-Madrid**: Mestalla 0 victorias, Madrid vuelve de Atenas sin Vinicius
+ni Rodrygo. Fijo 2 con el riesgo nombrado (el 2-0 del año pasado).
+**P4 Elche-Betis**: resaca de Dortmund a las 14:00 del domingo sin Bernal, Firpo ni
+Cucho; Elche peor local de Primera (0V 1E 4D) y afición pidiendo la cabeza de
+Anselmi. Millonario X. Fijo 2 asumido si el presupuesto no llega (X 30% nombrada).
+**P5 Real-Rayo**: SORPRESA DE VALOR Nº1 (X motor 30 vs masa 16): Rayo empatador
+(36%), la Real no gana al Rayo en los ultimos 5 ligueros (3 X, 2 doses), jueves de
+Europa League, Soler baja (covid), Sarr y Oyarzabal dudas. 1X obligado.
+**P6 Celta-Levante**: Celta rey del empate (6 de 11), 5 lesionados, derrota del
+jueves con canteranos y vestuario "jodido"; Levante fresco, en descenso, 0
+victorias fuera (3 X). Millonario X, valiente nº2. 1X.
+**P7 Villarreal-Getafe**: La Ceramica 1V en 5, 0-6 del martes, Iñigo Perez tocado,
+sin Gerard/Foyth/Akhomach; pero Getafe 0 GOLES fuera en 5 salidas y jueves de
+Conference. H2H 67% sorpresas (0-0, 1-1). Fijo 1 asumido con X 28% nombrada.
+**P8 Cadiz-Oviedo**: Borja Jimenez (3er tecnico) vs Calero al borde ("partido
+decisivo", Pachuca). Oviedo 11 de 18 pts fuera pero 2 derrotas seguidas. Zona radar
+(rayo 1). Prioridad de cobertura nº1 del motor (640). TRIPLE.
+**P9 Girona-Almeria**: Montilivi 4V 2E 1D, David Lopez sancionado; Almeria invicto
+9 pero dos empates en el descuento. Mercado Girona ~47. Fijo 1 asumido (2 al 27).
+**P10 Sporting-Valladolid**: plaga de 7 bajas en Gijon (Sarco goleador fuera);
+Valladolid 16 salidas sin ganar PERO 3 empates de 3 fuera este año y 4 de los
+ultimos 5 cruces ganados. Masa 61 al 1 contra 50 de mercado. 1X.
+**P11 Athletic F-RM F**: Lezama invicto, pero Madrid 4 victorias seguidas y
+Champions el martes 10 (rotacion posible). Fijo 2 (calidad baja: no se pelea).
+**P12 Logroño F-Sevilla F**: Logroño 0 empates en 9; Sevilla sin ganar en casa pero
+buen visitante y sin Kanteh. Toss de calidad baja: fijo 1 del motor, sin pelear.
+**P13 Eibar F-Real F**: masa 42 al Eibar vs mercado 44-50 a la Real (favorito
+distinto!); Real 4 sin perder tras tumbar al Barca, Europa el 11. Fijo 2 con valor.
+**P14**: sorteo. Fijo 1 (73 bolas).
+**P15 PLENO Atleti-Barca**: Atleti 7 victorias ligueras seguidas, 11-3 en casa,
+pero 0-2 Bayern; Barca 4,4 goles fuera con la defensa en los huesos (Kounde, Eric,
+Christensen dudas; Rodri KO). Barca gano 6 de 7 visitas al Metropolitano, los dos
+ultimos 1-2. Prensa y Losilla: 1-2. Alternativa anti-masa: 2-2.
+
+**Estructura propuesta (30 EUR)**: 3a reduccion 3T+3D al 13 (24 apuestas, 18 EUR):
+T P1/P2/P8, D P5 1X / P6 1X / P10 1X. X cubiertas 6 (esperadas 4,2; ninguna X >=33%
+descubierta). Renuncias nombradas: X del Elche (30), X de La Ceramica (28), 2 del
+Almeria (27). Alternativa directa 2T+2D (27 EUR): T P1/P2, D P8 X2 / P5 1X, con el
+Celta y el Sporting a fijo. Elige 8 no recomendado (regla 7).
