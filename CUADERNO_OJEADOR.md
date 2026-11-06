@@ -207,3 +207,14 @@ del Burgos (sin Karrikaburu ni David), la X del Cholo en el Ciutat, Mendizorroza
 a fijo. Apuesta mas grande de la historia del proyecto. Al cierre: retrospectiva
 partido a partido contra esta lectura + autocritica del socio + premio contra
 escrutinio oficial LAE.
+
+### Veredicto J19 (Champions, cierre 6/11): 10/14, sin premio relevante
+
+Triples clavados (Oporto 4-1 al Napoles en su final; United 3-2) y la joya: el 2X
+de Marc en Bollaert con el 1-9 del Como. Los 4 fallos, todos con historia: la X
+del Artico sin cubrir (Lille desesperado), ESTAMBUL (el aviso estaba declarado y
+se jugo fijo: los avisos del cruce deben PESAR, no solo constar), el 1X de la Real
+recortado, y el Celta 1-2 USG — LA SEÑAL DEL FAROL ACERTO (X2 original cazaba; el
+zigzag por la humildad post-CFF costo el acierto; marcador de la señal en vivo:
+1-1). Pleno: Atleti 0-2 Bayern sin Kompany — M-M de Marc y 2-1 del estudio, KO.
+Leccion nueva prerregistrada: AVISO DECLARADO EN EL CRUCE = minimo no-fijo.
