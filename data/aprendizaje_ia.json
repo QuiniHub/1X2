@@ -1,9 +1,9 @@
 {
   "version": "1.2",
-  "precision": 69.11,
-  "jornadas_revisadas": 37,
-  "partidos_revisados": 518,
-  "aciertos": 358,
+  "precision": 69.17,
+  "jornadas_revisadas": 38,
+  "partidos_revisados": 519,
+  "aciertos": 359,
   "fallos": 160,
   "fallos_por_tipo": {
     "Doble insuficiente": 32,
@@ -34,8 +34,8 @@
       "precision": 59.62
     },
     "TRIPLE": {
-      "total": 66,
-      "aciertos": 66,
+      "total": 67,
+      "aciertos": 67,
       "fallos": 0,
       "precision": 100.0
     }
@@ -48,10 +48,10 @@
       "precision": 83.04
     },
     "2": {
-      "total": 173,
-      "aciertos": 111,
+      "total": 174,
+      "aciertos": 112,
       "fallos": 62,
-      "precision": 64.16
+      "precision": 64.37
     },
     "X": {
       "total": 115,
@@ -61,121 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 2,
-      "partido": "RCD Espanyol de Barcelona - Real Madrid CF",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-2",
-      "resultado_final": "1-2",
-      "signo_real": "2",
-      "signos_cubiertos": "1",
-      "signo_omitido": "2",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "data/predicciones/jornada_2.json",
-      "probabilidades_usadas": {
-        "1": 42.4,
-        "X": 24.5,
-        "2": 33.1
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_competitivo",
-        "contexto_equipos",
-        "fallback_posicion_con_contexto+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "RCD Espanyol de Barcelona",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Real Madrid CF",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (42.4%).",
-        "hipotesis_alternativa": "2 como alternativa (33.1%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
-          "probabilidad": 69.6,
-          "favorito_atacable": true
-        },
-        "justificacion_final": "Decision FIJO 1: margen 9.3 puntos, indice sorpresa 85.7."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 7.2,
-        "lecturas": [
-          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 11.62,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
-          "Pesos dinamicos: la necesidad competitiva viva tiene mas peso acumulado."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.0,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local RCD Espanyol de Barcelona: ppp=3.00; perfil visitante Real Madrid: ppp=2.19."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "RCD Espanyol de Barcelona",
-        "partidos_total": 1,
-        "puntos_por_partido": 3.0,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 53.24,
-        "forma_5_ppp": 3.0,
-        "forma_10_ppp": 3.0,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Real Madrid",
-        "partidos_total": 24,
-        "puntos_por_partido": 2.128,
-        "empates_pct": 11.4,
-        "surprise_score_medio": 0.0,
-        "forma_5_ppp": 2.4,
-        "forma_10_ppp": 2.1,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 3
-        }
-      }
-    },
     {
       "jornada": 2,
       "partido": "Getafe CF - R. Santander",
@@ -29014,6 +28899,125 @@
           "partidos": 2
         }
       }
+    },
+    {
+      "jornada": 20,
+      "partido": "Malaga CF - R. Santander",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "1-2",
+      "resultado_final": "1-2",
+      "signo_real": "2",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_20.json",
+      "probabilidades_usadas": {
+        "1": 36.5,
+        "X": 33.0,
+        "2": 30.5
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Malaga CF",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "R. Santander",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (36.5%).",
+        "hipotesis_alternativa": "X como alternativa (33.0%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 1: margen 3.5 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 11.84,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Malaga CF: ppp=1.75; perfil visitante Racing Santander: ppp=1.59."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Malaga CF",
+        "partidos_total": 30,
+        "puntos_por_partido": 1.692,
+        "empates_pct": 32.52,
+        "surprise_score_medio": 38.0,
+        "forma_5_ppp": 1.8,
+        "forma_10_ppp": 1.7,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Racing Santander",
+        "partidos_total": 19,
+        "puntos_por_partido": 1.765,
+        "empates_pct": 20.05,
+        "surprise_score_medio": 46.02,
+        "forma_5_ppp": 1.8,
+        "forma_10_ppp": 1.7,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -29027,19 +29031,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 518,
+    "partidos_base": 519,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 30.89,
+      "fallos_total_pct": 30.83,
       "no_cubrio_empate_sobre_fallos_pct": 36.88,
-      "no_cubrio_empate_sobre_total_pct": 11.39,
+      "no_cubrio_empate_sobre_total_pct": 11.37,
       "fijo_fallado_sobre_fallos_pct": 43.12,
-      "fijo_fallado_sobre_total_pct": 13.32,
-      "doble_insuficiente_sobre_total_pct": 6.18
+      "fijo_fallado_sobre_total_pct": 13.29,
+      "doble_insuficiente_sobre_total_pct": 6.17
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 2.68,
-    "riesgo_extra_triple_insuficiente": 1.96,
+    "riesgo_extra_fijo_fragil": 2.66,
+    "riesgo_extra_triple_insuficiente": 1.95,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,
