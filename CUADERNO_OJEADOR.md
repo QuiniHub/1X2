@@ -289,3 +289,12 @@ sigue siendo la valiente, +14). Garriel recuperado en el Valladolid; Sporting
 recupera a Iosifov y Ferrari (7 bajas igual). Logroño F con 7 bajas vs 2 del
 Sevilla F (toss de calidad baja). Atleti al completo (Barrios, Koke, Cardoso);
 Barca sin Kounde, Eric, Christensen, Rodri. Decision final: ver quinielas_jugadas.
+
+### J20 SELLADA (7/11, Losilla transaccion 9200046): 4T+4D Super13, 128 columnas, 96 EUR
+
+Triples P1 Malaga-Racing, P2 Osasuna-Athletic, P8 Cadiz-Oviedo, P12 Logroño F-Sevilla F.
+Dobles 1X anti-masa: P5 Real-Rayo, P6 Celta-Levante, P7 Villarreal-Getafe, P10
+Sporting-Valladolid. Fijos: Madrid 2, Betis 2, Girona 1, Madrid F 2, Real F 2, P14 1
+(bombo). Pleno 1-2. Escalon del protocolo de bote (2,2M). Garantia al 13 auditada.
+Renuncias nombradas: X Elche, 2 Almeria, X Eibar F. Al cierre: retrospectiva
+partido a partido, que partido bloqueo el 13 y si estaba sobre la mesa.
