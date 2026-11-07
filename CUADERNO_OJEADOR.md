@@ -275,3 +275,17 @@ T P1/P2/P8, D P5 1X / P6 1X / P10 1X. X cubiertas 6 (esperadas 4,2; ninguna X >=
 descubierta). Renuncias nombradas: X del Elche (30), X de La Ceramica (28), 2 del
 Almeria (27). Alternativa directa 2T+2D (27 EUR): T P1/P2, D P8 X2 / P5 1X, con el
 Celta y el Sporting a fijo. Elige 8 no recomendado (regla 7).
+
+### J20 — barrido de sabado 7/11 (pre-cierre 12:00): que cambio en 24h
+
+Viernes: Sevilla 0-0 Alaves (unico de 1a); 2a sin partidos (Castellon-Eibar tambien
+aplazado). P14 sigue en el boleto de Losilla sin sustituir -> bombo. Cambios:
+Villarreal con ULTIMATUM explicito de Roig (ganar o fuera, el empate tampoco vale;
+Mendilibar/R. Martinez en la recamara) y el motor baja el 1 de 56 a 50 (masa 76:
+la mayor sobrecompra de la jornada, +26). Athletic pierde a Paredes (Djalo y
+Serrano dudas), mercado mueve hacia Osasuna (3,75 -> 3,30). Real recupera a Soler
+y Oyarzabal; Rayo pierde a Kumbulla y O. Valentin (motor sube la Real a 56; la X
+sigue siendo la valiente, +14). Garriel recuperado en el Valladolid; Sporting
+recupera a Iosifov y Ferrari (7 bajas igual). Logroño F con 7 bajas vs 2 del
+Sevilla F (toss de calidad baja). Atleti al completo (Barrios, Koke, Cardoso);
+Barca sin Kounde, Eric, Christensen, Rodri. Decision final: ver quinielas_jugadas.
