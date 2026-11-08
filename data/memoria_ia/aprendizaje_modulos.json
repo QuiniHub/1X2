@@ -2,7 +2,7 @@
   "version": 1,
   "descripcion": "Cuaderno de meta-aprendizaje por modulo (15/10/2026): que prometio cada modulo y que entrego, jornada a jornada, con datos pre-cierre (snapshots inmutables + % LAE versionados). Los semaforos y auto-correcciones llevan sus frenos prerregistrados.",
   "temporada": "2026_2027",
-  "actualizado_en": "2026-11-08T18:30:21.747606+00:00",
+  "actualizado_en": "2026-11-08T22:28:34.173956+00:00",
   "jornadas_cerradas": [
     1,
     2,
@@ -22,7 +22,8 @@
     16,
     17,
     18,
-    19
+    19,
+    20
   ],
   "jornadas": {
     "1": {
@@ -2642,17 +2643,126 @@
         ],
         "fijos_sin_probabilidad": 0
       }
+    },
+    "20": {
+      "dixon_coles": {
+        "estado": "ok",
+        "partidos": 10,
+        "sin_cobertura": 4,
+        "rps_dc": 0.24436,
+        "rps_motor": 0.21951,
+        "rps_mercado": 0.19447,
+        "partidos_con_mercado": 10,
+        "aciertos_dc": 5,
+        "aciertos_motor": 5,
+        "aciertos_mercado": 5,
+        "sesgo_dc_por_signo": {
+          "1": {
+            "prob_media": 43.8,
+            "frecuencia_real_pct": 20.0,
+            "sesgo_puntos": 23.8
+          },
+          "X": {
+            "prob_media": 25.1,
+            "frecuencia_real_pct": 20.0,
+            "sesgo_puntos": 5.1
+          },
+          "2": {
+            "prob_media": 31.0,
+            "frecuencia_real_pct": 60.0,
+            "sesgo_puntos": -29.0
+          }
+        },
+        "version_calculo": 1
+      },
+      "boleto_ev": {
+        "estado": "sin_boleto_ev",
+        "motivo": "Jornada sin bloque boleto_ev_premio pre-cierre ni fila en el backtest."
+      },
+      "valiente": {
+        "estado": "valiente",
+        "fuente": "marcador_sombra",
+        "partido": "Real Sociedad de Futbol - Rayo Vallecano de Madrid",
+        "signo": "X",
+        "prob_declarada": 29.4,
+        "masa_pct": 15.0,
+        "senales": [
+          "empatador"
+        ],
+        "signo_real": "1",
+        "acierto": false,
+        "pago_hipotetico_eur": 0.0
+      },
+      "revulsivo": {
+        "estado": "ok",
+        "casos": [],
+        "fuente": "snapshot_pre_cierre"
+      },
+      "fijos_banda": {
+        "estado": "ok",
+        "fijos": [
+          {
+            "num": 3,
+            "partido": "Valencia CF - Real Madrid CF",
+            "signo": "2",
+            "probabilidad": 58.8,
+            "banda": "50-60",
+            "acierto": true
+          },
+          {
+            "num": 4,
+            "partido": "Elche CF - Real Betis Balompie",
+            "signo": "2",
+            "probabilidad": 44.5,
+            "banda": "40-50",
+            "acierto": true
+          },
+          {
+            "num": 9,
+            "partido": "Girona FC - UD Almeria",
+            "signo": "1",
+            "probabilidad": 47.1,
+            "banda": "40-50",
+            "acierto": false
+          },
+          {
+            "num": 11,
+            "partido": "Athletic Club (F) - Real Madrid (F)",
+            "signo": "2",
+            "probabilidad": 52.6,
+            "banda": "50-60",
+            "acierto": false
+          },
+          {
+            "num": 13,
+            "partido": "Eibar (F) - Real Sociedad (F)",
+            "signo": "2",
+            "probabilidad": 39.1,
+            "banda": "30-40",
+            "acierto": true
+          },
+          {
+            "num": 14,
+            "partido": "Tenerife (F) - Alavés (F)",
+            "signo": "1",
+            "probabilidad": 58.8,
+            "banda": "50-60",
+            "acierto": true
+          }
+        ],
+        "fijos_sin_probabilidad": 0
+      }
     }
   },
   "resumen": {
     "dixon_coles": {
-      "semaforo": "verde",
-      "texto_semaforo": "cumple su promesa: iguala o bate al mercado",
-      "titular": "RPS 0,192 vs mercado 0,194",
-      "valor": 0.19235,
-      "comparacion": 0.19422,
-      "rps_motor": 0.20536,
-      "partidos": 138,
+      "semaforo": "ambar",
+      "texto_semaforo": "en vigilancia: pegado al mercado, sin batirlo",
+      "titular": "RPS 0,196 vs mercado 0,194",
+      "valor": 0.19586,
+      "comparacion": 0.19424,
+      "rps_motor": 0.20631,
+      "partidos": 148,
       "promesa": "Igualar o batir al mercado en RPS (menor = mejor; referencia mundial 0,19-0,21).",
       "ultimo_ajuste": null
     },
@@ -2667,12 +2777,12 @@
       "promesa": "Maximizar euros, no aciertos. Umbral de sanidad prerregistrado: cobrar >=50% de lo realmente jugado (es estrategia de cola: pierde premios pequeños a cambio de colas raras).",
       "ultimo_ajuste": {
         "estado": "ajustado",
-        "valor": 1.002,
-        "mediana_sin_acotar": 1.002,
-        "escrutinios": 19,
-        "celdas": 79,
+        "valor": 1.031,
+        "mediana_sin_acotar": 1.031,
+        "escrutinios": 20,
+        "celdas": 83,
         "freno": "Solo con >=10 escrutinios reales; mediana real/modelo sobre celdas con >=10 acertantes; acotado a [0.5x - 2.0x].",
-        "actualizado_en": "2026-11-08T18:30:21.747606+00:00",
+        "actualizado_en": "2026-11-08T22:28:34.173956+00:00",
         "historial": [
           {
             "fecha": "2026-10-15T06:46:27.417986+00:00",
@@ -2715,6 +2825,12 @@
             "valor": 1.002,
             "escrutinios": 19,
             "celdas": 79
+          },
+          {
+            "fecha": "2026-11-08T22:28:34.173956+00:00",
+            "valor": 1.031,
+            "escrutinios": 20,
+            "celdas": 83
           }
         ]
       }
@@ -2747,7 +2863,7 @@
         "estado": "sin_ajuste",
         "senales_suspendidas": [],
         "freno": "Una señal con >=8 valientes propias y aciertos < 50% de esperados se suspende sola (senal_valiente.py) y se anuncia. Ningun umbral estructural se auto-cambia.",
-        "actualizado_en": "2026-11-08T18:30:21.747606+00:00",
+        "actualizado_en": "2026-11-08T22:28:34.173956+00:00",
         "motivo": "Ninguna señal cumple el freno de suspension (>=8 propias y <50% de esperados)."
       }
     },
@@ -2768,16 +2884,16 @@
         },
         "estado": "sin_ajuste",
         "motivo": "Freno: hacen falta >=10 casos nuevos 26/27 por lado (hay fuera=2, casa=2).",
-        "actualizado_en": "2026-11-08T18:30:21.747606+00:00"
+        "actualizado_en": "2026-11-08T22:28:34.173956+00:00"
       }
     },
     "fijos_banda": {
       "semaforo": "verde",
       "texto_semaforo": "cumple su promesa: tus fijos rinden lo que promete su banda real",
-      "titular": "98 de 164 fijos vs 96,1 esperados",
-      "valor": 98,
-      "comparacion": 96.1,
-      "fijos_evaluados": 164,
+      "titular": "102 de 170 fijos vs 100,3 esperados",
+      "valor": 102,
+      "comparacion": 100.33,
+      "fijos_evaluados": 170,
       "por_banda": {
         "10-20": {
           "jugados": 2,
@@ -2792,27 +2908,27 @@
           "acierto_pct": 29.4
         },
         "30-40": {
-          "jugados": 21,
-          "aciertos": 11,
-          "promesa_pct": 36.2,
-          "acierto_pct": 52.4
+          "jugados": 22,
+          "aciertos": 12,
+          "promesa_pct": 37.3,
+          "acierto_pct": 54.5
         },
         "40-50": {
-          "jugados": 49,
-          "aciertos": 25,
+          "jugados": 51,
+          "aciertos": 26,
           "promesa_pct": 52.2,
           "acierto_pct": 51.0
         },
         "50-60": {
-          "jugados": 42,
-          "aciertos": 28,
-          "promesa_pct": 72.5,
+          "jugados": 45,
+          "aciertos": 30,
+          "promesa_pct": 73.1,
           "acierto_pct": 66.7
         },
         "60-70": {
           "jugados": 33,
           "aciertos": 28,
-          "promesa_pct": 84.2,
+          "promesa_pct": 84.6,
           "acierto_pct": 84.8
         }
       },

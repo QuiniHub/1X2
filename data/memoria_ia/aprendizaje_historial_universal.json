@@ -1,9 +1,9 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-06T02:11:49Z",
+  "generado_en": "2026-11-08T22:28:35Z",
   "estado_incremental": {
     "ultima_jornada_cerrada": 76,
-    "total_jornadas_cerradas": 73,
+    "total_jornadas_cerradas": 74,
     "jornadas_cerradas": [
       1,
       2,
@@ -24,6 +24,7 @@
       17,
       18,
       19,
+      20,
       23,
       24,
       25,
@@ -83,47 +84,47 @@
     "criterio_recalculo": "Solo recalcula cuando aparece una jornada cerrada nueva o cambia el conjunto de jornadas cerradas."
   },
   "resumen": {
-    "partidos_analizados": 1022,
-    "jornadas_analizadas": 73,
-    "sorpresas_detectadas": 482,
-    "sorpresas_pct": 47.16,
+    "partidos_analizados": 1036,
+    "jornadas_analizadas": 74,
+    "sorpresas_detectadas": 481,
+    "sorpresas_pct": 46.43,
     "fuente": "data/jornadas/jornada_*.json con signo_oficial 1/X/2"
   },
   "patrones_frecuencia": {
     "por_contexto": {
       "global": {
-        "partidos": 1022,
-        "peso_total": 345.6938,
+        "partidos": 1036,
+        "peso_total": 347.3141,
         "frecuencia_real": {
-          "1": 45.21,
-          "X": 22.7,
-          "2": 32.09
+          "1": 44.88,
+          "X": 22.78,
+          "2": 32.34
         },
         "frecuencia_ponderada_reciente": {
-          "1": 45.92,
-          "X": 22.74,
-          "2": 31.34
+          "1": 45.8,
+          "X": 22.77,
+          "2": 31.42
         },
-        "sorpresas": 482,
-        "sorpresas_pct": 47.16,
-        "sorpresas_ponderadas_pct": 50.32
+        "sorpresas": 481,
+        "sorpresas_pct": 46.43,
+        "sorpresas_ponderadas_pct": 49.86
       },
       "liga": {
-        "partidos": 984,
-        "peso_total": 317.8412,
+        "partidos": 998,
+        "peso_total": 319.4615,
         "frecuencia_real": {
-          "1": 45.02,
-          "X": 22.87,
-          "2": 32.11
+          "1": 44.69,
+          "X": 22.95,
+          "2": 32.36
         },
         "frecuencia_ponderada_reciente": {
-          "1": 45.36,
-          "X": 23.14,
-          "2": 31.5
+          "1": 45.24,
+          "X": 23.17,
+          "2": 31.59
         },
-        "sorpresas": 462,
-        "sorpresas_pct": 46.95,
-        "sorpresas_ponderadas_pct": 50.25
+        "sorpresas": 461,
+        "sorpresas_pct": 46.19,
+        "sorpresas_ponderadas_pct": 49.74
       },
       "selecciones": {
         "partidos": 38,
@@ -145,21 +146,21 @@
     },
     "por_fase": {
       "liga_regular": {
-        "partidos": 984,
-        "peso_total": 317.8412,
+        "partidos": 998,
+        "peso_total": 319.4615,
         "frecuencia_real": {
-          "1": 45.02,
-          "X": 22.87,
-          "2": 32.11
+          "1": 44.69,
+          "X": 22.95,
+          "2": 32.36
         },
         "frecuencia_ponderada_reciente": {
-          "1": 45.36,
-          "X": 23.14,
-          "2": 31.5
+          "1": 45.24,
+          "X": 23.17,
+          "2": 31.59
         },
-        "sorpresas": 462,
-        "sorpresas_pct": 46.95,
-        "sorpresas_ponderadas_pct": 50.25
+        "sorpresas": 461,
+        "sorpresas_pct": 46.19,
+        "sorpresas_ponderadas_pct": 49.74
       },
       "selecciones_sin_fase": {
         "partidos": 38,
@@ -183,8 +184,8 @@
   },
   "patrones_sorpresa": {
     "resumen": {
-      "total": 482,
-      "porcentaje": 47.16,
+      "total": 481,
+      "porcentaje": 46.43,
       "criterio": "Signo menos frecuente del contexto o resultado contrario al signo esperado por modelo rolling con margen suficiente."
     },
     "ultimas_120": [
@@ -196,13 +197,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 12.73,
+        "margen_previo": 12.02,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 44.94,
-          "X": 22.85,
-          "2": 32.21
+          "1": 44.54,
+          "X": 22.94,
+          "2": 32.52
         }
       },
       {
@@ -213,13 +214,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 12.6,
+        "margen_previo": 11.89,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 44.89,
-          "X": 22.82,
-          "2": 32.29
+          "1": 44.49,
+          "X": 22.92,
+          "2": 32.6
         }
       },
       {
@@ -234,9 +235,9 @@
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 44.83,
-          "X": 22.91,
-          "2": 32.25
+          "1": 44.43,
+          "X": 23.01,
+          "2": 32.56
         }
       },
       {
@@ -251,9 +252,9 @@
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 44.78,
-          "X": 23.01,
-          "2": 32.21
+          "1": 44.38,
+          "X": 23.11,
+          "2": 32.52
         }
       },
       {
@@ -268,9 +269,9 @@
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_equilibrada",
         "prior_contextual": {
-          "1": 44.72,
-          "X": 23.11,
-          "2": 32.17
+          "1": 44.32,
+          "X": 23.2,
+          "2": 32.48
         }
       },
       {
@@ -285,9 +286,9 @@
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
-          "1": 44.81,
-          "X": 23.09,
-          "2": 32.1
+          "1": 44.42,
+          "X": 23.18,
+          "2": 32.4
         }
       },
       {
@@ -298,13 +299,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 12.69,
+        "margen_previo": 11.98,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 44.83,
-          "X": 23.03,
-          "2": 32.14
+          "1": 44.43,
+          "X": 23.12,
+          "2": 32.45
         }
       },
       {
@@ -319,9 +320,9 @@
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
-          "1": 44.84,
-          "X": 22.97,
-          "2": 32.19
+          "1": 44.44,
+          "X": 23.07,
+          "2": 32.49
         }
       },
       {
@@ -336,9 +337,9 @@
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 44.79,
-          "X": 22.94,
-          "2": 32.27
+          "1": 44.39,
+          "X": 23.04,
+          "2": 32.57
         }
       },
       {
@@ -353,9 +354,9 @@
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
-          "1": 44.92,
-          "X": 22.89,
-          "2": 32.19
+          "1": 44.52,
+          "X": 22.98,
+          "2": 32.49
         }
       },
       {
@@ -370,9 +371,9 @@
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 44.87,
-          "X": 22.98,
-          "2": 32.15
+          "1": 44.47,
+          "X": 23.08,
+          "2": 32.45
         }
       },
       {
@@ -383,13 +384,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 12.81,
+        "margen_previo": 12.11,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 44.88,
-          "X": 23.05,
-          "2": 32.07
+          "1": 44.48,
+          "X": 23.14,
+          "2": 32.37
         }
       },
       {
@@ -400,13 +401,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 12.77,
+        "margen_previo": 12.08,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 44.89,
-          "X": 22.99,
-          "2": 32.12
+          "1": 44.5,
+          "X": 23.09,
+          "2": 32.42
         }
       },
       {
@@ -417,13 +418,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 12.64,
+        "margen_previo": 11.94,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 44.84,
-          "X": 22.96,
-          "2": 32.2
+          "1": 44.44,
+          "X": 23.06,
+          "2": 32.5
         }
       },
       {
@@ -434,13 +435,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 12.5,
+        "margen_previo": 11.81,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 44.78,
-          "X": 22.94,
-          "2": 32.28
+          "1": 44.39,
+          "X": 23.03,
+          "2": 32.58
         }
       },
       {
@@ -455,9 +456,9 @@
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 44.86,
-          "X": 22.97,
-          "2": 32.16
+          "1": 44.47,
+          "X": 23.07,
+          "2": 32.46
         }
       },
       {
@@ -472,9 +473,9 @@
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 44.99,
-          "X": 22.92,
-          "2": 32.09
+          "1": 44.6,
+          "X": 23.01,
+          "2": 32.38
         }
       },
       {
@@ -485,13 +486,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 12.88,
+        "margen_previo": 12.19,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.01,
-          "X": 22.86,
-          "2": 32.13
+          "1": 44.62,
+          "X": 22.96,
+          "2": 32.43
         }
       },
       {
@@ -506,9 +507,9 @@
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
-          "1": 44.95,
-          "X": 22.84,
-          "2": 32.21
+          "1": 44.56,
+          "X": 22.93,
+          "2": 32.51
         }
       },
       {
@@ -523,9 +524,9 @@
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
-          "1": 44.86,
-          "X": 22.73,
-          "2": 32.42
+          "1": 44.47,
+          "X": 22.82,
+          "2": 32.71
         }
       },
       {
@@ -540,9 +541,9 @@
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
-          "1": 44.8,
-          "X": 22.82,
-          "2": 32.38
+          "1": 44.42,
+          "X": 22.91,
+          "2": 32.67
         }
       },
       {
@@ -553,13 +554,13 @@
         "fase": "liga_regular",
         "signo_real": "1",
         "signo_esperado": "2",
-        "margen_previo": 29.48,
+        "margen_previo": 26.55,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 44.76,
-          "X": 22.86,
-          "2": 32.38
+          "1": 44.38,
+          "X": 22.95,
+          "2": 32.67
         }
       },
       {
@@ -570,13 +571,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 12.49,
+        "margen_previo": 11.81,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 44.83,
-          "X": 22.83,
-          "2": 32.34
+          "1": 44.44,
+          "X": 22.92,
+          "2": 32.63
         }
       },
       {
@@ -587,13 +588,13 @@
         "fase": "liga_regular",
         "signo_real": "1",
         "signo_esperado": "2",
-        "margen_previo": 10.75,
+        "margen_previo": 19.14,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 44.84,
-          "X": 22.89,
-          "2": 32.27
+          "1": 44.46,
+          "X": 22.99,
+          "2": 32.56
         }
       },
       {
@@ -604,13 +605,13 @@
         "fase": "liga_regular",
         "signo_real": "1",
         "signo_esperado": "2",
-        "margen_previo": 143.36,
+        "margen_previo": 147.82,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 44.97,
-          "X": 22.84,
-          "2": 32.19
+          "1": 44.59,
+          "X": 22.93,
+          "2": 32.48
         }
       },
       {
@@ -621,13 +622,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 51.24,
+        "margen_previo": 34.0,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
-          "1": 45.04,
-          "X": 22.81,
-          "2": 32.15
+          "1": 44.65,
+          "X": 22.91,
+          "2": 32.44
         }
       },
       {
@@ -638,13 +639,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 12.87,
+        "margen_previo": 12.2,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 44.98,
-          "X": 22.9,
-          "2": 32.11
+          "1": 44.6,
+          "X": 23.0,
+          "2": 32.4
         }
       },
       {
@@ -659,9 +660,9 @@
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
-          "1": 44.93,
-          "X": 23.0,
-          "2": 32.08
+          "1": 44.55,
+          "X": 23.09,
+          "2": 32.37
         }
       },
       {
@@ -672,13 +673,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 12.72,
+        "margen_previo": 12.06,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 44.88,
-          "X": 22.97,
-          "2": 32.16
+          "1": 44.5,
+          "X": 23.06,
+          "2": 32.44
         }
       },
       {
@@ -689,13 +690,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 12.9,
+        "margen_previo": 12.23,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.02,
-          "X": 22.86,
-          "2": 32.12
+          "1": 44.64,
+          "X": 22.95,
+          "2": 32.41
         }
       },
       {
@@ -706,13 +707,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 12.75,
+        "margen_previo": 12.08,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 44.91,
-          "X": 22.92,
-          "2": 32.16
+          "1": 44.53,
+          "X": 23.01,
+          "2": 32.45
         }
       },
       {
@@ -723,13 +724,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.03,
+        "margen_previo": 12.36,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.12,
-          "X": 22.79,
-          "2": 32.09
+          "1": 44.74,
+          "X": 22.88,
+          "2": 32.38
         }
       },
       {
@@ -740,13 +741,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.0,
+        "margen_previo": 12.35,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.06,
-          "X": 22.88,
-          "2": 32.06
+          "1": 44.69,
+          "X": 22.97,
+          "2": 32.34
         }
       },
       {
@@ -774,13 +775,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 15.89,
+        "margen_previo": 12.0,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
-          "1": 45.2,
-          "X": 22.77,
-          "2": 32.02
+          "1": 44.82,
+          "X": 22.87,
+          "2": 32.31
         }
       },
       {
@@ -791,13 +792,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 56.44,
+        "margen_previo": 61.33,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
-          "1": 45.15,
-          "X": 22.86,
-          "2": 31.99
+          "1": 44.77,
+          "X": 22.95,
+          "2": 32.27
         }
       },
       {
@@ -808,13 +809,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.13,
+        "margen_previo": 12.47,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.16,
-          "X": 22.81,
-          "2": 32.03
+          "1": 44.78,
+          "X": 22.9,
+          "2": 32.31
         }
       },
       {
@@ -842,13 +843,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.52,
+        "margen_previo": 12.85,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.36,
-          "X": 22.79,
-          "2": 31.84
+          "1": 44.98,
+          "X": 22.89,
+          "2": 32.13
         }
       },
       {
@@ -859,13 +860,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.39,
+        "margen_previo": 12.72,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.31,
-          "X": 22.77,
-          "2": 31.92
+          "1": 44.93,
+          "X": 22.86,
+          "2": 32.21
         }
       },
       {
@@ -927,13 +928,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.66,
+        "margen_previo": 12.99,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.51,
-          "X": 22.64,
-          "2": 31.85
+          "1": 45.13,
+          "X": 22.73,
+          "2": 32.14
         }
       },
       {
@@ -961,13 +962,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.74,
+        "margen_previo": 13.07,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.52,
-          "X": 22.7,
-          "2": 31.78
+          "1": 45.14,
+          "X": 22.79,
+          "2": 32.07
         }
       },
       {
@@ -978,13 +979,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.71,
+        "margen_previo": 13.06,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.46,
-          "X": 22.79,
-          "2": 31.75
+          "1": 45.09,
+          "X": 22.88,
+          "2": 32.03
         }
       },
       {
@@ -995,13 +996,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.7,
+        "margen_previo": 13.04,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.41,
-          "X": 22.88,
-          "2": 31.71
+          "1": 45.04,
+          "X": 22.97,
+          "2": 32.0
         }
       },
       {
@@ -1029,13 +1030,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "2",
-        "margen_previo": 50.42,
+        "margen_previo": 57.57,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 45.36,
-          "X": 22.96,
-          "2": 31.67
+          "1": 44.99,
+          "X": 23.05,
+          "2": 31.96
         }
       },
       {
@@ -1046,13 +1047,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.77,
+        "margen_previo": 13.11,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.37,
-          "X": 23.02,
-          "2": 31.6
+          "1": 45.0,
+          "X": 23.11,
+          "2": 31.89
         }
       },
       {
@@ -1080,13 +1081,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.74,
+        "margen_previo": 13.08,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.38,
-          "X": 22.97,
-          "2": 31.64
+          "1": 45.01,
+          "X": 23.06,
+          "2": 31.93
         }
       },
       {
@@ -1097,13 +1098,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.61,
+        "margen_previo": 12.96,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.33,
-          "X": 22.95,
-          "2": 31.72
+          "1": 44.96,
+          "X": 23.03,
+          "2": 32.0
         }
       },
       {
@@ -1114,13 +1115,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.59,
+        "margen_previo": 12.94,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.28,
-          "X": 23.03,
-          "2": 31.69
+          "1": 44.91,
+          "X": 23.12,
+          "2": 31.97
         }
       },
       {
@@ -1131,13 +1132,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.58,
+        "margen_previo": 12.93,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.23,
-          "X": 23.12,
-          "2": 31.65
+          "1": 44.86,
+          "X": 23.2,
+          "2": 31.93
         }
       },
       {
@@ -1148,13 +1149,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 40.45,
+        "margen_previo": 49.51,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
-          "1": 45.3,
-          "X": 23.04,
-          "2": 31.66
+          "1": 44.93,
+          "X": 23.13,
+          "2": 31.94
         }
       },
       {
@@ -1267,13 +1268,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.61,
+        "margen_previo": 12.97,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.31,
-          "X": 22.99,
-          "2": 31.7
+          "1": 44.95,
+          "X": 23.08,
+          "2": 31.98
         }
       },
       {
@@ -1284,13 +1285,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.49,
+        "margen_previo": 12.85,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.26,
-          "X": 22.97,
-          "2": 31.77
+          "1": 44.9,
+          "X": 23.05,
+          "2": 32.05
         }
       },
       {
@@ -1301,13 +1302,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.47,
+        "margen_previo": 12.83,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.21,
-          "X": 23.05,
-          "2": 31.74
+          "1": 44.85,
+          "X": 23.14,
+          "2": 32.02
         }
       },
       {
@@ -1318,13 +1319,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.44,
+        "margen_previo": 12.8,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.22,
-          "X": 23.0,
-          "2": 31.78
+          "1": 44.86,
+          "X": 23.09,
+          "2": 32.06
         }
       },
       {
@@ -1352,13 +1353,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.52,
+        "margen_previo": 12.88,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.23,
-          "X": 23.06,
-          "2": 31.71
+          "1": 44.87,
+          "X": 23.14,
+          "2": 31.99
         }
       },
       {
@@ -1369,13 +1370,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.51,
+        "margen_previo": 12.87,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.18,
-          "X": 23.15,
-          "2": 31.67
+          "1": 44.82,
+          "X": 23.23,
+          "2": 31.95
         }
       },
       {
@@ -1386,13 +1387,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.49,
+        "margen_previo": 12.85,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.13,
-          "X": 23.23,
-          "2": 31.64
+          "1": 44.77,
+          "X": 23.31,
+          "2": 31.92
         }
       },
       {
@@ -1437,13 +1438,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.37,
+        "margen_previo": 12.73,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.08,
-          "X": 23.2,
-          "2": 31.71
+          "1": 44.72,
+          "X": 23.29,
+          "2": 31.99
         }
       },
       {
@@ -1492,9 +1493,9 @@
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 45.03,
-          "X": 23.29,
-          "2": 31.68
+          "1": 44.67,
+          "X": 23.37,
+          "2": 31.96
         }
       },
       {
@@ -1505,13 +1506,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.82,
+        "margen_previo": 13.17,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.29,
-          "X": 23.25,
-          "2": 31.47
+          "1": 44.92,
+          "X": 23.33,
+          "2": 31.75
         }
       },
       {
@@ -1522,13 +1523,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.81,
+        "margen_previo": 13.16,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.24,
-          "X": 23.33,
-          "2": 31.43
+          "1": 44.88,
+          "X": 23.41,
+          "2": 31.72
         }
       },
       {
@@ -1539,13 +1540,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.68,
+        "margen_previo": 13.04,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.19,
-          "X": 23.3,
-          "2": 31.51
+          "1": 44.83,
+          "X": 23.38,
+          "2": 31.79
         }
       },
       {
@@ -1556,13 +1557,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.56,
+        "margen_previo": 12.92,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.14,
-          "X": 23.28,
-          "2": 31.58
+          "1": 44.78,
+          "X": 23.36,
+          "2": 31.86
         }
       },
       {
@@ -1573,13 +1574,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.9,
+        "margen_previo": 13.27,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.39,
-          "X": 23.13,
-          "2": 31.49
+          "1": 45.03,
+          "X": 23.21,
+          "2": 31.76
         }
       },
       {
@@ -1590,13 +1591,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.78,
+        "margen_previo": 13.14,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.34,
-          "X": 23.1,
-          "2": 31.56
+          "1": 44.98,
+          "X": 23.18,
+          "2": 31.84
         }
       },
       {
@@ -1607,13 +1608,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.86,
+        "margen_previo": 13.22,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.35,
-          "X": 23.16,
-          "2": 31.49
+          "1": 44.99,
+          "X": 23.24,
+          "2": 31.77
         }
       },
       {
@@ -1624,13 +1625,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.83,
+        "margen_previo": 13.19,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.36,
-          "X": 23.11,
-          "2": 31.53
+          "1": 45.0,
+          "X": 23.19,
+          "2": 31.81
         }
       },
       {
@@ -1641,13 +1642,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 14.0,
+        "margen_previo": 13.36,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.43,
-          "X": 23.14,
-          "2": 31.43
+          "1": 45.07,
+          "X": 23.22,
+          "2": 31.71
         }
       },
       {
@@ -1658,13 +1659,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.97,
+        "margen_previo": 13.33,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.44,
-          "X": 23.09,
-          "2": 31.47
+          "1": 45.08,
+          "X": 23.17,
+          "2": 31.75
         }
       },
       {
@@ -1675,13 +1676,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.95,
+        "margen_previo": 13.32,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.39,
-          "X": 23.18,
-          "2": 31.44
+          "1": 45.03,
+          "X": 23.26,
+          "2": 31.71
         }
       },
       {
@@ -1692,13 +1693,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.83,
+        "margen_previo": 13.2,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.34,
-          "X": 23.15,
-          "2": 31.51
+          "1": 44.98,
+          "X": 23.23,
+          "2": 31.78
         }
       },
       {
@@ -1709,13 +1710,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.8,
+        "margen_previo": 13.17,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.35,
-          "X": 23.1,
-          "2": 31.55
+          "1": 44.99,
+          "X": 23.18,
+          "2": 31.82
         }
       },
       {
@@ -1726,13 +1727,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.97,
+        "margen_previo": 13.34,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.42,
-          "X": 23.13,
-          "2": 31.45
+          "1": 45.06,
+          "X": 23.21,
+          "2": 31.72
         }
       },
       {
@@ -1743,13 +1744,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.94,
+        "margen_previo": 13.31,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.43,
-          "X": 23.09,
-          "2": 31.49
+          "1": 45.07,
+          "X": 23.17,
+          "2": 31.76
         }
       },
       {
@@ -1760,13 +1761,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.82,
+        "margen_previo": 13.2,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.38,
-          "X": 23.06,
-          "2": 31.56
+          "1": 45.03,
+          "X": 23.14,
+          "2": 31.83
         }
       },
       {
@@ -1777,13 +1778,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.8,
+        "margen_previo": 13.18,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.33,
-          "X": 23.14,
-          "2": 31.53
+          "1": 44.98,
+          "X": 23.22,
+          "2": 31.8
         }
       },
       {
@@ -1794,13 +1795,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.68,
+        "margen_previo": 13.06,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.28,
-          "X": 23.12,
-          "2": 31.6
+          "1": 44.93,
+          "X": 23.2,
+          "2": 31.87
         }
       },
       {
@@ -1811,13 +1812,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.53,
+        "margen_previo": 12.92,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.24,
-          "X": 23.04,
-          "2": 31.71
+          "1": 44.9,
+          "X": 23.12,
+          "2": 31.98
         }
       },
       {
@@ -1828,13 +1829,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.42,
+        "margen_previo": 12.8,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.2,
-          "X": 23.02,
-          "2": 31.78
+          "1": 44.85,
+          "X": 23.1,
+          "2": 32.05
         }
       },
       {
@@ -1845,13 +1846,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.58,
+        "margen_previo": 12.97,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.26,
-          "X": 23.05,
-          "2": 31.68
+          "1": 44.92,
+          "X": 23.13,
+          "2": 31.95
         }
       },
       {
@@ -1862,13 +1863,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.64,
+        "margen_previo": 13.03,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.33,
-          "X": 22.98,
-          "2": 31.69
+          "1": 44.98,
+          "X": 23.06,
+          "2": 31.95
         }
       },
       {
@@ -1879,13 +1880,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.62,
+        "margen_previo": 13.02,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.28,
-          "X": 23.06,
-          "2": 31.66
+          "1": 44.94,
+          "X": 23.14,
+          "2": 31.92
         }
       },
       {
@@ -1896,13 +1897,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.62,
+        "margen_previo": 13.0,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.24,
-          "X": 23.14,
-          "2": 31.62
+          "1": 44.89,
+          "X": 23.22,
+          "2": 31.89
         }
       },
       {
@@ -1913,13 +1914,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.5,
+        "margen_previo": 12.89,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.19,
-          "X": 23.12,
-          "2": 31.69
+          "1": 44.85,
+          "X": 23.2,
+          "2": 31.96
         }
       },
       {
@@ -1930,13 +1931,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.64,
+        "margen_previo": 13.04,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.31,
-          "X": 23.02,
-          "2": 31.67
+          "1": 44.97,
+          "X": 23.1,
+          "2": 31.93
         }
       },
       {
@@ -1951,9 +1952,9 @@
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 45.27,
-          "X": 23.0,
-          "2": 31.74
+          "1": 44.92,
+          "X": 23.08,
+          "2": 32.0
         }
       },
       {
@@ -1964,13 +1965,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.62,
+        "margen_previo": 13.01,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.32,
-          "X": 22.97,
-          "2": 31.7
+          "1": 44.98,
+          "X": 23.05,
+          "2": 31.97
         }
       },
       {
@@ -1981,13 +1982,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.5,
+        "margen_previo": 12.89,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.28,
-          "X": 22.95,
-          "2": 31.78
+          "1": 44.93,
+          "X": 23.03,
+          "2": 32.04
         }
       },
       {
@@ -2002,9 +2003,9 @@
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 45.23,
-          "X": 23.03,
-          "2": 31.74
+          "1": 44.89,
+          "X": 23.11,
+          "2": 32.0
         }
       },
       {
@@ -2015,13 +2016,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.57,
+        "margen_previo": 12.97,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.28,
-          "X": 23.01,
-          "2": 31.71
+          "1": 44.94,
+          "X": 23.08,
+          "2": 31.97
         }
       },
       {
@@ -2036,9 +2037,9 @@
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 45.24,
-          "X": 22.98,
-          "2": 31.78
+          "1": 44.9,
+          "X": 23.06,
+          "2": 32.04
         }
       },
       {
@@ -2049,13 +2050,13 @@
         "fase": "liga_regular",
         "signo_real": "X",
         "signo_esperado": "1",
-        "margen_previo": 13.54,
+        "margen_previo": 12.94,
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.29,
-          "X": 22.96,
-          "2": 31.75
+          "1": 44.95,
+          "X": 23.04,
+          "2": 32.01
         }
       },
       {
@@ -2066,13 +2067,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.62,
+        "margen_previo": 13.02,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.3,
-          "X": 23.01,
-          "2": 31.68
+          "1": 44.96,
+          "X": 23.09,
+          "2": 31.94
         }
       },
       {
@@ -2083,13 +2084,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.39,
+        "margen_previo": 12.79,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.21,
-          "X": 22.97,
-          "2": 31.82
+          "1": 44.87,
+          "X": 23.05,
+          "2": 32.08
         }
       },
       {
@@ -2104,9 +2105,9 @@
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 45.13,
-          "X": 22.87,
-          "2": 32.0
+          "1": 44.79,
+          "X": 22.95,
+          "2": 32.25
         }
       },
       {
@@ -2121,9 +2122,9 @@
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 45.08,
-          "X": 22.95,
-          "2": 31.97
+          "1": 44.75,
+          "X": 23.03,
+          "2": 32.22
         }
       },
       {
@@ -2134,13 +2135,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.21,
+        "margen_previo": 12.61,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.14,
-          "X": 22.93,
-          "2": 31.93
+          "1": 44.8,
+          "X": 23.01,
+          "2": 32.19
         }
       },
       {
@@ -2151,13 +2152,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.09,
+        "margen_previo": 12.5,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.09,
-          "X": 22.9,
-          "2": 32.0
+          "1": 44.76,
+          "X": 22.98,
+          "2": 32.26
         }
       },
       {
@@ -2168,13 +2169,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 13.06,
+        "margen_previo": 12.48,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.1,
-          "X": 22.86,
-          "2": 32.04
+          "1": 44.77,
+          "X": 22.94,
+          "2": 32.29
         }
       },
       {
@@ -2185,13 +2186,13 @@
         "fase": "liga_regular",
         "signo_real": "2",
         "signo_esperado": "1",
-        "margen_previo": 12.95,
+        "margen_previo": 12.36,
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "frecuencia_contextual",
         "prior_contextual": {
-          "1": 45.06,
-          "X": 22.83,
-          "2": 32.11
+          "1": 44.72,
+          "X": 22.91,
+          "2": 32.36
         }
       },
       {
@@ -2206,9 +2207,9 @@
         "motivo": "rompe_signo_esperado_por_modelo_rolling",
         "metodo_esperado": "fuerza_rolling_visitante",
         "prior_contextual": {
-          "1": 45.01,
-          "X": 22.81,
-          "2": 32.18
+          "1": 44.68,
+          "X": 22.89,
+          "2": 32.43
         }
       },
       {
@@ -2223,9 +2224,9 @@
         "motivo": "signo_menos_frecuente_del_contexto",
         "metodo_esperado": "fuerza_rolling_local",
         "prior_contextual": {
-          "1": 45.07,
-          "X": 22.79,
-          "2": 32.15
+          "1": 44.73,
+          "X": 22.87,
+          "2": 32.4
         }
       }
     ]
@@ -2233,72 +2234,72 @@
   "patrones_incertidumbre": {
     "tipos_enfrentamiento": {
       "favorito_discutido": {
-        "partidos": 380,
-        "peso_total": 149.5995,
+        "partidos": 364,
+        "peso_total": 140.8261,
         "frecuencia_real": {
-          "1": 20.26,
-          "X": 41.05,
-          "2": 38.68
+          "1": 21.43,
+          "X": 40.66,
+          "2": 37.91
         },
         "frecuencia_ponderada_reciente": {
-          "1": 18.62,
-          "X": 40.56,
-          "2": 40.82
+          "1": 20.23,
+          "X": 39.62,
+          "2": 40.16
         },
-        "sorpresas": 380,
+        "sorpresas": 364,
         "sorpresas_pct": 100.0,
         "sorpresas_ponderadas_pct": 100.0
       },
       "favorito_claro": {
-        "partidos": 296,
-        "peso_total": 114.1008,
+        "partidos": 287,
+        "peso_total": 106.7049,
         "frecuencia_real": {
-          "1": 78.04,
-          "X": 0.34,
-          "2": 21.62
+          "1": 75.61,
+          "X": 0.35,
+          "2": 24.04
         },
         "frecuencia_ponderada_reciente": {
-          "1": 80.88,
-          "X": 0.62,
-          "2": 18.5
+          "1": 79.01,
+          "X": 0.66,
+          "2": 20.33
         },
         "sorpresas": 0,
         "sorpresas_pct": 0.0,
         "sorpresas_ponderadas_pct": 0.0
       },
       "margen_corto": {
-        "partidos": 277,
-        "peso_total": 61.6606,
+        "partidos": 270,
+        "peso_total": 72.4134,
         "frecuencia_real": {
-          "1": 44.04,
-          "X": 20.22,
-          "2": 35.74
+          "1": 44.44,
+          "X": 20.74,
+          "2": 34.81
         },
         "frecuencia_ponderada_reciente": {
-          "1": 47.92,
-          "X": 19.99,
-          "2": 32.09
+          "1": 47.58,
+          "X": 21.87,
+          "2": 30.55
         },
-        "sorpresas": 84,
-        "sorpresas_pct": 30.32,
-        "sorpresas_ponderadas_pct": 32.65
+        "sorpresas": 87,
+        "sorpresas_pct": 32.22,
+        "sorpresas_ponderadas_pct": 36.29
       },
       "muy_equilibrado": {
-        "partidos": 69,
-        "peso_total": 20.3329,
+        "partidos": 115,
+        "peso_total": 27.3698,
         "frecuencia_real": {
-          "1": 46.38,
-          "X": 27.54,
-          "2": 26.09
+          "1": 43.48,
+          "X": 26.96,
+          "2": 29.57
         },
         "frecuencia_ponderada_reciente": {
-          "1": 44.5,
-          "X": 24.2,
-          "2": 31.3
+          "1": 43.23,
+          "X": 24.7,
+          "2": 32.07
         },
-        "sorpresas": 18,
+        "sorpresas": 30,
         "sorpresas_pct": 26.09,
-        "sorpresas_ponderadas_pct": 20.72
+        "sorpresas_ponderadas_pct": 22.11
       }
     },
     "lectura": "Agrupa partidos por margen previo: muy equilibrado, margen corto, favorito discutido y favorito claro."
