@@ -1,24 +1,24 @@
 {
   "version": "1.2",
-  "precision": 69.08,
+  "precision": 68.95,
   "jornadas_revisadas": 38,
-  "partidos_revisados": 524,
+  "partidos_revisados": 525,
   "aciertos": 362,
-  "fallos": 162,
+  "fallos": 163,
   "fallos_por_tipo": {
     "Doble insuficiente": 32,
     "Fijo fallado": 70,
-    "No cubrio empate": 60
+    "No cubrio empate": 61
   },
   "fallos_por_signo_real": {
     "1": 39,
     "2": 63,
-    "X": 60
+    "X": 61
   },
   "signos_omitidos_en_fallo": {
     "1": 39,
     "2": 63,
-    "X": 60
+    "X": 61
   },
   "precision_por_tipo": {
     "DOBLE": {
@@ -28,10 +28,10 @@
       "precision": 76.47
     },
     "FIJO": {
-      "total": 320,
+      "total": 321,
       "aciertos": 190,
-      "fallos": 130,
-      "precision": 59.38
+      "fallos": 131,
+      "precision": 59.19
     },
     "TRIPLE": {
       "total": 68,
@@ -54,129 +54,13 @@
       "precision": 64.41
     },
     "X": {
-      "total": 117,
+      "total": 118,
       "aciertos": 57,
-      "fallos": 60,
-      "precision": 48.72
+      "fallos": 61,
+      "precision": 48.31
     }
   },
   "detalle": [
-    {
-      "jornada": 2,
-      "partido": "AD Ceuta FC - UD Las Palmas",
-      "pronostico": "X",
-      "tipo_pronostico": "FIJO",
-      "resultado": "0-2",
-      "resultado_final": "0-2",
-      "signo_real": "2",
-      "signos_cubiertos": "X",
-      "signo_omitido": "2",
-      "acierto": false,
-      "motivo_error": "Fijo fallado",
-      "origen": "data/predicciones/jornada_2.json",
-      "probabilidades_usadas": {
-        "1": 35.2,
-        "X": 40.0,
-        "2": 24.7
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_competitivo",
-        "estadistica_equipos+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "AD Ceuta FC",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "UD Las Palmas",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "X como signo dominante (40.0%).",
-        "hipotesis_alternativa": "1 como alternativa (35.2%).",
-        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
-        "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
-          "probabilidad": 70.0,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision TRIPLE 1X2: margen 4.8 puntos, indice sorpresa 100.0."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 13.94,
-        "lecturas": [
-          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 10.42,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la necesidad competitiva viva tiene mas peso acumulado."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.44,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local AD Ceuta FC: ppp=2.32; perfil visitante UD Las Palmas: ppp=1.90.",
-          "Memoria autonoma: historial de sorpresa medio elevado (47.4)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "AD Ceuta FC",
-        "partidos_total": 3,
-        "puntos_por_partido": 1.971,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 44.35,
-        "forma_5_ppp": 2.0,
-        "forma_10_ppp": 2.0,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "UD Las Palmas",
-        "partidos_total": 25,
-        "puntos_por_partido": 1.594,
-        "empates_pct": 18.31,
-        "surprise_score_medio": 50.49,
-        "forma_5_ppp": 3.0,
-        "forma_10_ppp": 1.8,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 5
-        }
-      }
-    },
     {
       "jornada": 2,
       "partido": "Eldense - Cadiz CF",
@@ -28915,6 +28799,108 @@
     },
     {
       "jornada": 20,
+      "partido": "Edf Logroño - Sevilla (F)",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-2",
+      "resultado_final": "2-2",
+      "signo_real": "X",
+      "signos_cubiertos": "1",
+      "signo_omitido": "X",
+      "acierto": false,
+      "motivo_error": "No cubrio empate",
+      "origen": "data/predicciones/jornada_20.json",
+      "probabilidades_usadas": {
+        "1": 37.8,
+        "X": 31.6,
+        "2": 30.6
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Edf Logroño",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Sevilla (F)",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (37.8%).",
+        "hipotesis_alternativa": "X como alternativa (31.6%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 70.0,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 1: margen 6.2 puntos, indice sorpresa 95.2."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 10.64,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": false,
+        "riesgo_extra": 0.0,
+        "lecturas": []
+      },
+      "perfil_autonomo_local": {},
+      "perfil_autonomo_visitante": {
+        "equipo": "Sevilla (F)",
+        "partidos_total": 5,
+        "puntos_por_partido": 0.599,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 41.53,
+        "forma_5_ppp": 0.6,
+        "forma_10_ppp": 0.6,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 20,
       "partido": "Eibar (F) - R. Sociedad (F)",
       "pronostico": "X2",
       "tipo_pronostico": "DOBLE",
@@ -29044,19 +29030,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 524,
+    "partidos_base": 525,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 30.92,
-      "no_cubrio_empate_sobre_fallos_pct": 37.04,
-      "no_cubrio_empate_sobre_total_pct": 11.45,
-      "fijo_fallado_sobre_fallos_pct": 43.21,
-      "fijo_fallado_sobre_total_pct": 13.36,
-      "doble_insuficiente_sobre_total_pct": 6.11
+      "fallos_total_pct": 31.05,
+      "no_cubrio_empate_sobre_fallos_pct": 37.42,
+      "no_cubrio_empate_sobre_total_pct": 11.62,
+      "fijo_fallado_sobre_fallos_pct": 42.94,
+      "fijo_fallado_sobre_total_pct": 13.33,
+      "doble_insuficiente_sobre_total_pct": 6.1
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 2.73,
-    "riesgo_extra_triple_insuficiente": 1.9,
+    "riesgo_extra_fijo_fragil": 2.65,
+    "riesgo_extra_triple_insuficiente": 1.89,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,
