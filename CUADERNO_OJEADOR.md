@@ -298,3 +298,24 @@ Sporting-Valladolid. Fijos: Madrid 2, Betis 2, Girona 1, Madrid F 2, Real F 2, P
 (bombo). Pleno 1-2. Escalon del protocolo de bote (2,2M). Garantia al 13 auditada.
 Renuncias nombradas: X Elche, 2 Almeria, X Eibar F. Al cierre: retrospectiva
 partido a partido, que partido bloqueo el 13 y si estaba sobre la mesa.
+
+### Veredicto J20 (cierre 8/11): 11/14 señales, mejor columna 10, 6,82 EUR sobre 96
+
+Lo que entro: los cuatro triples (Malaga 1-2 con el Racing puntuando fuera por
+primera vez, El Sadar 1-1, Cadiz 1-2 Oviedo —Calero respira—, Logroño 2-2 con sus
+7 bajas), Madrid 0-3 en Mestalla, Betis 0-2 en Elche sin Bernal, Balaidos 0-0 (LA X
+cubierta del Celta cansado y el Levante fresco), la Real F 1-2 en Ipurua con la masa
+al Eibar, el bombo del 14 (salio 1, como decian las 77 bolas) y el PLENO 1-2 (Atleti
+1-2 Barca: ortodoxia, prensa y Losilla; el M-M de Marc se descarto).
+Lo que fallo: Girona 0-1 Almeria (el 2 del segundo invicto; RENUNCIA NOMBRADA, la
+web y la fusion lo llevaban en 12), Sporting 1-2 Valladolid (16 salidas sin ganar y
+gano en El Molinon de las 7 bajas: el 2 era el tercero de valor del viernes, solo un
+triple lo cazaba) y Athletic F 1-1 Madrid F (Lezama invicta, X al 25%, fijo).
+Las dos X anti-masa que no salieron (Real 1-0, Villarreal 2-0) no costaron señal:
+el 1X cubria al favorito. Costo de la apuesta anti-masa frente a la web: UNA señal
+(Girona 12 vs Real/Sporting 1X): 11 en vez de 12. Con 12, la Super13 garantizaba
+11 (14,48 EUR) y rascaba ~30-40 EUR; tampoco habia dinero. La jornada fue de
+favoritos (recaudacion 3,38M, 2.301 doces a 110 EUR) y nuestra ventaja solo cobra
+cuando el futbol se tuerce: no se torcio. Leccion de la ultima milla: el 13 no
+estaba sobre la mesa (hacia falta 12 en Girona Y triple en Gijon Y X en Lezama);
+el 12 si (Girona 12 pedido por el motor). Tras jornada normal: NO tocar nada.
