@@ -1,25 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-13T22:52:02.246015+00:00",
+  "generado_en": "2026-11-14T03:02:17.609426+00:00",
   "estado": "critico_actualizacion",
   "score_salud": 45,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
     "jornada_actual": {
-      "jornada": 21,
-      "fecha": "Domingo, 15 de noviembre de 2026",
-      "fecha_orden": "2026-11-15",
-      "estado": "abierta",
-      "partidos": 14,
-      "cerrados": 0,
-      "pendientes": 14,
-      "pendientes_totales_con_pleno15": 15,
-      "pleno15_cerrado": false,
-      "ultima_actualizacion_partido": "",
-      "path": "data/jornadas/jornada_21.json"
-    },
-    "proxima_jornada": {
       "jornada": 22,
       "fecha": "Miércoles, 18 de noviembre de 2026",
       "fecha_orden": "2026-11-19",
@@ -31,6 +18,19 @@
       "pleno15_cerrado": false,
       "ultima_actualizacion_partido": "",
       "path": "data/jornadas/jornada_22.json"
+    },
+    "proxima_jornada": {
+      "jornada": 23,
+      "fecha": "Domingo, 22 de noviembre de 2026",
+      "fecha_orden": "2026-11-22",
+      "estado": "abierta",
+      "partidos": 14,
+      "cerrados": 0,
+      "pendientes": 14,
+      "pendientes_totales_con_pleno15": 15,
+      "pleno15_cerrado": false,
+      "ultima_actualizacion_partido": "",
+      "path": "data/jornadas/jornada_23.json"
     },
     "ultimas": [
       {
@@ -115,25 +115,25 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 21,
-    "generado_en": "2026-11-13T22:51:30.984307+00:00",
+    "jornada": 22,
+    "generado_en": "2026-11-14T03:02:14.252021+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 8,
-      "dobles": 4,
-      "triples": 2,
+      "fijos": 14,
+      "dobles": 0,
+      "triples": 0,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 10,
-      "indice_sorpresa_max": 100.0,
+      "favoritos_atacables": 0,
+      "indice_sorpresa_max": 0.0,
       "calidad_datos": {
-        "alta": 9,
+        "alta": 0,
         "media": 0,
         "media_baja": 0,
-        "baja": 5
+        "baja": 0
       }
     },
-    "retenida_por_compuerta": false,
-    "motivo_bloqueo": null
+    "retenida_por_compuerta": true,
+    "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 21 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 22 hasta cerrar y aprender la 21."
   },
   "clasificaciones": {
     "primera": {
@@ -184,9 +184,9 @@
     }
   },
   "fuentes": {
-    "memoria_horas": 0.02,
-    "estado_vivo_horas": 0.01,
-    "contexto_equipos_horas": 5.76,
+    "memoria_horas": 0.01,
+    "estado_vivo_horas": 0.0,
+    "contexto_equipos_horas": 0.02,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -260,7 +260,7 @@
     "partidos_cerrados": 434,
     "aciertos": 283,
     "precision": 65.21,
-    "generado_en": "2026-11-13T17:08:16.497569+00:00",
+    "generado_en": "2026-11-13T22:52:03.432477+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -270,20 +270,21 @@
       "detalle": "Athletic Club tiene 11 PJ en tabla, pero el calendario ya tiene 12 resultados."
     },
     {
-      "nivel": "alta",
-      "titulo": "Predicción de jornada antigua",
-      "detalle": "La jornada activa es 23 pero la última predicción dice 21."
-    },
-    {
       "nivel": "media",
       "titulo": "Jornada actual incompleta",
-      "detalle": "La jornada 21 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "detalle": "La jornada 22 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
       "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
     },
     {
       "nivel": "media",
+      "titulo": "Prediccion demasiado rigida",
+      "detalle": "La prediccion actual sale con 14 fijos. Eso no refleja bien la incertidumbre real de una quiniela.",
+      "accion": "Usar dobles/triples en los partidos de mayor incertidumbre antes de validar."
+    },
+    {
+      "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 10 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -302,7 +303,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-11-13T22:52:02.246015+00:00",
+    "generado_en": "2026-11-14T03:02:17.609426+00:00",
     "estado": "critico",
     "score": 0,
     "alertas": [
@@ -310,11 +311,6 @@
         "nivel": "critica",
         "titulo": "Clasificacion primera congelada",
         "detalle": "Athletic Club tiene 11 PJ en tabla, pero el calendario ya tiene 12 resultados."
-      },
-      {
-        "nivel": "alta",
-        "titulo": "Predicción de jornada antigua",
-        "detalle": "La jornada activa es 23 pero la última predicción dice 21."
       }
     ],
     "jornadas": {
@@ -423,28 +419,28 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-11-13T22:51:02.109759+00:00"
+      "generado_en": "2026-11-14T03:01:46.327230+00:00"
     },
     "prediccion": {
-      "jornada": 21,
-      "generado_en": "2026-11-13T22:51:30.984307+00:00",
+      "jornada": 22,
+      "generado_en": "2026-11-14T03:02:14.252021+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 8,
-        "dobles": 4,
-        "triples": 2,
+        "fijos": 14,
+        "dobles": 0,
+        "triples": 0,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 10,
-        "indice_sorpresa_max": 100.0,
+        "favoritos_atacables": 0,
+        "indice_sorpresa_max": 0.0,
         "calidad_datos": {
-          "alta": 9,
+          "alta": 0,
           "media": 0,
           "media_baja": 0,
-          "baja": 5
+          "baja": 0
         }
       },
-      "retenida_por_compuerta": false,
-      "motivo_bloqueo": null
+      "retenida_por_compuerta": true,
+      "motivo_bloqueo": "Cierre pendiente de la jornada anterior: la jornada 21 solo tiene 0 de 14 resultados oficiales. No se genera prediccion para la jornada 22 hasta cerrar y aprender la 21."
     },
     "regla": "Si esto marca critico, no se debe confiar en el análisis hasta que se corrija la fuente o la tabla."
   },
@@ -554,6 +550,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-11-13T22:51:02.109759+00:00"
+    "generado_en": "2026-11-14T03:01:46.327230+00:00"
   }
 }

@@ -489,13 +489,36 @@
       "elige8_eficiencia": 38.35,
       "elige8_seguro_score": 76.7,
       "elige8_confianza_real": 76.7,
-      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_tipo_cobertura": "doble",
       "elige8_seguro_posicion": 8,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 45.1,
       "elige8_seguro_margen": 13.5,
       "elige8_maxima_seguridad": true,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "elige8_criterio": "Entra en Elige 8 porque el doble X2 suma 76.7% de probabilidad real de acierto.",
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "r valladolid",
+          "visitante": "castellon"
+        }
+      },
+      "elige8_score": 76.7,
+      "elige8_probabilidad_signo": 45.1,
+      "elige8_signo_objetivo": "2"
     },
     {
       "num": 2,
@@ -899,7 +922,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
+      "elige8": true,
       "razonamiento": "Probabilidades IA: 1=36.5%, X=32.9%, 2=30.5%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=140.3 y margen=3.6. Favorito o signo de referencia: Real Sociedad B. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decision final: 1X2.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (36.5%).",
@@ -930,12 +953,38 @@
       "elige8_eficiencia": 33.333,
       "elige8_seguro_score": 100.0,
       "elige8_confianza_real": 100.0,
-      "elige8_tipo_cobertura": "TRIPLE",
+      "elige8_tipo_cobertura": "triple",
       "elige8_seguro_posicion": 13,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 36.5,
       "elige8_seguro_margen": 3.6,
-      "elige8_maxima_seguridad": true
+      "elige8_maxima_seguridad": true,
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
+      "resolucion_competicion": {
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion",
+          "forma",
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
+        ],
+        "equipos_normalizados": {
+          "local": "sociedad b",
+          "visitante": "sporting gijon"
+        }
+      },
+      "elige8_score": 100.0,
+      "elige8_probabilidad_signo": 36.5,
+      "elige8_signo_objetivo": "1",
+      "elige8_criterio": "Entra en Elige 8 porque es TRIPLE: probabilidad real de acierto 100%."
     },
     {
       "num": 3,
@@ -1313,13 +1362,38 @@
       "elige8_eficiencia": 64.0,
       "elige8_seguro_score": 64.0,
       "elige8_confianza_real": 64.0,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 1,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 64.0,
       "elige8_seguro_margen": 41.6,
       "elige8_maxima_seguridad": true,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "elige8_criterio": "Entra en Elige 8 porque el fijo 1 tiene 64.0% de probabilidad real de acierto.",
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
+      "resolucion_competicion": {
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion",
+          "forma",
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
+        ],
+        "equipos_normalizados": {
+          "local": "almeria",
+          "visitante": "andorra"
+        }
+      },
+      "elige8_score": 64.0,
+      "elige8_probabilidad_signo": 64.0,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 4,
@@ -1744,7 +1818,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
+      "elige8": false,
       "razonamiento": "Probabilidades IA: 1=55.6%, X=24.3%, 2=20.1%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=42.6/100 o sorpresa=46.9%. Favorito o signo de referencia: RCD Mallorca. Motivos principales: Local del top 10 frente a un visitante de la segunda mitad de la tabla: 41.5% de sorpresas historicas.; rival del favorito llega sin perder. Decision final: 1.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (55.6%).",
@@ -1775,13 +1849,37 @@
       "elige8_eficiencia": 55.6,
       "elige8_seguro_score": 55.6,
       "elige8_confianza_real": 55.6,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 4,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 55.6,
       "elige8_seguro_margen": 31.3,
       "elige8_maxima_seguridad": false,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
+      "resolucion_competicion": {
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion",
+          "forma",
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
+        ],
+        "equipos_normalizados": {
+          "local": "mallorca",
+          "visitante": "cordoba"
+        }
+      },
+      "elige8_score": 55.6,
+      "elige8_probabilidad_signo": 55.6,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 5,
@@ -2169,7 +2267,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
+      "elige8": true,
       "razonamiento": "Probabilidades IA: 1=35.7%, X=33.1%, 2=31.1%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se abre TRIPLE porque el partido aparece entre las maximas prioridades de cobertura: sugerencia=TRIPLE, indice de sorpresa=100.0/100, sorpresa=70.0%, incertidumbre=150.5 y margen=2.6. Favorito o signo de referencia: Real Oviedo. Motivos principales: margen minimo entre primer y segundo signo; ningun signo supera claramente el 45%; empate con peso alto. Decision final: 1X2.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (35.7%).",
@@ -2200,12 +2298,38 @@
       "elige8_eficiencia": 33.333,
       "elige8_seguro_score": 100.0,
       "elige8_confianza_real": 100.0,
-      "elige8_tipo_cobertura": "TRIPLE",
+      "elige8_tipo_cobertura": "triple",
       "elige8_seguro_posicion": 14,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 35.7,
       "elige8_seguro_margen": 2.6,
-      "elige8_maxima_seguridad": true
+      "elige8_maxima_seguridad": true,
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
+      "resolucion_competicion": {
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion",
+          "forma",
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
+        ],
+        "equipos_normalizados": {
+          "local": "oviedo",
+          "visitante": "girona"
+        }
+      },
+      "elige8_score": 100.0,
+      "elige8_probabilidad_signo": 35.7,
+      "elige8_signo_objetivo": "1",
+      "elige8_criterio": "Entra en Elige 8 porque es TRIPLE: probabilidad real de acierto 100%."
     },
     {
       "num": 6,
@@ -2582,7 +2706,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
+      "elige8": false,
       "razonamiento": "Probabilidades IA: 1=45.4%, X=30.6%, 2=24.0%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=86.7/100 o sorpresa=65.3%. Favorito o signo de referencia: Tenerife. Motivos principales: favorito por debajo del 50%; tercer signo vivo: partido candidato a triple; favorito con racha reciente sin ganar. Decision final: 1.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (45.4%).",
@@ -2613,13 +2737,37 @@
       "elige8_eficiencia": 45.4,
       "elige8_seguro_score": 45.4,
       "elige8_confianza_real": 45.4,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 6,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 45.4,
       "elige8_seguro_margen": 14.8,
       "elige8_maxima_seguridad": false,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
+      "resolucion_competicion": {
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion",
+          "forma",
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
+        ],
+        "equipos_normalizados": {
+          "local": "tenerife",
+          "visitante": "ad ceuta"
+        }
+      },
+      "elige8_score": 45.4,
+      "elige8_probabilidad_signo": 45.4,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 7,
@@ -3033,7 +3181,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
+      "elige8": false,
       "razonamiento": "Probabilidades IA: 1=46.7%, X=30.3%, 2=23.0%. Calidad de datos: alta; origen=estadistica_equipos+modelo_entrenado+dixon_coles. Se mantiene como FIJO (1) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es TRIPLE, indice=79.8/100 o sorpresa=61.6%. Favorito o signo de referencia: Granada CF. Motivos principales: favorito por debajo del 50%; tercer signo vivo: partido candidato a triple; rival del favorito llega sin perder. Decision final: 1.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (46.7%).",
@@ -3064,13 +3212,37 @@
       "elige8_eficiencia": 46.7,
       "elige8_seguro_score": 46.7,
       "elige8_confianza_real": 46.7,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 5,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 46.7,
       "elige8_seguro_margen": 16.4,
       "elige8_maxima_seguridad": false,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
+      "resolucion_competicion": {
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion",
+          "forma",
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
+        ],
+        "equipos_normalizados": {
+          "local": "granada",
+          "visitante": "las palmas"
+        }
+      },
+      "elige8_score": 46.7,
+      "elige8_probabilidad_signo": 46.7,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 8,
@@ -3503,13 +3675,38 @@
       "elige8_eficiencia": 59.2,
       "elige8_seguro_score": 59.2,
       "elige8_confianza_real": 59.2,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 2,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 59.2,
       "elige8_seguro_margen": 31.4,
       "elige8_maxima_seguridad": true,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "elige8_criterio": "Entra en Elige 8 porque el fijo 1 tiene 59.2% de probabilidad real de acierto.",
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
+      "resolucion_competicion": {
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion",
+          "forma",
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
+        ],
+        "equipos_normalizados": {
+          "local": "eibar",
+          "visitante": "cadiz"
+        }
+      },
+      "elige8_score": 59.2,
+      "elige8_probabilidad_signo": 59.2,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 9,
@@ -3942,13 +4139,38 @@
       "elige8_eficiencia": 39.9,
       "elige8_seguro_score": 79.8,
       "elige8_confianza_real": 79.8,
-      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_tipo_cobertura": "doble",
       "elige8_seguro_posicion": 7,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 44.6,
       "elige8_seguro_margen": 9.4,
       "elige8_maxima_seguridad": true,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "elige8_criterio": "Entra en Elige 8 porque el doble 1X suma 79.8% de probabilidad real de acierto.",
+      "competicion_resuelta": "segunda_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_segunda",
+      "resolucion_competicion": {
+        "competicion": "segunda_division",
+        "modelo_recomendado": "modelo_liga_espana_segunda",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Segunda.",
+        "lectura": "Usar ascenso, playoff, descenso, dinamica y calidad propia de Segunda.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion",
+          "forma",
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
+        ],
+        "equipos_normalizados": {
+          "local": "eldense",
+          "visitante": "sabadell"
+        }
+      },
+      "elige8_score": 79.8,
+      "elige8_probabilidad_signo": 44.6,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 10,
@@ -4206,7 +4428,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
+      "elige8": true,
       "razonamiento": "Probabilidades IA: 1=44.0%, X=27.8%, 2=28.2%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (12) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=73.0/100, sorpresa=65.9%, incertidumbre=129.4 y margen=15.8. Favorito o signo de referencia: Bélgica. Motivos principales: ningun signo supera claramente el 45%; tercer signo vivo: partido candidato a triple. Decision final: 12.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (44.0%).",
@@ -4237,12 +4459,36 @@
       "elige8_eficiencia": 36.1,
       "elige8_seguro_score": 72.2,
       "elige8_confianza_real": 72.2,
-      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_tipo_cobertura": "doble",
       "elige8_seguro_posicion": 12,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 44.0,
       "elige8_seguro_margen": 15.8,
-      "elige8_maxima_seguridad": true
+      "elige8_maxima_seguridad": true,
+      "competicion_resuelta": "liga_extranjera",
+      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "resolucion_competicion": {
+        "competicion": "liga_extranjera",
+        "modelo_recomendado": "modelo_liga_extranjera",
+        "confianza": 0.62,
+        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
+        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga",
+          "forma",
+          "ranking_elo",
+          "lesiones"
+        ],
+        "equipos_normalizados": {
+          "local": "belgica",
+          "visitante": "italia"
+        }
+      },
+      "elige8_score": 72.2,
+      "elige8_probabilidad_signo": 44.0,
+      "elige8_signo_objetivo": "1",
+      "elige8_criterio": "Entra en Elige 8 porque el doble 12 suma 72.2% de probabilidad real de acierto."
     },
     {
       "num": 11,
@@ -4545,12 +4791,33 @@
       "elige8_eficiencia": 37.4,
       "elige8_seguro_score": 37.4,
       "elige8_confianza_real": 37.4,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 10,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 37.4,
       "elige8_seguro_margen": 4.5,
-      "elige8_maxima_seguridad": false
+      "elige8_maxima_seguridad": false,
+      "competicion_resuelta": "liga_f",
+      "modelo_datos_recomendado": "modelo_conservador_baja_calidad",
+      "resolucion_competicion": {
+        "competicion": "liga_f",
+        "modelo_recomendado": "modelo_conservador_baja_calidad",
+        "confianza": 0.35,
+        "motivo": "Liga F (futbol femenino) -sin fuente de datos propia, no confundir con el club masculino homonimo.",
+        "lectura": "Liga F (futbol femenino espanol) -el pipeline no tiene clasificacion, historico ni forma propios para esta competicion. No usar clasificacion/fuerza de Primera o Segunda masculina aunque el club comparta nombre (ej. 'Real Madrid Femenino' no es 'Real Madrid CF').",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga_f",
+          "forma"
+        ],
+        "equipos_normalizados": {
+          "local": "alaves f",
+          "visitante": "eibar f"
+        }
+      },
+      "elige8_score": 37.4,
+      "elige8_probabilidad_signo": 37.4,
+      "elige8_signo_objetivo": "1"
     },
     {
       "num": 12,
@@ -4825,7 +5092,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": false,
+      "elige8": true,
       "razonamiento": "Probabilidades IA: 1=45.2%, X=30.2%, 2=24.6%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se cubre con DOBLE (1X) porque entra entre las siguientes prioridades de riesgo: sugerencia=DOBLE, indice de sorpresa=72.5/100, sorpresa=65.2%, incertidumbre=131.4 y margen=15.0. Favorito o signo de referencia: Real Sociedad (F). Motivos principales: favorito por debajo del 50%; tercer signo vivo: partido candidato a triple. Decision final: 1X.",
       "explicabilidad_ia": {
         "hipotesis_principal": "1 como signo dominante (45.2%).",
@@ -4856,12 +5123,34 @@
       "elige8_eficiencia": 37.7,
       "elige8_seguro_score": 75.4,
       "elige8_confianza_real": 75.4,
-      "elige8_tipo_cobertura": "DOBLE",
+      "elige8_tipo_cobertura": "doble",
       "elige8_seguro_posicion": 9,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 45.2,
       "elige8_seguro_margen": 15.0,
-      "elige8_maxima_seguridad": true
+      "elige8_maxima_seguridad": true,
+      "competicion_resuelta": "liga_f",
+      "modelo_datos_recomendado": "modelo_conservador_baja_calidad",
+      "resolucion_competicion": {
+        "competicion": "liga_f",
+        "modelo_recomendado": "modelo_conservador_baja_calidad",
+        "confianza": 0.35,
+        "motivo": "Liga F (futbol femenino) -sin fuente de datos propia, no confundir con el club masculino homonimo.",
+        "lectura": "Liga F (futbol femenino espanol) -el pipeline no tiene clasificacion, historico ni forma propios para esta competicion. No usar clasificacion/fuerza de Primera o Segunda masculina aunque el club comparta nombre (ej. 'Real Madrid Femenino' no es 'Real Madrid CF').",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga_f",
+          "forma"
+        ],
+        "equipos_normalizados": {
+          "local": "sociedad f",
+          "visitante": "athletic f"
+        }
+      },
+      "elige8_score": 75.4,
+      "elige8_probabilidad_signo": 45.2,
+      "elige8_signo_objetivo": "1",
+      "elige8_criterio": "Entra en Elige 8 porque el doble 1X suma 75.4% de probabilidad real de acierto."
     },
     {
       "num": 13,
@@ -5133,7 +5422,7 @@
       "sorpresa_potencial": false,
       "nivel_sorpresa": "",
       "forzar_cobertura_motivacion": "",
-      "elige8": true,
+      "elige8": false,
       "razonamiento": "Probabilidades IA: 1=18.7%, X=22.6%, 2=58.7%. ALERTA de calidad: no hay historial estadistico suficiente para ambos equipos. Estos porcentajes son fallback y no deben venderse como prediccion plenamente estudiada. Se mantiene como FIJO (2) solo porque el presupuesto de dobles/triples obliga a priorizar otros riesgos. No es un fijo limpio si la sugerencia es FIJO, indice=23.9/100 o sorpresa=45.6%. Favorito o signo de referencia: At. Madrid (F). Motivos principales: sin senales fuertes de ruptura del favorito. Decision final: 2.",
       "explicabilidad_ia": {
         "hipotesis_principal": "2 como signo dominante (58.7%).",
@@ -5164,13 +5453,33 @@
       "elige8_eficiencia": 58.7,
       "elige8_seguro_score": 58.7,
       "elige8_confianza_real": 58.7,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 3,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 58.7,
       "elige8_seguro_margen": 36.1,
       "elige8_maxima_seguridad": false,
-      "elige8_criterio": "Entra en Elige 8 por ranking de probabilidad real de acierto por coste (economico)."
+      "competicion_resuelta": "liga_f",
+      "modelo_datos_recomendado": "modelo_conservador_baja_calidad",
+      "resolucion_competicion": {
+        "competicion": "liga_f",
+        "modelo_recomendado": "modelo_conservador_baja_calidad",
+        "confianza": 0.35,
+        "motivo": "Liga F (futbol femenino) -sin fuente de datos propia, no confundir con el club masculino homonimo.",
+        "lectura": "Liga F (futbol femenino espanol) -el pipeline no tiene clasificacion, historico ni forma propios para esta competicion. No usar clasificacion/fuerza de Primera o Segunda masculina aunque el club comparta nombre (ej. 'Real Madrid Femenino' no es 'Real Madrid CF').",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga_f",
+          "forma"
+        ],
+        "equipos_normalizados": {
+          "local": "sevilla f",
+          "visitante": "at madrid f"
+        }
+      },
+      "elige8_score": 58.7,
+      "elige8_probabilidad_signo": 58.7,
+      "elige8_signo_objetivo": "2"
     },
     {
       "num": 14,
@@ -5472,12 +5781,33 @@
       "elige8_eficiencia": 37.3,
       "elige8_seguro_score": 37.3,
       "elige8_confianza_real": 37.3,
-      "elige8_tipo_cobertura": "FIJO",
+      "elige8_tipo_cobertura": "fijo",
       "elige8_seguro_posicion": 11,
       "elige8_seguro_cumple_umbral": true,
       "elige8_seguro_probabilidad_top": 37.3,
       "elige8_seguro_margen": 4.5,
-      "elige8_maxima_seguridad": false
+      "elige8_maxima_seguridad": false,
+      "competicion_resuelta": "liga_f",
+      "modelo_datos_recomendado": "modelo_conservador_baja_calidad",
+      "resolucion_competicion": {
+        "competicion": "liga_f",
+        "modelo_recomendado": "modelo_conservador_baja_calidad",
+        "confianza": 0.35,
+        "motivo": "Liga F (futbol femenino) -sin fuente de datos propia, no confundir con el club masculino homonimo.",
+        "lectura": "Liga F (futbol femenino espanol) -el pipeline no tiene clasificacion, historico ni forma propios para esta competicion. No usar clasificacion/fuerza de Primera o Segunda masculina aunque el club comparta nombre (ej. 'Real Madrid Femenino' no es 'Real Madrid CF').",
+        "datos_minimos": [
+          "resultados",
+          "clasificacion_liga_f",
+          "forma"
+        ],
+        "equipos_normalizados": {
+          "local": "valencia f",
+          "visitante": "granada f"
+        }
+      },
+      "elige8_score": 37.3,
+      "elige8_probabilidad_signo": 37.3,
+      "elige8_signo_objetivo": "2"
     }
   ],
   "boleto_millonario": {
@@ -6358,7 +6688,7 @@
       "baja": 5
     },
     "elige8_seguro_recomendado": true,
-    "elige8_regla": "probabilidad_real_de_acierto_por_coste",
+    "elige8_regla": "probabilidad_real_de_acierto",
     "elige8_aviso": "Modo economico: 1.6% de probabilidad conjunta estimada de acertar los 8 (eslabon mas debil: P6 Tenerife - AD Ceuta FC al 45.4%). Modo maxima seguridad: 12.6% pagando +70.00€ mas de Elige8. Jornada internacional (premio tipico Elige8 ≈32.62€ segun mediana historica real): valor esperado extra ≈+3.60€ por +70.00€ de coste extra -NO compensa en valor esperado (estimacion basada en la mediana historica de esta temporada, no una prediccion del premio real de esta semana)."
   },
   "snapshot_pre_cierre": {
@@ -7866,5 +8196,219 @@
       "precision": 77.23,
       "fuente": "data/memoria_ia/aprendizaje_elige8.json"
     }
+  },
+  "resolucion_competiciones": {
+    "generado_en": "2026-11-14T03:01:55.726432+00:00",
+    "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
+    "resumen": {
+      "liga_extranjera": 2,
+      "segunda_division": 8,
+      "liga_f": 4
+    },
+    "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
+  },
+  "elige8_aprendizaje": {
+    "version": "4.0",
+    "generado_en": "2026-11-14T03:02:18.468321+00:00",
+    "regla_activa": "Elige 8 se elige por probabilidad real de acertar el signo jugado: TRIPLE=100%, DOBLE=suma de probabilidades de sus dos signos, FIJO=probabilidad de su unico signo. El tipo no prioriza salvo el triple, que siempre es 100%.",
+    "criterio": "ranking_por_probabilidad_real_de_acierto_del_signo_jugado",
+    "ranking": [
+      {
+        "posicion": 1,
+        "num": 2,
+        "local": "Real Sociedad B",
+        "visitante": "Real Sporting de Gijon",
+        "signo": "1",
+        "signos_jugados": "1X2",
+        "tipo_cobertura": "TRIPLE",
+        "probabilidad": 36.5,
+        "probabilidad_cubierta": 100.0,
+        "probabilidad_acierto": 100.0,
+        "score": 100.0,
+        "seleccionado": true
+      },
+      {
+        "posicion": 2,
+        "num": 5,
+        "local": "Real Oviedo",
+        "visitante": "Girona FC",
+        "signo": "1",
+        "signos_jugados": "1X2",
+        "tipo_cobertura": "TRIPLE",
+        "probabilidad": 35.7,
+        "probabilidad_cubierta": 100.0,
+        "probabilidad_acierto": 100.0,
+        "score": 100.0,
+        "seleccionado": true
+      },
+      {
+        "posicion": 3,
+        "num": 9,
+        "local": "Eldense",
+        "visitante": "Sabadell",
+        "signo": "1",
+        "signos_jugados": "1X",
+        "tipo_cobertura": "DOBLE",
+        "probabilidad": 44.6,
+        "probabilidad_cubierta": 79.8,
+        "probabilidad_acierto": 79.8,
+        "score": 79.8,
+        "seleccionado": true
+      },
+      {
+        "posicion": 4,
+        "num": 1,
+        "local": "R. Valladolid",
+        "visitante": "CD Castellon",
+        "signo": "2",
+        "signos_jugados": "X2",
+        "tipo_cobertura": "DOBLE",
+        "probabilidad": 45.1,
+        "probabilidad_cubierta": 76.7,
+        "probabilidad_acierto": 76.7,
+        "score": 76.7,
+        "seleccionado": true
+      },
+      {
+        "posicion": 5,
+        "num": 12,
+        "local": "Real Sociedad (F)",
+        "visitante": "Athletic Club (F)",
+        "signo": "1",
+        "signos_jugados": "1X",
+        "tipo_cobertura": "DOBLE",
+        "probabilidad": 45.2,
+        "probabilidad_cubierta": 75.4,
+        "probabilidad_acierto": 75.4,
+        "score": 75.4,
+        "seleccionado": true
+      },
+      {
+        "posicion": 6,
+        "num": 10,
+        "local": "Bélgica",
+        "visitante": "Italia",
+        "signo": "1",
+        "signos_jugados": "12",
+        "tipo_cobertura": "DOBLE",
+        "probabilidad": 44.0,
+        "probabilidad_cubierta": 72.2,
+        "probabilidad_acierto": 72.2,
+        "score": 72.2,
+        "seleccionado": true
+      },
+      {
+        "posicion": 7,
+        "num": 3,
+        "local": "UD Almeria",
+        "visitante": "FC Andorra",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 64.0,
+        "probabilidad_cubierta": 64.0,
+        "probabilidad_acierto": 64.0,
+        "score": 64.0,
+        "seleccionado": true
+      },
+      {
+        "posicion": 8,
+        "num": 8,
+        "local": "SD Eibar",
+        "visitante": "Cadiz CF",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 59.2,
+        "probabilidad_cubierta": 59.2,
+        "probabilidad_acierto": 59.2,
+        "score": 59.2,
+        "seleccionado": true
+      },
+      {
+        "posicion": 9,
+        "num": 13,
+        "local": "Sevilla (F)",
+        "visitante": "At. Madrid (F)",
+        "signo": "2",
+        "signos_jugados": "2",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 58.7,
+        "probabilidad_cubierta": 58.7,
+        "probabilidad_acierto": 58.7,
+        "score": 58.7,
+        "seleccionado": false
+      },
+      {
+        "posicion": 10,
+        "num": 4,
+        "local": "RCD Mallorca",
+        "visitante": "Cordoba CF",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 55.6,
+        "probabilidad_cubierta": 55.6,
+        "probabilidad_acierto": 55.6,
+        "score": 55.6,
+        "seleccionado": false
+      },
+      {
+        "posicion": 11,
+        "num": 7,
+        "local": "Granada CF",
+        "visitante": "UD Las Palmas",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 46.7,
+        "probabilidad_cubierta": 46.7,
+        "probabilidad_acierto": 46.7,
+        "score": 46.7,
+        "seleccionado": false
+      },
+      {
+        "posicion": 12,
+        "num": 6,
+        "local": "Tenerife",
+        "visitante": "AD Ceuta FC",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 45.4,
+        "probabilidad_cubierta": 45.4,
+        "probabilidad_acierto": 45.4,
+        "score": 45.4,
+        "seleccionado": false
+      },
+      {
+        "posicion": 13,
+        "num": 11,
+        "local": "Alavés (F)",
+        "visitante": "Eibar (F)",
+        "signo": "1",
+        "signos_jugados": "1",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 37.4,
+        "probabilidad_cubierta": 37.4,
+        "probabilidad_acierto": 37.4,
+        "score": 37.4,
+        "seleccionado": false
+      },
+      {
+        "posicion": 14,
+        "num": 14,
+        "local": "Valencia (F)",
+        "visitante": "Granada (F)",
+        "signo": "2",
+        "signos_jugados": "2",
+        "tipo_cobertura": "FIJO",
+        "probabilidad": 37.3,
+        "probabilidad_cubierta": 37.3,
+        "probabilidad_acierto": 37.3,
+        "score": 37.3,
+        "seleccionado": false
+      }
+    ]
   }
 }
