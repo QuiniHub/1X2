@@ -1,130 +1,56 @@
 {
- "version": "1.2",
- "generado_en": "2026-11-16T06:46:38.148274+00:00",
- "metodo": "ajustes pequenos, limites por variable, normalizacion y decay temporal",
- "referencia": {
-  "forma_reciente": 0.2,
-  "casa_fuera": 0.15,
-  "clasificacion": 0.16,
-  "goles": 0.12,
-  "empate": 0.1,
-  "sorpresa": 0.09,
-  "motivacion_competitiva": 0.07,
-  "necesidad_descenso_ascenso_europa": 0.07,
-  "fatiga": 0.02,
-  "bajas": 0.02
- },
- "limites": {
-  "empate": [
-   0.06,
-   0.18
-  ],
-  "sorpresa": [
-   0.05,
-   0.16
-  ]
- },
- "decay_temporal": 0.92,
- "pesos": {
-  "forma_reciente": 0.0995,
-  "casa_fuera": 0.0878,
-  "clasificacion": 0.0796,
-  "goles": 0.2069,
-  "empate": 0.1748,
-  "sorpresa": 0.1554,
-  "motivacion_competitiva": 0.0763,
-  "necesidad_descenso_ascenso_europa": 0.0763,
-  "fatiga": 0.0217,
-  "bajas": 0.0217
- },
- "muestra": {
-  "partidos_validados": 546,
-  "fallos": 178,
-  "jornadas_validadas": 39,
-  "elige8_precision": 77.16
- },
- "ajustes": [
-  {
-   "peso": "sorpresa",
-   "delta": 0.0046,
-   "antes": 0.1554,
-   "despues": 0.16,
-   "motivo": "Demasiados fallos de fijo: subir cautela de sorpresa."
+  "version": "1.2",
+  "generado_en": "2026-11-16T07:57:37.293971+00:00",
+  "modo": "congelado",
+  "motivo_congelacion": "Auditoria 16/11/2026: empate 0,175 (tope 0,18) y sorpresa 0,16 (tope) saturados; forma_reciente 0,20->0,09 y goles 0,12->0,21 por acumulacion sin backtest. Congelados donde estan hasta que un backtest compare referencia vs acumulado.",
+  "congelado_en": "2026-11-16T07:50:37.761180+00:00",
+  "metodo": "CONGELADO: sin ajustes, sin decay; pesos fijos hasta decision de Marc",
+  "referencia": {
+    "forma_reciente": 0.2,
+    "casa_fuera": 0.15,
+    "clasificacion": 0.16,
+    "goles": 0.12,
+    "empate": 0.1,
+    "sorpresa": 0.09,
+    "motivacion_competitiva": 0.07,
+    "necesidad_descenso_ascenso_europa": 0.07,
+    "fatiga": 0.02,
+    "bajas": 0.02
   },
-  {
-   "peso": "forma_reciente",
-   "delta": -0.0095,
-   "antes": 0.0995,
-   "despues": 0.09,
-   "motivo": "Los fijos fallados aconsejan no sobreponderar forma reciente."
-  },
-  {
-   "peso": "clasificacion",
-   "delta": -0.0076,
-   "antes": 0.0796,
-   "despues": 0.072,
-   "motivo": "Reducir confianza ciega en clasificacion cuando falla el fijo."
-  },
-  {
-   "peso": "sorpresa",
-   "delta": 0.0,
-   "antes": 0.16,
-   "despues": 0.16,
-   "motivo": "Dobles insuficientes: el tercer signo necesita mas peso."
-  },
-  {
-   "peso": "goles",
-   "delta": 0.006,
-   "antes": 0.2069,
-   "despues": 0.2129,
-   "motivo": "Los dobles fallados suelen exigir revisar lectura de goles."
-  },
-  {
-   "peso": "empate",
-   "delta": 0.0052,
-   "antes": 0.1748,
-   "despues": 0.18,
-   "motivo": "Empates no cubiertos por encima del umbral."
-  },
-  {
-   "peso": "casa_fuera",
-   "delta": -0.006,
-   "antes": 0.0878,
-   "despues": 0.0818,
-   "motivo": "Bajar ligeramente sesgo local/visitante cuando falta la X."
-  },
-  {
-   "peso": "sorpresa",
-   "delta": 0.0,
-   "antes": 0.16,
-   "despues": 0.16,
-   "motivo": "Partidos sorpresa sin cubrir: aumentar cautela acumulada."
-  },
-  {
-   "peso": "clasificacion",
-   "delta": 0.0,
-   "antes": 0.072,
-   "despues": 0.072,
-   "motivo": "Las sorpresas recomiendan suavizar clasificacion pura."
-  },
-  {
-   "peso": "todos",
-   "delta": 0,
-   "motivo": "Normalizacion automatica con limites y decay temporal para evitar saturacion de pesos.",
-   "decay": 0.92,
-   "limites": {
+  "limites": {
     "empate": [
-     0.06,
-     0.18
+      0.06,
+      0.18
     ],
     "sorpresa": [
-     0.05,
-     0.16
+      0.05,
+      0.16
     ]
-   }
-  }
- ],
- "modo": "congelado",
- "congelado_en": "2026-11-16T07:50:37.761180+00:00",
- "motivo_congelacion": "Auditoria 16/11/2026: empate 0,175 (tope 0,18) y sorpresa 0,16 (tope) saturados; forma_reciente 0,20->0,09 y goles 0,12->0,21 por acumulacion sin backtest. Congelados donde estan hasta que un backtest compare referencia vs acumulado."
+  },
+  "decay_temporal": 0.92,
+  "pesos": {
+    "forma_reciente": 0.0995,
+    "casa_fuera": 0.0878,
+    "clasificacion": 0.0796,
+    "goles": 0.2069,
+    "empate": 0.1748,
+    "sorpresa": 0.1554,
+    "motivacion_competitiva": 0.0763,
+    "necesidad_descenso_ascenso_europa": 0.0763,
+    "fatiga": 0.0217,
+    "bajas": 0.0217
+  },
+  "muestra": {
+    "partidos_validados": 546,
+    "fallos": 178,
+    "jornadas_validadas": 39,
+    "elige8_precision": 77.16
+  },
+  "ajustes": [
+    {
+      "peso": "todos",
+      "delta": 0,
+      "motivo": "Pesos congelados (auditoria 16/11/2026): saturados en sus topes, el bucle no aprendia nada."
+    }
+  ]
 }
