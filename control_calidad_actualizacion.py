@@ -202,9 +202,24 @@ def diagnosticar_contexto(alertas):
     }
 
 
+def jornada_objetivo_real():
+    """La jornada que el motor DEBE predecir, con la misma logica que el
+    pipeline (jornada_objetivo_quiniela): no la de fecha maxima cargada, que
+    daba falsos positivos ("la activa es 23 pero la prediccion dice 22") en
+    cuanto se cargaba una jornada futura (auditoria 16/11/2026)."""
+    try:
+        from jornada_objetivo_quiniela import jornada_objetivo_prediccion
+        return int(jornada_objetivo_prediccion() or 0)
+    except Exception:
+        return 0
+
+
 def diagnosticar_prediccion(alertas, jornada_actual):
     pred = ultima_prediccion()
     retenida = prediccion_retenida_por_compuerta(pred)
+    objetivo = jornada_objetivo_real()
+    if objetivo:
+        jornada_actual = {"jornada": objetivo}
     if jornada_actual and int(pred.get("jornada", 0) or 0) != int(jornada_actual.get("jornada", 0)) and not retenida:
         alertas.append({
             "nivel": "alta",

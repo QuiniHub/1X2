@@ -716,9 +716,39 @@ def primer_acertantes(celdas):
     return None
 
 
+def escrutinio_plausible(categorias):
+    """Rechaza escrutinios "placebo" (auditoria 16/11/2026): J5-J31 tenian
+    acertantes == numero de la categoria (13 acertantes de 13, 12 de 12...) y
+    7,5 EUR en todas las categorias: la pagina de una jornada sin escrutinio
+    devolvia una plantilla y el extractor la daba por buena."""
+    normales = [c for c in ("14", "13", "12", "11", "10") if categorias.get(c)]
+    if len(normales) < 3:
+        return True
+    eco = sum(
+        1 for c in normales
+        if str((categorias.get(c) or {}).get("acertantes")) == c
+    )
+    if eco >= 3:
+        return False
+    premios = [float((categorias.get(c) or {}).get("premio_euros") or 0) for c in normales]
+    positivos = [p for p in premios if p > 0]
+    if len(positivos) >= 3 and len(set(positivos)) == 1:
+        return False
+    # el premio por acertante no puede crecer al bajar de categoria
+    for alta, baja in zip(normales, normales[1:]):
+        pa = float((categorias.get(alta) or {}).get("premio_euros") or 0)
+        pb = float((categorias.get(baja) or {}).get("premio_euros") or 0)
+        if pa > 0 and pb > 0 and pb > pa:
+            return False
+    return True
+
+
 def construir_registro_escrutinio(jornada, categorias, url, fuente):
     clave = clave_jornada(jornada)
     if not clave or not categorias:
+        return None
+    if not escrutinio_plausible(categorias):
+        print(f"AVISO escrutinio jornada {jornada}: datos no plausibles (plantilla/placebo), se descarta.")
         return None
 
     normalizadas = {}

@@ -927,6 +927,43 @@ def normalizar_pesos_dinamicos(pesos, ajustes):
 
 def construir_pesos_dinamicos(quiniela, diario):
     previos = cargar_json(PESOS_DINAMICOS, {})
+    if str(previos.get("modo") or "") == "congelado":
+        # Auditoria 16/11/2026: los pesos llevaban semanas pegados a sus topes
+        # (empate 0,175/0,18, sorpresa 0,16/0,16) y cada cierre repetia la misma
+        # lecccion sin poder moverse, mientras forma_reciente bajaba de 0,20 a
+        # 0,09 y goles subia de 0,12 a 0,21 sin backtest. Congelados donde
+        # estan: ni suben ni decaen hasta que un backtest diga si el aprendizaje
+        # por pesos ayuda. Descongelar = quitar "modo" del JSON (decision de Marc).
+        propias = quiniela.get("nuestras_quinielas", {})
+        pesos_previos = {
+            clave: float(valor)
+            for clave, valor in (previos.get("pesos") or {}).items()
+            if clave in PESOS_DINAMICOS_REFERENCIA
+        }
+        pesos_previos = {**PESOS_DINAMICOS_REFERENCIA, **pesos_previos}
+        return {
+            "version": "1.2",
+            "generado_en": datetime.now(timezone.utc).isoformat(),
+            "modo": "congelado",
+            "motivo_congelacion": previos.get("motivo_congelacion") or "",
+            "congelado_en": previos.get("congelado_en") or datetime.now(timezone.utc).isoformat(),
+            "metodo": "CONGELADO: sin ajustes, sin decay; pesos fijos hasta decision de Marc",
+            "referencia": PESOS_DINAMICOS_REFERENCIA,
+            "limites": LIMITES_PESOS_DINAMICOS,
+            "decay_temporal": DECAY_PESOS_DINAMICOS,
+            "pesos": pesos_previos,
+            "muestra": {
+                "partidos_validados": int(propias.get("partidos_validados") or 0),
+                "fallos": int(propias.get("fallos") or 0),
+                "jornadas_validadas": propias.get("jornadas_validadas", 0),
+                "elige8_precision": (propias.get("elige8") or {}).get("precision", 0),
+            },
+            "ajustes": [{
+                "peso": "todos",
+                "delta": 0,
+                "motivo": "Pesos congelados (auditoria 16/11/2026): saturados en sus topes, el bucle no aprendia nada.",
+            }],
+        }
     pesos = dict(PESOS_DINAMICOS_REFERENCIA)
     if previos.get("version") in {"1.1", "1.2"}:
         pesos.update({

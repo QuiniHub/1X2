@@ -47,6 +47,32 @@ def resumen_jornada(jornada):
     }
 
 
+def primer_inicio_jornada(jornada):
+    """Fecha-hora UTC del primer partido de la jornada (hora local de Madrid
+    en el JSON). Sin hora, se asume 00:00 del dia; sin fechas, None."""
+    try:
+        from zoneinfo import ZoneInfo
+        tz = ZoneInfo("Europe/Madrid")
+    except Exception:  # pragma: no cover
+        tz = timezone.utc
+    inicios = []
+    for p in jornada.get("partidos", []):
+        fecha = str(p.get("fecha") or "")[:10]
+        if not fecha or not fecha[:4].isdigit():
+            continue
+        hora = str(p.get("hora") or "00:00")[:5]
+        try:
+            inicio = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M").replace(tzinfo=tz)
+        except ValueError:
+            inicio = datetime.strptime(fecha, "%Y-%m-%d").replace(tzinfo=tz)
+        inicios.append(inicio.astimezone(timezone.utc))
+    return min(inicios) if inicios else None
+
+
+def ahora_utc():
+    return datetime.now(timezone.utc)
+
+
 def crear_snapshot_prediccion(prediccion=None, sobrescribir=False):
     prediccion = prediccion or cargar_json(PREDICCIONES / "ultima_prediccion.json", {})
     jornada_num = prediccion.get("jornada")
@@ -61,21 +87,42 @@ def crear_snapshot_prediccion(prediccion=None, sobrescribir=False):
         return {"creado": False, "motivo": f"No se crea snapshot pre-cierre: jornada {jornada_num} ya tiene resultados."}
 
     destino = BACKTEST / f"jornada_{jornada_num}.json"
+    inicio = primer_inicio_jornada(jornada)
+    ahora = ahora_utc()
+    # Auditoria 16/11/2026: el snapshot se congelaba en la PRIMERA generacion
+    # (J21: foto del 8/11 con el mercado Losilla aun de la J20, 9/14) y los
+    # backtests "pre-cierre" evaluaban eso en vez de lo que se podia jugar al
+    # cierre (10/14). Ahora se refresca en cada ciclo hasta el primer partido;
+    # desde entonces es inmutable.
+    abierto = inicio is not None and ahora < inicio
     if destino.exists() and not sobrescribir:
-        return {"creado": False, "motivo": f"Snapshot pre-cierre ya existe: {destino}", "ruta": str(destino)}
+        previo = cargar_json(destino, {})
+        if not abierto:
+            if previo.get("inmutable") is False:
+                previo["inmutable"] = True
+                previo["congelado_en"] = ahora.isoformat()
+                guardar_json(destino, previo)
+            return {"creado": False, "motivo": f"Snapshot pre-cierre congelado (jornada en juego o jugada): {destino}", "ruta": str(destino)}
+        if previo.get("prediccion_hash") == hash_json(prediccion):
+            return {"creado": False, "motivo": "Snapshot pre-cierre sin cambios.", "ruta": str(destino)}
+        creado_en = previo.get("creado_en")
+    else:
+        creado_en = None
 
     snapshot = {
-        "version": "1.1",
+        "version": "1.2",
         "tipo": "prediccion_pre_cierre",
-        "inmutable": True,
-        "creado_en": datetime.now(timezone.utc).isoformat(),
+        "inmutable": not abierto,
+        "creado_en": creado_en or ahora.isoformat(),
+        "refrescado_en": ahora.isoformat(),
+        "primer_partido_utc": inicio.isoformat() if inicio else None,
         "jornada": jornada_num,
         "prediccion_hash": hash_json(prediccion),
         "resumen_jornada_al_crear": resumen,
         "prediccion": prediccion,
     }
     guardar_json(destino, snapshot)
-    return {"creado": True, "ruta": str(destino), "prediccion_hash": snapshot["prediccion_hash"]}
+    return {"creado": True, "ruta": str(destino), "prediccion_hash": snapshot["prediccion_hash"], "inmutable": snapshot["inmutable"]}
 
 
 def main():

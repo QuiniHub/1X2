@@ -87,6 +87,18 @@ def normalizar(texto):
 
 
 def detectar_jornada_activa():
+    # Auditoria 16/11/2026: la jornada OBJETIVO la decide jornada_objetivo_quiniela
+    # (la siguiente a la ultima aprendida, por fecha real). El maximo por fecha
+    # de abajo se queda solo como respaldo: con dos jornadas abiertas (J22
+    # martes-jueves y J23 fin de semana) devolvia la ultima y se generaba la
+    # prediccion equivocada al ejecutar el motor sin argumento.
+    try:
+        from jornada_objetivo_quiniela import jornada_objetivo_prediccion
+        objetivo = int(jornada_objetivo_prediccion() or 0)
+        if objetivo and (JORNADAS / f"jornada_{objetivo}.json").exists():
+            return objetivo
+    except Exception:
+        pass
     # Orden CRONOLOGICO por fecha real de los partidos, nunca max(numero):
     # la numeracion de La Quiniela se reinicia cada temporada, asi que hoy
     # (J4 de 26/27 conviviendo con jornada_76.json de 25/26) el maximo por
@@ -1490,6 +1502,57 @@ def x_de_autor(probs, local, visitante, estudio=None):
                     f"{nombre} es equipo empatador ({pct if pct is not None else rol_pct}% de X). "
                     "Politica backtesteada 18/10/2026: mismas totales que el favorito puro, "
                     "X fijas al 50% historico."
+                ),
+            }
+    return None
+
+
+COBERTURA_AUTOR_X_MIN = 28.0
+COBERTURA_AUTOR_X_2627_PCT = 40.0
+COBERTURA_AUTOR_PJ_2627_MIN = 8
+COBERTURA_AUTOR_BONUS_DOBLE = 90.0
+
+
+def cobertura_de_autor(probs, local, visitante, estudio=None):
+    """COBERTURA DE AUTOR (auditoria 16/11/2026): si en el partido hay un
+    equipo empatador (>=32% de X historico, >=40% en su rol casa/fuera, o
+    >=40% esta temporada con >=8 partidos) y la X del motor esta viva
+    (>=28%), el partido pide cobertura y esa cobertura debe INCLUIR la X.
+    Motivo: la X es el 22% de los signos pero el 33% de nuestros fallos, y en
+    J20-J21 cuatro de nueve fallos fueron X de equipos de esta lista jugadas
+    a fijo (Celta, Cadiz, Mallorca...). Sube la prioridad de doble y fuerza el
+    segundo signo del doble a la X. Devuelve la traza o None."""
+    try:
+        px = float((probs or {}).get("X") or 0)
+    except (TypeError, ValueError):
+        return None
+    if px < COBERTURA_AUTOR_X_MIN or signo_top(probs) == "X":
+        return None
+    from modelo_dixon_coles import clave_equipo  # mismo normalizador que el estudio
+    empatadores = estudio if estudio is not None else _empatadores_estudio()
+    for nombre, rol in ((local, "casa"), (visitante, "fuera")):
+        f = empatadores.get(clave_equipo(nombre))
+        if not f:
+            continue
+        pct = f.get("x_pct")
+        rol_pct = f.get(f"x_{rol}_pct")
+        pct_2627 = f.get("x_2627_pct")
+        pj_2627 = int(f.get("pj_2627") or 0)
+        motivo = None
+        if pct is not None and float(pct) >= X_AUTOR_EMPATADOR_PCT:
+            motivo = f"{float(pct):.1f}% de X historico"
+        elif rol_pct is not None and float(rol_pct) >= X_AUTOR_EMPATADOR_ROL_PCT:
+            motivo = f"{float(rol_pct):.1f}% de X como {'local' if rol == 'casa' else 'visitante'}"
+        elif pct_2627 is not None and pj_2627 >= COBERTURA_AUTOR_PJ_2627_MIN and float(pct_2627) >= COBERTURA_AUTOR_X_2627_PCT:
+            motivo = f"{float(pct_2627):.1f}% de X esta temporada ({pj_2627} pj)"
+        if motivo:
+            return {
+                "activo": True,
+                "equipo": nombre,
+                "x_motor": round(px, 1),
+                "razon": (
+                    f"COBERTURA DE AUTOR: {nombre} es empatador ({motivo}) y la X del motor "
+                    f"esta viva ({px:.0f}%): si se cubre, se cubre con la X."
                 ),
             }
     return None
@@ -2915,6 +2978,8 @@ def prioridad_doble(partido):
         score += 25
     if top == "X":
         score += 8
+    if cobertura_de_autor(probs, partido.get("local"), partido.get("visitante")):
+        score += COBERTURA_AUTOR_BONUS_DOBLE
     return score
 
 
@@ -3480,9 +3545,25 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         elif partido["num"] in dobles_set:
             signo = doble_top(partido["probabilidades"])
             tipo = "DOBLE"
+            autor_doble = cobertura_de_autor(
+                partido["probabilidades"], partido.get("local"), partido.get("visitante")
+            )
+            if autor_doble:
+                if "X" not in signo:
+                    signo = "".join(
+                        s for s in ("1", "X", "2")
+                        if s in {signo_top(partido["probabilidades"]), "X"}
+                    )
+                partido["_cobertura_autor"] = {**autor_doble, "cubierta": True}
         else:
             signo = partido["signo_base"]
             tipo = "FIJO"
+            autor_fijo = cobertura_de_autor(
+                partido["probabilidades"], partido.get("local"), partido.get("visitante")
+            )
+            if autor_fijo:
+                # Pedida y no cubierta por presupuesto: queda trazada para la web
+                partido["_cobertura_autor"] = {**autor_fijo, "cubierta": False}
             # X de autor (19/10/2026): en el fijo, la maquina se atreve con la
             # X cuando esta pegada al maximo Y hay empatador -politica
             # backtesteada, trazada abajo para la web y el Laboratorio.
@@ -3523,6 +3604,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "signo_final": signo,
             "tipo": tipo,
             "x_de_autor": partido.get("_x_de_autor") or {"activo": False},
+            "cobertura_autor": partido.get("_cobertura_autor") or {"activo": False},
             "incertidumbre": partido["incertidumbre"],
             "probabilidad_sorpresa": partido["probabilidad_sorpresa"],
             # Puntuaciones REALES de colocacion, exportadas para que la web

@@ -1862,3 +1862,29 @@ congelado en la 1a generacion; pesos dinamicos saturados en sus topes;
 generador con 1 doble que no lo pone en el toss; lista de empatadores fuera del
 cierre de fijos; chat sin la prediccion activa; diagnostico con falso positivo de
 "jornada activa"; escrutinio placebo en fuente_losilla; ceses manuales.
+
+## 2026-11-16 — "Solucionalo todo" (OK de Marc): siete mejoras de lectura y prediccion
+
+1. **Cobertura de autor (motor).** Nueva `cobertura_de_autor()`: si hay un equipo
+   empatador (>=32% X hist., >=40% en su rol, o >=40% en 26/27 con >=8 pj) y la X del
+   motor esta >=28, el partido suma +90 de prioridad de doble y, si se dobla, el
+   doble lleva la X aunque sea tercer signo. Backtest retrospectivo sobre los
+   snapshots pre-cierre J1-J21: en los fijos señalados salio X el 38% (6/16) frente
+   al 20% (31/154) del resto; 9 de los 16 señalados fueron fallo. Exportado como
+   `cobertura_autor` por partido; la web lo respeta al generar dobles.
+2. **Pesos dinamicos congelados** (`modo: congelado` en pesos_dinamicos.json):
+   saturados en sus topes, el bucle repetia la misma leccion sin moverse.
+   Descongelar = quitar "modo" (decision de Marc tras backtest referencia vs acumulado).
+3. **Snapshot pre-cierre refrescado** en cada ciclo hasta el primer partido
+   (`primer_partido_utc`), inmutable desde entonces; `creado_en` conserva la 1a foto.
+4. **Control de calidad** compara con la jornada objetivo real (jornada_objetivo_quiniela),
+   no con la de fecha maxima; y `detectar_jornada_activa()` del motor usa la misma logica.
+5. **Escrutinio placebo**: `escrutinio_plausible()` rechaza plantillas (acertantes ==
+   categoria, premios iguales o crecientes); 27 registros placebo borrados de fuente_losilla.
+6. **Web**: con menos dobles que partidos sin dueño (<40%), los dobles van primero a
+   los sin dueño; el doble respeta la X de la cobertura de autor; el panel de coste
+   muestra la reducida al 13 conocida (3T+3D 24, 2T+5D 36, 4T+4D 128...); el chat recibe
+   la PREDICCION ACTUAL justo tras las reglas (antes la recortaba el limite de contexto).
+7. **Datos manuales**: ceses_actuales con Cadiz (Borja Jimenez 22/10), Oviedo (Raul
+   Gonzalez 9/11), Ceuta (Lobera 8/11), Leganes (Carrion) y Albacete (Etxeberria);
+   memoria_socio con la J21 (2.510 caracteres). Suite: 729 OK.

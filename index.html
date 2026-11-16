@@ -496,6 +496,10 @@
             <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Quiniela</span>
             <span id="costQuiniela" style="font-size:22px;font-weight:700;color:var(--text,#111)">1.50 €</span>
           </div>
+          <div id="costReducida" style="display:none;flex-direction:column;gap:2px" title="Reducida al 13: si entran todos los signos cubiertos, garantiza un 13 (el 14 solo a veces)">
+            <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Reducida al 13</span>
+            <span id="costReducidaValor" style="font-size:22px;font-weight:700;color:var(--text,#111)">-</span>
+          </div>
           <div id="costElige8Panel" style="display:none;flex-direction:column;gap:2px">
             <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Elige 8</span>
             <span id="costElige8" style="font-size:22px;font-weight:700;color:var(--text,#111)">0.50 €</span>
@@ -833,6 +837,21 @@
       panel.style.display = 'flex';
       document.getElementById('costApuestas').textContent = c.apuestas;
       document.getElementById('costQuiniela').textContent = c.importeQuiniela.toFixed(2) + ' €';
+      // Reducidas al 13 que conocemos (oficiales LAE + desarrollos verificados
+      // en Losilla): columnas que de verdad se juegan con esa estructura.
+      const REDUCIDAS_AL_13 = { '4T+0D': 9, '0T+7D': 16, '3T+3D': 24, '1T+6D': 24, '2T+6D': 64, '8T+0D': 81,
+        '0T+11D': 132, '2T+5D': 36, '4T+2D': 36, '0T+8D': 32, '4T+4D': 128, '7T+1D': 333, '4T+3D': 72 };
+      const clave = `${c.triples}T+${c.dobles}D`;
+      const red = document.getElementById('costReducida');
+      if (red) {
+        const cols = REDUCIDAS_AL_13[clave];
+        if (cols && cols < c.apuestas) {
+          red.style.display = 'flex';
+          document.getElementById('costReducidaValor').textContent = `${cols} col · ${(cols * 0.75).toFixed(2)} €`;
+        } else {
+          red.style.display = 'none';
+        }
+      }
       const elige8Panel = document.getElementById('costElige8Panel');
       if (state.elige8) {
         elige8Panel.style.display = 'flex';
@@ -1015,9 +1034,19 @@
           (Number(b.prioridad_cobertura_triple) || 0) - (Number(a.prioridad_cobertura_triple) || 0)
         );
         triplesSet = new Set(porTriple.slice(0, state.triples).map(numDe));
-        const porDoble = matches.filter(m => !triplesSet.has(numDe(m))).sort((a, b) =>
+        // Auditoria 16/11/2026 (J21): con 1 solo doble, prioridad_cobertura_doble
+        // lo mandaba al 48/30 "barato" (Tenerife-Ceuta) y dejaba el toss
+        // 36/33/31 (Oviedo-Girona) a fijo. Con menos dobles que partidos sin
+        // dueno (favorito < 40%), los dobles van primero a los sin dueno.
+        const restantes = matches.filter(m => !triplesSet.has(numDe(m)));
+        const porPrioridad = arr => [...arr].sort((a, b) =>
           (Number(b.prioridad_cobertura_doble) || 0) - (Number(a.prioridad_cobertura_doble) || 0)
         );
+        const sinDueno = restantes.filter(m => (Number(m.probabilidad_top) || 100) < 40);
+        const conDueno = restantes.filter(m => (Number(m.probabilidad_top) || 100) >= 40);
+        const porDoble = (state.dobles < sinDueno.length)
+          ? [...porPrioridad(sinDueno), ...porPrioridad(conDueno)]
+          : porPrioridad(restantes);
         doblesSet = new Set(porDoble.slice(0, state.dobles).map(numDe));
       } else {
         const byUncertainty = [...matches].sort((a, b) =>
@@ -1034,7 +1063,9 @@
           state.signAssignment[num] = '1X2';
         } else if (doblesSet.has(num)) {
           state.typeAssignment[num] = 'doble';
-          state.signAssignment[num] = sorted[0] + sorted[1];
+          const autor = m.cobertura_autor && m.cobertura_autor.activo;
+          const conX = autor && sorted[0] !== 'X' ? ['1', 'X', '2'].filter(s => s === sorted[0] || s === 'X').join('') : null;
+          state.signAssignment[num] = conX || (sorted[0] + sorted[1]);
         } else {
           state.typeAssignment[num] = 'fijo';
           state.signAssignment[num] = sorted[0];
@@ -3905,7 +3936,11 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       // a 2500-4500 caracteres, y este bloque (las reglas del metodo,
       // validadas jornada a jornada) es lo que mas valor da por caracter.
       const bloqueMemoriaSocio = (state.memoriaSocio || {}).bloque_para_chat || '';
+      // Auditoria 16/11/2026: la PREDICCION ACTUAL iba al final del contexto y
+      // el recorte a 2500 caracteres la dejaba fuera: el chat no sabia que
+      // jornada se jugaba e inventaba. Va justo despues de las reglas.
       return `${bloqueMemoriaSocio}
+${bloquePredActual}
 ${bloqueQuinielasJugadas}
 ${resumenMem}
 ${bloqueHistoricoLigas}
@@ -3925,7 +3960,6 @@ ${resumenMetricas}
 Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalCobrado.toFixed(2)}€
 
 ${estadoActual}
-${bloquePredActual}
 ${bloquePesos}
 ${bloqueValorSenales}
 ${bloqueElige8Aprendizaje}
