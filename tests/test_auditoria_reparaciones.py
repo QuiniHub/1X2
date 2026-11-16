@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import motor_prediccion_quiniela as motor
+import guardar_snapshot_prediccion as snapmod
 import validar_publicacion_autonoma as vpa
 import motor_prediccion_objetivo as mpo
 import control_calidad_actualizacion as cca
@@ -87,11 +88,16 @@ class PredecirSmokeTests(unittest.TestCase):
             if (ROOT / "data" / "estado_jornada_objetivo.json").exists() else {}
         objetivo = estado.get("jornada_objetivo")
         cls._guardar_original = motor.guardar_json
+        cls._guardar_snapshot_original = snapmod.guardar_json
         motor.guardar_json = lambda *a, **k: None
+        # el snapshot pre-cierre se refresca hasta el primer partido (16/11/2026):
+        # el smoke no debe reescribir el real con una prediccion de test
+        snapmod.guardar_json = lambda *a, **k: None
         try:
             cls.resultado = motor.predecir(jornada=objetivo) if objetivo else {}
         finally:
             motor.guardar_json = cls._guardar_original
+            snapmod.guardar_json = cls._guardar_snapshot_original
 
     def _partidos_o_skip(self):
         # La compuerta puede bloquear legitimamente la prediccion (devuelve
@@ -331,11 +337,14 @@ class PrioridadesExportadasTests(unittest.TestCase):
         if not objetivo:
             self.skipTest("sin jornada objetivo en este entorno")
         original = motor.guardar_json
+        original_snap = snapmod.guardar_json
         motor.guardar_json = lambda *a, **k: None
+        snapmod.guardar_json = lambda *a, **k: None
         try:
             resultado = motor.predecir(jornada=objetivo)
         finally:
             motor.guardar_json = original
+            snapmod.guardar_json = original_snap
         partidos = resultado.get("partidos") or []
         if not partidos or not all("probabilidades" in p for p in partidos):
             self.skipTest("prediccion bloqueada por compuerta en este entorno")

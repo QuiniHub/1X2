@@ -48,6 +48,7 @@ SCRIPTS_NO_CRITICOS_RED = {
     "actualizar_porcentajes_lae.py",
     "actualizar_fuente_lesiones_laliga.py",
     "actualizar_fuente_lesiones_jornadaperfecta.py",
+    "actualizar_liga_f.py",
     "actualizar_contexto_equipos.py",
     "actualizar_analisis_ia.py",
     "construir_historial_quinielas.py",
@@ -116,6 +117,9 @@ SCRIPTS_ACTIVOS = [
     "actualizar_porcentajes_lae.py",
     "actualizar_fuente_lesiones_laliga.py",
     "actualizar_fuente_lesiones_jornadaperfecta.py",
+    # Liga F real (Wikipedia, gratis): clasificacion + resultados para que los
+    # partidos "(F)" dejen de ir a ciegas (auditoria 16/11/2026).
+    "actualizar_liga_f.py",
     "actualizar_contexto_equipos.py",
     "actualizar_analisis_ia.py",
     "construir_historial_quinielas.py",

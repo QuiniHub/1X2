@@ -1,4 +1,5 @@
 import argparse
+import math
 import json
 import re
 import unicodedata
@@ -1556,6 +1557,100 @@ def cobertura_de_autor(probs, local, visitante, estudio=None):
                 ),
             }
     return None
+
+
+LIGA_F_CLASIFICACION = DATA / "liga_f" / "clasificacion.json"
+LIGA_F_PESO_MODELO = 0.8
+LIGA_F_PJ_MIN = 3
+_liga_f_cache = None
+
+
+def _liga_f_equipos():
+    """Clasificacion de Liga F (actualizar_liga_f.py, Wikipedia) indexada por
+    nombre canonico "(F)". Auditoria 16/11/2026: los partidos (F) iban con
+    calidad "baja" y el favorito en casa por defecto; 4 de los 9 fallos de
+    J20-J21 fueron de Liga F."""
+    global _liga_f_cache
+    if _liga_f_cache is None:
+        datos = cargar_json_generico(LIGA_F_CLASIFICACION) or {}
+        indice = {}
+        for e in datos.get("equipos") or []:
+            if e.get("equipo"):
+                indice[e["equipo"]] = e
+        _liga_f_cache = indice
+    return _liga_f_cache
+
+
+def _equipo_liga_f(nombre, equipos=None):
+    equipos = equipos if equipos is not None else _liga_f_equipos()
+    if not equipos or not nombre:
+        return None
+    if nombre in equipos:
+        return equipos[nombre]
+    try:
+        from actualizar_liga_f import nombre_canonico_liga_f
+        canonico = nombre_canonico_liga_f(nombre)
+    except Exception:
+        canonico = None
+    return equipos.get(canonico) if canonico else None
+
+
+def _fuerza_liga_f(equipo, rol):
+    bloque = (equipo or {}).get(rol) or {}
+    pj_rol = float(bloque.get("pj") or 0)
+    pj = float(equipo.get("pj") or 0)
+    ppg_global = float(equipo.get("ppg") or (float(equipo.get("puntos") or 0) / pj if pj else 0))
+    ppg_rol = (3 * float(bloque.get("g") or 0) + float(bloque.get("e") or 0)) / pj_rol if pj_rol else ppg_global
+    # con pocos partidos en el rol, el rol pesa menos que el global
+    w_rol = min(pj_rol / 5.0, 1.0)
+    base = w_rol * ppg_rol + (1 - w_rol) * ppg_global
+    forma = equipo.get("forma_5_puntos")
+    forma_ppg = float(forma) / 5.0 if forma is not None else base
+    return 0.7 * base + 0.3 * forma_ppg
+
+
+def ajustar_por_liga_f(probs, partido, equipos=None):
+    """Mezcla el prior del motor con un modelo de fuerza casa/fuera + forma de
+    la Liga F real (clasificacion y resultados de Wikipedia). Solo cuando los
+    dos equipos son "(F)" y estan en la tabla con >= LIGA_F_PJ_MIN partidos."""
+    local = partido.get("local") or ""
+    visitante = partido.get("visitante") or ""
+    inactivo = {"activo": False, "motivo": "sin datos de Liga F para ambos equipos"}
+    if not (es_equipo_liga_f(local) and es_equipo_liga_f(visitante)):
+        return probs, {"activo": False, "motivo": "no es partido de Liga F"}
+    el = _equipo_liga_f(local, equipos)
+    ev = _equipo_liga_f(visitante, equipos)
+    if not el or not ev or float(el.get("pj") or 0) < LIGA_F_PJ_MIN or float(ev.get("pj") or 0) < LIGA_F_PJ_MIN:
+        return probs, inactivo
+    fl = _fuerza_liga_f(el, "casa")
+    fv = _fuerza_liga_f(ev, "fuera")
+    diff = fl - fv  # en puntos por partido, aprox. [-3, 3]
+    # X decreciente con el desequilibrio; el resto se reparte con una logistica
+    # con ventaja de campo (+0,25). Calibrado a ojo sobre la Liga F 26/27 (el
+    # lider gana ~85% en casa; un colista en casa contra el lider, ~15%).
+    px = min(max(30.0 - 6.0 * abs(diff), 12.0), 32.0)
+    cuota_local = 1.0 / (1.0 + math.exp(-(1.3 * diff + 0.25)))
+    p1 = (100.0 - px) * cuota_local
+    p2 = (100.0 - px) * (1.0 - cuota_local)
+    modelo = {"1": p1, "X": px, "2": p2}
+    w = LIGA_F_PESO_MODELO
+    mezcla = {s: round(w * modelo[s] + (1 - w) * float(probs.get(s) or 0), 1) for s in ("1", "X", "2")}
+    suma = sum(mezcla.values()) or 100.0
+    mezcla = {s: round(100.0 * v / suma, 1) for s, v in mezcla.items()}
+    return mezcla, {
+        "activo": True,
+        "fuente": "data/liga_f/clasificacion.json (Wikipedia, actualizar_liga_f.py)",
+        "local": {"equipo": el.get("equipo"), "pj": el.get("pj"), "puntos": el.get("puntos"), "casa": el.get("casa"), "forma_5": el.get("forma_5"), "fuerza": round(fl, 2)},
+        "visitante": {"equipo": ev.get("equipo"), "pj": ev.get("pj"), "puntos": ev.get("puntos"), "fuera": ev.get("fuera"), "forma_5": ev.get("forma_5"), "fuerza": round(fv, 2)},
+        "diferencial_ppg": round(diff, 2),
+        "probs_modelo": {s: round(v, 1) for s, v in modelo.items()},
+        "peso_modelo": w,
+        "lectura": (
+            f"Liga F real: {el.get('equipo')} {el.get('puntos')} pts ({el.get('pj')} pj, forma {el.get('forma_5') or '?'}) "
+            f"vs {ev.get('equipo')} {ev.get('puntos')} pts ({ev.get('pj')} pj, forma {ev.get('forma_5') or '?'}); "
+            f"fuerza casa/fuera {fl:.2f} vs {fv:.2f} ppg."
+        ),
+    }
 
 
 def capas_profesionales_relevantes(datos_partido):
@@ -3332,6 +3427,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     evaluados = []
     for partido in partidos_base:
         probs, local, visitante, diff = calcular_probabilidades(memoria, partido)
+        probs, ajuste_liga_f = ajustar_por_liga_f(probs, partido)
         probs, ajuste_dixon_coles = ajustar_por_dixon_coles(probs, partido)
         probs, ajuste_modelo_entrenado = ajustar_por_modelo_entrenado(probs, partido, modelo_runtime)
         contexto_local = buscar_contexto_equipo(contexto, partido.get("local", ""))
@@ -3376,6 +3472,10 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             visitante_comp,
             datos_profesionales_partido,
         )
+        trazabilidad["liga_f"] = ajuste_liga_f
+        if ajuste_liga_f.get("activo") and trazabilidad.get("calidad_datos") in ("baja", "media_baja"):
+            trazabilidad["calidad_datos"] = "media_baja"
+            trazabilidad["origen_probabilidades"] = f"{trazabilidad['origen_probabilidades']}+liga_f_wikipedia"
         trazabilidad["modelo_entrenado"] = ajuste_modelo_entrenado
         if ajuste_modelo_entrenado.get("activo"):
             trazabilidad["origen_probabilidades"] = f"{trazabilidad['origen_probabilidades']}+modelo_entrenado"
@@ -3486,6 +3586,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "lesiones_laliga_local": lesiones_laliga_local,
             "lesiones_laliga_visitante": lesiones_laliga_visitante,
             "ajuste_revulsivo": {**ajuste_revulsivo, "riesgo_extra": riesgo_revulsivo, "lecturas": lecturas_revulsivo},
+            "ajuste_liga_f": ajuste_liga_f,
             "ajuste_lesiones_laliga": {
                 "activo": bool(lecturas_lesiones_laliga),
                 "riesgo_extra": riesgo_lesiones_laliga,

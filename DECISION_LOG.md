@@ -1888,3 +1888,18 @@ cierre de fijos; chat sin la prediccion activa; diagnostico con falso positivo d
 7. **Datos manuales**: ceses_actuales con Cadiz (Borja Jimenez 22/10), Oviedo (Raul
    Gonzalez 9/11), Ceuta (Lobera 8/11), Leganes (Carrion) y Albacete (Etxeberria);
    memoria_socio con la J21 (2.510 caracteres). Suite: 729 OK.
+
+## 2026-11-16 — Liga F real en el motor (scraper gratuito)
+
+`actualizar_liga_f.py` (Wikipedia EN "2026–27 Liga F": clasificacion, 13 "Game day" y
+tabla cruzada; fallback ES; conserva el fichero previo con aviso si falla) escribe
+`data/liga_f/clasificacion.json` y `resultados.json` (16 equipos, 87 partidos a 16/11)
+con alias a los nombres "(F)" de La Quiniela (`nombre_canonico_liga_f`). En el motor,
+`ajustar_por_liga_f()` mezcla al 80% un modelo de fuerza casa/fuera + forma (X
+decreciente con el desequilibrio, logistica con +0,25 de campo) con el prior del
+motor, solo si ambos equipos son (F) con >=3 pj; la calidad_datos sube de "baja" a
+"media_baja" y se exporta `ajuste_liga_f`. Efecto J23: Granada-R.Madrid 24/25/52,
+Eibar-Atletico 29/26/45, Tenerife-Madrid CFF 61/24/15 (antes: favorito en casa por
+defecto). En el pipeline va antes de contexto_equipos. 18+4 tests; suite 751 OK. El
+smoke de predecir() ya no reescribe el snapshot pre-cierre real (guardar_json del
+modulo de snapshot anulado como el del motor).
