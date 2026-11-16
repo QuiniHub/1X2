@@ -266,3 +266,64 @@ class JornadaAprendidaFechaFuturaTests(unittest.TestCase):
             self.assertEqual(
                 objetivo.jornada_objetivo_prediccion(jornadas, historial, jugadas), 5
             )
+
+
+class JugadaRegistradaAntesDeJugarseTests(unittest.TestCase):
+    """Caso real 14/11/2026 (J21 26/27): la jugada se valido por la web el
+    miercoles; el viernes, dia del primer partido, la J21 contaba como
+    aprendida y el objetivo salto a la J22 (cargada el mismo viernes, con
+    partidos martes-jueves). La web se quedo sin prediccion el fin de semana."""
+
+    def _montar(self, base, fechas_j21, fechas_j22):
+        jornadas = base / "jornadas"
+        escribir_json(jornadas / "jornada_20.json", {"jornada": 20, "partidos": [
+            {"num": i + 1, "local": "a", "visitante": "b", "signo_oficial": "1", "fecha": "2026-11-08"}
+            for i in range(14)]})
+        escribir_json(jornadas / "jornada_21.json", {"jornada": 21, "partidos": [
+            {"num": i + 1, "local": "a", "visitante": "b", "signo_oficial": "Pendiente",
+             "fecha": fechas_j21[i % len(fechas_j21)]}
+            for i in range(14)]})
+        escribir_json(jornadas / "jornada_22.json", {"jornada": 22, "partidos": [
+            {"num": i + 1, "local": "a", "visitante": "b", "signo_oficial": "Pendiente",
+             "fecha": fechas_j22[i % len(fechas_j22)]}
+            for i in range(14)]})
+        historial = base / "historial.json"
+        escribir_json(historial, {"jornadas": []})
+        jugadas = base / "jugadas.json"
+        escribir_json(jugadas, {"jugadas": [
+            {"jornada": 20, "signos": ["1"] * 14},
+            {"jornada": 21, "signos": ["1"] * 14},  # validada por la web ANTES de jugarse
+        ]})
+        return jornadas, historial, jugadas
+
+    def test_el_dia_del_primer_partido_el_objetivo_sigue_siendo_la_jornada_en_juego(self):
+        import datetime as _dt
+        hoy = _dt.date.today()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base = Path(tmp_dir)
+            j21 = [hoy.isoformat(), (hoy + _dt.timedelta(days=1)).isoformat()]
+            j22 = [(hoy + _dt.timedelta(days=3)).isoformat(), (hoy + _dt.timedelta(days=5)).isoformat()]
+            jornadas, historial, jugadas = self._montar(base, j21, j22)
+            self.assertEqual(objetivo.ultima_jornada_aprendida(historial, jugadas, jornadas), 20)
+            self.assertEqual(objetivo.jornada_objetivo_prediccion(jornadas, historial, jugadas), 21)
+
+    def test_en_mitad_de_la_jornada_sigue_sin_saltar(self):
+        import datetime as _dt
+        hoy = _dt.date.today()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base = Path(tmp_dir)
+            j21 = [(hoy - _dt.timedelta(days=1)).isoformat(), hoy.isoformat()]
+            j22 = [(hoy + _dt.timedelta(days=2)).isoformat()]
+            jornadas, historial, jugadas = self._montar(base, j21, j22)
+            self.assertEqual(objetivo.jornada_objetivo_prediccion(jornadas, historial, jugadas), 21)
+
+    def test_el_dia_despues_del_ultimo_partido_avanza_a_la_siguiente(self):
+        import datetime as _dt
+        hoy = _dt.date.today()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base = Path(tmp_dir)
+            j21 = [(hoy - _dt.timedelta(days=2)).isoformat(), (hoy - _dt.timedelta(days=1)).isoformat()]
+            j22 = [(hoy + _dt.timedelta(days=1)).isoformat()]
+            jornadas, historial, jugadas = self._montar(base, j21, j22)
+            self.assertEqual(objetivo.ultima_jornada_aprendida(historial, jugadas, jornadas), 21)
+            self.assertEqual(objetivo.jornada_objetivo_prediccion(jornadas, historial, jugadas), 22)

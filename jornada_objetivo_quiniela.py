@@ -134,11 +134,20 @@ def ultima_jornada_aprendida(
     # reinicia) o datos contaminados. Caso real (07/09/2026): la J5 25/26
     # jugada el año pasado, con validada=True en el historial, hacia
     # saltar el objetivo a la J6 legado dias antes de jugarse la J5 26/27.
+    # Y una jornada cuyo ULTIMO partido aun no se ha jugado tampoco esta
+    # aprendida, aunque la jugada ya este registrada. Caso real (14/11/2026,
+    # J21 26/27): Marc valido la jugada por la web el miercoles 12; el viernes
+    # 14 (dia del primer partido) la J21 contaba como "aprendida" porque su
+    # primera fecha ya era <= hoy, el objetivo salto a la J22 recien cargada
+    # (17-19/11) y la compuerta bloqueo la prediccion TODO el fin de semana de
+    # la J21 ("cierre pendiente de la 21"). Se exige que el ultimo partido sea
+    # estrictamente anterior a hoy.
     hoy = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     con_fecha = [
         (fecha, numero)
         for fecha, numero in con_fecha
         if fecha and fecha[:10] <= hoy
+        and (fecha_mas_tardia_jornada_cargada(numero, jornadas_dir) or fecha)[:10] < hoy
     ]
     if con_fecha:
         return max(con_fecha)[1]
@@ -160,6 +169,21 @@ def fecha_mas_temprana(jornada_data):
 def fecha_jornada_cargada(numero, jornadas_dir=JORNADAS):
     data = cargar_json(Path(jornadas_dir) / f"jornada_{numero}.json", {})
     return fecha_mas_temprana(data) if isinstance(data, dict) else ""
+
+
+def fecha_mas_tardia(jornada_data):
+    """Ultima fecha (ISO) entre los partidos de una jornada."""
+    fechas = [
+        str(p.get("fecha") or "")
+        for p in (jornada_data.get("partidos") or [])
+        if isinstance(p, dict) and p.get("fecha")
+    ]
+    return max(fechas) if fechas else ""
+
+
+def fecha_mas_tardia_jornada_cargada(numero, jornadas_dir=JORNADAS):
+    data = cargar_json(Path(jornadas_dir) / f"jornada_{numero}.json", {})
+    return fecha_mas_tardia(data) if isinstance(data, dict) else ""
 
 
 def jornada_objetivo_prediccion(

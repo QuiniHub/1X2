@@ -1080,6 +1080,29 @@ def partido_es_derbi(partido):
     return "derbi" in texto or "clasico" in texto or "maxima rivalidad" in texto
 
 
+def fuente_losilla_para_jornada(fuente_losilla, jornada):
+    """Devuelve la fuente Losilla sin su bloque de probabilidades/mercado si
+    ese bloque es de OTRA jornada. Caso real (8/11/2026 22:28, primera
+    prediccion de la J21): Losilla aun publicaba la J20 y el motor caso por
+    NUMERO de partido: el Almeria-Andorra (P3 de la J21) heredo el 8/11/81
+    del Valencia-Madrid (P3 de la J20) como "consenso publico", con ajuste
+    de mercado activo y aviso de "favorito distinto". Sin jornada en la
+    fuente (datos antiguos) no se toca nada."""
+    probabilidades = ((fuente_losilla or {}).get("probabilidades") or {})
+    jornada_fuente = probabilidades.get("jornada")
+    try:
+        distinta = (
+            jornada is not None and jornada_fuente is not None
+            and int(jornada_fuente) != int(jornada)
+        )
+    except (TypeError, ValueError):
+        distinta = False
+    if not distinta:
+        return fuente_losilla
+    print(f"AVISO fuente_losilla: mercado de la jornada {jornada_fuente}, se ignora para la jornada {jornada}.")
+    return {**fuente_losilla, "probabilidades": {}}
+
+
 def partido_losilla_por_numero_o_equipos(fuente_losilla, partido):
     partidos = (((fuente_losilla or {}).get("probabilidades") or {}).get("partidos") or [])
     numero = partido.get("num") or partido.get("numero")
@@ -3231,6 +3254,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     fuente_lesiones_respaldo = cargar_json(FUENTE_LESIONES_RESPALDO, {})
     modelo_runtime = preparar_modelo_predictivo_runtime(ROOT)
     jornada = jornada or detectar_jornada_activa()
+    fuente_losilla = fuente_losilla_para_jornada(fuente_losilla, jornada)
     data = cargar_json(JORNADAS / f"jornada_{jornada}.json", {})
     partidos_base = [p for p in data.get("partidos", []) if int(p.get("num", 0)) <= 14]
     if not partidos_base:

@@ -1811,3 +1811,28 @@ decision: favorito en zona = nunca fijo, cobertura con el signo del rayo o tripl
 Integracion en radar_tormenta.py pendiente de un feed de forma por equipo en el
 motor (candidato tecnico; no se improvisa). La X sigue siendo la escapatoria mas
 frecuente en zona (33-34%): la señal degrada al favorito, no elige el signo.
+
+## 2026-11-16 — Dos bugs de la J21 (fin de semana sin prediccion en la web)
+
+1. **Salto prematuro de jornada objetivo.** `ultima_jornada_aprendida()` daba por
+   aprendida una jornada en cuanto tenia jugada registrada y su PRIMERA fecha era
+   <= hoy. Marc valido la J21 por la web el miercoles 12/11; el viernes 14 a las
+   03:02 (dia del primer partido) la J21 paso a "aprendida", el objetivo salto a la
+   J22 (cargada esa misma noche, partidos martes-jueves) y la compuerta bloqueo la
+   prediccion de la J22 "hasta cerrar la 21": la web se quedo sin prediccion
+   durante todo el fin de semana de la J21. Fix: una jornada solo cuenta como
+   aprendida si su ULTIMO partido es estrictamente anterior a hoy
+   (`fecha_mas_tardia_jornada_cargada`). Verificado contra el repo real
+   congelando la fecha: 14/11 03:00 -> objetivo 21 (antes 22), 15/11 23:00 -> 21,
+   16/11 -> 22, 09/11 -> 21. 3 tests nuevos en test_jornada_objetivo_quiniela.
+2. **Mercado Losilla de otra jornada casado por numero.** El 8/11 22:28 (primera
+   prediccion de la J21) Losilla aun publicaba la J20 y
+   `partido_losilla_por_numero_o_equipos` caso por numero: el Almeria-Andorra (P3)
+   heredo el 7/11/81 del Valencia-Madrid con ajuste de mercado activo. Ese estado
+   contaminado es ademas el que quedo congelado en el snapshot pre-cierre
+   (inmutable desde la primera generacion). Fix: `fuente_losilla_para_jornada()`
+   vacia el bloque de probabilidades si su jornada no es la objetivo (3 tests en
+   test_fuente_losilla_por_jornada). Pendiente de decidir con Marc: si el snapshot
+   pre-cierre debe refrescarse hasta el primer partido en vez de congelarse en la
+   primera generacion (hoy el backtest "pre-cierre" de la J21 evalua la foto del
+   8/11, 9/14, y no la del cierre, 10/14). Suite: 712 OK.
