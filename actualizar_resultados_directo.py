@@ -485,6 +485,10 @@ def sincronizar_calendario_liga(partidos):
             for p_cal in jornada.get("partidos", []):
                 if _fecha_calendario_es_futura(p_cal):
                     continue
+                if str(p_cal.get("estado") or "").strip().lower() == "suspendido":
+                    # Rayo-Athletic 11/10/2026: la Quiniela lo cerro con el 0-0
+                    # del minuto 25, pero en LaLiga esta pendiente de jugarse.
+                    continue
                 for p_q in partidos:
                     resultado = p_q.get("resultado")
                     if not resultado or resultado == "Pendiente":

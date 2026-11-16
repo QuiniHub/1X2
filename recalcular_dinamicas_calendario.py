@@ -122,20 +122,29 @@ def historial_liga(liga, tabla):
             gl, gv = resultado
             local = resolver_clave(partido.get("local"), indice_tabla)
             visitante = resolver_clave(partido.get("visitante"), indice_tabla)
+            fecha = str(partido.get("fecha") or "")[:10]
             historial.setdefault(local, []).append({
                 "jornada": num_jornada,
+                "fecha": fecha,
                 "pts": puntos_partido(gl, gv),
                 "gf": gl,
                 "gc": gv,
             })
             historial.setdefault(visitante, []).append({
                 "jornada": num_jornada,
+                "fecha": fecha,
                 "pts": puntos_partido(gv, gl),
                 "gf": gv,
                 "gc": gl,
             })
+    # Orden CRONOLOGICO (fecha real), no por numero de jornada: un partido
+    # aplazado (Levante-Athletic de la J5 jugado el 21/10, tras la J9) se
+    # colaba "al principio" de la racha y el Athletic salia con 6 sin perder
+    # cuando llevaba 3 (auditoria 16/11/2026). Mismo patron numero-vs-fecha
+    # corregido ya 9 veces en el proyecto. Sin fecha, el numero sigue siendo
+    # la pista.
     for clave in historial:
-        historial[clave].sort(key=lambda item: int(item.get("jornada") or 0))
+        historial[clave].sort(key=lambda item: (item.get("fecha") or "", int(item.get("jornada") or 0)))
     return historial
 
 

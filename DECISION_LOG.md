@@ -1836,3 +1836,29 @@ frecuente en zona (33-34%): la señal degrada al favorito, no elige el signo.
    pre-cierre debe refrescarse hasta el primer partido en vez de congelarse en la
    primera generacion (hoy el backtest "pre-cierre" de la J21 evalua la foto del
    8/11, 9/14, y no la del cierre, 10/14). Suite: 712 OK.
+
+## 2026-11-16 — Auditoria de la web (OK de Marc): premios reales, partido suspendido y rachas por fecha
+
+1. **Premios inflados en el Historial.** `calcular_premios.py` valoraba cada boleto
+   como el desarrollo DIRECTO de sus dobles/triples, aunque la jugada fuera una
+   reducida (J16: 285,70 EUR calculados vs 24,26 reales; J17 2,76 vs 0; J18
+   672,54 vs 0 -Marc lo confirmo-; J20 103,98 vs 6,82). Total web 1.368,96 vs
+   335,06 reales. Ahora: `premio_eur` declarado en quinielas_jugadas.json manda
+   (fuente `confirmado_usuario`, incluido el 0), una `modalidad` reducida sin
+   premio declarado queda `pendiente_reducida` (nunca se estima), y un registro
+   desalineado con la jugada se rehace. 5 tests nuevos.
+2. **0-0 fantasma del Rayo-Athletic (11/10, suspendido al 25').** Estaba "Jugado
+   0-0" en calendario_primera y entraba en forma/rachas. Correccion de datos via
+   correcciones_resultados.json (estado_calendario "Suspendido", sin tocar la
+   jornada 12 de la Quiniela, cuyo signo oficial LAE fue X), y guardia en los dos
+   sincronizadores de calendario para no volver a marcarlo "Jugado". 2 tests.
+3. **Rachas por numero de jornada, no por fecha** (`construir_clasificacion` en
+   actualizar_ligas_football_data y `historial_liga` en recalcular_dinamicas):
+   el Levante-Athletic aplazado (J5 jugado el 21/10) se colaba al principio y el
+   Athletic salia con "6 sin perder" (real: 3; forma_5 9 -> 8). Patron
+   numero-vs-fecha, 9a correccion. 2 tests. Suite: 721 OK.
+Pendientes de decision (analisis entregado a Marc): snapshot pre-cierre
+congelado en la 1a generacion; pesos dinamicos saturados en sus topes;
+generador con 1 doble que no lo pone en el toss; lista de empatadores fuera del
+cierre de fijos; chat sin la prediccion activa; diagnostico con falso positivo de
+"jornada activa"; escrutinio placebo en fuente_losilla; ceses manuales.

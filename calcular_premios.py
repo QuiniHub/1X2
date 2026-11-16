@@ -805,6 +805,56 @@ def partidos_principales_cerrados(resultados):
     )
 
 
+def premio_declarado_en_jugada(jornada):
+    """Premio REAL cobrado que Marc dejo escrito en quinielas_jugadas.json
+    (campo premio_eur). Es la fuente de verdad: un boleto reducido no se puede
+    valorar desde fuera (el desarrollo de columnas lo conoce solo quien lo
+    sello). None si no esta declarado."""
+    jugada = jugada_por_jornada(jornada) or {}
+    valor = jugada.get("premio_eur")
+    if valor is None or isinstance(valor, bool):
+        return None
+    try:
+        return float(valor)
+    except (TypeError, ValueError):
+        return None
+
+
+def jugada_es_reducida(jornada):
+    """True si la modalidad registrada en quinielas_jugadas.json es una
+    reducida (LAE o Losilla/Super13): entonces las columnas jugadas NO son el
+    desarrollo directo de dobles/triples y calcular_premio_multicolumna
+    sobreestima el premio. Caso real (auditoria 16/11/2026): J16 285,70 EUR
+    calculados vs 24,26 reales; J18 672,54 vs 0; J20 103,98 vs 6,82."""
+    jugada = jugada_por_jornada(jornada) or {}
+    modalidad = str(jugada.get("modalidad") or "").lower()
+    return any(clave in modalidad for clave in ("reducid", "super13", "super_13", "condicionad"))
+
+
+def premio_desalineado_con_jugada(entry, jornada):
+    """True si el registro del historial contradice lo que dice la jugada real:
+    hay premio declarado por Marc y el registro no lo usa, o la jugada es una
+    reducida y el registro la valoro como desarrollo directo."""
+    declarado = premio_declarado_en_jugada(jornada)
+    if declarado is not None:
+        if entry.get("fuente_premio") != "confirmado_usuario":
+            return True
+        try:
+            return abs(float(entry.get("premio_eur") or 0.0) - declarado) > 0.005
+        except (TypeError, ValueError):
+            return True
+    if jugada_es_reducida(jornada) and entry.get("fuente_premio") == "multicolumna_loteriaanta":
+        return True
+    return False
+
+
+NOTA_REDUCIDA = (
+    "Boleto REDUCIDO: las columnas jugadas no son el desarrollo directo de dobles/triples, "
+    "asi que el premio no se calcula desde fuera. Pendiente de que Marc declare premio_eur "
+    "en quinielas_jugadas.json (0 si no se cobro)."
+)
+
+
 def registro_jornada(jornada):
     prediccion = leer_prediccion_jornada(jornada)
     resultados = leer_resultados_jornada(jornada)
@@ -818,7 +868,14 @@ def registro_jornada(jornada):
     # eduardolosilla.es primero (escrutinio oficial, mas fiable); loteriaanta.com de respaldo.
     tabla_premios = buscar_tabla_premios_losilla(jornada) or buscar_tabla_premios_loteriaanta(jornada)
     desglose_columnas = None
-    if tabla_premios and aciertos >= 10:
+    declarado = premio_declarado_en_jugada(jornada)
+    if declarado is not None:
+        premio, fuente = declarado, "confirmado_usuario"
+        print(f"J{jornada}: premio declarado por Marc en quinielas_jugadas = {premio} EUR")
+    elif jugada_es_reducida(jornada) and aciertos >= 10:
+        premio, fuente = 0.0, "pendiente_reducida"
+        print(f"J{jornada}: boleto reducido sin premio declarado -no se valora como desarrollo directo")
+    elif tabla_premios and aciertos >= 10:
         resultado_multi = calcular_premio_multicolumna(prediccion, resultados, tabla_premios, gano_elige8, seleccion)
         if resultado_multi and resultado_multi.get("total", 0) > 0 and resultado_multi["total"] <= PREMIO_TOTAL_MAXIMO_PLAUSIBLE:
             premio = resultado_multi["total"]
@@ -861,7 +918,11 @@ def registro_jornada(jornada):
         "elige8_seleccion": list(seleccion),
         "elige8_acertado": gano_elige8,
         "detalle_partidos": detalle,
-        "notas": "Premio calculado considerando todas las columnas del boleto (dobles/triples).",
+        "notas": (
+            "Premio real declarado por Marc en quinielas_jugadas.json." if fuente == "confirmado_usuario"
+            else NOTA_REDUCIDA if fuente == "pendiente_reducida"
+            else "Premio calculado considerando todas las columnas del boleto (dobles/triples)."
+        ),
     }
     if tabla_premios:
         reg["tabla_premios"] = tabla_premios
@@ -1036,7 +1097,22 @@ def refrescar_premio_real(entry):
     aciertos = entry.get("aciertos")
     if not isinstance(jornada, int) or not isinstance(aciertos, int):
         return False
+    declarado = premio_declarado_en_jugada(jornada)
+    if declarado is not None:
+        entry["premio_eur"] = declarado
+        entry["fuente_premio"] = "confirmado_usuario"
+        entry.pop("desglose_columnas", None)
+        entry["notas"] = "Premio real declarado por Marc en quinielas_jugadas.json."
+        return True
     if int(aciertos) < 10:
+        return False
+    if jugada_es_reducida(jornada):
+        if entry.get("fuente_premio") != "pendiente_reducida":
+            entry["premio_eur"] = 0.0
+            entry["fuente_premio"] = "pendiente_reducida"
+            entry.pop("desglose_columnas", None)
+            entry["notas"] = NOTA_REDUCIDA
+            return True
         return False
 
     if entry.get("fuente_premio") in ("estimado", "fallback") or premio_labruja_invalido(entry):
@@ -1102,7 +1178,7 @@ def main():
             continue
 
         existente = registros.get(jornada)
-        if existente and premio_confirmado_usuario(existente):
+        if existente and premio_confirmado_usuario(existente) and not premio_desalineado_con_jugada(existente, jornada):
             continue
         mejorable = bool(existente) and puede_mejorarse_con_jugada_real(existente, jornada)
         # Un recuento protegido tambien debe rehacerse si los resultados
@@ -1110,6 +1186,10 @@ def main():
         # aplazado que se resuelve por sorteo, resultado mal scrapeado que
         # se corrige...). Sin esto el numero se congelaba para siempre.
         if existente and resultados_oficiales_cambiados(existente, jornada):
+            mejorable = True
+        # Marc ha declarado el premio real, o la jugada es una reducida que
+        # se valoro como desarrollo directo: rehacer el registro.
+        if existente and premio_desalineado_con_jugada(existente, jornada):
             mejorable = True
         # Si hay registro existente con aciertos protegidos, no recalcular
         # (salvo que ahora exista la jugada realmente jugada y el registro

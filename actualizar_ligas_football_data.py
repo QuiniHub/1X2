@@ -416,6 +416,10 @@ def _fecha_es_futura(fecha_iso_str, hoy):
         return False
 
 
+def partido_suspendido(partido):
+    return str((partido or {}).get("estado") or "").strip().lower() == "suspendido"
+
+
 def actualizar_calendario(liga, resultados):
     calendario_path = LIGAS[liga]["calendario"]
     calendario = cargar_json(calendario_path, {"competicion": liga, "jornadas": []})
@@ -444,6 +448,12 @@ def actualizar_calendario(liga, resultados):
         fecha_referencia = resultado.get("fecha") or partido.get("fecha")
         if fecha_referencia and _fecha_es_futura(fecha_referencia, hoy):
             ignorados_fecha_futura.append(f"{resultado['local']} - {resultado['visitante']} ({fecha_referencia})")
+            continue
+        if partido_suspendido(partido):
+            # Caso real (auditoria 16/11/2026): Rayo-Athletic del 11/10/2026,
+            # suspendido en el minuto 25 con 0-0, quedo "Jugado 0-0" y entro
+            # en la forma de los dos equipos. Una casilla marcada Suspendido
+            # (via correcciones_resultados.json) solo la reabre otra correccion.
             continue
         previo = (partido.get("resultado") or "").strip()
         if previo != resultado["resultado"] or partido.get("estado") != "Jugado":
@@ -552,18 +562,31 @@ def puntos_ultimos(ultimos, limite):
     return sum(valor.get(signo, 0) for signo in ultimos[-limite:])
 
 
+def partidos_en_orden_cronologico(calendario):
+    """Partidos del calendario ordenados por FECHA real (y numero de jornada
+    como desempate), no por numero de jornada. Un aplazado (Levante-Athletic
+    de la J5 jugado el 21/10, tras la J9) ordenado por numero se colaba al
+    principio de la racha: el Athletic salia con 6 sin perder cuando llevaba
+    3 (auditoria 16/11/2026). Patron numero-vs-fecha, corregido ya 9 veces."""
+    filas = []
+    for jornada in calendario.get("jornadas", []):
+        num = int(jornada.get("jornada", 0) or 0)
+        for partido in jornada.get("partidos", []):
+            filas.append((str(partido.get("fecha") or "")[:10], num, partido))
+    filas.sort(key=lambda fila: (fila[0], fila[1]))
+    return [fila[2] for fila in filas]
+
+
 def construir_clasificacion(calendario):
     tabla = {}
     jugados = 0
-    jornadas = sorted(calendario.get("jornadas", []), key=lambda j: int(j.get("jornada", 0) or 0))
-    for jornada in jornadas:
-        for partido in jornada.get("partidos", []):
-            marcador = parse_resultado(partido)
-            if not marcador:
-                continue
-            gl, gv = marcador
-            aplicar_partido(tabla, partido.get("local"), partido.get("visitante"), gl, gv)
-            jugados += 1
+    for partido in partidos_en_orden_cronologico(calendario):
+        marcador = parse_resultado(partido)
+        if not marcador:
+            continue
+        gl, gv = marcador
+        aplicar_partido(tabla, partido.get("local"), partido.get("visitante"), gl, gv)
+        jugados += 1
 
     equipos = list(tabla.values())
     equipos.sort(key=lambda e: (-e["puntos"], -e["dg"], -e["gf"], e["equipo"]))
