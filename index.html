@@ -1044,7 +1044,9 @@
         );
         const sinDueno = restantes.filter(m => (Number(m.probabilidad_top) || 100) < 40);
         const conDueno = restantes.filter(m => (Number(m.probabilidad_top) || 100) >= 40);
-        const porDoble = (state.dobles < sinDueno.length)
+        // Siempre primero los sin dueno (un toss a fijo es la peor casilla del
+        // boleto); con mas dobles que tosses, el resto por prioridad del motor.
+        const porDoble = sinDueno.length
           ? [...porPrioridad(sinDueno), ...porPrioridad(conDueno)]
           : porPrioridad(restantes);
         doblesSet = new Set(porDoble.slice(0, state.dobles).map(numDe));
