@@ -1,41 +1,41 @@
 {
   "version": "1.2",
-  "precision": 69.38,
+  "precision": 69.57,
   "jornadas_revisadas": 40,
   "partidos_revisados": 552,
-  "aciertos": 383,
-  "fallos": 169,
+  "aciertos": 384,
+  "fallos": 168,
   "fallos_por_tipo": {
     "Doble insuficiente": 33,
     "Fijo fallado": 71,
-    "No cubrio empate": 65
+    "No cubrio empate": 64
   },
   "fallos_por_signo_real": {
     "1": 39,
     "2": 65,
-    "X": 65
+    "X": 64
   },
   "signos_omitidos_en_fallo": {
     "1": 39,
     "2": 65,
-    "X": 65
+    "X": 64
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 146,
-      "aciertos": 113,
+      "total": 145,
+      "aciertos": 112,
       "fallos": 33,
-      "precision": 77.4
+      "precision": 77.24
     },
     "FIJO": {
       "total": 336,
-      "aciertos": 200,
-      "fallos": 136,
-      "precision": 59.52
+      "aciertos": 201,
+      "fallos": 135,
+      "precision": 59.82
     },
     "TRIPLE": {
-      "total": 70,
-      "aciertos": 70,
+      "total": 71,
+      "aciertos": 71,
       "fallos": 0,
       "precision": 100.0
     }
@@ -55,9 +55,9 @@
     },
     "X": {
       "total": 125,
-      "aciertos": 60,
-      "fallos": 65,
-      "precision": 48.0
+      "aciertos": 61,
+      "fallos": 64,
+      "precision": 48.8
     }
   },
   "detalle": [
@@ -28386,9 +28386,9 @@
       "motivo_error": "",
       "origen": "data/predicciones/jornada_22.json",
       "probabilidades_usadas": {
-        "1": 47.0,
-        "X": 27.2,
-        "2": 25.8
+        "1": 49.0,
+        "X": 26.8,
+        "2": 24.2
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -28423,19 +28423,19 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (47.0%).",
-        "hipotesis_alternativa": "X como alternativa (27.2%).",
+        "hipotesis_principal": "1 como signo dominante (49.0%).",
+        "hipotesis_alternativa": "X como alternativa (26.8%).",
         "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
         "riesgo_de_sorpresa": {
           "categoria": "sorpresa_vigilada",
-          "probabilidad": 61.7,
+          "probabilidad": 57.5,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 19.8 puntos, indice sorpresa 56.6."
+        "justificacion_final": "Decision DOBLE 1X: margen 22.2 puntos, indice sorpresa 50.3."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 10.09,
+        "riesgo_extra": 9.87,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
@@ -28455,42 +28455,57 @@
         ]
       },
       "ajuste_perfiles_autonomos": {
-        "activo": false,
+        "activo": true,
         "riesgo_extra": 0.0,
-        "lecturas": []
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Bosnia: ppp=3.00; perfil visitante Rumanía: ppp=0.00."
+        ]
       },
       "perfil_autonomo_local": {
         "equipo": "Bosnia",
-        "partidos_total": 1,
+        "partidos_total": 2,
         "puntos_por_partido": 3.0,
         "empates_pct": 0.0,
-        "surprise_score_medio": 55.28,
+        "surprise_score_medio": 43.91,
         "forma_5_ppp": 3.0,
         "forma_10_ppp": 3.0,
         "racha_actual": {
           "tipo": "G",
-          "partidos": 1
+          "partidos": 2
         }
       },
-      "perfil_autonomo_visitante": {}
+      "perfil_autonomo_visitante": {
+        "equipo": "Rumanía",
+        "partidos_total": 1,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 32.86,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
     },
     {
       "jornada": 22,
       "partido": "Ucrania - Georgia",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
       "resultado": "1-0",
       "resultado_final": "1-0",
       "signo_real": "1",
-      "signos_cubiertos": "1X",
+      "signos_cubiertos": "1",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
       "origen": "data/predicciones/jornada_22.json",
       "probabilidades_usadas": {
-        "1": 47.8,
-        "X": 28.2,
-        "2": 24.0
+        "1": 49.6,
+        "X": 27.9,
+        "2": 22.5
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -28525,19 +28540,19 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (47.8%).",
-        "hipotesis_alternativa": "X como alternativa (28.2%).",
-        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "hipotesis_principal": "1 como signo dominante (49.6%).",
+        "hipotesis_alternativa": "X como alternativa (27.9%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
-          "categoria": "sorpresa_vigilada",
-          "probabilidad": 61.0,
+          "categoria": "riesgo_controlado",
+          "probabilidad": 57.1,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 19.6 puntos, indice sorpresa 56.4."
+        "justificacion_final": "Decision FIJO 1: margen 21.7 puntos, indice sorpresa 44.5."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 10.09,
+        "riesgo_extra": 9.87,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
@@ -28557,24 +28572,39 @@
         ]
       },
       "ajuste_perfiles_autonomos": {
-        "activo": false,
+        "activo": true,
         "riesgo_extra": 0.0,
-        "lecturas": []
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Ucrania: ppp=2.01; perfil visitante Georgia: ppp=0.00."
+        ]
       },
       "perfil_autonomo_local": {
         "equipo": "Ucrania",
+        "partidos_total": 2,
+        "puntos_por_partido": 1.522,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 36.0,
+        "forma_5_ppp": 1.5,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Georgia",
         "partidos_total": 1,
         "puntos_por_partido": 0.0,
         "empates_pct": 0.0,
-        "surprise_score_medio": 39.74,
+        "surprise_score_medio": 32.36,
         "forma_5_ppp": 0.0,
         "forma_10_ppp": 0.0,
         "racha_actual": {
           "tipo": "P",
           "partidos": 1
         }
-      },
-      "perfil_autonomo_visitante": {}
+      }
     },
     {
       "jornada": 22,
@@ -28590,9 +28620,9 @@
       "motivo_error": "",
       "origen": "data/predicciones/jornada_22.json",
       "probabilidades_usadas": {
-        "1": 17.9,
-        "X": 21.6,
-        "2": 60.5
+        "1": 18.3,
+        "X": 21.5,
+        "2": 60.2
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -28627,19 +28657,19 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "2 como signo dominante (60.5%).",
-        "hipotesis_alternativa": "X como alternativa (21.6%).",
+        "hipotesis_principal": "2 como signo dominante (60.2%).",
+        "hipotesis_alternativa": "X como alternativa (21.5%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
           "categoria": "riesgo_controlado",
           "probabilidad": 43.2,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision FIJO 2: margen 38.9 puntos, indice sorpresa 13.5."
+        "justificacion_final": "Decision FIJO 2: margen 38.7 puntos, indice sorpresa 20.9."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 10.09,
+        "riesgo_extra": 9.87,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
@@ -28660,37 +28690,36 @@
       },
       "ajuste_perfiles_autonomos": {
         "activo": true,
-        "riesgo_extra": 1.32,
+        "riesgo_extra": 0.0,
         "lecturas": [
           "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Gales: ppp=2.01; perfil visitante Portugal: ppp=2.41.",
-          "Memoria autonoma: historial de sorpresa medio elevado (52.4)."
+          "Perfil local Gales: ppp=1.16; perfil visitante Portugal: ppp=2.55."
         ]
       },
       "perfil_autonomo_local": {
         "equipo": "Gales",
-        "partidos_total": 2,
-        "puntos_por_partido": 1.522,
+        "partidos_total": 3,
+        "puntos_por_partido": 1.0,
         "empates_pct": 0.0,
-        "surprise_score_medio": 56.24,
-        "forma_5_ppp": 1.5,
-        "forma_10_ppp": 1.5,
+        "surprise_score_medio": 45.35,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
         "racha_actual": {
-          "tipo": "G",
+          "tipo": "P",
           "partidos": 1
         }
       },
       "perfil_autonomo_visitante": {
         "equipo": "Portugal",
-        "partidos_total": 5,
-        "puntos_por_partido": 2.6,
-        "empates_pct": 19.98,
-        "surprise_score_medio": 48.48,
+        "partidos_total": 6,
+        "puntos_por_partido": 2.672,
+        "empates_pct": 16.41,
+        "surprise_score_medio": 44.19,
         "forma_5_ppp": 2.6,
-        "forma_10_ppp": 2.6,
+        "forma_10_ppp": 2.667,
         "racha_actual": {
           "tipo": "G",
-          "partidos": 2
+          "partidos": 3
         }
       }
     },
@@ -28708,8 +28737,8 @@
       "motivo_error": "",
       "origen": "data/predicciones/jornada_22.json",
       "probabilidades_usadas": {
-        "1": 48.6,
-        "X": 28.7,
+        "1": 48.0,
+        "X": 29.3,
         "2": 22.7
       },
       "pesos_modelo": {
@@ -28745,19 +28774,19 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (48.6%).",
-        "hipotesis_alternativa": "X como alternativa (28.7%).",
+        "hipotesis_principal": "1 como signo dominante (48.0%).",
+        "hipotesis_alternativa": "X como alternativa (29.3%).",
         "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
         "riesgo_de_sorpresa": {
           "categoria": "sorpresa_vigilada",
-          "probabilidad": 60.2,
+          "probabilidad": 61.6,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 19.9 puntos, indice sorpresa 49.9."
+        "justificacion_final": "Decision DOBLE 1X: margen 18.7 puntos, indice sorpresa 57.2."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 10.09,
+        "riesgo_extra": 9.87,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
@@ -28777,42 +28806,59 @@
         ]
       },
       "ajuste_perfiles_autonomos": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 2.21,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Hungría: ppp=1.00; perfil visitante Irlanda Norte: ppp=1.00.",
+          "Memoria autonoma: tendencia de empate conjunta alta (100.0%).",
+          "Memoria autonoma: historial de sorpresa medio elevado (57.3)."
+        ]
       },
       "perfil_autonomo_local": {
         "equipo": "Hungría",
+        "partidos_total": 2,
+        "puntos_por_partido": 1.0,
+        "empates_pct": 100.0,
+        "surprise_score_medio": 57.28,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Irlanda Norte",
         "partidos_total": 1,
         "puntos_por_partido": 1.0,
         "empates_pct": 100.0,
-        "surprise_score_medio": 0.0,
+        "surprise_score_medio": 57.28,
         "forma_5_ppp": 1.0,
         "forma_10_ppp": 1.0,
         "racha_actual": {
           "tipo": "E",
           "partidos": 1
         }
-      },
-      "perfil_autonomo_visitante": {}
+      }
     },
     {
       "jornada": 22,
       "partido": "Polonia - Suecia",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
       "resultado": "1-1",
       "resultado_final": "1-1",
       "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
       "origen": "data/predicciones/jornada_22.json",
       "probabilidades_usadas": {
-        "1": 38.0,
-        "X": 29.5,
-        "2": 32.5
+        "1": 37.6,
+        "X": 30.2,
+        "2": 32.2
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -28847,19 +28893,19 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (38.0%).",
-        "hipotesis_alternativa": "2 como alternativa (32.5%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "hipotesis_principal": "1 como signo dominante (37.6%).",
+        "hipotesis_alternativa": "2 como alternativa (32.2%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
         "riesgo_de_sorpresa": {
           "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision FIJO 1: margen 5.5 puntos, indice sorpresa 94.9."
+        "justificacion_final": "Decision DOBLE 12: margen 5.4 puntos, indice sorpresa 96.2."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 10.09,
+        "riesgo_extra": 9.87,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
@@ -28879,22 +28925,39 @@
         ]
       },
       "ajuste_perfiles_autonomos": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
+        "activo": true,
+        "riesgo_extra": 2.68,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Polonia: ppp=1.00; perfil visitante Suecia: ppp=1.05.",
+          "Memoria autonoma: tendencia de empate conjunta alta (75.7%).",
+          "Memoria autonoma: historial de sorpresa medio elevado (59.9)."
+        ]
       },
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {
-        "equipo": "Suecia",
-        "partidos_total": 3,
-        "puntos_por_partido": 1.314,
-        "empates_pct": 34.3,
-        "surprise_score_medio": 56.97,
-        "forma_5_ppp": 1.333,
-        "forma_10_ppp": 1.333,
+      "perfil_autonomo_local": {
+        "equipo": "Polonia",
+        "partidos_total": 1,
+        "puntos_por_partido": 1.0,
+        "empates_pct": 100.0,
+        "surprise_score_medio": 61.59,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 1.0,
         "racha_actual": {
           "tipo": "E",
           "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Suecia",
+        "partidos_total": 4,
+        "puntos_por_partido": 1.232,
+        "empates_pct": 51.44,
+        "surprise_score_medio": 58.17,
+        "forma_5_ppp": 1.25,
+        "forma_10_ppp": 1.25,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 2
         }
       }
     },
@@ -28912,9 +28975,9 @@
       "motivo_error": "",
       "origen": "data/predicciones/jornada_22.json",
       "probabilidades_usadas": {
-        "1": 48.9,
+        "1": 50.9,
         "X": 28.7,
-        "2": 22.4
+        "2": 20.4
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -28949,19 +29012,19 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (48.9%).",
+        "hipotesis_principal": "1 como signo dominante (50.9%).",
         "hipotesis_alternativa": "X como alternativa (28.7%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
-          "categoria": "sorpresa_vigilada",
-          "probabilidad": 59.8,
+          "categoria": "riesgo_controlado",
+          "probabilidad": 55.8,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision FIJO 1: margen 20.2 puntos, indice sorpresa 49.6."
+        "justificacion_final": "Decision FIJO 1: margen 22.2 puntos, indice sorpresa 38.7."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 10.09,
+        "riesgo_extra": 9.87,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
@@ -28981,12 +29044,39 @@
         ]
       },
       "ajuste_perfiles_autonomos": {
-        "activo": false,
+        "activo": true,
         "riesgo_extra": 0.0,
-        "lecturas": []
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Eire: ppp=2.01; perfil visitante Kosovo: ppp=0.00."
+        ]
       },
-      "perfil_autonomo_local": {},
-      "perfil_autonomo_visitante": {}
+      "perfil_autonomo_local": {
+        "equipo": "Eire",
+        "partidos_total": 2,
+        "puntos_por_partido": 2.014,
+        "empates_pct": 49.28,
+        "surprise_score_medio": 40.89,
+        "forma_5_ppp": 2.0,
+        "forma_10_ppp": 2.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Kosovo",
+        "partidos_total": 1,
+        "puntos_por_partido": 0.0,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 31.68,
+        "forma_5_ppp": 0.0,
+        "forma_10_ppp": 0.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 1
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -29003,15 +29093,15 @@
     "partidos_base": 552,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 30.62,
-      "no_cubrio_empate_sobre_fallos_pct": 38.46,
-      "no_cubrio_empate_sobre_total_pct": 11.78,
-      "fijo_fallado_sobre_fallos_pct": 42.01,
+      "fallos_total_pct": 30.43,
+      "no_cubrio_empate_sobre_fallos_pct": 38.1,
+      "no_cubrio_empate_sobre_total_pct": 11.59,
+      "fijo_fallado_sobre_fallos_pct": 42.26,
       "fijo_fallado_sobre_total_pct": 12.86,
       "doble_insuficiente_sobre_total_pct": 5.98
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 2.09,
+    "riesgo_extra_fijo_fragil": 2.14,
     "riesgo_extra_triple_insuficiente": 1.78,
     "min_dobles_auto": 0,
     "min_triples_auto": 0,
