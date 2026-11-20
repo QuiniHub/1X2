@@ -2,7 +2,7 @@
   "version": 1,
   "descripcion": "Cuaderno de meta-aprendizaje por modulo (15/10/2026): que prometio cada modulo y que entrego, jornada a jornada, con datos pre-cierre (snapshots inmutables + % LAE versionados). Los semaforos y auto-correcciones llevan sus frenos prerregistrados.",
   "temporada": "2026_2027",
-  "actualizado_en": "2026-11-19T18:36:58.239436+00:00",
+  "actualizado_en": "2026-11-20T01:11:40.383573+00:00",
   "jornadas_cerradas": [
     1,
     2,
@@ -24,7 +24,8 @@
     18,
     19,
     20,
-    21
+    21,
+    22
   ],
   "jornadas": {
     "1": {
@@ -2910,6 +2911,68 @@
         ],
         "fijos_sin_probabilidad": 0
       }
+    },
+    "22": {
+      "dixon_coles": {
+        "estado": "sin_cobertura",
+        "partidos": 0,
+        "sin_cobertura": 14,
+        "motivo": "Dixon-Coles no cubre ningun partido de la jornada (selecciones/ligas extranjeras).",
+        "version_calculo": 1
+      },
+      "boleto_ev": {
+        "estado": "ok",
+        "fuente_boleto_ev": "snapshot_pre_cierre",
+        "signos_ev": [
+          "X2",
+          "2",
+          "2",
+          "1X",
+          "1X2",
+          "X",
+          "1",
+          "2",
+          "1",
+          "X",
+          "2",
+          "X2",
+          "1",
+          "12"
+        ],
+        "apuestas_ev": 48,
+        "aciertos_ev": 10,
+        "aciertos_conservador": 13,
+        "aciertos_jugado": null,
+        "nota": "Premios hipoteticos de quiniela (categorias 10-14) con la tabla REAL del escrutinio; sin Elige 8 ni Pleno al 15, igual para los tres boletos.",
+        "premios_tabla_real_eur": {
+          "ev": 0.0,
+          "conservador": 50.0,
+          "jugado": null
+        }
+      },
+      "valiente": {
+        "estado": "valiente",
+        "fuente": "marcador_sombra",
+        "partido": "Austria Wien W - Bayern Munich W",
+        "signo": "1",
+        "prob_declarada": 31.6,
+        "masa_pct": 14.0,
+        "senales": [
+          "favorito_distinto_mercado"
+        ],
+        "signo_real": "2",
+        "acierto": false,
+        "pago_hipotetico_eur": 0.0
+      },
+      "revulsivo": {
+        "estado": "ok",
+        "casos": [],
+        "fuente": "snapshot_pre_cierre"
+      },
+      "fijos_banda": {
+        "estado": "sin_jugada_real",
+        "motivo": "Jornada sin quiniela validada esta temporada."
+      }
     }
   },
   "resumen": {
@@ -2930,8 +2993,8 @@
       "titular": "39,67 € hipoteticos vs 159,74 € nuestros",
       "valor": 39.67,
       "comparacion": 159.74,
-      "conservador_eur": 64.63,
-      "jornadas": 11,
+      "conservador_eur": 114.63,
+      "jornadas": 12,
       "promesa": "Maximizar euros, no aciertos. Umbral de sanidad prerregistrado: cobrar >=50% de lo realmente jugado (es estrategia de cola: pierde premios pequeños a cambio de colas raras).",
       "ultimo_ajuste": {
         "estado": "ajustado",
@@ -2940,7 +3003,7 @@
         "escrutinios": 21,
         "celdas": 87,
         "freno": "Solo con >=10 escrutinios reales; mediana real/modelo sobre celdas con >=10 acertantes; acotado a [0.5x - 2.0x].",
-        "actualizado_en": "2026-11-19T18:36:58.239436+00:00",
+        "actualizado_en": "2026-11-20T01:11:40.383573+00:00",
         "historial": [
           {
             "fecha": "2026-10-15T06:46:27.417986+00:00",
@@ -3002,10 +3065,10 @@
     "valiente": {
       "semaforo": "ambar",
       "texto_semaforo": "en vigilancia: por debajo de lo esperado, sin suspender",
-      "titular": "1 aciertos vs 1,6 esperados",
+      "titular": "1 aciertos vs 2,0 esperados",
       "valor": 1,
-      "comparacion": 1.65,
-      "evaluadas": 6,
+      "comparacion": 1.96,
+      "evaluadas": 7,
       "fuente": "marcador de sombra",
       "senales_suspendidas": [],
       "por_senal": {
@@ -3026,6 +3089,12 @@
           "aciertos": 0,
           "esperados": 0.31,
           "suspendida": false
+        },
+        "favorito_distinto_mercado": {
+          "valientes": 1,
+          "aciertos": 0,
+          "esperados": 0.32,
+          "suspendida": false
         }
       },
       "promesa": "En sombra: aciertos reales >= esperados (suma de probabilidades declaradas).",
@@ -3033,7 +3102,7 @@
         "estado": "sin_ajuste",
         "senales_suspendidas": [],
         "freno": "Una señal con >=8 valientes propias y aciertos < 50% de esperados se suspende sola (senal_valiente.py) y se anuncia. Ningun umbral estructural se auto-cambia.",
-        "actualizado_en": "2026-11-19T18:36:58.239436+00:00",
+        "actualizado_en": "2026-11-20T01:11:40.383573+00:00",
         "motivo": "Ninguna señal cumple el freno de suspension (>=8 propias y <50% de esperados)."
       }
     },
@@ -3054,15 +3123,15 @@
         },
         "estado": "sin_ajuste",
         "motivo": "Freno: hacen falta >=10 casos nuevos 26/27 por lado (hay fuera=2, casa=2).",
-        "actualizado_en": "2026-11-19T18:36:58.239436+00:00"
+        "actualizado_en": "2026-11-20T01:11:40.383573+00:00"
       }
     },
     "fijos_banda": {
       "semaforo": "verde",
       "texto_semaforo": "cumple su promesa: tus fijos rinden lo que promete su banda real",
-      "titular": "109 de 182 fijos vs 107,8 esperados",
+      "titular": "109 de 182 fijos vs 107,6 esperados",
       "valor": 109,
-      "comparacion": 107.83,
+      "comparacion": 107.59,
       "fijos_evaluados": 182,
       "por_banda": {
         "10-20": {
@@ -3080,13 +3149,13 @@
         "30-40": {
           "jugados": 23,
           "aciertos": 12,
-          "promesa_pct": 44.6,
+          "promesa_pct": 43.6,
           "acierto_pct": 52.2
         },
         "40-50": {
           "jugados": 58,
           "aciertos": 31,
-          "promesa_pct": 55.3,
+          "promesa_pct": 54.2,
           "acierto_pct": 53.4
         },
         "50-60": {
@@ -3098,7 +3167,7 @@
         "60-70": {
           "jugados": 33,
           "aciertos": 28,
-          "promesa_pct": 84.6,
+          "promesa_pct": 86.5,
           "acierto_pct": 84.8
         }
       },

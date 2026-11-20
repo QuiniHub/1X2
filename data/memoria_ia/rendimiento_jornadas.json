@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-19T18:36:59.050160+00:00",
+  "generado_en": "2026-11-20T01:11:41.998737+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -2944,22 +2944,22 @@
     },
     "22": {
       "jornada": 22,
-      "partidos_cerrados": 10,
-      "partidos_con_prediccion": 10,
-      "precision_boleto": 100.0,
-      "precision_top1": 80.0,
-      "brier_medio": 0.5927,
-      "logloss_medio": 0.9879,
+      "partidos_cerrados": 14,
+      "partidos_con_prediccion": 14,
+      "precision_boleto": 78.57,
+      "precision_top1": 64.29,
+      "brier_medio": 0.6192,
+      "logloss_medio": 1.0279,
       "por_tipo": {
         "FIJO": {
-          "total": 6,
-          "aciertos": 6,
-          "precision": 100.0
+          "total": 8,
+          "aciertos": 7,
+          "precision": 87.5
         },
         "DOBLE": {
-          "total": 2,
+          "total": 4,
           "aciertos": 2,
-          "precision": 100.0
+          "precision": 50.0
         },
         "TRIPLE": {
           "total": 2,
@@ -2968,18 +2968,39 @@
         }
       },
       "elige8": {
-        "selecciones": 6,
-        "aciertos": 6,
-        "precision": 100.0
+        "selecciones": 8,
+        "aciertos": 7,
+        "precision": 87.5
       },
-      "surprise_score_medio": 40.44,
+      "surprise_score_medio": 44.47,
       "ranking_incertidumbre": [
+        {
+          "num": 14,
+          "partido": "Benfica W - Roma W",
+          "incertidumbre": 142.02,
+          "surprise_score": 59.85,
+          "margen_probabilidad": 0.5
+        },
         {
           "num": 8,
           "partido": "Häcken W - Manchester City W",
-          "incertidumbre": 139.91,
+          "incertidumbre": 140.63,
           "surprise_score": 49.0,
           "margen_probabilidad": 0.8008
+        },
+        {
+          "num": 3,
+          "partido": "Gales - Portugal",
+          "incertidumbre": 140.48,
+          "surprise_score": 49.65,
+          "margen_probabilidad": 1.4014
+        },
+        {
+          "num": 12,
+          "partido": "Arsenal W - Lyon W",
+          "incertidumbre": 139.54,
+          "surprise_score": 60.76,
+          "margen_probabilidad": 1.8
         },
         {
           "num": 1,
@@ -2987,20 +3008,6 @@
           "incertidumbre": 139.44,
           "surprise_score": 38.75,
           "margen_probabilidad": 1.8
-        },
-        {
-          "num": 3,
-          "partido": "Gales - Portugal",
-          "incertidumbre": 139.34,
-          "surprise_score": 49.65,
-          "margen_probabilidad": 1.4014
-        },
-        {
-          "num": 4,
-          "partido": "Hungría - Irlanda Norte",
-          "incertidumbre": 138.61,
-          "surprise_score": 39.21,
-          "margen_probabilidad": 5.0949
         },
         {
           "num": 9,
@@ -3022,26 +3029,25 @@
           "incertidumbre": 137.23,
           "surprise_score": 37.63,
           "margen_probabilidad": 3.9
-        },
-        {
-          "num": 5,
-          "partido": "Polonia - Suecia",
-          "incertidumbre": 136.93,
-          "surprise_score": 38.46,
-          "margen_probabilidad": 6.7932
         }
       ],
       "ranking_elige8_confianza_real": [
         {
           "num": 8,
           "partido": "Häcken W - Manchester City W",
-          "confianza_real_elige8": 49.32,
+          "confianza_real_elige8": 49.21,
           "elige8": false
         },
         {
           "num": 3,
           "partido": "Gales - Portugal",
-          "confianza_real_elige8": 40.43,
+          "confianza_real_elige8": 40.24,
+          "elige8": false
+        },
+        {
+          "num": 9,
+          "partido": "Chelsea W - Paris Saint Germain W",
+          "confianza_real_elige8": 16.48,
           "elige8": false
         },
         {
@@ -3051,9 +3057,15 @@
           "elige8": false
         },
         {
-          "num": 4,
-          "partido": "Hungría - Irlanda Norte",
-          "confianza_real_elige8": 11.79,
+          "num": 12,
+          "partido": "Arsenal W - Lyon W",
+          "confianza_real_elige8": 13.18,
+          "elige8": false
+        },
+        {
+          "num": 14,
+          "partido": "Benfica W - Roma W",
+          "confianza_real_elige8": 12.02,
           "elige8": false
         },
         {
@@ -3063,20 +3075,8 @@
           "elige8": true
         },
         {
-          "num": 5,
-          "partido": "Polonia - Suecia",
-          "confianza_real_elige8": 0.0,
-          "elige8": true
-        },
-        {
-          "num": 6,
-          "partido": "Eire - Kosovo",
-          "confianza_real_elige8": 0.0,
-          "elige8": true
-        },
-        {
-          "num": 7,
-          "partido": "Real Madrid (F) - Inter Milano W",
+          "num": 4,
+          "partido": "Hungría - Irlanda Norte",
           "confianza_real_elige8": 0.0,
           "elige8": true
         }
@@ -6510,7 +6510,7 @@
     }
   },
   "resumen": {
-    "jornadas_evaluadas": 36,
+    "jornadas_evaluadas": 37,
     "precision_media_ultimas_8": 72.32,
     "criterio_aprendizaje": "tras cada jornada cerrada se compara prediccion vs resultado y se reentrena la memoria"
   }
