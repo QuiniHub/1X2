@@ -327,3 +327,39 @@ class JugadaRegistradaAntesDeJugarseTests(unittest.TestCase):
             jornadas, historial, jugadas = self._montar(base, j21, j22)
             self.assertEqual(objetivo.ultima_jornada_aprendida(historial, jugadas, jornadas), 21)
             self.assertEqual(objetivo.jornada_objetivo_prediccion(jornadas, historial, jugadas), 22)
+
+
+class JornadaNoJugadaPeroCerradaTests(unittest.TestCase):
+    """Caso real 20/11/2026: la J22 (paron) no se jugo; cerrada con 14 signos
+    oficiales debe contar como pasada y el objetivo avanzar a la J23."""
+
+    def test_cerrada_sin_jugada_avanza_el_objetivo(self):
+        import datetime as _dt
+        hoy = _dt.date.today()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base = Path(tmp_dir)
+            jornadas = base / "jornadas"
+            escribir_json(jornadas / "jornada_21.json", {"jornada": 21, "partidos": [
+                {"num": i + 1, "local": "a", "visitante": "b", "signo_oficial": "1", "fecha": (hoy - _dt.timedelta(days=6)).isoformat()} for i in range(14)]})
+            escribir_json(jornadas / "jornada_22.json", {"jornada": 22, "partidos": [
+                {"num": i + 1, "local": "a", "visitante": "b", "signo_oficial": "X", "fecha": (hoy - _dt.timedelta(days=2)).isoformat()} for i in range(14)]})
+            escribir_json(jornadas / "jornada_23.json", {"jornada": 23, "partidos": [
+                {"num": i + 1, "local": "a", "visitante": "b", "signo_oficial": "Pendiente", "fecha": (hoy + _dt.timedelta(days=1)).isoformat()} for i in range(14)]})
+            historial = base / "historial.json"; escribir_json(historial, {"jornadas": []})
+            jugadas = base / "jugadas.json"; escribir_json(jugadas, {"jugadas": [{"jornada": 21, "signos": ["1"] * 14}]})
+            self.assertEqual(objetivo.ultima_jornada_aprendida(historial, jugadas, jornadas), 22)
+            self.assertEqual(objetivo.jornada_objetivo_prediccion(jornadas, historial, jugadas), 23)
+
+    def test_cerrada_a_medias_no_cuenta(self):
+        import datetime as _dt
+        hoy = _dt.date.today()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base = Path(tmp_dir)
+            jornadas = base / "jornadas"
+            escribir_json(jornadas / "jornada_21.json", {"jornada": 21, "partidos": [
+                {"num": i + 1, "local": "a", "visitante": "b", "signo_oficial": "1", "fecha": (hoy - _dt.timedelta(days=6)).isoformat()} for i in range(14)]})
+            escribir_json(jornadas / "jornada_22.json", {"jornada": 22, "partidos": [
+                {"num": i + 1, "local": "a", "visitante": "b", "signo_oficial": "X" if i < 13 else "Pendiente", "fecha": (hoy - _dt.timedelta(days=2)).isoformat()} for i in range(14)]})
+            historial = base / "historial.json"; escribir_json(historial, {"jornadas": []})
+            jugadas = base / "jugadas.json"; escribir_json(jugadas, {"jugadas": [{"jornada": 21, "signos": ["1"] * 14}]})
+            self.assertEqual(objetivo.jornada_objetivo_prediccion(jornadas, historial, jugadas), 22)

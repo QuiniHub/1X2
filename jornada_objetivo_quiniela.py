@@ -82,6 +82,20 @@ def tiene_jugada_nuestra(item):
     return len(signos) >= 14
 
 
+def jornada_cerrada_oficialmente(numero, jornadas_dir=JORNADAS):
+    """True si los 14 partidos de la jornada tienen signo oficial. Una jornada
+    que NO jugamos (J22 26/27, parón de selecciones, decisión de Marc) no deja
+    jugada registrada, y el objetivo se quedaba clavado en ella para siempre:
+    "la siguiente a la última aprendida" nunca avanzaba (caso real 20/11/2026,
+    la web seguía prediciendo la J22 el viernes de la J23). Cerrada por
+    resultados oficiales cuenta igual que aprendida."""
+    data = cargar_json(Path(jornadas_dir) / f"jornada_{numero}.json", {})
+    partidos = [p for p in (data.get("partidos") or []) if isinstance(p, dict) and int(p.get("num") or 0) <= 14]
+    if len(partidos) < 14:
+        return False
+    return all(str(p.get("signo_oficial") or "").strip().upper() in ("1", "X", "2") for p in partidos)
+
+
 def jornadas_con_memoria(historial_path=HISTORIAL, quinielas_path=QUINIELAS_JUGADAS):
     numeros = set()
 
@@ -116,7 +130,12 @@ def ultima_jornada_aprendida(
     quinielas_path=QUINIELAS_JUGADAS,
     jornadas_dir=JORNADAS,
 ):
-    aprendidas = jornadas_con_memoria(historial_path, quinielas_path)
+    aprendidas = set(jornadas_con_memoria(historial_path, quinielas_path))
+    # jornadas cerradas por resultados oficiales aunque no las jugaramos
+    for numero in jornadas_cargadas(jornadas_dir):
+        if jornada_cerrada_oficialmente(numero, jornadas_dir):
+            aprendidas.add(numero)
+    aprendidas = sorted(aprendidas)
     if not aprendidas:
         return 0
     # Por FECHA real, no por numero. La Quiniela LAE reinicia su numeracion
