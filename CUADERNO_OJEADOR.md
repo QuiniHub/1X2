@@ -319,3 +319,41 @@ favoritos (recaudacion 3,38M, 2.301 doces a 110 EUR) y nuestra ventaja solo cobr
 cuando el futbol se tuerce: no se torcio. Leccion de la ultima milla: el 13 no
 estaba sobre la mesa (hacia falta 12 en Girona Y triple en Gijon Y X en Lezama);
 el 12 si (Girona 12 pedido por el motor). Tras jornada normal: NO tocar nada.
+
+## J23 (21-22/11/2026) — lectura pre-cierre, viernes 20/11 (vuelve LaLiga; motor nuevo)
+
+Bote 220k (un acertante 1M): guerrilla. Marc pide 1T+1D + Elige 8. Primera jornada con
+cobertura de autor (activa en Rayo P2 y Malaga P6), Liga F real (P11-P14 con calidad
+media_baja) y rachas por fecha. Dato previo: el motor, examinado con su propio snapshot
+de la J22 (no jugada), hizo 13/14.
+
+**P1 Alaves-Depor**: QSF 8 sin ganar, internacionales con un entreno; Depor 6 X en 14,
+Aubameyang duda. 34/37/29: partido de X. **P2 Rayo-Valencia**: Rayo 45% de X en casa
+(autor), sin A. Garcia/Valentin/Kumbulla; Valencia con Aguirre 5 pts en 5, Gaya
+sancionado. **P3 Madrid-Celta**: 8 victorias seguidas, Vinicius vuelve; Celta 7 X pero 0
+victorias fuera. Fijo 1. **P4 Barca-Villarreal**: H2H aviso (Villarreal gano 3 de 5 en
+el Camp Nou) pero sin Gerard/Foyth/Akhomach; Cubarsi y De Jong tocados del paron. Fijo 1
+con riesgo nombrado. **P5 Racing-Real**: Sardinero 3-2-1 (solo pierde con el Madrid), la
+Real fuera nunca empata (3V 3D), Sarr duda, Palace el jueves. 30/32/37: toss asumido al
+2. **P6 Osasuna-Malaga**: Malaga 0V 5E 7D, Aznou sancionado, Funes sigue; Osasuna sin
+Aitor Fernandez ni Bretones, 1 pt en 3. Fijo 1 con X (29) nombrada. **P7 Getafe-Atleti**:
+Coliseum 8 sin perder (5V 3E), Gudelj sancionado, Unal tocado; Atleti 2 derrotas
+seguidas, sin Lookman, Pubill duda, Viking el miercoles; 10 victorias en 12 visitas.
+Fijo 2 asumido, X al 31 nombrada. **P8 Tenerife-Mallorca**: luto y 2-0 al Ceuta; Copa
+el miercoles (reservas); Mallorca 120' en Alcoy, 10 bajas, Ortells destituido, fuera
+1V 4E 1D; ambos 4 X en 6. Fijo X (39). **P9 Sporting-Las Palmas**: 8 bajas (Otero y
+Corredera sancionados, Sarco fuera), Molinon 3-1-3; Las Palmas fuera NUNCA empata (3V
+4D), Opoku sancionado, Albert Sanchez 3er partido. TRIPLE. **P10 Girona-Eibar**: Montilivi
+4-2-2, Alex Moreno sancionado; Eibar 5 sin ganar pero fuera 4V 0E 2D (nunca empata).
+Fijo 1, el signo vivo es el 2. **P11 Eibar F-Atletico F**: Eibar 3 derrotas 1-2 y Copa en
+Buñol; Atletico 4V 1E. Fijo 2. **P12 Granada F-RM F**: Granada nunca punto ante el
+Madrid; Madrid 3-1 Inter el miercoles. Fijo 2. **P13 Real F-Sevilla F**: Real 1-4 con
+el Athletic; Sevilla 7 sin ganar pero 3 X seguidas fuera. Fijo 1 con X nombrada.
+**P14 Tenerife F-Madrid CFF**: Tenerife 5 victorias en 6; Madrid CFF eliminado el jueves
+en La Palma por un Segunda Federacion. Fijo 1 de valor (masa 42). **PLENO Sevilla-Betis**:
+derbis cortos (2-2, 0-2, 2-1, 1-0, 1-1, 1-1), Bernal vuelve, Vargas vuelve. 1-1 (motor y
+Losilla); alternativa 1-2 (prensa).
+**Boleto 1T+1D**: T P9, D P1 1X (= generador web). Elige 8: P9, P1, P3, P12, P11, P4,
+P7, P14; avisos cruzados: P4 (H2H) y P7 (fortin) entran igual por mercado.
+**Sorpresas de la jornada**: X del Coliseum, 1 del Sardinero, X de Vallecas (autor),
+2/X del Camp Nou (H2H), X de Zubieta F. Renuncias por presupuesto: todas las anteriores.
