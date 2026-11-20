@@ -1,25 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-20T01:12:32.182926+00:00",
+  "generado_en": "2026-11-20T06:49:16.260675+00:00",
   "estado": "operativo_con_avisos",
-  "score_salud": 82,
+  "score_salud": 79,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
     "jornada_actual": {
-      "jornada": 22,
-      "fecha": "Miércoles, 18 de noviembre de 2026",
-      "fecha_orden": "2026-11-19",
-      "estado": "cerrada",
-      "partidos": 14,
-      "cerrados": 14,
-      "pendientes": 0,
-      "pendientes_totales_con_pleno15": 0,
-      "pleno15_cerrado": true,
-      "ultima_actualizacion_partido": "2026-11-20T01:08:20Z",
-      "path": "data/jornadas/jornada_22.json"
-    },
-    "proxima_jornada": {
       "jornada": 23,
       "fecha": "Domingo, 22 de noviembre de 2026",
       "fecha_orden": "2026-11-22",
@@ -31,6 +18,19 @@
       "pleno15_cerrado": false,
       "ultima_actualizacion_partido": "",
       "path": "data/jornadas/jornada_23.json"
+    },
+    "proxima_jornada": {
+      "jornada": 24,
+      "fecha": "Miércoles, 25 de noviembre de 2026",
+      "fecha_orden": "2026-11-26",
+      "estado": "abierta",
+      "partidos": 14,
+      "cerrados": 0,
+      "pendientes": 14,
+      "pendientes_totales_con_pleno15": 15,
+      "pleno15_cerrado": false,
+      "ultima_actualizacion_partido": "",
+      "path": "data/jornadas/jornada_24.json"
     },
     "ultimas": [
       {
@@ -102,8 +102,8 @@
   },
   "memoria_quinielas": {
     "jugadas_persistidas_json": 39,
-    "jornadas_validadas_historial": 39,
-    "jornadas_memoria_real_total": 115,
+    "jornadas_validadas_historial": 40,
+    "jornadas_memoria_real_total": 116,
     "jornadas_con_signo_nuestro": 37,
     "signos_nuestros_en_jornadas": 518,
     "estado": "memoria_propia_disponible",
@@ -115,21 +115,21 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 22,
-    "generado_en": "2026-11-20T01:12:04.178614+00:00",
+    "jornada": 23,
+    "generado_en": "2026-11-20T06:48:50.435878+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 8,
       "dobles": 4,
       "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 8,
+      "favoritos_atacables": 4,
       "indice_sorpresa_max": 100.0,
       "calidad_datos": {
-        "alta": 0,
+        "alta": 10,
         "media": 0,
-        "media_baja": 1,
-        "baja": 13
+        "media_baja": 4,
+        "baja": 0
       }
     },
     "retenida_por_compuerta": false,
@@ -186,7 +186,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.01,
-    "contexto_equipos_horas": 0.02,
+    "contexto_equipos_horas": 5.64,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -257,17 +257,23 @@
   "backtesting_pre_cierre": {
     "estado": "operativo",
     "jornadas_snapshot": 33,
-    "partidos_cerrados": 458,
-    "aciertos": 302,
-    "precision": 65.94,
-    "generado_en": "2026-11-19T18:37:36.596763+00:00",
+    "partidos_cerrados": 462,
+    "aciertos": 305,
+    "precision": 66.02,
+    "generado_en": "2026-11-20T01:12:33.235321+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
     {
       "nivel": "media",
+      "titulo": "Jornada actual incompleta",
+      "detalle": "La jornada 23 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
+    },
+    {
+      "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 9 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -286,7 +292,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-11-20T01:12:32.182926+00:00",
+    "generado_en": "2026-11-20T06:49:16.260675+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
@@ -396,24 +402,24 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-11-20T01:11:42.161280+00:00"
+      "generado_en": "2026-11-20T06:48:31.983096+00:00"
     },
     "prediccion": {
-      "jornada": 22,
-      "generado_en": "2026-11-20T01:12:04.178614+00:00",
+      "jornada": 23,
+      "generado_en": "2026-11-20T06:48:50.435878+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 8,
         "dobles": 4,
         "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 8,
+        "favoritos_atacables": 4,
         "indice_sorpresa_max": 100.0,
         "calidad_datos": {
-          "alta": 0,
+          "alta": 10,
           "media": 0,
-          "media_baja": 1,
-          "baja": 13
+          "media_baja": 4,
+          "baja": 0
         }
       },
       "retenida_por_compuerta": false,
@@ -527,6 +533,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-11-20T01:11:42.161280+00:00"
+    "generado_en": "2026-11-20T06:48:31.983096+00:00"
   }
 }
