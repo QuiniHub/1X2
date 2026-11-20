@@ -3749,6 +3749,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             "lesiones_laliga_local": partido["lesiones_laliga_local"],
             "lesiones_laliga_visitante": partido["lesiones_laliga_visitante"],
             "ajuste_revulsivo": partido["ajuste_revulsivo"],
+            "ajuste_liga_f": partido.get("ajuste_liga_f") or {"activo": False},
             "ajuste_lesiones_laliga": partido["ajuste_lesiones_laliga"],
             "ajuste_motivacion": partido["ajuste_motivacion"],
             "alertas_motivacion": partido["alertas_motivacion"],

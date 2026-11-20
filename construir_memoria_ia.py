@@ -577,7 +577,66 @@ def cargar_quinielas_jugadas():
         if normalizada and jornada not in jugadas:
             jugadas[jornada] = normalizada
 
+    # Jornadas cerradas que NO jugamos (J22 26/27, paron de selecciones): el
+    # motor se examina con su propia prediccion pre-cierre (snapshot inmutable
+    # desde el primer partido), nunca con la prediccion regenerada despues.
+    # Sin esto el diario quedaba vacio y la compuerta bloqueaba la siguiente
+    # jornada ("faltan diario_aprendizaje", caso real 20/11/2026).
+    for jornada, sintetica in jugadas_desde_snapshots_pre_cierre(jugadas).items():
+        jugadas[jornada] = sintetica
+
     return jugadas
+
+
+SNAPSHOTS_PRE_CIERRE = DATA / "backtesting" / "pre_cierre"
+
+
+def _nombre_simple(nombre):
+    import unicodedata
+    texto = unicodedata.normalize("NFKD", str(nombre or "")).encode("ascii", "ignore").decode()
+    return re.sub(r"[^a-z0-9]+", " ", texto.lower()).strip()
+
+
+def jugadas_desde_snapshots_pre_cierre(jugadas_reales, snapshots_dir=None, jornadas_dir=None):
+    snapshots_dir = Path(snapshots_dir) if snapshots_dir else SNAPSHOTS_PRE_CIERRE
+    jornadas_dir = Path(jornadas_dir) if jornadas_dir else JORNADAS_QUINIELA
+    sinteticas = {}
+    for path in sorted(snapshots_dir.glob("jornada_*.json")):
+        snap = cargar_json(path, {})
+        jornada = snap.get("jornada")
+        if not isinstance(jornada, int) or jornada in jugadas_reales:
+            continue
+        pred = snap.get("prediccion") or {}
+        partidos_pred = sorted((pred.get("partidos") or []), key=lambda x: int(x.get("num") or 0))
+        if len(partidos_pred) < 14:
+            continue
+        data = cargar_json(jornadas_dir / f"jornada_{jornada}.json", {})
+        partidos = [p for p in (data.get("partidos") or []) if int(p.get("num") or 0) <= 14]
+        if len(partidos) < 14 or not all(str(p.get("signo_oficial") or "").upper() in ("1", "X", "2") for p in partidos):
+            continue
+        # misma jornada de verdad (la numeracion se reinicia cada temporada):
+        # los nombres pueden diferir en forma ("Bosnia" / "Bosnia Herzegovina"),
+        # se exige contencion en al menos 10 de los 14 locales
+        coincidencias = 0
+        for a, b in zip(partidos[:14], partidos_pred[:14]):
+            na, nb = _nombre_simple(a.get("local")), _nombre_simple(b.get("local"))
+            if na and nb and (na in nb or nb in na or na.split()[0] == nb.split()[0]):
+                coincidencias += 1
+        if coincidencias < 10:
+            continue
+        signos = [str(p.get("signo_final") or p.get("signo_base") or "").upper() for p in partidos_pred[:14]]
+        if not all(signos):
+            continue
+        sinteticas[jornada] = {
+            "signos": signos,
+            "elige8": [int(p.get("num")) for p in partidos_pred[:14] if p.get("elige8") or p.get("en_elige8")],
+            "pleno15": str(((pred.get("pleno15") or {}).get("pronostico_marcador")) or ""),
+            "fecha": snap.get("congelado_en") or snap.get("refrescado_en") or snap.get("creado_en") or "",
+            "validado_en": "",
+            "origen": "prediccion_motor_pre_cierre",
+            "jugada_real": False,
+        }
+    return sinteticas
 
 
 def analizar_nuestras_quinielas():
