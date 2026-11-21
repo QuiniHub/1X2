@@ -1,22 +1,22 @@
 {
   "version": "1.2",
-  "precision": 69.64,
-  "jornadas_revisadas": 40,
-  "partidos_revisados": 560,
+  "precision": 69.52,
+  "jornadas_revisadas": 41,
+  "partidos_revisados": 561,
   "aciertos": 390,
-  "fallos": 170,
+  "fallos": 171,
   "fallos_por_tipo": {
     "Doble insuficiente": 35,
-    "Fijo fallado": 71,
+    "Fijo fallado": 72,
     "No cubrio empate": 64
   },
   "fallos_por_signo_real": {
-    "1": 39,
+    "1": 40,
     "2": 67,
     "X": 64
   },
   "signos_omitidos_en_fallo": {
-    "1": 39,
+    "1": 40,
     "2": 67,
     "X": 64
   },
@@ -28,10 +28,10 @@
       "precision": 76.19
     },
     "FIJO": {
-      "total": 341,
+      "total": 342,
       "aciertos": 206,
-      "fallos": 135,
-      "precision": 60.41
+      "fallos": 136,
+      "precision": 60.23
     },
     "TRIPLE": {
       "total": 72,
@@ -42,10 +42,10 @@
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 246,
+      "total": 247,
       "aciertos": 207,
-      "fallos": 39,
-      "precision": 84.15
+      "fallos": 40,
+      "precision": 83.81
     },
     "2": {
       "total": 189,
@@ -61,125 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 5,
-      "partido": "Lille - Real Betis Balompie",
-      "pronostico": "2",
-      "tipo_pronostico": "FIJO",
-      "resultado": "2-3",
-      "resultado_final": "2-3",
-      "signo_real": "2",
-      "signos_cubiertos": "2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_5.json",
-      "probabilidades_usadas": {
-        "1": 29.4,
-        "X": 31.6,
-        "2": 39.0
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_competitivo",
-        "contexto_equipos",
-        "fallback_posicion_con_contexto+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Lille",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Real Betis Balompie",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "2 como signo dominante (39.0%).",
-        "hipotesis_alternativa": "X como alternativa (31.6%).",
-        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
-        "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
-          "probabilidad": 70.0,
-          "favorito_atacable": true
-        },
-        "justificacion_final": "Decision TRIPLE 1X2: margen 7.4 puntos, indice sorpresa 93.1."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 15.17,
-        "lecturas": [
-          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 10.92,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
-          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
-          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
-          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.0,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Lille: ppp=0.00; perfil visitante Bélgica: ppp=2.00."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Lille",
-        "partidos_total": 4,
-        "puntos_por_partido": 0.0,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 0.0,
-        "forma_5_ppp": 0.0,
-        "forma_10_ppp": 0.0,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 4
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Bélgica",
-        "partidos_total": 1,
-        "puntos_por_partido": 3.0,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 40.3,
-        "forma_5_ppp": 3.0,
-        "forma_10_ppp": 3.0,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 1
-        }
-      }
-    },
     {
       "jornada": 5,
       "partido": "Real Madrid CF - Inter Milan",
@@ -29120,6 +29001,126 @@
           "partidos": 1
         }
       }
+    },
+    {
+      "jornada": 23,
+      "partido": "Deportivo Alaves - RC Deportivo de La Coruna",
+      "pronostico": "X",
+      "tipo_pronostico": "FIJO",
+      "resultado": "3-1",
+      "resultado_final": "3-1",
+      "signo_real": "1",
+      "signos_cubiertos": "X",
+      "signo_omitido": "1",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_23.json",
+      "probabilidades_usadas": {
+        "1": 34.9,
+        "X": 36.5,
+        "2": 28.7
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Deportivo Alaves",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "RC Deportivo de La Coruna",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (36.5%).",
+        "hipotesis_alternativa": "1 como alternativa (34.9%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision TRIPLE 1X2: margen 1.6 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 11.12,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.96,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.14,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Deportivo Alaves: ppp=0.70; perfil visitante RC Deportivo de La Coruna: ppp=0.91.",
+          "Memoria autonoma: historial de sorpresa medio elevado (45.8)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Deportivo Alaves",
+        "partidos_total": 9,
+        "puntos_por_partido": 0.733,
+        "empates_pct": 11.4,
+        "surprise_score_medio": 47.79,
+        "forma_5_ppp": 0.2,
+        "forma_10_ppp": 0.778,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 3
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "RC Deportivo de La Coruna",
+        "partidos_total": 8,
+        "puntos_por_partido": 0.973,
+        "empates_pct": 24.63,
+        "surprise_score_medio": 43.74,
+        "forma_5_ppp": 0.8,
+        "forma_10_ppp": 1.0,
+        "racha_actual": {
+          "tipo": "P",
+          "partidos": 2
+        }
+      }
     }
   ],
   "ajustes_recomendados": [
@@ -29135,18 +29136,18 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 560,
+    "partidos_base": 561,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 30.36,
-      "no_cubrio_empate_sobre_fallos_pct": 37.65,
-      "no_cubrio_empate_sobre_total_pct": 11.43,
-      "fijo_fallado_sobre_fallos_pct": 41.76,
-      "fijo_fallado_sobre_total_pct": 12.68,
-      "doble_insuficiente_sobre_total_pct": 6.25
+      "fallos_total_pct": 30.48,
+      "no_cubrio_empate_sobre_fallos_pct": 37.43,
+      "no_cubrio_empate_sobre_total_pct": 11.41,
+      "fijo_fallado_sobre_fallos_pct": 42.11,
+      "fijo_fallado_sobre_total_pct": 12.83,
+      "doble_insuficiente_sobre_total_pct": 6.24
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 1.9,
+    "riesgo_extra_fijo_fragil": 2.09,
     "riesgo_extra_triple_insuficiente": 2.02,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
