@@ -357,3 +357,24 @@ Losilla); alternativa 1-2 (prensa).
 P7, P14; avisos cruzados: P4 (H2H) y P7 (fortin) entran igual por mercado.
 **Sorpresas de la jornada**: X del Coliseum, 1 del Sardinero, X de Vallecas (autor),
 2/X del Camp Nou (H2H), X de Zubieta F. Renuncias por presupuesto: todas las anteriores.
+
+### J23 — sábado 21/11, barrido de los 42 equipos y boleto sellado (36 EUR, 3T+4D Súper13, 48 col)
+
+Cuatro ojeadores con convocatorias, ruedas de prensa del 20-21/11, cuotas del día y los
+partidos del viernes (Athletic 0-1 Espanyol: dominio local, Fortuño, Terzic "decepcionado";
+Andorra 1-3 Leganés con roja al 16' y Morata lesionado sin parte). Lo que movió signos
+respecto al viernes: la Real NUNCA empata fuera (3V 3D) -> P5 pasa de triple a 12; el
+Sporting es flojo en casa y no gana a Las Palmas en 6 cruces -> P9 pasa de 12 a triple; el
+Eibar no ha ganado fuera en toda la temporada pero empata (3 de 5 en 1-1) -> la sorpresa de
+Girona-Eibar es la X, no el 2 (corrección del recordatorio del viernes) -> P10 1X.
+Marc, tras el "ningún dato daba ese resultado" del Athletic, exige nombrar la sorpresa ANTES:
+nombrada Madrid-Celta X (Celta 2-7-3, ganó 2-0 en el Bernabéu en 2025, PSV el martes); no se
+cubre por coste (1,16) y queda como fijo 1 con responsabilidad asumida. Cuarto doble: Real F-
+Sevilla F 1X por corazonada de Marc (Sevilla F 4 salidas sin perder). Pleno 1-1.
+Boleto: 1X2 1X 1 1 12 1 2 1X2 1X2 1X 2 2 1X 1 / 1-1. Mezcla motor+cuotas: 14 cubiertos
+~0,9%, >=13 ~6,4% para la estructura de 18 EUR; con el 4º doble sube.
+Fuera del boleto (al día): Levante-Elche y Ceuta-Almería son el LUNES 23; Granada 6
+victorias seguidas; Albacete 4 seguidas con Etxeberria; Cádiz 12 salidas sin ganar;
+aplazados Castellón-Eibar, Granada-Tenerife y Andorra-Mallorca el 9/12.
+Al cierre: contrafactual web 3T+3D (Osasuna 1X, P13 fijo) vs sellada; señal H2H+empates en
+P3 y P10; escribir premio_eur.
