@@ -6,8 +6,8 @@
   "aciertos": 394,
   "fallos": 171,
   "fallos_por_tipo": {
-    "Doble insuficiente": 36,
-    "Fijo fallado": 71,
+    "Doble insuficiente": 35,
+    "Fijo fallado": 72,
     "No cubrio empate": 64
   },
   "fallos_por_signo_real": {
@@ -23,15 +23,15 @@
   "precision_por_tipo": {
     "DOBLE": {
       "total": 149,
-      "aciertos": 113,
-      "fallos": 36,
-      "precision": 75.84
+      "aciertos": 114,
+      "fallos": 35,
+      "precision": 76.51
     },
     "FIJO": {
       "total": 344,
-      "aciertos": 209,
-      "fallos": 135,
-      "precision": 60.76
+      "aciertos": 208,
+      "fallos": 136,
+      "precision": 60.47
     },
     "TRIPLE": {
       "total": 72,
@@ -28549,20 +28549,20 @@
     {
       "jornada": 23,
       "partido": "Deportivo Alaves - RC Deportivo de La Coruna",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
       "resultado": "3-1",
       "resultado_final": "3-1",
       "signo_real": "1",
-      "signos_cubiertos": "1",
+      "signos_cubiertos": "1X",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
       "origen": "data/predicciones/jornada_23.json",
       "probabilidades_usadas": {
-        "1": 39.0,
-        "X": 34.9,
-        "2": 26.1
+        "1": 35.6,
+        "X": 36.8,
+        "2": 27.6
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -28599,15 +28599,15 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (39.0%).",
-        "hipotesis_alternativa": "X como alternativa (34.9%).",
-        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "hipotesis_principal": "X como signo dominante (36.8%).",
+        "hipotesis_alternativa": "1 como alternativa (35.6%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
         "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
+          "categoria": "partido_muy_abierto",
           "probabilidad": 70.0,
-          "favorito_atacable": true
+          "favorito_atacable": false
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 4.1 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision TRIPLE 1X2: margen 1.2 puntos, indice sorpresa 100.0."
       },
       "ajuste_aprendizaje": {
         "activo": true,
@@ -28620,7 +28620,7 @@
       },
       "ajuste_pesos_dinamicos": {
         "activo": true,
-        "riesgo_extra": 10.92,
+        "riesgo_extra": 10.96,
         "lecturas": [
           "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
           "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
@@ -28643,7 +28643,7 @@
         "partidos_total": 10,
         "puntos_por_partido": 0.99,
         "empates_pct": 10.11,
-        "surprise_score_medio": 46.8,
+        "surprise_score_medio": 46.66,
         "forma_5_ppp": 0.8,
         "forma_10_ppp": 1.0,
         "racha_actual": {
@@ -28656,7 +28656,7 @@
         "partidos_total": 9,
         "puntos_por_partido": 0.852,
         "empates_pct": 21.57,
-        "surprise_score_medio": 43.17,
+        "surprise_score_medio": 43.01,
         "forma_5_ppp": 0.2,
         "forma_10_ppp": 0.889,
         "racha_actual": {
@@ -28668,15 +28668,15 @@
     {
       "jornada": 23,
       "partido": "Rayo Vallecano de Madrid - Valencia CF",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
       "resultado": "0-1",
       "resultado_final": "0-1",
       "signo_real": "2",
-      "signos_cubiertos": "1X",
+      "signos_cubiertos": "1",
       "signo_omitido": "2",
       "acierto": false,
-      "motivo_error": "Doble insuficiente",
+      "motivo_error": "Fijo fallado",
       "origen": "data/predicciones/jornada_23.json",
       "probabilidades_usadas": {
         "1": 39.3,
@@ -28751,11 +28751,11 @@
       },
       "ajuste_perfiles_autonomos": {
         "activo": true,
-        "riesgo_extra": 0.74,
+        "riesgo_extra": 0.65,
         "lecturas": [
           "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
           "Perfil local Rayo Vallecano de Madrid: ppp=1.16; perfil visitante Valencia CF: ppp=1.50.",
-          "Memoria autonoma: historial de sorpresa medio elevado (49.1)."
+          "Memoria autonoma: historial de sorpresa medio elevado (48.6)."
         ]
       },
       "perfil_autonomo_local": {
@@ -28763,7 +28763,7 @@
         "partidos_total": 10,
         "puntos_por_partido": 1.077,
         "empates_pct": 19.93,
-        "surprise_score_medio": 48.12,
+        "surprise_score_medio": 47.56,
         "forma_5_ppp": 0.8,
         "forma_10_ppp": 1.1,
         "racha_actual": {
@@ -28776,7 +28776,7 @@
         "partidos_total": 35,
         "puntos_por_partido": 1.417,
         "empates_pct": 19.55,
-        "surprise_score_medio": 50.1,
+        "surprise_score_medio": 49.7,
         "forma_5_ppp": 1.6,
         "forma_10_ppp": 1.7,
         "racha_actual": {
@@ -28880,7 +28880,7 @@
         "partidos_total": 27,
         "puntos_por_partido": 2.255,
         "empates_pct": 3.61,
-        "surprise_score_medio": 26.93,
+        "surprise_score_medio": 27.1,
         "forma_5_ppp": 1.2,
         "forma_10_ppp": 1.8,
         "racha_actual": {
@@ -28893,7 +28893,7 @@
         "partidos_total": 14,
         "puntos_por_partido": 0.965,
         "empates_pct": 35.02,
-        "surprise_score_medio": 49.8,
+        "surprise_score_medio": 49.93,
         "forma_5_ppp": 0.4,
         "forma_10_ppp": 0.9,
         "racha_actual": {
@@ -28957,13 +28957,13 @@
       "explicacion_modelo": {
         "hipotesis_principal": "X como signo dominante (38.3%).",
         "hipotesis_alternativa": "1 como alternativa (33.5%).",
-        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
         "riesgo_de_sorpresa": {
           "categoria": "partido_muy_abierto",
           "probabilidad": 70.0,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision TRIPLE 1X2: margen 4.8 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision DOBLE 1X: margen 4.8 puntos, indice sorpresa 100.0."
       },
       "ajuste_aprendizaje": {
         "activo": true,
@@ -28988,7 +28988,7 @@
       },
       "ajuste_perfiles_autonomos": {
         "activo": true,
-        "riesgo_extra": 0.37,
+        "riesgo_extra": 0.36,
         "lecturas": [
           "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
           "Perfil local Tenerife: ppp=1.82; perfil visitante RCD Mallorca: ppp=0.86.",
@@ -29001,7 +29001,7 @@
         "partidos_total": 11,
         "puntos_por_partido": 1.708,
         "empates_pct": 37.41,
-        "surprise_score_medio": 45.35,
+        "surprise_score_medio": 45.32,
         "forma_5_ppp": 1.6,
         "forma_10_ppp": 1.6,
         "racha_actual": {
@@ -29014,7 +29014,7 @@
         "partidos_total": 28,
         "puntos_por_partido": 1.276,
         "empates_pct": 22.87,
-        "surprise_score_medio": 48.72,
+        "surprise_score_medio": 48.69,
         "forma_5_ppp": 0.8,
         "forma_10_ppp": 1.0,
         "racha_actual": {
@@ -29118,7 +29118,7 @@
         "partidos_total": 10,
         "puntos_por_partido": 1.038,
         "empates_pct": 19.41,
-        "surprise_score_medio": 54.72,
+        "surprise_score_medio": 54.55,
         "forma_5_ppp": 0.2,
         "forma_10_ppp": 1.1,
         "racha_actual": {
@@ -29131,7 +29131,7 @@
         "partidos_total": 8,
         "puntos_por_partido": 2.293,
         "empates_pct": 0.0,
-        "surprise_score_medio": 29.87,
+        "surprise_score_medio": 29.66,
         "forma_5_ppp": 2.4,
         "forma_10_ppp": 2.25,
         "racha_actual": {
@@ -29160,13 +29160,13 @@
       "fallos_total_pct": 30.27,
       "no_cubrio_empate_sobre_fallos_pct": 37.43,
       "no_cubrio_empate_sobre_total_pct": 11.33,
-      "fijo_fallado_sobre_fallos_pct": 41.52,
-      "fijo_fallado_sobre_total_pct": 12.57,
-      "doble_insuficiente_sobre_total_pct": 6.37
+      "fijo_fallado_sobre_fallos_pct": 42.11,
+      "fijo_fallado_sobre_total_pct": 12.74,
+      "doble_insuficiente_sobre_total_pct": 6.19
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 1.76,
-    "riesgo_extra_triple_insuficiente": 2.13,
+    "riesgo_extra_fijo_fragil": 2.01,
+    "riesgo_extra_triple_insuficiente": 1.97,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,
