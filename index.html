@@ -573,6 +573,19 @@
         <div class="card-body" id="valienteBody"></div>
       </div>
 
+      <!-- Sorpresa Nombrada (22/11/2026, regla de Marc): UNA sorpresa por
+           jornada dicha ANTES del cierre, en la franja 20-33% y con señal
+           calculable, publicada y medida SIN dinero. La calcula
+           sorpresa_nombrada.py (bloque "sorpresa_nombrada"); el marcador vive
+           en data/memoria_ia/marcador_sorpresa_nombrada.json. -->
+      <div class="card" id="sorpresaNombradaCard" style="display:none;margin-top:16px">
+        <div class="card-head">
+          <h2>🗣️ Sorpresa nombrada</h2>
+          <span class="tag" style="background:#b91c1c22;color:#991b1b">dicha antes · modo sombra</span>
+        </div>
+        <div class="card-body" id="sorpresaNombradaBody"></div>
+      </div>
+
       <!-- Tercero de Valor (19/10/2026): el tercero (signo de menor
            probabilidad) mejor pagado de la jornada — probabilidad CALIBRADA
            por signo muy por encima del % de masa LAE — publicado y medido
@@ -1683,6 +1696,61 @@
         <p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ ${escapeHtml(bloque?.aviso || 'Experimental: modo sombra, sin dinero hasta graduarse con el criterio prerregistrado.')}</p>`;
     }
 
+    // 🗣️ Sorpresa Nombrada (22/11/2026): la sorpresa de la jornada dicha ANTES
+    // del cierre (franja 20-33% con señal), para que nunca mas digamos "ningun
+    // dato lo daba". Se mide si SALIO (marcador en sombra), se pague o no.
+    function renderSorpresaNombrada() {
+      const card = qs('#sorpresaNombradaCard');
+      if (!card) return;
+      const bloque = state.prediccion?.sorpresa_nombrada;
+      const resumen = state.marcadorSorpresaNombrada?.resumen;
+      const hayMarcador = resumen && Number(resumen.jornadas_evaluadas) > 0;
+      if (!bloque && !hayMarcador) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      const chip = sg => `<span style="padding:2px 9px;border-radius:8px;background:#b91c1c14;border:1.5px solid #b91c1c66;color:#991b1b;font-weight:800">${escapeHtml(sg || '?')}</span>`;
+      let pickHtml = '';
+      if (bloque && bloque.estado === 'ok') {
+        const senales = arr(bloque.senales).map(s => `<li style="margin:3px 0">${escapeHtml(s.texto || s.tipo || '')}</li>`).join('');
+        const cuando = bloque.fecha ? `${escapeHtml(bloque.fecha)} ${escapeHtml(bloque.hora || '')}` : '';
+        const cubierta = bloque.cubierta_por_boleto
+          ? '<span style="color:#15803d;font-weight:700">cubierta por el boleto</span>'
+          : '<span style="color:#b91c1c;font-weight:700">NO la cubre el boleto: si sale, fue vista y no pagada</span>';
+        pickHtml = `
+          <p style="margin:0 0 6px;font-size:17px;font-weight:800">P${fmt(bloque.num, '?')} ${escapeHtml(bloque.local || '')} - ${escapeHtml(bloque.visitante || '')} ${chip(bloque.signo)}
+            <span style="font-size:13px;color:var(--muted,#888);font-weight:600">motor ${fmt(bloque.prob_motor, '-')}% · ${cuando}</span></p>
+          <p class="subtitle" style="margin:0 0 6px">${cubierta}</p>
+          <ul style="margin:0 0 10px;padding-left:20px;color:var(--fg,#333)">${senales}</ul>`;
+        const avisos = arr(bloque.avisos);
+        if (avisos.length) {
+          pickHtml += `<p class="subtitle" style="margin:0 0 2px"><b>Otros avisos</b> (informativos, no miden):</p>
+          <ul style="margin:0 0 10px;padding-left:20px;color:var(--fg,#333)">${avisos.map(a =>
+            `<li style="margin:3px 0">P${fmt(a.num, '?')} ${escapeHtml(a.local || '')} - ${escapeHtml(a.visitante || '')} ${chip(a.signo)}
+             <span style="color:var(--muted,#888)">motor ${fmt(a.prob_motor, '-')}% · ${arr(a.senales).map(s => escapeHtml((s.tipo || '').replace(/_/g, ' '))).join(' · ')}</span></li>`).join('')}</ul>`;
+        }
+      } else if (bloque) {
+        pickHtml = `<p class="subtitle" style="margin:0 0 10px;padding:8px 10px;border-radius:8px;background:var(--surface2,#f5f5f5);border:1px solid var(--border,#ddd)">
+          🤫 <b>Esta jornada no hay sorpresa nombrada.</b> ${escapeHtml(bloque.motivo || '')}</p>`;
+      } else {
+        pickHtml = `<p class="subtitle" style="margin:0 0 10px">Sin sorpresa nombrada (predicción bloqueada o pendiente de generar).</p>`;
+      }
+      let marcadorHtml = '';
+      if (hayMarcador) {
+        const vered = { en_prueba: ['en prueba', 'var(--muted,#888)'], candidata: ['🏆 CANDIDATA — avisar a Marc', '#15803d'], despido: ['⛔ despido', '#b91c1c'] }[resumen.veredicto] || [resumen.veredicto || '', 'var(--muted,#888)'];
+        marcadorHtml = `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> salió ${fmt(resumen.aciertos, 0)} de ${fmt(resumen.jornadas_evaluadas, 0)} nombradas
+          (esperadas ${fmt(resumen.esperados, '-')}) · vistas y no pagadas: ${fmt(resumen.vistas_y_no_pagadas, 0)} ·
+          <span style="font-weight:700;color:${vered[1]}">${escapeHtml(vered[0])}</span></p>`;
+        const porSenal = resumen.por_senal || {};
+        const filas = Object.entries(porSenal).map(([t, r]) => `${escapeHtml(t.replace(/_/g, ' '))} ${fmt(r.aciertos, 0)}/${fmt(r.nombradas, 0)}${r.suspendida ? ' <b style="color:#b91c1c">SUSPENDIDA</b>' : ''}`);
+        if (filas.length) marcadorHtml += `<p class="subtitle" style="margin:0 0 4px;color:var(--muted,#888)">Por señal: ${filas.join(' · ')}</p>`;
+      } else {
+        marcadorHtml = `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> empieza a contar cuando cierre la primera jornada con sorpresa nombrada.</p>`;
+      }
+      const advertencia = bloque?.advertencia_backtest
+        ? `<p class="subtitle" style="margin:0 0 4px;padding:8px 10px;border-radius:8px;background:#b8860b14;border:1px solid #b8860b44;color:#7a5a06">📋 ${escapeHtml(bloque.advertencia_backtest)}</p>` : '';
+      qs('#sorpresaNombradaBody').innerHTML = `${pickHtml}${marcadorHtml}${advertencia}
+        <p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ ${escapeHtml(bloque?.aviso || 'Experimental: modo sombra, sin dinero hasta graduarse.')}</p>`;
+    }
+
     // 💎 Tercero de Valor (19/10/2026): pinta el bloque tercero_valor que
     // calcula tercero_valor.py — el tercero mejor pagado de la jornada con su
     // porqué en llano, el top-3 informativo, el marcador de sombra y la
@@ -2053,6 +2121,7 @@
       renderAvisosJornada();
       renderBoletoEvPremio();
       renderValiente();
+      renderSorpresaNombrada();
       renderTerceroValor();
       applyTicketVisibility();
     }
@@ -5025,6 +5094,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       // Marcador de sombra del Tercero de Valor (19/10/2026): acumulado del
       // tercero mejor pagado por jornada. Carga aparte, mismo motivo.
       state.marcadorTerceroValor = await getJson('data/memoria_ia/marcador_tercero_valor.json', null);
+      state.marcadorSorpresaNombrada = await getJson('data/memoria_ia/marcador_sorpresa_nombrada.json', null);
       // Marcador de sombra del Radar de Tormenta (21/10/2026): concentración
       // de terceros dentro/fuera de la zona. Carga aparte, mismo motivo.
       state.marcadorRadar = await getJson('data/memoria_ia/marcador_radar_tormenta.json', null);

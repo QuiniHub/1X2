@@ -66,6 +66,7 @@ SCRIPTS_NO_CRITICOS_RED = {
     "senal_valiente.py",
     "tercero_valor.py",
     "radar_tormenta.py",
+    "sorpresa_nombrada.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
     "actualizar_resultados_apis.py",
@@ -187,6 +188,13 @@ SCRIPTS_ACTIVOS = [
     # su signo del rayo (no-X de menor masa), publicado y medido SIN dinero
     # (bloque "radar_tormenta"). Corre tras Tercero de Valor: misma masa.
     "radar_tormenta.py",
+    # Sorpresa Nombrada (modo sombra, 22/11/2026, regla de Marc tras Athletic
+    # 0-1 Espanyol y Rayo 0-1 Valencia): UNA sorpresa por jornada dicha ANTES
+    # del cierre, en la franja 20-33% y con señal calculable (especialista de
+    # rol, banquillo nuevo, H2H adverso reciente, empatador, mercado mas alto),
+    # publicada y medida SIN dinero (bloque "sorpresa_nombrada"). Corre tras
+    # el radar: misma prediccion.
+    "sorpresa_nombrada.py",
 
     # --- Premios ---
     "calcular_premios.py",

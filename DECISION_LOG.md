@@ -1903,3 +1903,31 @@ Eibar-Atletico 29/26/45, Tenerife-Madrid CFF 61/24/15 (antes: favorito en casa p
 defecto). En el pipeline va antes de contexto_equipos. 18+4 tests; suite 751 OK. El
 smoke de predecir() ya no reescribe el snapshot pre-cierre real (guardar_json del
 modulo de snapshot anulado como el del motor).
+
+### 2026-11-22 — Sorpresa Nombrada (modo sombra) y bono de hora RECHAZADO
+
+**Origen.** Marc, tras Athletic 0-1 Espanyol (20/11) y Rayo 0-1 Valencia (21/11): "te recuerdo
+tus respuestas cuando se da el resultado contra todo pronóstico: 'ningún dato daba ese
+resultado'... eso se ha de saber ver ya", y pidió que el aprendizaje llegara a la web y a sus
+algoritmos. En J23 la sorpresa nombrada a mano fue Madrid-Celta X (8%) y la real fue Rayo 0-1
+Valencia (23%) con señales a la vista (el Valencia solo ganaba fuera, banquillo nuevo, sábado).
+
+**Qué se decidió.** Módulo nuevo `sorpresa_nombrada.py` (patrón radar/valiente): UNA sorpresa
+por jornada, dicha ANTES del cierre, en la franja 20-33% (nunca los 8%), con señales calculables
+sin fuga de futuro (especialista de rol, banquillo nuevo esta temporada, H2H adverso reciente en
+ese campo, empatador solo X, mercado Losilla >=4 pts por encima). Desempate por hora (antes el
+que juega antes: el fallo temprano mata el 14). Bloque `sorpresa_nombrada` en la predicción +
+tarjeta en la web + marcador `marcador_sorpresa_nombrada.json` con graduación prerregistrada
+(>=10 jornadas: candidata si aciertos >= 1,2x esperados y >=4; despido si < 0,6x) y freno por
+señal (>=8 nombradas y < 50% de esperados → suspendida). NO toca ningún boleto.
+
+**Backtest prerregistrado (J1-J22, `backtest_sorpresa_nombrada.json`).** 19 nombradas, 7
+salieron vs 5,5 esperadas (ratio 1,27), 6 vistas y no pagadas. Pero a nivel de candidata las
+señales apenas separan (24% con señal vs 23% sin); `empatador` va por debajo (3/25). Veredicto:
+en sombra, vale la disciplina de nombrar; el marcador real decide. En J23 (vivo) nombró
+P2 Rayo-Valencia 2 (25%) por especialista de rol + banquillo nuevo: la que salió.
+
+**Bono de hora en la prioridad de triple: RECHAZADO.** Probado 40/80/120/200 pts a los partidos
+del primer día sobre los snapshots J1-J22 con la estructura 3T+3D de la web: 14 cubiertos pasan
+de 1 a 0 y los aciertos medios no mejoran. Por prerregistro no se despliega; la hora solo
+desempata dentro de la sorpresa nombrada.
