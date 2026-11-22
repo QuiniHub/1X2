@@ -1,57 +1,57 @@
 {
   "version": "1.2",
-  "precision": 69.95,
+  "precision": 70.03,
   "jornadas_revisadas": 41,
-  "partidos_revisados": 569,
-  "aciertos": 398,
-  "fallos": 171,
+  "partidos_revisados": 574,
+  "aciertos": 402,
+  "fallos": 172,
   "fallos_por_tipo": {
-    "Doble insuficiente": 35,
+    "Doble insuficiente": 36,
     "Fijo fallado": 72,
     "No cubrio empate": 64
   },
   "fallos_por_signo_real": {
     "1": 39,
-    "2": 68,
+    "2": 69,
     "X": 64
   },
   "signos_omitidos_en_fallo": {
     "1": 39,
-    "2": 68,
+    "2": 69,
     "X": 64
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 149,
-      "aciertos": 114,
-      "fallos": 35,
-      "precision": 76.51
+      "total": 151,
+      "aciertos": 115,
+      "fallos": 36,
+      "precision": 76.16
     },
     "FIJO": {
-      "total": 347,
-      "aciertos": 211,
+      "total": 349,
+      "aciertos": 213,
       "fallos": 136,
-      "precision": 60.81
+      "precision": 61.03
     },
     "TRIPLE": {
-      "total": 73,
-      "aciertos": 73,
+      "total": 74,
+      "aciertos": 74,
       "fallos": 0,
       "precision": 100.0
     }
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 251,
-      "aciertos": 212,
+      "total": 253,
+      "aciertos": 214,
       "fallos": 39,
-      "precision": 84.46
+      "precision": 84.58
     },
     "2": {
-      "total": 192,
-      "aciertos": 124,
-      "fallos": 68,
-      "precision": 64.58
+      "total": 195,
+      "aciertos": 126,
+      "fallos": 69,
+      "precision": 64.62
     },
     "X": {
       "total": 126,
@@ -61,582 +61,6 @@
     }
   },
   "detalle": [
-    {
-      "jornada": 5,
-      "partido": "B. Munich - Bodo-Glimt",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "5-0",
-      "resultado_final": "5-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_5.json",
-      "probabilidades_usadas": {
-        "1": 66.1,
-        "X": 20.4,
-        "2": 13.5
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "fallback_posicion+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "B. Munich",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Bodo-Glimt",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (66.1%).",
-        "hipotesis_alternativa": "X como alternativa (20.4%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "riesgo_controlado",
-          "probabilidad": 35.0,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision FIJO 1: margen 45.7 puntos, indice sorpresa 4.2."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 13.97,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 10.92,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
-          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
-          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
-          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.0,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Bayern de Múnich: ppp=2.65; perfil visitante Bodo Glimt: ppp=2.18."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Bayern de Múnich",
-        "partidos_total": 7,
-        "puntos_por_partido": 2.56,
-        "empates_pct": 0.0,
-        "surprise_score_medio": 0.0,
-        "forma_5_ppp": 2.4,
-        "forma_10_ppp": 2.571,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 2
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Bodo Glimt",
-        "partidos_total": 10,
-        "puntos_por_partido": 2.142,
-        "empates_pct": 9.82,
-        "surprise_score_medio": 34.58,
-        "forma_5_ppp": 1.8,
-        "forma_10_ppp": 2.2,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 1
-        }
-      }
-    },
-    {
-      "jornada": 5,
-      "partido": "Man. United - Sabah FA",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "4-0",
-      "resultado_final": "4-0",
-      "signo_real": "1",
-      "signos_cubiertos": "1",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_5.json",
-      "probabilidades_usadas": {
-        "1": 65.3,
-        "X": 20.9,
-        "2": 13.8
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "fallback_posicion+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Man. United",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Sabah FA",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (65.3%).",
-        "hipotesis_alternativa": "X como alternativa (20.9%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "riesgo_controlado",
-          "probabilidad": 37.7,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision FIJO 1: margen 44.4 puntos, indice sorpresa 9.0."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 13.97,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 10.92,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
-          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
-          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
-          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.0,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Manch. United: ppp=1.33; perfil visitante Aalesunds FK: ppp=0.83.",
-          "Memoria autonoma: tendencia de empate conjunta alta (62.7%)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Manch. United",
-        "partidos_total": 2,
-        "puntos_por_partido": 1.986,
-        "empates_pct": 50.72,
-        "surprise_score_medio": 0.0,
-        "forma_5_ppp": 2.0,
-        "forma_10_ppp": 2.0,
-        "racha_actual": {
-          "tipo": "E",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Aalesunds FK",
-        "partidos_total": 4,
-        "puntos_por_partido": 0.746,
-        "empates_pct": 74.65,
-        "surprise_score_medio": 52.37,
-        "forma_5_ppp": 0.75,
-        "forma_10_ppp": 0.75,
-        "racha_actual": {
-          "tipo": "E",
-          "partidos": 1
-        }
-      }
-    },
-    {
-      "jornada": 5,
-      "partido": "Slavia Praga - Lens",
-      "pronostico": "1X2",
-      "tipo_pronostico": "TRIPLE",
-      "resultado": "2-3",
-      "resultado_final": "2-3",
-      "signo_real": "2",
-      "signos_cubiertos": "1X2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_5.json",
-      "probabilidades_usadas": {
-        "1": 33.6,
-        "X": 31.5,
-        "2": 34.8
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "fallback_posicion+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Slavia Praga",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Lens",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "2 como signo dominante (34.8%).",
-        "hipotesis_alternativa": "1 como alternativa (33.6%).",
-        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
-        "riesgo_de_sorpresa": {
-          "categoria": "favorito_muy_atacable",
-          "probabilidad": 70.0,
-          "favorito_atacable": true
-        },
-        "justificacion_final": "Decision TRIPLE 1X2: margen 1.2 puntos, indice sorpresa 100.0."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 13.97,
-        "lecturas": [
-          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 10.92,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
-          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
-          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
-          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": false,
-        "riesgo_extra": 0.0,
-        "lecturas": []
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Slavia Praga",
-        "partidos_total": 3,
-        "puntos_por_partido": 0.343,
-        "empates_pct": 34.3,
-        "surprise_score_medio": 0.0,
-        "forma_5_ppp": 0.333,
-        "forma_10_ppp": 0.333,
-        "racha_actual": {
-          "tipo": "E",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {}
-    },
-    {
-      "jornada": 6,
-      "partido": "Athletic Club - Elche CF",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
-      "resultado": "1-1",
-      "resultado_final": "1-1",
-      "signo_real": "X",
-      "signos_cubiertos": "1",
-      "signo_omitido": "X",
-      "acierto": false,
-      "motivo_error": "No cubrio empate",
-      "origen": "data/predicciones/jornada_6.json",
-      "probabilidades_usadas": {
-        "1": 55.7,
-        "X": 26.3,
-        "2": 18.0
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_competitivo",
-        "estadistica_equipos+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Athletic Club",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "Elche CF",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (55.7%).",
-        "hipotesis_alternativa": "X como alternativa (26.3%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "riesgo_controlado",
-          "probabilidad": 50.1,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision FIJO 1: margen 29.4 puntos, indice sorpresa 44.9."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 14.27,
-        "lecturas": [
-          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 10.92,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
-          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
-          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
-          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 2.34,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Athletic Club: ppp=1.15; perfil visitante Elche CF: ppp=0.89.",
-          "Memoria autonoma: historial de sorpresa medio elevado (58.0)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Athletic Club",
-        "partidos_total": 31,
-        "puntos_por_partido": 1.227,
-        "empates_pct": 16.28,
-        "surprise_score_medio": 68.76,
-        "forma_5_ppp": 0.8,
-        "forma_10_ppp": 1.1,
-        "racha_actual": {
-          "tipo": "P",
-          "partidos": 3
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "Elche CF",
-        "partidos_total": 29,
-        "puntos_por_partido": 1.114,
-        "empates_pct": 23.12,
-        "surprise_score_medio": 47.21,
-        "forma_5_ppp": 1.2,
-        "forma_10_ppp": 0.9,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 1
-        }
-      }
-    },
-    {
-      "jornada": 6,
-      "partido": "Levante UD - FC Barcelona",
-      "pronostico": "2",
-      "tipo_pronostico": "FIJO",
-      "resultado": "2-4",
-      "resultado_final": "2-4",
-      "signo_real": "2",
-      "signos_cubiertos": "2",
-      "signo_omitido": "",
-      "acierto": true,
-      "motivo_error": "",
-      "origen": "data/predicciones/jornada_6.json",
-      "probabilidades_usadas": {
-        "1": 15.2,
-        "X": 23.3,
-        "2": 61.5
-      },
-      "pesos_modelo": {
-        "forma_reciente": 0.0995,
-        "casa_fuera": 0.0878,
-        "clasificacion": 0.0796,
-        "goles": 0.2069,
-        "empate": 0.1748,
-        "sorpresa": 0.1554,
-        "motivacion_competitiva": 0.0763,
-        "necesidad_descenso_ascenso_europa": 0.0763,
-        "fatiga": 0.0217,
-        "bajas": 0.0217
-      },
-      "fuentes_utilizadas": [
-        "contexto_competitivo",
-        "contexto_equipos",
-        "estadistica_equipos+modelo_entrenado"
-      ],
-      "clasificacion": {
-        "local": {
-          "equipo": "Levante UD",
-          "posicion": null,
-          "puntos": null
-        },
-        "visitante": {
-          "equipo": "FC Barcelona",
-          "posicion": null,
-          "puntos": null
-        }
-      },
-      "forma_reciente": {
-        "local": {},
-        "visitante": {}
-      },
-      "cuotas": {},
-      "explicacion_modelo": {
-        "hipotesis_principal": "2 como signo dominante (61.5%).",
-        "hipotesis_alternativa": "X como alternativa (23.3%).",
-        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
-        "riesgo_de_sorpresa": {
-          "categoria": "riesgo_controlado",
-          "probabilidad": 40.9,
-          "favorito_atacable": false
-        },
-        "justificacion_final": "Decision FIJO 2: margen 38.2 puntos, indice sorpresa 30.2."
-      },
-      "ajuste_aprendizaje": {
-        "activo": true,
-        "riesgo_extra": 14.27,
-        "lecturas": [
-          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 58%.",
-          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
-        ]
-      },
-      "ajuste_pesos_dinamicos": {
-        "activo": true,
-        "riesgo_extra": 10.92,
-        "lecturas": [
-          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
-          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
-          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
-          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
-          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
-          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
-        ]
-      },
-      "ajuste_perfiles_autonomos": {
-        "activo": true,
-        "riesgo_extra": 0.26,
-        "lecturas": [
-          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Levante UD: ppp=1.10; perfil visitante FC Barcelona: ppp=2.10.",
-          "Memoria autonoma: historial de sorpresa medio elevado (46.5)."
-        ]
-      },
-      "perfil_autonomo_local": {
-        "equipo": "Levante UD",
-        "partidos_total": 30,
-        "puntos_por_partido": 1.068,
-        "empates_pct": 28.29,
-        "surprise_score_medio": 56.78,
-        "forma_5_ppp": 0.8,
-        "forma_10_ppp": 1.0,
-        "racha_actual": {
-          "tipo": "G",
-          "partidos": 1
-        }
-      },
-      "perfil_autonomo_visitante": {
-        "equipo": "FC Barcelona",
-        "partidos_total": 40,
-        "puntos_por_partido": 2.424,
-        "empates_pct": 7.36,
-        "surprise_score_medio": 36.16,
-        "forma_5_ppp": 2.0,
-        "forma_10_ppp": 2.3,
-        "racha_actual": {
-          "tipo": "E",
-          "partidos": 1
-        }
-      }
-    },
     {
       "jornada": 6,
       "partido": "CA Osasuna - RCD Espanyol de Barcelona",
@@ -28095,20 +27519,20 @@
     {
       "jornada": 23,
       "partido": "Deportivo Alaves - RC Deportivo de La Coruna",
-      "pronostico": "1X",
-      "tipo_pronostico": "DOBLE",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
       "resultado": "3-1",
       "resultado_final": "3-1",
       "signo_real": "1",
-      "signos_cubiertos": "1X",
+      "signos_cubiertos": "1",
       "signo_omitido": "",
       "acierto": true,
       "motivo_error": "",
       "origen": "data/predicciones/jornada_23.json",
       "probabilidades_usadas": {
-        "1": 35.6,
-        "X": 36.8,
-        "2": 27.6
+        "1": 39.0,
+        "X": 34.9,
+        "2": 26.1
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -28124,7 +27548,6 @@
       },
       "fuentes_utilizadas": [
         "contexto_competitivo",
-        "contexto_equipos",
         "estadistica_equipos+modelo_entrenado+dixon_coles"
       ],
       "clasificacion": {
@@ -28145,19 +27568,19 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "X como signo dominante (36.8%).",
-        "hipotesis_alternativa": "1 como alternativa (35.6%).",
+        "hipotesis_principal": "1 como signo dominante (39.0%).",
+        "hipotesis_alternativa": "X como alternativa (34.9%).",
         "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
         "riesgo_de_sorpresa": {
-          "categoria": "partido_muy_abierto",
+          "categoria": "favorito_muy_atacable",
           "probabilidad": 70.0,
-          "favorito_atacable": false
+          "favorito_atacable": true
         },
-        "justificacion_final": "Decision DOBLE 1X: margen 1.2 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision DOBLE 1X: margen 4.1 puntos, indice sorpresa 100.0."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 11.18,
+        "riesgo_extra": 11.08,
         "lecturas": [
           "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
@@ -28166,7 +27589,7 @@
       },
       "ajuste_pesos_dinamicos": {
         "activo": true,
-        "riesgo_extra": 10.96,
+        "riesgo_extra": 10.92,
         "lecturas": [
           "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
           "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
@@ -28215,15 +27638,15 @@
     {
       "jornada": 23,
       "partido": "Rayo Vallecano de Madrid - Valencia CF",
-      "pronostico": "1",
-      "tipo_pronostico": "FIJO",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
       "resultado": "0-1",
       "resultado_final": "0-1",
       "signo_real": "2",
-      "signos_cubiertos": "1",
+      "signos_cubiertos": "1X",
       "signo_omitido": "2",
       "acierto": false,
-      "motivo_error": "Fijo fallado",
+      "motivo_error": "Doble insuficiente",
       "origen": "data/predicciones/jornada_23.json",
       "probabilidades_usadas": {
         "1": 39.3,
@@ -28277,7 +27700,7 @@
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 11.18,
+        "riesgo_extra": 11.08,
         "lecturas": [
           "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
@@ -28346,9 +27769,9 @@
       "motivo_error": "",
       "origen": "data/predicciones/jornada_23.json",
       "probabilidades_usadas": {
-        "1": 63.8,
+        "1": 63.9,
         "X": 23.1,
-        "2": 13.1
+        "2": 13.0
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -28385,15 +27808,15 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (63.8%).",
+        "hipotesis_principal": "1 como signo dominante (63.9%).",
         "hipotesis_alternativa": "X como alternativa (23.1%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
           "categoria": "riesgo_controlado",
-          "probabilidad": 37.3,
+          "probabilidad": 37.2,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision FIJO 1: margen 40.7 puntos, indice sorpresa 13.9."
+        "justificacion_final": "Decision FIJO 1: margen 40.8 puntos, indice sorpresa 13.8."
       },
       "ajuste_aprendizaje": {
         "activo": true,
@@ -28463,9 +27886,9 @@
       "motivo_error": "",
       "origen": "data/predicciones/jornada_23.json",
       "probabilidades_usadas": {
-        "1": 71.7,
-        "X": 18.7,
-        "2": 9.6
+        "1": 68.7,
+        "X": 18.9,
+        "2": 12.4
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -28502,15 +27925,15 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (71.7%).",
-        "hipotesis_alternativa": "X como alternativa (18.7%).",
+        "hipotesis_principal": "1 como signo dominante (68.7%).",
+        "hipotesis_alternativa": "X como alternativa (18.9%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
           "categoria": "riesgo_controlado",
-          "probabilidad": 28.3,
+          "probabilidad": 31.3,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision FIJO 1: margen 53.0 puntos, indice sorpresa 11.7."
+        "justificacion_final": "Decision FIJO 1: margen 49.8 puntos, indice sorpresa 11.7."
       },
       "ajuste_aprendizaje": {
         "activo": false,
@@ -28534,15 +27957,15 @@
         "riesgo_extra": 0.0,
         "lecturas": [
           "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local FC Barcelona: ppp=2.89; perfil visitante Villarreal CF: ppp=0.99."
+          "Perfil local FC Barcelona: ppp=2.89; perfil visitante Villarreal CF: ppp=0.96."
         ]
       },
       "perfil_autonomo_local": {
         "equipo": "FC Barcelona",
-        "partidos_total": 38,
-        "puntos_por_partido": 2.659,
-        "empates_pct": 3.59,
-        "surprise_score_medio": 29.3,
+        "partidos_total": 39,
+        "puntos_por_partido": 2.666,
+        "empates_pct": 3.54,
+        "surprise_score_medio": 28.29,
         "forma_5_ppp": 3.0,
         "forma_10_ppp": 2.5,
         "racha_actual": {
@@ -28552,10 +27975,10 @@
       },
       "perfil_autonomo_visitante": {
         "equipo": "Villarreal CF",
-        "partidos_total": 36,
-        "puntos_por_partido": 1.34,
-        "empates_pct": 12.29,
-        "surprise_score_medio": 38.44,
+        "partidos_total": 37,
+        "puntos_por_partido": 1.309,
+        "empates_pct": 11.95,
+        "surprise_score_medio": 36.75,
         "forma_5_ppp": 0.8,
         "forma_10_ppp": 1.6,
         "racha_actual": {
@@ -28569,8 +27992,8 @@
       "partido": "R. Santander - Real Sociedad de Futbol",
       "pronostico": "1X2",
       "tipo_pronostico": "TRIPLE",
-      "resultado": "2-0",
-      "resultado_final": "2-0",
+      "resultado": "3-2",
+      "resultado_final": "3-2",
       "signo_real": "1",
       "signos_cubiertos": "1X2",
       "signo_omitido": "",
@@ -28578,9 +28001,9 @@
       "motivo_error": "",
       "origen": "data/predicciones/jornada_23.json",
       "probabilidades_usadas": {
-        "1": 30.0,
+        "1": 30.8,
         "X": 31.9,
-        "2": 38.1
+        "2": 37.3
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -28616,7 +28039,7 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "2 como signo dominante (38.1%).",
+        "hipotesis_principal": "2 como signo dominante (37.3%).",
         "hipotesis_alternativa": "X como alternativa (31.9%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
@@ -28624,11 +28047,11 @@
           "probabilidad": 70.0,
           "favorito_atacable": true
         },
-        "justificacion_final": "Decision FIJO 2: margen 6.2 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision FIJO 2: margen 5.4 puntos, indice sorpresa 100.0."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 11.18,
+        "riesgo_extra": 11.08,
         "lecturas": [
           "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
@@ -28652,21 +28075,21 @@
         "riesgo_extra": 0.0,
         "lecturas": [
           "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local R. Santander: ppp=1.22; perfil visitante R. Sociedad: ppp=0.66.",
-          "Memoria autonoma: tendencia de empate conjunta alta (36.8%)."
+          "Perfil local R. Santander: ppp=1.43; perfil visitante R. Sociedad: ppp=0.66.",
+          "Memoria autonoma: tendencia de empate conjunta alta (35.3%)."
         ]
       },
       "perfil_autonomo_local": {
         "equipo": "R. Santander",
-        "partidos_total": 8,
-        "puntos_por_partido": 1.026,
-        "empates_pct": 24.3,
-        "surprise_score_medio": 44.42,
+        "partidos_total": 9,
+        "puntos_por_partido": 1.271,
+        "empates_pct": 21.28,
+        "surprise_score_medio": 45.51,
         "forma_5_ppp": 1.4,
-        "forma_10_ppp": 1.0,
+        "forma_10_ppp": 1.222,
         "racha_actual": {
           "tipo": "G",
-          "partidos": 1
+          "partidos": 2
         }
       },
       "perfil_autonomo_visitante": {
@@ -28685,6 +28108,245 @@
     },
     {
       "jornada": 23,
+      "partido": "CA Osasuna - Malaga CF",
+      "pronostico": "1X",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "1-0",
+      "resultado_final": "1-0",
+      "signo_real": "1",
+      "signos_cubiertos": "1X",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_23.json",
+      "probabilidades_usadas": {
+        "1": 52.1,
+        "X": 29.3,
+        "2": 18.6
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "CA Osasuna",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Malaga CF",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (52.1%).",
+        "hipotesis_alternativa": "X como alternativa (29.3%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "sorpresa_vigilada",
+          "probabilidad": 54.3,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision DOBLE 1X: margen 22.8 puntos, indice sorpresa 58.3."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 11.08,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local CA Osasuna: ppp=1.01; perfil visitante Malaga CF: ppp=1.73.",
+          "Memoria autonoma: tendencia de empate conjunta alta (30.8%)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "CA Osasuna",
+        "partidos_total": 12,
+        "puntos_por_partido": 0.846,
+        "empates_pct": 33.16,
+        "surprise_score_medio": 43.53,
+        "forma_5_ppp": 1.0,
+        "forma_10_ppp": 0.9,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Malaga CF",
+        "partidos_total": 30,
+        "puntos_por_partido": 1.673,
+        "empates_pct": 28.39,
+        "surprise_score_medio": 39.22,
+        "forma_5_ppp": 1.8,
+        "forma_10_ppp": 1.9,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 23,
+      "partido": "Getafe CF - Club Atletico de Madrid",
+      "pronostico": "X2",
+      "tipo_pronostico": "DOBLE",
+      "resultado": "0-3",
+      "resultado_final": "0-3",
+      "signo_real": "2",
+      "signos_cubiertos": "X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_23.json",
+      "probabilidades_usadas": {
+        "1": 18.7,
+        "X": 30.3,
+        "2": 51.0
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Getafe CF",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Club Atletico de Madrid",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "2 como signo dominante (51.0%).",
+        "hipotesis_alternativa": "X como alternativa (30.3%).",
+        "motivo_fijo_doble_triple": "Doble porque el favorito no tiene margen suficiente para quedar como fijo limpio.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_atacable",
+          "probabilidad": 55.7,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision DOBLE X2: margen 20.7 puntos, indice sorpresa 69.8."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 11.08,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.96,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Getafe CF: ppp=1.67; perfil visitante Club Atletico de Madrid: ppp=2.42."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Getafe CF",
+        "partidos_total": 33,
+        "puntos_por_partido": 1.234,
+        "empates_pct": 7.21,
+        "surprise_score_medio": 43.85,
+        "forma_5_ppp": 2.4,
+        "forma_10_ppp": 1.5,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 3
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Club Atletico de Madrid",
+        "partidos_total": 12,
+        "puntos_por_partido": 2.366,
+        "empates_pct": 9.17,
+        "surprise_score_medio": 42.2,
+        "forma_5_ppp": 2.6,
+        "forma_10_ppp": 2.5,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 23,
       "partido": "Tenerife - RCD Mallorca",
       "pronostico": "1X",
       "tipo_pronostico": "DOBLE",
@@ -28698,7 +28360,7 @@
       "origen": "data/predicciones/jornada_23.json",
       "probabilidades_usadas": {
         "1": 33.5,
-        "X": 38.3,
+        "X": 38.2,
         "2": 28.3
       },
       "pesos_modelo": {
@@ -28736,7 +28398,7 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "X como signo dominante (38.3%).",
+        "hipotesis_principal": "X como signo dominante (38.2%).",
         "hipotesis_alternativa": "1 como alternativa (33.5%).",
         "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
         "riesgo_de_sorpresa": {
@@ -28744,11 +28406,11 @@
           "probabilidad": 70.0,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision TRIPLE 1X2: margen 4.8 puntos, indice sorpresa 100.0."
+        "justificacion_final": "Decision TRIPLE 1X2: margen 4.7 puntos, indice sorpresa 100.0."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 11.18,
+        "riesgo_extra": 11.08,
         "lecturas": [
           "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
@@ -28806,6 +28468,246 @@
     },
     {
       "jornada": 23,
+      "partido": "Sporting Gijón - UD Las Palmas",
+      "pronostico": "1X2",
+      "tipo_pronostico": "TRIPLE",
+      "resultado": "0-2",
+      "resultado_final": "0-2",
+      "signo_real": "2",
+      "signos_cubiertos": "1X2",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_23.json",
+      "probabilidades_usadas": {
+        "1": 32.6,
+        "X": 34.6,
+        "2": 32.8
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Sporting Gijón",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "UD Las Palmas",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "X como signo dominante (34.6%).",
+        "hipotesis_alternativa": "2 como alternativa (32.8%).",
+        "motivo_fijo_doble_triple": "Triple porque los tres signos siguen vivos o la sorpresa exige cobertura total.",
+        "riesgo_de_sorpresa": {
+          "categoria": "partido_muy_abierto",
+          "probabilidad": 70.0,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision TRIPLE 1X2: margen 1.8 puntos, indice sorpresa 100.0."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 11.08,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.08,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Sporting Gijón: ppp=1.52; perfil visitante UD Las Palmas: ppp=1.72.",
+          "Memoria autonoma: historial de sorpresa medio elevado (45.5)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Sporting Gijón",
+        "partidos_total": 11,
+        "puntos_por_partido": 1.521,
+        "empates_pct": 19.0,
+        "surprise_score_medio": 46.76,
+        "forma_5_ppp": 1.4,
+        "forma_10_ppp": 1.7,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 1
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "UD Las Palmas",
+        "partidos_total": 28,
+        "puntos_por_partido": 1.495,
+        "empates_pct": 18.27,
+        "surprise_score_medio": 44.16,
+        "forma_5_ppp": 2.4,
+        "forma_10_ppp": 1.6,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 4
+        }
+      }
+    },
+    {
+      "jornada": 23,
+      "partido": "Girona FC - SD Eibar",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "2-1",
+      "resultado_final": "2-1",
+      "signo_real": "1",
+      "signos_cubiertos": "1",
+      "signo_omitido": "",
+      "acierto": true,
+      "motivo_error": "",
+      "origen": "data/predicciones/jornada_23.json",
+      "probabilidades_usadas": {
+        "1": 44.9,
+        "X": 31.0,
+        "2": 24.1
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "contexto_competitivo",
+        "contexto_equipos",
+        "estadistica_equipos+modelo_entrenado+dixon_coles"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Girona FC",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "SD Eibar",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (44.9%).",
+        "hipotesis_alternativa": "X como alternativa (31.0%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "favorito_muy_atacable",
+          "probabilidad": 64.4,
+          "favorito_atacable": true
+        },
+        "justificacion_final": "Decision FIJO 1: margen 13.9 puntos, indice sorpresa 81.1."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 11.08,
+        "lecturas": [
+          "Aprendizaje propio: el historial dejo empates sin cubrir; se refuerza la X en zona de riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.96,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 1.13,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Girona FC: ppp=1.47; perfil visitante SD Eibar: ppp=2.17.",
+          "Memoria autonoma: historial de sorpresa medio elevado (51.3)."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Girona FC",
+        "partidos_total": 23,
+        "puntos_por_partido": 1.275,
+        "empates_pct": 32.83,
+        "surprise_score_medio": 53.51,
+        "forma_5_ppp": 1.6,
+        "forma_10_ppp": 1.4,
+        "racha_actual": {
+          "tipo": "E",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "SD Eibar",
+        "partidos_total": 22,
+        "puntos_por_partido": 2.059,
+        "empates_pct": 22.23,
+        "surprise_score_medio": 49.08,
+        "forma_5_ppp": 2.4,
+        "forma_10_ppp": 2.3,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 23,
       "partido": "Eibar (F) - At. Madrid (F)",
       "pronostico": "2",
       "tipo_pronostico": "FIJO",
@@ -28818,9 +28720,9 @@
       "motivo_error": "",
       "origen": "data/predicciones/jornada_23.json",
       "probabilidades_usadas": {
-        "1": 14.8,
-        "X": 21.6,
-        "2": 63.6
+        "1": 14.7,
+        "X": 21.5,
+        "2": 63.8
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -28855,19 +28757,19 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "2 como signo dominante (63.6%).",
-        "hipotesis_alternativa": "X como alternativa (21.6%).",
+        "hipotesis_principal": "2 como signo dominante (63.8%).",
+        "hipotesis_alternativa": "X como alternativa (21.5%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
           "categoria": "riesgo_controlado",
-          "probabilidad": 37.5,
+          "probabilidad": 37.2,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision FIJO 2: margen 42.0 puntos, indice sorpresa 5.6."
+        "justificacion_final": "Decision FIJO 2: margen 42.3 puntos, indice sorpresa 5.3."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 9.98,
+        "riesgo_extra": 9.88,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
@@ -28935,9 +28837,9 @@
       "motivo_error": "",
       "origen": "data/predicciones/jornada_23.json",
       "probabilidades_usadas": {
-        "1": 13.5,
-        "X": 20.3,
-        "2": 66.2
+        "1": 12.7,
+        "X": 19.3,
+        "2": 68.0
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -28972,22 +28874,21 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "2 como signo dominante (66.2%).",
-        "hipotesis_alternativa": "X como alternativa (20.3%).",
+        "hipotesis_principal": "2 como signo dominante (68.0%).",
+        "hipotesis_alternativa": "X como alternativa (19.3%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
           "categoria": "riesgo_controlado",
-          "probabilidad": 33.8,
+          "probabilidad": 32.0,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision FIJO 2: margen 45.9 puntos, indice sorpresa 2.3."
+        "justificacion_final": "Decision FIJO 2: margen 48.7 puntos, indice sorpresa 0.0."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 9.98,
+        "riesgo_extra": 7.94,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
-          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
           "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
         ]
       },
@@ -29008,34 +28909,33 @@
         "riesgo_extra": 0.0,
         "lecturas": [
           "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local Granada (F): ppp=0.34; perfil visitante Real Madrid (F): ppp=2.07.",
-          "Memoria autonoma: tendencia de empate conjunta alta (36.5%)."
+          "Perfil local Granada (F): ppp=0.22; perfil visitante Real Madrid (F): ppp=2.24."
         ]
       },
       "perfil_autonomo_local": {
         "equipo": "Granada (F)",
-        "partidos_total": 2,
-        "puntos_por_partido": 0.507,
-        "empates_pct": 50.72,
-        "surprise_score_medio": 46.9,
-        "forma_5_ppp": 0.5,
-        "forma_10_ppp": 0.5,
+        "partidos_total": 3,
+        "puntos_por_partido": 0.333,
+        "empates_pct": 33.32,
+        "surprise_score_medio": 38.0,
+        "forma_5_ppp": 0.333,
+        "forma_10_ppp": 0.333,
         "racha_actual": {
-          "tipo": "E",
+          "tipo": "P",
           "partidos": 1
         }
       },
       "perfil_autonomo_visitante": {
         "equipo": "Real Madrid (F)",
-        "partidos_total": 9,
-        "puntos_por_partido": 2.232,
-        "empates_pct": 22.24,
-        "surprise_score_medio": 36.34,
+        "partidos_total": 10,
+        "puntos_por_partido": 2.319,
+        "empates_pct": 19.72,
+        "surprise_score_medio": 34.6,
         "forma_5_ppp": 2.6,
-        "forma_10_ppp": 2.222,
+        "forma_10_ppp": 2.3,
         "racha_actual": {
           "tipo": "G",
-          "partidos": 1
+          "partidos": 2
         }
       }
     },
@@ -29053,9 +28953,9 @@
       "motivo_error": "",
       "origen": "data/predicciones/jornada_23.json",
       "probabilidades_usadas": {
-        "1": 52.2,
-        "X": 25.7,
-        "2": 22.1
+        "1": 54.0,
+        "X": 25.6,
+        "2": 20.4
       },
       "pesos_modelo": {
         "forma_reciente": 0.0995,
@@ -29090,19 +28990,19 @@
       },
       "cuotas": {},
       "explicacion_modelo": {
-        "hipotesis_principal": "1 como signo dominante (52.2%).",
-        "hipotesis_alternativa": "X como alternativa (25.7%).",
+        "hipotesis_principal": "1 como signo dominante (54.0%).",
+        "hipotesis_alternativa": "X como alternativa (25.6%).",
         "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
         "riesgo_de_sorpresa": {
           "categoria": "riesgo_controlado",
-          "probabilidad": 53.3,
+          "probabilidad": 50.8,
           "favorito_atacable": false
         },
-        "justificacion_final": "Decision FIJO 1: margen 26.5 puntos, indice sorpresa 35.1."
+        "justificacion_final": "Decision FIJO 1: margen 28.4 puntos, indice sorpresa 32.7."
       },
       "ajuste_aprendizaje": {
         "activo": true,
-        "riesgo_extra": 9.98,
+        "riesgo_extra": 9.88,
         "lecturas": [
           "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
           "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
@@ -29123,36 +29023,152 @@
       },
       "ajuste_perfiles_autonomos": {
         "activo": true,
-        "riesgo_extra": 0.45,
+        "riesgo_extra": 0.0,
         "lecturas": [
           "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
-          "Perfil local R. Sociedad (F): ppp=0.89; perfil visitante Sevilla (F): ppp=0.90.",
-          "Memoria autonoma: historial de sorpresa medio elevado (47.5)."
+          "Perfil local R. Sociedad (F): ppp=1.68; perfil visitante Sevilla (F): ppp=0.55."
         ]
       },
       "perfil_autonomo_local": {
         "equipo": "R. Sociedad (F)",
-        "partidos_total": 3,
-        "puntos_por_partido": 1.323,
-        "empates_pct": 32.38,
-        "surprise_score_medio": 53.18,
-        "forma_5_ppp": 1.333,
-        "forma_10_ppp": 1.333,
+        "partidos_total": 4,
+        "puntos_por_partido": 1.761,
+        "empates_pct": 23.93,
+        "surprise_score_medio": 47.04,
+        "forma_5_ppp": 1.75,
+        "forma_10_ppp": 1.75,
         "racha_actual": {
-          "tipo": "P",
+          "tipo": "G",
           "partidos": 1
         }
       },
       "perfil_autonomo_visitante": {
         "equipo": "Sevilla (F)",
-        "partidos_total": 7,
-        "puntos_por_partido": 0.567,
-        "empates_pct": 15.11,
-        "surprise_score_medio": 41.79,
-        "forma_5_ppp": 0.8,
-        "forma_10_ppp": 0.571,
+        "partidos_total": 8,
+        "puntos_por_partido": 0.489,
+        "empates_pct": 13.02,
+        "surprise_score_medio": 40.12,
+        "forma_5_ppp": 0.2,
+        "forma_10_ppp": 0.5,
         "racha_actual": {
           "tipo": "P",
+          "partidos": 2
+        }
+      }
+    },
+    {
+      "jornada": 23,
+      "partido": "Tenerife (F) - Madrid CFF",
+      "pronostico": "1",
+      "tipo_pronostico": "FIJO",
+      "resultado": "0-3",
+      "resultado_final": "0-3",
+      "signo_real": "2",
+      "signos_cubiertos": "1",
+      "signo_omitido": "2",
+      "acierto": false,
+      "motivo_error": "Fijo fallado",
+      "origen": "data/predicciones/jornada_23.json",
+      "probabilidades_usadas": {
+        "1": 50.9,
+        "X": 27.4,
+        "2": 21.7
+      },
+      "pesos_modelo": {
+        "forma_reciente": 0.0995,
+        "casa_fuera": 0.0878,
+        "clasificacion": 0.0796,
+        "goles": 0.2069,
+        "empate": 0.1748,
+        "sorpresa": 0.1554,
+        "motivacion_competitiva": 0.0763,
+        "necesidad_descenso_ascenso_europa": 0.0763,
+        "fatiga": 0.0217,
+        "bajas": 0.0217
+      },
+      "fuentes_utilizadas": [
+        "fallback_posicion+modelo_entrenado"
+      ],
+      "clasificacion": {
+        "local": {
+          "equipo": "Tenerife (F)",
+          "posicion": null,
+          "puntos": null
+        },
+        "visitante": {
+          "equipo": "Madrid CFF",
+          "posicion": null,
+          "puntos": null
+        }
+      },
+      "forma_reciente": {
+        "local": {},
+        "visitante": {}
+      },
+      "cuotas": {},
+      "explicacion_modelo": {
+        "hipotesis_principal": "1 como signo dominante (50.9%).",
+        "hipotesis_alternativa": "X como alternativa (27.4%).",
+        "motivo_fijo_doble_triple": "Fijo por mayor probabilidad relativa dentro del presupuesto disponible.",
+        "riesgo_de_sorpresa": {
+          "categoria": "riesgo_controlado",
+          "probabilidad": 55.3,
+          "favorito_atacable": false
+        },
+        "justificacion_final": "Decision FIJO 1: margen 23.5 puntos, indice sorpresa 37.6."
+      },
+      "ajuste_aprendizaje": {
+        "activo": true,
+        "riesgo_extra": 9.88,
+        "lecturas": [
+          "Aprendizaje propio: hay sesgo de empates no cubiertos, pero sin memoria de equipos no se altera el porcentaje; solo sube el riesgo.",
+          "Aprendizaje propio: los fijos fallados obligan a desconfiar de favoritos por debajo de 54%.",
+          "Aprendizaje propio: hubo dobles insuficientes; el tercer signo vivo sube prioridad de triple."
+        ]
+      },
+      "ajuste_pesos_dinamicos": {
+        "activo": true,
+        "riesgo_extra": 10.92,
+        "lecturas": [
+          "Pesos dinamicos: se refuerza ligeramente la X por fallos historicos de empate.",
+          "Pesos dinamicos: se suaviza el favorito por memoria de sorpresas no cubiertas.",
+          "Pesos dinamicos: la clasificacion pura pesa algo menos antes de dejar fijo.",
+          "Pesos dinamicos: la diferencia de goles esta ganando fiabilidad medida.",
+          "Pesos dinamicos: la forma reciente ha fallado mas de lo esperado; el favorito se suaviza.",
+          "Pesos dinamicos: el factor campo se recalibra segun aciertos reales."
+        ]
+      },
+      "ajuste_perfiles_autonomos": {
+        "activo": true,
+        "riesgo_extra": 0.0,
+        "lecturas": [
+          "Memoria autonoma: perfiles persistentes ponderados por actualidad ajustan forma y local/visitante.",
+          "Perfil local Tenerife (F): ppp=2.25; perfil visitante Madrid CFF: ppp=1.24."
+        ]
+      },
+      "perfil_autonomo_local": {
+        "equipo": "Tenerife (F)",
+        "partidos_total": 6,
+        "puntos_por_partido": 2.029,
+        "empates_pct": 0.0,
+        "surprise_score_medio": 36.22,
+        "forma_5_ppp": 2.4,
+        "forma_10_ppp": 2.0,
+        "racha_actual": {
+          "tipo": "G",
+          "partidos": 2
+        }
+      },
+      "perfil_autonomo_visitante": {
+        "equipo": "Madrid CFF",
+        "partidos_total": 5,
+        "puntos_por_partido": 1.601,
+        "empates_pct": 39.98,
+        "surprise_score_medio": 42.03,
+        "forma_5_ppp": 1.6,
+        "forma_10_ppp": 1.6,
+        "racha_actual": {
+          "tipo": "G",
           "partidos": 1
         }
       }
@@ -29171,19 +29187,19 @@
   },
   "ajuste_motor": {
     "version": "1.0",
-    "partidos_base": 569,
+    "partidos_base": 574,
     "muestra": "suficiente",
     "tasas_error": {
-      "fallos_total_pct": 30.05,
-      "no_cubrio_empate_sobre_fallos_pct": 37.43,
-      "no_cubrio_empate_sobre_total_pct": 11.25,
-      "fijo_fallado_sobre_fallos_pct": 42.11,
-      "fijo_fallado_sobre_total_pct": 12.65,
-      "doble_insuficiente_sobre_total_pct": 6.15
+      "fallos_total_pct": 29.97,
+      "no_cubrio_empate_sobre_fallos_pct": 37.21,
+      "no_cubrio_empate_sobre_total_pct": 11.15,
+      "fijo_fallado_sobre_fallos_pct": 41.86,
+      "fijo_fallado_sobre_total_pct": 12.54,
+      "doble_insuficiente_sobre_total_pct": 6.27
     },
     "boost_empate_zona_riesgo": 6.0,
-    "riesgo_extra_fijo_fragil": 1.94,
-    "riesgo_extra_triple_insuficiente": 1.94,
+    "riesgo_extra_fijo_fragil": 1.8,
+    "riesgo_extra_triple_insuficiente": 2.04,
     "min_dobles_auto": 0,
     "min_triples_auto": 1,
     "umbral_fijo_seguro": 54,

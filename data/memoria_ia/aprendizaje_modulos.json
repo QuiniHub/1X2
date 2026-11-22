@@ -2,7 +2,7 @@
   "version": 1,
   "descripcion": "Cuaderno de meta-aprendizaje por modulo (15/10/2026): que prometio cada modulo y que entrego, jornada a jornada, con datos pre-cierre (snapshots inmutables + % LAE versionados). Los semaforos y auto-correcciones llevan sus frenos prerregistrados.",
   "temporada": "2026_2027",
-  "actualizado_en": "2026-11-22T17:04:25.826927+00:00",
+  "actualizado_en": "2026-11-22T22:30:02.860560+00:00",
   "jornadas_cerradas": [
     1,
     2,
@@ -25,7 +25,8 @@
     19,
     20,
     21,
-    22
+    22,
+    23
   ],
   "jornadas": {
     "1": {
@@ -2973,37 +2974,180 @@
         "estado": "sin_jugada_real",
         "motivo": "Jornada sin quiniela validada esta temporada."
       }
+    },
+    "23": {
+      "dixon_coles": {
+        "estado": "ok",
+        "partidos": 10,
+        "sin_cobertura": 4,
+        "rps_dc": 0.17396,
+        "rps_motor": 0.19339,
+        "rps_mercado": 0.18082,
+        "partidos_con_mercado": 10,
+        "aciertos_dc": 6,
+        "aciertos_motor": 6,
+        "aciertos_mercado": 6,
+        "sesgo_dc_por_signo": {
+          "1": {
+            "prob_media": 47.0,
+            "frecuencia_real_pct": 60.0,
+            "sesgo_puntos": -13.0
+          },
+          "X": {
+            "prob_media": 24.8,
+            "frecuencia_real_pct": 10.0,
+            "sesgo_puntos": 14.8
+          },
+          "2": {
+            "prob_media": 28.2,
+            "frecuencia_real_pct": 30.0,
+            "sesgo_puntos": -1.8
+          }
+        },
+        "version_calculo": 1
+      },
+      "boleto_ev": {
+        "estado": "ok",
+        "fuente_boleto_ev": "snapshot_pre_cierre",
+        "signos_ev": [
+          "2",
+          "1X",
+          "X",
+          "1",
+          "1X2",
+          "X2",
+          "X",
+          "1X",
+          "1X2",
+          "12",
+          "2",
+          "2",
+          "1",
+          "1"
+        ],
+        "apuestas_ev": 144,
+        "aciertos_ev": 8,
+        "aciertos_conservador": 11,
+        "aciertos_jugado": 12,
+        "nota": "Premios hipoteticos de quiniela (categorias 10-14) con la tabla REAL del escrutinio; sin Elige 8 ni Pleno al 15, igual para los tres boletos.",
+        "premios_tabla_real_eur": {
+          "ev": 0.0,
+          "conservador": 2.96,
+          "jugado": 41.9
+        }
+      },
+      "valiente": {
+        "estado": "valiente",
+        "fuente": "marcador_sombra",
+        "partido": "CA Osasuna - Malaga CF",
+        "signo": "X",
+        "prob_declarada": 29.3,
+        "masa_pct": 18.0,
+        "senales": [
+          "empatador"
+        ],
+        "signo_real": "1",
+        "acierto": false,
+        "pago_hipotetico_eur": 0.0
+      },
+      "revulsivo": {
+        "estado": "ok",
+        "casos": [],
+        "fuente": "snapshot_pre_cierre"
+      },
+      "fijos_banda": {
+        "estado": "ok",
+        "fijos": [
+          {
+            "num": 3,
+            "partido": "Real Madrid CF - RC Celta de Vigo",
+            "signo": "1",
+            "probabilidad": 66.0,
+            "banda": "60-70",
+            "acierto": true
+          },
+          {
+            "num": 4,
+            "partido": "FC Barcelona - Villarreal CF",
+            "signo": "1",
+            "probabilidad": 73.0,
+            "banda": "70-80",
+            "acierto": true
+          },
+          {
+            "num": 6,
+            "partido": "CA Osasuna - Malaga CF",
+            "signo": "1",
+            "probabilidad": 50.1,
+            "banda": "50-60",
+            "acierto": true
+          },
+          {
+            "num": 7,
+            "partido": "Getafe CF - Club Atletico de Madrid",
+            "signo": "2",
+            "probabilidad": 49.6,
+            "banda": "40-50",
+            "acierto": true
+          },
+          {
+            "num": 11,
+            "partido": "Eibar (F) - At. Madrid (F)",
+            "signo": "2",
+            "probabilidad": 59.9,
+            "banda": "50-60",
+            "acierto": true
+          },
+          {
+            "num": 12,
+            "partido": "Granada (F) - Real Madrid (F)",
+            "signo": "2",
+            "probabilidad": 66.7,
+            "banda": "60-70",
+            "acierto": true
+          },
+          {
+            "num": 14,
+            "partido": "Tenerife (F) - Madrid CFF (F)",
+            "signo": "1",
+            "probabilidad": 56.4,
+            "banda": "50-60",
+            "acierto": false
+          }
+        ],
+        "fijos_sin_probabilidad": 0
+      }
     }
   },
   "resumen": {
     "dixon_coles": {
       "semaforo": "verde",
       "texto_semaforo": "cumple su promesa: iguala o bate al mercado",
-      "titular": "RPS 0,196 vs mercado 0,198",
-      "valor": 0.19559,
-      "comparacion": 0.19846,
-      "rps_motor": 0.20477,
-      "partidos": 157,
+      "titular": "RPS 0,194 vs mercado 0,197",
+      "valor": 0.19429,
+      "comparacion": 0.19741,
+      "rps_motor": 0.20409,
+      "partidos": 167,
       "promesa": "Igualar o batir al mercado en RPS (menor = mejor; referencia mundial 0,19-0,21).",
       "ultimo_ajuste": null
     },
     "boleto_ev": {
       "semaforo": "rojo",
       "texto_semaforo": "bajo promesa: <50% de lo jugado (estrategia de cola sin cola aun)",
-      "titular": "39,67 € hipoteticos vs 159,74 € nuestros",
+      "titular": "39,67 € hipoteticos vs 201,64 € nuestros",
       "valor": 39.67,
-      "comparacion": 159.74,
-      "conservador_eur": 114.63,
-      "jornadas": 12,
+      "comparacion": 201.64,
+      "conservador_eur": 117.59,
+      "jornadas": 13,
       "promesa": "Maximizar euros, no aciertos. Umbral de sanidad prerregistrado: cobrar >=50% de lo realmente jugado (es estrategia de cola: pierde premios pequeños a cambio de colas raras).",
       "ultimo_ajuste": {
         "estado": "ajustado",
-        "valor": 1.002,
-        "mediana_sin_acotar": 1.002,
-        "escrutinios": 21,
-        "celdas": 87,
+        "valor": 0.972,
+        "mediana_sin_acotar": 0.972,
+        "escrutinios": 22,
+        "celdas": 92,
         "freno": "Solo con >=10 escrutinios reales; mediana real/modelo sobre celdas con >=10 acertantes; acotado a [0.5x - 2.0x].",
-        "actualizado_en": "2026-11-22T17:04:25.826927+00:00",
+        "actualizado_en": "2026-11-22T22:30:02.860560+00:00",
         "historial": [
           {
             "fecha": "2026-10-15T06:46:27.417986+00:00",
@@ -3058,6 +3202,12 @@
             "valor": 1.002,
             "escrutinios": 21,
             "celdas": 87
+          },
+          {
+            "fecha": "2026-11-22T22:30:02.860560+00:00",
+            "valor": 0.972,
+            "escrutinios": 22,
+            "celdas": 92
           }
         ]
       }
@@ -3065,10 +3215,10 @@
     "valiente": {
       "semaforo": "ambar",
       "texto_semaforo": "en vigilancia: por debajo de lo esperado, sin suspender",
-      "titular": "1 aciertos vs 2,0 esperados",
+      "titular": "1 aciertos vs 2,2 esperados",
       "valor": 1,
-      "comparacion": 1.96,
-      "evaluadas": 7,
+      "comparacion": 2.25,
+      "evaluadas": 8,
       "fuente": "marcador de sombra",
       "senales_suspendidas": [],
       "por_senal": {
@@ -3079,9 +3229,9 @@
           "suspendida": false
         },
         "empatador": {
-          "valientes": 3,
+          "valientes": 4,
           "aciertos": 0,
-          "esperados": 0.81,
+          "esperados": 1.1,
           "suspendida": false
         },
         "nemesis": {
@@ -3102,7 +3252,7 @@
         "estado": "sin_ajuste",
         "senales_suspendidas": [],
         "freno": "Una señal con >=8 valientes propias y aciertos < 50% de esperados se suspende sola (senal_valiente.py) y se anuncia. Ningun umbral estructural se auto-cambia.",
-        "actualizado_en": "2026-11-22T17:04:25.826927+00:00",
+        "actualizado_en": "2026-11-22T22:30:02.860560+00:00",
         "motivo": "Ninguna señal cumple el freno de suspension (>=8 propias y <50% de esperados)."
       }
     },
@@ -3123,16 +3273,16 @@
         },
         "estado": "sin_ajuste",
         "motivo": "Freno: hacen falta >=10 casos nuevos 26/27 por lado (hay fuera=2, casa=2).",
-        "actualizado_en": "2026-11-22T17:04:25.826927+00:00"
+        "actualizado_en": "2026-11-22T22:30:02.860560+00:00"
       }
     },
     "fijos_banda": {
       "semaforo": "verde",
       "texto_semaforo": "cumple su promesa: tus fijos rinden lo que promete su banda real",
-      "titular": "109 de 182 fijos vs 107,5 esperados",
-      "valor": 109,
-      "comparacion": 107.5,
-      "fijos_evaluados": 182,
+      "titular": "115 de 189 fijos vs 113,2 esperados",
+      "valor": 115,
+      "comparacion": 113.24,
+      "fijos_evaluados": 189,
       "por_banda": {
         "10-20": {
           "jugados": 3,
@@ -3153,22 +3303,28 @@
           "acierto_pct": 52.2
         },
         "40-50": {
-          "jugados": 58,
-          "aciertos": 31,
-          "promesa_pct": 52.5,
-          "acierto_pct": 53.4
+          "jugados": 59,
+          "aciertos": 32,
+          "promesa_pct": 53.1,
+          "acierto_pct": 54.2
         },
         "50-60": {
-          "jugados": 47,
-          "aciertos": 31,
-          "promesa_pct": 71.2,
+          "jugados": 50,
+          "aciertos": 33,
+          "promesa_pct": 72.2,
           "acierto_pct": 66.0
         },
         "60-70": {
-          "jugados": 33,
-          "aciertos": 28,
-          "promesa_pct": 86.8,
-          "acierto_pct": 84.8
+          "jugados": 35,
+          "aciertos": 30,
+          "promesa_pct": 86.1,
+          "acierto_pct": 85.7
+        },
+        "70-80": {
+          "jugados": 1,
+          "aciertos": 1,
+          "promesa_pct": null,
+          "acierto_pct": 100.0
         }
       },
       "promesa": "Los fijos realmente jugados deben acertar al menos lo que promete su banda real (calibracion del favorito, solo bandas con n>=30).",
