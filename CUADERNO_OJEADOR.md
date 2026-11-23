@@ -442,3 +442,13 @@ Elige 8 (script, eficiencia): P1, P3, P4, P5, P6, P8, P9, P10 (P(8/8) ≈ 8%). C
 P8 ES la sorpresa nombrada; alternativas al 8º hueco (P7 47, P13 48, P14 46) son peores en
 número. Decisión de Marc. Pleno: masa M-0 (66% × 52%); alternativa M-1 (Viking ha marcado en
 sus 4 europeos, Atlético 2 goles por partido en casa en Champions).
+
+### J24 — corrección tras la bronca de Marc (23/11): "de qué sirve anotar si no lo aplicas"
+Estudio de las 4 Champions de 26/27 (J5, J13, J15, J19; 56 partidos, masa LAE):
+- Favorito de la masa por franja: <40%: 1/6 (3 X) · 40-50: 5/8 (0 X) · 50-60: 7/13 (4 X) · 60-70: 4/7 · 70-80: 9/12 · >=80: 10/10.
+- 14 sorpresas (<30%): 7 X, 5 victorias visitantes, 2 locales. 3,5 por jornada. Gigantes 65-79: caen 6 de 19 (PSV X, Inter-Brujas, Viking-Bayern X, Oporto-PSV, Getafe-Lugano, Fener-Liverpool); >=80 nunca.
+- Españoles de media tabla como favoritos en Europa: Celta 0/2, Getafe 0/1, Real X, Atlético X. Betis 3/3 (la excepción).
+- Nuestros 14 fallos: 12 en fijos (9 victorias no cubiertas, 5 X). La columna de la masa hizo 10, 8, 8, 10.
+REGLA PARA SENCILLA EUROPEA: X en los sin dueño (<40%), un gigante 65-79 cae por jornada (se nombra), el
+español de media tabla favorito fuera no se juega a ganar, y el ≥80 no se toca.
+Columna valiente J24: 1 X 1 1 2 2 1 1 X 1 X 1 2 1 (X Feyenoord-Oporto, X Shakhtar-Fener, 1 Slavia, 1 Brujas, X Inter).
