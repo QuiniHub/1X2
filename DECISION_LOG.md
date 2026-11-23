@@ -1941,3 +1941,10 @@ los datos de Wikipedia (Tenerife F casa 2-1-1, Madrid CFF fuera 1-1-3 con 17 gol
 1 habría seguido siendo favorito: el fallo no era del motor, pero la traza tiene que ser veraz.
 Cierre J23 en el cuaderno: las dos sorpresas (Valencia 25%, Madrid CFF 22%) fueron visitantes en
 la franja 20-25% y ningún boleto (sellado, web, fusión 18 EUR, motor automático) las cubría.
+
+### 2026-11-23 — Columna Valiente europea (modo sombra) tras la bronca de Marc
+- **Qué**: `columna_valiente.py` en el pipeline (tras sorpresa_nombrada), bloque `columna_valiente`, tarjeta 🎲 en la web, `marcador_columna_valiente.json` con graduación prerregistrada (≥6 jornadas europeas, media ≥ +0,5 aciertos vs masa → candidata; ≤ −1 → suspendida). Tests en `tests/test_columna_valiente.py`. Suite 775 OK.
+- **Por qué**: en las 4 Champions 26/27 la columna de la masa hizo 10, 8, 8, 10 y nunca lleva X; salen 2-3 X por jornada. Marc: "de qué sirve anotar lo aprendido si luego no lo aplico". Reglas medidas (56 partidos): favorito <40 acierta 1/6 y la X sale 3/6; ≥80 nunca cae; español favorito fuera <60 falla por X.
+- **Qué NO se automatiza**: el gigante 65-79 que cae (6/19): el selector por duda del motor acertó 1/4 in-sample → solo lista `gigantes_en_riesgo`; lo nombra el ojeador con las señales verificadas en 12/14 sorpresas (rotación/bajas anunciadas, rival en racha, favorito mal en Europa, césped artificial).
+- **Decisión consciente**: NO extender `ajustar_por_revulsivo` a banquillos extranjeros: en Europa el entrenador nuevo estuvo en 0 de 14 sorpresas y el efecto se midió solo en ligas españolas. Los 30 banquillos J24 quedan verificados en el cuaderno.
+- Backtest in-sample 38 vs 36 (advertencia explícita en el JSON): solo cuenta el marcador prospectivo.

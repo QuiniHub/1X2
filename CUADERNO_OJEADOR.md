@@ -452,3 +452,17 @@ Estudio de las 4 Champions de 26/27 (J5, J13, J15, J19; 56 partidos, masa LAE):
 REGLA PARA SENCILLA EUROPEA: X en los sin dueño (<40%), un gigante 65-79 cae por jornada (se nombra), el
 español de media tabla favorito fuera no se juega a ganar, y el ≥80 no se toca.
 Columna valiente J24: 1 X 1 1 2 2 1 1 X 1 X 1 2 1 (X Feyenoord-Oporto, X Shakhtar-Fener, 1 Slavia, 1 Brujas, X Inter).
+
+### J24 — señales previas de las 14 sorpresas europeas y 30 banquillos verificados (23/11, tarde)
+Marc: "¿has analizado a cada equipo en su liga, rachas, entrenadores?" → comprobado con prensa previa a cada partido.
+- 12 de 14 sorpresas tenían señal visible ANTES: rotación/bajas anunciadas en el favorito (9), rival en racha (6-7),
+  favorito mal en Europa pese a ir bien en liga (Inter, Oporto, Celtic, Celta), césped artificial noruego (2/2).
+  Entrenador nuevo (<3 meses) en el favorito: 0 de 14. Racha mala en liga: casi nunca. Ciegas: Oporto-PSV, Bodø-Lille.
+- Banquillos J24 (corrige lo dicho por la mañana): City = Maresca; Matarazzo no es nuevo. Nuevos: Belözoğlu (Fener 3/11),
+  Fonseca (Sporting 4/11), Frank (Palace 16/11), Pochettino (United 18/11). Íñigo Pérez (Villarreal) con ultimátum
+  de Roig en prensa del 23/11. Regla del revulsivo (solo debut FUERA): ningún caso esta semana.
+- Aplicado a J24: rotación declarada en el favorito → Betis (7-8 cambios, la X que nombra el módulo), Liverpool (Premier
+  el sábado) → Brujas 1; favorito mal en Europa → Inter (gigante que cae, X) y Oporto (0 victorias fuera) → Feyenoord-Oporto X;
+  rival en racha → Brujas, Roma, Dortmund, Slavia; ultimátum → Villarreal no gana en Praga (X).
+- Módulo nuevo en el pipeline: columna_valiente.py (commit 359b295). Columna del algoritmo J24: 1 X 1 1 X 2 X 2 1 1 X 1 2 1.
+  Mi columna: 1 X 1 1 2 2 X 1 X 1 X 1 2 1 (no quito el Betis: Slovan 14 derrotas seguidas en Champions, -16).
