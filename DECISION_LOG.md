@@ -1931,3 +1931,13 @@ P2 Rayo-Valencia 2 (25%) por especialista de rol + banquillo nuevo: la que sali�
 del primer día sobre los snapshots J1-J22 con la estructura 3T+3D de la web: 14 cubiertos pasan
 de 1 a 0 y los aciertos medios no mejoran. Por prerregistro no se despliega; la hora solo
 desempata dentro de la sorpresa nombrada.
+
+### 2026-11-22 — Cierre J23 (12/14) y "Madrid CFF" sin sufijo (F) en el ajuste de Liga F
+
+Tenerife (F) 0-3 Madrid CFF: el visitante llegó de la fuente LAE como "Madrid CFF" (sin "(F)") y
+`es_equipo_liga_f()` lo descartó, así que `ajustar_por_liga_f()` no actuó en el partido (ajuste
+nulo en la traza). Ahora un nombre con "CFF" (Club de Fútbol Femenino) cuenta como Liga F. Con
+los datos de Wikipedia (Tenerife F casa 2-1-1, Madrid CFF fuera 1-1-3 con 17 goles encajados) el
+1 habría seguido siendo favorito: el fallo no era del motor, pero la traza tiene que ser veraz.
+Cierre J23 en el cuaderno: las dos sorpresas (Valencia 25%, Madrid CFF 22%) fueron visitantes en
+la franja 20-25% y ningún boleto (sellado, web, fusión 18 EUR, motor automático) las cubría.

@@ -142,7 +142,11 @@ def es_equipo_liga_f(nombre):
     pipeline) porque "eibar" sigue siendo substring completo del resultado.
     Sin este corte, varios partidos de Liga F salian con calidad_datos
     "alta" basada en las estadisticas del equipo MASCULINO homonimo."""
-    return bool(re.search(r"\(\s*f\s*\)\s*$", str(nombre or ""), re.I))
+    nombre = str(nombre or "")
+    # J23 (22/11/2026): "Tenerife (F) - Madrid CFF" llego sin sufijo en el
+    # visitante y el ajuste de Liga F real se salto el partido (0-3, fallo).
+    # Un "CFF" (Club de Futbol Femenino) es femenino por definicion.
+    return bool(re.search(r"\(\s*f\s*\)\s*$", nombre, re.I) or re.search(r"\bCFF\b", nombre))
 
 
 def puntuacion_nombre_equipo(candidato, objetivo):

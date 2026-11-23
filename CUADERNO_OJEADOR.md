@@ -378,3 +378,31 @@ victorias seguidas; Albacete 4 seguidas con Etxeberria; Cádiz 12 salidas sin ga
 aplazados Castellón-Eibar, Granada-Tenerife y Andorra-Mallorca el 9/12.
 Al cierre: contrafactual web 3T+3D (Osasuna 1X, P13 fijo) vs sellada; señal H2H+empates en
 P3 y P10; escribir premio_eur.
+
+### J23 — veredicto (22/11): 12/14, pleno 1-1 acertado, las dos sorpresas al 20-25%
+
+Boleto sellado 3T+4D Súper13 (48 col, 36 EUR): 12 de 14 señales. Fallos: **Rayo 0-1 Valencia**
+(doble 1X; el 2 al 25%: el Valencia solo había ganado fuera y estrenaba banquillo; la web, la
+fusión de 18 EUR y el motor automático lo llevaban igual) y **Tenerife F 0-3 Madrid CFF** (fijo 1
+al 50-56%; el 2 al 22%: Madrid CFF con 1 victoria en 5 fuera y 17 goles encajados, nadie lo
+tenía; además el ajuste de Liga F real se saltó el partido porque "Madrid CFF" venía sin el
+sufijo (F): arreglado en el motor). Las dos sorpresas, visitantes en la franja 20-25%, como dice
+Marc: "siempre 2 o 3 por quiniela". El fallo del sábado 16:15 dejó el techo en 13 con ocho
+partidos por jugar (regla del fallo temprano, 5ª confirmación).
+Lo que salió: Racing 3-2 Real (pasar el triple a 12 porque la Real nunca empata fuera: acierto
+que ahorró columnas), Sporting 0-2 Las Palmas (triple), Tenerife 0-0 (triple), Alavés 3-1
+(triple), Getafe 0-3 Atleti, Osasuna 1-0 (la X del Málaga, renuncia nombrada, no salió), Girona
+2-1 (la X cubierta no hizo falta), Real F 1-0 (la corazonada 1X de Marc tampoco hizo falta).
+Pleno 1-1 clavado (Antony 50', Kike Salas 91'). Sorpresa nombrada a mano (Madrid-Celta X): el
+Celta se adelantó al 6' y perdió 2-1. Contrafactuales: web 3T+3D 12, fusión 18 EUR 12, motor
+automático 12: misma foto, mismos dos agujeros.
+Módulos sombra: Valiente (Osasuna X) falló; Tercero de Valor (Racing 1) ACERTÓ; Radar: rayos
+P9 2 y P5 1 acertaron, P8 1 falló; Sorpresa Nombrada del motor (Rayo-Valencia 2) ACERTÓ, vista y
+no pagada.
+Escrutinio LAE: 15 → 14.696,74 (30), 14 → 3.095,06 (152), 13 → 71,02 (3.105), 12 → 7,63
+(28.917), 11 → 1,48. Jornada de favoritos: el 12 vale 7,63. Premio del boleto pendiente del
+escrutinio de Losilla (techo de columna 12 con los dos fallos fuera del boleto).
+Aprendizaje: (1) las sorpresas viven en el 20-30 y son casi siempre victorias del visitante
+despreciado, no la X; (2) con 36 EUR el cuarto doble rinde más en una de esas franjas (P2 2 o
+P14 2) que en una X sobrejugada (P13); (3) en la primera jornada completa del motor nuevo
+(cobertura de autor + Liga F) los fallos no fueron del motor: ningún boleto cubría esos dos.

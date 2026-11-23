@@ -42,6 +42,15 @@ class AjustePorLigaFTests(unittest.TestCase):
         self.assertTrue(t2["activo"])
         self.assertLess(max(p2.values()), 55)
 
+    def test_madrid_cff_es_liga_f_sin_sufijo(self):
+        self.assertTrue(motor.es_equipo_liga_f("Madrid CFF"))
+        self.assertTrue(motor.es_equipo_liga_f("Tenerife (F)"))
+        self.assertFalse(motor.es_equipo_liga_f("Real Madrid CF"))
+        equipos = dict(EQUIPOS)
+        equipos["Madrid CFF (F)"] = equipo("Madrid CFF (F)", 11, 17, {"pj": 6, "g": 4, "e": 1, "p": 1, "gf": 11, "gc": 7}, {"pj": 5, "g": 1, "e": 1, "p": 3, "gf": 7, "gc": 17}, 4)
+        p, t = motor.ajustar_por_liga_f(PRIOR, {"local": "Eibar (F)", "visitante": "Madrid CFF"}, equipos)
+        self.assertTrue(t["activo"])
+
     def test_alias_de_la_quiniela_casan_con_el_canonico(self):
         p, t = motor.ajustar_por_liga_f(PRIOR, {"local": "FC Barcelona (F)", "visitante": "Valencia CF (F)"}, EQUIPOS)
         self.assertTrue(t["activo"])
