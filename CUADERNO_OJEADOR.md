@@ -406,3 +406,39 @@ Aprendizaje: (1) las sorpresas viven en el 20-30 y son casi siempre victorias de
 despreciado, no la X; (2) con 36 EUR el cuarto doble rinde más en una de esas franjas (P2 2 o
 P14 2) que en una X sobrejugada (P13); (3) en la primera jornada completa del motor nuevo
 (cobertura de autor + Liga F) los fallos no fueron del motor: ningún boleto cubría esos dos.
+
+## J24 (24-26/11/2026, Champions J5 + Europa League J5) — lectura pre-cierre, lunes 23/11
+
+Petición de Marc: columna SENCILLA (sin dobles ni triples) + Elige 8. Jornada 100% europea:
+el motor marca calidad baja/media_baja en los 14 y `boleto_millonario` 0 cambios (esperado,
+señal solo LaLiga). Referencia histórica 26/27 en semanas europeas (J5, J13, J15, J19, J22):
+el favorito de la masa acierta 46 de 70 (66%) → una columna sencilla ronda los 9/14; el Elige 8
+hizo 7/8, 6/8 y 6/8 en J5/J13/J15 (nunca 8/8, que es lo único que paga).
+
+Columna: 1 2 1 1 2 2 2 2 1 1 1 1 2 1 · pleno M-0.
+- Fijos de verdad (masa >70): Arsenal (Raya KO, sin Saka/Zubimendi; BVB líder y le ganó aquí en
+  agosto: X 20%), City (Napoli sin Di Lorenzo/Lobotka/Marín; City encaja 14 en 7 en casa: X 22%),
+  Madrid (9 seguidas; rota; PSV 44 goles en 13: X 20%), Betis en Bratislava (Slovan 0 pts, 17 GC;
+  Pellegrini rota 7-8: X 16%, la que nombra el módulo), Barça en Bakú (5.130 km, sin Lamine ni
+  Christensen: X 11%), Inter (sin Calhanoglu, 4-4 en Bérgamo: X 20%), PSG (12 seguidas, sin Doué/Kvara;
+  Roma 4 victorias seguidas, Malen 12 goles: X 20%).
+- Sin dueño (aquí se decide la jornada): Feyenoord-Porto (Porto 0 victorias en 4 visitas a Holanda,
+  120' + penaltis el viernes ante un tercera; Feyenoord 3 derrotas seguidas: 2 por mercado, 40%),
+  Shakhtar-Fener en Stamford Bridge (36/29/36; Lukaku vuelve; 1 por motor y masa LAE, sin ventaja),
+  Sporting-United (Pochettino 2º partido tras 0-4 en Anfield, Cunha sancionado; 1 al 40%),
+  Celta-Bournemouth (Bournemouth 9 victorias seguidas, 4/4 en Europa; Celta 0/2 en Balaídos y rota:
+  2 al 48%), Palace-Real (Palace colista, 1 victoria en 9, Frank debutó perdiendo en Coventry; Real
+  invicta 3 europeos pero perdió en Santander con 31 tiros: 1 al 46%).
+- Slavia-Villarreal: 2 flojo (47%): Villarreal 7 derrotas seguidas fuera en Champions, 15 sin portería
+  a cero, sin Diatta/Saliba; Slavia 23 de Champions sin ganar. Brujas-Liverpool: 2 (55%).
+
+SORPRESA NOMBRADA (franja 20-30, dicha antes): **P8 Brujas 1 (≈25%)**: Brujas 11 sin perder
+(10V-1E), 3 victorias europeas seguidas, dos fuera (San Siro y Eindhoven), Tresoldi 10 goles;
+Liverpool rota (Premier el sábado), ha encajado en sus 4 salidas y el 4-0 al United fue con 10
+desde el 8'. NO cubierta (columna sencilla): si sale, vista y no pagada.
+Otros avisos: P14 Real 2 (29%), P12 United 2 (30%), P7 Slavia 1 (30%), P5 X (motor, 24%).
+
+Elige 8 (script, eficiencia): P1, P3, P4, P5, P6, P8, P9, P10 (P(8/8) ≈ 8%). Cruce con avisos:
+P8 ES la sorpresa nombrada; alternativas al 8º hueco (P7 47, P13 48, P14 46) son peores en
+número. Decisión de Marc. Pleno: masa M-0 (66% × 52%); alternativa M-1 (Viking ha marcado en
+sus 4 europeos, Atlético 2 goles por partido en casa en Champions).
