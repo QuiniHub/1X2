@@ -1,25 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-22T22:30:55.980121+00:00",
+  "generado_en": "2026-11-23T03:06:18.078185+00:00",
   "estado": "operativo_con_avisos",
-  "score_salud": 82,
+  "score_salud": 79,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
   "jornadas": {
     "total_jornadas": 76,
     "jornada_actual": {
-      "jornada": 23,
-      "fecha": "Domingo, 22 de noviembre de 2026",
-      "fecha_orden": "2026-11-22",
-      "estado": "cerrada",
-      "partidos": 14,
-      "cerrados": 14,
-      "pendientes": 0,
-      "pendientes_totales_con_pleno15": 0,
-      "pleno15_cerrado": true,
-      "ultima_actualizacion_partido": "2026-11-22T22:26:26Z",
-      "path": "data/jornadas/jornada_23.json"
-    },
-    "proxima_jornada": {
       "jornada": 24,
       "fecha": "Miércoles, 25 de noviembre de 2026",
       "fecha_orden": "2026-11-26",
@@ -31,6 +18,19 @@
       "pleno15_cerrado": false,
       "ultima_actualizacion_partido": "",
       "path": "data/jornadas/jornada_24.json"
+    },
+    "proxima_jornada": {
+      "jornada": 25,
+      "fecha": "Domingo, 29 de noviembre de 2026",
+      "fecha_orden": "2026-11-29",
+      "estado": "abierta",
+      "partidos": 14,
+      "cerrados": 0,
+      "pendientes": 14,
+      "pendientes_totales_con_pleno15": 15,
+      "pleno15_cerrado": false,
+      "ultima_actualizacion_partido": "",
+      "path": "data/jornadas/jornada_25.json"
     },
     "ultimas": [
       {
@@ -115,21 +115,21 @@
     "nota": "Las validaciones guardadas solo en localStorage del navegador no son visibles para GitHub Actions hasta pasarlas a Quinielas o Historial persistente."
   },
   "prediccion": {
-    "jornada": 23,
-    "generado_en": "2026-11-22T22:30:28.210383+00:00",
+    "jornada": 24,
+    "generado_en": "2026-11-23T03:06:13.832515+00:00",
     "partidos": 14,
     "resumen": {
       "fijos": 8,
       "dobles": 4,
       "triples": 2,
       "elige8_seleccionados": 0,
-      "favoritos_atacables": 4,
+      "favoritos_atacables": 9,
       "indice_sorpresa_max": 100.0,
       "calidad_datos": {
-        "alta": 10,
+        "alta": 0,
         "media": 0,
-        "media_baja": 3,
-        "baja": 1
+        "media_baja": 7,
+        "baja": 7
       }
     },
     "retenida_por_compuerta": false,
@@ -185,8 +185,8 @@
   },
   "fuentes": {
     "memoria_horas": 0.01,
-    "estado_vivo_horas": 0.01,
-    "contexto_equipos_horas": 5.45,
+    "estado_vivo_horas": 0.0,
+    "contexto_equipos_horas": 0.02,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -257,17 +257,23 @@
   "backtesting_pre_cierre": {
     "estado": "operativo",
     "jornadas_snapshot": 34,
-    "partidos_cerrados": 471,
-    "aciertos": 312,
-    "precision": 66.24,
-    "generado_en": "2026-11-22T17:05:29.171521+00:00",
+    "partidos_cerrados": 476,
+    "aciertos": 316,
+    "precision": 66.39,
+    "generado_en": "2026-11-22T22:30:56.936109+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
     {
       "nivel": "media",
+      "titulo": "Jornada actual incompleta",
+      "detalle": "La jornada 24 tiene 0 partidos cerrados, 14 partidos normales pendientes y el Pleno al 15 pendiente.",
+      "accion": "Mantener lectura provisional y no cerrar aprendizaje fuerte hasta completar todos los resultados."
+    },
+    {
+      "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 9 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 14 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
@@ -286,7 +292,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-11-22T22:30:55.980121+00:00",
+    "generado_en": "2026-11-23T03:06:18.078185+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
@@ -396,24 +402,24 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-11-22T22:30:04.450741+00:00"
+      "generado_en": "2026-11-23T03:05:49.591364+00:00"
     },
     "prediccion": {
-      "jornada": 23,
-      "generado_en": "2026-11-22T22:30:28.210383+00:00",
+      "jornada": 24,
+      "generado_en": "2026-11-23T03:06:13.832515+00:00",
       "partidos": 14,
       "resumen": {
         "fijos": 8,
         "dobles": 4,
         "triples": 2,
         "elige8_seleccionados": 0,
-        "favoritos_atacables": 4,
+        "favoritos_atacables": 9,
         "indice_sorpresa_max": 100.0,
         "calidad_datos": {
-          "alta": 10,
+          "alta": 0,
           "media": 0,
-          "media_baja": 3,
-          "baja": 1
+          "media_baja": 7,
+          "baja": 7
         }
       },
       "retenida_por_compuerta": false,
@@ -527,6 +533,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-11-22T22:30:04.450741+00:00"
+    "generado_en": "2026-11-23T03:05:49.591364+00:00"
   }
 }
