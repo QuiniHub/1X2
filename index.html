@@ -573,6 +573,20 @@
         <div class="card-body" id="valienteBody"></div>
       </div>
 
+      <!-- Columna valiente europea (23/11/2026, bronca de Marc: "no quiero solo
+           los % de mas peso, quiero que prediga los de menos peso jugandosela").
+           En jornadas europeas: la columna sencilla con las sorpresas puestas
+           (X en los sin dueno, espanol favorito fuera, sorpresa nombrada) medida
+           contra la columna de la masa. columna_valiente.py; marcador en
+           data/memoria_ia/marcador_columna_valiente.json. -->
+      <div class="card" id="columnaValienteCard" style="display:none;margin-top:16px">
+        <div class="card-head">
+          <h2>🎲 Columna valiente europea</h2>
+          <span class="tag" style="background:#1d4ed822;color:#1e3a8a">con las sorpresas puestas · modo sombra</span>
+        </div>
+        <div class="card-body" id="columnaValienteBody"></div>
+      </div>
+
       <!-- Sorpresa Nombrada (22/11/2026, regla de Marc): UNA sorpresa por
            jornada dicha ANTES del cierre, en la franja 20-33% y con señal
            calculable, publicada y medida SIN dinero. La calcula
@@ -1696,6 +1710,49 @@
         <p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ ${escapeHtml(bloque?.aviso || 'Experimental: modo sombra, sin dinero hasta graduarse con el criterio prerregistrado.')}</p>`;
     }
 
+    // 🎲 Columna valiente europea (23/11/2026): la columna sencilla que APLICA lo
+    // aprendido en las Champions de 26/27 (favorito <40% acierta 1/6 y la X sale
+    // 3/6; espanol favorito fuera falla por X; >=80 no se toca; un gigante 65-79
+    // cae por jornada y lo nombra el ojeador). Se mide contra la columna de la masa.
+    function renderColumnaValiente() {
+      const card = qs('#columnaValienteCard');
+      if (!card) return;
+      const bloque = state.prediccion?.columna_valiente;
+      const resumen = state.marcadorColumnaValiente?.resumen;
+      const hayMarcador = resumen && Number(resumen.jornadas_evaluadas) > 0;
+      if (!bloque || (bloque.estado !== 'ok' && !hayMarcador)) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      const chip = (sg, fuerte) => `<span style="display:inline-block;min-width:22px;text-align:center;padding:2px 6px;margin:1px;border-radius:7px;font-weight:800;${fuerte ? 'background:#1d4ed8;color:#fff' : 'background:var(--surface2,#f5f5f5);border:1px solid var(--border,#ddd);color:var(--fg,#333)'}">${escapeHtml(sg || '?')}</span>`;
+      let html = '';
+      if (bloque.estado === 'ok') {
+        const cambiados = new Set(arr(bloque.cambios).map(c => Number(c.num)));
+        const fila = (col, titulo, resaltar) => `<p style="margin:0 0 6px"><b style="display:inline-block;min-width:92px">${titulo}</b> ${arr(col).map((s, i) => chip(s, resaltar && cambiados.has(i + 1))).join('')}</p>`;
+        html += fila(bloque.columna, 'Valiente', true) + fila(bloque.columna_masa, 'Masa', false);
+        html += `<p class="subtitle" style="margin:0 0 8px">X en la columna: <b>${fmt(bloque.x_en_columna, 0)}</b> (la de la masa lleva 0) · aciertos esperados ${fmt(bloque.esperados_valiente, '-')} frente a ${fmt(bloque.esperados_masa, '-')} de la masa</p>`;
+        const cambios = arr(bloque.cambios);
+        if (cambios.length) {
+          html += `<ul style="margin:0 0 10px;padding-left:20px;color:var(--fg,#333)">${cambios.map(c =>
+            `<li style="margin:3px 0"><b>P${fmt(c.num, '?')} ${escapeHtml(c.local || '')} - ${escapeHtml(c.visitante || '')}</b> ${escapeHtml(c.de)} → ${chip(c.a, true)} <span style="color:var(--muted,#888)">${escapeHtml((c.regla || '').replace(/^R\d_/, '').replace(/_/g, ' '))}: ${escapeHtml(c.motivo || '')}</span></li>`).join('')}</ul>`;
+        }
+        const gig = arr(bloque.gigantes_en_riesgo);
+        if (gig.length) {
+          html += `<p class="subtitle" style="margin:0 0 2px"><b>Gigantes en riesgo (65-79% de masa):</b> ${escapeHtml(bloque.gigantes_lectura || '')}</p>
+          <p class="subtitle" style="margin:0 0 10px;color:var(--muted,#888)">${gig.map(g => `P${fmt(g.num, '?')} ${escapeHtml(g.local || '')} - ${escapeHtml(g.visitante || '')} ${escapeHtml(g.favorito)} al ${fmt(g.masa, '-')}% (si cae: ${escapeHtml(g.signo_si_cae)})`).join(' · ')}</p>`;
+        }
+        html += `<p class="subtitle" style="margin:0 0 8px;padding:8px 10px;border-radius:8px;background:var(--surface2,#f5f5f5);border:1px solid var(--border,#ddd)">${escapeHtml(bloque.lectura || '')}</p>`;
+      } else if (bloque.estado === 'no_aplica') {
+        html += `<p class="subtitle" style="margin:0 0 8px">Jornada doméstica: la columna valiente solo se construye en semanas europeas. ${escapeHtml(bloque.motivo || '')}</p>`;
+      }
+      if (hayMarcador) {
+        const vered = { en_prueba: ['en prueba', 'var(--muted,#888)'], candidata: ['🏆 CANDIDATA — avisar a Marc', '#15803d'], suspendida: ['⛔ suspendida', '#b91c1c'] }[resumen.veredicto] || [resumen.veredicto || '', 'var(--muted,#888)'];
+        html += `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> ${fmt(resumen.jornadas_evaluadas, 0)} jornadas europeas · valiente ${fmt(resumen.aciertos_valiente, 0)} aciertos frente a ${fmt(resumen.aciertos_masa, 0)} de la masa (media ${fmt(resumen.media_diferencia, '-')} por jornada) · X cazadas ${fmt(resumen.x_acertadas, 0)} de ${fmt(resumen.x_salidas, 0)} · <span style="font-weight:700;color:${vered[1]}">${escapeHtml(vered[0])}</span></p>`;
+      } else {
+        html += `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> empieza a contar al cerrar la primera jornada europea con columna valiente.</p>`;
+      }
+      html += `<p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ ${escapeHtml(bloque.aviso || 'Experimental: modo sombra, sin dinero hasta graduarse.')}</p>`;
+      qs('#columnaValienteBody').innerHTML = html;
+    }
+
     // 🗣️ Sorpresa Nombrada (22/11/2026): la sorpresa de la jornada dicha ANTES
     // del cierre (franja 20-33% con señal), para que nunca mas digamos "ningun
     // dato lo daba". Se mide si SALIO (marcador en sombra), se pague o no.
@@ -2122,6 +2179,7 @@
       renderBoletoEvPremio();
       renderValiente();
       renderSorpresaNombrada();
+      renderColumnaValiente();
       renderTerceroValor();
       applyTicketVisibility();
     }
@@ -5095,6 +5153,7 @@ No inventes — solo lo que ves con fondo oscuro.`;
       // tercero mejor pagado por jornada. Carga aparte, mismo motivo.
       state.marcadorTerceroValor = await getJson('data/memoria_ia/marcador_tercero_valor.json', null);
       state.marcadorSorpresaNombrada = await getJson('data/memoria_ia/marcador_sorpresa_nombrada.json', null);
+      state.marcadorColumnaValiente = await getJson('data/memoria_ia/marcador_columna_valiente.json', null);
       // Marcador de sombra del Radar de Tormenta (21/10/2026): concentración
       // de terceros dentro/fuera de la zona. Carga aparte, mismo motivo.
       state.marcadorRadar = await getJson('data/memoria_ia/marcador_radar_tormenta.json', null);

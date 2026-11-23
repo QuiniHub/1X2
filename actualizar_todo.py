@@ -67,6 +67,7 @@ SCRIPTS_NO_CRITICOS_RED = {
     "tercero_valor.py",
     "radar_tormenta.py",
     "sorpresa_nombrada.py",
+    "columna_valiente.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
     "actualizar_resultados_apis.py",
@@ -195,6 +196,13 @@ SCRIPTS_ACTIVOS = [
     # publicada y medida SIN dinero (bloque "sorpresa_nombrada"). Corre tras
     # el radar: misma prediccion.
     "sorpresa_nombrada.py",
+    # Columna valiente europea (23/11/2026, bronca de Marc "de que sirve anotar
+    # si no lo aplicas"): en jornadas europeas publica la columna sencilla con
+    # las sorpresas puestas (X en los sin dueno, espanol favorito fuera, la
+    # sorpresa nombrada) y la mide contra la columna de la masa (bloque
+    # "columna_valiente", marcador_columna_valiente.json). Usa el bloque
+    # sorpresa_nombrada: corre despues.
+    "columna_valiente.py",
 
     # --- Premios ---
     "calcular_premios.py",

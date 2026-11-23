@@ -307,6 +307,19 @@ def actualizar_marcador_sorpresa_nombrada_seguro():
         return 0
 
 
+def actualizar_marcador_columna_valiente_seguro():
+    """Marcador de sombra de la Columna Valiente europea (23/11/2026): aciertos
+    de la columna con sorpresas vs la columna de la masa por jornada europea
+    cerrada. Mismo patron: un fallo suyo jamas tumba la compuerta."""
+    try:
+        from columna_valiente import actualizar_marcador
+        resultado = actualizar_marcador()
+        return resultado.get("nuevas", 0)
+    except Exception as exc:
+        print(f"AVISO: marcador de la Columna Valiente no actualizado: {exc}")
+        return 0
+
+
 def actualizar_aprendizaje_modulos_seguro():
     """Cuaderno de meta-aprendizaje por modulo + auto-correcciones acotadas +
     auditoria cada 5 jornadas (15/10/2026): corre en el mismo ciclo que el
@@ -333,8 +346,9 @@ def generar_artefactos(aprendizaje=None):
     terceros_nuevos = actualizar_marcador_tercero_valor_seguro()
     radar_nuevas = actualizar_marcador_radar_seguro()
     sorpresas_nuevas = actualizar_marcador_sorpresa_nombrada_seguro()
+    columnas_valientes_nuevas = actualizar_marcador_columna_valiente_seguro()
     meta_modulos = actualizar_aprendizaje_modulos_seguro()
-    return {"revisiones": revisiones.get("total_revisiones", 0), "partidos_evaluados": metricas.get("partidos_evaluados", 0), "equipos": len(fiabilidad.get("equipos") or {}), "valientes_nuevas": valientes_nuevas, "terceros_nuevos": terceros_nuevos, "radar_nuevas": radar_nuevas, "sorpresas_nombradas_nuevas": sorpresas_nuevas, "meta_modulos": meta_modulos}
+    return {"revisiones": revisiones.get("total_revisiones", 0), "partidos_evaluados": metricas.get("partidos_evaluados", 0), "equipos": len(fiabilidad.get("equipos") or {}), "valientes_nuevas": valientes_nuevas, "terceros_nuevos": terceros_nuevos, "radar_nuevas": radar_nuevas, "sorpresas_nombradas_nuevas": sorpresas_nuevas, "columnas_valientes_nuevas": columnas_valientes_nuevas, "meta_modulos": meta_modulos}
 
 
 def main():
