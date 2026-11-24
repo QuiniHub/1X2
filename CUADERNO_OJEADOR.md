@@ -466,3 +466,9 @@ Marc: "¿has analizado a cada equipo en su liga, rachas, entrenadores?" → comp
   rival en racha → Brujas, Roma, Dortmund, Slavia; ultimátum → Villarreal no gana en Praga (X).
 - Módulo nuevo en el pipeline: columna_valiente.py (commit 359b295). Columna del algoritmo J24: 1 X 1 1 X 2 X 2 1 1 X 1 2 1.
   Mi columna: 1 X 1 1 2 2 X 1 X 1 X 1 2 1 (no quito el Betis: Slovan 14 derrotas seguidas en Champions, -16).
+
+### J24 — boleto sellado (martes 24/11 14:55, operación Losilla 62382189, 18 €)
+1 · 1X2 · 1 · 1 · 2 · 2 · X · 2 · 1X · 1 · 1X2 · 1 · 2 · 2, pleno 2-0. 2T+1D = 18 col (13,50) + Elige 8 (P1-P6, P10, P11)
+9 col (4,50). Marc arrancó de su sencilla; triples en los dos sin dueño, doble en el Inter. Sus signos solitarios en
+Losilla: Slavia X (0-1%), Real 2 (4-16%). Mi sorpresa nombrada Brujas 1 queda sin cubrir (vista y no pagada si sale).
+Elige 8 en vez del Inter lleva al Betis (cuotas 1,20 vs 1,36). Al cierre: señales, premio, Elige 8.
