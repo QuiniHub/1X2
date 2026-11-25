@@ -472,3 +472,13 @@ Marc: "¿has analizado a cada equipo en su liga, rachas, entrenadores?" → comp
 9 col (4,50). Marc arrancó de su sencilla; triples en los dos sin dueño, doble en el Inter. Sus signos solitarios en
 Losilla: Slavia X (0-1%), Real 2 (4-16%). Mi sorpresa nombrada Brujas 1 queda sin cubrir (vista y no pagada si sale).
 Elige 8 en vez del Inter lleva al Betis (cuotas 1,20 vs 1,36). Al cierre: señales, premio, Elige 8.
+
+### J24 — martes 24/11: 3/5, techo 12, Elige 8 muerto
+Arsenal 1-1 Dortmund (X), Feyenoord 0-1 Oporto (2, triple OK), City 2-2 Nápoles (X), Madrid 5-1, Slovan 0-2 Betis.
+- Cayeron DOS gigantes 65-79 en una noche y los dos por X (ya van 3 X y 3 derrotas en los 6 gigantes locales caídos).
+  Ambos estaban en `gigantes_en_riesgo` y con X nombrada por los ojeadores (20-22%); yo nombré al Inter (Arsenal 2º).
+  LECCIÓN: ver la señal ya se hace; elegir CUÁL cae no. Con dinero: 1X en los gigantes con señal, no triples en los
+  sin dueño (el sin dueño se fue al favorito).
+- Betis ganó rotando 7 contra el colista: la señal "rotación" no vale sin rival con nivel → freno para la Sorpresa Nombrada.
+- Elige 8 en Europa: 7, 6, 6 y ≤6. No volver a jugarlo en semana europea.
+- Mi columna 2/5, web sencilla 3/5, valiente del algoritmo 2/5, masa 3/5, Marc 3/5.
