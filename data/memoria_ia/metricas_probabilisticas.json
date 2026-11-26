@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-26T00:13:50.890243+00:00",
+  "generado_en": "2026-11-26T07:41:50.199535+00:00",
   "fuente": "data/aprendizaje_ia.json",
   "partidos_evaluados": 586,
   "jornadas_evaluadas": 42,
@@ -19,20 +19,20 @@
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 155,
-      "aciertos": 119,
+      "total": 153,
+      "aciertos": 117,
       "fallos": 36,
-      "precision": 76.77
+      "precision": 76.47
     },
     "FIJO": {
-      "total": 357,
-      "aciertos": 218,
+      "total": 358,
+      "aciertos": 219,
       "fallos": 139,
-      "precision": 61.06
+      "precision": 61.17
     },
     "TRIPLE": {
-      "total": 74,
-      "aciertos": 74,
+      "total": 75,
+      "aciertos": 75,
       "fallos": 0,
       "precision": 100.0
     }
@@ -189,7 +189,7 @@
     "nota": "RPS: menor = mejor; referencia mundial ~0,19-0,21 (mercado/estado del arte).",
     "partidos_con_probabilidades": 250,
     "sin_probabilidades": 0,
-    "rps_medio_global": 0.19087,
+    "rps_medio_global": 0.19071,
     "rps_por_jornada": {
       "7": 0.28273,
       "8": 0.17398,
@@ -208,13 +208,13 @@
       "21": 0.18526,
       "22": 0.22069,
       "23": 0.17423,
-      "24": 0.16023
+      "24": 0.15691
     },
     "calibracion_por_signo": {
       "1": {
-        "prob_media_pronosticada": 39.3,
+        "prob_media_pronosticada": 39.2,
         "frecuencia_real_pct": 40.4,
-        "sesgo_puntos": -1.1
+        "sesgo_puntos": -1.2
       },
       "X": {
         "prob_media_pronosticada": 28.9,
@@ -222,25 +222,25 @@
         "sesgo_puntos": 7.3
       },
       "2": {
-        "prob_media_pronosticada": 31.8,
+        "prob_media_pronosticada": 31.9,
         "frecuencia_real_pct": 38.0,
-        "sesgo_puntos": -6.2
+        "sesgo_puntos": -6.1
       }
     },
     "calibracion_favorito": {
       "30-40": {
-        "n": 76,
-        "prob_media": 36.9,
-        "acierto_real_pct": 43.4
+        "n": 77,
+        "prob_media": 37.0,
+        "acierto_real_pct": 42.9
       },
       "40-50": {
-        "n": 79,
+        "n": 78,
         "prob_media": 45.9,
-        "acierto_real_pct": 53.2
+        "acierto_real_pct": 53.8
       },
       "50-60": {
         "n": 54,
-        "prob_media": 54.8,
+        "prob_media": 54.9,
         "acierto_real_pct": 70.4
       },
       "60-70": {
@@ -249,5 +249,76 @@
         "acierto_real_pct": 82.9
       }
     }
+  },
+  "log_score_por_clase": {
+    "partidos": 250,
+    "sin_datos": 0,
+    "global": {
+      "n": 250,
+      "log_score": 0.93587,
+      "ic95_bootstrap_jornada": [
+        0.89728,
+        0.98025
+      ],
+      "jornadas": 18
+    },
+    "por_clase": {
+      "1": {
+        "n": 101,
+        "log_score": 0.78458,
+        "ic95_bootstrap_jornada": [
+          0.72954,
+          0.84233
+        ],
+        "jornadas": 18
+      },
+      "X": {
+        "n": 54,
+        "log_score": 1.20287,
+        "ic95_bootstrap_jornada": [
+          1.14568,
+          1.2606
+        ],
+        "jornadas": 17
+      },
+      "2": {
+        "n": 95,
+        "log_score": 0.94495,
+        "ic95_bootstrap_jornada": [
+          0.8511,
+          1.06324
+        ],
+        "jornadas": 18
+      }
+    },
+    "nota": "log-score = -ln p(signo real), menor = mejor; por_clase agrupa por el signo que SALIO, no por el pronosticado"
+  },
+  "regla_de_potencia": {
+    "sd_diferencia_rps_emparejada": 0.08771,
+    "fuente_sd": "snapshots pre-cierre (motor publicado vs mercado Losilla)",
+    "potencia": 0.8,
+    "alfa": 0.05,
+    "partidos_esta_temporada": 250,
+    "por_delta": {
+      "0.002": {
+        "partidos_necesarios": 15097,
+        "partidos_necesarios_rango": null,
+        "temporadas_de_700": 21.6,
+        "frase": "para demostrar un delta de RPS de 0.002 hacen falta 15097 partidos; esta temporada lleva 250"
+      },
+      "0.005": {
+        "partidos_necesarios": 2416,
+        "partidos_necesarios_rango": null,
+        "temporadas_de_700": 3.5,
+        "frase": "para demostrar un delta de RPS de 0.005 hacen falta 2416 partidos; esta temporada lleva 250"
+      },
+      "0.01": {
+        "partidos_necesarios": 604,
+        "partidos_necesarios_rango": null,
+        "temporadas_de_700": 0.9,
+        "frase": "para demostrar un delta de RPS de 0.01 hacen falta 604 partidos; esta temporada lleva 250"
+      }
+    },
+    "lectura": "Ninguna mejora de RPS < 0,005 es demostrable en una temporada; una 'mejora' observada en 1-2 jornadas es ruido (regla: tras jornada loca no tocar nada)."
   }
 }
