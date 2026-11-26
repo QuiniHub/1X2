@@ -320,6 +320,29 @@ def actualizar_marcador_columna_valiente_seguro():
         return 0
 
 
+def actualizar_marcador_ranker_favoritos_seguro():
+    """Marcador de sombra del Ranker de favoritos (26/11/2026)."""
+    try:
+        from ranker_favoritos import actualizar_marcador
+        resultado = actualizar_marcador()
+        return resultado.get("nuevas", 0)
+    except Exception as exc:
+        print(f"AVISO: marcador del Ranker de favoritos no actualizado: {exc}")
+        return 0
+
+
+def enriquecer_metricas_seguro():
+    """Log-score por clase y regla de potencia (26/11/2026) sobre
+    metricas_probabilisticas.json, sin tocar las claves existentes."""
+    try:
+        from modelo_metricas_1x2 import enriquecer_metricas_probabilisticas
+        enriquecer_metricas_probabilisticas()
+        return True
+    except Exception as exc:
+        print(f"AVISO: metricas log-score no enriquecidas: {exc}")
+        return False
+
+
 def actualizar_aprendizaje_modulos_seguro():
     """Cuaderno de meta-aprendizaje por modulo + auto-correcciones acotadas +
     auditoria cada 5 jornadas (15/10/2026): corre en el mismo ciclo que el
@@ -341,14 +364,16 @@ def generar_artefactos(aprendizaje=None):
     fiabilidad = construir_fiabilidad(aprendizaje, revisiones, generado_en)
     guardar_json(REVISIONES, revisiones)
     guardar_json(METRICAS, metricas)
+    enriquecer_metricas_seguro()
     guardar_json(FIABILIDAD, fiabilidad)
     valientes_nuevas = actualizar_marcador_valiente_seguro()
     terceros_nuevos = actualizar_marcador_tercero_valor_seguro()
     radar_nuevas = actualizar_marcador_radar_seguro()
     sorpresas_nuevas = actualizar_marcador_sorpresa_nombrada_seguro()
     columnas_valientes_nuevas = actualizar_marcador_columna_valiente_seguro()
+    ranker_nuevas = actualizar_marcador_ranker_favoritos_seguro()
     meta_modulos = actualizar_aprendizaje_modulos_seguro()
-    return {"revisiones": revisiones.get("total_revisiones", 0), "partidos_evaluados": metricas.get("partidos_evaluados", 0), "equipos": len(fiabilidad.get("equipos") or {}), "valientes_nuevas": valientes_nuevas, "terceros_nuevos": terceros_nuevos, "radar_nuevas": radar_nuevas, "sorpresas_nombradas_nuevas": sorpresas_nuevas, "columnas_valientes_nuevas": columnas_valientes_nuevas, "meta_modulos": meta_modulos}
+    return {"revisiones": revisiones.get("total_revisiones", 0), "partidos_evaluados": metricas.get("partidos_evaluados", 0), "equipos": len(fiabilidad.get("equipos") or {}), "valientes_nuevas": valientes_nuevas, "terceros_nuevos": terceros_nuevos, "radar_nuevas": radar_nuevas, "sorpresas_nombradas_nuevas": sorpresas_nuevas, "columnas_valientes_nuevas": columnas_valientes_nuevas, "ranker_favoritos_nuevas": ranker_nuevas, "meta_modulos": meta_modulos}
 
 
 def main():

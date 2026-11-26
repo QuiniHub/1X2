@@ -499,6 +499,193 @@ def rolling_backtest(rows):
     return {"estado": "ok", "muestras_backtesting": len(preds), "metricas": evaluate_predictions(preds), "ultimas_predicciones": preds[-120:]}
 
 
+# ---------------------------------------------------------------------------
+# Cuaderno: log-score por clase y regla de potencia (implantacion 7 de
+# "Algoritmos contra nuestros fallos 1X2", 25/11/2026). Solo funciones
+# ADITIVAS: nada de lo anterior cambia de comportamiento.
+# ---------------------------------------------------------------------------
+Z_ALFA_005_BILATERAL = 1.96
+Z_POTENCIA_080 = 0.8416
+SD_DIFERENCIA_RPS_NOTAS = (0.06, 0.09)   # rango simulado en las notas (rps_power.py)
+LOG_SCORE_BOOTSTRAP_REPETICIONES = 1000
+LOG_SCORE_BOOTSTRAP_SEMILLA = 20261125
+
+
+def _log_score_item(item):
+    """-ln p(signo real) de un item {"y", "probs"}; None si no es evaluable."""
+    real = str(item.get("y") or "").upper()
+    if real not in LABELS:
+        return None
+    raw = item.get("probs") or {}
+    if sum(max(as_float(raw.get(label)), 0.0) for label in LABELS) <= 0:
+        return None
+    probs = normalize_probs(raw)
+    return -math.log(clamp(probs[real], 1e-15, 1.0))
+
+
+def _ic95_bootstrap_cluster(valores, grupos, repeticiones, semilla):
+    """IC95 de la media remuestreando GRUPOS (jornadas) con reemplazo. Los 14
+    partidos de una jornada no son independientes para el pool."""
+    import random as _random
+
+    por_grupo = {}
+    for v, g in zip(valores, grupos):
+        por_grupo.setdefault(g, []).append(v)
+    claves = sorted(por_grupo, key=lambda k: str(k))
+    if len(claves) < 2:
+        return None
+    sumas = [sum(por_grupo[k]) for k in claves]
+    tams = [len(por_grupo[k]) for k in claves]
+    rng = _random.Random(semilla)
+    medias = []
+    for _ in range(repeticiones):
+        idx = [rng.randrange(len(claves)) for _ in claves]
+        medias.append(sum(sumas[i] for i in idx) / sum(tams[i] for i in idx))
+    medias.sort()
+    return [round(medias[int(0.025 * (len(medias) - 1))], 5), round(medias[int(0.975 * (len(medias) - 1))], 5)]
+
+
+def log_score_por_clase(items, repeticiones=LOG_SCORE_BOOTSTRAP_REPETICIONES, semilla=LOG_SCORE_BOOTSTRAP_SEMILLA):
+    """Log-score (ignorance, -ln p del signo real; menor = mejor) global y
+    por signo REAL 1/X/2. Wheatcroft 2021 lo recomienda frente al RPS para
+    comparar modelos 1X2. Si los items traen "jornada", añade IC95 bootstrap
+    por jornada (cluster) a cada bloque. Items: {"y", "probs", ["jornada"]}."""
+    evaluables = []
+    sin_datos = 0
+    for item in items or []:
+        ls = _log_score_item(item)
+        if ls is None:
+            sin_datos += 1
+            continue
+        evaluables.append((str(item.get("y")).upper(), ls, item.get("jornada")))
+    salida = {"partidos": len(evaluables), "sin_datos": sin_datos, "global": None, "por_clase": {}}
+    if not evaluables:
+        return salida
+    con_jornada = all(j is not None for _, _, j in evaluables)
+
+    def bloque(subconjunto):
+        vals = [ls for _, ls, _ in subconjunto]
+        out = {"n": len(vals), "log_score": round(sum(vals) / len(vals), 5)}
+        if con_jornada:
+            ic = _ic95_bootstrap_cluster(vals, [j for _, _, j in subconjunto], repeticiones, semilla)
+            out["ic95_bootstrap_jornada"] = ic
+            out["jornadas"] = len({j for _, _, j in subconjunto})
+        return out
+
+    salida["global"] = bloque(evaluables)
+    for label in LABELS:
+        sub = [e for e in evaluables if e[0] == label]
+        salida["por_clase"][label] = bloque(sub) if sub else {"n": 0, "log_score": None}
+    salida["nota"] = "log-score = -ln p(signo real), menor = mejor; por_clase agrupa por el signo que SALIO, no por el pronosticado"
+    return salida
+
+
+def tamano_muestral_para_delta(delta, sd_diferencia=None, potencia=0.80, alfa=0.05):
+    """Partidos necesarios para detectar una diferencia emparejada media
+    `delta` (RPS o log-loss por partido) con potencia 80 % y alfa 0,05
+    bilateral: n = ((z_alfa + z_potencia) * sd / delta)^2.
+
+    Si no se pasa la sd de la diferencia emparejada se usa el rango 0,06-0,09
+    de las notas (simulacion propia) y se devuelve un rango. Devuelve dict con
+    "n_partidos" (int, con sd dada) o "n_partidos_rango" [min, max]."""
+    delta = as_float(delta)
+    z_alfa = Z_ALFA_005_BILATERAL if abs(alfa - 0.05) < 1e-9 else 2.5758
+    z_pot = Z_POTENCIA_080 if abs(potencia - 0.80) < 1e-9 else 1.2816
+    salida = {"delta": delta, "potencia": potencia, "alfa": alfa}
+    if delta <= 0:
+        salida.update({"n_partidos": None, "motivo": "delta debe ser > 0"})
+        return salida
+
+    def n_de(sd):
+        return int(math.ceil(((z_alfa + z_pot) * sd / delta) ** 2))
+
+    if sd_diferencia is not None and as_float(sd_diferencia) > 0:
+        sd = as_float(sd_diferencia)
+        salida.update({"sd_diferencia": round(sd, 5), "fuente_sd": "empirica", "n_partidos": n_de(sd)})
+    else:
+        lo, hi = SD_DIFERENCIA_RPS_NOTAS
+        salida.update({
+            "sd_diferencia": None, "fuente_sd": f"rango simulado notas {lo}-{hi}",
+            "n_partidos": n_de(hi), "n_partidos_rango": [n_de(lo), n_de(hi)],
+        })
+    return salida
+
+
+def sd_diferencia_rps_snapshots(dir_pre_cierre=None, dir_jornadas=None):
+    """sd empirica de la diferencia emparejada de RPS por partido (motor
+    publicado vs mercado Losilla) sobre los snapshots pre-cierre; None si no
+    hay datos. Reutiliza el dataset de mezcla_benter (import perezoso)."""
+    try:
+        import mezcla_benter
+    except Exception:
+        return None
+    try:
+        filas = mezcla_benter.construir_dataset(dir_pre_cierre or mezcla_benter.PRE_CIERRE, dir_jornadas or mezcla_benter.JORNADAS)
+    except Exception:
+        return None
+    difs = []
+    for f in filas:
+        idx = LABELS.index(f["y"])
+        a = mezcla_benter.rps_fila([f["p_post"][s] for s in LABELS], idx)
+        b = mezcla_benter.rps_fila([f["q"][s] for s in LABELS], idx)
+        difs.append(a - b)
+    if len(difs) < 2:
+        return None
+    media = sum(difs) / len(difs)
+    return math.sqrt(sum((d - media) ** 2 for d in difs) / (len(difs) - 1))
+
+
+def construir_regla_de_potencia(partidos_temporada, sd_diferencia=None, deltas=(0.002, 0.005, 0.01)):
+    """Bloque 'regla_de_potencia' del cuaderno: para cada delta de RPS, los
+    partidos necesarios y cuantos lleva la temporada."""
+    filas = {}
+    for d in deltas:
+        t = tamano_muestral_para_delta(d, sd_diferencia)
+        n = t.get("n_partidos")
+        filas[str(d)] = {
+            "partidos_necesarios": n,
+            "partidos_necesarios_rango": t.get("n_partidos_rango"),
+            "temporadas_de_700": round(n / 700.0, 1) if n else None,
+            "frase": (
+                f"para demostrar un delta de RPS de {d} hacen falta {n} partidos; esta temporada lleva {partidos_temporada}"
+                if n else None
+            ),
+        }
+    return {
+        "sd_diferencia_rps_emparejada": round(sd_diferencia, 5) if sd_diferencia else None,
+        "fuente_sd": "snapshots pre-cierre (motor publicado vs mercado Losilla)" if sd_diferencia else f"rango simulado notas {SD_DIFERENCIA_RPS_NOTAS}",
+        "potencia": 0.80, "alfa": 0.05,
+        "partidos_esta_temporada": int(partidos_temporada or 0),
+        "por_delta": filas,
+        "lectura": "Ninguna mejora de RPS < 0,005 es demostrable en una temporada; una 'mejora' observada en 1-2 jornadas es ruido (regla: tras jornada loca no tocar nada).",
+    }
+
+
+def enriquecer_metricas_probabilisticas(path_metricas=None, path_revisiones=None, dir_pre_cierre=None, dir_jornadas=None, guardar=True):
+    """Añade a metricas_probabilisticas.json los bloques 'log_score_por_clase'
+    y 'regla_de_potencia' SIN tocar ninguna clave existente. Lee los partidos
+    de revisiones_prediccion_resultado.json (probabilidades_usadas +
+    signo_real + jornada), los mismos que usa el bloque rps_calibracion."""
+    memoria = DATA / "memoria_ia"
+    path_metricas = Path(path_metricas or memoria / "metricas_probabilisticas.json")
+    path_revisiones = Path(path_revisiones or memoria / "revisiones_prediccion_resultado.json")
+    metricas = load_json(path_metricas, {})
+    revisiones = load_json(path_revisiones, {}).get("revisiones") or []
+    items = [
+        {"y": r.get("signo_real"), "probs": r.get("probabilidades_usadas") or {}, "jornada": r.get("jornada")}
+        for r in revisiones
+    ]
+    sd = sd_diferencia_rps_snapshots(dir_pre_cierre, dir_jornadas)
+    partidos_temporada = sum(1 for it in items if _log_score_item(it) is not None)
+    bloque_ls = log_score_por_clase(items)
+    bloque_pot = construir_regla_de_potencia(partidos_temporada, sd)
+    metricas["log_score_por_clase"] = bloque_ls
+    metricas["regla_de_potencia"] = bloque_pot
+    if guardar:
+        save_json(path_metricas, metricas)
+    return metricas
+
+
 def run(root=ROOT):
     global ROOT, DATA, JORNADAS, OUT
     ROOT = Path(root)
@@ -551,7 +738,16 @@ def run(root=ROOT):
 def main():
     parser = argparse.ArgumentParser(description="Genera dataset, baseline Elo/Poisson, modelo entrenable y backtesting rolling 1X2.")
     parser.add_argument("--root", default=str(ROOT))
+    parser.add_argument(
+        "--solo-enriquecer-metricas", action="store_true",
+        help="Solo añade log_score_por_clase y regla_de_potencia a data/memoria_ia/metricas_probabilisticas.json (no reentrena nada).",
+    )
     args = parser.parse_args()
+    if args.solo_enriquecer_metricas:
+        metricas = enriquecer_metricas_probabilisticas()
+        ls = (metricas.get("log_score_por_clase") or {}).get("global") or {}
+        print(f"metricas_probabilisticas.json enriquecido: log-score global {ls.get('log_score')} en {ls.get('n')} partidos.")
+        return
     run(Path(args.root))
 
 

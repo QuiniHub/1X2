@@ -54,6 +54,14 @@ SCRIPTS_NO_CRITICOS_RED = {
     "construir_historial_quinielas.py",
     "actualizar_aprendizaje_ia.py",
     "generar_artefactos_compuerta_aprendizaje.py",
+    # Cuadernos del Laboratorio 26/11/2026 (walk-forward sin fuga de futuro,
+    # ~15 s en total): calibracion de la X, prior europeo y mezcla de Benter
+    # se re-miden con cada jornada cerrada; sus veredictos prerregistrados
+    # mandan sobre si actuan (hoy: calibracion DESPLEGAR en traza; prior y
+    # Benter NO_DESPLEGAR, no-op).
+    "calibracion_x.py",
+    "prior_europeo.py",
+    "mezcla_benter.py",
     # generar_diario_aprendizaje.py retirado (01/09/2026): escribia el
     # diario y construir_memoria_ia.py lo REESCRIBIA una linea despues -el
     # archivo publicado ni siquiera era el que consumian sorpresas/pesos/
@@ -67,6 +75,7 @@ SCRIPTS_NO_CRITICOS_RED = {
     "tercero_valor.py",
     "radar_tormenta.py",
     "sorpresa_nombrada.py",
+    "ranker_favoritos.py",
     "columna_valiente.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
@@ -127,6 +136,14 @@ SCRIPTS_ACTIVOS = [
     "construir_historial_quinielas.py",
     "actualizar_aprendizaje_ia.py",
     "generar_artefactos_compuerta_aprendizaje.py",
+    # Cuadernos del Laboratorio 26/11/2026 (walk-forward sin fuga de futuro,
+    # ~15 s en total): calibracion de la X, prior europeo y mezcla de Benter
+    # se re-miden con cada jornada cerrada; sus veredictos prerregistrados
+    # mandan sobre si actuan (hoy: calibracion DESPLEGAR en traza; prior y
+    # Benter NO_DESPLEGAR, no-op).
+    "calibracion_x.py",
+    "prior_europeo.py",
+    "mezcla_benter.py",
     # generar_diario_aprendizaje.py retirado (01/09/2026): escribia el
     # diario y construir_memoria_ia.py lo REESCRIBIA una linea despues -el
     # archivo publicado ni siquiera era el que consumian sorpresas/pesos/
@@ -196,6 +213,12 @@ SCRIPTS_ACTIVOS = [
     # publicada y medida SIN dinero (bloque "sorpresa_nombrada"). Corre tras
     # el radar: misma prediccion.
     "sorpresa_nombrada.py",
+    # Ranker de favoritos en riesgo (26/11/2026, informe 'Algoritmos contra
+    # nuestros fallos', punto 6): SOLO SOMBRA (walk-forward NO_SEPARA con n=42);
+    # publica el bloque "favoritos_en_riesgo" con UN favorito nombrado por
+    # jornada y lo mide en marcador_ranker_favoritos.json. Usa las señales de
+    # sorpresa_nombrada: corre despues.
+    "ranker_favoritos.py",
     # Columna valiente europea (23/11/2026, bronca de Marc "de que sirve anotar
     # si no lo aplicas"): en jornadas europeas publica la columna sencilla con
     # las sorpresas puestas (X en los sin dueno, espanol favorito fuera, la
@@ -218,6 +241,11 @@ SCRIPTS_ACTIVOS = [
     # --- Cierre final: web y publicacion ---
     "ajustar_aprendizaje_elige8.py",
     "aplicar_elige8_seguro.py",
+    # Elige 8 EV (26/11/2026, punto 5 del informe): calculadora informativa
+    # (P(8/8), coste, break-even, premio esperado condicionado a la jornada,
+    # reglas 'mas probables' / 'edge' / 'triples dentro'); la bandera
+    # 'recomendado' no se despliega (backtest NO_DESPLEGAR). Lee elige8_seguro.
+    "elige8_ev.py",
     "construir_memoria_historica_profunda.py",
     "limpiar_prediccion_bloqueada.py",
     "seleccionar_pleno15.py",

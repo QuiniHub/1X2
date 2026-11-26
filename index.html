@@ -573,6 +573,29 @@
         <div class="card-body" id="valienteBody"></div>
       </div>
 
+      <!-- Favoritos en riesgo (26/11/2026, punto 6 del informe): ranker en
+           SOMBRA (walk-forward NO_SEPARA) que ordena los favoritos >=60% y
+           nombra UNO por jornada. ranker_favoritos.py; marcador en
+           data/memoria_ia/marcador_ranker_favoritos.json. -->
+      <div class="card" id="favoritosRiesgoCard" style="display:none;margin-top:16px">
+        <div class="card-head">
+          <h2>🛡️ Favoritos en riesgo</h2>
+          <span class="tag" style="background:#92400e22;color:#78350f">uno nombrado · modo sombra</span>
+        </div>
+        <div class="card-body" id="favoritosRiesgoBody"></div>
+      </div>
+
+      <!-- Elige 8 EV (26/11/2026, punto 5 del informe): calculadora
+           informativa de P(8/8), coste, break-even y premio esperado
+           condicionado a la jornada. elige8_ev.py. -->
+      <div class="card" id="elige8EvCard" style="display:none;margin-top:16px">
+        <div class="card-head">
+          <h2>🧮 Elige 8: lo que paga de verdad</h2>
+          <span class="tag" style="background:#1d4ed822;color:#1e3a8a">calculadora · solo información</span>
+        </div>
+        <div class="card-body" id="elige8EvBody"></div>
+      </div>
+
       <!-- Columna valiente europea (23/11/2026, bronca de Marc: "no quiero solo
            los % de mas peso, quiero que prediga los de menos peso jugandosela").
            En jornadas europeas: la columna sencilla con las sorpresas puestas
@@ -706,6 +729,10 @@
          aparece cuando auditoria_automatica.json trae candidatos. -->
     <section id="laboratorio" class="tab-panel">
       <div id="labCandidato"></div>
+      <!-- Veredictos del Laboratorio 26/11/2026 (informe "Algoritmos contra
+           nuestros fallos 1X2"): cada modulo con su criterio prerregistrado,
+           su numero y su veredicto. Lee los JSON de backtest del repo. -->
+      <div id="labVeredictos"></div>
       <div class="lab-grid" id="labCards"></div>
       <p class="subtitle" id="labLeyenda" style="margin-top:14px;font-size:13px">
         <span class="lab-sem verde"><span class="punto-sem"></span>verde</span> cumple su promesa ·
@@ -1710,6 +1737,76 @@
         <p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ ${escapeHtml(bloque?.aviso || 'Experimental: modo sombra, sin dinero hasta graduarse con el criterio prerregistrado.')}</p>`;
     }
 
+    // 🛡️ Favoritos en riesgo (26/11/2026): ranker en sombra; nombra UN favorito
+    // por jornada (regla "cubrir lo que se nombra") y lista el resto por score.
+    function renderFavoritosRiesgo() {
+      const card = qs('#favoritosRiesgoCard');
+      if (!card) return;
+      const b = state.prediccion?.favoritos_en_riesgo;
+      if (!b || b.estado !== 'ok' || !arr(b.ranking).length) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      const chip = sg => `<span style="padding:2px 8px;border-radius:7px;background:#92400e14;border:1.5px solid #92400e66;color:#78350f;font-weight:800">${escapeHtml(sg || '?')}</span>`;
+      const n = b.nombrado || b.ranking[0];
+      const resumen = state.marcadorRankerFavoritos?.resumen;
+      const filas = arr(b.ranking).slice(0, 6).map(f => `<li style="margin:3px 0">${f.puesto}. P${fmt(f.num, '?')} ${escapeHtml(f.local || '')} - ${escapeHtml(f.visitante || '')}: favorito ${escapeHtml(f.favorito)} al ${fmt(Math.round((f.p_fav || 0) * 100), '-')}% (la masa lo juega al ${fmt(Math.round((f.masa_fav || 0) * 100), '-')}%)${f.n_senales ? ` · ${fmt(f.n_senales, 0)} señal(es)` : ''} · si cae: ${chip(f.signo_si_cae)}</li>`).join('');
+      qs('#favoritosRiesgoBody').innerHTML = `
+        <p style="margin:0 0 6px;font-size:16px;font-weight:800">Nombrado: P${fmt(n.num, '?')} ${escapeHtml(n.local || '')} - ${escapeHtml(n.visitante || '')} ${chip(n.signo_si_cae)} <span style="font-size:13px;color:var(--muted,#888);font-weight:600">si cae el favorito ${escapeHtml(n.favorito)}</span></p>
+        <ul style="margin:0 0 8px;padding-left:20px;color:var(--fg,#333)">${filas}</ul>
+        <p class="subtitle" style="margin:0 0 4px">${escapeHtml(b.lectura || '')}</p>
+        ${resumen && Number(resumen.jornadas_evaluadas) > 0 ? `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> el nombrado cayó ${fmt(resumen.nombrado_cayo, 0)} de ${fmt(resumen.jornadas_evaluadas, 0)} (esperado ${fmt(resumen.esperado, '-')}) · ${escapeHtml(resumen.veredicto || '')}</p>` : ''}
+        <p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ Backtest walk-forward: ${escapeHtml(b.veredicto_backtest || 'NO_SEPARA')} con muestra corta. Orden de vigilancia, no probabilidad. Jugar dinero real lo decide siempre Marc.</p>`;
+    }
+
+    // 🧮 Elige 8 EV (26/11/2026): P(8/8), coste, break-even y premio esperado por regla.
+    function renderElige8Ev() {
+      const card = qs('#elige8EvCard');
+      if (!card) return;
+      const e = state.prediccion?.elige8_ev;
+      if (!e || e.estado !== 'ok' || !e.reglas) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      const nombres = { actual_elige8_seguro: 'La selección actual de la web', mas_probables: '8 más probables', edge: 'Regla "edge" (contra la masa)', triples_dentro: 'Con los triples/dobles dentro' };
+      const filas = Object.entries(e.reglas).map(([k, r]) => `<tr>
+        <td style="padding:4px 8px">${escapeHtml(nombres[k] || k)}<br><span style="color:var(--muted,#888);font-size:12px">P${arr(r.seleccion).join(', P')}</span></td>
+        <td style="padding:4px 8px;text-align:right">${fmt(((r.p_8de8 || 0) * 100).toFixed(1), '-')}%</td>
+        <td style="padding:4px 8px;text-align:right">${fmt((r.coste || 0).toFixed(2), '-')} €</td>
+        <td style="padding:4px 8px;text-align:right">${fmt((r.break_even || 0).toFixed(2), '-')} €</td>
+        <td style="padding:4px 8px;text-align:right">${r.premio_esperado == null ? '-' : fmt(r.premio_esperado.toFixed(2), '-') + ' €'}</td>
+        <td style="padding:4px 8px;text-align:right;font-weight:700;color:${(r.ev || 0) > 0 ? '#15803d' : '#b91c1c'}">${r.ev == null ? '-' : (r.ev > 0 ? '+' : '') + fmt(r.ev.toFixed(2), '-') + ' €'}</td></tr>`).join('');
+      qs('#elige8EvBody').innerHTML = `
+        <p class="subtitle" style="margin:0 0 8px">Jornada <b>${escapeHtml(e.tipo_jornada || '')}</b>. En jornadas europeas de jueves, cuando los favoritos cumplen, el Elige 8 reparte entre el 10-15% de las apuestas y paga 1,8-2,9 €; solo paga de verdad cuando caen 5 o más favoritos de la masa.</p>
+        <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="color:var(--muted,#888)"><th style="text-align:left;padding:4px 8px">Regla</th><th style="padding:4px 8px;text-align:right">P(8/8)</th><th style="padding:4px 8px;text-align:right">Coste</th><th style="padding:4px 8px;text-align:right">Break-even</th><th style="padding:4px 8px;text-align:right">Premio esperado si aciertas</th><th style="padding:4px 8px;text-align:right">EV</th></tr></thead>
+          <tbody>${filas}</tbody></table></div>
+        <p class="subtitle" style="margin:8px 0 0;color:var(--muted,#888)">⚠ ${escapeHtml(e.aviso || 'Solo información.')} Backtest 26/27: "8 más probables" acertó 2 de 15 y perdió 22 €; la regla edge perdió 3 €.</p>`;
+    }
+
+    // 🧪 Veredictos del Laboratorio 26/11/2026: un semáforo por módulo con su criterio prerregistrado.
+    function renderLabVeredictos() {
+      const cont = qs('#labVeredictos');
+      if (!cont) return;
+      const cal = state.labCalibracionX, pri = state.labPriorEuropeo, ben = state.labBenter, e8 = state.labElige8, rk = state.labRanker, cv = state.marcadorColumnaValiente;
+      if (!cal && !pri && !ben && !e8 && !rk) { cont.innerHTML = ''; return; }
+      const sem = v => ({ DESPLEGAR: ['verde', 'cumple su criterio: actúa (hoy en traza)'], CANDIDATA: ['verde', 'candidata'], candidata: ['verde', 'candidata'], NO_DESPLEGAR: ['rojo', 'no cumple: no actúa (no-op)'], NO_SEPARA: ['ambar', 'no separa: solo sombra'], en_prueba: ['ambar', 'en prueba'], suspendida: ['rojo', 'suspendida'] }[v] || ['ambar', v || 'sin veredicto']);
+      const fila = (titulo, veredicto, numero, lectura) => { const [c, t] = sem(veredicto); return `<div class="card" style="margin:0"><div class="card-body" style="padding:12px 14px">
+        <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${titulo}</b><span class="lab-sem ${c}"><span class="punto-sem"></span>${escapeHtml(t)}</span></div>
+        <p class="subtitle" style="margin:6px 0 0;font-size:12.5px"><b>${escapeHtml(numero)}</b> ${escapeHtml(lectura)}</p></div></div>`; };
+      const wf = cal?.snapshots?.walk_forward || {};
+      const pb = pri?.backtest || {};
+      const bm = ben?.walk_forward?.metricas_oos || {};
+      const e8r = e8?.por_regla || {};
+      const rw = rk?.walk_forward || {};
+      const cvr = cv?.resumen || {};
+      cont.innerHTML = `<p class="subtitle" style="margin:0 0 8px;font-size:12.5px">🧪 <b>Laboratorio 26/11/2026</b> (informe "Algoritmos contra nuestros fallos 1X2"): seis piezas con criterio escrito ANTES de mirar los datos. Lo que no cumple, no actúa.</p>
+        <div class="lab-grid" style="margin-bottom:14px">
+        ${fila('Calibración de la X por franja', cal?.veredicto, `walk-forward ${fmt(wf.n, '?')} partidos: log-loss ${fmt(wf.sin_calibrar?.log_loss, '-')} → ${fmt(wf.calibrado?.log_loss, '-')}, mejora en ${fmt(wf.jornadas_mejoran, '?')} jornadas y empeora en ${fmt(wf.jornadas_empeoran, '?')}.`, 'El motor pone demasiadas X en los partidos parejos, sobre todo fuera de España; la franja 65-80 NO está descalibrada. Actúa en traza una tanda de jornadas antes de mandar.')}
+        ${fila('Prior europeo (menos X en Champions)', pri?.veredicto, `${fmt(pb.n_partidos, '?')} partidos europeos: motor RPS ${fmt(pb.motor_actual?.rps, '-')}, ajustado ${fmt(pb.ajustado_leave_one_out?.rps, '-')}, mercado Losilla ${fmt(pb.mercado_losilla?.rps, '-')}.`, 'La dirección es correcta pero no bate al mercado de Losilla, que en Europa es mejor que el motor en todo. No-op.')}
+        ${fila('Mezcla de Benter (motor + mercado)', ben?.veredicto, `fuera de muestra: mercado solo ${fmt(bm.mercado?.log_loss, '-')}, Benter ${fmt(bm.benter?.log_loss, '-')}, motor actual ${fmt(bm.motor_post?.log_loss, '-')} de log-loss.`, 'El mercado solo es el mejor predictor; el peso fijo del motor cuesta precisión. El motor se queda como generador de dobles, no como probabilidad.')}
+        ${fila('Elige 8: calculadora y regla edge', e8?.veredicto, `15 jornadas: "8 más probables" ${fmt(e8r.mas_probables?.aciertos_8de8, '?')}/15 y ${fmt(e8r.mas_probables?.neto, '-')} € netos; edge ${fmt(e8r.edge?.aciertos_8de8, '?')}/15 y ${fmt(e8r.edge?.neto, '-')} €.`, 'La calculadora se publica como información; la bandera "recomendado" no se despliega porque el premio condicional solo acierta el orden de magnitud en el 27% de las jornadas.')}
+        ${fila('Ranker de favoritos en riesgo', rw.veredicto, `walk-forward n=${fmt(rw.n, '?')}: AUC ${fmt(rw.auc_ranker, '-')} frente a ${fmt(rw.auc_baseline, '-')} del baseline, con solo ${fmt(rw.caidos, '?')} caídas.`, 'Muestra demasiado corta para creer la mejora. Queda en sombra nombrando un favorito por jornada.')}
+        ${fila('Columna valiente europea', cvr.veredicto || 'en_prueba', cvr.jornadas_evaluadas ? `${fmt(cvr.jornadas_evaluadas, 0)} jornadas: valiente ${fmt(cvr.aciertos_valiente, 0)} aciertos frente a ${fmt(cvr.aciertos_masa, 0)} de la masa.` : 'Empieza a contar al cerrar la J24.', 'Sencilla con las sorpresas puestas, medida contra la columna de la masa.')}
+        </div>`;
+    }
+
     // 🎲 Columna valiente europea (23/11/2026): la columna sencilla que APLICA lo
     // aprendido en las Champions de 26/27 (favorito <40% acierta 1/6 y la X sale
     // 3/6; espanol favorito fuera falla por X; >=80 no se toca; un gigante 65-79
@@ -1976,6 +2073,7 @@
       const cont = qs('#labCards');
       const banda = qs('#labCandidato');
       if (!cont) return;
+      try { renderLabVeredictos(); } catch (e) { console.warn('labVeredictos', e); }
       const cuaderno = state.aprendizajeModulos;
       const auditoria = state.auditoriaAutomatica;
 
@@ -2179,6 +2277,8 @@
       renderBoletoEvPremio();
       renderValiente();
       renderSorpresaNombrada();
+      renderFavoritosRiesgo();
+      renderElige8Ev();
       renderColumnaValiente();
       renderTerceroValor();
       applyTicketVisibility();
@@ -5154,6 +5254,12 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.marcadorTerceroValor = await getJson('data/memoria_ia/marcador_tercero_valor.json', null);
       state.marcadorSorpresaNombrada = await getJson('data/memoria_ia/marcador_sorpresa_nombrada.json', null);
       state.marcadorColumnaValiente = await getJson('data/memoria_ia/marcador_columna_valiente.json', null);
+      state.marcadorRankerFavoritos = await getJson('data/memoria_ia/marcador_ranker_favoritos.json', null);
+      state.labCalibracionX = await getJson('data/memoria_ia/backtest_calibracion_x.json', null);
+      state.labPriorEuropeo = await getJson('data/memoria_ia/backtest_prior_europeo.json', null);
+      state.labBenter = await getJson('data/memoria_ia/mezcla_benter.json', null);
+      state.labElige8 = await getJson('data/memoria_ia/backtest_elige8_ev.json', null);
+      state.labRanker = await getJson('data/memoria_ia/backtest_ranker_favoritos.json', null);
       // Marcador de sombra del Radar de Tormenta (21/10/2026): concentración
       // de terceros dentro/fuera de la zona. Carga aparte, mismo motivo.
       state.marcadorRadar = await getJson('data/memoria_ia/marcador_radar_tormenta.json', null);

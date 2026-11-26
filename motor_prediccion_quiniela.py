@@ -1784,6 +1784,33 @@ def ajustar_por_mercado_losilla(probs, mercado, calidad_datos=None, pj_minimo=No
     return normalizar_probs(p), round(riesgo_extra, 2), lecturas
 
 
+def traza_laboratorio_x(probs, mercado, nombre_local, nombre_visitante):
+    """Laboratorio 26/11/2026 (informe 'Algoritmos contra nuestros fallos'):
+    calibracion de la X por franja del favorito (backtest walk-forward
+    DESPLEGAR, pero se publica en TRAZA una tanda de jornadas antes de mandar
+    en signo_final) y prior europeo (NO_DESPLEGAR: no-op). NUNCA toca probs:
+    devuelve solo la traza para que el cuaderno mida que habria pasado. Un
+    fallo suyo jamas tumba el motor."""
+    try:
+        from calibracion_x import calibrar_x_con_traza
+        from prior_europeo import ajustar_por_competicion_europea
+        from columna_valiente import es_espanol, equipos_espanoles
+        espanoles = equipos_espanoles()
+        es_extranjero = not (es_espanol(nombre_local, espanoles) and es_espanol(nombre_visitante, espanoles))
+        competicion = "europea" if es_extranjero else "domestica"
+        calibrada, traza_cal = calibrar_x_con_traza(dict(probs), competicion=competicion)
+        _, traza_prior = ajustar_por_competicion_europea(dict(calibrada), mercado=mercado, es_extranjero=es_extranjero)
+        return {
+            "modo": "sombra",
+            "calibracion_x": {**(traza_cal or {}), "signo_top_calibrado": signo_top(calibrada),
+                              "probs_calibradas": {s: round(float(calibrada.get(s, 0)), 2) for s in ("1", "X", "2")}},
+            "prior_europeo": traza_prior or {},
+            "es_extranjero": es_extranjero,
+        }
+    except Exception as exc:  # pragma: no cover - red de seguridad
+        return {"modo": "sombra", "error": str(exc)[:160]}
+
+
 def buscar_lesiones_equipo(fuente_lesiones, nombre):
     """Busca las bajas de un equipo en fuente_lesiones_laliga.json por
     nombre difuso (mismo matcher que buscar_equipo_losilla). Esta fuente
@@ -3496,6 +3523,11 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
             pj_minimo=pj_minimo_partido,
         )
         lecturas_motivacion.extend(lecturas_mercado_losilla)
+        # Laboratorio 26/11/2026: traza en sombra (no cambia probs) de la
+        # calibracion de la X y del prior europeo, medidas sobre la P ya
+        # mezclada con Losilla. Ver DECISION_LOG 2026-11-26.
+        trazabilidad["laboratorio_x"] = traza_laboratorio_x(
+            probs, mercado_losilla_partido, partido.get("local", ""), partido.get("visitante", ""))
         # jornadaperfecta.com es respaldo -solo se consulta cuando la
         # fuente principal (FutbolFantasy) no tiene datos de ese equipo
         # concreto (buscar_lesiones_equipo devuelve [] si no lo encuentra).

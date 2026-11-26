@@ -1,0 +1,758 @@
+{
+  "version": "1.0",
+  "generado_en": "2026-11-26T07:31:52.656887+00:00",
+  "criterio_prerregistrado": {
+    "fecha": "2026-11-25",
+    "origen": "reports/Algoritmos contra nuestros fallos 1X2.md, implantacion 4 (Benter walk-forward)",
+    "candidata_si": [
+      "alpha > 0 en >= 80 % de los folds walk-forward",
+      "log-loss walk-forward de Benter < log-loss del mercado solo",
+      "log-loss walk-forward de Benter < log-loss del motor actual (motor_post, pesos fijos por calidad)"
+    ],
+    "si_no": "NO_DESPLEGAR: el motor sigue como generador de dobles/triples; la probabilidad no cambia",
+    "nota_potencia": "Con n~400-500 partidos emparejados solo es detectable un delta de log-loss del orden de >= 0.01 (se publica el IC95 bootstrap por jornada real); una diferencia menor es ruido aunque tenga el signo deseado.",
+    "temperatura": "La recalibracion por temperatura se ajusta en los folds de entrenamiento y se aplica fuera de muestra. Para Benter T es matematicamente redundante (alpha y beta ya absorben la escala) y debe salir ~1; se publica como control. Donde importa es en la mezcla lineal (Ranjan & Gneiting 2010)."
+  },
+  "metodo": {
+    "mezcla": "c_i prop. exp(alpha*ln p_motor_pre_i + beta*ln q_mercado_i); alpha, beta por log-loss multinomial (scipy L-BFGS-B)",
+    "p_motor_pre": "inversion de la mezcla lineal del motor: p_pre=(p_post-peso*q)/(1-peso), recorte [0.01,0.98] y renormalizacion; incluye los retoques posteriores a la mezcla (lesiones, revulsivo, motivacion)",
+    "validacion": "walk-forward por jornada en orden cronologico (ajuste con todas las anteriores) + leave-one-season-out; bootstrap emparejado por jornada",
+    "orden": "por fecha real de la jornada, nunca por numero (reinicio de temporada LAE)"
+  },
+  "dataset": {
+    "partidos": 376,
+    "jornadas": 27,
+    "temporadas": [
+      "2025/2026",
+      "2026/2027"
+    ],
+    "por_calidad_datos": {
+      "baja": 155,
+      "alta": 171,
+      "media_baja": 50
+    },
+    "por_peso_mercado": {
+      "0.65": 155,
+      "0.20": 148,
+      "0.45": 73
+    },
+    "origen_peso": {
+      "lectura": 376
+    }
+  },
+  "estado": "ok",
+  "walk_forward": {
+    "partidos_oos": 320,
+    "folds": [
+      {
+        "jornada": 2,
+        "fecha": "2026-08-23",
+        "n_entrenamiento": 56,
+        "n_test": 14,
+        "alpha": 0.2253,
+        "beta": 0.5998,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.8692,
+        "log_loss_test": {
+          "motor_pre": 1.21899,
+          "mercado": 1.03795,
+          "motor_post": 1.10213,
+          "benter": 1.03437,
+          "benter_T": 1.03437,
+          "lineal_50": 1.03655,
+          "lineal_50_T": 1.03163
+        }
+      },
+      {
+        "jornada": 3,
+        "fecha": "2026-08-30",
+        "n_entrenamiento": 70,
+        "n_test": 14,
+        "alpha": 0.2128,
+        "beta": 0.651,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.7955,
+        "log_loss_test": {
+          "motor_pre": 1.21129,
+          "mercado": 0.90973,
+          "motor_post": 1.07657,
+          "benter": 0.95891,
+          "benter_T": 0.95891,
+          "lineal_50": 1.0061,
+          "lineal_50_T": 0.99284
+        }
+      },
+      {
+        "jornada": 4,
+        "fecha": "2026-09-06",
+        "n_entrenamiento": 84,
+        "n_test": 14,
+        "alpha": 0.2128,
+        "beta": 0.7847,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.7163,
+        "log_loss_test": {
+          "motor_pre": 1.17456,
+          "mercado": 0.95597,
+          "motor_post": 1.0613,
+          "benter": 0.97452,
+          "benter_T": 0.97452,
+          "lineal_50": 1.0211,
+          "lineal_50_T": 1.01843
+        }
+      },
+      {
+        "jornada": 5,
+        "fecha": "2026-09-09",
+        "n_entrenamiento": 98,
+        "n_test": 14,
+        "alpha": 0.1313,
+        "beta": 0.8024,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.7319,
+        "log_loss_test": {
+          "motor_pre": 1.04828,
+          "mercado": 0.67136,
+          "motor_post": 0.78095,
+          "benter": 0.71124,
+          "benter_T": 0.71124,
+          "lineal_50": 0.80827,
+          "lineal_50_T": 0.73302
+        }
+      },
+      {
+        "jornada": 6,
+        "fecha": "2026-09-13",
+        "n_entrenamiento": 112,
+        "n_test": 14,
+        "alpha": 0.2551,
+        "beta": 0.9725,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.5746,
+        "log_loss_test": {
+          "motor_pre": 0.9854,
+          "mercado": 0.94494,
+          "motor_post": 0.93576,
+          "benter": 0.92971,
+          "benter_T": 0.92971,
+          "lineal_50": 0.94446,
+          "lineal_50_T": 0.91084
+        }
+      },
+      {
+        "jornada": 7,
+        "fecha": "2026-09-16",
+        "n_entrenamiento": 126,
+        "n_test": 14,
+        "alpha": 0.3125,
+        "beta": 0.9773,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.5681,
+        "log_loss_test": {
+          "motor_pre": 1.22942,
+          "mercado": 0.99621,
+          "motor_post": 1.09078,
+          "benter": 1.05563,
+          "benter_T": 1.05563,
+          "lineal_50": 1.07795,
+          "lineal_50_T": 1.15522
+        }
+      },
+      {
+        "jornada": 8,
+        "fecha": "2026-09-20",
+        "n_entrenamiento": 140,
+        "n_test": 14,
+        "alpha": 0.1076,
+        "beta": 0.9388,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6469,
+        "log_loss_test": {
+          "motor_pre": 0.95488,
+          "mercado": 0.86606,
+          "motor_post": 0.87053,
+          "benter": 0.85662,
+          "benter_T": 0.85662,
+          "lineal_50": 0.88152,
+          "lineal_50_T": 0.81282
+        }
+      },
+      {
+        "jornada": 9,
+        "fecha": "2026-09-27",
+        "n_entrenamiento": 154,
+        "n_test": 14,
+        "alpha": 0.2239,
+        "beta": 0.9777,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.5973,
+        "log_loss_test": {
+          "motor_pre": 1.14308,
+          "mercado": 1.34417,
+          "motor_post": 1.15846,
+          "benter": 1.34679,
+          "benter_T": 1.34679,
+          "lineal_50": 1.17277,
+          "lineal_50_T": 1.28755
+        }
+      },
+      {
+        "jornada": 10,
+        "fecha": "2026-09-30",
+        "n_entrenamiento": 168,
+        "n_test": 14,
+        "alpha": 0.1685,
+        "beta": 0.8325,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6938,
+        "log_loss_test": {
+          "motor_pre": 1.08464,
+          "mercado": 0.93423,
+          "motor_post": 0.94968,
+          "benter": 0.93032,
+          "benter_T": 0.93032,
+          "lineal_50": 0.96717,
+          "lineal_50_T": 0.9474
+        }
+      },
+      {
+        "jornada": 11,
+        "fecha": "2026-10-04",
+        "n_entrenamiento": 182,
+        "n_test": 14,
+        "alpha": 0.1702,
+        "beta": 0.8351,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6849,
+        "log_loss_test": {
+          "motor_pre": 1.05948,
+          "mercado": 0.97495,
+          "motor_post": 0.97989,
+          "benter": 0.97685,
+          "benter_T": 0.97685,
+          "lineal_50": 0.98786,
+          "lineal_50_T": 0.97585
+        }
+      },
+      {
+        "jornada": 12,
+        "fecha": "2026-10-11",
+        "n_entrenamiento": 196,
+        "n_test": 14,
+        "alpha": 0.1712,
+        "beta": 0.8426,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6839,
+        "log_loss_test": {
+          "motor_pre": 0.95915,
+          "mercado": 0.88751,
+          "motor_post": 0.94032,
+          "benter": 0.89231,
+          "benter_T": 0.89231,
+          "lineal_50": 0.91651,
+          "lineal_50_T": 0.87959
+        }
+      },
+      {
+        "jornada": 13,
+        "fecha": "2026-10-14",
+        "n_entrenamiento": 210,
+        "n_test": 14,
+        "alpha": 0.2126,
+        "beta": 0.8684,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6641,
+        "log_loss_test": {
+          "motor_pre": 1.005,
+          "mercado": 1.03609,
+          "motor_post": 0.98586,
+          "benter": 1.00532,
+          "benter_T": 1.00532,
+          "lineal_50": 0.9737,
+          "lineal_50_T": 0.9583
+        }
+      },
+      {
+        "jornada": 14,
+        "fecha": "2026-10-18",
+        "n_entrenamiento": 224,
+        "n_test": 14,
+        "alpha": 0.2665,
+        "beta": 0.8431,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6638,
+        "log_loss_test": {
+          "motor_pre": 0.96071,
+          "mercado": 0.77421,
+          "motor_post": 0.8725,
+          "benter": 0.7872,
+          "benter_T": 0.7872,
+          "lineal_50": 0.85167,
+          "lineal_50_T": 0.78362
+        }
+      },
+      {
+        "jornada": 15,
+        "fecha": "2026-10-21",
+        "n_entrenamiento": 238,
+        "n_test": 14,
+        "alpha": 0.2969,
+        "beta": 0.8843,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6329,
+        "log_loss_test": {
+          "motor_pre": 1.09401,
+          "mercado": 1.30185,
+          "motor_post": 1.16121,
+          "benter": 1.26755,
+          "benter_T": 1.26755,
+          "lineal_50": 1.14668,
+          "lineal_50_T": 1.22789
+        }
+      },
+      {
+        "jornada": 16,
+        "fecha": "2026-10-25",
+        "n_entrenamiento": 252,
+        "n_test": 14,
+        "alpha": 0.2922,
+        "beta": 0.8088,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6813,
+        "log_loss_test": {
+          "motor_pre": 0.97879,
+          "mercado": 0.89379,
+          "motor_post": 0.92413,
+          "benter": 0.89636,
+          "benter_T": 0.89636,
+          "lineal_50": 0.92431,
+          "lineal_50_T": 0.89106
+        }
+      },
+      {
+        "jornada": 17,
+        "fecha": "2026-10-28",
+        "n_entrenamiento": 266,
+        "n_test": 14,
+        "alpha": 0.314,
+        "beta": 0.8237,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6692,
+        "log_loss_test": {
+          "motor_pre": 0.90839,
+          "mercado": 0.6593,
+          "motor_post": 0.76998,
+          "benter": 0.67559,
+          "benter_T": 0.67559,
+          "lineal_50": 0.7668,
+          "lineal_50_T": 0.65912
+        }
+      },
+      {
+        "jornada": 18,
+        "fecha": "2026-11-01",
+        "n_entrenamiento": 280,
+        "n_test": 14,
+        "alpha": 0.3662,
+        "beta": 0.8757,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6254,
+        "log_loss_test": {
+          "motor_pre": 0.94051,
+          "mercado": 0.83324,
+          "motor_post": 0.8971,
+          "benter": 0.82931,
+          "benter_T": 0.82931,
+          "lineal_50": 0.87926,
+          "lineal_50_T": 0.82877
+        }
+      },
+      {
+        "jornada": 19,
+        "fecha": "2026-11-05",
+        "n_entrenamiento": 294,
+        "n_test": 14,
+        "alpha": 0.3845,
+        "beta": 0.8908,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6155,
+        "log_loss_test": {
+          "motor_pre": 1.04401,
+          "mercado": 0.7766,
+          "motor_post": 0.88315,
+          "benter": 0.79469,
+          "benter_T": 0.79469,
+          "lineal_50": 0.87856,
+          "lineal_50_T": 0.81454
+        }
+      },
+      {
+        "jornada": 20,
+        "fecha": "2026-11-08",
+        "n_entrenamiento": 308,
+        "n_test": 14,
+        "alpha": 0.3666,
+        "beta": 0.9175,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6034,
+        "log_loss_test": {
+          "motor_pre": 1.0473,
+          "mercado": 0.93558,
+          "motor_post": 1.01253,
+          "benter": 0.95247,
+          "benter_T": 0.95247,
+          "lineal_50": 0.98336,
+          "lineal_50_T": 0.98175
+        }
+      },
+      {
+        "jornada": 21,
+        "fecha": "2026-11-15",
+        "n_entrenamiento": 322,
+        "n_test": 14,
+        "alpha": 0.3359,
+        "beta": 0.9246,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6099,
+        "log_loss_test": {
+          "motor_pre": 0.98854,
+          "mercado": 1.24378,
+          "motor_post": 1.04375,
+          "benter": 1.18454,
+          "benter_T": 1.18454,
+          "lineal_50": 1.07129,
+          "lineal_50_T": 1.11024
+        }
+      },
+      {
+        "jornada": 22,
+        "fecha": "2026-11-18",
+        "n_entrenamiento": 336,
+        "n_test": 14,
+        "alpha": 0.4144,
+        "beta": 0.8696,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6264,
+        "log_loss_test": {
+          "motor_pre": 0.92739,
+          "mercado": 0.63044,
+          "motor_post": 0.71782,
+          "benter": 0.63706,
+          "benter_T": 0.63706,
+          "lineal_50": 0.75988,
+          "lineal_50_T": 0.64284
+        }
+      },
+      {
+        "jornada": 23,
+        "fecha": "2026-11-22",
+        "n_entrenamiento": 350,
+        "n_test": 14,
+        "alpha": 0.4312,
+        "beta": 0.9073,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.6014,
+        "log_loss_test": {
+          "motor_pre": 0.93796,
+          "mercado": 0.75433,
+          "motor_post": 0.86357,
+          "benter": 0.76305,
+          "benter_T": 0.76305,
+          "lineal_50": 0.83406,
+          "lineal_50_T": 0.78211
+        }
+      },
+      {
+        "jornada": 24,
+        "fecha": "2026-11-25",
+        "n_entrenamiento": 364,
+        "n_test": 12,
+        "alpha": 0.4181,
+        "beta": 0.9249,
+        "T_benter": 1.0,
+        "T_lineal_50": 0.5976,
+        "log_loss_test": {
+          "motor_pre": 1.0162,
+          "mercado": 0.94324,
+          "motor_post": 0.96632,
+          "benter": 0.96026,
+          "benter_T": 0.96026,
+          "lineal_50": 0.94933,
+          "lineal_50_T": 0.97607
+        }
+      }
+    ],
+    "estabilidad": {
+      "folds": 23,
+      "alpha_media": 0.2735,
+      "alpha_sd": 0.0931,
+      "alpha_min": 0.1076,
+      "alpha_max": 0.4312,
+      "alpha_positivo_folds": 23,
+      "alpha_positivo_fraccion": 1.0,
+      "beta_media": 0.8588,
+      "beta_sd": 0.0906,
+      "beta_min": 0.5998,
+      "beta_max": 0.9777,
+      "ultimo_fold": {
+        "alpha": 0.4181,
+        "beta": 0.9249
+      }
+    },
+    "metricas_oos": {
+      "motor_pre": {
+        "n": 320,
+        "log_loss": 1.04006,
+        "rps": 0.2196
+      },
+      "mercado": {
+        "n": 320,
+        "log_loss": 0.92622,
+        "rps": 0.19121
+      },
+      "motor_post": {
+        "n": 320,
+        "log_loss": 0.9584,
+        "rps": 0.19831
+      },
+      "benter": {
+        "n": 320,
+        "log_loss": 0.93115,
+        "rps": 0.19232
+      },
+      "benter_T": {
+        "n": 320,
+        "log_loss": 0.93115,
+        "rps": 0.19232
+      },
+      "lineal_50": {
+        "n": 320,
+        "log_loss": 0.94953,
+        "rps": 0.19644
+      },
+      "lineal_50_T": {
+        "n": 320,
+        "log_loss": 0.93022,
+        "rps": 0.1916
+      }
+    },
+    "comparaciones_bootstrap_por_jornada": {
+      "benter_menos_mercado": {
+        "log_loss": {
+          "media": 0.00493,
+          "ic95": [
+            -0.00539,
+            0.01512
+          ],
+          "jornadas": 23,
+          "significativa_95": false
+        },
+        "rps": {
+          "media": 0.00111,
+          "ic95": [
+            -0.00161,
+            0.00363
+          ],
+          "jornadas": 23,
+          "significativa_95": false
+        }
+      },
+      "benter_menos_motor_post": {
+        "log_loss": {
+          "media": -0.02725,
+          "ic95": [
+            -0.05576,
+            0.00544
+          ],
+          "jornadas": 23,
+          "significativa_95": false
+        },
+        "rps": {
+          "media": -0.006,
+          "ic95": [
+            -0.014,
+            0.003
+          ],
+          "jornadas": 23,
+          "significativa_95": false
+        }
+      },
+      "benter_T_menos_mercado": {
+        "log_loss": {
+          "media": 0.00493,
+          "ic95": [
+            -0.00539,
+            0.01512
+          ],
+          "jornadas": 23,
+          "significativa_95": false
+        },
+        "rps": {
+          "media": 0.00111,
+          "ic95": [
+            -0.00161,
+            0.00363
+          ],
+          "jornadas": 23,
+          "significativa_95": false
+        }
+      },
+      "motor_post_menos_mercado": {
+        "log_loss": {
+          "media": 0.03218,
+          "ic95": [
+            -0.00782,
+            0.0661
+          ],
+          "jornadas": 23,
+          "significativa_95": false
+        },
+        "rps": {
+          "media": 0.0071,
+          "ic95": [
+            -0.00389,
+            0.01661
+          ],
+          "jornadas": 23,
+          "significativa_95": false
+        }
+      },
+      "motor_pre_menos_mercado": {
+        "log_loss": {
+          "media": 0.11384,
+          "ic95": [
+            0.0455,
+            0.17495
+          ],
+          "jornadas": 23,
+          "significativa_95": true
+        },
+        "rps": {
+          "media": 0.02839,
+          "ic95": [
+            0.00912,
+            0.0458
+          ],
+          "jornadas": 23,
+          "significativa_95": true
+        }
+      },
+      "lineal_50_menos_mercado": {
+        "log_loss": {
+          "media": 0.02331,
+          "ic95": [
+            -0.01319,
+            0.05514
+          ],
+          "jornadas": 23,
+          "significativa_95": false
+        },
+        "rps": {
+          "media": 0.00523,
+          "ic95": [
+            -0.00473,
+            0.01384
+          ],
+          "jornadas": 23,
+          "significativa_95": false
+        }
+      },
+      "lineal_50_T_menos_mercado": {
+        "log_loss": {
+          "media": 0.00399,
+          "ic95": [
+            -0.02076,
+            0.02823
+          ],
+          "jornadas": 23,
+          "significativa_95": false
+        },
+        "rps": {
+          "media": 0.00039,
+          "ic95": [
+            -0.00604,
+            0.00655
+          ],
+          "jornadas": 23,
+          "significativa_95": false
+        }
+      }
+    }
+  },
+  "leave_one_season_out": {
+    "estado": "ok",
+    "folds": [
+      {
+        "temporada_test": "2025/2026",
+        "n_entrenamiento": 334,
+        "n_test": 42,
+        "alpha": 0.3928,
+        "beta": 0.9567,
+        "T_benter": 1.0,
+        "metricas_test": {
+          "motor_pre": {
+            "n": 42,
+            "log_loss": 1.10947,
+            "rps": 0.25045
+          },
+          "mercado": {
+            "n": 42,
+            "log_loss": 1.09363,
+            "rps": 0.25439
+          },
+          "motor_post": {
+            "n": 42,
+            "log_loss": 1.07071,
+            "rps": 0.24525
+          },
+          "benter": {
+            "n": 42,
+            "log_loss": 1.09414,
+            "rps": 0.2536
+          },
+          "benter_T": {
+            "n": 42,
+            "log_loss": 1.09414,
+            "rps": 0.2536
+          },
+          "lineal_50": {
+            "n": 42,
+            "log_loss": 1.07078,
+            "rps": 0.24389
+          },
+          "lineal_50_T": {
+            "n": 42,
+            "log_loss": 1.08898,
+            "rps": 0.25066
+          }
+        }
+      },
+      {
+        "temporada_test": "2026/2027",
+        "estado": "muestra_insuficiente",
+        "n_entrenamiento": 42,
+        "n_test": 334
+      }
+    ]
+  },
+  "potencia": {
+    "n_partidos_oos": 320,
+    "sd_diferencia_log_loss_benter_vs_mercado": 0.1004,
+    "sd_diferencia_rps_motor_post_vs_mercado": 0.0859,
+    "delta_log_loss_minimo_detectable_con_n": 0.0157,
+    "delta_rps_minimo_detectable_con_n": 0.0135,
+    "partidos_para_detectar_delta_log_loss_0.01": 791,
+    "partidos_para_detectar_delta_rps_0.002": 14491,
+    "partidos_para_detectar_delta_rps_0.005": 2319,
+    "nota": "potencia 80 %, alfa 0,05 bilateral, test emparejado por partido; el bootstrap por jornada es mas conservador"
+  },
+  "parametros_finales_todo_el_dataset": {
+    "alpha": 0.3945,
+    "beta": 0.9107,
+    "T": 1.0,
+    "nota": "ajuste in-sample con todas las filas; solo se usa si el veredicto es CANDIDATA"
+  },
+  "veredicto": "NO_DESPLEGAR",
+  "lectura": "Benter no bate al mercado solo fuera de muestra (0.9312 vs 0.9262) aunque alpha salga positivo en el ajuste (+0.274 de media): la ganancia in-sample del motor no sobrevive al walk-forward. Dato colateral: el motor actual con pesos fijos pierde +0.0322 de log-loss frente al mercado solo; la mezcla estimada recorta esa perdida pero no la invierte. El mejor predictor de probabilidad disponible sigue siendo el mercado; el motor conserva su papel de generador de dobles/triples.",
+  "implicacion_para_el_motor": "NO se toca ajustar_por_mercado_losilla ni PESO_MERCADO_LOSILLA_POR_CALIDAD. Si algun dia el veredicto es CANDIDATA, el punto de enganche es sustituir la mezcla lineal de ajustar_por_mercado_losilla por mezclar_benter(probs, mercado, alpha, beta, T) con los parametros de cargar_parametros()."
+}
