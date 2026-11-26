@@ -1,0 +1,2960 @@
+{
+  "version": 1,
+  "generado_en": "2026-11-26T09:33:54.049862+00:00",
+  "descripcion": "Backtest prerregistrado del optimizador de boleto (knapsack en logaritmos + busqueda local Clair-Letscher) frente a los boletos realmente jugados en la 26/27.",
+  "criterios_prerregistrados": {
+    "C1": "premio total simulado del optimizador (escrutinio real, nuestras columnas anadidas a los acertantes) >= premio total real cobrado por nuestros boletos, en jornadas con premio conocido",
+    "C2": "numero de jornadas con >=13 aciertos de la mejor columna >= el de nuestros boletos",
+    "veredicto": "supera solo si C1 y C2; variante principal = premio_esperado sin contra_masa; las 6 variantes se informan",
+    "presupuesto": "mismas columnas que jugamos (apuestas pagadas si el boleto fue reducido)",
+    "sin_fuga": "snapshot pre-cierre inmutable + % LAE pre-cierre; recaudacion walk-forward; factor_acertantes=1"
+  },
+  "fuente_probabilidades": "motor",
+  "variante_principal": "P13plus",
+  "estado": "completado",
+  "segundos_total": 49.1,
+  "jornadas_evaluadas": 22,
+  "jornadas_con_premio_nuestro_conocido": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "jornadas_sin_premio_nuestro_conocido": [
+    23
+  ],
+  "jornadas_con_premio_estimado_por_modelo": [
+    14
+  ],
+  "coste_total_eur": 1388.25,
+  "nuestro": {
+    "premio_total_real_eur_jornadas_comparables": 237.72,
+    "jornadas_con_13_o_mas": 2,
+    "media_aciertos_senales": 9.864
+  },
+  "variantes": {
+    "P13plus": {
+      "premio_total_simulado_eur_jornadas_comparables": 181.41,
+      "premio_total_simulado_eur_todas": 181.41,
+      "jornadas_con_13_o_mas": 2,
+      "media_aciertos_mejor_columna": 9.955,
+      "jornadas_mas_aciertos_que_nosotros": 7,
+      "jornadas_menos_aciertos_que_nosotros": 9,
+      "C1_premio": false,
+      "C2_trece_o_mas": true,
+      "veredicto": "no supera"
+    },
+    "P13plus__contra_masa": {
+      "premio_total_simulado_eur_jornadas_comparables": 186.06,
+      "premio_total_simulado_eur_todas": 186.06,
+      "jornadas_con_13_o_mas": 2,
+      "media_aciertos_mejor_columna": 9.955,
+      "jornadas_mas_aciertos_que_nosotros": 7,
+      "jornadas_menos_aciertos_que_nosotros": 9,
+      "C1_premio": false,
+      "C2_trece_o_mas": true,
+      "veredicto": "no supera"
+    },
+    "P14": {
+      "premio_total_simulado_eur_jornadas_comparables": 195.21,
+      "premio_total_simulado_eur_todas": 195.21,
+      "jornadas_con_13_o_mas": 2,
+      "media_aciertos_mejor_columna": 9.909,
+      "jornadas_mas_aciertos_que_nosotros": 6,
+      "jornadas_menos_aciertos_que_nosotros": 9,
+      "C1_premio": false,
+      "C2_trece_o_mas": true,
+      "veredicto": "no supera"
+    }
+  },
+  "veredicto_principal": "no supera",
+  "aviso": "Una temporada, premio simulado con modelo de reparto aproximado y recaudacion walk-forward; sin parametros ajustados pero el modelo de premio es aproximado. Orienta, no decide.",
+  "detalle": [
+    {
+      "jornada": 1,
+      "presupuesto_columnas": 32,
+      "coste_eur": 24.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 32,
+      "recaudacion_walk_forward_eur": 2200000.0,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1X",
+          "1",
+          "2",
+          "1",
+          "1",
+          "1X",
+          "2",
+          "1X",
+          "1",
+          "1",
+          "1X",
+          "1",
+          "1",
+          "1X"
+        ],
+        "aciertos_senales": 9,
+        "aciertos_historial": 9,
+        "premio_real_eur": 0.0,
+        "premio_fuente": "pendiente",
+        "premio_simulado_producto_completo_eur": 0.0,
+        "P14_modelo": 1e-06,
+        "P13plus_modelo": 2.3e-05,
+        "premio_esperado_modelo_eur": 1.7838
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "X2",
+            "X2",
+            "X2",
+            "X",
+            "X",
+            "1X",
+            "1X",
+            "X",
+            "X",
+            "X",
+            "1",
+            "X",
+            "X",
+            "X"
+          ],
+          "columnas": 32,
+          "triples": 0,
+          "dobles": 5,
+          "aciertos_mejor_columna": 8,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000171,
+          "P13plus_modelo": 0.002405,
+          "premio_esperado_modelo_eur": 572.2551,
+          "segundos": 0.499
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "X2",
+            "X2",
+            "X2",
+            "X",
+            "X",
+            "1X",
+            "1X",
+            "X",
+            "X",
+            "X",
+            "1",
+            "X",
+            "X",
+            "X"
+          ],
+          "columnas": 32,
+          "triples": 0,
+          "dobles": 5,
+          "aciertos_mejor_columna": 8,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000171,
+          "P13plus_modelo": 0.002405,
+          "premio_esperado_modelo_eur": 572.2551,
+          "segundos": 0.71
+        },
+        "P14": {
+          "signos": [
+            "X2",
+            "X2",
+            "X2",
+            "X",
+            "X",
+            "1X",
+            "1X",
+            "X",
+            "X",
+            "X",
+            "1",
+            "X",
+            "X",
+            "X"
+          ],
+          "columnas": 32,
+          "triples": 0,
+          "dobles": 5,
+          "aciertos_mejor_columna": 8,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000171,
+          "P13plus_modelo": 0.002405,
+          "premio_esperado_modelo_eur": 572.2551,
+          "segundos": 0.69
+        }
+      }
+    },
+    {
+      "jornada": 2,
+      "presupuesto_columnas": 64,
+      "coste_eur": 48.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 64,
+      "recaudacion_walk_forward_eur": 1707590.25,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1X",
+          "X2",
+          "12",
+          "1",
+          "2",
+          "1",
+          "2",
+          "1X",
+          "1X",
+          "X",
+          "X",
+          "1",
+          "X",
+          "X2"
+        ],
+        "aciertos_senales": 5,
+        "aciertos_historial": 5,
+        "premio_real_eur": 0.0,
+        "premio_fuente": "pendiente",
+        "premio_simulado_producto_completo_eur": 0.0,
+        "P14_modelo": 4.4e-05,
+        "P13plus_modelo": 0.000764,
+        "premio_esperado_modelo_eur": 53.5406
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "X2",
+            "X2",
+            "1",
+            "1X",
+            "X2",
+            "X",
+            "X",
+            "X",
+            "X",
+            "X",
+            "X",
+            "X",
+            "1X",
+            "1X"
+          ],
+          "columnas": 64,
+          "triples": 0,
+          "dobles": 6,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 8.62,
+          "desglose": {
+            "10": {
+              "columnas": 1,
+              "premio_unitario_eur": 8.62
+            }
+          },
+          "P14_modelo": 0.000236,
+          "P13plus_modelo": 0.003202,
+          "premio_esperado_modelo_eur": 1050.1365,
+          "segundos": 1.123
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "X2",
+            "X2",
+            "1",
+            "1X",
+            "X2",
+            "X",
+            "X",
+            "X",
+            "X",
+            "X",
+            "X",
+            "X",
+            "1X",
+            "1X"
+          ],
+          "columnas": 64,
+          "triples": 0,
+          "dobles": 6,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 8.62,
+          "desglose": {
+            "10": {
+              "columnas": 1,
+              "premio_unitario_eur": 8.62
+            }
+          },
+          "P14_modelo": 0.000236,
+          "P13plus_modelo": 0.003202,
+          "premio_esperado_modelo_eur": 1050.1365,
+          "segundos": 1.644
+        },
+        "P14": {
+          "signos": [
+            "X2",
+            "X2",
+            "1",
+            "1X",
+            "X2",
+            "X",
+            "X",
+            "1X",
+            "X",
+            "X",
+            "X",
+            "X",
+            "X",
+            "1X"
+          ],
+          "columnas": 64,
+          "triples": 0,
+          "dobles": 6,
+          "aciertos_mejor_columna": 9,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000236,
+          "P13plus_modelo": 0.003189,
+          "premio_esperado_modelo_eur": 1022.8691,
+          "segundos": 0.995
+        }
+      }
+    },
+    {
+      "jornada": 3,
+      "presupuesto_columnas": 72,
+      "coste_eur": 54.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 72,
+      "recaudacion_walk_forward_eur": 2077429.5,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "2",
+          "X2",
+          "2",
+          "1",
+          "1X",
+          "1",
+          "1X",
+          "X",
+          "X",
+          "2",
+          "1X2",
+          "1X2",
+          "1",
+          "1"
+        ],
+        "aciertos_senales": 10,
+        "aciertos_historial": 10,
+        "premio_real_eur": 4.64,
+        "premio_fuente": "multicolumna_loteriaanta",
+        "premio_simulado_producto_completo_eur": 4.65,
+        "P14_modelo": 3.2e-05,
+        "P13plus_modelo": 0.000627,
+        "premio_esperado_modelo_eur": 18.1496
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "1X",
+            "1",
+            "X2",
+            "1",
+            "X",
+            "X",
+            "X",
+            "1X",
+            "X",
+            "2",
+            "1",
+            "1X2",
+            "X",
+            "1X2"
+          ],
+          "columnas": 72,
+          "triples": 2,
+          "dobles": 3,
+          "aciertos_mejor_columna": 9,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000414,
+          "P13plus_modelo": 0.005313,
+          "premio_esperado_modelo_eur": 205.4187,
+          "segundos": 0.68
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "1X",
+            "1",
+            "X2",
+            "1",
+            "X",
+            "X",
+            "X",
+            "1X",
+            "X",
+            "2",
+            "1",
+            "1X2",
+            "X",
+            "1X2"
+          ],
+          "columnas": 72,
+          "triples": 2,
+          "dobles": 3,
+          "aciertos_mejor_columna": 9,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000414,
+          "P13plus_modelo": 0.005313,
+          "premio_esperado_modelo_eur": 205.4187,
+          "segundos": 1.04
+        },
+        "P14": {
+          "signos": [
+            "1X",
+            "1",
+            "X2",
+            "1",
+            "X",
+            "X",
+            "X",
+            "1X",
+            "X",
+            "2",
+            "1",
+            "1X2",
+            "X",
+            "1X2"
+          ],
+          "columnas": 72,
+          "triples": 2,
+          "dobles": 3,
+          "aciertos_mejor_columna": 9,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000414,
+          "P13plus_modelo": 0.005313,
+          "premio_esperado_modelo_eur": 205.4187,
+          "segundos": 0.556
+        }
+      }
+    },
+    {
+      "jornada": 4,
+      "presupuesto_columnas": 96,
+      "coste_eur": 72.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 96,
+      "recaudacion_walk_forward_eur": 2246904.25,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "2",
+          "X2",
+          "1X2",
+          "2",
+          "1X",
+          "X2",
+          "X2",
+          "2",
+          "1",
+          "1",
+          "2",
+          "X2",
+          "1",
+          "1"
+        ],
+        "aciertos_senales": 9,
+        "aciertos_historial": 9,
+        "premio_real_eur": 0.0,
+        "premio_fuente": "pendiente",
+        "premio_simulado_producto_completo_eur": 0.0,
+        "P14_modelo": 0.001378,
+        "P13plus_modelo": 0.013739,
+        "premio_esperado_modelo_eur": 71.0002
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "2",
+            "X2",
+            "1X2",
+            "2",
+            "1X",
+            "X2",
+            "X2",
+            "2",
+            "1",
+            "1X",
+            "2",
+            "2",
+            "1",
+            "1"
+          ],
+          "columnas": 96,
+          "triples": 1,
+          "dobles": 5,
+          "aciertos_mejor_columna": 9,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001483,
+          "P13plus_modelo": 0.014706,
+          "premio_esperado_modelo_eur": 76.9288,
+          "segundos": 0.951
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "2",
+            "X2",
+            "1X2",
+            "2",
+            "1X",
+            "X2",
+            "X2",
+            "2",
+            "1",
+            "1X",
+            "2",
+            "2",
+            "1",
+            "1"
+          ],
+          "columnas": 96,
+          "triples": 1,
+          "dobles": 5,
+          "aciertos_mejor_columna": 9,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001483,
+          "P13plus_modelo": 0.014706,
+          "premio_esperado_modelo_eur": 76.9288,
+          "segundos": 1.177
+        },
+        "P14": {
+          "signos": [
+            "2",
+            "X2",
+            "1X2",
+            "2",
+            "1X",
+            "X2",
+            "X2",
+            "2",
+            "1",
+            "1X",
+            "2",
+            "2",
+            "1",
+            "1"
+          ],
+          "columnas": 96,
+          "triples": 1,
+          "dobles": 5,
+          "aciertos_mejor_columna": 9,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001483,
+          "P13plus_modelo": 0.014706,
+          "premio_esperado_modelo_eur": 76.9288,
+          "segundos": 0.803
+        }
+      }
+    },
+    {
+      "jornada": 5,
+      "presupuesto_columnas": 48,
+      "coste_eur": 36.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 48,
+      "recaudacion_walk_forward_eur": 2441712.56,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1",
+          "X2",
+          "12",
+          "1X",
+          "1",
+          "1",
+          "1",
+          "2",
+          "1X2",
+          "1",
+          "1",
+          "1",
+          "1",
+          "12"
+        ],
+        "aciertos_senales": 13,
+        "aciertos_historial": 13,
+        "premio_real_eur": 39.52,
+        "premio_fuente": "multicolumna_loteriaanta",
+        "premio_simulado_producto_completo_eur": 26.73,
+        "P14_modelo": 0.000966,
+        "P13plus_modelo": 0.010372,
+        "premio_esperado_modelo_eur": 15.5386
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "12",
+            "2",
+            "X2",
+            "1",
+            "1",
+            "1",
+            "1",
+            "2",
+            "1X2",
+            "1",
+            "1X",
+            "1",
+            "1",
+            "12"
+          ],
+          "columnas": 48,
+          "triples": 1,
+          "dobles": 4,
+          "aciertos_mejor_columna": 13,
+          "premio_simulado_eur": 26.73,
+          "desglose": {
+            "12": {
+              "columnas": 6,
+              "premio_unitario_eur": 2.13
+            },
+            "13": {
+              "columnas": 1,
+              "premio_unitario_eur": 13.96
+            }
+          },
+          "P14_modelo": 0.001339,
+          "P13plus_modelo": 0.01324,
+          "premio_esperado_modelo_eur": 19.4704,
+          "segundos": 0.665
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "12",
+            "2",
+            "X2",
+            "1",
+            "1",
+            "1",
+            "1",
+            "2",
+            "1X2",
+            "1",
+            "1X",
+            "1",
+            "1",
+            "12"
+          ],
+          "columnas": 48,
+          "triples": 1,
+          "dobles": 4,
+          "aciertos_mejor_columna": 13,
+          "premio_simulado_eur": 26.73,
+          "desglose": {
+            "12": {
+              "columnas": 6,
+              "premio_unitario_eur": 2.13
+            },
+            "13": {
+              "columnas": 1,
+              "premio_unitario_eur": 13.96
+            }
+          },
+          "P14_modelo": 0.001339,
+          "P13plus_modelo": 0.01324,
+          "premio_esperado_modelo_eur": 19.4704,
+          "segundos": 0.663
+        },
+        "P14": {
+          "signos": [
+            "12",
+            "2",
+            "X2",
+            "1",
+            "1",
+            "1",
+            "1",
+            "2",
+            "1X2",
+            "1",
+            "1X",
+            "1",
+            "1",
+            "12"
+          ],
+          "columnas": 48,
+          "triples": 1,
+          "dobles": 4,
+          "aciertos_mejor_columna": 13,
+          "premio_simulado_eur": 26.73,
+          "desglose": {
+            "12": {
+              "columnas": 6,
+              "premio_unitario_eur": 2.13
+            },
+            "13": {
+              "columnas": 1,
+              "premio_unitario_eur": 13.96
+            }
+          },
+          "P14_modelo": 0.001339,
+          "P13plus_modelo": 0.01324,
+          "premio_esperado_modelo_eur": 19.4704,
+          "segundos": 0.798
+        }
+      }
+    },
+    {
+      "jornada": 6,
+      "presupuesto_columnas": 108,
+      "coste_eur": 81.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 108,
+      "recaudacion_walk_forward_eur": 2152383.0,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1",
+          "2",
+          "1X",
+          "1X2",
+          "1",
+          "1",
+          "12",
+          "1X2",
+          "1",
+          "1X2",
+          "X",
+          "1",
+          "X",
+          "1"
+        ],
+        "aciertos_senales": 10,
+        "aciertos_historial": 10,
+        "premio_real_eur": 6.52,
+        "premio_fuente": "multicolumna_loteriaanta",
+        "premio_simulado_producto_completo_eur": 6.51,
+        "P14_modelo": 0.000523,
+        "P13plus_modelo": 0.006846,
+        "premio_esperado_modelo_eur": 30.1337
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "1",
+            "1",
+            "1X2",
+            "X2",
+            "1X",
+            "1X2",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "columnas": 108,
+          "triples": 3,
+          "dobles": 2,
+          "aciertos_mejor_columna": 11,
+          "premio_simulado_eur": 39.64,
+          "desglose": {
+            "10": {
+              "columnas": 8,
+              "premio_unitario_eur": 3.26
+            },
+            "11": {
+              "columnas": 1,
+              "premio_unitario_eur": 13.59
+            }
+          },
+          "P14_modelo": 0.001607,
+          "P13plus_modelo": 0.016134,
+          "premio_esperado_modelo_eur": 39.2097,
+          "segundos": 0.786
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "1",
+            "1",
+            "1X2",
+            "X2",
+            "1X",
+            "1X2",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "columnas": 108,
+          "triples": 3,
+          "dobles": 2,
+          "aciertos_mejor_columna": 11,
+          "premio_simulado_eur": 39.64,
+          "desglose": {
+            "10": {
+              "columnas": 8,
+              "premio_unitario_eur": 3.26
+            },
+            "11": {
+              "columnas": 1,
+              "premio_unitario_eur": 13.59
+            }
+          },
+          "P14_modelo": 0.001607,
+          "P13plus_modelo": 0.016134,
+          "premio_esperado_modelo_eur": 39.2097,
+          "segundos": 0.721
+        },
+        "P14": {
+          "signos": [
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "1",
+            "1",
+            "1X2",
+            "X2",
+            "1X",
+            "1X2",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "columnas": 108,
+          "triples": 3,
+          "dobles": 2,
+          "aciertos_mejor_columna": 11,
+          "premio_simulado_eur": 39.64,
+          "desglose": {
+            "10": {
+              "columnas": 8,
+              "premio_unitario_eur": 3.26
+            },
+            "11": {
+              "columnas": 1,
+              "premio_unitario_eur": 13.59
+            }
+          },
+          "P14_modelo": 0.001607,
+          "P13plus_modelo": 0.016134,
+          "premio_esperado_modelo_eur": 39.2097,
+          "segundos": 0.766
+        }
+      }
+    },
+    {
+      "jornada": 7,
+      "presupuesto_columnas": 36,
+      "coste_eur": 27.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 36,
+      "recaudacion_walk_forward_eur": 2199359.25,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1X2",
+          "1X",
+          "2",
+          "1",
+          "1X",
+          "1",
+          "2",
+          "1",
+          "2",
+          "1",
+          "2",
+          "1",
+          "1X2",
+          "1"
+        ],
+        "aciertos_senales": 7,
+        "aciertos_historial": 7,
+        "premio_real_eur": 0.0,
+        "premio_fuente": "pendiente",
+        "premio_simulado_producto_completo_eur": 0.0,
+        "P14_modelo": 0.000605,
+        "P13plus_modelo": 0.007176,
+        "premio_esperado_modelo_eur": 13.1047
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "1X2",
+            "1",
+            "2",
+            "1",
+            "1X",
+            "1",
+            "X2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "1"
+          ],
+          "columnas": 36,
+          "triples": 2,
+          "dobles": 2,
+          "aciertos_mejor_columna": 7,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000762,
+          "P13plus_modelo": 0.008508,
+          "premio_esperado_modelo_eur": 14.8221,
+          "segundos": 0.634
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "1X2",
+            "1",
+            "2",
+            "1",
+            "1X",
+            "1",
+            "X2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "1"
+          ],
+          "columnas": 36,
+          "triples": 2,
+          "dobles": 2,
+          "aciertos_mejor_columna": 7,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000762,
+          "P13plus_modelo": 0.008508,
+          "premio_esperado_modelo_eur": 14.8221,
+          "segundos": 0.557
+        },
+        "P14": {
+          "signos": [
+            "1X2",
+            "1",
+            "2",
+            "1",
+            "1X",
+            "1",
+            "X2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "1"
+          ],
+          "columnas": 36,
+          "triples": 2,
+          "dobles": 2,
+          "aciertos_mejor_columna": 7,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000762,
+          "P13plus_modelo": 0.008508,
+          "premio_esperado_modelo_eur": 14.8221,
+          "segundos": 0.469
+        }
+      }
+    },
+    {
+      "jornada": 8,
+      "presupuesto_columnas": 72,
+      "coste_eur": 54.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 72,
+      "recaudacion_walk_forward_eur": 2074192.18,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1X2",
+          "1",
+          "X2",
+          "1",
+          "2",
+          "1X",
+          "2",
+          "1X2",
+          "1",
+          "1X",
+          "1",
+          "2",
+          "1",
+          "1"
+        ],
+        "aciertos_senales": 10,
+        "aciertos_historial": 10,
+        "premio_real_eur": 3.93,
+        "premio_fuente": "multicolumna_loteriaanta",
+        "premio_simulado_producto_completo_eur": 0.0,
+        "P14_modelo": 0.000873,
+        "P13plus_modelo": 0.009849,
+        "premio_esperado_modelo_eur": 32.68
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "1X2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "X2",
+            "1X2",
+            "1",
+            "1X",
+            "1",
+            "2",
+            "1",
+            "1X"
+          ],
+          "columnas": 72,
+          "triples": 2,
+          "dobles": 3,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001121,
+          "P13plus_modelo": 0.011881,
+          "premio_esperado_modelo_eur": 25.675,
+          "segundos": 0.716
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "1X2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "X2",
+            "1X2",
+            "1",
+            "1X",
+            "1",
+            "2",
+            "1",
+            "1X"
+          ],
+          "columnas": 72,
+          "triples": 2,
+          "dobles": 3,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001121,
+          "P13plus_modelo": 0.011881,
+          "premio_esperado_modelo_eur": 25.675,
+          "segundos": 0.935
+        },
+        "P14": {
+          "signos": [
+            "1X2",
+            "1",
+            "2",
+            "1",
+            "2",
+            "1",
+            "X2",
+            "1X2",
+            "1",
+            "1X",
+            "1",
+            "2",
+            "1",
+            "1X"
+          ],
+          "columnas": 72,
+          "triples": 2,
+          "dobles": 3,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001121,
+          "P13plus_modelo": 0.011881,
+          "premio_esperado_modelo_eur": 25.675,
+          "segundos": 0.64
+        }
+      }
+    },
+    {
+      "jornada": 9,
+      "presupuesto_columnas": 54,
+      "coste_eur": 40.5,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 54,
+      "recaudacion_walk_forward_eur": 2287664.62,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1X2",
+          "1",
+          "1X2",
+          "1",
+          "2",
+          "1X",
+          "1X2",
+          "1",
+          "X",
+          "1",
+          "X",
+          "2",
+          "1",
+          "1"
+        ],
+        "aciertos_senales": 5,
+        "aciertos_historial": 5,
+        "premio_real_eur": 0.0,
+        "premio_fuente": "pendiente",
+        "premio_simulado_producto_completo_eur": 0.0,
+        "P14_modelo": 8.6e-05,
+        "P13plus_modelo": 0.001495,
+        "premio_esperado_modelo_eur": 29.2237
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "1X2",
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "1",
+            "1",
+            "1",
+            "1X2",
+            "X2",
+            "1",
+            "2",
+            "1",
+            "1"
+          ],
+          "columnas": 54,
+          "triples": 3,
+          "dobles": 1,
+          "aciertos_mejor_columna": 8,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000679,
+          "P13plus_modelo": 0.007916,
+          "premio_esperado_modelo_eur": 50.8535,
+          "segundos": 0.337
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "1X2",
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "1",
+            "1",
+            "1",
+            "1X2",
+            "X2",
+            "1",
+            "2",
+            "1",
+            "1"
+          ],
+          "columnas": 54,
+          "triples": 3,
+          "dobles": 1,
+          "aciertos_mejor_columna": 8,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000679,
+          "P13plus_modelo": 0.007916,
+          "premio_esperado_modelo_eur": 50.8535,
+          "segundos": 0.448
+        },
+        "P14": {
+          "signos": [
+            "1X2",
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "1",
+            "1",
+            "1",
+            "1X2",
+            "X2",
+            "1",
+            "2",
+            "1",
+            "1"
+          ],
+          "columnas": 54,
+          "triples": 3,
+          "dobles": 1,
+          "aciertos_mejor_columna": 8,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000679,
+          "P13plus_modelo": 0.007916,
+          "premio_esperado_modelo_eur": 50.8535,
+          "segundos": 0.453
+        }
+      }
+    },
+    {
+      "jornada": 10,
+      "presupuesto_columnas": 36,
+      "coste_eur": 27.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 36,
+      "recaudacion_walk_forward_eur": 2194943.5,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1X2",
+          "1",
+          "2",
+          "X",
+          "1",
+          "2",
+          "X2",
+          "1",
+          "2",
+          "1",
+          "1X2",
+          "2",
+          "1",
+          "X2"
+        ],
+        "aciertos_senales": 8,
+        "aciertos_historial": 8,
+        "premio_real_eur": 0.0,
+        "premio_fuente": "pendiente",
+        "premio_simulado_producto_completo_eur": 0.0,
+        "P14_modelo": 0.00104,
+        "P13plus_modelo": 0.011469,
+        "premio_esperado_modelo_eur": 14.9267
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "1X2",
+            "1",
+            "2",
+            "1",
+            "1",
+            "2",
+            "X2",
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "2",
+            "1",
+            "X2"
+          ],
+          "columnas": 36,
+          "triples": 2,
+          "dobles": 2,
+          "aciertos_mejor_columna": 9,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001942,
+          "P13plus_modelo": 0.018171,
+          "premio_esperado_modelo_eur": 17.3767,
+          "segundos": 0.625
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "1X2",
+            "1",
+            "2",
+            "1",
+            "1",
+            "2",
+            "X2",
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "2",
+            "1",
+            "X2"
+          ],
+          "columnas": 36,
+          "triples": 2,
+          "dobles": 2,
+          "aciertos_mejor_columna": 9,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001942,
+          "P13plus_modelo": 0.018171,
+          "premio_esperado_modelo_eur": 17.3767,
+          "segundos": 0.598
+        },
+        "P14": {
+          "signos": [
+            "1X2",
+            "1",
+            "2",
+            "1",
+            "1",
+            "2",
+            "X2",
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "2",
+            "1",
+            "X2"
+          ],
+          "columnas": 36,
+          "triples": 2,
+          "dobles": 2,
+          "aciertos_mejor_columna": 9,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001942,
+          "P13plus_modelo": 0.018171,
+          "premio_esperado_modelo_eur": 17.3767,
+          "segundos": 0.603
+        }
+      }
+    },
+    {
+      "jornada": 11,
+      "presupuesto_columnas": 54,
+      "coste_eur": 40.5,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 54,
+      "recaudacion_walk_forward_eur": 2048337.3,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1X2",
+          "1X",
+          "1X2",
+          "1X2",
+          "X",
+          "1",
+          "1",
+          "1",
+          "X",
+          "2",
+          "1",
+          "2",
+          "2",
+          "1"
+        ],
+        "aciertos_senales": 9,
+        "aciertos_historial": 9,
+        "premio_real_eur": 0.0,
+        "premio_fuente": "pendiente",
+        "premio_simulado_producto_completo_eur": 0.0,
+        "P14_modelo": 0.000219,
+        "P13plus_modelo": 0.003169,
+        "premio_esperado_modelo_eur": 18.198
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "2",
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "1",
+            "1",
+            "1",
+            "1X",
+            "1X2",
+            "1",
+            "2",
+            "1X2",
+            "1"
+          ],
+          "columnas": 54,
+          "triples": 3,
+          "dobles": 1,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 3.49,
+          "desglose": {
+            "10": {
+              "columnas": 1,
+              "premio_unitario_eur": 3.49
+            }
+          },
+          "P14_modelo": 0.000741,
+          "P13plus_modelo": 0.008476,
+          "premio_esperado_modelo_eur": 22.1838,
+          "segundos": 0.631
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "2",
+            "1",
+            "2",
+            "1",
+            "1X2",
+            "1",
+            "1",
+            "1",
+            "1X",
+            "1X2",
+            "1",
+            "2",
+            "1X2",
+            "1"
+          ],
+          "columnas": 54,
+          "triples": 3,
+          "dobles": 1,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 3.49,
+          "desglose": {
+            "10": {
+              "columnas": 1,
+              "premio_unitario_eur": 3.49
+            }
+          },
+          "P14_modelo": 0.000741,
+          "P13plus_modelo": 0.008476,
+          "premio_esperado_modelo_eur": 22.1838,
+          "segundos": 0.74
+        },
+        "P14": {
+          "signos": [
+            "2",
+            "1",
+            "X2",
+            "1",
+            "1X2",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1X2",
+            "1",
+            "2",
+            "1X2",
+            "1"
+          ],
+          "columnas": 54,
+          "triples": 3,
+          "dobles": 1,
+          "aciertos_mejor_columna": 9,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000742,
+          "P13plus_modelo": 0.00847,
+          "premio_esperado_modelo_eur": 22.0079,
+          "segundos": 0.415
+        }
+      }
+    },
+    {
+      "jornada": 12,
+      "presupuesto_columnas": 216,
+      "coste_eur": 162.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 216,
+      "recaudacion_walk_forward_eur": 1995157.84,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1X2",
+          "2",
+          "1",
+          "1X2",
+          "1",
+          "1",
+          "X2",
+          "X2",
+          "1",
+          "X2",
+          "1",
+          "1",
+          "1",
+          "1X2"
+        ],
+        "aciertos_senales": 12,
+        "aciertos_historial": 12,
+        "premio_real_eur": 109.06,
+        "premio_fuente": "multicolumna_loteriaanta",
+        "premio_simulado_producto_completo_eur": 109.0,
+        "P14_modelo": 0.000939,
+        "P13plus_modelo": 0.010418,
+        "premio_esperado_modelo_eur": 51.2155
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "1X",
+            "2",
+            "1",
+            "1X",
+            "1X",
+            "1",
+            "1",
+            "1X2",
+            "1X2",
+            "2",
+            "1",
+            "1",
+            "1",
+            "1X2"
+          ],
+          "columnas": 216,
+          "triples": 3,
+          "dobles": 3,
+          "aciertos_mejor_columna": 11,
+          "premio_simulado_eur": 3.91,
+          "desglose": {
+            "11": {
+              "columnas": 1,
+              "premio_unitario_eur": 3.91
+            }
+          },
+          "P14_modelo": 0.001822,
+          "P13plus_modelo": 0.018004,
+          "premio_esperado_modelo_eur": 80.0384,
+          "segundos": 1.01
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "1X",
+            "2",
+            "1",
+            "1X",
+            "1X",
+            "1",
+            "1",
+            "1X2",
+            "1X2",
+            "2",
+            "1",
+            "1",
+            "1",
+            "1X2"
+          ],
+          "columnas": 216,
+          "triples": 3,
+          "dobles": 3,
+          "aciertos_mejor_columna": 11,
+          "premio_simulado_eur": 3.91,
+          "desglose": {
+            "11": {
+              "columnas": 1,
+              "premio_unitario_eur": 3.91
+            }
+          },
+          "P14_modelo": 0.001822,
+          "P13plus_modelo": 0.018004,
+          "premio_esperado_modelo_eur": 80.0384,
+          "segundos": 1.152
+        },
+        "P14": {
+          "signos": [
+            "1X",
+            "2",
+            "1",
+            "1X",
+            "1X",
+            "1",
+            "1",
+            "1X2",
+            "1X2",
+            "2",
+            "1",
+            "1",
+            "1",
+            "1X2"
+          ],
+          "columnas": 216,
+          "triples": 3,
+          "dobles": 3,
+          "aciertos_mejor_columna": 11,
+          "premio_simulado_eur": 3.91,
+          "desglose": {
+            "11": {
+              "columnas": 1,
+              "premio_unitario_eur": 3.91
+            }
+          },
+          "P14_modelo": 0.001822,
+          "P13plus_modelo": 0.018004,
+          "premio_esperado_modelo_eur": 80.0384,
+          "segundos": 0.797
+        }
+      }
+    },
+    {
+      "jornada": 13,
+      "presupuesto_columnas": 36,
+      "coste_eur": 27.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 36,
+      "recaudacion_walk_forward_eur": 2120573.81,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1",
+          "1",
+          "1",
+          "2",
+          "1",
+          "2",
+          "2",
+          "2",
+          "1",
+          "2",
+          "1X",
+          "1X2",
+          "X2",
+          "1X2"
+        ],
+        "aciertos_senales": 9,
+        "aciertos_historial": 9,
+        "premio_real_eur": 0.0,
+        "premio_fuente": "pendiente",
+        "premio_simulado_producto_completo_eur": 0.0,
+        "P14_modelo": 0.001162,
+        "P13plus_modelo": 0.011997,
+        "premio_esperado_modelo_eur": 18.9328
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "1",
+            "1",
+            "1",
+            "2",
+            "1",
+            "2",
+            "2",
+            "2",
+            "1",
+            "2",
+            "12",
+            "1X2",
+            "1X2",
+            "X2"
+          ],
+          "columnas": 36,
+          "triples": 2,
+          "dobles": 2,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 3.93,
+          "desglose": {
+            "10": {
+              "columnas": 1,
+              "premio_unitario_eur": 3.93
+            }
+          },
+          "P14_modelo": 0.001279,
+          "P13plus_modelo": 0.013023,
+          "premio_esperado_modelo_eur": 20.2203,
+          "segundos": 0.519
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "1",
+            "1",
+            "1",
+            "2",
+            "1",
+            "2",
+            "2",
+            "2",
+            "1",
+            "2",
+            "12",
+            "1X2",
+            "1X2",
+            "X2"
+          ],
+          "columnas": 36,
+          "triples": 2,
+          "dobles": 2,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 3.93,
+          "desglose": {
+            "10": {
+              "columnas": 1,
+              "premio_unitario_eur": 3.93
+            }
+          },
+          "P14_modelo": 0.001279,
+          "P13plus_modelo": 0.013023,
+          "premio_esperado_modelo_eur": 20.2203,
+          "segundos": 0.579
+        },
+        "P14": {
+          "signos": [
+            "1",
+            "1",
+            "1",
+            "2",
+            "1",
+            "2",
+            "2",
+            "2",
+            "1",
+            "2",
+            "12",
+            "1X2",
+            "1X2",
+            "X2"
+          ],
+          "columnas": 36,
+          "triples": 2,
+          "dobles": 2,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 3.93,
+          "desglose": {
+            "10": {
+              "columnas": 1,
+              "premio_unitario_eur": 3.93
+            }
+          },
+          "P14_modelo": 0.001279,
+          "P13plus_modelo": 0.013023,
+          "premio_esperado_modelo_eur": 20.2203,
+          "segundos": 0.602
+        }
+      }
+    },
+    {
+      "jornada": 14,
+      "presupuesto_columnas": 216,
+      "coste_eur": 162.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 216,
+      "recaudacion_walk_forward_eur": 2034121.21,
+      "recaudacion_escrutinio_origen": "escrutinio_no_valido__acertantes_por_modelo_de_reparto",
+      "nuestro": {
+        "signos": [
+          "X2",
+          "1",
+          "2",
+          "1X2",
+          "12",
+          "2",
+          "1",
+          "1",
+          "1X2",
+          "1X",
+          "1",
+          "1",
+          "1X2",
+          "1"
+        ],
+        "aciertos_senales": 12,
+        "aciertos_historial": 12,
+        "premio_real_eur": 32.74,
+        "premio_fuente": "multicolumna_loteriaanta",
+        "premio_simulado_producto_completo_eur": 40.05,
+        "P14_modelo": 0.001882,
+        "P13plus_modelo": 0.01897,
+        "premio_esperado_modelo_eur": 61.0595
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "2",
+            "1",
+            "2",
+            "X2",
+            "1X2",
+            "1X2",
+            "1",
+            "1X",
+            "1X2",
+            "1X",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "columnas": 216,
+          "triples": 3,
+          "dobles": 3,
+          "aciertos_mejor_columna": 12,
+          "premio_simulado_eur": 40.04,
+          "desglose": {
+            "11": {
+              "columnas": 9,
+              "premio_unitario_eur": 2.77
+            },
+            "12": {
+              "columnas": 1,
+              "premio_unitario_eur": 15.09
+            }
+          },
+          "P14_modelo": 0.002638,
+          "P13plus_modelo": 0.024573,
+          "premio_esperado_modelo_eur": 67.1475,
+          "segundos": 1.108
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "2",
+            "1",
+            "2",
+            "X2",
+            "1X2",
+            "1X2",
+            "1",
+            "1",
+            "X2",
+            "1X",
+            "1",
+            "1",
+            "1X2",
+            "1"
+          ],
+          "columnas": 216,
+          "triples": 3,
+          "dobles": 3,
+          "aciertos_mejor_columna": 12,
+          "premio_simulado_eur": 40.04,
+          "desglose": {
+            "11": {
+              "columnas": 9,
+              "premio_unitario_eur": 2.77
+            },
+            "12": {
+              "columnas": 1,
+              "premio_unitario_eur": 15.09
+            }
+          },
+          "P14_modelo": 0.00253,
+          "P13plus_modelo": 0.023645,
+          "premio_esperado_modelo_eur": 72.6329,
+          "segundos": 1.23
+        },
+        "P14": {
+          "signos": [
+            "2",
+            "1",
+            "2",
+            "X2",
+            "1X2",
+            "1X2",
+            "1",
+            "1X",
+            "1X2",
+            "1X",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "columnas": 216,
+          "triples": 3,
+          "dobles": 3,
+          "aciertos_mejor_columna": 12,
+          "premio_simulado_eur": 40.04,
+          "desglose": {
+            "11": {
+              "columnas": 9,
+              "premio_unitario_eur": 2.77
+            },
+            "12": {
+              "columnas": 1,
+              "premio_unitario_eur": 15.09
+            }
+          },
+          "P14_modelo": 0.002638,
+          "P13plus_modelo": 0.024573,
+          "premio_esperado_modelo_eur": 67.1475,
+          "segundos": 0.979
+        }
+      }
+    },
+    {
+      "jornada": 15,
+      "presupuesto_columnas": 32,
+      "coste_eur": 24.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 32,
+      "recaudacion_walk_forward_eur": 2137981.55,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1",
+          "1X",
+          "1",
+          "1X",
+          "2",
+          "12",
+          "1X",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1X",
+          "2",
+          "1"
+        ],
+        "aciertos_senales": 10,
+        "aciertos_historial": 10,
+        "premio_real_eur": 6.82,
+        "premio_fuente": "multicolumna_loteriaanta",
+        "premio_simulado_producto_completo_eur": 0.0,
+        "P14_modelo": 1.9e-05,
+        "P13plus_modelo": 0.0004,
+        "premio_esperado_modelo_eur": 4.8237
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "2",
+            "1",
+            "2",
+            "1X2",
+            "1X2",
+            "2",
+            "1",
+            "1",
+            "2",
+            "1",
+            "1",
+            "1",
+            "1X2",
+            "1"
+          ],
+          "columnas": 27,
+          "triples": 3,
+          "dobles": 0,
+          "aciertos_mejor_columna": 8,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000522,
+          "P13plus_modelo": 0.006374,
+          "premio_esperado_modelo_eur": 318.6346,
+          "segundos": 0.578
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "2",
+            "1",
+            "2",
+            "1X2",
+            "1X2",
+            "2",
+            "1",
+            "1",
+            "2",
+            "1",
+            "1",
+            "1",
+            "1X2",
+            "1"
+          ],
+          "columnas": 27,
+          "triples": 3,
+          "dobles": 0,
+          "aciertos_mejor_columna": 8,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000522,
+          "P13plus_modelo": 0.006374,
+          "premio_esperado_modelo_eur": 318.6346,
+          "segundos": 0.654
+        },
+        "P14": {
+          "signos": [
+            "2",
+            "1",
+            "2",
+            "X2",
+            "1X",
+            "2",
+            "1",
+            "1X",
+            "12",
+            "1",
+            "1",
+            "1",
+            "12",
+            "1"
+          ],
+          "columnas": 32,
+          "triples": 0,
+          "dobles": 5,
+          "aciertos_mejor_columna": 8,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000531,
+          "P13plus_modelo": 0.00602,
+          "premio_esperado_modelo_eur": 385.73,
+          "segundos": 0.573
+        }
+      }
+    },
+    {
+      "jornada": 16,
+      "presupuesto_columnas": 64,
+      "coste_eur": 48.0,
+      "boleto_reducido": true,
+      "columnas_producto_jugado": 576,
+      "recaudacion_walk_forward_eur": 2071559.7,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1X",
+          "X2",
+          "1",
+          "1X",
+          "X2",
+          "1",
+          "1",
+          "1X2",
+          "1",
+          "1X",
+          "12",
+          "1",
+          "1X2",
+          "1"
+        ],
+        "aciertos_senales": 12,
+        "aciertos_historial": 12,
+        "premio_real_eur": 24.26,
+        "premio_fuente": "confirmado_usuario",
+        "premio_simulado_producto_completo_eur": null,
+        "P14_modelo": null,
+        "P13plus_modelo": null,
+        "premio_esperado_modelo_eur": null
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "1",
+            "1X2",
+            "1",
+            "1",
+            "2",
+            "1",
+            "1",
+            "1X2",
+            "1",
+            "1X",
+            "1X2",
+            "1",
+            "2",
+            "1"
+          ],
+          "columnas": 54,
+          "triples": 3,
+          "dobles": 1,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 1.63,
+          "desglose": {
+            "10": {
+              "columnas": 1,
+              "premio_unitario_eur": 1.63
+            }
+          },
+          "P14_modelo": 0.000671,
+          "P13plus_modelo": 0.007868,
+          "premio_esperado_modelo_eur": 16.2618,
+          "segundos": 0.806
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "1",
+            "1X2",
+            "1",
+            "1",
+            "2",
+            "1",
+            "1",
+            "1X2",
+            "1",
+            "1X",
+            "1X2",
+            "1",
+            "2",
+            "1"
+          ],
+          "columnas": 54,
+          "triples": 3,
+          "dobles": 1,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 1.63,
+          "desglose": {
+            "10": {
+              "columnas": 1,
+              "premio_unitario_eur": 1.63
+            }
+          },
+          "P14_modelo": 0.000671,
+          "P13plus_modelo": 0.007868,
+          "premio_esperado_modelo_eur": 16.2618,
+          "segundos": 0.939
+        },
+        "P14": {
+          "signos": [
+            "1X",
+            "X2",
+            "1",
+            "1",
+            "2",
+            "1",
+            "1",
+            "X2",
+            "1",
+            "1X",
+            "1X",
+            "1",
+            "X2",
+            "1"
+          ],
+          "columnas": 64,
+          "triples": 0,
+          "dobles": 6,
+          "aciertos_mejor_columna": 11,
+          "premio_simulado_eur": 27.54,
+          "desglose": {
+            "10": {
+              "columnas": 10,
+              "premio_unitario_eur": 1.63
+            },
+            "11": {
+              "columnas": 2,
+              "premio_unitario_eur": 5.6
+            }
+          },
+          "P14_modelo": 0.000715,
+          "P13plus_modelo": 0.007838,
+          "premio_esperado_modelo_eur": 18.6032,
+          "segundos": 0.818
+        }
+      }
+    },
+    {
+      "jornada": 17,
+      "presupuesto_columnas": 64,
+      "coste_eur": 48.0,
+      "boleto_reducido": true,
+      "columnas_producto_jugado": 576,
+      "recaudacion_walk_forward_eur": 2153337.89,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "12",
+          "2",
+          "2",
+          "2",
+          "12",
+          "12",
+          "2",
+          "12",
+          "1X2",
+          "1X2",
+          "2",
+          "12",
+          "2",
+          "12"
+        ],
+        "aciertos_senales": 12,
+        "aciertos_historial": 12,
+        "premio_real_eur": 0.0,
+        "premio_fuente": "confirmado_usuario",
+        "premio_simulado_producto_completo_eur": null,
+        "P14_modelo": null,
+        "P13plus_modelo": null,
+        "premio_esperado_modelo_eur": null
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "2",
+            "2",
+            "1X2",
+            "2",
+            "X2",
+            "2",
+            "2",
+            "2",
+            "1X2",
+            "1X2",
+            "2",
+            "2",
+            "2",
+            "2"
+          ],
+          "columnas": 54,
+          "triples": 3,
+          "dobles": 1,
+          "aciertos_mejor_columna": 13,
+          "premio_simulado_eur": 4.65,
+          "desglose": {
+            "13": {
+              "columnas": 1,
+              "premio_unitario_eur": 4.65
+            }
+          },
+          "P14_modelo": 0.001538,
+          "P13plus_modelo": 0.015283,
+          "premio_esperado_modelo_eur": 32.9207,
+          "segundos": 0.633
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "2",
+            "2",
+            "X2",
+            "2",
+            "X2",
+            "2",
+            "2",
+            "2",
+            "12",
+            "12",
+            "2",
+            "X2",
+            "2",
+            "X2"
+          ],
+          "columnas": 64,
+          "triples": 0,
+          "dobles": 6,
+          "aciertos_mejor_columna": 13,
+          "premio_simulado_eur": 9.3,
+          "desglose": {
+            "13": {
+              "columnas": 2,
+              "premio_unitario_eur": 4.65
+            }
+          },
+          "P14_modelo": 0.001448,
+          "P13plus_modelo": 0.013877,
+          "premio_esperado_modelo_eur": 36.5708,
+          "segundos": 0.8
+        },
+        "P14": {
+          "signos": [
+            "2",
+            "2",
+            "1X2",
+            "2",
+            "X2",
+            "2",
+            "2",
+            "2",
+            "1X2",
+            "1X2",
+            "2",
+            "2",
+            "2",
+            "2"
+          ],
+          "columnas": 54,
+          "triples": 3,
+          "dobles": 1,
+          "aciertos_mejor_columna": 13,
+          "premio_simulado_eur": 4.65,
+          "desglose": {
+            "13": {
+              "columnas": 1,
+              "premio_unitario_eur": 4.65
+            }
+          },
+          "P14_modelo": 0.001538,
+          "P13plus_modelo": 0.015283,
+          "premio_esperado_modelo_eur": 32.9207,
+          "segundos": 0.629
+        }
+      }
+    },
+    {
+      "jornada": 18,
+      "presupuesto_columnas": 333,
+      "coste_eur": 249.75,
+      "boleto_reducido": true,
+      "columnas_producto_jugado": 4374,
+      "recaudacion_walk_forward_eur": 2062052.82,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "2",
+          "1X2",
+          "1",
+          "1",
+          "1X2",
+          "2",
+          "1X2",
+          "1X2",
+          "1X2",
+          "X2",
+          "2",
+          "1X2",
+          "2",
+          "1X2"
+        ],
+        "aciertos_senales": 13,
+        "aciertos_historial": 13,
+        "premio_real_eur": 0.0,
+        "premio_fuente": "confirmado_usuario",
+        "premio_simulado_producto_completo_eur": null,
+        "P14_modelo": null,
+        "P13plus_modelo": null,
+        "premio_esperado_modelo_eur": null
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "2",
+            "1X",
+            "1",
+            "1",
+            "1X2",
+            "2",
+            "1",
+            "1X2",
+            "1X2",
+            "X2",
+            "2",
+            "1",
+            "2",
+            "1X2"
+          ],
+          "columnas": 324,
+          "triples": 4,
+          "dobles": 2,
+          "aciertos_mejor_columna": 12,
+          "premio_simulado_eur": 45.36,
+          "desglose": {
+            "11": {
+              "columnas": 10,
+              "premio_unitario_eur": 2.93
+            },
+            "12": {
+              "columnas": 1,
+              "premio_unitario_eur": 16.02
+            }
+          },
+          "P14_modelo": 0.004165,
+          "P13plus_modelo": 0.035577,
+          "premio_esperado_modelo_eur": 108.8242,
+          "segundos": 0.766
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "2",
+            "1X",
+            "1",
+            "1",
+            "1X2",
+            "2",
+            "1",
+            "1X2",
+            "1X2",
+            "X2",
+            "2",
+            "1",
+            "2",
+            "1X2"
+          ],
+          "columnas": 324,
+          "triples": 4,
+          "dobles": 2,
+          "aciertos_mejor_columna": 12,
+          "premio_simulado_eur": 45.36,
+          "desglose": {
+            "11": {
+              "columnas": 10,
+              "premio_unitario_eur": 2.93
+            },
+            "12": {
+              "columnas": 1,
+              "premio_unitario_eur": 16.02
+            }
+          },
+          "P14_modelo": 0.004165,
+          "P13plus_modelo": 0.035577,
+          "premio_esperado_modelo_eur": 108.8242,
+          "segundos": 0.966
+        },
+        "P14": {
+          "signos": [
+            "2",
+            "1X",
+            "1",
+            "1",
+            "1X2",
+            "2",
+            "1",
+            "1X2",
+            "1X2",
+            "X2",
+            "2",
+            "1",
+            "2",
+            "1X2"
+          ],
+          "columnas": 324,
+          "triples": 4,
+          "dobles": 2,
+          "aciertos_mejor_columna": 12,
+          "premio_simulado_eur": 45.36,
+          "desglose": {
+            "11": {
+              "columnas": 10,
+              "premio_unitario_eur": 2.93
+            },
+            "12": {
+              "columnas": 1,
+              "premio_unitario_eur": 16.02
+            }
+          },
+          "P14_modelo": 0.004165,
+          "P13plus_modelo": 0.035577,
+          "premio_esperado_modelo_eur": 108.8242,
+          "segundos": 0.799
+        }
+      }
+    },
+    {
+      "jornada": 19,
+      "presupuesto_columnas": 36,
+      "coste_eur": 27.0,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 36,
+      "recaudacion_walk_forward_eur": 2146802.67,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1",
+          "1",
+          "1X2",
+          "2",
+          "2",
+          "2",
+          "1X",
+          "1X2",
+          "X2",
+          "2",
+          "2",
+          "1",
+          "1",
+          "2"
+        ],
+        "aciertos_senales": 10,
+        "aciertos_historial": 10,
+        "premio_real_eur": 3.41,
+        "premio_fuente": "multicolumna_loteriaanta",
+        "premio_simulado_producto_completo_eur": 0.0,
+        "P14_modelo": 0.000891,
+        "P13plus_modelo": 0.00975,
+        "premio_esperado_modelo_eur": 12.9241
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "1",
+            "1",
+            "1X2",
+            "2",
+            "2",
+            "2",
+            "1X",
+            "1",
+            "2",
+            "2",
+            "2",
+            "1",
+            "1X",
+            "1X2"
+          ],
+          "columnas": 36,
+          "triples": 2,
+          "dobles": 2,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001063,
+          "P13plus_modelo": 0.011199,
+          "premio_esperado_modelo_eur": 14.8839,
+          "segundos": 0.915
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "1",
+            "1",
+            "1X2",
+            "2",
+            "2",
+            "2",
+            "1X",
+            "1",
+            "2",
+            "2",
+            "2",
+            "1",
+            "1X",
+            "1X2"
+          ],
+          "columnas": 36,
+          "triples": 2,
+          "dobles": 2,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001063,
+          "P13plus_modelo": 0.011199,
+          "premio_esperado_modelo_eur": 14.8839,
+          "segundos": 0.732
+        },
+        "P14": {
+          "signos": [
+            "1",
+            "1",
+            "1X2",
+            "2",
+            "2",
+            "2",
+            "1X",
+            "1",
+            "2",
+            "2",
+            "2",
+            "1",
+            "1X",
+            "1X2"
+          ],
+          "columnas": 36,
+          "triples": 2,
+          "dobles": 2,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001063,
+          "P13plus_modelo": 0.011199,
+          "premio_esperado_modelo_eur": 14.8839,
+          "segundos": 0.775
+        }
+      }
+    },
+    {
+      "jornada": 20,
+      "presupuesto_columnas": 128,
+      "coste_eur": 96.0,
+      "boleto_reducido": true,
+      "columnas_producto_jugado": 1296,
+      "recaudacion_walk_forward_eur": 2093118.43,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "1X2",
+          "1X2",
+          "2",
+          "2",
+          "1X",
+          "1X",
+          "1X",
+          "1X2",
+          "1",
+          "1X",
+          "2",
+          "1X2",
+          "2",
+          "1"
+        ],
+        "aciertos_senales": 11,
+        "aciertos_historial": 11,
+        "premio_real_eur": 6.82,
+        "premio_fuente": "confirmado_usuario",
+        "premio_simulado_producto_completo_eur": null,
+        "P14_modelo": null,
+        "P13plus_modelo": null,
+        "premio_esperado_modelo_eur": null
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "1X2",
+            "1X2",
+            "2",
+            "2",
+            "1",
+            "1",
+            "1",
+            "X2",
+            "1",
+            "1",
+            "2",
+            "1X2",
+            "X2",
+            "1"
+          ],
+          "columnas": 108,
+          "triples": 3,
+          "dobles": 2,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 3.41,
+          "desglose": {
+            "10": {
+              "columnas": 1,
+              "premio_unitario_eur": 3.41
+            }
+          },
+          "P14_modelo": 0.001404,
+          "P13plus_modelo": 0.014301,
+          "premio_esperado_modelo_eur": 39.4774,
+          "segundos": 0.793
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "1X2",
+            "1X2",
+            "2",
+            "2",
+            "1",
+            "1",
+            "1",
+            "X2",
+            "1",
+            "1",
+            "2",
+            "1X2",
+            "X2",
+            "1"
+          ],
+          "columnas": 108,
+          "triples": 3,
+          "dobles": 2,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 3.41,
+          "desglose": {
+            "10": {
+              "columnas": 1,
+              "premio_unitario_eur": 3.41
+            }
+          },
+          "P14_modelo": 0.001404,
+          "P13plus_modelo": 0.014301,
+          "premio_esperado_modelo_eur": 39.4774,
+          "segundos": 0.895
+        },
+        "P14": {
+          "signos": [
+            "1X2",
+            "1X2",
+            "2",
+            "2",
+            "1",
+            "1",
+            "1",
+            "X2",
+            "1",
+            "1",
+            "2",
+            "1X2",
+            "X2",
+            "1"
+          ],
+          "columnas": 108,
+          "triples": 3,
+          "dobles": 2,
+          "aciertos_mejor_columna": 10,
+          "premio_simulado_eur": 3.41,
+          "desglose": {
+            "10": {
+              "columnas": 1,
+              "premio_unitario_eur": 3.41
+            }
+          },
+          "P14_modelo": 0.001404,
+          "P13plus_modelo": 0.014301,
+          "premio_esperado_modelo_eur": 39.4774,
+          "segundos": 0.695
+        }
+      }
+    },
+    {
+      "jornada": 21,
+      "presupuesto_columnas": 6,
+      "coste_eur": 4.5,
+      "boleto_reducido": false,
+      "columnas_producto_jugado": 6,
+      "recaudacion_walk_forward_eur": 2157398.14,
+      "recaudacion_escrutinio_origen": "escrutinio",
+      "nuestro": {
+        "signos": [
+          "2",
+          "1X2",
+          "1",
+          "1",
+          "1",
+          "1X",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "2",
+          "2"
+        ],
+        "aciertos_senales": 9,
+        "aciertos_historial": 9,
+        "premio_real_eur": 0.0,
+        "premio_fuente": "confirmado_usuario",
+        "premio_simulado_producto_completo_eur": 0.0,
+        "P14_modelo": 1.2e-05,
+        "P13plus_modelo": 0.000262,
+        "premio_esperado_modelo_eur": 1.5144
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "2",
+            "1X2",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "2",
+            "1X",
+            "2",
+            "1"
+          ],
+          "columnas": 6,
+          "triples": 1,
+          "dobles": 1,
+          "aciertos_mejor_columna": 8,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000137,
+          "P13plus_modelo": 0.001913,
+          "premio_esperado_modelo_eur": 5.3643,
+          "segundos": 0.195
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "2",
+            "1X2",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "2",
+            "1X",
+            "2",
+            "1"
+          ],
+          "columnas": 6,
+          "triples": 1,
+          "dobles": 1,
+          "aciertos_mejor_columna": 8,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000137,
+          "P13plus_modelo": 0.001913,
+          "premio_esperado_modelo_eur": 5.3643,
+          "segundos": 0.51
+        },
+        "P14": {
+          "signos": [
+            "2",
+            "1X2",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "2",
+            "1X",
+            "2",
+            "1"
+          ],
+          "columnas": 6,
+          "triples": 1,
+          "dobles": 1,
+          "aciertos_mejor_columna": 8,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.000137,
+          "P13plus_modelo": 0.001913,
+          "premio_esperado_modelo_eur": 5.3643,
+          "segundos": 0.179
+        }
+      }
+    },
+    {
+      "jornada": 23,
+      "presupuesto_columnas": 48,
+      "coste_eur": 36.0,
+      "boleto_reducido": true,
+      "columnas_producto_jugado": 432,
+      "recaudacion_walk_forward_eur": 2130199.43,
+      "recaudacion_escrutinio_origen": "reconstruida_de_categoria_13",
+      "nuestro": {
+        "signos": [
+          "1X2",
+          "1X",
+          "1",
+          "1",
+          "12",
+          "1",
+          "2",
+          "1X2",
+          "1X2",
+          "1X",
+          "2",
+          "2",
+          "1X",
+          "1"
+        ],
+        "aciertos_senales": 12,
+        "aciertos_historial": 12,
+        "premio_real_eur": null,
+        "premio_fuente": "pendiente_reducida",
+        "premio_simulado_producto_completo_eur": null,
+        "P14_modelo": null,
+        "P13plus_modelo": null,
+        "premio_esperado_modelo_eur": null
+      },
+      "variantes": {
+        "P13plus": {
+          "signos": [
+            "1X",
+            "1X",
+            "1",
+            "1",
+            "1X2",
+            "1",
+            "2",
+            "1X",
+            "1X",
+            "1",
+            "2",
+            "2",
+            "1",
+            "1"
+          ],
+          "columnas": 48,
+          "triples": 1,
+          "dobles": 4,
+          "aciertos_mejor_columna": 11,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001761,
+          "P13plus_modelo": 0.01672,
+          "premio_esperado_modelo_eur": 18.0489,
+          "segundos": 0.548
+        },
+        "P13plus__contra_masa": {
+          "signos": [
+            "1X",
+            "1X",
+            "1",
+            "1",
+            "1X2",
+            "1",
+            "2",
+            "1X",
+            "1X",
+            "1",
+            "2",
+            "2",
+            "1",
+            "1"
+          ],
+          "columnas": 48,
+          "triples": 1,
+          "dobles": 4,
+          "aciertos_mejor_columna": 11,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001761,
+          "P13plus_modelo": 0.01672,
+          "premio_esperado_modelo_eur": 18.0489,
+          "segundos": 0.898
+        },
+        "P14": {
+          "signos": [
+            "1X",
+            "1X",
+            "1",
+            "1",
+            "1X2",
+            "1",
+            "2",
+            "1X",
+            "1X",
+            "1",
+            "2",
+            "2",
+            "1",
+            "1"
+          ],
+          "columnas": 48,
+          "triples": 1,
+          "dobles": 4,
+          "aciertos_mejor_columna": 11,
+          "premio_simulado_eur": 0.0,
+          "desglose": {},
+          "P14_modelo": 0.001761,
+          "P13plus_modelo": 0.01672,
+          "premio_esperado_modelo_eur": 18.0489,
+          "segundos": 0.586
+        }
+      }
+    }
+  ]
+}

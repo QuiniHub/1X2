@@ -62,7 +62,16 @@ import optimizador_boleto as ob
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
-SALIDA = DATA / "memoria_ia" / "backtest_optimizador_boleto.json"
+# 26/11/2026 (peticion de Marc: "nos hubiera ido mejor con estas decisiones?"):
+# la fuente de probabilidades es un parametro. 'mezcla' = motor+Losilla 50/50
+# (el prerregistro original); 'mercado' = solo Losilla (la decision pendiente
+# de bajar el peso del motor); 'motor' = solo el motor publicado.
+FUENTE = "mezcla"
+if "--fuente" in sys.argv:
+    FUENTE = sys.argv[sys.argv.index("--fuente") + 1]
+SOLO_RAPIDO = "--rapido" in sys.argv   # solo P13plus (+/- masa) y P14: evita los 10-35 s del objetivo premio
+_SUFIJO = "" if FUENTE == "mezcla" else f"_{FUENTE}"
+SALIDA = DATA / "memoria_ia" / f"backtest_optimizador_boleto{_SUFIJO}.json"
 PRE_CIERRE = DATA / "backtesting" / "pre_cierre"
 PORCENTAJES = DATA / "memoria_ia" / "porcentajes_lae" / "2026_2027"
 JORNADAS = DATA / "jornadas"
@@ -70,7 +79,9 @@ QUINIELAS = DATA / "quinielas_jugadas.json"
 HISTORIAL_PREMIOS = DATA / "premios" / "historial_premios.json"
 
 VARIANTES = [(obj, cm) for obj in ob.OBJETIVOS for cm in (False, True)]
-VARIANTE_PRINCIPAL = ("premio_esperado", False)
+if SOLO_RAPIDO:
+    VARIANTES = [("P13plus", False), ("P13plus", True), ("P14", False)]
+VARIANTE_PRINCIPAL = ("P13plus", False) if SOLO_RAPIDO else ("premio_esperado", False)
 RECAUDACION_MIN, RECAUDACION_MAX = 300_000.0, 20_000_000.0
 
 CRITERIOS = {
@@ -127,8 +138,17 @@ def probabilidades_pre_cierre(jornada):
                 if isinstance(p.get("num"), int) and 1 <= p["num"] <= 14 and p.get("probabilidades")}
     if len(partidos) != 14:
         return None
-    return [mezclar_probabilidades(partidos[n]["probabilidades"], partidos[n].get("mercado_losilla"))
-            for n in range(1, 15)]
+    salida = []
+    for n in range(1, 15):
+        p = partidos[n]
+        mercado = p.get("mercado_losilla") if isinstance(p.get("mercado_losilla"), dict) else None
+        if FUENTE == "mercado" and mercado and sum(float(mercado.get(k) or 0) for k in ("1", "X", "2")) > 0:
+            salida.append(mezclar_probabilidades(p["probabilidades"], mercado, peso_losilla=1.0))
+        elif FUENTE == "motor":
+            salida.append(mezclar_probabilidades(p["probabilidades"], mercado, peso_losilla=0.0))
+        else:
+            salida.append(mezclar_probabilidades(p["probabilidades"], mercado))
+    return salida
 
 
 def jugadas_26_27():
@@ -260,6 +280,7 @@ def ejecutar(verbose=True):
         "descripcion": "Backtest prerregistrado del optimizador de boleto (knapsack en logaritmos + "
                        "busqueda local Clair-Letscher) frente a los boletos realmente jugados en la 26/27.",
         "criterios_prerregistrados": CRITERIOS,
+        "fuente_probabilidades": FUENTE,
         "variante_principal": nombre_variante(*VARIANTE_PRINCIPAL),
         "estado": "prerregistrado_pendiente_de_resultados",
     }
