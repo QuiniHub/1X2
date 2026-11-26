@@ -482,3 +482,39 @@ Arsenal 1-1 Dortmund (X), Feyenoord 0-1 Oporto (2, triple OK), City 2-2 Nápoles
 - Betis ganó rotando 7 contra el colista: la señal "rotación" no vale sin rival con nivel → freno para la Sorpresa Nombrada.
 - Elige 8 en Europa: 7, 6, 6 y ≤6. No volver a jugarlo en semana europea.
 - Mi columna 2/5, web sencilla 3/5, valiente del algoritmo 2/5, masa 3/5, Marc 3/5.
+
+## J25 (28-30/11/2026) — ojeo equipo a equipo, jueves 26/11 (antes del cierre)
+Bote: 320.598 €, "un único acertante puede ganar" 1,1 M → por debajo de 2 M: presupuesto BASE (protocolo de bote).
+Ojeo con 15 ojeadores + 15 verificadores + crítico (workflow). AVISO: la verificación independiente se cortó por el
+cupo de búsquedas web; contrastados por segundo agente solo P4, P12, P13 (tabla y últimos resultados) y P15.
+Pendiente de verificar el viernes: convocatorias, resultados del jueves (Celta-Bournemouth, Palace-Real Sociedad,
+Iberia 1999-Getafe en Tiflis) y cuotas.
+
+Cambios de banquillo nuevos registrados en ceses_actuales.json: Las Palmas (Albert Sánchez desde 29/10) y Espanyol
+(Sarabia desde 28/10). Málaga: Funes "una jornada más" (Marca vía futbolfantasy 25/11) tras el cese del director
+deportivo Juarros: entrenador en la cuerda floja. Andorra: Manso cuestionado (Piqué le mantiene). Villarreal: el
+ultimátum de Roig se desactivó con la victoria en Praga.
+Sancionados: Fermín (Barça, 2 partidos), Catena (Osasuna), Pau Navarro (Villarreal), Riedel (Espanyol), Djené
+(Getafe), Teguía (Ceuta), Solozábal (Andorra), Dzodic (Almería, sin confirmar).
+Europa entre semana: Betis (Bratislava mar), Madrid (casa mar), Atlético (casa mié), Barça (Bakú mié, 5.130 km),
+Villarreal (Praga mié), Celta (casa jue), Real Sociedad (Londres jue), Getafe (Tiflis jue, Conference).
+
+Lectura por partido (signo del ojeador → sorpresa con señal):
+- P1 Betis-Rayo 1 → X: los 4 últimos Betis-Rayo en empate; Betis 4 días tras Bratislava sin Lo Celso ni Ceballos, Abde duda;
+  empató en casa con Celta, Depor y Sevilla. La masa juega la X al 15%: la desprecia. SORPRESA NOMBRADA nº1.
+- P2 Málaga-Athletic 2 → X: Málaga 0 victorias, Funes "una jornada más"; Athletic 4 goles en 5 salidas y sin Vivian
+  (Yeray y Paredes en duda).
+- P3 Elche-Atlético 2 (alta): Elche 1 punto de 18 en casa; el Atlético ganó al Viking en casa sin viaje.
+- P4 Madrid-Alavés 1 (alta): 6 de 6 en casa; Alavés sin ganar fuera.
+- P5 Valencia-Osasuna 1X → 2: Valencia 0 victorias en 7 en Mestalla (3 goles a favor); la masa le da 51%. Osasuna sin Catena.
+- P6 Depor-Barça 2: Barça 6 de 6 fuera pese a Bakú y Fermín sancionado.
+- P7 Celta-Villarreal sin dueño: Celta juega el jueves y es el más empatador (7 E); Villarreal sin Pau Navarro ni Saliba.
+- P8 Real Sociedad-Sevilla 1 → X: la Real juega el jueves en Londres (72 h) con bajas; Sevilla 8 días de descanso y dos empates.
+- P9 Las Palmas-Andorra 1 (alta): 3 de 4 con Albert Sánchez; Andorra 5 sin ganar y con sancionados.
+- P10 Albacete-Tenerife → X/2: el Albacete sin Higinio, Puertas, Gámez ni Obeng (bajas confirmadas); Tenerife empatador.
+- P11 Eibar-Burgos 1X: Eibar 6 sin ganar, tres 1-1 seguidos en Ipurua. (Sábado 18:30, confirmado en la web del Eibar.)
+- P12 Granada-Ceuta 1 (alta): Ceuta 7 derrotas y sin sus dos delanteros (Teguía sancionado, Escobar lesionado).
+- P13 Mallorca-Castellón sin dueño → X/2: Castellón 5 goles encajados en 14 y plantilla completa; Mallorca con dudas atrás.
+- P14 Almería-Sporting 1: líder contra un Sporting sin Otero, Corredera ni Gelabert.
+- P15 Espanyol-Getafe 1: Espanyol de Sarabia 3 sin encajar; Getafe peor ataque (8 goles), viene de Tiflis sin Djené ni Abqar.
+  Marcador del ojeador 1-0 (alternativa 2-0); la masa apunta a 2-1.
