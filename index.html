@@ -596,6 +596,18 @@
         <div class="card-body" id="elige8EvBody"></div>
       </div>
 
+      <!-- Optimizador de boleto (26/11/2026, punto 3 del informe): reparto
+           EXACTO del presupuesto entre fijos, dobles y triples (knapsack en
+           logaritmos + busqueda local Clair-Letscher), con P(14) y P(>=13)
+           exactas. publicar_optimizador_boleto.py -> bloque "optimizador_boleto". -->
+      <div class="card" id="optimizadorBoletoCard" style="display:none;margin-top:16px">
+        <div class="card-head">
+          <h2>🎯 Estructura sugerida (optimizador exacto)</h2>
+          <span class="tag" style="background:#065f4622;color:#064e3b">máximo 13+ por euro · modo sombra</span>
+        </div>
+        <div class="card-body" id="optimizadorBoletoBody"></div>
+      </div>
+
       <!-- Columna valiente europea (23/11/2026, bronca de Marc: "no quiero solo
            los % de mas peso, quiero que prediga los de menos peso jugandosela").
            En jornadas europeas: la columna sencilla con las sorpresas puestas
@@ -1807,6 +1819,33 @@
         </div>`;
     }
 
+    // 🎯 Optimizador de boleto (26/11/2026): estructura exacta por presupuesto.
+    function renderOptimizadorBoleto() {
+      const card = qs('#optimizadorBoletoCard');
+      if (!card) return;
+      const b = state.prediccion?.optimizador_boleto;
+      if (!b || b.estado !== 'ok' || !arr(b.signos).length) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      const chip = sg => { const t = String(sg || '?'); const fuerte = t.length > 1; return `<span style="display:inline-block;min-width:22px;text-align:center;padding:2px 6px;margin:1px;border-radius:7px;font-weight:800;${fuerte ? 'background:#065f46;color:#fff' : 'background:var(--surface2,#f5f5f5);border:1px solid var(--border,#ddd);color:var(--fg,#333)'}">${escapeHtml(t)}</span>`; };
+      const fila = (sgs, titulo) => `<p style="margin:0 0 6px"><b style="display:inline-block;min-width:110px">${titulo}</b> ${arr(sgs).map(chip).join('')}</p>`;
+      const pct = v => v == null ? '-' : (Number(v) * 100).toFixed(2) + '%';
+      const bt = b.backtest || {};
+      const motivos = arr(b.detalle_partidos).filter(d => d.tamano > 1).map(d => `<li style="margin:2px 0">P${fmt(d.num, '?')} ${escapeHtml(d.signos)}: ${escapeHtml(d.motivo || '')}</li>`).join('');
+      const alts = Object.entries(b.alternativas_por_presupuesto || {}).map(([k, v]) => `<tr><td style="padding:3px 8px">${k} col · ${fmt((v.coste_eur || 0).toFixed(2), '-')} €</td><td style="padding:3px 8px">${arr(v.signos).join(' ')}</td><td style="padding:3px 8px;text-align:right">${pct(v.P13plus)}</td><td style="padding:3px 8px;text-align:right">${v.premio_esperado == null ? '-' : fmt(Number(v.premio_esperado).toFixed(2), '-') + ' €'}</td></tr>`).join('');
+      const comp = b.comparaciones || {};
+      const cm = comp.masa, cf = comp.motor_fijos;
+      const cola = b.lectura_contra_masa;
+      qs('#optimizadorBoletoBody').innerHTML = `
+        ${fila(b.signos, `${fmt(b.columnas, '?')} columnas · ${fmt((b.coste_eur || 0).toFixed(2), '-')} €`)}
+        <p class="subtitle" style="margin:0 0 6px">${fmt(b.triples, 0)} triple(s) y ${fmt(b.dobles, 0)} doble(s) · P(14) <b>${pct(b.P14)}</b> · P(≥13) <b>${pct(b.P13plus)}</b> · P(≥12) ${pct(b.P12plus)} · premio esperado ${b.premio_esperado == null ? '-' : fmt(Number(b.premio_esperado).toFixed(2), '-') + ' €'}</p>
+        ${motivos ? `<ul style="margin:0 0 8px;padding-left:20px;color:var(--fg,#333);font-size:13px">${motivos}</ul>` : ''}
+        ${cm || cf ? `<p class="subtitle" style="margin:0 0 8px;color:var(--muted,#888)">Referencias a 1 columna: masa P(≥13) ${pct(cm?.P13plus)}${cm?.premio_esperado != null ? ` · EV ${fmt(Number(cm.premio_esperado).toFixed(2), '-')} €` : ''} · fijos del motor P(≥13) ${pct(cf?.P13plus)}</p>` : ''}
+        ${alts ? `<details style="margin:0 0 8px"><summary class="subtitle" style="cursor:pointer;margin:0 0 4px"><b>Otros presupuestos</b> (mismo objetivo)</summary><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="color:var(--muted,#888)"><th style="text-align:left;padding:3px 8px">Presupuesto</th><th style="text-align:left;padding:3px 8px">Signos</th><th style="padding:3px 8px;text-align:right">P(≥13)</th><th style="padding:3px 8px;text-align:right">EV</th></tr></thead><tbody>${alts}</tbody></table></div></details>` : ''}
+        ${cola && cola.signos ? `<p class="subtitle" style="margin:0 0 8px"><b>Lectura contra la masa</b> (objetivo premio, NO cumple el criterio: 0 treces en 22 jornadas): ${escapeHtml(arr(cola.signos).join(' '))} · EV ${cola.premio_esperado == null ? '-' : fmt(Number(cola.premio_esperado).toFixed(2), '-') + ' €'}</p>` : ''}
+        <p class="subtitle" style="margin:0 0 6px;padding:8px 10px;border-radius:8px;background:#b8860b14;border:1px solid #b8860b44;color:#7a5a06">📋 Backtest 26/27 (${fmt(bt.jornadas, '?')} jornadas jugadas, mismo presupuesto que nosotros): esta estructura habría cobrado ${bt.variante_premio_eur == null ? '-' : fmt(Number(bt.variante_premio_eur).toFixed(0), '-')} € frente a ${bt.nuestro_premio_eur == null ? '-' : fmt(Number(bt.nuestro_premio_eur).toFixed(0), '-')} € reales, con ${fmt(bt.variante_trece_o_mas, '?')} jornadas de 13+ frente a ${fmt(bt.nuestro_trece_o_mas, '?')}; más aciertos que nosotros en ${fmt(bt.variante_mas_que_nosotros, '?')} jornadas y menos en ${fmt(bt.variante_menos_que_nosotros, '?')}. Veredicto: <b>${escapeHtml(bt.veredicto_variante_publicada || '')}</b>. Premio simulado con modelo de reparto: orienta, no decide.</p>
+        <p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ ${escapeHtml(b.aviso || '')}</p>`;
+    }
+
     // 🎲 Columna valiente europea (23/11/2026): la columna sencilla que APLICA lo
     // aprendido en las Champions de 26/27 (favorito <40% acierta 1/6 y la X sale
     // 3/6; espanol favorito fuera falla por X; >=80 no se toca; un gigante 65-79
@@ -2279,6 +2318,7 @@
       renderSorpresaNombrada();
       renderFavoritosRiesgo();
       renderElige8Ev();
+      renderOptimizadorBoleto();
       renderColumnaValiente();
       renderTerceroValor();
       applyTicketVisibility();

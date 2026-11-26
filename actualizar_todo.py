@@ -77,6 +77,7 @@ SCRIPTS_NO_CRITICOS_RED = {
     "sorpresa_nombrada.py",
     "ranker_favoritos.py",
     "columna_valiente.py",
+    "publicar_optimizador_boleto.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
     "actualizar_resultados_apis.py",
@@ -226,6 +227,7 @@ SCRIPTS_ACTIVOS = [
     # "columna_valiente", marcador_columna_valiente.json). Usa el bloque
     # sorpresa_nombrada: corre despues.
     "columna_valiente.py",
+    "publicar_optimizador_boleto.py",
 
     # --- Premios ---
     "calcular_premios.py",
