@@ -525,3 +525,13 @@ el sábado es el 40% de los fallos y el 42% de los partidos, sin diferencia sign
 en 13 de 15 boletos el 14 murió antes del domingo y en 8 de 15 también el 13 (0,72^6 ≈ 14% de llegar limpio: aritmética).
 Señal a vigilar: los dobles del sábado fallan 8 de 18 (44%) frente a 4 de 26 el domingo; 6 de 8 eran 1X/X1 y ganó el
 visitante (tres en Vallecas). En la J25 el sábado 14:00 es Betis-Rayo: el doble natural 1X deja fuera justo ese 2.
+
+### J25 — corrección tras la indicación de Marc (26/11): rachas en casa y fuera, no "contra la masa"
+Medido en 2.116 partidos de 3 temporadas: favorito local ≥55% con ≥2,2 pts/partido en sus últimos 5 en casa gana 75,7%
+frente al 66,3% de las cuotas (z=+2,9); la racha FUERA del visitante no añade nada. Forma J25 (últimos 5, calendarios del repo):
+- Locales en racha en casa (fijo seguro): Real Madrid 3,0 (5 de 5), Almería 2,6, Betis 2,4 (1-0, 1-0, 5-2, 2-5, 2-1).
+- CORRECCIÓN P1: el ojeador decía que el Betis había empatado en casa con Celta, Depor y Sevilla; según el calendario del repo
+  el derbi 1-1 fue en el Pizjuán y el Betis suma 4 victorias en sus últimos 5 en casa. La X nombrada del Betis-Rayo pierde
+  una de sus patas (quedan el H2H de 4 empates, sin verificar, y el desgaste de Bratislava): baja de nº1 a vigilada.
+- Locales hundidos en casa: Valencia 0,2 (0-5, 2-3, 0-0, 1-2, 0-3), Elche 0,2, Málaga 0,4. Osasuna fuera 0,0 (cinco derrotas).
+- Visitantes en racha fuera (no es señal, regresa): Atlético 3,0 y Barça 3,0.
