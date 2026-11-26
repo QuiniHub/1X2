@@ -78,11 +78,6 @@ SCRIPTS_NO_CRITICOS_RED = {
     "ranker_favoritos.py",
     "columna_valiente.py",
     "publicar_optimizador_boleto.py",
-    # Congela los bloques en sombra de la jornada EN JUEGO desde el snapshot
-    # pre-cierre (26/11/2026: Losilla pasa a la jornada siguiente al arrancar
-    # la actual, el motor se queda sin mercado y reescribia los bloques con
-    # probabilidades planas; los marcadores habrian medido lo que nadie dijo).
-    "congelar_bloques_sombra.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
     "actualizar_resultados_apis.py",
@@ -96,6 +91,12 @@ SCRIPTS_NO_CRITICOS_RED = {
     "calcular_premios.py",
     "guardar_snapshot_prediccion.py",
     "backtesting_pre_cierre.py",
+    # Congela la prediccion ENTERA de la jornada EN JUEGO desde el snapshot
+    # pre-cierre (decision de Marc 26/11/2026): Losilla pasa a la jornada
+    # siguiente al arrancar la actual, el motor se queda sin mercado y
+    # reescribia probabilidades y bloques; desde aqui solo cambian los
+    # resultados. Va DESPUES del refresco del snapshot y de Elige 8/pleno.
+    "congelar_bloques_sombra.py",
     "calibrar_probabilidades.py",
     "evaluar_valor_senales.py",
     "diagnostico_sistema.py",
@@ -233,11 +234,6 @@ SCRIPTS_ACTIVOS = [
     # sorpresa_nombrada: corre despues.
     "columna_valiente.py",
     "publicar_optimizador_boleto.py",
-    # Congela los bloques en sombra de la jornada EN JUEGO desde el snapshot
-    # pre-cierre (26/11/2026: Losilla pasa a la jornada siguiente al arrancar
-    # la actual, el motor se queda sin mercado y reescribia los bloques con
-    # probabilidades planas; los marcadores habrian medido lo que nadie dijo).
-    "congelar_bloques_sombra.py",
 
     # --- Premios ---
     "calcular_premios.py",
@@ -269,6 +265,12 @@ SCRIPTS_ACTIVOS = [
     # afecta.
     "guardar_snapshot_prediccion.py",
     "backtesting_pre_cierre.py",
+    # Congela la prediccion ENTERA de la jornada EN JUEGO desde el snapshot
+    # pre-cierre (decision de Marc 26/11/2026): Losilla pasa a la jornada
+    # siguiente al arrancar la actual, el motor se queda sin mercado y
+    # reescribia probabilidades y bloques; desde aqui solo cambian los
+    # resultados. Va DESPUES del refresco del snapshot y de Elige 8/pleno.
+    "congelar_bloques_sombra.py",
     "validar_publicacion_autonoma.py",
 ]
 

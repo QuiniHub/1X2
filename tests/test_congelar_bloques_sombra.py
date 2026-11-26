@@ -19,10 +19,18 @@ def _montar(tmp):
     (tmp / "snap").mkdir()
     bueno = {"estado": "ok", "columna": ["1", "X", "1"], "modo": "sombra"}
     snapshot = {"primer_partido_utc": "2026-11-24T20:00:00+00:00", "refrescado_en": "2026-11-24T15:03:09+00:00",
-                "prediccion": {"jornada": 24, "columna_valiente": bueno, "sorpresa_nombrada": {"estado": "ok", "num": 5}}}
+                "prediccion": {"jornada": 24, "columna_valiente": bueno, "sorpresa_nombrada": {"estado": "ok", "num": 5},
+                               "partidos": [{"num": 1, "local": "Arsenal", "probabilidades": {"1": 50.2, "X": 26.1, "2": 23.7},
+                                             "signo_final": "1", "resultado": "Pendiente", "signo_oficial": "Pendiente"}],
+                               "pleno15": {"num": 15, "local": "At", "resultado": "Pendiente", "signo_oficial": "Pendiente", "pronostico_marcador": "M-0"},
+                               "coste": {"total": 13.5}}}
     (tmp / "snap" / "jornada_24.json").write_text(json.dumps(snapshot), encoding="utf-8")
     malo = {"jornada": 24, "columna_valiente": {"estado": "ok", "columna": ["2", "2", "2"]},
-            "sorpresa_nombrada": {"estado": "ok", "num": 9}, "favoritos_en_riesgo": {"estado": "ok"}, "otro": 1}
+            "sorpresa_nombrada": {"estado": "ok", "num": 9}, "favoritos_en_riesgo": {"estado": "ok"}, "otro": 1,
+            "partidos": [{"num": 1, "local": "Arsenal", "probabilidades": {"1": 26.0, "X": 35.9, "2": 38.2},
+                          "signo_final": "2", "resultado": "1-1", "signo_oficial": "X"}],
+            "pleno15": {"num": 15, "local": "At", "resultado": "2-0", "signo_oficial": "1", "pronostico_marcador": "2-1"},
+            "coste": {"total": 99.0}}
     (tmp / "pred" / "jornada_24.json").write_text(json.dumps(malo), encoding="utf-8")
     (tmp / "ultima.json").write_text(json.dumps(malo), encoding="utf-8")
     return tmp
@@ -44,6 +52,16 @@ class CongelarTests(unittest.TestCase):
                 self.assertNotIn("favoritos_en_riesgo", d)
                 self.assertEqual(d["otro"], 1)
                 self.assertIn("bloques_sombra_congelados", d)
+                # prediccion entera congelada: probabilidades y signo del cierre, resultado vivo
+                p1 = d["partidos"][0]
+                self.assertEqual(p1["probabilidades"], {"1": 50.2, "X": 26.1, "2": 23.7})
+                self.assertEqual(p1["signo_final"], "1")
+                self.assertEqual(p1["resultado"], "1-1")
+                self.assertEqual(p1["signo_oficial"], "X")
+                self.assertEqual(d["pleno15"]["pronostico_marcador"], "M-0")
+                self.assertEqual(d["pleno15"]["resultado"], "2-0")
+                self.assertEqual(d["coste"], {"total": 13.5})
+                self.assertTrue(d["prediccion_congelada_al_cierre"]["activa"])
             r2 = cb.congelar(24, ahora=ahora, dir_predicciones=tmp / "pred", dir_snapshots=tmp / "snap", ruta_ultima=tmp / "ultima.json")
             self.assertEqual(r2["estado"], "ya_congelado")
 
@@ -55,6 +73,8 @@ class CongelarTests(unittest.TestCase):
             self.assertEqual(r["estado"], "jornada_sin_empezar")
             d = json.loads((tmp / "pred" / "jornada_24.json").read_text(encoding="utf-8"))
             self.assertEqual(d["columna_valiente"]["columna"], ["2", "2", "2"])
+            self.assertEqual(d["partidos"][0]["probabilidades"]["1"], 26.0)
+            self.assertNotIn("prediccion_congelada_al_cierre", d)
 
     def test_sin_snapshot(self):
         with tempfile.TemporaryDirectory() as tmp:

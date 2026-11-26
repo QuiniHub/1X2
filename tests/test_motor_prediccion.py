@@ -8,6 +8,8 @@ sys.path.insert(0, str(ROOT))
 
 import motor_prediccion_quiniela as motor
 from motor_prediccion_quiniela import (
+    PESO_MERCADO_MANDA,
+    PESO_MERCADO_LOSILLA_POR_CALIDAD,
     ajustar_por_datos_profesionales,
     ajustar_por_aprendizaje_propio,
     ajustar_por_lesiones_laliga,
@@ -445,100 +447,34 @@ class MotorPrediccionTests(unittest.TestCase):
         self.assertEqual(riesgo, 0.0)
         self.assertFalse(any("no coincide" in lectura for lectura in lecturas))
 
-    def test_mercado_losilla_calidad_baja_pesa_mucho_mas_que_calidad_alta(self):
-        """Con un prior propio de calidad "baja" (fallback puro, sin
-        estadistica real), el mercado debe pesar 0.65 en vez del 0.18 fijo
-        de antes -motivado por la jornada 73 (2026-07-17): con peso fijo,
-        un consenso de mercado del 100% para el "1" solo movia el motor de
-        40% a 50.8%, sin corregir casi nada un prior de fallback."""
+    def test_mercado_losilla_el_mercado_manda_en_todas_las_calidades(self):
+        """Decision de Marc 26/11/2026 (DECISION_LOG): el mercado pesa 0.85
+        sea cual sea la calidad del dato propio. 40*(1-0.85) + 100*0.85 = 91.0.
+        Medido: log-loss 0.9465 con 0.85 frente a 0.9760 con la tabla por
+        calidad (376 partidos con mercado)."""
         probs = {"1": 40.0, "X": 30.0, "2": 30.0}
         mercado = {"1": 100.0, "X": 0.0, "2": 0.0}
+        for calidad in ("profesional", "alta", "media", "media_baja", "baja", None, "valor_no_existente"):
+            nuevas, _, lecturas = ajustar_por_mercado_losilla(probs, mercado, calidad_datos=calidad)
+            self.assertAlmostEqual(nuevas["1"], 91.0, msg=str(calidad))
+            self.assertTrue(any("peso 0.85" in lectura for lectura in lecturas), msg=str(calidad))
+            self.assertTrue(any("el mercado manda" in lectura for lectura in lecturas), msg=str(calidad))
 
-        nuevas_baja, _, lecturas_baja = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="baja")
-        nuevas_alta, _, lecturas_alta = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="alta")
-
-        self.assertAlmostEqual(nuevas_baja["1"], 79.0)
-        self.assertAlmostEqual(nuevas_alta["1"], 52.0)
-        self.assertGreater(nuevas_baja["1"], nuevas_alta["1"])
-        self.assertTrue(any("peso 0.65" in lectura for lectura in lecturas_baja))
-        self.assertTrue(any("peso 0.20" in lectura for lectura in lecturas_alta))
-
-    def test_mercado_losilla_calidad_media_y_media_baja_intermedias(self):
+    def test_mercado_losilla_pocas_jornadas_no_baja_del_peso_que_manda(self):
+        """El suelo de inicio de temporada (0.45, leccion J4) queda por debajo
+        del peso que manda (0.85): no reduce nada y no aparece en la traza."""
         probs = {"1": 40.0, "X": 30.0, "2": 30.0}
         mercado = {"1": 100.0, "X": 0.0, "2": 0.0}
+        nuevas_pj3, _, lecturas_pj3 = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="alta", pj_minimo=3)
+        nuevas_pj6, _, lecturas_pj6 = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="alta", pj_minimo=6)
+        self.assertAlmostEqual(nuevas_pj3["1"], 91.0)
+        self.assertAlmostEqual(nuevas_pj6["1"], 91.0)
+        self.assertFalse(any("suelo por inicio de temporada" in lectura for lectura in lecturas_pj3))
+        self.assertTrue(any("peso 0.85" in lectura for lectura in lecturas_pj6))
 
-        nuevas_media, _, lecturas_media = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="media")
-        nuevas_media_baja, _, lecturas_media_baja = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="media_baja")
-
-        self.assertAlmostEqual(nuevas_media["1"], 61.0)
-        self.assertAlmostEqual(nuevas_media_baja["1"], 67.0)
-        self.assertTrue(any("peso 0.35" in lectura for lectura in lecturas_media))
-        self.assertTrue(any("peso 0.45" in lectura for lectura in lecturas_media_baja))
-
-    def test_mercado_losilla_calidad_profesional_pesa_menos_que_alta(self):
-        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
-        mercado = {"1": 100.0, "X": 0.0, "2": 0.0}
-
-        nuevas, _, lecturas = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="profesional")
-
-        self.assertAlmostEqual(nuevas["1"], 49.0)
-        self.assertTrue(any("peso 0.15" in lectura for lectura in lecturas))
-
-    def test_mercado_losilla_suelo_de_peso_con_pocas_jornadas(self):
-        """Leccion J4 26/27: con pj=3 la etiqueta "alta" no protege del ruido
-        de tabla -el mercado debe pesar al menos 0.45 hasta pj>=6 aunque la
-        calidad del dato propio sea alta o profesional."""
-        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
-        mercado = {"1": 100.0, "X": 0.0, "2": 0.0}
-
-        nuevas_alta_pj3, _, lecturas_alta_pj3 = ajustar_por_mercado_losilla(
-            probs, mercado, calidad_datos="alta", pj_minimo=3
-        )
-        nuevas_prof_pj3, _, _ = ajustar_por_mercado_losilla(
-            probs, mercado, calidad_datos="profesional", pj_minimo=3
-        )
-
-        # alta pasa de 0.20 a 0.45: 40*(1-0.45) + 100*0.45 = 67.0
-        self.assertAlmostEqual(nuevas_alta_pj3["1"], 67.0)
-        self.assertAlmostEqual(nuevas_prof_pj3["1"], 67.0)
-        self.assertTrue(any("peso 0.45" in lectura for lectura in lecturas_alta_pj3))
-        self.assertTrue(any("suelo por inicio de temporada" in lectura for lectura in lecturas_alta_pj3))
-
-    def test_mercado_losilla_suelo_no_aplica_con_pj_suficiente_ni_baja_por_debajo(self):
-        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
-        mercado = {"1": 100.0, "X": 0.0, "2": 0.0}
-
-        # pj=6 ya es suficiente: calidad alta vuelve a su peso normal 0.20
-        nuevas_alta_pj6, _, lecturas_alta_pj6 = ajustar_por_mercado_losilla(
-            probs, mercado, calidad_datos="alta", pj_minimo=6
-        )
-        self.assertAlmostEqual(nuevas_alta_pj6["1"], 52.0)
-        self.assertTrue(any("peso 0.20" in lectura for lectura in lecturas_alta_pj6))
-
-        # calidad baja (0.65) ya pesa mas que el suelo: no debe bajar a 0.45
-        nuevas_baja_pj3, _, lecturas_baja_pj3 = ajustar_por_mercado_losilla(
-            probs, mercado, calidad_datos="baja", pj_minimo=3
-        )
-        self.assertAlmostEqual(nuevas_baja_pj3["1"], 79.0)
-        self.assertTrue(any("peso 0.65" in lectura for lectura in lecturas_baja_pj3))
-
-        # sin pj_minimo (llamadas antiguas) todo sigue igual que antes
-        nuevas_sin_pj, _, _ = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="alta")
-        self.assertAlmostEqual(nuevas_sin_pj["1"], 52.0)
-
-    def test_mercado_losilla_sin_calidad_datos_usa_peso_por_defecto(self):
-        """calidad_datos=None (o un valor no reconocido) conserva el peso
-        fijo anterior (0.18) como red de seguridad para llamadas que no lo
-        pasen todavia."""
-        probs = {"1": 40.0, "X": 30.0, "2": 30.0}
-        mercado = {"1": 100.0, "X": 0.0, "2": 0.0}
-
-        nuevas_none, _, lecturas_none = ajustar_por_mercado_losilla(probs, mercado)
-        nuevas_desconocida, _, _ = ajustar_por_mercado_losilla(probs, mercado, calidad_datos="valor_no_existente")
-
-        self.assertAlmostEqual(nuevas_none["1"], 50.8)
-        self.assertAlmostEqual(nuevas_desconocida["1"], 50.8)
-        self.assertTrue(any("peso 0.18" in lectura for lectura in lecturas_none))
+    def test_mercado_losilla_constante_que_manda(self):
+        self.assertEqual(PESO_MERCADO_MANDA, 0.85)
+        self.assertTrue(all(v <= PESO_MERCADO_MANDA for v in PESO_MERCADO_LOSILLA_POR_CALIDAD.values()))
 
     def test_buscar_lesiones_equipo_encuentra_por_nombre_difuso(self):
         fuente = {"equipos": {"Athletic Club": [{"jugador": "X", "categoria": "lesionado"}]}}

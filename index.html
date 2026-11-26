@@ -542,7 +542,7 @@
       <div class="grid-2">
         <div class="card">
           <div class="card-head"><h2>Boleto</h2><span class="tag blue" id="jornadaLabel">Jornada</span></div>
-          <div class="card-body"><div id="avisosJornada"></div><div class="ticket" id="ticketList"></div></div>
+          <div class="card-body"><div id="bandaCongelada" class="subtitle" style="display:none;margin:0 0 10px;padding:8px 10px;border-radius:8px;background:#1d4ed814;border:1px solid #1d4ed855;color:#1e3a8a"></div><div id="avisosJornada"></div><div class="ticket" id="ticketList"></div></div>
         </div>
         <div class="card">
           <div class="card-head"><h2>Pleno al 15</h2><span class="tag">Siempre visible</span></div>
@@ -1396,6 +1396,20 @@
       const cont = qs('#avisosJornada');
       if (!cont) return;
       const items = [];
+      // Prediccion congelada al cierre (decision 26/11/2026): si la jornada
+      // esta en juego, lo que se ve es la foto del cierre + resultados.
+      const cong = state.prediccion?.prediccion_congelada_al_cierre;
+      const bandaCong = qs('#bandaCongelada');
+      if (bandaCong) {
+        if (cong && cong.activa) {
+          let foto = '';
+          try { foto = new Date(cong.foto_del_cierre).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); } catch (e) { foto = String(cong.foto_del_cierre || ''); }
+          bandaCong.style.display = 'block';
+          bandaCong.innerHTML = `🔒 <b>Predicción congelada al cierre</b> (foto del ${escapeHtml(foto)}): pronósticos, coberturas y tarjetas son los que se dijeron antes del primer partido. Solo los resultados se actualizan en vivo.`;
+        } else {
+          bandaCong.style.display = 'none';
+        }
+      }
       const partidos = predictionMatches();
       // Regla 15 (29/09/2026, medida sobre los 377 partidos reales del diario
       // de aprendizaje): la X solo sale el 22% de las veces pero es el 33% de

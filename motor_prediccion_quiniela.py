@@ -1725,6 +1725,17 @@ PESO_MERCADO_LOSILLA_DEFECTO = 0.18
 # suelo alto aunque la calidad del dato propio sea alta.
 PJ_MINIMO_CONFIANZA_ESTADISTICA = 6
 PESO_MERCADO_SUELO_POCAS_JORNADAS = 0.45
+# Decision de Marc 26/11/2026 ("soluciona los 2 casos"), DECISION_LOG
+# 2026-11-26: EL MERCADO MANDA EN LA PROBABILIDAD. Medido sobre 376 partidos
+# con mercado (J74-76 y J1-J24, mezcla_benter.construir_dataset): log-loss
+# del publicado con la tabla de arriba 0,9760; con peso fijo del mercado 0,85
+# 0,9465 (0,80 -> 0,9473; 0,90 -> 0,9465; 1,00 -> 0,9495); el optimo por
+# calidad es 0,80 (baja y alta) y 1,00 (media_baja). Acierto del signo top
+# apenas cambia (205 -> 208): la ganancia es el NUMERO, que es lo que coloca
+# dobles y triples. El motor sigue aportando las capas posteriores
+# (lesiones, revulsivo, motivacion, calibracion) y la estructura del boleto.
+# La tabla por calidad y el suelo se conservan como minimo historico.
+PESO_MERCADO_MANDA = 0.85
 
 
 def ajustar_por_mercado_losilla(probs, mercado, calidad_datos=None, pj_minimo=None):
@@ -1756,6 +1767,10 @@ def ajustar_por_mercado_losilla(probs, mercado, calidad_datos=None, pj_minimo=No
 
     p = dict(probs)
     peso = PESO_MERCADO_LOSILLA_POR_CALIDAD.get(calidad_datos, PESO_MERCADO_LOSILLA_DEFECTO)
+    mercado_manda = False
+    if peso < PESO_MERCADO_MANDA:  # decision 26/11/2026: el mercado manda en la probabilidad
+        peso = PESO_MERCADO_MANDA
+        mercado_manda = True
     suelo_pocas_jornadas = False
     if pj_minimo is not None and float(pj_minimo) < PJ_MINIMO_CONFIANZA_ESTADISTICA:
         if peso < PESO_MERCADO_SUELO_POCAS_JORNADAS:
@@ -1775,6 +1790,8 @@ def ajustar_por_mercado_losilla(probs, mercado, calidad_datos=None, pj_minimo=No
             f"Mercado Losilla: el consenso publico ({top_mercado}) no coincide con el favorito del motor ({top_motor})."
         )
     detalle_peso = f"calidad_datos={calidad_datos or 'desconocida'}"
+    if mercado_manda:
+        detalle_peso += ", el mercado manda (decision 26/11/2026: log-loss 0,9465 vs 0,9760 del peso por calidad)"
     if suelo_pocas_jornadas:
         detalle_peso += (
             f", suelo por inicio de temporada: pj={int(float(pj_minimo))} < "

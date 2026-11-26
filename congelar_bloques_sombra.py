@@ -17,8 +17,13 @@ todos los bloques en sombra que el snapshot tenga. Lo que no este en el
 snapshot (modulos nacidos despues del cierre) se RETIRA del espejo para que
 ningun marcador lo mida.
 
-No toca los partidos ni las probabilidades publicadas (eso es otra decision:
-congelar la prediccion entera al cierre; ver DECISION_LOG 2026-11-26).
+Decision de Marc 26/11/2026 ("soluciona los 2 casos"): ademas de los bloques
+en sombra se congela la PREDICCION ENTERA. Desde el primer partido, los 14
+partidos (probabilidades, signos, coberturas, trazas) y los bloques de
+decision son los de la foto del cierre; solo se actualizan encima los
+resultados reales (resultado, signo_oficial) que trae el motor en cada
+ejecucion. Como un boleto sellado: nadie reescribe pronosticos a mitad de
+jornada. El snapshot pre-cierre sigue siendo la unica fuente de verdad.
 """
 import json
 import sys
@@ -33,6 +38,15 @@ SNAPSHOTS_DIR = DATA / "backtesting" / "pre_cierre"
 
 BLOQUES_SOMBRA = ("valiente", "tercero_valor", "radar_tormenta", "sorpresa_nombrada", "columna_valiente",
                   "favoritos_en_riesgo", "optimizador_boleto", "elige8_ev")
+# Bloques de decision que tambien se congelan (si existen en el snapshot).
+BLOQUES_DECISION = ("coste", "boleto_millonario", "boleto_ev_premio", "criterio_cobertura", "calibracion_cobertura",
+                    "ataques_favorito_prioritarios", "ranking_incertidumbre_coberturas", "ranking_elige8_confianza_real",
+                    "riesgos_detectados", "riesgos_no_cubiertos_por_presupuesto", "alertas_boleto", "resumen",
+                    "elige8_seguro", "elige8_modos", "calibracion_probabilidades", "modelo_predictivo")
+# Claves por partido que siguen VIVAS (resultados reales) y no se congelan.
+CLAVES_VIVAS_PARTIDO = ("resultado", "signo_oficial", "estado", "estado_partido", "marcador", "minuto", "en_juego",
+                        "goles_local", "goles_visitante")
+CLAVES_VIVAS_PLENO = ("resultado", "signo_oficial", "estado")
 
 
 def cargar_json(ruta, defecto=None):
@@ -90,6 +104,46 @@ def congelar(jornada, ahora=None, dir_predicciones=None, dir_snapshots=None, rut
                 cambio = True
                 if clave not in retirados:
                     retirados.append(clave)
+        # --- prediccion entera: partidos y bloques de decision desde la foto del cierre ---
+        partidos_snap = {p.get("num"): p for p in pred_snap.get("partidos") or [] if isinstance(p.get("num"), int)}
+        if partidos_snap and datos.get("partidos"):
+            nuevos = []
+            for actual in datos["partidos"]:
+                base = partidos_snap.get(actual.get("num"))
+                if not base:
+                    nuevos.append(actual)
+                    continue
+                congelado = dict(base)
+                for clave in CLAVES_VIVAS_PARTIDO:
+                    if clave in actual:
+                        congelado[clave] = actual[clave]
+                nuevos.append(congelado)
+            if nuevos != datos["partidos"]:
+                datos["partidos"] = nuevos
+                cambio = True
+        pleno_snap = pred_snap.get("pleno15")
+        if isinstance(pleno_snap, dict) and isinstance(datos.get("pleno15"), dict):
+            pleno = dict(pleno_snap)
+            for clave in CLAVES_VIVAS_PLENO:
+                if clave in datos["pleno15"]:
+                    pleno[clave] = datos["pleno15"][clave]
+            if pleno != datos["pleno15"]:
+                datos["pleno15"] = pleno
+                cambio = True
+        for clave in BLOQUES_DECISION:
+            if clave in pred_snap and datos.get(clave) != pred_snap[clave]:
+                datos[clave] = pred_snap[clave]
+                cambio = True
+        if cambio or "prediccion_congelada_al_cierre" not in datos:
+            datos["prediccion_congelada_al_cierre"] = {
+                "activa": True,
+                "foto_del_cierre": str(snapshot.get("refrescado_en") or snapshot.get("creado_en")),
+                "primer_partido_utc": snapshot.get("primer_partido_utc"),
+                "congelado_en": ahora.isoformat(),
+                "lectura": "Prediccion congelada al cierre (decision 26/11/2026): pronosticos, coberturas y bloques "
+                           "son los de la foto del cierre; solo los resultados se actualizan en vivo.",
+            }
+            cambio = True
         if cambio:
             datos["bloques_sombra_congelados"] = {
                 "desde_snapshot": str(snapshot.get("refrescado_en") or snapshot.get("creado_en")),
