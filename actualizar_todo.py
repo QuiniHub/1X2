@@ -78,6 +78,11 @@ SCRIPTS_NO_CRITICOS_RED = {
     "ranker_favoritos.py",
     "columna_valiente.py",
     "publicar_optimizador_boleto.py",
+    # Congela los bloques en sombra de la jornada EN JUEGO desde el snapshot
+    # pre-cierre (26/11/2026: Losilla pasa a la jornada siguiente al arrancar
+    # la actual, el motor se queda sin mercado y reescribia los bloques con
+    # probabilidades planas; los marcadores habrian medido lo que nadie dijo).
+    "congelar_bloques_sombra.py",
     "aplicar_objetivos_oficiales_json.py",
     "forzar_overrides.py",
     "actualizar_resultados_apis.py",
@@ -228,6 +233,11 @@ SCRIPTS_ACTIVOS = [
     # sorpresa_nombrada: corre despues.
     "columna_valiente.py",
     "publicar_optimizador_boleto.py",
+    # Congela los bloques en sombra de la jornada EN JUEGO desde el snapshot
+    # pre-cierre (26/11/2026: Losilla pasa a la jornada siguiente al arrancar
+    # la actual, el motor se queda sin mercado y reescribia los bloques con
+    # probabilidades planas; los marcadores habrian medido lo que nadie dijo).
+    "congelar_bloques_sombra.py",
 
     # --- Premios ---
     "calcular_premios.py",
