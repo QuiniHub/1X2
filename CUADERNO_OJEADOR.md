@@ -518,3 +518,10 @@ Lectura por partido (signo del ojeador → sorpresa con señal):
 - P14 Almería-Sporting 1: líder contra un Sporting sin Otero, Corredera ni Gelabert.
 - P15 Espanyol-Getafe 1: Espanyol de Sarabia 3 sin encajar; Getafe peor ataque (8 goles), viene de Tiflis sin Djené ni Abqar.
   Marcador del ojeador 1-0 (alternativa 2-0); la masa apunta a 2-1.
+
+### Dato pedido por Marc (26/11): ¿cuántos fallos del fin de semana son del sábado?
+23 boletos de fin de semana (15 de LaLiga 26/27). En 26/27: sábado 25 fallos en 89 partidos (28%), domingo 32 en 108 (30%):
+el sábado es el 40% de los fallos y el 42% de los partidos, sin diferencia significativa. Lo que hace daño es el momento:
+en 13 de 15 boletos el 14 murió antes del domingo y en 8 de 15 también el 13 (0,72^6 ≈ 14% de llegar limpio: aritmética).
+Señal a vigilar: los dobles del sábado fallan 8 de 18 (44%) frente a 4 de 26 el domingo; 6 de 8 eran 1X/X1 y ganó el
+visitante (tres en Vallecas). En la J25 el sábado 14:00 es Betis-Rayo: el doble natural 1X deja fuera justo ese 2.
