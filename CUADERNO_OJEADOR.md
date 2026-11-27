@@ -548,3 +548,7 @@ Sorpresa nombrada del módulo (Betis X) y la mía (Brujas 1): falladas. Ranker y
 LECCIÓN (sin tocar nada, jornada loca): la estructura del optimizador habría puesto el dinero donde estaban los aciertos
 (Sporting-United triple, Feyenoord doble 12) y no en apuestas solitarias contra el favorito (Slavia X, Real 2). Lo que
 mató el boleto fueron tres X de gigantes que ningún método publicado sabe elegir: 4 X en 12 es la cola, no la norma.
+- Dato de Marc (27/11): hubo 11 acertantes de 14 (15.308 €) y 1 de 15 (71.144 €). Con 1,4 M de columnas y la columna ganadora a
+  1 entre 815.000 según los % de la masa, el azar daba 1,7 acertantes: los 11 salen de boletos grandes (peñas con muchos
+  triples) que compraron las X de Arsenal (15%), City (11%), PSG (10%) y Sporting (24%), no de verlas. Con 18 € el techo
+  realista era 11-12; el 14 de una jornada loca solo se compra en semanas de bote (protocolo de bote: el extra a cubrir gigantes con señal).
