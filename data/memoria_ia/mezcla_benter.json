@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-26T18:58:28.541358+00:00",
+  "generado_en": "2026-11-27T02:09:00.411068+00:00",
   "criterio_prerregistrado": {
     "fecha": "2026-11-25",
     "origen": "reports/Algoritmos contra nuestros fallos 1X2.md, implantacion 4 (Benter walk-forward)",
@@ -20,7 +20,7 @@
     "orden": "por fecha real de la jornada, nunca por numero (reinicio de temporada LAE)"
   },
   "dataset": {
-    "partidos": 376,
+    "partidos": 378,
     "jornadas": 27,
     "temporadas": [
       "2025/2026",
@@ -29,20 +29,20 @@
     "por_calidad_datos": {
       "baja": 155,
       "alta": 171,
-      "media_baja": 50
+      "media_baja": 52
     },
     "por_peso_mercado": {
       "0.65": 155,
       "0.20": 148,
-      "0.45": 73
+      "0.45": 75
     },
     "origen_peso": {
-      "lectura": 376
+      "lectura": 378
     }
   },
   "estado": "ok",
   "walk_forward": {
-    "partidos_oos": 320,
+    "partidos_oos": 322,
     "folds": [
       {
         "jornada": 2,
@@ -466,19 +466,19 @@
         "jornada": 24,
         "fecha": "2026-11-25",
         "n_entrenamiento": 364,
-        "n_test": 12,
+        "n_test": 14,
         "alpha": 0.4181,
         "beta": 0.9249,
         "T_benter": 1.0,
         "T_lineal_50": 0.5976,
         "log_loss_test": {
-          "motor_pre": 1.0162,
-          "mercado": 0.94324,
-          "motor_post": 0.96632,
-          "benter": 0.96026,
-          "benter_T": 0.96026,
-          "lineal_50": 0.94933,
-          "lineal_50_T": 0.97607
+          "motor_pre": 1.05593,
+          "mercado": 0.91793,
+          "motor_post": 0.97363,
+          "benter": 0.94481,
+          "benter_T": 0.94481,
+          "lineal_50": 0.95536,
+          "lineal_50_T": 0.96878
         }
       }
     ],
@@ -501,57 +501,57 @@
     },
     "metricas_oos": {
       "motor_pre": {
-        "n": 320,
-        "log_loss": 1.04006,
-        "rps": 0.2196
+        "n": 322,
+        "log_loss": 1.04164,
+        "rps": 0.2203
       },
       "mercado": {
-        "n": 320,
-        "log_loss": 0.92622,
-        "rps": 0.19121
+        "n": 322,
+        "log_loss": 0.92523,
+        "rps": 0.19116
       },
       "motor_post": {
-        "n": 320,
-        "log_loss": 0.9584,
-        "rps": 0.19831
+        "n": 322,
+        "log_loss": 0.95877,
+        "rps": 0.19869
       },
       "benter": {
-        "n": 320,
-        "log_loss": 0.93115,
-        "rps": 0.19232
+        "n": 322,
+        "log_loss": 0.93066,
+        "rps": 0.19244
       },
       "benter_T": {
-        "n": 320,
-        "log_loss": 0.93115,
-        "rps": 0.19232
+        "n": 322,
+        "log_loss": 0.93066,
+        "rps": 0.19244
       },
       "lineal_50": {
-        "n": 320,
-        "log_loss": 0.94953,
-        "rps": 0.19644
+        "n": 322,
+        "log_loss": 0.94979,
+        "rps": 0.19679
       },
       "lineal_50_T": {
-        "n": 320,
-        "log_loss": 0.93022,
-        "rps": 0.1916
+        "n": 322,
+        "log_loss": 0.93018,
+        "rps": 0.19187
       }
     },
     "comparaciones_bootstrap_por_jornada": {
       "benter_menos_mercado": {
         "log_loss": {
-          "media": 0.00493,
+          "media": 0.00543,
           "ic95": [
-            -0.00539,
-            0.01512
+            -0.00484,
+            0.0156
           ],
           "jornadas": 23,
           "significativa_95": false
         },
         "rps": {
-          "media": 0.00111,
+          "media": 0.00127,
           "ic95": [
-            -0.00161,
-            0.00363
+            -0.00143,
+            0.00378
           ],
           "jornadas": 23,
           "significativa_95": false
@@ -559,19 +559,19 @@
       },
       "benter_menos_motor_post": {
         "log_loss": {
-          "media": -0.02725,
+          "media": -0.0281,
           "ic95": [
-            -0.05576,
-            0.00544
+            -0.05615,
+            0.00427
           ],
           "jornadas": 23,
           "significativa_95": false
         },
         "rps": {
-          "media": -0.006,
+          "media": -0.00626,
           "ic95": [
-            -0.014,
-            0.003
+            -0.01426,
+            0.00273
           ],
           "jornadas": 23,
           "significativa_95": false
@@ -579,19 +579,19 @@
       },
       "benter_T_menos_mercado": {
         "log_loss": {
-          "media": 0.00493,
+          "media": 0.00543,
           "ic95": [
-            -0.00539,
-            0.01512
+            -0.00484,
+            0.0156
           ],
           "jornadas": 23,
           "significativa_95": false
         },
         "rps": {
-          "media": 0.00111,
+          "media": 0.00127,
           "ic95": [
-            -0.00161,
-            0.00363
+            -0.00143,
+            0.00378
           ],
           "jornadas": 23,
           "significativa_95": false
@@ -599,19 +599,19 @@
       },
       "motor_post_menos_mercado": {
         "log_loss": {
-          "media": 0.03218,
+          "media": 0.03354,
           "ic95": [
-            -0.00782,
-            0.0661
+            -0.00686,
+            0.06731
           ],
           "jornadas": 23,
           "significativa_95": false
         },
         "rps": {
-          "media": 0.0071,
+          "media": 0.00753,
           "ic95": [
-            -0.00389,
-            0.01661
+            -0.00348,
+            0.01691
           ],
           "jornadas": 23,
           "significativa_95": false
@@ -619,19 +619,19 @@
       },
       "motor_pre_menos_mercado": {
         "log_loss": {
-          "media": 0.11384,
+          "media": 0.11641,
           "ic95": [
-            0.0455,
-            0.17495
+            0.04787,
+            0.17731
           ],
           "jornadas": 23,
           "significativa_95": true
         },
         "rps": {
-          "media": 0.02839,
+          "media": 0.02914,
           "ic95": [
-            0.00912,
-            0.0458
+            0.00991,
+            0.0468
           ],
           "jornadas": 23,
           "significativa_95": true
@@ -639,19 +639,19 @@
       },
       "lineal_50_menos_mercado": {
         "log_loss": {
-          "media": 0.02331,
+          "media": 0.02456,
           "ic95": [
-            -0.01319,
-            0.05514
+            -0.01171,
+            0.05619
           ],
           "jornadas": 23,
           "significativa_95": false
         },
         "rps": {
-          "media": 0.00523,
+          "media": 0.00562,
           "ic95": [
-            -0.00473,
-            0.01384
+            -0.00425,
+            0.01423
           ],
           "jornadas": 23,
           "significativa_95": false
@@ -659,19 +659,19 @@
       },
       "lineal_50_T_menos_mercado": {
         "log_loss": {
-          "media": 0.00399,
+          "media": 0.00496,
           "ic95": [
-            -0.02076,
-            0.02823
+            -0.01983,
+            0.02956
           ],
           "jornadas": 23,
           "significativa_95": false
         },
         "rps": {
-          "media": 0.00039,
+          "media": 0.00071,
           "ic95": [
-            -0.00604,
-            0.00655
+            -0.00568,
+            0.00701
           ],
           "jornadas": 23,
           "significativa_95": false
@@ -684,10 +684,10 @@
     "folds": [
       {
         "temporada_test": "2025/2026",
-        "n_entrenamiento": 334,
+        "n_entrenamiento": 336,
         "n_test": 42,
-        "alpha": 0.3928,
-        "beta": 0.9567,
+        "alpha": 0.3757,
+        "beta": 0.967,
         "T_benter": 1.0,
         "metricas_test": {
           "motor_pre": {
@@ -707,13 +707,13 @@
           },
           "benter": {
             "n": 42,
-            "log_loss": 1.09414,
-            "rps": 0.2536
+            "log_loss": 1.09496,
+            "rps": 0.25391
           },
           "benter_T": {
             "n": 42,
-            "log_loss": 1.09414,
-            "rps": 0.2536
+            "log_loss": 1.09496,
+            "rps": 0.25391
           },
           "lineal_50": {
             "n": 42,
@@ -722,8 +722,8 @@
           },
           "lineal_50_T": {
             "n": 42,
-            "log_loss": 1.08898,
-            "rps": 0.25066
+            "log_loss": 1.08927,
+            "rps": 0.25075
           }
         }
       },
@@ -731,28 +731,28 @@
         "temporada_test": "2026/2027",
         "estado": "muestra_insuficiente",
         "n_entrenamiento": 42,
-        "n_test": 334
+        "n_test": 336
       }
     ]
   },
   "potencia": {
-    "n_partidos_oos": 320,
+    "n_partidos_oos": 322,
     "sd_diferencia_log_loss_benter_vs_mercado": 0.1004,
     "sd_diferencia_rps_motor_post_vs_mercado": 0.0859,
     "delta_log_loss_minimo_detectable_con_n": 0.0157,
-    "delta_rps_minimo_detectable_con_n": 0.0135,
+    "delta_rps_minimo_detectable_con_n": 0.0134,
     "partidos_para_detectar_delta_log_loss_0.01": 791,
-    "partidos_para_detectar_delta_rps_0.002": 14491,
-    "partidos_para_detectar_delta_rps_0.005": 2319,
+    "partidos_para_detectar_delta_rps_0.002": 14468,
+    "partidos_para_detectar_delta_rps_0.005": 2315,
     "nota": "potencia 80 %, alfa 0,05 bilateral, test emparejado por partido; el bootstrap por jornada es mas conservador"
   },
   "parametros_finales_todo_el_dataset": {
-    "alpha": 0.3945,
-    "beta": 0.9107,
+    "alpha": 0.3781,
+    "beta": 0.9198,
     "T": 1.0,
     "nota": "ajuste in-sample con todas las filas; solo se usa si el veredicto es CANDIDATA"
   },
   "veredicto": "NO_DESPLEGAR",
-  "lectura": "Benter no bate al mercado solo fuera de muestra (0.9312 vs 0.9262) aunque alpha salga positivo en el ajuste (+0.274 de media): la ganancia in-sample del motor no sobrevive al walk-forward. Dato colateral: el motor actual con pesos fijos pierde +0.0322 de log-loss frente al mercado solo; la mezcla estimada recorta esa perdida pero no la invierte. El mejor predictor de probabilidad disponible sigue siendo el mercado; el motor conserva su papel de generador de dobles/triples.",
+  "lectura": "Benter no bate al mercado solo fuera de muestra (0.9307 vs 0.9252) aunque alpha salga positivo en el ajuste (+0.274 de media): la ganancia in-sample del motor no sobrevive al walk-forward. Dato colateral: el motor actual con pesos fijos pierde +0.0335 de log-loss frente al mercado solo; la mezcla estimada recorta esa perdida pero no la invierte. El mejor predictor de probabilidad disponible sigue siendo el mercado; el motor conserva su papel de generador de dobles/triples.",
   "implicacion_para_el_motor": "NO se toca ajustar_por_mercado_losilla ni PESO_MERCADO_LOSILLA_POR_CALIDAD. Si algun dia el veredicto es CANDIDATA, el punto de enganche es sustituir la mezcla lineal de ajustar_por_mercado_losilla por mezclar_benter(probs, mercado, alpha, beta, T) con los parametros de cargar_parametros()."
 }

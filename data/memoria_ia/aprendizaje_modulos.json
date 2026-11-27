@@ -2,7 +2,7 @@
   "version": 1,
   "descripcion": "Cuaderno de meta-aprendizaje por modulo (15/10/2026): que prometio cada modulo y que entrego, jornada a jornada, con datos pre-cierre (snapshots inmutables + % LAE versionados). Los semaforos y auto-correcciones llevan sus frenos prerregistrados.",
   "temporada": "2026_2027",
-  "actualizado_en": "2026-11-26T18:58:24.078465+00:00",
+  "actualizado_en": "2026-11-27T02:08:56.287947+00:00",
   "jornadas_cerradas": [
     1,
     2,
@@ -26,7 +26,8 @@
     20,
     21,
     22,
-    23
+    23,
+    24
   ],
   "jornadas": {
     "1": {
@@ -3117,6 +3118,158 @@
         ],
         "fijos_sin_probabilidad": 0
       }
+    },
+    "24": {
+      "dixon_coles": {
+        "estado": "sin_cobertura",
+        "partidos": 0,
+        "sin_cobertura": 14,
+        "motivo": "Dixon-Coles no cubre ningun partido de la jornada (selecciones/ligas extranjeras).",
+        "version_calculo": 1
+      },
+      "boleto_ev": {
+        "estado": "ok",
+        "fuente_boleto_ev": "snapshot_pre_cierre",
+        "signos_ev": [
+          "1",
+          "2",
+          "1",
+          "X",
+          "2",
+          "X",
+          "1X",
+          "2",
+          "2",
+          "1",
+          "12",
+          "1X",
+          "X2",
+          "1X2"
+        ],
+        "apuestas_ev": 48,
+        "aciertos_ev": 7,
+        "aciertos_conservador": 11,
+        "aciertos_jugado": 8,
+        "nota": "Premios hipoteticos de quiniela (categorias 10-14) con la tabla REAL del escrutinio; sin Elige 8 ni Pleno al 15, igual para los tres boletos.",
+        "premios_tabla_real_eur": {
+          "ev": 0.0,
+          "conservador": 18.85,
+          "jugado": 0.0
+        }
+      },
+      "valiente": {
+        "estado": "valiente",
+        "fuente": "marcador_sombra",
+        "partido": "Slovan Bratislava - Real Betis Balompie",
+        "signo": "X",
+        "prob_declarada": 32.3,
+        "masa_pct": 18.0,
+        "senales": [
+          "empatador"
+        ],
+        "signo_real": "2",
+        "acierto": false,
+        "pago_hipotetico_eur": 0.0
+      },
+      "revulsivo": {
+        "estado": "ok",
+        "casos": [],
+        "fuente": "snapshot_pre_cierre"
+      },
+      "fijos_banda": {
+        "estado": "ok",
+        "fijos": [
+          {
+            "num": 1,
+            "partido": "Arsenal - Borussia Dortmund",
+            "signo": "1",
+            "probabilidad": 62.5,
+            "banda": "60-70",
+            "acierto": false
+          },
+          {
+            "num": 3,
+            "partido": "Man. City - Nápoles",
+            "signo": "1",
+            "probabilidad": 69.1,
+            "banda": "60-70",
+            "acierto": false
+          },
+          {
+            "num": 4,
+            "partido": "Real Madrid CF - Psv",
+            "signo": "1",
+            "probabilidad": 64.5,
+            "banda": "60-70",
+            "acierto": true
+          },
+          {
+            "num": 5,
+            "partido": "Slovan Bratislava - Real Betis Balompie",
+            "signo": "2",
+            "probabilidad": 60.4,
+            "banda": "60-70",
+            "acierto": true
+          },
+          {
+            "num": 6,
+            "partido": "Sabah - FC Barcelona",
+            "signo": "2",
+            "probabilidad": 64.2,
+            "banda": "60-70",
+            "acierto": true
+          },
+          {
+            "num": 7,
+            "partido": "Slavia Praga - Villarreal CF",
+            "signo": "X",
+            "probabilidad": 28.0,
+            "banda": "20-30",
+            "acierto": false
+          },
+          {
+            "num": 8,
+            "partido": "Brujas - Liverpool",
+            "signo": "2",
+            "probabilidad": 51.1,
+            "banda": "50-60",
+            "acierto": true
+          },
+          {
+            "num": 10,
+            "partido": "Paris Saint-Germain - Roma",
+            "signo": "1",
+            "probabilidad": 69.2,
+            "banda": "60-70",
+            "acierto": false
+          },
+          {
+            "num": 12,
+            "partido": "Sporting De Portugal - Manchester United",
+            "signo": "1",
+            "probabilidad": 44.7,
+            "banda": "40-50",
+            "acierto": false
+          },
+          {
+            "num": 13,
+            "partido": "RC Celta de Vigo - Bournemouth",
+            "signo": "2",
+            "probabilidad": 34.3,
+            "banda": "30-40",
+            "acierto": true
+          },
+          {
+            "num": 14,
+            "partido": "Crystal Palace - Real Sociedad de Futbol",
+            "signo": "2",
+            "probabilidad": 30.7,
+            "banda": "30-40",
+            "acierto": false
+          }
+        ],
+        "fijos_sin_probabilidad": 0
+      }
     }
   },
   "resumen": {
@@ -3137,17 +3290,17 @@
       "titular": "39,67 € hipoteticos vs 201,64 € nuestros",
       "valor": 39.67,
       "comparacion": 201.64,
-      "conservador_eur": 117.59,
-      "jornadas": 13,
+      "conservador_eur": 136.44,
+      "jornadas": 14,
       "promesa": "Maximizar euros, no aciertos. Umbral de sanidad prerregistrado: cobrar >=50% de lo realmente jugado (es estrategia de cola: pierde premios pequeños a cambio de colas raras).",
       "ultimo_ajuste": {
         "estado": "ajustado",
-        "valor": 0.972,
-        "mediana_sin_acotar": 0.972,
-        "escrutinios": 22,
-        "celdas": 92,
+        "valor": 1.002,
+        "mediana_sin_acotar": 1.002,
+        "escrutinios": 23,
+        "celdas": 97,
         "freno": "Solo con >=10 escrutinios reales; mediana real/modelo sobre celdas con >=10 acertantes; acotado a [0.5x - 2.0x].",
-        "actualizado_en": "2026-11-26T18:58:24.078465+00:00",
+        "actualizado_en": "2026-11-27T02:08:56.287947+00:00",
         "historial": [
           {
             "fecha": "2026-10-15T06:46:27.417986+00:00",
@@ -3208,6 +3361,12 @@
             "valor": 0.972,
             "escrutinios": 22,
             "celdas": 92
+          },
+          {
+            "fecha": "2026-11-27T02:08:56.287947+00:00",
+            "valor": 1.002,
+            "escrutinios": 23,
+            "celdas": 97
           }
         ]
       }
@@ -3252,7 +3411,7 @@
         "estado": "sin_ajuste",
         "senales_suspendidas": [],
         "freno": "Una señal con >=8 valientes propias y aciertos < 50% de esperados se suspende sola (senal_valiente.py) y se anuncia. Ningun umbral estructural se auto-cambia.",
-        "actualizado_en": "2026-11-26T18:58:24.078465+00:00",
+        "actualizado_en": "2026-11-27T02:08:56.287947+00:00",
         "motivo": "Ninguna señal cumple el freno de suspension (>=8 propias y <50% de esperados)."
       }
     },
@@ -3273,16 +3432,16 @@
         },
         "estado": "sin_ajuste",
         "motivo": "Freno: hacen falta >=10 casos nuevos 26/27 por lado (hay fuera=2, casa=2).",
-        "actualizado_en": "2026-11-26T18:58:24.078465+00:00"
+        "actualizado_en": "2026-11-27T02:08:56.287947+00:00"
       }
     },
     "fijos_banda": {
       "semaforo": "verde",
       "texto_semaforo": "cumple su promesa: tus fijos rinden lo que promete su banda real",
-      "titular": "115 de 189 fijos vs 111,1 esperados",
-      "valor": 115,
-      "comparacion": 111.06,
-      "fijos_evaluados": 189,
+      "titular": "120 de 200 fijos vs 119,2 esperados",
+      "valor": 120,
+      "comparacion": 119.2,
+      "fijos_evaluados": 200,
       "por_banda": {
         "10-20": {
           "jugados": 3,
@@ -3291,34 +3450,34 @@
           "acierto_pct": 33.3
         },
         "20-30": {
-          "jugados": 18,
+          "jugados": 19,
           "aciertos": 6,
           "promesa_pct": null,
-          "acierto_pct": 33.3
+          "acierto_pct": 31.6
         },
         "30-40": {
-          "jugados": 23,
-          "aciertos": 12,
-          "promesa_pct": 42.1,
-          "acierto_pct": 52.2
+          "jugados": 25,
+          "aciertos": 13,
+          "promesa_pct": 42.9,
+          "acierto_pct": 52.0
         },
         "40-50": {
-          "jugados": 59,
+          "jugados": 60,
           "aciertos": 32,
           "promesa_pct": 53.2,
-          "acierto_pct": 54.2
+          "acierto_pct": 53.3
         },
         "50-60": {
-          "jugados": 50,
-          "aciertos": 33,
-          "promesa_pct": 71.7,
-          "acierto_pct": 66.0
+          "jugados": 51,
+          "aciertos": 34,
+          "promesa_pct": 73.1,
+          "acierto_pct": 66.7
         },
         "60-70": {
-          "jugados": 35,
-          "aciertos": 30,
+          "jugados": 41,
+          "aciertos": 33,
           "promesa_pct": 81.0,
-          "acierto_pct": 85.7
+          "acierto_pct": 80.5
         },
         "70-80": {
           "jugados": 1,

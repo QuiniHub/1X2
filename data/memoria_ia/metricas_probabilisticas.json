@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-26T18:58:22.464713+00:00",
+  "generado_en": "2026-11-27T02:08:55.053394+00:00",
   "fuente": "data/aprendizaje_ia.json",
-  "partidos_evaluados": 586,
+  "partidos_evaluados": 588,
   "jornadas_evaluadas": 42,
-  "precision": 70.14,
-  "aciertos": 411,
+  "precision": 70.24,
+  "aciertos": 413,
   "fallos": 175,
   "fallos_por_tipo": {
     "Doble insuficiente": 36,
@@ -19,10 +19,10 @@
   },
   "precision_por_tipo": {
     "DOBLE": {
-      "total": 154,
-      "aciertos": 118,
+      "total": 155,
+      "aciertos": 119,
       "fallos": 36,
-      "precision": 76.62
+      "precision": 76.77
     },
     "FIJO": {
       "total": 358,
@@ -31,24 +31,24 @@
       "precision": 61.17
     },
     "TRIPLE": {
-      "total": 74,
-      "aciertos": 74,
+      "total": 75,
+      "aciertos": 75,
       "fallos": 0,
       "precision": 100.0
     }
   },
   "precision_por_signo_real": {
     "1": {
-      "total": 255,
-      "aciertos": 216,
+      "total": 256,
+      "aciertos": 217,
       "fallos": 39,
-      "precision": 84.71
+      "precision": 84.77
     },
     "2": {
-      "total": 201,
-      "aciertos": 132,
+      "total": 202,
+      "aciertos": 133,
       "fallos": 69,
-      "precision": 65.67
+      "precision": 65.84
     },
     "X": {
       "total": 130,
@@ -59,11 +59,11 @@
   },
   "por_jornada": {
     "7": {
-      "partidos_evaluados": 14,
-      "aciertos": 7,
-      "fallos": 7,
+      "partidos_evaluados": 12,
+      "aciertos": 6,
+      "fallos": 6,
       "precision": 50.0,
-      "completa_para_compuerta": true
+      "completa_para_compuerta": false
     },
     "8": {
       "partidos_evaluados": 14,
@@ -178,20 +178,20 @@
       "completa_para_compuerta": true
     },
     "24": {
-      "partidos_evaluados": 12,
-      "aciertos": 9,
+      "partidos_evaluados": 14,
+      "aciertos": 11,
       "fallos": 3,
-      "precision": 75.0,
-      "completa_para_compuerta": false
+      "precision": 78.57,
+      "completa_para_compuerta": true
     }
   },
   "rps_calibracion": {
     "nota": "RPS: menor = mejor; referencia mundial ~0,19-0,21 (mercado/estado del arte).",
     "partidos_con_probabilidades": 250,
     "sin_probabilidades": 0,
-    "rps_medio_global": 0.19131,
+    "rps_medio_global": 0.19004,
     "rps_por_jornada": {
-      "7": 0.28273,
+      "7": 0.2602,
       "8": 0.17398,
       "9": 0.25786,
       "10": 0.16731,
@@ -208,7 +208,7 @@
       "21": 0.18526,
       "22": 0.22069,
       "23": 0.17423,
-      "24": 0.1693
+      "24": 0.18216
     },
     "calibracion_por_signo": {
       "1": {
@@ -222,16 +222,16 @@
         "sesgo_puntos": 7.3
       },
       "2": {
-        "prob_media_pronosticada": 31.8,
+        "prob_media_pronosticada": 31.9,
         "frecuencia_real_pct": 38.0,
-        "sesgo_puntos": -6.2
+        "sesgo_puntos": -6.1
       }
     },
     "calibracion_favorito": {
       "30-40": {
-        "n": 76,
-        "prob_media": 36.9,
-        "acierto_real_pct": 42.1
+        "n": 77,
+        "prob_media": 37.0,
+        "acierto_real_pct": 42.9
       },
       "40-50": {
         "n": 79,
@@ -239,9 +239,9 @@
         "acierto_real_pct": 53.2
       },
       "50-60": {
-        "n": 53,
+        "n": 52,
         "prob_media": 54.9,
-        "acierto_real_pct": 71.7
+        "acierto_real_pct": 73.1
       },
       "60-70": {
         "n": 42,
@@ -255,20 +255,20 @@
     "sin_datos": 0,
     "global": {
       "n": 250,
-      "log_score": 0.93808,
+      "log_score": 0.9333,
       "ic95_bootstrap_jornada": [
-        0.89935,
-        0.983
+        0.89728,
+        0.97467
       ],
       "jornadas": 18
     },
     "por_clase": {
       "1": {
         "n": 101,
-        "log_score": 0.78471,
+        "log_score": 0.78334,
         "ic95_bootstrap_jornada": [
-          0.72966,
-          0.84233
+          0.72989,
+          0.8392
         ],
         "jornadas": 18
       },
@@ -283,10 +283,10 @@
       },
       "2": {
         "n": 95,
-        "log_score": 0.9467,
+        "log_score": 0.93556,
         "ic95_bootstrap_jornada": [
-          0.85192,
-          1.06523
+          0.84872,
+          1.03973
         ],
         "jornadas": 18
       }
@@ -294,23 +294,23 @@
     "nota": "log-score = -ln p(signo real), menor = mejor; por_clase agrupa por el signo que SALIO, no por el pronosticado"
   },
   "regla_de_potencia": {
-    "sd_diferencia_rps_emparejada": 0.08771,
+    "sd_diferencia_rps_emparejada": 0.08765,
     "fuente_sd": "snapshots pre-cierre (motor publicado vs mercado Losilla)",
     "potencia": 0.8,
     "alfa": 0.05,
     "partidos_esta_temporada": 250,
     "por_delta": {
       "0.002": {
-        "partidos_necesarios": 15097,
+        "partidos_necesarios": 15077,
         "partidos_necesarios_rango": null,
-        "temporadas_de_700": 21.6,
-        "frase": "para demostrar un delta de RPS de 0.002 hacen falta 15097 partidos; esta temporada lleva 250"
+        "temporadas_de_700": 21.5,
+        "frase": "para demostrar un delta de RPS de 0.002 hacen falta 15077 partidos; esta temporada lleva 250"
       },
       "0.005": {
-        "partidos_necesarios": 2416,
+        "partidos_necesarios": 2413,
         "partidos_necesarios_rango": null,
-        "temporadas_de_700": 3.5,
-        "frase": "para demostrar un delta de RPS de 0.005 hacen falta 2416 partidos; esta temporada lleva 250"
+        "temporadas_de_700": 3.4,
+        "frase": "para demostrar un delta de RPS de 0.005 hacen falta 2413 partidos; esta temporada lleva 250"
       },
       "0.01": {
         "partidos_necesarios": 604,

@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-26T18:59:42.599450+00:00",
+  "generado_en": "2026-11-27T02:09:52.987507+00:00",
   "descripcion": "Backtesting solo con snapshots guardados antes de que hubiera resultados oficiales.",
   "resumen": {
-    "jornadas_snapshot": 35,
-    "partidos_cerrados": 488,
-    "aciertos": 325,
-    "precision": 66.6
+    "jornadas_snapshot": 36,
+    "partidos_cerrados": 490,
+    "aciertos": 327,
+    "precision": 66.73
   },
   "jornadas": [
     {
@@ -4083,9 +4083,9 @@
       "creado_en": "2026-11-23T03:06:13.833285+00:00",
       "prediccion_generada_en": "2026-11-24T15:02:38.736560+00:00",
       "estado": "cerrada_o_parcial",
-      "partidos_cerrados": 12,
-      "aciertos": 9,
-      "precision": 75.0,
+      "partidos_cerrados": 14,
+      "aciertos": 11,
+      "precision": 78.57,
       "configuracion": {
         "dobles": 4,
         "triples": 1,
@@ -4112,12 +4112,12 @@
           "aciertos": 6
         },
         "DOBLE": {
-          "total": 3,
-          "aciertos": 3
+          "total": 4,
+          "aciertos": 4
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0
+          "total": 1,
+          "aciertos": 1
         }
       },
       "partidos": [
@@ -4300,8 +4300,83 @@
           },
           "incertidumbre": 123.49,
           "probabilidad_sorpresa": 63.7
+        },
+        {
+          "num": 13,
+          "partido": "RC Celta de Vigo - Bournemouth",
+          "jugado": "12",
+          "tipo": "DOBLE",
+          "oficial": "2",
+          "acierto": true,
+          "probabilidades": {
+            "1": 35.8,
+            "X": 29.9,
+            "2": 34.3
+          },
+          "incertidumbre": 143.3,
+          "probabilidad_sorpresa": 70
+        },
+        {
+          "num": 14,
+          "partido": "Crystal Palace - Real Sociedad de Futbol",
+          "jugado": "1X2",
+          "tipo": "TRIPLE",
+          "oficial": "1",
+          "acierto": true,
+          "probabilidades": {
+            "1": 38.1,
+            "X": 31.2,
+            "2": 30.7
+          },
+          "incertidumbre": 137.98,
+          "probabilidad_sorpresa": 70
         }
       ]
+    },
+    {
+      "jornada": 25,
+      "snapshot": "data/backtesting/pre_cierre/jornada_25.json",
+      "creado_en": "2026-11-27T02:09:22.968258+00:00",
+      "prediccion_generada_en": "2026-11-27T02:09:22.967408+00:00",
+      "estado": "pendiente_resultados",
+      "partidos_cerrados": 0,
+      "aciertos": 0,
+      "precision": null,
+      "configuracion": {
+        "dobles": 4,
+        "triples": 1,
+        "elige8": true,
+        "elige8_modo": "economico",
+        "elige8_modos_disponibles": [
+          "economico",
+          "maxima_seguridad"
+        ],
+        "cobertura_auto": true,
+        "elige8_modo_real": "probabilidad_real_de_acierto_por_coste",
+        "elige8_recomendado": true
+      },
+      "coste": {
+        "apuestas": 48,
+        "apuestas_elige8": 1,
+        "importe_quiniela": 36.0,
+        "importe_elige8": 0.5,
+        "importe_total": 36.5
+      },
+      "por_tipo": {
+        "FIJO": {
+          "total": 0,
+          "aciertos": 0
+        },
+        "DOBLE": {
+          "total": 0,
+          "aciertos": 0
+        },
+        "TRIPLE": {
+          "total": 0,
+          "aciertos": 0
+        }
+      },
+      "partidos": []
     },
     {
       "jornada": 3,

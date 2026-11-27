@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "modulo": "prior_europeo",
-  "generado_en": "2026-11-26T18:58:27.191295+00:00",
+  "generado_en": "2026-11-27T02:08:59.360099+00:00",
   "criterios_prerregistrados": {
     "fecha": "2026-11-26",
     "descripcion": "Se despliega ajustar_por_competicion_europea SOLO si (1) el motor ajustado con parametros elegidos leave-one-jornada-out gana al motor actual en log-loss en al menos 5 de las 6 jornadas europeas Y (2) su RPS agregado no es peor que el del mercado Losilla en mas de 0.002. En otro caso veredicto NO_DESPLEGAR y la funcion es un no-op salvo forzar=True.",
@@ -32,7 +32,7 @@
   },
   "estado": "con_resultados",
   "backtest": {
-    "n_partidos": 82,
+    "n_partidos": 84,
     "jornadas": [
       5,
       13,
@@ -47,56 +47,56 @@
       "15": 14,
       "19": 14,
       "22": 14,
-      "24": 12
+      "24": 14
     },
-    "x_reales_pct": 18.29,
+    "x_reales_pct": 17.86,
     "motor_actual": {
-      "n": 82,
-      "log_loss": 0.91466,
-      "rps": 0.19048,
+      "n": 84,
+      "log_loss": 0.9171,
+      "rps": 0.19212,
       "x_reales": 15,
-      "x_predichas": 21.3,
+      "x_predichas": 21.91,
       "intervalo_95": {
-        "n": 82,
-        "esperadas": 21.3,
+        "n": 84,
+        "esperadas": 21.91,
         "lo": 14,
-        "hi": 29,
+        "hi": 30,
         "observadas": 15,
         "dentro": true,
-        "p_valor": 0.1345
+        "p_valor": 0.1012
       }
     },
     "mercado_losilla": {
-      "n": 82,
-      "log_loss": 0.89204,
-      "rps": 0.18414,
+      "n": 84,
+      "log_loss": 0.88904,
+      "rps": 0.18412,
       "x_reales": 15,
-      "x_predichas": 17.26,
+      "x_predichas": 17.76,
       "intervalo_95": {
-        "n": 82,
-        "esperadas": 17.26,
-        "lo": 10,
+        "n": 84,
+        "esperadas": 17.76,
+        "lo": 11,
         "hi": 25,
         "observadas": 15,
         "dentro": true,
-        "p_valor": 0.6442
+        "p_valor": 0.5518
       }
     },
     "rejilla_in_sample": [
       {
-        "n": 82,
-        "log_loss": 0.90339,
-        "rps": 0.18846,
+        "n": 84,
+        "log_loss": 0.90472,
+        "rps": 0.18998,
         "x_reales": 15,
-        "x_predichas": 18.85,
+        "x_predichas": 19.37,
         "intervalo_95": {
-          "n": 82,
-          "esperadas": 18.85,
+          "n": 84,
+          "esperadas": 19.37,
           "lo": 12,
           "hi": 27,
           "observadas": 15,
           "dentro": true,
-          "p_valor": 0.3811
+          "p_valor": 0.3136
         },
         "x_prior": 0.14,
         "w": 0.25,
@@ -106,23 +106,23 @@
           "15": 1.13523,
           "19": 0.87033,
           "22": 0.71163,
-          "24": 0.97078
+          "24": 0.96918
         }
       },
       {
-        "n": 82,
-        "log_loss": 0.89677,
-        "rps": 0.18699,
+        "n": 84,
+        "log_loss": 0.89697,
+        "rps": 0.18842,
         "x_reales": 15,
-        "x_predichas": 16.39,
+        "x_predichas": 16.84,
         "intervalo_95": {
-          "n": 82,
-          "esperadas": 16.39,
+          "n": 84,
+          "esperadas": 16.84,
           "lo": 10,
           "hi": 24,
           "observadas": 15,
           "dentro": true,
-          "p_valor": 0.826
+          "p_valor": 0.7335
         },
         "x_prior": 0.14,
         "w": 0.5,
@@ -132,23 +132,23 @@
           "15": 1.11381,
           "19": 0.86207,
           "22": 0.70968,
-          "24": 0.97946
+          "24": 0.96881
         }
       },
       {
-        "n": 82,
-        "log_loss": 0.8959,
-        "rps": 0.1861,
+        "n": 84,
+        "log_loss": 0.89488,
+        "rps": 0.18742,
         "x_reales": 15,
-        "x_predichas": 13.94,
+        "x_predichas": 14.3,
         "intervalo_95": {
-          "n": 82,
-          "esperadas": 13.94,
+          "n": 84,
+          "esperadas": 14.3,
           "lo": 8,
           "hi": 21,
           "observadas": 15,
           "dentro": true,
-          "p_valor": 0.8434
+          "p_valor": 0.9278
         },
         "x_prior": 0.14,
         "w": 0.75,
@@ -158,23 +158,23 @@
           "15": 1.09771,
           "19": 0.85949,
           "22": 0.71318,
-          "24": 0.99325
+          "24": 0.97321
         }
       },
       {
-        "n": 82,
-        "log_loss": 0.90469,
-        "rps": 0.18874,
+        "n": 84,
+        "log_loss": 0.90616,
+        "rps": 0.19027,
         "x_reales": 15,
-        "x_predichas": 19.26,
+        "x_predichas": 19.79,
         "intervalo_95": {
-          "n": 82,
-          "esperadas": 19.26,
+          "n": 84,
+          "esperadas": 19.79,
           "lo": 12,
-          "hi": 27,
+          "hi": 28,
           "observadas": 15,
           "dentro": true,
-          "p_valor": 0.3264
+          "p_valor": 0.2653
         },
         "x_prior": 0.16,
         "w": 0.25,
@@ -184,23 +184,23 @@
           "15": 1.13775,
           "19": 0.87309,
           "22": 0.71431,
-          "24": 0.96656
+          "24": 0.96654
         }
       },
       {
-        "n": 82,
-        "log_loss": 0.89803,
-        "rps": 0.1874,
+        "n": 84,
+        "log_loss": 0.8985,
+        "rps": 0.18884,
         "x_reales": 15,
-        "x_predichas": 17.21,
+        "x_predichas": 17.68,
         "intervalo_95": {
-          "n": 82,
-          "esperadas": 17.21,
-          "lo": 10,
+          "n": 84,
+          "esperadas": 17.68,
+          "lo": 11,
           "hi": 25,
           "observadas": 15,
           "dentro": true,
-          "p_valor": 0.6575
+          "p_valor": 0.5716
         },
         "x_prior": 0.16,
         "w": 0.5,
@@ -210,20 +210,20 @@
           "15": 1.11764,
           "19": 0.86633,
           "22": 0.71385,
-          "24": 0.9694
+          "24": 0.96203
         }
       },
       {
-        "n": 82,
-        "log_loss": 0.89531,
-        "rps": 0.18647,
+        "n": 84,
+        "log_loss": 0.89474,
+        "rps": 0.18783,
         "x_reales": 15,
-        "x_predichas": 15.17,
+        "x_predichas": 15.56,
         "intervalo_95": {
-          "n": 82,
-          "esperadas": 15.17,
+          "n": 84,
+          "esperadas": 15.56,
           "lo": 9,
-          "hi": 22,
+          "hi": 23,
           "observadas": 15,
           "dentro": true,
           "p_valor": 1.0
@@ -236,23 +236,23 @@
           "15": 1.1013,
           "19": 0.86352,
           "22": 0.71716,
-          "24": 0.97524
+          "24": 0.96042
         }
       },
       {
-        "n": 82,
-        "log_loss": 0.90612,
-        "rps": 0.18903,
+        "n": 84,
+        "log_loss": 0.90772,
+        "rps": 0.19058,
         "x_reales": 15,
-        "x_predichas": 19.67,
+        "x_predichas": 20.21,
         "intervalo_95": {
-          "n": 82,
-          "esperadas": 19.67,
-          "lo": 12,
-          "hi": 27,
+          "n": 84,
+          "esperadas": 20.21,
+          "lo": 13,
+          "hi": 28,
           "observadas": 15,
           "dentro": true,
-          "p_valor": 0.2776
+          "p_valor": 0.2228
         },
         "x_prior": 0.18,
         "w": 0.25,
@@ -262,23 +262,23 @@
           "15": 1.14039,
           "19": 0.87594,
           "22": 0.71708,
-          "24": 0.96259
+          "24": 0.96412
         }
       },
       {
-        "n": 82,
-        "log_loss": 0.89985,
-        "rps": 0.18787,
+        "n": 84,
+        "log_loss": 0.9006,
+        "rps": 0.18933,
         "x_reales": 15,
-        "x_predichas": 18.03,
+        "x_predichas": 18.52,
         "intervalo_95": {
-          "n": 82,
-          "esperadas": 18.03,
+          "n": 84,
+          "esperadas": 18.52,
           "lo": 11,
           "hi": 26,
           "observadas": 15,
           "dentro": true,
-          "p_valor": 0.5082
+          "p_valor": 0.432
         },
         "x_prior": 0.18,
         "w": 0.5,
@@ -288,23 +288,23 @@
           "15": 1.12195,
           "19": 0.87101,
           "22": 0.71844,
-          "24": 0.96041
+          "24": 0.9562
         }
       },
       {
-        "n": 82,
-        "log_loss": 0.89621,
-        "rps": 0.18698,
+        "n": 84,
+        "log_loss": 0.89607,
+        "rps": 0.18837,
         "x_reales": 15,
-        "x_predichas": 16.4,
+        "x_predichas": 16.82,
         "intervalo_95": {
-          "n": 82,
-          "esperadas": 16.4,
+          "n": 84,
+          "esperadas": 16.82,
           "lo": 10,
           "hi": 24,
           "observadas": 15,
           "dentro": true,
-          "p_valor": 0.8253
+          "p_valor": 0.7376
         },
         "x_prior": 0.18,
         "w": 0.75,
@@ -314,19 +314,19 @@
           "15": 1.10614,
           "19": 0.8687,
           "22": 0.72229,
-          "24": 0.95996
+          "24": 0.95002
         }
       }
     ],
     "ajustado_leave_one_out": {
-      "n": 82,
-      "log_loss": 0.9007,
-      "rps": 0.18678,
+      "n": 84,
+      "log_loss": 0.89748,
+      "rps": 0.18795,
       "x_reales": 15,
-      "x_predichas": 15.06,
+      "x_predichas": 15.14,
       "intervalo_95": {
-        "n": 82,
-        "esperadas": 15.06,
+        "n": 84,
+        "esperadas": 15.14,
         "lo": 9,
         "hi": 22,
         "observadas": 15,
@@ -371,17 +371,17 @@
         {
           "jornada": 15,
           "n": 14,
-          "x_prior": 0.14,
-          "w": 0.5,
+          "x_prior": 0.16,
+          "w": 0.75,
           "log_loss_motor": 1.16121,
-          "log_loss_ajustado": 1.11381,
+          "log_loss_ajustado": 1.1013,
           "log_loss_mercado": 1.30185,
           "rps_motor": 0.27971,
-          "rps_ajustado": 0.27735,
+          "rps_ajustado": 0.27655,
           "rps_mercado": 0.31903,
           "x_reales": 2,
           "x_pred_motor": 3.92,
-          "x_pred_ajustado": 2.94,
+          "x_pred_ajustado": 2.66,
           "x_pred_mercado": 3.28,
           "gana_al_motor": true
         },
@@ -421,24 +421,24 @@
         },
         {
           "jornada": 24,
-          "n": 12,
+          "n": 14,
           "x_prior": 0.14,
           "w": 0.75,
-          "log_loss_motor": 0.96632,
-          "log_loss_ajustado": 0.99325,
-          "log_loss_mercado": 0.94324,
-          "rps_motor": 0.1693,
-          "rps_ajustado": 0.16812,
-          "rps_mercado": 0.15945,
+          "log_loss_motor": 0.97363,
+          "log_loss_ajustado": 0.97321,
+          "log_loss_mercado": 0.91793,
+          "rps_motor": 0.18216,
+          "rps_ajustado": 0.17863,
+          "rps_mercado": 0.16288,
           "x_reales": 4,
-          "x_pred_motor": 2.87,
-          "x_pred_ajustado": 1.98,
-          "x_pred_mercado": 2.24,
-          "gana_al_motor": false
+          "x_pred_motor": 3.48,
+          "x_pred_ajustado": 2.34,
+          "x_pred_mercado": 2.74,
+          "gana_al_motor": true
         }
       ]
     },
-    "jornadas_ganadas_al_motor": 4,
+    "jornadas_ganadas_al_motor": 5,
     "parametros_recomendados": {
       "x_prior": 0.16,
       "w": 0.75,
@@ -447,13 +447,13 @@
   },
   "veredicto": "NO_DESPLEGAR",
   "motivos_veredicto": [
-    "(1) ajustado LOO gana al motor en log-loss en 4/6 jornadas (minimo 5): NO cumple",
-    "(2) RPS ajustado LOO 0.18678 vs mercado Losilla 0.18414 (tolerancia +0.002): NO cumple"
+    "(1) ajustado LOO gana al motor en log-loss en 5/6 jornadas (minimo 5): CUMPLE",
+    "(2) RPS ajustado LOO 0.18795 vs mercado Losilla 0.18412 (tolerancia +0.002): NO cumple"
   ],
   "parametros_recomendados": {
     "x_prior": 0.16,
     "w": 0.75,
     "nota": "pareja con menor log-loss in-sample sobre las 6 jornadas; el LOO mide su honestidad"
   },
-  "aviso": "n=82 partidos en 6 jornadas: este tamano NO demuestra una mejora de RPS < 0.005 (hacen falta 1.200-2.700 partidos). El backtest solo descarta dano y fija parametros sin mirar el futuro. El motor no usa el ajuste hasta el OK de Marc."
+  "aviso": "n=84 partidos en 6 jornadas: este tamano NO demuestra una mejora de RPS < 0.005 (hacen falta 1.200-2.700 partidos). El backtest solo descarta dano y fija parametros sin mirar el futuro. El motor no usa el ajuste hasta el OK de Marc."
 }

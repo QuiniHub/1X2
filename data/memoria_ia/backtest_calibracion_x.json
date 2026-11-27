@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "modulo": "calibracion_x",
-  "generado_en": "2026-11-26T18:58:24.748270+00:00",
+  "generado_en": "2026-11-27T02:08:57.467592+00:00",
   "criterios_prerregistrados": {
     "fecha": "2026-11-26",
     "descripcion": "Se despliega calibrar_x SOLO si (1) el log-loss walk-forward de las probabilidades calibradas sobre los snapshots pre-cierre con resultado es MENOR que el del motor sin calibrar, Y (2) en TODAS las franjas del favorito con n>0 la cuenta real de X cae dentro del intervalo 95% Poisson-binomial de la cuenta de X predicha por las probabilidades calibradas (walk-forward). En otro caso veredicto NO_DESPLEGAR y la funcion devuelve las probabilidades sin tocar (factor 1).",
@@ -437,7 +437,7 @@
   },
   "snapshots": {
     "n_jornadas": 35,
-    "n_partidos": 488,
+    "n_partidos": 490,
     "orden_cronologico": [
       {
         "jornada": 66,
@@ -612,24 +612,24 @@
       {
         "jornada": 24,
         "creado_en": "2026-11-23T03:06:13.833285+00:00",
-        "n": 12
+        "n": 14
       }
     ],
     "walk_forward": {
-      "n": 488,
+      "n": 490,
       "sin_calibrar": {
-        "n": 488,
+        "n": 490,
         "x_reales": 108,
-        "x_predichas": 150.79,
-        "x_pct_real": 22.13,
+        "x_predichas": 151.4,
+        "x_pct_real": 22.04,
         "x_pct_predicho": 30.9,
-        "log_loss": 1.0025,
-        "rps": 0.21049,
-        "brier": 0.59848,
+        "log_loss": 1.00256,
+        "rps": 0.21069,
+        "brier": 0.59854,
         "intervalo_95": {
-          "n": 488,
-          "esperadas": 150.79,
-          "lo": 131,
+          "n": 490,
+          "esperadas": 151.4,
+          "lo": 132,
           "hi": 171,
           "observadas": 108,
           "dentro": false,
@@ -637,22 +637,22 @@
         },
         "por_franja": {
           "<40": {
-            "n": 215,
+            "n": 217,
             "x_reales": 60,
-            "x_predichas": 75.11,
-            "x_pct_real": 27.91,
-            "x_pct_predicho": 34.93,
-            "log_loss": 1.09393,
-            "rps": 0.22908,
-            "brier": 0.66308,
+            "x_predichas": 75.72,
+            "x_pct_real": 27.65,
+            "x_pct_predicho": 34.89,
+            "log_loss": 1.09323,
+            "rps": 0.22935,
+            "brier": 0.66261,
             "intervalo_95": {
-              "n": 215,
-              "esperadas": 75.11,
+              "n": 217,
+              "esperadas": 75.72,
               "lo": 62,
-              "hi": 89,
+              "hi": 90,
               "observadas": 60,
               "dentro": false,
-              "p_valor": 0.0336
+              "p_valor": 0.0274
             }
           },
           "40-50": {
@@ -837,22 +837,22 @@
         },
         "por_franja_no_domestica": {
           "<40": {
-            "n": 145,
+            "n": 147,
             "x_reales": 38,
-            "x_predichas": 49.07,
-            "x_pct_real": 26.21,
-            "x_pct_predicho": 33.84,
-            "log_loss": 1.09358,
-            "rps": 0.23161,
-            "brier": 0.66329,
+            "x_predichas": 49.68,
+            "x_pct_real": 25.85,
+            "x_pct_predicho": 33.8,
+            "log_loss": 1.09255,
+            "rps": 0.23198,
+            "brier": 0.66259,
             "intervalo_95": {
-              "n": 145,
-              "esperadas": 49.07,
-              "lo": 38,
-              "hi": 60,
+              "n": 147,
+              "esperadas": 49.68,
+              "lo": 39,
+              "hi": 61,
               "observadas": 38,
-              "dentro": true,
-              "p_valor": 0.0593
+              "dentro": false,
+              "p_valor": 0.0472
             }
           },
           "40-50": {
@@ -937,41 +937,41 @@
         }
       },
       "calibrado": {
-        "n": 488,
+        "n": 490,
         "x_reales": 108,
-        "x_predichas": 129.33,
-        "x_pct_real": 22.13,
+        "x_predichas": 129.83,
+        "x_pct_real": 22.04,
         "x_pct_predicho": 26.5,
-        "log_loss": 0.99227,
-        "rps": 0.20893,
-        "brier": 0.59142,
+        "log_loss": 0.99205,
+        "rps": 0.2091,
+        "brier": 0.5913,
         "intervalo_95": {
-          "n": 488,
-          "esperadas": 129.33,
+          "n": 490,
+          "esperadas": 129.83,
           "lo": 111,
-          "hi": 148,
+          "hi": 149,
           "observadas": 108,
           "dentro": false,
-          "p_valor": 0.028
+          "p_valor": 0.0247
         },
         "por_franja": {
           "<40": {
-            "n": 215,
+            "n": 217,
             "x_reales": 60,
-            "x_predichas": 67.83,
-            "x_pct_real": 27.91,
-            "x_pct_predicho": 31.55,
-            "log_loss": 1.09143,
-            "rps": 0.22859,
-            "brier": 0.66101,
+            "x_predichas": 68.32,
+            "x_pct_real": 27.65,
+            "x_pct_predicho": 31.48,
+            "log_loss": 1.09001,
+            "rps": 0.22879,
+            "brier": 0.66009,
             "intervalo_95": {
-              "n": 215,
-              "esperadas": 67.83,
+              "n": 217,
+              "esperadas": 68.32,
               "lo": 55,
-              "hi": 81,
+              "hi": 82,
               "observadas": 60,
               "dentro": true,
-              "p_valor": 0.2779
+              "p_valor": 0.2481
             }
           },
           "40-50": {
@@ -1156,22 +1156,22 @@
         },
         "por_franja_no_domestica": {
           "<40": {
-            "n": 145,
+            "n": 147,
             "x_reales": 38,
-            "x_predichas": 44.43,
-            "x_pct_real": 26.21,
-            "x_pct_predicho": 30.64,
-            "log_loss": 1.08967,
-            "rps": 0.231,
-            "brier": 0.66038,
+            "x_predichas": 44.92,
+            "x_pct_real": 25.85,
+            "x_pct_predicho": 30.56,
+            "log_loss": 1.0876,
+            "rps": 0.23126,
+            "brier": 0.65903,
             "intervalo_95": {
-              "n": 145,
-              "esperadas": 44.43,
+              "n": 147,
+              "esperadas": 44.92,
               "lo": 34,
-              "hi": 55,
+              "hi": 56,
               "observadas": 38,
               "dentro": true,
-              "p_valor": 0.2817
+              "p_valor": 0.2454
             }
           },
           "40-50": {
@@ -1633,13 +1633,13 @@
         {
           "jornada": 24,
           "orden": "2026-11-23T03:06:13.833285+00:00",
-          "n": 12,
+          "n": 14,
           "n_historia": 476,
-          "log_loss_sin": 0.96632,
-          "log_loss_con": 1.01195,
+          "log_loss_sin": 0.97363,
+          "log_loss_con": 1.00132,
           "x_reales": 4,
-          "x_pred_sin": 2.87,
-          "x_pred_con": 2.31
+          "x_pred_sin": 3.48,
+          "x_pred_con": 2.81
         }
       ],
       "jornadas_mejoran": 20,
@@ -1693,11 +1693,11 @@
     },
     "no_domestica": {
       "<40": {
-        "n": 145,
+        "n": 147,
         "x_obs": 38,
-        "x_pred": 49.07,
-        "factor_bruto": 0.7744,
-        "factor": 0.8018
+        "x_pred": 49.68,
+        "factor_bruto": 0.7649,
+        "factor": 0.7931
       },
       "40-50": {
         "n": 77,
@@ -1738,7 +1738,7 @@
   },
   "veredicto": "DESPLEGAR",
   "motivos_veredicto": [
-    "(1) log-loss walk-forward calibrado 0.99227 vs sin calibrar 1.0025: CUMPLE",
+    "(1) log-loss walk-forward calibrado 0.99205 vs sin calibrar 1.00256: CUMPLE",
     "(2) X reales dentro del intervalo 95% de las X predichas calibradas en todas las franjas: CUMPLE"
   ],
   "aviso": "Cuaderno de Laboratorio: el motor no usa calibrar_x hasta que el veredicto sea DESPLEGAR y Marc de el OK. Con ~500 partidos de snapshot no se puede demostrar una mejora de log-loss < 0.005; el walk-forward solo evita la fuga de futuro, no sustituye a mas temporadas."

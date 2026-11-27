@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-26T18:58:30.354066+00:00",
+  "generado_en": "2026-11-27T02:09:01.877097+00:00",
   "jornadas": {
     "1": {
       "jornada": 1,
@@ -3224,12 +3224,12 @@
     },
     "24": {
       "jornada": 24,
-      "partidos_cerrados": 12,
-      "partidos_con_prediccion": 12,
-      "precision_boleto": 75.0,
-      "precision_top1": 58.33,
-      "brier_medio": 0.5865,
-      "logloss_medio": 0.9663,
+      "partidos_cerrados": 14,
+      "partidos_con_prediccion": 14,
+      "precision_boleto": 78.57,
+      "precision_top1": 57.14,
+      "brier_medio": 0.5902,
+      "logloss_medio": 0.9736,
       "por_tipo": {
         "FIJO": {
           "total": 9,
@@ -3237,14 +3237,14 @@
           "precision": 66.67
         },
         "DOBLE": {
-          "total": 3,
-          "aciertos": 3,
+          "total": 4,
+          "aciertos": 4,
           "precision": 100.0
         },
         "TRIPLE": {
-          "total": 0,
-          "aciertos": 0,
-          "precision": null
+          "total": 1,
+          "aciertos": 1,
+          "precision": 100.0
         }
       },
       "elige8": {
@@ -3252,14 +3252,28 @@
         "aciertos": 5,
         "precision": 62.5
       },
-      "surprise_score_medio": 44.82,
+      "surprise_score_medio": 44.63,
       "ranking_incertidumbre": [
+        {
+          "num": 13,
+          "partido": "RC Celta de Vigo - Bournemouth",
+          "incertidumbre": 143.3,
+          "surprise_score": 48.65,
+          "margen_probabilidad": 1.5
+        },
         {
           "num": 2,
           "partido": "Feyenoord - Oporto",
           "incertidumbre": 139.53,
           "surprise_score": 38.5,
           "margen_probabilidad": 5.7
+        },
+        {
+          "num": 14,
+          "partido": "Crystal Palace - Real Sociedad de Futbol",
+          "incertidumbre": 137.98,
+          "surprise_score": 38.38,
+          "margen_probabilidad": 6.9
         },
         {
           "num": 11,
@@ -3295,23 +3309,15 @@
           "incertidumbre": 103.25,
           "surprise_score": 23.75,
           "margen_probabilidad": 40.5
-        },
-        {
-          "num": 1,
-          "partido": "Arsenal - B. Dortmund",
-          "incertidumbre": 102.5,
-          "surprise_score": 74.84,
-          "margen_probabilidad": 40.1
-        },
-        {
-          "num": 5,
-          "partido": "Slovan Bratislava - Real Betis Balompie",
-          "incertidumbre": 101.33,
-          "surprise_score": 24.55,
-          "margen_probabilidad": 36.9
         }
       ],
       "ranking_elige8_confianza_real": [
+        {
+          "num": 14,
+          "partido": "Crystal Palace - Real Sociedad de Futbol",
+          "confianza_real_elige8": 50.1,
+          "elige8": false
+        },
         {
           "num": 4,
           "partido": "Real Madrid CF - Psv",
@@ -3352,12 +3358,6 @@
           "num": 5,
           "partido": "Slovan Bratislava - Real Betis Balompie",
           "confianza_real_elige8": 28.28,
-          "elige8": true
-        },
-        {
-          "num": 1,
-          "partido": "Arsenal - B. Dortmund",
-          "confianza_real_elige8": 21.67,
           "elige8": true
         }
       ]
@@ -6722,7 +6722,7 @@
     }
   },
   "resumen": {
-    "jornadas_evaluadas": 38,
+    "jornadas_evaluadas": 39,
     "precision_media_ultimas_8": 72.32,
     "criterio_aprendizaje": "tras cada jornada cerrada se compara prediccion vs resultado y se reentrena la memoria"
   }
