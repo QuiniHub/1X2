@@ -535,3 +535,16 @@ frente al 66,3% de las cuotas (z=+2,9); la racha FUERA del visitante no añade n
   una de sus patas (quedan el H2H de 4 empates, sin verificar, y el desgaste de Bratislava): baja de nº1 a vigilada.
 - Locales hundidos en casa: Valencia 0,2 (0-5, 2-3, 0-0, 1-2, 0-3), Elche 0,2, Málaga 0,4. Osasuna fuera 0,0 (cinco derrotas).
 - Visitantes en racha fuera (no es señal, regresa): Atlético 3,0 y Barça 3,0.
+
+### J24 — veredicto (jueves 26/11 noche): 8/14, 0 €, Elige 8 5/8
+Celta 1-2 Bournemouth (2 de Marc, OK) y Crystal Palace 2-1 Real Sociedad (el 2 solitario de Marc, falló).
+Fallos (6): Arsenal 1-1, City 2-2, PSG 2-2, Sporting 2-2 —cuatro X en doce partidos de Champions, tres en gigantes locales
+del 70-78%—, Slavia 0-1 Villarreal (la X solitaria) y Palace-Real. Aciertos que salvaron: los dos triples (Feyenoord-Oporto 2,
+Shakhtar-Fener 2) y el 1X del Inter. Escrutinio de jornada loca: el 13 pagó 536,94 € y el 12, 54,89 €.
+Contrafactuales: columna de la masa 9; columna valiente 7 (marcador en sombra: −2 en su estreno); web sencilla 9; el
+optimizador (P13plus, 18 col, publicado el jueves 26/11 antes del cambio de Losilla) `1 12 1 1 2 2 2 2 1 1 1X2 1X2 2 1`
+habría hecho 11 (fallos Arsenal, City y PSG) y cobrado el 11 (7,81 €): indicativo, no estaba sellado antes del primer partido.
+Sorpresa nombrada del módulo (Betis X) y la mía (Brujas 1): falladas. Ranker y optimizador sin registro (nacieron tras el cierre).
+LECCIÓN (sin tocar nada, jornada loca): la estructura del optimizador habría puesto el dinero donde estaban los aciertos
+(Sporting-United triple, Feyenoord doble 12) y no en apuestas solitarias contra el favorito (Slavia X, Real 2). Lo que
+mató el boleto fueron tres X de gigantes que ningún método publicado sabe elegir: 4 X en 12 es la cola, no la norma.
