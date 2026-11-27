@@ -89,6 +89,12 @@ class CalidadPrediccionTests(unittest.TestCase):
         for p in self.partidos:
             signo_base = p.get("signo_base")
             signo_final = str(p.get("signo_final") or "")
+            # X de autor del motor (19/10/2026): en un FIJO el motor puede
+            # jugar la X aunque el signo mas probable sea otro. Desde la
+            # auditoria del 26/11/2026 alinear_boleto_con_analisis ya no borra
+            # esa decision, asi que es un caso legitimo y trazado.
+            if (p.get("x_de_autor") or {}).get("activo") and signo_final == "X":
+                continue
             if signo_base:
                 self.assertIn(
                     signo_base, signo_final,

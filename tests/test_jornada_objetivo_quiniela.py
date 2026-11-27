@@ -230,10 +230,6 @@ class JornadaObjetivoQuinielaTests(unittest.TestCase):
             self.assertFalse(resumen["jornada_objetivo_cargada"])
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class JornadaAprendidaFechaFuturaTests(unittest.TestCase):
     """Caso real 07/09/2026: la J5 25/26 (jugada el año pasado, validada=True
     en el historial) comparte numero con la J5 26/27 aun SIN jugar (fechas
@@ -363,3 +359,7 @@ class JornadaNoJugadaPeroCerradaTests(unittest.TestCase):
             historial = base / "historial.json"; escribir_json(historial, {"jornadas": []})
             jugadas = base / "jugadas.json"; escribir_json(jugadas, {"jugadas": [{"jornada": 21, "signos": ["1"] * 14}]})
             self.assertEqual(objetivo.jornada_objetivo_prediccion(jornadas, historial, jugadas), 22)
+
+
+if __name__ == "__main__":
+    unittest.main()

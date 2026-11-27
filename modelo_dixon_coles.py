@@ -228,6 +228,28 @@ class DixonColes:
 
 
 _MODELO_CACHE = None
+# Auditoria 26/11/2026: si el entrenamiento falla se guarda el motivo y NO se
+# reintenta en cada partido (antes: 14 reentrenos por ejecucion y ni rastro).
+_ERROR_ENTRENAMIENTO = None
+_AVISO_CONVERGENCIA = None
+
+
+def error_entrenamiento():
+    """Motivo del ultimo fallo de entrenamiento en este proceso, o None."""
+    return _ERROR_ENTRENAMIENTO
+
+
+def aviso_convergencia():
+    """Texto de aviso si el optimizador no convergio (el modelo se usa igual)."""
+    return _AVISO_CONVERGENCIA
+
+
+def reiniciar_cache():
+    """Olvida modelo y errores (tests, o para forzar un reentreno)."""
+    global _MODELO_CACHE, _ERROR_ENTRENAMIENTO, _AVISO_CONVERGENCIA
+    _MODELO_CACHE = None
+    _ERROR_ENTRENAMIENTO = None
+    _AVISO_CONVERGENCIA = None
 
 
 def probabilidades_dixon_coles(local, visitante):
@@ -235,11 +257,22 @@ def probabilidades_dixon_coles(local, visitante):
     el historial disponible hasta hoy) y devuelve {'1','X','2'} en [0,1], o
     None si el modelo no cubre alguno de los equipos (Liga F, selecciones,
     Champions...) o si algo falla. NUNCA lanza: el motor no debe caerse por
-    esta senal."""
-    global _MODELO_CACHE
-    try:
-        if _MODELO_CACHE is None:
+    esta senal. Si el entrenamiento falla, el motivo queda en
+    error_entrenamiento() y no se reintenta en este proceso."""
+    global _MODELO_CACHE, _ERROR_ENTRENAMIENTO, _AVISO_CONVERGENCIA
+    if _ERROR_ENTRENAMIENTO is not None:
+        return None
+    if _MODELO_CACHE is None:
+        try:
             _MODELO_CACHE = DixonColes().entrenar(cargar_partidos(), datetime.now())
+        except Exception as exc:
+            _ERROR_ENTRENAMIENTO = f"{type(exc).__name__}: {exc}"
+            print(f"AVISO Dixon-Coles: el entrenamiento ha fallado ({_ERROR_ENTRENAMIENTO}); la capa queda fuera en esta ejecucion.")
+            return None
+        if getattr(_MODELO_CACHE, "convergio", True) is False:
+            _AVISO_CONVERGENCIA = "El optimizador de Dixon-Coles no convergio; se usa el modelo igualmente."
+            print(f"AVISO Dixon-Coles: {_AVISO_CONVERGENCIA}")
+    try:
         return _MODELO_CACHE.probabilidades(local, visitante)
     except Exception:
         return None

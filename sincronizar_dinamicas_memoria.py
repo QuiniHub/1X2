@@ -6,15 +6,45 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
+# Orden = prioridad creciente: la ULTIMA de la lista pisa a las anteriores.
+# Manda data/clasificaciones_oficiales.json, cuyas rachas recalcula
+# recalcular_dinamicas_calendario.py por fecha real; clasificaciones.json (que
+# reescribe construir_memoria_ia.py) solo es respaldo.
 CLASIFICACIONES = [
-    DATA / "clasificaciones_oficiales.json",
     ROOT / "clasificaciones.json",
+    DATA / "clasificaciones_oficiales.json",
 ]
-MEMORIAS = [
-    DATA / "memoria_ia" / "aprendizaje_global.json",
-    DATA / "temporadas" / "2025_2026" / "resumen_temporada.json",
-]
+APRENDIZAJE_GLOBAL = DATA / "memoria_ia" / "aprendizaje_global.json"
+TEMPORADAS = DATA / "temporadas"
 LIGAS = ("primera", "segunda")
+
+
+def clave_temporada(texto):
+    """'2026/2027' o '2026_2027' -> '2026_2027' ('' si no se entiende)."""
+    anios = re.findall(r"(?<![0-9])[0-9]{4}(?![0-9])", str(texto or ""))
+    return f"{anios[0]}_{anios[1]}" if len(anios) >= 2 else ""
+
+
+def temporada_detectada():
+    """Temporada de la clasificacion que se va a copiar (la oficial manda)."""
+    for path in reversed(CLASIFICACIONES):
+        clave = clave_temporada(cargar_json(path, {}).get("temporada_detectada"))
+        if clave:
+            return clave
+    return ""
+
+
+def memorias_a_sincronizar():
+    """aprendizaje_global.json y el resumen de la temporada EN CURSO. Nunca la
+    carpeta de otra temporada: la ruta fija 2025_2026 copiaba cada ciclo la
+    tabla 26/27 dentro del resumen historico de la 25/26."""
+    rutas = [APRENDIZAJE_GLOBAL]
+    clave = temporada_detectada()
+    if clave:
+        resumen = TEMPORADAS / clave / "resumen_temporada.json"
+        if resumen.exists() and clave_temporada(cargar_json(resumen, {}).get("temporada")) == clave:
+            rutas.append(resumen)
+    return rutas
 
 
 def cargar_json(path, defecto=None):
@@ -124,7 +154,7 @@ def main():
     clasificaciones = cargar_clasificaciones()
     cambios_totales = 0
     faltantes_totales = []
-    for path in MEMORIAS:
+    for path in memorias_a_sincronizar():
         cambios, faltantes = sincronizar_memoria(path, clasificaciones)
         cambios_totales += cambios
         faltantes_totales.extend(faltantes)

@@ -30,6 +30,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from guardar_snapshot_prediccion import snapshot_de_otra_jornada
+
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 PREDICCION = DATA / "predicciones" / "ultima_prediccion.json"
@@ -42,7 +44,10 @@ BLOQUES_SOMBRA = ("valiente", "tercero_valor", "radar_tormenta", "sorpresa_nombr
 BLOQUES_DECISION = ("coste", "boleto_millonario", "boleto_ev_premio", "criterio_cobertura", "calibracion_cobertura",
                     "ataques_favorito_prioritarios", "ranking_incertidumbre_coberturas", "ranking_elige8_confianza_real",
                     "riesgos_detectados", "riesgos_no_cubiertos_por_presupuesto", "alertas_boleto", "resumen",
-                    "elige8_seguro", "elige8_modos", "calibracion_probabilidades", "modelo_predictivo")
+                    "elige8_seguro", "elige8_modos", "calibracion_probabilidades", "modelo_predictivo",
+                    # Auditoria 26/11: sin 'configuracion' la J24 congelada declaraba 2 triples con un solo
+                    # partido TRIPLE (el motor la recalcula sin mercado con la jornada en juego).
+                    "configuracion")
 # Claves por partido que siguen VIVAS (resultados reales) y no se congelan.
 CLAVES_VIVAS_PARTIDO = ("resultado", "signo_oficial", "estado", "estado_partido", "marcador", "minuto", "en_juego",
                         "goles_local", "goles_visitante")
@@ -86,10 +91,16 @@ def congelar(jornada, ahora=None, dir_predicciones=None, dir_snapshots=None, rut
         return {"jornada": jornada, "estado": "sin_snapshot"}
     if not jornada_empezada(snapshot, ahora):
         return {"jornada": jornada, "estado": "jornada_sin_empezar"}
-    restaurados, retirados, tocados = [], [], []
+    restaurados, retirados, tocados, ajenos = [], [], [], []
     for ruta in (dir_predicciones / f"jornada_{jornada}.json", ruta_ultima):
         datos = cargar_json(ruta, {}) or {}
         if datos.get("jornada") != jornada:
+            continue
+        # Auditoria 26/11: el NUMERO no identifica la jornada (se reinicia
+        # cada temporada). Un snapshot J22 de la 26/27 no puede congelar la
+        # J22 de la 27/28: los equipos tienen que ser los mismos.
+        if snapshot_de_otra_jornada(snapshot, datos):
+            ajenos.append(ruta.name)
             continue
         cambio = False
         for clave in BLOQUES_SOMBRA:
@@ -153,14 +164,28 @@ def congelar(jornada, ahora=None, dir_predicciones=None, dir_snapshots=None, rut
             }
             guardar_json(ruta, datos)
             tocados.append(ruta.name)
+    if ajenos and not tocados:
+        return {"jornada": jornada, "estado": "snapshot_de_otra_jornada", "restaurados": [], "retirados": [],
+                "ficheros": [], "ajenos": ajenos}
     return {"jornada": jornada, "estado": "congelado" if tocados else "ya_congelado",
             "restaurados": restaurados, "retirados": retirados, "ficheros": tocados}
 
 
 def main():
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    prediccion = cargar_json(PREDICCION, {})
-    jornada = prediccion.get("jornada")
+    # Reparacion manual: "python congelar_bloques_sombra.py --jornada 24"
+    # vuelve a congelar el espejo de una jornada ya pasada (el pipeline solo
+    # congela la jornada activa). Sin argumento, la jornada activa.
+    jornada = None
+    if "--jornada" in sys.argv[1:]:
+        try:
+            jornada = int(sys.argv[sys.argv.index("--jornada") + 1])
+        except (IndexError, ValueError):
+            print("Uso: python congelar_bloques_sombra.py [--jornada N]")
+            return
+    else:
+        prediccion = cargar_json(PREDICCION, {})
+        jornada = prediccion.get("jornada")
     if not isinstance(jornada, int):
         print("Sin jornada activa; nada que congelar.")
         return

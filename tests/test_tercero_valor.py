@@ -7,8 +7,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import tercero_valor as tv
+import test_aud_P4_sombra_snapshot_util as util
 
 
 def _partido(num=1, local="Cadiz CF", visitante="Levante UD", probs=None, **extra):
@@ -255,39 +257,79 @@ class BloqueTerceroValorTests(unittest.TestCase):
 
 
 class MarcadorTerceroValorTests(unittest.TestCase):
+    """Auditoria 26/11: el marcador lee el bloque del snapshot PRE-CIERRE y
+    solo de jornadas cerradas; el espejo data/predicciones ya no se lee."""
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         base = Path(self.tmp.name)
         self.dir_pred = base / "predicciones"
         self.dir_jorn = base / "jornadas"
+        self.dir_snap = base / "snapshots"
         self.ruta = base / "marcador_tercero_valor.json"
         self.dir_pred.mkdir()
-        self.dir_jorn.mkdir()
 
     def tearDown(self):
         self.tmp.cleanup()
 
-    def _escribir(self, jornada=20, signo_oficial="2", local="Cadiz CF",
-                  visitante="Levante UD", local_fixture=None, visitante_fixture=None):
-        bloque = {
+    def _bloque(self, jornada=20, local="Cadiz", visitante="Levante"):
+        return {
             "estado": "ok", "modo": "sombra", "jornada": jornada, "num": 5,
             "local": local, "visitante": visitante, "signo": "2",
             "prob_motor": 20.0, "prob_calibrada": 22.0, "masa_pct": 10.0,
             "calibracion": {"metodo": "factor_global_por_signo"},
         }
-        (self.dir_pred / f"jornada_{jornada}.json").write_text(
-            json.dumps({"jornada": jornada, "tercero_valor": bloque}), encoding="utf-8")
-        (self.dir_jorn / f"jornada_{jornada}.json").write_text(json.dumps({
-            "jornada": jornada,
-            "partidos": [{"num": 5, "local": local_fixture or local,
-                          "visitante": visitante_fixture or visitante,
-                          "signo_oficial": signo_oficial}],
-        }), encoding="utf-8")
+
+    def _escribir(self, jornada=20, signo_oficial="2", local_fixture=None, visitante_fixture=None,
+                  otra_temporada=False):
+        nombres_fixture = list(util.EQUIPOS)
+        if local_fixture or visitante_fixture:
+            nombres_fixture[4] = (local_fixture or "Cadiz", visitante_fixture or "Levante")
+        if otra_temporada:
+            # mismo numero, otros 14 partidos y un año antes: es otra jornada real
+            util.escribir_jornada(self.dir_jorn, jornada, "2025-11-22", {5: signo_oficial}, util.OTROS_EQUIPOS)
+            util.escribir_snapshot(self.dir_snap, jornada, {"tercero_valor": self._bloque(jornada)})
+            return
+        util.montar_cierre(self.tmp.name, jornada, {"tercero_valor": self._bloque(jornada)},
+                           signos={5: signo_oficial}, nombres_fixture=nombres_fixture)
 
     def _actualizar(self):
         return tv.actualizar_marcador_tercero_valor(
             dir_predicciones=self.dir_pred, dir_jornadas=self.dir_jorn,
-            ruta_marcador=self.ruta, etiqueta="2026_2027")
+            ruta_marcador=self.ruta, etiqueta="2026_2027", dir_snapshots=self.dir_snap)
+
+    def test_el_espejo_post_cierre_no_se_registra(self):
+        # J24 real: el espejo decia P1 Arsenal-Dortmund y el snapshot P9.
+        # Lo que cuenta es el snapshot; un bloque solo en el espejo no existe.
+        util.escribir_jornada(self.dir_jorn, 20, signos={5: "2"})
+        util.escribir_snapshot(self.dir_snap, 20, {})
+        (self.dir_pred / "jornada_20.json").write_text(
+            json.dumps({"jornada": 20, "tercero_valor": self._bloque()}), encoding="utf-8")
+        self.assertEqual(self._actualizar()["nuevos"], 0)
+
+    def test_registra_el_pick_del_snapshot_y_no_el_del_espejo(self):
+        self._escribir(signo_oficial="2")
+        espejo = dict(self._bloque(), num=1, local="Alaves", visitante="Getafe", prob_calibrada=40.0)
+        (self.dir_pred / "jornada_20.json").write_text(
+            json.dumps({"jornada": 20, "tercero_valor": espejo}), encoding="utf-8")
+        self._actualizar()
+        t = json.loads(self.ruta.read_text(encoding="utf-8"))["terceros"][0]
+        self.assertEqual(t["num"], 5)
+        self.assertEqual(t["prob_declarada"], 22.0)
+
+    def test_la_temporada_sale_de_la_fecha_y_no_de_la_etiqueta(self):
+        # Auditoria 26/11: con now() en julio de 2027 todo se re-registraba
+        # como 2027_2028. La etiqueta pasada ya no manda si hay fecha.
+        self._escribir()
+        tv.actualizar_marcador_tercero_valor(
+            dir_jornadas=self.dir_jorn, ruta_marcador=self.ruta, etiqueta="2027_2028",
+            dir_snapshots=self.dir_snap)
+        r = tv.actualizar_marcador_tercero_valor(
+            dir_jornadas=self.dir_jorn, ruta_marcador=self.ruta, etiqueta="2028_2029",
+            dir_snapshots=self.dir_snap)
+        self.assertEqual(r["nuevos"], 0)
+        terceros = json.loads(self.ruta.read_text(encoding="utf-8"))["terceros"]
+        self.assertEqual([t["temporada"] for t in terceros], ["2026_2027"])
 
     def test_registra_acierto_con_prob_calibrada_declarada(self):
         self._escribir(signo_oficial="2")
@@ -314,13 +356,15 @@ class MarcadorTerceroValorTests(unittest.TestCase):
         self._escribir(signo_oficial="Pendiente")
         self.assertEqual(self._actualizar()["nuevos"], 0)
 
-    def test_nombres_de_otra_temporada_no_puntuan(self):
-        self._escribir(local_fixture="Real Zaragoza", visitante_fixture="SD Huesca")
+    def test_snapshot_de_otra_temporada_no_puntua(self):
+        self._escribir(otra_temporada=True)
         self.assertEqual(self._actualizar()["nuevos"], 0)
 
-    def test_un_solo_nombre_casa_si_puntua(self):
-        # alias legitimos del motor ("Celta B" vs "Celta Fortuna"): basta uno
-        self._escribir(local_fixture="Cadiz CF", visitante_fixture="Levante Union Deportiva")
+    def test_alias_distinto_en_el_partido_del_pick_si_puntua(self):
+        # La jornada ya esta verificada por los otros 13 partidos: un alias
+        # desconocido en los dos lados ('Sporting De Portugal'/'Sporting
+        # Lisboa', J24 real) no deja el pick sin registrar para siempre.
+        self._escribir(local_fixture="Sporting Lisboa", visitante_fixture="Man. United")
         self.assertEqual(self._actualizar()["nuevos"], 1)
 
     def test_fallo_registra_pago_cero(self):

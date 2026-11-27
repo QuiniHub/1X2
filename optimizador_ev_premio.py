@@ -22,6 +22,7 @@ recomendacion conservadora ni el boleto_millonario: es una tercera lectura,
 informativa -jugar dinero real lo decide siempre Marc.
 """
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -32,7 +33,9 @@ from modelo_reparto_quiniela import (
     RECAUDACION_DEFECTO,
     SIGNOS,
     columnas_boleto,
+    escrutinio_plausible,
     normalizar_probs,
+    recaudacion_de_escrutinio,
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -51,6 +54,17 @@ N_MUESTRAS_SELECCION = 20000
 N_MUESTRAS_FINAL = 60000
 SEMILLA = 20261013
 PESO_LOSILLA = 0.5  # mezcla motor+Losilla al 50%, la misma que usamos a mano
+# Desde el 26/11/2026 el motor ya publica 0,15 motor + 0,85 mercado ("el
+# mercado manda"). Con la mezcla 50/50 de aqui el mercado acaba pesando 0,925
+# (hallazgo 150 de la auditoria del 26/11/2026).
+# PESO_MERCADO_YA_INTEGRADO es solo el umbral con el que se DETECTA y se
+# publica cuantos partidos traen ya el mercado integrado.
+PESO_MERCADO_YA_INTEGRADO = 0.8
+# Interruptor de la decision de modelado, APAGADO por defecto: quitar la
+# segunda mezcla cambia el peso efectivo del mercado (0,925 -> 0,85), mueve el
+# boleto en sombra (J25: P7 1X2 -> 12, P10 1X -> 1X2) y deja el backtest
+# midiendo otra fuente. Lo decide Marc; hasta entonces, la mezcla de siempre.
+EVITAR_SEGUNDA_MEZCLA = False
 
 
 def cargar_json(path, defecto=None):
@@ -67,9 +81,68 @@ def guardar_json(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def mezclar_probabilidades(prob_motor, prob_losilla, peso_losilla=PESO_LOSILLA):
+def peso_mercado_integrado(partido):
+    """Peso con el que el motor YA integro el mercado Losilla en las
+    probabilidades publicadas del partido (traza ajuste_mercado_losilla), o
+    None si no consta. Acepta un campo numerico 'peso' o la lectura
+    "...integrado con peso 0.85 ..." que escribe el motor."""
+    ajuste = (partido or {}).get("ajuste_mercado_losilla")
+    if not isinstance(ajuste, dict) or not ajuste.get("activo"):
+        return None
+    peso = ajuste.get("peso")
+    if isinstance(peso, (int, float)) and not isinstance(peso, bool):
+        return float(peso)
+    for lectura in ajuste.get("lecturas") or []:
+        m = re.search("integrado con peso ([0-9]+(?:[.,][0-9]+)?)", str(lectura))
+        if m:
+            try:
+                return float(m.group(1).replace(",", "."))
+            except ValueError:
+                continue
+    return None
+
+
+def mercado_ya_integrado(partido):
+    peso = peso_mercado_integrado(partido)
+    return peso is not None and peso >= PESO_MERCADO_YA_INTEGRADO
+
+
+def traza_mercado_sin_peso(partido):
+    """True si el partido trae la traza de mercado activa pero no se reconoce
+    el peso (el motor cambio el texto de la lectura y no escribe 'peso')."""
+    ajuste = (partido or {}).get("ajuste_mercado_losilla")
+    return bool(isinstance(ajuste, dict) and ajuste.get("activo")
+                and peso_mercado_integrado(partido) is None)
+
+
+def descripcion_fuente_probabilidad(partidos):
+    """(texto, n_ya_integrado, n_sin_segunda_mezcla, n_traza_sin_peso) de la
+    probabilidad "real" que usan los optimizadores para estos partidos."""
+    ya = sum(1 for p in partidos if mercado_ya_integrado(p))
+    sin_peso = sum(1 for p in partidos if traza_mercado_sin_peso(p))
+    if not ya:
+        return "mezcla motor+Losilla 50/50", 0, 0, sin_peso
+    if EVITAR_SEGUNDA_MEZCLA:
+        resto = "" if ya == len(partidos) else "; mezcla motor+Losilla 50/50 en el resto"
+        return (
+            f"probabilidad publicada por el motor tal cual en {ya} de {len(partidos)} partido(s) (ya integra "
+            f"el mercado Losilla con peso >= {PESO_MERCADO_YA_INTEGRADO}), sin segunda mezcla{resto}"
+        ), ya, ya, sin_peso
+    return (
+        f"mezcla motor+Losilla 50/50 (aviso: en {ya} de {len(partidos)} partido(s) el motor ya integra el "
+        f"mercado con peso >= {PESO_MERCADO_YA_INTEGRADO}, asi que el mercado pesa en total ~0,925; quitar "
+        "esta segunda mezcla es una decision pendiente de Marc)"
+    ), ya, 0, sin_peso
+
+
+def mezclar_probabilidades(prob_motor, prob_losilla, peso_losilla=PESO_LOSILLA, partido=None):
+    """Probabilidad "real" del partido: mezcla motor+Losilla. Solo si
+    EVITAR_SEGUNDA_MEZCLA esta encendido (decision de Marc, apagado por
+    defecto), se pasa `partido` y su traza indica que el mercado ya esta
+    integrado con peso >= PESO_MERCADO_YA_INTEGRADO, se devuelve la
+    probabilidad publicada tal cual (sin segunda mezcla)."""
     motor = normalizar_probs(prob_motor or {})
-    if not prob_losilla:
+    if not prob_losilla or (EVITAR_SEGUNDA_MEZCLA and mercado_ya_integrado(partido)):
         return motor
     losilla = normalizar_probs(prob_losilla)
     return {s: (1 - peso_losilla) * motor[s] + peso_losilla * losilla[s] for s in SIGNOS}
@@ -131,18 +204,28 @@ def factor_acertantes_actual(ruta=None):
     )
 
 
-def recaudacion_estimada():
+def recaudacion_estimada(etiqueta=None, carpeta=None):
     """Media de las recaudaciones reales capturadas en la temporada actual;
-    RECAUDACION_DEFECTO si aun no hay ningun escrutinio capturado."""
-    etiqueta = temporada_etiqueta(datetime.now())
-    carpeta = SALIDA_BASE / etiqueta
+    RECAUDACION_DEFECTO si aun no hay ningun escrutinio capturado.
+
+    Solo cuentan las recaudaciones plausibles (0,3-20 M EUR); una fuera de
+    rango (J23 26/27 se guardo como 294 M por un error de parseo e inflaba la
+    media a 14,8 M) se reconstruye desde el escrutinio o se descarta."""
+    if carpeta is None:
+        etiqueta = etiqueta or temporada_etiqueta(datetime.now())
+        carpeta = SALIDA_BASE / etiqueta
+    carpeta = Path(carpeta)
     valores = []
     if carpeta.exists():
         for path in carpeta.glob("jornada_*.json"):
             escrutinio = cargar_json(path, {}).get("escrutinio") or {}
-            valor = escrutinio.get("recaudacion_eur")
-            if isinstance(valor, (int, float)) and valor > 0:
-                valores.append(float(valor))
+            if escrutinio.get("categorias") and not escrutinio_plausible(escrutinio):
+                # Escrutinio placebo (plantilla a cero, J14 26/27): su
+                # recaudacion sale de la misma pagina no fiable; no cuenta.
+                continue
+            valor = recaudacion_de_escrutinio(escrutinio)
+            if valor is not None:
+                valores.append(valor)
     if valores:
         return round(sum(valores) / len(valores), 2), len(valores)
     return RECAUDACION_DEFECTO, 0
@@ -251,9 +334,12 @@ def calcular_bloque_ev(prediccion, fuente_losilla, n_muestras=N_MUESTRAS_SELECCI
 
     losilla = probabilidades_losilla_por_numero(fuente_losilla, jornada)
     p_real = [
-        mezclar_probabilidades(p.get("probabilidades"), losilla.get(p["num"]))
+        mezclar_probabilidades(p.get("probabilidades"), losilla.get(p["num"]), partido=p)
         for p in partidos
     ]
+    fuente_probabilidad, ya_integrado, sin_segunda_mezcla, traza_sin_peso = (
+        descripcion_fuente_probabilidad(partidos)
+    )
     pct_masa = [masa[p["num"]] for p in partidos]
 
     if recaudacion is None:
@@ -321,12 +407,16 @@ def calcular_bloque_ev(prediccion, fuente_losilla, n_muestras=N_MUESTRAS_SELECCI
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "jornada": jornada,
         "metodo": (
-            "EV del premio (pari-mutuel): mezcla motor+Losilla 50/50 como probabilidad real, "
+            f"EV del premio (pari-mutuel): {fuente_probabilidad} como probabilidad real, "
             "% apostantes LAE como masa, modelo de reparto validado con escrutinios reales, "
             f"hill-climbing multi-arranque sobre {n_muestras} muestras Monte Carlo (14 exacta) "
             f"y EV publicado sobre {n_muestras_final} muestras independientes (semillas fijas)."
         ),
         "fuente_masa": fuente_masa,
+        "fuente_probabilidad": fuente_probabilidad,
+        "partidos_con_mercado_ya_integrado": ya_integrado,
+        "partidos_sin_segunda_mezcla": sin_segunda_mezcla,
+        "partidos_con_traza_mercado_sin_peso": traza_sin_peso,
         "recaudacion_estimada_eur": recaudacion,
         "escrutinios_usados_para_recaudacion": n_escrutinios,
         "factor_acertantes": factor_acertantes,

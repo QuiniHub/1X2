@@ -133,6 +133,20 @@ def preparar_tabla(tabla, total_partidos):
     return equipos
 
 
+def rival_con_mas_techo(candidatos):
+    """El equipo que mas puntos puede llegar a sumar de una lista.
+
+    Auditoria 26/11: 'asegurado', 'salvado' y 'campeon' se calculaban solo
+    contra el inmediato perseguidor. Con partidos aplazados, un equipo que va
+    mas abajo puede tener un maximo de puntos mayor, y se daba por cerrado un
+    objetivo que no lo estaba (el motor le quita la motivacion a ese equipo).
+    """
+    candidatos = [e for e in (candidatos or []) if e]
+    if not candidatos:
+        return None
+    return max(candidatos, key=lambda e: e.get("maximo_puntos", 0))
+
+
 def frontera_superior(equipos, fin):
     dentro = equipos[fin - 1] if len(equipos) >= fin else None
     perseguidor = equipos[fin] if len(equipos) > fin else None
@@ -171,13 +185,15 @@ def evaluar_plaza(equipo, equipos, fin, objetivo):
             }
 
         colchon = puntos - perseguidor["puntos"]
-        asegurado = puntos > perseguidor["maximo_puntos"]
-        puntos_para_asegurar = max(0, perseguidor["maximo_puntos"] + 1 - puntos)
+        # Techo de TODOS los que estan fuera del corte, no solo del siguiente.
+        amenaza = rival_con_mas_techo(equipos[fin:]) or perseguidor
+        asegurado = puntos > amenaza["maximo_puntos"]
+        puntos_para_asegurar = max(0, amenaza["maximo_puntos"] + 1 - puntos)
         if asegurado:
             estado = "asegurado_matematicamente"
             lectura = (
                 f"Tiene {etiqueta} asegurado: suma {puntos} puntos y "
-                f"{perseguidor['equipo']} solo puede llegar a {perseguidor['maximo_puntos']}."
+                f"{amenaza['equipo']} solo puede llegar a {amenaza['maximo_puntos']}."
             )
         else:
             estado = "defiende_plaza"
@@ -194,7 +210,7 @@ def evaluar_plaza(equipo, equipos, fin, objetivo):
             "distancia_o_colchon": colchon,
             "corte_equipo": perseguidor["equipo"],
             "corte_puntos_actuales": perseguidor["puntos"],
-            "corte_maximo_puntos": perseguidor["maximo_puntos"],
+            "corte_maximo_puntos": amenaza["maximo_puntos"],
             "puntos_necesarios_para_asegurar": puntos_para_asegurar,
             "lectura": lectura,
         }
@@ -244,12 +260,13 @@ def evaluar_titulo(equipo, equipos):
         if not segundo:
             return None
         colchon = equipo["puntos"] - segundo["puntos"]
-        campeon = equipo["puntos"] > segundo["maximo_puntos"]
-        puntos_para_titulo = max(0, segundo["maximo_puntos"] + 1 - equipo["puntos"])
+        amenaza = rival_con_mas_techo(equipos[1:]) or segundo
+        campeon = equipo["puntos"] > amenaza["maximo_puntos"]
+        puntos_para_titulo = max(0, amenaza["maximo_puntos"] + 1 - equipo["puntos"])
         estado = "campeon_matematico" if campeon else "defiende_liderato"
         lectura = (
             f"Ya es campeón matemático: suma {equipo['puntos']} puntos y "
-            f"{segundo['equipo']} solo puede llegar a {segundo['maximo_puntos']}."
+            f"{amenaza['equipo']} solo puede llegar a {amenaza['maximo_puntos']}."
             if campeon else
             f"Lidera con {texto_puntos(colchon)} sobre {segundo['equipo']} y necesita "
             f"{texto_puntos(puntos_para_titulo)} para cerrar el título por puntos."
@@ -343,14 +360,16 @@ def evaluar_descenso(equipo, equipos, plazas, nombre_objetivo):
         }
 
     colchon = equipo["puntos"] - equipo_descenso["puntos"]
-    puntos_para_salvarse = max(equipo_descenso["maximo_puntos"] + 1 - equipo["puntos"], 0)
-    salvado = equipo["puntos"] > equipo_descenso["maximo_puntos"]
+    # Techo de TODOS los que estan en descenso, no solo del primero de ellos.
+    amenaza = rival_con_mas_techo(equipos[ultima_safe:]) or equipo_descenso
+    puntos_para_salvarse = max(amenaza["maximo_puntos"] + 1 - equipo["puntos"], 0)
+    salvado = equipo["puntos"] > amenaza["maximo_puntos"]
     if salvado:
         estado = "salvado_matematicamente"
         objetivo = "situacion_final"
         lectura = (
             f"Salvado matemáticamente: tiene {equipo['puntos']} puntos y "
-            f"{equipo_descenso['equipo']} solo puede llegar a {equipo_descenso['maximo_puntos']}."
+            f"{amenaza['equipo']} solo puede llegar a {amenaza['maximo_puntos']}."
         )
     elif colchon <= 3:
         estado = "riesgo_descenso"
@@ -384,7 +403,7 @@ def evaluar_descenso(equipo, equipos, plazas, nombre_objetivo):
         "distancia_o_colchon": colchon,
         "corte_equipo": equipo_descenso["equipo"],
         "corte_puntos_actuales": equipo_descenso["puntos"],
-        "corte_maximo_puntos": equipo_descenso["maximo_puntos"],
+        "corte_maximo_puntos": amenaza["maximo_puntos"],
         "puntos_necesarios_para_salvarse": puntos_para_salvarse,
         "lectura": lectura,
     }
@@ -410,9 +429,47 @@ def nivel_motivacion(objetivos):
     return "baja"
 
 
+# Puntos de una victoria: lo que esta a esa distancia se decide en un partido.
+MARGEN_OBJETIVO_CERCANO = 3
+
+
+def distancia_al_corte(objetivo):
+    try:
+        return abs(float(objetivo.get("distancia_o_colchon")))
+    except (TypeError, ValueError):
+        return float("inf")
+
+
 def elegir_objetivo_principal(objetivos):
+    """El objetivo de la zona de la tabla en la que esta el equipo.
+
+    Auditoria 26/11: se elegia por una prioridad fija que ponia la
+    permanencia por encima del liderato. Como a mitad de temporada NINGUN
+    equipo tiene la permanencia cerrada por puntos, el lider salia con
+    'la permanencia no esta cerrada' como lectura principal y el chat de la
+    web lo contaba como su situacion real. Ahora manda el objetivo VIVO que
+    el equipo tiene cerca en puntos (el lider defiende el liderato, el 17o
+    mira al descenso). Entre los objetivos que estan a un partido de
+    distancia (MARGEN_OBJETIVO_CERCANO puntos) decide la prioridad fija y no
+    la distancia exacta: un equipo a 2 puntos de Europa y a 3 del descenso
+    sigue contandose como equipo que roza el descenso. La prioridad fija
+    decide tambien cuando no queda ningun objetivo vivo.
+    """
+    objetivos = [objetivo for objetivo in (objetivos or []) if objetivo]
     if not objetivos:
         return None
+    vivos = [objetivo for objetivo in objetivos if objetivo.get("vivo")]
+    if vivos:
+        mas_cerca = min(distancia_al_corte(objetivo) for objetivo in vivos)
+        limite = max(mas_cerca, MARGEN_OBJETIVO_CERCANO)
+        cercanos = [objetivo for objetivo in vivos if distancia_al_corte(objetivo) <= limite]
+        return sorted(
+            cercanos,
+            key=lambda objetivo: (
+                -PRIORIDAD_OBJETIVO.get(objetivo.get("estado"), 0),
+                distancia_al_corte(objetivo),
+            ),
+        )[0]
     return sorted(
         objetivos,
         key=lambda objetivo: PRIORIDAD_OBJETIVO.get(objetivo.get("estado"), 0),

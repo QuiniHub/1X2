@@ -37,47 +37,49 @@ def probabilidad(partido, signo):
     return numero((partido.get("probabilidades") or {}).get(signo), 0.0)
 
 
-def top_dos_signos(partido):
-    return sorted(("1", "X", "2"), key=lambda s: (probabilidad(partido, s), -ORDEN_SIGNOS[s]), reverse=True)[:2]
+def signo_limpio(valor):
+    """Signos 1/X/2 presentes en el valor, sin repetir y en orden 1-X-2."""
+    texto = str(valor or "").upper()
+    return "".join(s for s in ("1", "X", "2") if s in texto)
 
 
-def signo_doble(partido):
-    return "".join(sorted(top_dos_signos(partido), key=lambda s: ORDEN_SIGNOS[s]))
+def tipo_por_signo(signo):
+    return {1: "FIJO", 2: "DOBLE", 3: "TRIPLE"}.get(len(signo_limpio(signo)), "FIJO")
 
 
-def puntuacion_triple(partido):
-    sugerida = cobertura_sugerida(partido)
-    return (
-        100000 if sugerida == "TRIPLE" else 0,
-        numero(partido.get("indice_sorpresa_quinielistica")),
-        numero(partido.get("tercera_probabilidad")),
-        numero(partido.get("probabilidad_sorpresa")),
-        numero(partido.get("incertidumbre")),
-        -numero(partido.get("margen_probabilidad")),
-        -int(partido.get("num") or 0),
-    )
+def multiplicador(signos):
+    total = 1
+    for signo in signos:
+        total *= max(len(signo_limpio(signo)), 1)
+    return total
 
 
-def puntuacion_doble(partido):
-    sugerida = cobertura_sugerida(partido)
-    return (
-        100000 if sugerida == "DOBLE" else 0,
-        50000 if sugerida == "TRIPLE" else 0,
-        numero(partido.get("indice_sorpresa_quinielistica")),
-        numero(partido.get("probabilidad_sorpresa")),
-        numero(partido.get("incertidumbre")),
-        -numero(partido.get("margen_probabilidad")),
-        probabilidad(partido, "X"),
-        -int(partido.get("num") or 0),
-    )
+def recalcular_coste(partidos, elige8=True):
+    """Coste del boleto TAL Y COMO lo dejo el motor.
 
-
-def recalcular_coste(dobles, triples, elige8):
-    apuestas = 2 ** int(dobles) * 3 ** int(triples)
+    Auditoria 26/11/2026 (hallazgo 181): el Elige 8 se cobra solo sobre los 8
+    partidos elegidos (apuestas_elige8 = producto de los signos de esos 8),
+    no sobre todas las apuestas del boleto. Misma cuenta que
+    aplicar_elige8_seguro.recalcular_coste, que corre al final de la cadena.
+    """
+    con_signo = [p for p in partidos if signo_limpio(p.get("signo_final"))]
+    if not con_signo:
+        # Prediccion retenida (sin signos): no hay boleto que cobrar.
+        return {
+            "apuestas": 0,
+            "apuestas_elige8": 0,
+            "importe_quiniela": 0,
+            "importe_elige8": 0,
+            "importe_total": 0,
+        }
+    apuestas = multiplicador(p.get("signo_final") for p in con_signo)
+    elegidos = [p for p in con_signo if p.get("en_elige8") or p.get("elige8")] if elige8 else []
+    apuestas_elige8 = multiplicador(p.get("signo_final") for p in elegidos) if elegidos else 0
     importe_quiniela = max(apuestas * PRECIO_APUESTA, IMPORTE_MINIMO)
-    importe_elige8 = apuestas * PRECIO_ELIGE8 if elige8 else 0.0
+    importe_elige8 = apuestas_elige8 * PRECIO_ELIGE8
     return {
         "apuestas": apuestas,
+        "apuestas_elige8": apuestas_elige8,
         "importe_quiniela": round(importe_quiniela, 2),
         "importe_elige8": round(importe_elige8, 2),
         "importe_total": round(importe_quiniela + importe_elige8, 2),
@@ -147,46 +149,56 @@ def reescribir_razonamiento(partido):
         partes.append(f"Favorito o signo de referencia: {partido.get('favorito_nombre')}.")
     if motivos:
         partes.append(f"Motivos principales: {motivos}.")
+    autor = partido.get("cobertura_autor") or {}
+    if autor.get("activo") and autor.get("razon"):
+        partes.append(f"Cobertura de autor: {autor.get('razon')}")
+    x_autor = partido.get("x_de_autor") or {}
+    if x_autor.get("activo") and x_autor.get("razon"):
+        partes.append(str(x_autor.get("razon")))
     partes.append(f"Decision final: {partido.get('signo_final')}.")
     return " ".join(partes)
 
 
 def alinear_prediccion(data):
+    """Reescribe TEXTOS y COSTE del boleto; NO reparte coberturas.
+
+    Auditoria 26/11/2026 (hallazgos 1 y 30): el unico dueno del reparto de
+    dobles y triples es el motor (prioridad_triple/prioridad_doble, con la
+    calibracion de fijos, el desacuerdo con el mercado y la cobertura de
+    autor). Este script volvia a repartirlos con otro criterio y ponia en el
+    doble los dos signos mas probables, con lo que quitaba la X de la
+    cobertura de autor (J25, P7 Celta-Villarreal: el motor dijo X2 y se
+    publico 12 con cobertura_autor.cubierta=True) y borraba la X de autor de
+    los fijos. Ahora se respetan signo_final, tipo, cobertura_autor y
+    x_de_autor tal y como llegan; solo se normaliza el tipo a partir del
+    signo ya decidido.
+    """
     partidos = list(data.get("partidos") or [])
     if not partidos:
         return data
 
     config = data.setdefault("configuracion", {})
-    triples = int(config.get("triples") or 0)
-    dobles = int(config.get("dobles") or 0)
     elige8 = bool(config.get("elige8"))
 
-    triples = max(0, min(triples, len(partidos)))
-    dobles = max(0, min(dobles, len(partidos) - triples))
-
-    triples_set = {p.get("num") for p in sorted(partidos, key=puntuacion_triple, reverse=True)[:triples]}
-    candidatos_doble = [p for p in partidos if p.get("num") not in triples_set]
-    dobles_set = {p.get("num") for p in sorted(candidatos_doble, key=puntuacion_doble, reverse=True)[:dobles]}
-
     for partido in partidos:
-        num = partido.get("num")
-        if num in triples_set:
-            partido["tipo"] = "TRIPLE"
-            partido["signo_final"] = "1X2"
-        elif num in dobles_set:
-            partido["tipo"] = "DOBLE"
-            partido["signo_final"] = signo_doble(partido)
-        else:
-            partido["tipo"] = "FIJO"
-            partido["signo_final"] = partido.get("signo_base") or top_dos_signos(partido)[0]
+        if not isinstance(partido, dict):
+            continue
+        signo = signo_limpio(partido.get("signo_final"))
+        if not signo:
+            # Sin decision del motor (prediccion retenida): no se inventa nada.
+            continue
+        partido["signo_final"] = signo
+        partido["tipo"] = tipo_por_signo(signo)
         partido["razonamiento"] = reescribir_razonamiento(partido)
 
     data["partidos"] = sorted(partidos, key=lambda p: int(p.get("num") or 0))
-    data["coste"] = recalcular_coste(dobles, triples, elige8)
-    data["criterio_cobertura"] = (
-        "Boleto alineado con analisis critico: triples para maxima incertidumbre, dobles para riesgos siguientes, "
-        "y aviso explicito cuando un fijo queda sin cobertura por presupuesto."
-    )
+    data["coste"] = recalcular_coste(data["partidos"], elige8)
+    # El criterio de cobertura es el del motor; solo se rellena si falta.
+    if not data.get("criterio_cobertura"):
+        data["criterio_cobertura"] = (
+            "Reparto de dobles y triples decidido por el motor (prioridad de cobertura); "
+            "aviso explicito cuando un fijo queda sin cobertura por presupuesto."
+        )
     data["resumen"] = {
         "fijos": sum(1 for p in data["partidos"] if p.get("tipo") == "FIJO"),
         "dobles": sum(1 for p in data["partidos"] if p.get("tipo") == "DOBLE"),

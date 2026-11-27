@@ -1,10 +1,13 @@
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+import estudio_ver_sorpresas as evs
 from estudio_ver_sorpresas import (
     construir_dataset_motor,
     construir_dataset_cuotas,
@@ -146,6 +149,137 @@ class FechasYClusteringTests(unittest.TestCase):
         self.assertLess(r["p_valor"], 0.05)
         self.assertEqual(r["veredicto"], "UTILIZABLE")
         self.assertEqual(r["jornadas"], 10)
+
+
+def _feature(nombre, veredicto="UTILIZABLE", diff=6.0, z=2.4, n_con=80):
+    return {"feature": nombre, "descripcion": "desc " + nombre, "veredicto": veredicto,
+            "diff_puntos": diff, "z": z, "n_con": n_con}
+
+
+class ExtraerCandidatasTests(unittest.TestCase):
+    """La funcion que decide que features pasan a candidatas (auditoria
+    26/11, hallazgo 241: no tenia ningun test)."""
+
+    def test_solo_pasan_las_utilizables_que_suben_la_tasa(self):
+        bloque_a = {"features": [
+            _feature("A3_masa_favorito_caro"),
+            _feature("A4_sobrecompra", veredicto="DEBIL"),
+            _feature("A6_empatador", diff=-5.0),       # utilizable pero BAJA la tasa
+            _feature("A7_nemesis", diff=None),
+        ]}
+        buenas, todas = evs.extraer_candidatas(bloque_a, {"features": []})
+        self.assertEqual([c["feature"] for c in buenas], ["A3_masa_favorito_caro"])
+        self.assertEqual(len(todas), 1)
+        self.assertEqual(buenas[0]["estado"], "candidata_pendiente_de_backtest_de_senal")
+
+    def test_las_bandas_de_probabilidad_y_cuota_nunca_son_candidatas(self):
+        buenas, todas = evs.extraer_candidatas(
+            {"features": [_feature("A1_banda_prob_favorito", diff=15.0, z=5.0)]},
+            {"features": [_feature("B1_banda_cuota_favorito", diff=12.0, z=6.0)]})
+        self.assertEqual(buenas, [])
+        self.assertEqual(todas, [])
+
+    def test_descarta_la_que_cambia_de_signo_en_el_otro_dataset(self):
+        bloque_a = {"features": [_feature("A9_favorito_visitante", diff=7.0)]}
+        bloque_b = {"features": [_feature("B2_favorito_visitante", veredicto="NADA", diff=-3.0)]}
+        buenas, todas = evs.extraer_candidatas(bloque_a, bloque_b)
+        self.assertEqual(buenas, [])
+        self.assertEqual(todas[0]["estado"], "descartada_por_incoherencia_entre_datasets")
+        self.assertFalse(todas[0]["coherente_entre_datasets"])
+
+    def test_la_incoherencia_tambien_se_mira_desde_el_dataset_b(self):
+        bloque_a = {"features": [_feature("A10_entre_semana", veredicto="NADA", diff=-2.0)]}
+        bloque_b = {"features": [_feature("B3_entre_semana", diff=4.0)]}
+        buenas, todas = evs.extraer_candidatas(bloque_a, bloque_b)
+        self.assertEqual(buenas, [])
+        self.assertEqual([c["feature"] for c in todas], ["B3_entre_semana"])
+
+    def test_coherente_si_la_gemela_va_en_la_misma_direccion_o_no_existe(self):
+        bloque_a = {"features": [_feature("A5_racha_favorito", diff=5.0),
+                                 _feature("A8_h2h_caotico", diff=9.0)]}
+        bloque_b = {"features": [_feature("B4_racha_favorito", veredicto="DEBIL", diff=1.0)]}
+        buenas, _ = evs.extraer_candidatas(bloque_a, bloque_b)
+        self.assertEqual([c["feature"] for c in buenas], ["A5_racha_favorito", "A8_h2h_caotico"])
+
+
+class LecturaDeFuentesTests(unittest.TestCase):
+    """cargar_mercado_pre_cierre y cargar_masa_lae sobre un directorio
+    temporal (nunca el data/ real)."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.base = Path(self._tmp.name)
+        self._guardado = (evs.PRE_CIERRE_DIR, evs.PORCENTAJES_LAE_DIR)
+        evs.PRE_CIERRE_DIR = self.base / "pre_cierre"
+        evs.PORCENTAJES_LAE_DIR = self.base / "porcentajes_lae"
+        evs.PRE_CIERRE_DIR.mkdir()
+        (evs.PORCENTAJES_LAE_DIR / "2026_2027").mkdir(parents=True)
+
+    def tearDown(self):
+        evs.PRE_CIERRE_DIR, evs.PORCENTAJES_LAE_DIR = self._guardado
+        self._tmp.cleanup()
+
+    def test_mercado_sale_del_campo_prediccion_del_snapshot(self):
+        (evs.PRE_CIERRE_DIR / "jornada_7.json").write_text(json.dumps({
+            "jornada": 7,
+            "prediccion": {"jornada": 7, "partidos": [
+                {"num": 1, "local": "Cadiz CF", "visitante": "Levante UD",
+                 "mercado_losilla": {"1": 45.0, "X": 29.0, "2": 26.0}},
+                {"num": 2, "local": "Real Oviedo", "visitante": "Burgos CF"},        # sin mercado
+                {"num": 3, "local": "SD Eibar", "visitante": "Granada CF",
+                 "mercado_losilla": {"1": "n/d", "X": 30, "2": 30}},                 # mercado roto
+            ]},
+        }), encoding="utf-8")
+        mercado = evs.cargar_mercado_pre_cierre()
+        self.assertEqual(list(mercado), [(7, 1)])
+        self.assertEqual(mercado[(7, 1)]["mercado"], {"1": 45.0, "X": 29.0, "2": 26.0})
+        self.assertEqual(len(mercado[(7, 1)]["claves"]), 2)
+
+    def test_masa_lae_por_jornada_y_numero(self):
+        (evs.PORCENTAJES_LAE_DIR / "2026_2027" / "jornada_3.json").write_text(json.dumps({
+            "partidos": [
+                {"numero": 4, "porcentajes": {"1": 71, "X": 18, "2": 11}},
+                {"numero": 5, "porcentajes": {"1": 50, "X": None, "2": 20}},  # incompleto
+            ],
+        }), encoding="utf-8")
+        masa = evs.cargar_masa_lae("2026_2027")
+        self.assertEqual(masa, {(3, 4): {"1": 71.0, "X": 18.0, "2": 11.0}})
+        self.assertEqual(evs.cargar_masa_lae("1999_2000"), {})
+
+
+class SinFugaDeFuturoTests(unittest.TestCase):
+    def test_cambiar_un_resultado_no_altera_la_racha_de_esa_fila_ni_de_las_anteriores(self):
+        # La racha de la fila i solo puede depender de los resultados < i: si
+        # se cambia el resultado de la fila i (y de las siguientes), las
+        # rachas calculadas hasta i inclusive no pueden moverse.
+        def historial(signo_ultimos):
+            partidos = [
+                partido_motor(j, 1, "A", f"R{j}", (30, 30, 40), "1", fecha=f"2026-09-{j:02d}")
+                for j in range(1, 4)
+            ]
+            partidos += [
+                partido_motor(4, 1, "A", "R4", (70, 20, 10), signo_ultimos, fecha="2026-09-20"),
+                partido_motor(5, 1, "A", "R5", (70, 20, 10), signo_ultimos, fecha="2026-09-27"),
+            ]
+            return {"partidos": partidos}
+
+        gana = rachas_previas_por_fila(construir_dataset_motor(historial("1")))
+        pierde = rachas_previas_por_fila(construir_dataset_motor(historial("2")))
+        self.assertEqual(gana[:4], pierde[:4])
+        self.assertTrue(gana[3])
+
+    def test_un_partido_de_fecha_posterior_no_cuenta_aunque_venga_antes_en_el_fichero(self):
+        # El historial llega desordenado: el dataset debe ordenarse por fecha
+        # antes de calcular rachas.
+        previos = [
+            partido_motor(j, 1, "A", f"R{j}", (30, 30, 40), "1", fecha=f"2026-09-{j:02d}")
+            for j in range(1, 4)
+        ]
+        objetivo = partido_motor(4, 1, "A", "R4", (70, 20, 10), "1", fecha="2026-09-20")
+        ordenado = construir_dataset_motor({"partidos": previos + [objetivo]})
+        desordenado = construir_dataset_motor({"partidos": [objetivo] + previos})
+        self.assertEqual([f["jornada"] for f in desordenado], [f["jornada"] for f in ordenado])
+        self.assertEqual(rachas_previas_por_fila(desordenado), rachas_previas_por_fila(ordenado))
 
 
 if __name__ == "__main__":

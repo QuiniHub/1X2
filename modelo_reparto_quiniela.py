@@ -44,6 +44,61 @@ GRAVAMEN_TIPO = 0.20
 RECAUDACION_DEFECTO = 2_200_000.0
 
 
+# Rango plausible de la recaudacion de una jornada (la 26/27 real va de 0,6 a
+# 3,8 M EUR). Fuera de el, el dato es un error de parseo (J23 26/27 se guardo
+# como 294 M EUR) y NO se usa tal cual.
+RECAUDACION_PLAUSIBLE = (300_000.0, 20_000_000.0)
+
+
+def recaudacion_en_rango(valor):
+    """True si `valor` es un numero dentro del rango plausible de recaudacion."""
+    return (
+        isinstance(valor, (int, float)) and not isinstance(valor, bool)
+        and RECAUDACION_PLAUSIBLE[0] <= float(valor) <= RECAUDACION_PLAUSIBLE[1]
+    )
+
+
+def escrutinio_plausible(escrutinio):
+    """False para un escrutinio "placebo" (la plantilla que devuelve la web
+    antes de publicar, o el de otra temporada): sin acertantes de 10, con
+    menos de 5 categorias 10-14, o con acertantes que NO crecen al bajar de
+    categoria (14 <= 13 <= 12 <= 11 <= 10)."""
+    categorias = (escrutinio or {}).get("categorias") or {}
+    acertantes = []
+    for cat in (14, 13, 12, 11, 10):
+        fila = categorias.get(str(cat))
+        if not isinstance(fila, dict):
+            return False
+        valor = fila.get("acertantes")
+        if not isinstance(valor, (int, float)) or isinstance(valor, bool) or valor < 0:
+            return False
+        acertantes.append(valor)
+    if acertantes[-1] <= 0:
+        return False
+    return all(a <= b for a, b in zip(acertantes, acertantes[1:]))
+
+
+def recaudacion_de_escrutinio(escrutinio):
+    """Recaudacion de un escrutinio guardado: la declarada si esta en el rango
+    plausible; si falta o es absurda se reconstruye con acertantes x premio /
+    fraccion desde la categoria de 13 (no recibe fondos de otras categorias ni
+    suele tocar el gravamen) y, si no, desde la de 14 cuando el premio no
+    llega al gravamen. None si no hay forma fiable."""
+    escrutinio = escrutinio or {}
+    valor = escrutinio.get("recaudacion_eur")
+    if recaudacion_en_rango(valor):
+        return float(valor)
+    categorias = escrutinio.get("categorias") or {}
+    for cat in (13, 14):
+        fila = categorias.get(str(cat)) or {}
+        acert, premio = fila.get("acertantes") or 0, fila.get("premio_eur") or 0.0
+        if acert > 0 and 0 < premio < GRAVAMEN_EXENTO:
+            reconstruida = acert * premio / FRACCION_RECAUDACION[cat]
+            if recaudacion_en_rango(reconstruida):
+                return float(reconstruida)
+    return None
+
+
 def premio_neto(premio_bruto):
     """Premio cobrado tras el gravamen del 20% sobre el exceso de 40.000 EUR."""
     exceso = max(float(premio_bruto) - GRAVAMEN_EXENTO, 0.0)

@@ -369,10 +369,6 @@ class LimiteCategoriaTests(unittest.TestCase):
             self.assertEqual(cp.limite_categoria(cat), cp.PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class ResultadosOficialesCambiadosTests(unittest.TestCase):
     """Bug real (J1 de 26/27, 18/08/2026): el Celta-Osasuna estaba aplazado
     y se colo un 5-1 erroneo que daba signo "1"; nuestro boleto llevaba "1",

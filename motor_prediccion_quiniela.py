@@ -8,7 +8,6 @@ from pathlib import Path
 
 from compuerta_jornada import estado_compuerta
 from datos_profesionales import buscar_partido as buscar_datos_profesionales_partido
-from guardar_snapshot_prediccion import crear_snapshot_prediccion
 from memoria_autonoma_quiniela import confianza_signos as niveles_confianza_signos
 
 try:
@@ -98,8 +97,10 @@ def detectar_jornada_activa():
         objetivo = int(jornada_objetivo_prediccion() or 0)
         if objetivo and (JORNADAS / f"jornada_{objetivo}.json").exists():
             return objetivo
-    except Exception:
-        pass
+    except Exception as exc:
+        # Auditoria 26/11/2026: antes era "except: pass" y se caia al
+        # respaldo sin dejar rastro.
+        print(f"AVISO detectar_jornada_activa: jornada_objetivo_prediccion fallo ({type(exc).__name__}: {exc}); se usa el respaldo por fecha.")
     # Orden CRONOLOGICO por fecha real de los partidos, nunca max(numero):
     # la numeracion de La Quiniela se reinicia cada temporada, asi que hoy
     # (J4 de 26/27 conviviendo con jornada_76.json de 25/26) el maximo por
@@ -122,7 +123,8 @@ def detectar_jornada_activa():
         )
         candidatas.append(((fechas[-1] if fechas else ""), numero))
     if not candidatas:
-        return 61
+        # Antes devolvia 61 fijo (una jornada de la 25/26): mejor parar.
+        raise SystemExit("No hay ficheros de jornada en data/jornadas: no se puede decidir la jornada activa.")
     return max(candidatas)[1]
 
 
@@ -146,27 +148,102 @@ def es_equipo_liga_f(nombre):
     # J23 (22/11/2026): "Tenerife (F) - Madrid CFF" llego sin sufijo en el
     # visitante y el ajuste de Liga F real se salto el partido (0-3, fallo).
     # Un "CFF" (Club de Futbol Femenino) es femenino por definicion.
-    return bool(re.search(r"\(\s*f\s*\)\s*$", nombre, re.I) or re.search(r"\bCFF\b", nombre))
+    # Auditoria 26/11/2026: siete ficheros de jornada traen "Alaves Femenino"
+    # (renombrado tras el partido) y el guardian no lo veia: el partido
+    # recibia fuerza, alertas y bajas del Deportivo Alaves masculino y se
+    # saltaba el modelo de Liga F. "Femenino/Femenina/Femeni" es femenino
+    # por definicion (se quitan acentos antes de mirar).
+    if re.search(r"\(\s*f\s*\)\s*$", nombre, re.I) or re.search(r"\bCFF\b", nombre):
+        return True
+    plano = "".join(
+        c for c in unicodedata.normalize("NFD", reparar_mojibake(nombre).lower())
+        if unicodedata.category(c) != "Mn"
+    )
+    return bool(re.search(r"\b(femenino|femenina|femeni)\b", plano))
+
+
+# --- Buscador de nombres (auditoria 26/11/2026, novena aparicion de la
+# familia colision-de-nombres). Con un solo token en comun bastaba para
+# pasar el umbral de 55, asi que un token GENERICO entregaba los datos de un
+# club espanol a otro equipo: "B. Dortmund"/"B. Munich" -> Real Sociedad B
+# (por la "b"), "Sporting de Portugal" -> Sporting de Gijon (caso real J24:
+# las 5 bajas del Sporting movieron un partido de Champions), "Cd Atletico
+# Paso" -> Atletico de Madrid (prior 57% ante el Sevilla en Copa), "Cf Rayo
+# Majadahonda" -> Rayo Vallecano, "Racing Ferrol" -> Racing de Santander,
+# "R Jaen Cf"/"R. Zaragoza" -> bajas de la Real Sociedad B (por la "r"), y
+# "Deportivo" -> Deportivo Alaves (empate resuelto por orden de lista).
+# Reglas:
+#   1. Los tokens de 1 caracter no cuentan ("R." es "Real", "B." es
+#      Borussia/Bayern), salvo la "b" FINAL, que marca filial.
+#   2. Un token generico no basta: hace falta al menos un token distintivo
+#      en comun (o igualdad completa del nombre).
+#   3. El nombre corto de las fuentes espanolas ("Sporting", "Racing",
+#      "Rayo", "Atletico", "Deportivo", "Athletic") es SIEMPRE el club de
+#      LaLiga: se expande a su forma completa antes de comparar.
+#   4. Primer equipo y filial ("Real Sociedad B", "Celta Fortuna") son
+#      equipos distintos: nunca casan entre si.
+#   5. Empate entre dos equipos distintos = ambiguo = None (antes ganaba
+#      el primero de la lista).
+TOKENS_GENERICOS_EQUIPO = {
+    "madrid", "barcelona",
+    "sporting", "atletico", "athletic", "racing", "rayo", "deportivo",
+    "deportiva", "union", "balompie", "olimpico", "inter", "dinamo",
+}
+ABREVIATURAS_EQUIPO = {"at": "atletico", "atl": "atletico", "ath": "athletic"}
+NOMBRE_CORTO_EQUIPO = {
+    "sporting": "sporting gijon",
+    "racing": "racing santander",
+    "rayo": "rayo vallecano",
+    "atletico": "atletico madrid",
+    "deportivo": "deportivo coruna",
+    "athletic": "athletic bilbao",
+}
+TOKENS_RELLENO_EQUIPO = {"futbol"}
+MARCADORES_FILIAL_EQUIPO = {"fortuna"}
+
+
+def tokens_nombre_equipo(nombre):
+    """Tokens comparables de un nombre de equipo (ver reglas de arriba)."""
+    tokens = [ABREVIATURAS_EQUIPO.get(t, t) for t in normalizar(nombre).split()]
+    limpios = []
+    for i, token in enumerate(tokens):
+        if len(token) == 1 and not (token == "b" and i == len(tokens) - 1 and i > 0):
+            continue
+        limpios.append(token)
+    sin_relleno = [t for t in limpios if t not in TOKENS_RELLENO_EQUIPO]
+    if sin_relleno:
+        limpios = sin_relleno
+    if len(limpios) == 1 and limpios[0] in NOMBRE_CORTO_EQUIPO:
+        limpios = NOMBRE_CORTO_EQUIPO[limpios[0]].split()
+    return limpios
+
+
+def _es_filial(tokens):
+    return bool(tokens) and (
+        (len(tokens) > 1 and tokens[-1] == "b") or any(t in MARCADORES_FILIAL_EQUIPO for t in tokens)
+    )
 
 
 def puntuacion_nombre_equipo(candidato, objetivo):
     if es_equipo_liga_f(objetivo) or es_equipo_liga_f(candidato):
         return 0
-    base = normalizar(candidato)
-    buscado = normalizar(objetivo)
+    base_tokens = tokens_nombre_equipo(candidato)
+    buscado_tokens = tokens_nombre_equipo(objetivo)
+    base = " ".join(base_tokens)
+    buscado = " ".join(buscado_tokens)
     if not base or not buscado:
         return 0
     if base == buscado:
         return 1000
+    if _es_filial(base_tokens) != _es_filial(buscado_tokens):
+        return 0
 
-    base_tokens = base.split()
-    buscado_tokens = buscado.split()
     comunes = [token for token in base_tokens if token in buscado_tokens]
     if not comunes:
         return 0
-
-    ambiguos = {"madrid", "barcelona"}
-    if len(comunes) == 1 and comunes[0] in ambiguos and max(len(base_tokens), len(buscado_tokens)) > 1:
+    # Hace falta al menos un token distintivo en comun: "sporting",
+    # "atletico", "madrid"... solos no identifican a ningun club.
+    if all(token in TOKENS_GENERICOS_EQUIPO for token in comunes):
         return 0
 
     cobertura_buscado = len(comunes) / max(len(buscado_tokens), 1)
@@ -178,15 +255,34 @@ def puntuacion_nombre_equipo(candidato, objetivo):
     return score
 
 
-def mejor_coincidencia_equipo(items, nombre, getter):
+def mejor_coincidencia_nombre(pares, nombre, umbral=55):
+    """Devuelve (valor, score) del mejor candidato de `pares` [(nombre_candidato,
+    valor), ...] para `nombre`, o (None, 0) si no llega al umbral O si dos
+    equipos DISTINTOS empatan en cabeza (ambiguo: mejor sin datos que con
+    los datos de otro club). Dos entradas del mismo equipo no son empate."""
     mejor = None
     mejor_score = 0
-    for item in items or []:
-        score = puntuacion_nombre_equipo(getter(item), nombre)
+    mejor_clave = None
+    empate = False
+    for nombre_candidato, valor in pares or []:
+        score = puntuacion_nombre_equipo(nombre_candidato, nombre)
+        if score <= 0:
+            continue
+        clave = " ".join(tokens_nombre_equipo(nombre_candidato))
         if score > mejor_score:
-            mejor = item
-            mejor_score = score
-    return mejor if mejor_score >= 55 else None
+            mejor, mejor_score, mejor_clave, empate = valor, score, clave, False
+        elif score == mejor_score and clave != mejor_clave:
+            empate = True
+    if mejor_score < umbral or empate:
+        return None, 0
+    return mejor, mejor_score
+
+
+def mejor_coincidencia_equipo(items, nombre, getter):
+    mejor, _ = mejor_coincidencia_nombre(
+        [(getter(item), item) for item in items or []], nombre
+    )
+    return mejor
 
 
 def buscar_equipo(memoria, nombre):
@@ -624,32 +720,84 @@ def buscar_perfil_autonomo(perfiles, nombre):
     # femenino no cuenta como token de coincidencia.
     es_f = es_equipo_liga_f(nombre) or _clave_perfil_es_liga_f(clave)
     MARCADORES_F = {"f", "femenino", "femenina", "femeni"}
-    piezas = set(clave.split()) - MARCADORES_F
+
+    # Auditoria 26/11/2026 (J25 publicada): "Real Betis Balompie" recibia el
+    # perfil de "Belgica" (1 partido, ppp 3,0). La clave venia con mojibake
+    # ("ba lgica") y el prefijo de 2 letras "ba" casaba con "balompie",
+    # empatando a 1 con "betis"; ganaba la primera del dict. Y "Real
+    # Sociedad de Futbol" recibia "r sociedad" (2 partidos) en vez de
+    # "sociedad" (la muestra real). Reglas nuevas:
+    #   - los tokens de 1 letra ("r" de "R. Sociedad") y el relleno
+    #     ("futbol") no cuentan; "at"/"atl"/"ath" se expanden;
+    #   - el prefijo solo vale con 3 letras o mas en el token corto;
+    #   - un token generico ("rayo", "atletico", "madrid"...) solo no
+    #     identifica a nadie: hace falta uno distintivo o cobertura mutua
+    #     completa ("Rayo Majadahonda" no es "rayo");
+    #   - empate entre claves del MISMO equipo -> la de mas partidos;
+    #     empate entre equipos DISTINTOS -> ambiguo -> None.
+    def _piezas(texto):
+        tokens = [ABREVIATURAS_EQUIPO.get(t, t) for t in str(texto).split() if t not in MARCADORES_F]
+        utiles = [
+            t for i, t in enumerate(tokens)
+            if (len(t) > 1 or (t == "b" and i == len(tokens) - 1 and i > 0)) and t not in TOKENS_RELLENO_EQUIPO
+        ]
+        if len(utiles) == 1 and utiles[0] in NOMBRE_CORTO_EQUIPO:
+            utiles = NOMBRE_CORTO_EQUIPO[utiles[0]].split()
+        return frozenset(utiles)
+
+    def _token_casa(p, cs):
+        return any(
+            c == p or (min(len(p), len(c)) >= 3 and (c.startswith(p) or p.startswith(c)))
+            for c in cs
+        )
+
+    def _partidos(perfil):
+        try:
+            return float((perfil or {}).get("partidos_total") or 0)
+        except (TypeError, ValueError, AttributeError):
+            return 0.0
+
+    piezas = _piezas(clave)
+    if not piezas:
+        return None
     mejor = None
     mejor_score = 0
+    mejor_piezas = None
+    ambiguo = False
     for key, perfil in equipos.items():
         if _clave_perfil_es_liga_f(key) != es_f:
             continue
-        candidato = set(str(key).split()) - MARCADORES_F
-        # Coincidencia por prefijo ademas de exacta: "at" (de "At. Madrid")
-        # debe contar frente a "atletico" -sin esto, "Atletico de Madrid
-        # (F)" empataba a 1 token ("madrid") entre "at madrid f" y
-        # "madrid f" y se llevaba el perfil del Real Madrid (F).
-        def _token_casa(p, cs):
-            return any(c == p or (len(p) >= 2 and len(c) >= 2 and (c.startswith(p) or p.startswith(c))) for c in cs)
-        score = sum(1 for p in piezas if _token_casa(p, candidato))
+        candidato = _piezas(key)
+        if not candidato:
+            continue
+        # Primer equipo y filial son equipos distintos.
+        if ("b" in candidato) != ("b" in piezas):
+            continue
+        comunes = [p for p in piezas if _token_casa(p, candidato)]
+        score = len(comunes)
+        if score <= 0:
+            continue
         # Bono solo con cobertura MUTUA de tokens. El bono anterior por
         # substring de cadena ("madrid f" es substring de "atletico madrid
         # f") premiaba justo a la clave que IGNORA el token distintivo
         # ("atletico") y entregaba el perfil del club equivocado.
-        if piezas and candidato \
-                and all(_token_casa(p, candidato) for p in piezas) \
-                and all(_token_casa(c, piezas) for c in candidato):
+        mutua = all(_token_casa(p, candidato) for p in piezas) \
+            and all(_token_casa(c, piezas) for c in candidato)
+        if not mutua and all(c in TOKENS_GENERICOS_EQUIPO for c in comunes):
+            continue
+        if mutua:
             score += 3
         if score > mejor_score:
-            mejor = perfil
-            mejor_score = score
-    return mejor if mejor_score >= 1 else None
+            mejor, mejor_score, mejor_piezas, ambiguo = perfil, score, candidato, False
+        elif score == mejor_score:
+            if candidato == mejor_piezas:
+                if _partidos(perfil) > _partidos(mejor):
+                    mejor = perfil
+            else:
+                ambiguo = True
+    if ambiguo or mejor_score < 1:
+        return None
+    return mejor
 
 
 def valor_perfil(perfil, seccion, clave, defecto=0.0):
@@ -906,21 +1054,38 @@ def calcular_probabilidades(memoria, partido):
 PESO_DIXON_COLES = 0.7
 
 
+_ERROR_DIXON_COLES = None  # ultimo fallo del proveedor (None = sin fallo)
+
+
 def _proveedor_dixon_coles(local, visitante):
+    global _ERROR_DIXON_COLES
     try:
-        from modelo_dixon_coles import probabilidades_dixon_coles
-        return probabilidades_dixon_coles(local, visitante)
-    except Exception:
+        import modelo_dixon_coles
+        resultado = modelo_dixon_coles.probabilidades_dixon_coles(local, visitante)
+        _ERROR_DIXON_COLES = getattr(modelo_dixon_coles, "error_entrenamiento", lambda: None)()
+        return resultado
+    except Exception as exc:
+        _ERROR_DIXON_COLES = f"{type(exc).__name__}: {exc}"
         return None
 
 
 def ajustar_por_dixon_coles(probs, partido, proveedor=None):
     """Mezcla el prior del motor con las probabilidades Dixon-Coles cuando el
-    modelo cubre a ambos equipos. Devuelve (probs, traza)."""
+    modelo cubre a ambos equipos. Devuelve (probs, traza).
+
+    Auditoria 26/11/2026: la traza distingue "equipo no cubierto" (Liga F,
+    selecciones, Champions: normal) de "el modelo ha fallado" (la capa de
+    peso 0,7 desaparece para toda la jornada: antes no dejaba rastro)."""
+    global _ERROR_DIXON_COLES
+    usa_proveedor_real = proveedor is None
     proveedor = proveedor or _proveedor_dixon_coles
+    if usa_proveedor_real:
+        _ERROR_DIXON_COLES = None
     dc = proveedor(partido.get("local", ""), partido.get("visitante", ""))
     if not dc or not all(s in dc for s in ("1", "X", "2")):
-        return probs, {"activo": False}
+        if usa_proveedor_real and _ERROR_DIXON_COLES:
+            return probs, {"activo": False, "motivo": f"error_entrenamiento: {_ERROR_DIXON_COLES}"}
+        return probs, {"activo": False, "motivo": "equipo_no_cubierto"}
     nuevo = {
         s: PESO_DIXON_COLES * float(dc[s]) * 100.0 + (1.0 - PESO_DIXON_COLES) * float(probs.get(s) or 0)
         for s in ("1", "X", "2")
@@ -1031,15 +1196,15 @@ def ligas_losilla(fuente_losilla):
 
 
 def buscar_equipo_losilla(fuente_losilla, nombre):
-    mejor = None; mejor_liga = ""; mejor_tabla = []; mejor_score = 0
+    pares = []
     for liga, tabla in ligas_losilla(fuente_losilla):
         if not isinstance(tabla, list):
             continue
         for fila in tabla:
-            score = puntuacion_nombre_equipo(fila.get("equipo", ""), nombre)
-            if score > mejor_score:
-                mejor = fila; mejor_liga = liga; mejor_tabla = tabla; mejor_score = score
-    return (mejor, mejor_liga, mejor_tabla) if mejor_score >= 55 else (None, "", [])
+            if isinstance(fila, dict):
+                pares.append((fila.get("equipo", ""), (fila, liga, tabla)))
+    mejor, _ = mejor_coincidencia_nombre(pares, nombre)
+    return mejor if mejor else (None, "", [])
 
 
 def puntos_fila(fila):
@@ -1089,10 +1254,26 @@ def contexto_liga_losilla(fila, liga, tabla):
     return {"liga": liga, "posicion": pos, "puntos": pts, "total_equipos": total, "descenso": bool(recta_final and (en_descenso or cerca_descenso)), "europa_ascenso": bool(recta_final and (en_objetivo or cerca_objetivo)), "sin_objetivos": bool((not en_descenso and not cerca_descenso) and (not en_objetivo and not cerca_objetivo) and ultimas_5)}
 
 
+def _mismo_equipo_derbi(nombre, referencia):
+    return puntuacion_nombre_equipo(referencia, nombre) >= 55
+
+
 def partido_es_derbi(partido):
-    par = tuple(sorted((normalizar(partido.get("local", "")), normalizar(partido.get("visitante", "")))))
-    if par in DERBIS_HISTORICOS:
-        return True
+    # Auditoria 26/11/2026: la comparacion era por igualdad exacta de
+    # normalizar(), que borra "real", "de", "cf"...: "Real Madrid" quedaba
+    # en "madrid" y nunca casaba con "real madrid" de la lista (ni el
+    # Clasico, ni el derbi madrileno, ni el vasco), y con los nombres largos
+    # de la 26/27 ("Real Betis Balompie", "RCD Espanyol de Barcelona") no
+    # casaba ninguno. Ahora se compara equipo a equipo con el buscador de
+    # nombres (que distingue Real Madrid de Atletico de Madrid y el primer
+    # equipo de su filial).
+    local = partido.get("local", "")
+    visitante = partido.get("visitante", "")
+    for uno, otro in DERBIS_HISTORICOS:
+        if (_mismo_equipo_derbi(local, uno) and _mismo_equipo_derbi(visitante, otro)) or (
+            _mismo_equipo_derbi(local, otro) and _mismo_equipo_derbi(visitante, uno)
+        ):
+            return True
     texto = normalizar(" ".join(str(partido.get(k, "")) for k in ("competicion", "liga", "rivalidad", "observaciones", "contexto")))
     return "derbi" in texto or "clasico" in texto or "maxima rivalidad" in texto
 
@@ -1120,20 +1301,162 @@ def fuente_losilla_para_jornada(fuente_losilla, jornada):
     return {**fuente_losilla, "probabilidades": {}}
 
 
+def _entero_losilla(valor):
+    try:
+        return int(valor or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _mismo_equipo_losilla(a, b):
+    if not a or not b:
+        return False
+    if puntuacion_nombre_equipo(a, b) >= 55:
+        return True
+    try:
+        from cronologia_jornadas import mismo_equipo
+        return bool(mismo_equipo(a, b))
+    except Exception:
+        return False
+
+
+def fuente_losilla_con_jornada(fuente_losilla, partidos_jornada):
+    """Copia de la fuente Losilla con los partidos de la jornada que se
+    predice (clave en memoria "_partidos_jornada", no se escribe en disco).
+    Sirve para decidir si un partido que solo casa por numero es un problema
+    de abreviatura (se acepta) o un cambio de orden (no se acepta)."""
+    if not isinstance(fuente_losilla, dict):
+        return fuente_losilla
+    resumen = [
+        {
+            "num": _entero_losilla(p.get("num") or p.get("numero")),
+            "local": p.get("local", ""),
+            "visitante": p.get("visitante", ""),
+        }
+        for p in partidos_jornada or []
+        if isinstance(p, dict)
+    ]
+    return {**fuente_losilla, "_partidos_jornada": resumen}
+
+
+def _fuente_losilla_alineada(items_fuente, partidos_jornada, numero):
+    """True si el RESTO de la fuente casa con la jornada numero a numero
+    (por numero y al menos un equipo). Exige al menos 3 partidos comparables
+    y que casen la mitad o mas: con eso la fuente es de esta misma jornada y
+    en este mismo orden."""
+    por_numero = {}
+    for item in items_fuente:
+        n = _entero_losilla(item.get("numero"))
+        if n and n != numero and (item.get("local") or item.get("visitante")):
+            por_numero.setdefault(n, item)
+    comparables = 0
+    casan = 0
+    for p in partidos_jornada or []:
+        n = _entero_losilla(p.get("num"))
+        item = por_numero.get(n)
+        if not item:
+            continue
+        comparables += 1
+        if _mismo_equipo_losilla(item.get("local", ""), p.get("local", "")) or _mismo_equipo_losilla(
+            item.get("visitante", ""), p.get("visitante", "")
+        ):
+            casan += 1
+    return casan >= 3 and casan * 2 >= comparables
+
+
+def emparejar_partido_losilla(fuente_losilla, partido):
+    """Devuelve (item, modo). Modos: "numero_y_equipo", "numero_sin_nombres",
+    "equipos" (la fuente trae el partido con otro numero),
+    "solo_por_numero" y "" (sin mercado).
+
+    Auditoria 26/11/2026: el numero solo no basta. Si la fuente cambia el
+    orden o sustituye un partido dentro de la misma jornada, el partido N
+    heredaba el mercado (peso 0,85) de OTRO partido. Ahora el numero vale
+    si coincide al menos un equipo (o la fuente no trae nombres); si no, se
+    busca por los dos equipos. Un "numero" sucio ya no tumba el motor.
+
+    Segunda pasada (27/11/2026): la fuente abrevia ("ATH.CLUB", "Paris SG",
+    "Sporting de Portugal") y en jornadas europeas los DOS nombres de un
+    partido pueden no casar; el partido se quedaba sin la capa que mas pesa.
+    Si el numero coincide, ningun nombre casa, y ademas
+      - ninguno de los dos equipos aparece en OTRO partido de la fuente,
+      - los equipos del partido N de la fuente no son los de OTRO partido
+        de la jornada, y
+      - el resto de la fuente esta alineada numero a numero con la jornada,
+    entonces es un problema de abreviatura y no de orden: se acepta por
+    numero y queda en la traza como "solo_por_numero". Sin los partidos de
+    la jornada (fuente_losilla_con_jornada) no se puede demostrar y el
+    partido se queda sin mercado, como antes."""
+    fuente_losilla = fuente_losilla or {}
+    partidos = ((fuente_losilla.get("probabilidades") or {}).get("partidos") or [])
+    partidos = [item for item in partidos if isinstance(item, dict)]
+    numero = _entero_losilla(partido.get("num") or partido.get("numero"))
+    local = partido.get("local", "")
+    visitante = partido.get("visitante", "")
+    por_numero = None
+    for item in partidos:
+        if numero and _entero_losilla(item.get("numero")) == numero:
+            if not item.get("local") and not item.get("visitante"):
+                return item, "numero_sin_nombres"
+            if _mismo_equipo_losilla(item.get("local", ""), local) or _mismo_equipo_losilla(item.get("visitante", ""), visitante):
+                return item, "numero_y_equipo"
+            por_numero = item
+            break
+    for item in partidos:
+        if _mismo_equipo_losilla(item.get("local", ""), local) and _mismo_equipo_losilla(item.get("visitante", ""), visitante):
+            if por_numero is not None:
+                print(
+                    f"AVISO fuente_losilla: el partido {numero} de la fuente es "
+                    f"{por_numero.get('local')} - {por_numero.get('visitante')}, no {local} - {visitante}; "
+                    f"se usa el partido {item.get('numero')} de la fuente, que si es ese."
+                )
+            return item, "equipos"
+    if por_numero is None:
+        return {}, ""
+    descripcion = (
+        f"el partido {numero} de la fuente es {por_numero.get('local')} - "
+        f"{por_numero.get('visitante')} y el de la jornada {local} - {visitante}"
+    )
+    otros = [item for item in partidos if item is not por_numero]
+    nuestros_en_otro = any(
+        _mismo_equipo_losilla(nombre_fuente, nombre)
+        for item in otros
+        for nombre_fuente in (item.get("local", ""), item.get("visitante", ""))
+        for nombre in (local, visitante)
+    )
+    partidos_jornada = fuente_losilla.get("_partidos_jornada") or []
+    suyos_en_otro = any(
+        _mismo_equipo_losilla(nombre_fuente, nombre)
+        for p in partidos_jornada
+        if _entero_losilla(p.get("num")) != numero
+        for nombre_fuente in (por_numero.get("local", ""), por_numero.get("visitante", ""))
+        for nombre in (p.get("local", ""), p.get("visitante", ""))
+    )
+    if (
+        not nuestros_en_otro
+        and not suyos_en_otro
+        and _fuente_losilla_alineada(partidos, partidos_jornada, numero)
+    ):
+        print(
+            f"AVISO fuente_losilla: {descripcion}; los nombres no casan pero el resto de la "
+            "fuente esta alineada con la jornada: se empareja SOLO POR NUMERO."
+        )
+        return por_numero, "solo_por_numero"
+    print(f"AVISO fuente_losilla: {descripcion}; no se puede emparejar y el partido queda sin mercado.")
+    return {}, ""
+
+
 def partido_losilla_por_numero_o_equipos(fuente_losilla, partido):
-    partidos = (((fuente_losilla or {}).get("probabilidades") or {}).get("partidos") or [])
-    numero = partido.get("num") or partido.get("numero")
-    for item in partidos:
-        if numero and int(item.get("numero") or 0) == int(numero):
-            return item
-    for item in partidos:
-        if puntuacion_nombre_equipo(item.get("local", ""), partido.get("local", "")) >= 55 and puntuacion_nombre_equipo(item.get("visitante", ""), partido.get("visitante", "")) >= 55:
-            return item
-    return {}
+    return emparejar_partido_losilla(fuente_losilla, partido)[0]
 
 
-def mercado_losilla_signos(fuente_losilla, partido):
-    item = partido_losilla_por_numero_o_equipos(fuente_losilla, partido)
+def mercado_losilla_signos(fuente_losilla, partido, traza=None):
+    item, modo = emparejar_partido_losilla(fuente_losilla, partido)
+    if traza is not None:
+        traza["emparejamiento"] = modo or "sin_mercado"
+        traza["partido_fuente"] = (
+            f"{item.get('local', '')} - {item.get('visitante', '')}" if item else ""
+        )
     signos = item.get("probabilidades_signo") or {}
     return {"1": float(signos.get("1") if signos.get("1") is not None else item.get("probabilidad_1") or 0), "X": float(signos.get("X") if signos.get("X") is not None else item.get("probabilidad_X") or 0), "2": float(signos.get("2") if signos.get("2") is not None else item.get("probabilidad_2") or 0)}
 
@@ -1189,7 +1512,14 @@ def calcular_ajuste_motivacion(partido, clasificaciones_mundial, fuente_losilla)
         detalle["sorpresa_potencial"] = True; detalle["nivel_sorpresa"] = "alto"; detalle["forzar_cobertura"] = "TRIPLE" if len(detalle["alertas"]) >= 2 else "DOBLE"; detalle["casos_aplicados"].append("D")
         detalle["lecturas"].append(f"Mercado Losilla muy sesgado ({signo_mercado} {valor_mercado:.1f}%) con alerta motivacional: sorpresa potencial alta.")
     detalle["activo"] = bool(detalle["alertas"] or any(abs(v) > 0 for v in detalle["ajuste_por_signo"].values()))
-    detalle["clasificacion_losilla"] = {"local": liga_ctx["1"], "visitante": liga_ctx["2"]}
+    detalle["clasificacion_losilla"] = {
+        "local": liga_ctx["1"],
+        "visitante": liga_ctx["2"],
+        # Auditoria 26/11/2026: sin tablas, los casos E/F/G (descenso,
+        # Europa/ascenso, sin objetivos) no pueden dispararse; antes eso era
+        # indistinguible de "no hay nada en juego".
+        "fuente_vacia": not any(isinstance(tabla, list) and tabla for _, tabla in ligas_losilla(fuente_losilla)),
+    }
     detalle = reforzar_ajuste_por_memoria_sorpresas(partido, detalle)
     return detalle
 
@@ -1835,14 +2165,8 @@ def buscar_lesiones_equipo(fuente_lesiones, nombre):
     seleccion), no hay ajuste, sin necesidad de una comprobacion de
     competicion aparte."""
     equipos = (fuente_lesiones or {}).get("equipos") or {}
-    mejor = []
-    mejor_score = 0
-    for equipo, jugadores in equipos.items():
-        score = puntuacion_nombre_equipo(equipo, nombre)
-        if score > mejor_score:
-            mejor = jugadores
-            mejor_score = score
-    return mejor if mejor_score >= 55 else []
+    mejor, _ = mejor_coincidencia_nombre(list(equipos.items()), nombre)
+    return mejor if mejor else []
 
 
 def ajustar_por_lesiones_laliga(probs, lesiones_local, lesiones_visitante):
@@ -1987,6 +2311,7 @@ def ajustar_por_revulsivo(probs, partido, ceses=None, contador=None):
     lecturas = []
     riesgo = 0.0
     traza = {"activo": False}
+    eventos = []
     for lado, signo_equipo, signo_rival in (("local", "1", "2"), ("visitante", "2", "1")):
         nombre = partido.get(lado) or ""
         clave = _norm_revulsivo(nombre)
@@ -2040,8 +2365,15 @@ def ajustar_por_revulsivo(probs, partido, ceses=None, contador=None):
                 "efecto_reestimado": (efecto_fuera, efecto_casa) != (
                     EFECTO_REVULSIVO_DEBUT_FUERA, EFECTO_REVULSIVO_DEBUT_CASA),
             }
+            eventos.append(dict(traza))
     if not lecturas:
         return probs, 0.0, [], {"activo": False}
+    # Auditoria 26/11/2026: con dos debuts en el mismo partido la traza solo
+    # guardaba el ultimo equipo. Los campos de siempre describen el ULTIMO
+    # evento (compatibilidad); "eventos" los trae todos y "doble" avisa a
+    # quien mide el modulo de que el partido mezcla dos efectos.
+    traza["eventos"] = eventos
+    traza["doble"] = len({e["lado"] for e in eventos}) > 1
     return normalizar_probs(p), riesgo, lecturas, traza
 
 
@@ -3324,6 +3656,133 @@ def coste(dobles, triples, elige8, partidos=None):
     }
 
 
+def resumen_cobertura_capas(partidos, jornada=None, jornada_fuente_mercado=None):
+    """Cuenta en cuantos partidos han entrado de verdad las dos capas que
+    mas pesan: el mercado Losilla (PESO_MERCADO_MANDA) y Dixon-Coles
+    (PESO_DIXON_COLES). Auditoria 26/11/2026: cualquiera de las dos podia
+    faltar en TODA la jornada (fuente de otra jornada, fallo de
+    entrenamiento) y la prediccion se publicaba igual, sin un solo
+    indicador. Devuelve tambien las alertas listas para alertas_boleto."""
+    partidos = list(partidos or [])
+    total = len(partidos)
+    sin_mercado = []
+    solo_por_numero = []
+    dc_activos = 0
+    errores_dc = []
+    for p in partidos:
+        mercado = p.get("mercado_losilla") or {}
+        try:
+            suma = sum(float(mercado.get(s) or 0) for s in ("1", "X", "2"))
+        except (TypeError, ValueError):
+            suma = 0.0
+        if suma <= 0:
+            sin_mercado.append(p.get("num"))
+        elif ((p.get("trazabilidad_datos") or {}).get("mercado_losilla_emparejamiento") or {}).get("emparejamiento") == "solo_por_numero":
+            solo_por_numero.append(p.get("num"))
+        dc = ((p.get("trazabilidad_datos") or {}).get("dixon_coles") or {})
+        if dc.get("activo"):
+            dc_activos += 1
+        elif str(dc.get("motivo") or "").startswith("error_entrenamiento"):
+            errores_dc.append(str(dc.get("motivo")))
+    alertas = []
+    if total and sin_mercado:
+        alertas.append({
+            "nivel": "alta",
+            "titulo": "Falta la capa de mercado",
+            "detalle": (
+                f"{len(sin_mercado)} de {total} partidos sin mercado Losilla (partidos {sin_mercado}); "
+                f"fuente de la jornada {jornada_fuente_mercado}, prediccion de la jornada {jornada}. "
+                "En esos partidos la probabilidad publicada es 100% del motor, no 'el mercado manda'."
+            ),
+        })
+    if solo_por_numero:
+        alertas.append({
+            "nivel": "media",
+            "titulo": "Mercado emparejado solo por numero",
+            "detalle": (
+                f"Partidos {solo_por_numero}: los nombres de la fuente Losilla no casan con los de la jornada "
+                "y el mercado se ha tomado por numero de partido. Comprobar que son el mismo partido."
+            ),
+        })
+    if errores_dc:
+        alertas.append({
+            "nivel": "alta",
+            "titulo": "Dixon-Coles no ha entrenado",
+            "detalle": f"La capa Dixon-Coles (peso {PESO_DIXON_COLES}) falta en {len(errores_dc)} partidos: {errores_dc[0]}",
+        })
+    return {
+        "mercado": {
+            "partidos": total,
+            "partidos_con_mercado": total - len(sin_mercado),
+            "partidos_sin_mercado": sin_mercado,
+            "emparejados_solo_por_numero": solo_por_numero,
+            "jornada_fuente": jornada_fuente_mercado,
+            "jornada_prediccion": jornada,
+            "completa": bool(total) and not sin_mercado,
+            "peso_mercado": PESO_MERCADO_MANDA,
+        },
+        "dixon_coles": {
+            "partidos": total,
+            "partidos_activos": dc_activos,
+            "error_entrenamiento": errores_dc[0] if errores_dc else None,
+            "peso": PESO_DIXON_COLES,
+        },
+        "alertas": alertas,
+    }
+
+
+def marcar_sorpresa_potencial(indice_sorpresa, forzar_cobertura=""):
+    """Sube el indice de sorpresa a 60 como minimo por la alerta
+    motivacional (mercado Losilla por encima del 80%). Usa el vocabulario de
+    indice_sorpresa_quinielistica: "favorito_atacable" solo si HAY favorito
+    (signo top 1 o 2); si el signo top es la X, "partido_abierto"."""
+    indice_sorpresa["indice"] = max(float(indice_sorpresa.get("indice") or 0), 60.0)
+    hay_favorito = indice_sorpresa.get("favorito") in {"1", "2"}
+    indice_sorpresa["categoria"] = "favorito_atacable" if hay_favorito else "partido_abierto"
+    indice_sorpresa["favorito_atacable"] = hay_favorito
+    indice_sorpresa["cobertura_sugerida"] = forzar_cobertura or "DOBLE"
+    indice_sorpresa.setdefault("motivos", []).append("alerta motivacional con mercado Losilla superior al 80%")
+    return indice_sorpresa
+
+
+def reparto_del_motor(partidos):
+    """Reparto de dobles y triples TAL Y COMO LO DECIDE EL MOTOR, en un bloque
+    aparte que ningun paso posterior reescribe. Auditoria 26/11/2026: tras
+    el motor, alinear_boleto_con_analisis.py y la web rehacen el reparto
+    con otros criterios y no quedaba forma de saber cual era el del motor.
+    Contrato por partido en `partidos[]`:
+      - tipo: FIJO | DOBLE | TRIPLE
+      - signo_final: signos jugados ("1", "X", "2", "1X", "X2", "12", "1X2")
+      - cobertura_autor.activo: el motor pide cubrir la X de ese partido;
+        cobertura_autor.cubierta: True SOLO si tipo es DOBLE y signo_final
+        contiene la X; False si se pidio y quedo como FIJO por presupuesto
+      - x_de_autor.activo: FIJO jugado a la X (signo_final == "X")
+    Quien cambie tipo o signo_final despues debe recalcular
+    cobertura_autor.cubierta y x_de_autor.activo con esas mismas reglas."""
+    filas = []
+    for p in partidos or []:
+        autor = p.get("cobertura_autor") or {}
+        filas.append({
+            "num": p.get("num"),
+            "tipo": p.get("tipo"),
+            "signo_final": p.get("signo_final"),
+            "signo_base": p.get("signo_base"),
+            "cobertura_autor_pedida": bool(autor.get("activo")),
+            "cobertura_autor_cubierta": bool(autor.get("cubierta")),
+            "x_de_autor": bool((p.get("x_de_autor") or {}).get("activo")),
+        })
+    return {
+        "origen": "motor_prediccion_quiniela.predecir",
+        "nota": "Reparto original del motor; los pasos posteriores no deben reescribir este bloque.",
+        "triples": [f["num"] for f in filas if f["tipo"] == "TRIPLE"],
+        "dobles": {str(f["num"]): f["signo_final"] for f in filas if f["tipo"] == "DOBLE"},
+        "x_de_autor": [f["num"] for f in filas if f["x_de_autor"]],
+        "cobertura_autor_cubierta": [f["num"] for f in filas if f["cobertura_autor_cubierta"]],
+        "cobertura_autor_sin_cubrir": [f["num"] for f in filas if f["cobertura_autor_pedida"] and not f["cobertura_autor_cubierta"]],
+        "partidos": filas,
+    }
+
+
 def guardar_salida_prediccion(salida, validar=False):
     jornada = salida.get("jornada")
     destino = (JUGADAS if validar else PREDICCIONES) / f"jornada_{jornada}.json"
@@ -3333,6 +3792,25 @@ def guardar_salida_prediccion(salida, validar=False):
     else:
         guardar_json(PREDICCIONES / "ultima_prediccion.json", salida)
     return destino
+
+
+def temporada_de_jornada(data, jornada=None, defecto=""):
+    """Temporada 'YYYY/YYYY' de un fichero de jornada por su FECHA real
+    (cronologia_jornadas). Auditoria 26/11/2026: la prediccion bloqueada
+    llevaba '2025/2026' cableado en plena 26/27."""
+    try:
+        from cronologia_jornadas import fecha_real_jornada, temporada_de_fecha
+        numero = jornada if jornada is not None else (data or {}).get("jornada")
+        try:
+            numero = int(numero) if numero is not None else None
+        except (TypeError, ValueError):
+            numero = None
+        etiqueta = temporada_de_fecha(fecha_real_jornada(data or {}), numero)
+        if etiqueta:
+            return str(etiqueta).replace("_", "/")
+    except Exception as exc:
+        print(f"AVISO temporada_de_jornada: {type(exc).__name__}: {exc}")
+    return defecto
 
 
 def partido_bloqueado(partido):
@@ -3367,8 +3845,8 @@ def prediccion_bloqueada_por_compuerta(jornada, data, compuerta, validar=False):
         "jornada": jornada,
         "fecha": data.get("fecha") or data.get("fecha_texto"),
         "fuente": data.get("fuente"),
-        "temporada_base": "2025/2026",
-        "temporada": data.get("temporada", "2025/2026"),
+        "temporada_base": temporada_de_jornada(data, jornada),
+        "temporada": data.get("temporada") or temporada_de_jornada(data, jornada),
         "competicion": data.get("competicion", "quiniela"),
         "estado": compuerta.get("estado", "bloqueada"),
         "prediccion_disponible": False,
@@ -3462,9 +3940,11 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
     fuente_lesiones_respaldo = cargar_json(FUENTE_LESIONES_RESPALDO, {})
     modelo_runtime = preparar_modelo_predictivo_runtime(ROOT)
     jornada = jornada or detectar_jornada_activa()
+    jornada_fuente_mercado = ((fuente_losilla or {}).get("probabilidades") or {}).get("jornada")
     fuente_losilla = fuente_losilla_para_jornada(fuente_losilla, jornada)
     data = cargar_json(JORNADAS / f"jornada_{jornada}.json", {})
     partidos_base = [p for p in data.get("partidos", []) if int(p.get("num", 0)) <= 14]
+    fuente_losilla = fuente_losilla_con_jornada(fuente_losilla, data.get("partidos", []))
     if not partidos_base:
         raise SystemExit(f"No hay partidos para jornada {jornada}")
 
@@ -3530,7 +4010,9 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         trazabilidad["dixon_coles"] = ajuste_dixon_coles
         if ajuste_dixon_coles.get("activo"):
             trazabilidad["origen_probabilidades"] = f"{trazabilidad['origen_probabilidades']}+dixon_coles"
-        mercado_losilla_partido = mercado_losilla_signos(fuente_losilla, partido)
+        traza_mercado = {}
+        mercado_losilla_partido = mercado_losilla_signos(fuente_losilla, partido, traza_mercado)
+        trazabilidad["mercado_losilla_emparejamiento"] = traza_mercado
         pj_minimo_partido = min(
             float((local or {}).get("pj") or 0),
             float((visitante or {}).get("pj") or 0),
@@ -3657,11 +4139,10 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         }
         indice_sorpresa = indice_sorpresa_quinielistica(evaluado, patrones_competitivos, historial_h2h)
         if ajuste_motivacion_competitiva.get("sorpresa_potencial"):
-            indice_sorpresa["indice"] = max(float(indice_sorpresa.get("indice") or 0), 60.0)
-            indice_sorpresa["categoria"] = "alta"
-            indice_sorpresa["favorito_atacable"] = True
-            indice_sorpresa["cobertura_sugerida"] = ajuste_motivacion_competitiva.get("forzar_cobertura") or "DOBLE"
-            indice_sorpresa.setdefault("motivos", []).append("alerta motivacional con mercado Losilla superior al 80%")
+            # Auditoria 26/11/2026: "alta" no existe en el vocabulario de
+            # indice_sorpresa_quinielistica, y favorito_atacable se ponia a
+            # True aunque no hubiera favorito (signo top X).
+            marcar_sorpresa_potencial(indice_sorpresa, ajuste_motivacion_competitiva.get("forzar_cobertura"))
         evaluado["_indice_sorpresa_quinielistica"] = indice_sorpresa
         evaluado["indice_sorpresa_quinielistica"] = indice_sorpresa["indice"]
         evaluado["categoria_sorpresa"] = indice_sorpresa["categoria"]
@@ -3906,7 +4387,7 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         "version": "1.4",
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "jornada": jornada,
-        "temporada_base": memoria.get("temporada", "2025/2026"),
+        "temporada_base": memoria.get("temporada") or temporada_de_jornada(data, jornada),
         "estado": "publicada" if validar else "lista_para_publicar",
         "prediccion_disponible": True,
         "prediccion_permitida": True,
@@ -3989,10 +4470,33 @@ def predecir(jornada=None, dobles=None, triples=None, elige8=False, validar=Fals
         },
     }
 
-    snapshot = crear_snapshot_prediccion(salida)
-    salida["snapshot_pre_cierre"] = snapshot
+    cobertura_capas = resumen_cobertura_capas(partidos, jornada, jornada_fuente_mercado)
+    salida["cobertura_capas"] = cobertura_capas
+    salida["cobertura_mercado"] = cobertura_capas["mercado"]
+    if cobertura_capas["alertas"]:
+        salida["alertas_boleto"] = list(salida.get("alertas_boleto") or []) + cobertura_capas["alertas"]
+        for alerta in cobertura_capas["alertas"]:
+            print(f"ALERTA motor [{alerta['nivel']}] {alerta['titulo']}: {alerta['detalle']}")
+    salida["reparto_motor"] = reparto_del_motor(partidos)
+
+    # Auditoria 26/11/2026: el motor YA NO escribe el snapshot pre-cierre.
+    # Aqui la salida es CRUDA (sin alinear_boleto, bloques en sombra, Elige 8
+    # ni calibracion): si el primer partido empezaba entre este paso y el
+    # final de la cadena, esa foto cruda quedaba inmutable y
+    # congelar_bloques_sombra la imponia como "lo que se dijo al cierre"
+    # (retirando todos los bloques en sombra). El UNICO escritor de
+    # data/backtesting/pre_cierre es guardar_snapshot_prediccion.py, al
+    # final de la cadena, con la prediccion ya completa.
+    salida["snapshot_pre_cierre"] = {
+        "creado": False,
+        "motivo": "El motor no escribe el snapshot pre-cierre: lo escribe guardar_snapshot_prediccion.py al final de la cadena.",
+    }
     destino = guardar_salida_prediccion(salida, validar=validar)
     print(destino)
+    print(
+        "AVISO motor: el snapshot pre-cierre NO se ha actualizado. Si has lanzado el motor suelto "
+        "(fuera de actualizar_todo.py), ejecuta despues guardar_snapshot_prediccion.py."
+    )
     return salida
 
 

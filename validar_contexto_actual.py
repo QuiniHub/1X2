@@ -128,13 +128,80 @@ def validar_overrides(ctx, overrides):
         error("\n".join(fallos))
 
 
+def overrides_a_validar(ctx):
+    """Overrides que hay que exigir HOY (dict nombre -> override) y el motivo
+    por el que se ignoran si no aplican.
+
+    Auditoria 26/11/2026 (hallazgos 50, 85, 116, 122, 139): el 01/09/2026 se
+    puso una guardia de caducidad en aplicar_objetivos_oficiales_json.py y en
+    forzar_overrides.py (overrides_vigentes: sin valido_hasta, caducado o a
+    mas de 10 jornadas del final -> el fichero se ignora). Este validador no
+    la tenia: seguia exigiendo que los 8 overrides de la ULTIMA jornada 25/26
+    estuvieran aplicados y fallo en 555 ciclos seguidos, sin llegar a hacer
+    su trabajo real. Ahora usa la MISMA guardia que quien los aplica.
+    """
+    if not OVR.exists():
+        return {}, "no existe objetivos_jornada_actual.json"
+    datos = cargar(OVR)
+    if not isinstance(datos, dict):
+        return {}, "objetivos_jornada_actual.json no es un objeto"
+    from forzar_overrides import overrides_vigentes
+    vigentes, motivo = overrides_vigentes(datos, ctx)
+    if not vigentes:
+        return {}, motivo
+    equipos_ov = datos.get("equipos")
+    return (equipos_ov if isinstance(equipos_ov, dict) else {}), ""
+
+
+OBJETIVOS_DE_ZONA_BAJA = ("descenso", "permanencia", "salvacion")
+
+
+def validar_coherencia_tabla(ctx):
+    """Contradiccion logica que no depende de overrides: el lider de una liga
+    no puede tener como objetivo principal uno de la zona baja.
+
+    Devuelve la lista de contradicciones. NO detiene el script: es un AVISO
+    (y una anotacion ::warning:: en Actions). El contexto publicado el
+    27/11/2026 la incumple (lideres con objetivo 'descenso') por un defecto
+    de generar_contexto_competitivo.py; hacerla bloqueante antes de que ese
+    generador este corregido y verificado dejaria a este validador fallando
+    cada ciclo, que es justo el hallazgo 50 que se queria cerrar."""
+    fallos = []
+    for liga in ("primera", "segunda"):
+        lista = [e for e in ctx.get(liga, {}).get("equipos", []) if isinstance(e, dict)]
+        for equipo in lista:
+            try:
+                posicion = int(equipo.get("posicion"))
+            except (TypeError, ValueError):
+                continue
+            if posicion != 1:
+                continue
+            objetivo = equipo.get("objetivo_principal") or {}
+            nombre_objetivo = str(objetivo.get("objetivo") or "").lower()
+            if objetivo.get("vivo") and any(z in nombre_objetivo for z in OBJETIVOS_DE_ZONA_BAJA):
+                fallos.append(
+                    f"{equipo.get('equipo')} es lider de {liga} y su objetivo principal es '{nombre_objetivo}'"
+                )
+    for fallo in fallos:
+        print(f"AVISO contexto incoherente: {fallo}")
+        print(f"::warning title=Contexto competitivo incoherente::{fallo}")
+    return fallos
+
+
 def main():
     clasif = cargar(CLASIF)
     ctx = cargar(CTX)
-    overrides = cargar(OVR).get("equipos", {}) if OVR.exists() else {}
+    overrides, motivo = overrides_a_validar(ctx)
     validar_fechas(clasif, ctx)
-    validar_overrides(ctx, overrides)
-    print("Contexto competitivo fresco y sin contradicciones oficiales.")
+    if overrides:
+        validar_overrides(ctx, overrides)
+    else:
+        print(f"Overrides oficiales no vigentes ({motivo}): no se exigen.")
+    incoherencias = validar_coherencia_tabla(ctx)
+    if incoherencias:
+        print(f"Contexto competitivo fresco; {len(incoherencias)} aviso(s) de coherencia (no bloquean).")
+    else:
+        print("Contexto competitivo fresco y sin contradicciones oficiales.")
 
 
 if __name__ == "__main__":

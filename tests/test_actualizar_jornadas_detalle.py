@@ -53,10 +53,6 @@ class ActualizarJornadasDetalleTests(unittest.TestCase):
         self.assertEqual(jornada_json["pleno15"]["fecha"], "2026-06-23")
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class FusionResultadosMismoParTests(unittest.TestCase):
     """Bug real 01/09/2026: al renovar los emparejamientos de jornada_5.json
     (legado 25/26 -> reales 26/27), fusionar_con_existente heredaba los
@@ -117,3 +113,7 @@ class FusionResultadosMismoParTests(unittest.TestCase):
         # estaba hardcodeada "2025-2026" y el respaldo servia jornadas viejas
         self.assertNotIn("2025-2026", detalle.FUENTE_LIBERTAD)
         self.assertRegex(detalle.temporada_libertad_actual(), r"^\d{4}-\d{4}$")
+
+
+if __name__ == "__main__":
+    unittest.main()

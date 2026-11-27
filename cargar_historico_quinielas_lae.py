@@ -62,6 +62,23 @@ def fecha_iso_desde_texto(texto):
     return f"{anio}-{mes_num}-{int(dia):02d}"
 
 
+def temporada_de_jornada_local(datos, numero):
+    """Temporada ('2026/2027') de un jornada_N.json por su FECHA real.
+
+    Auditoria 26/11 (hallazgo 62): se comparaba con una fecha escrita a mano
+    (FECHA_INICIO_TEMPORADA_ACTUAL = '2026-08-15'), que en la 27/28 habria
+    metido dos temporadas bajo la misma etiqueta. Ahora se usa el modulo comun
+    cronologia_jornadas. Sin fecha reconocible -> None.
+    """
+    import cronologia_jornadas
+
+    fecha = cronologia_jornadas.fecha_real_jornada(datos) if isinstance(datos, dict) else None
+    if fecha is None:
+        return None
+    etiqueta = cronologia_jornadas.temporada_de_fecha(fecha, numero)
+    return etiqueta.replace("_", "/") if etiqueta else None
+
+
 def temporada_actual_detectada():
     try:
         datos = json.loads(CLASIFICACIONES_OFICIALES.read_text(encoding="utf-8"))
@@ -268,11 +285,13 @@ def cargar_jornadas_locales():
             p.get("signo_oficial", "?") for p in partidos[:14]
         )
         fecha_texto = d.get("fecha", "")
-        fecha_iso = fecha_iso_desde_texto(fecha_texto)
-        es_temporada_nueva = bool(fecha_iso) and fecha_iso >= FECHA_INICIO_TEMPORADA_ACTUAL
+        numero_jornada = int(d.get("jornada") or re.search(r"\d+", path.stem).group())
+        # Sin fecha reconocible cae en 2025/2026 por seguridad (ficheros antiguos).
+        temporada = temporada_de_jornada_local(d, numero_jornada) or "2025/2026"
+        es_temporada_nueva = temporada > "2025/2026"
         jornadas.append({
-            "jornada": int(d.get("jornada") or re.search(r"\d+", path.stem).group()),
-            "temporada": temporada_nueva if es_temporada_nueva else "2025/2026",
+            "jornada": numero_jornada,
+            "temporada": temporada,
             "temporada_key": "actual" if es_temporada_nueva else "2025",
             "fecha": fecha_texto,
             "fuente": d.get("fuente", str(path)),
@@ -289,8 +308,41 @@ def guardar_json(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+# Una temporada completa de La Quiniela tiene 60-76 jornadas; con menos de
+# este minimo el bloque guardado no se da por completo y se vuelve a descargar.
+MIN_JORNADAS_TEMPORADA_CERRADA = 50
+
+
+def cargar_previo(path=None):
+    """Historico ya guardado ({} si no existe o no se puede leer)."""
+    path = Path(path or SALIDA)
+    try:
+        datos = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    return datos if isinstance(datos, dict) else {}
+
+
+def jornadas_previas(previo, nombre):
+    bloque = ((previo or {}).get("temporadas") or {}).get(nombre)
+    if isinstance(bloque, dict) and isinstance(bloque.get("jornadas"), list):
+        return bloque["jornadas"]
+    return []
+
+
+def temporada_cerrada_en_cache(previo, nombre):
+    """Una temporada ya terminada no cambia: si esta guardada completa no hay
+    que volver a pedirla (eran ~225 POST a webprincipal en CADA ciclo)."""
+    return len(jornadas_previas(previo, nombre)) >= MIN_JORNADAS_TEMPORADA_CERRADA
+
+
 def main():
     print("=== Historial La Quiniela LAE — 3 temporadas ===\n")
+
+    # Auditoria 26/11 (hallazgos 34 y 63): las temporadas cerradas se leen del
+    # fichero ya guardado (sin red) y, si una descarga falla, se conserva lo que
+    # habia: nunca se pierde una temporada por un fallo de webprincipal.
+    previo = cargar_previo()
 
     historico = {
         "version": "1.0",
@@ -302,10 +354,17 @@ def main():
     # ── Temporadas historicas via webprincipal ────────────────────────────────
     for key, nombre in list(TEMPORADAS.items())[:-1]:  # 2023 y 2024
         print(f"Temporada {nombre} (webprincipal key={key}):")
+        if temporada_cerrada_en_cache(previo, nombre):
+            historico["temporadas"][nombre] = previo["temporadas"][nombre]
+            print(f"  en cache ({len(jornadas_previas(previo, nombre))} jornadas): no se descarga\n")
+            continue
         try:
             ids = ids_jornadas(key)
         except Exception as e:
             print(f"  ERROR obteniendo lista: {e}")
+            if jornadas_previas(previo, nombre):
+                historico["temporadas"][nombre] = previo["temporadas"][nombre]
+                print("  se conserva el dato previo")
             continue
         print(f"  {len(ids)} jornadas encontradas")
 
@@ -324,6 +383,12 @@ def main():
                 print(f"  J{jornada_id:>3}: ERROR {e}")
             time.sleep(0.15)  # respetar rate-limit
 
+        if len(jornadas) < len(jornadas_previas(previo, nombre)):
+            # Descarga parcial (errores de red a media lista): vale mas lo previo.
+            historico["temporadas"][nombre] = previo["temporadas"][nombre]
+            print(f"  descarga incompleta ({len(jornadas)} jornadas): se conserva el dato previo\n")
+            continue
+
         if jornadas:
             stats = calcular_stats(jornadas)
             historico["temporadas"][nombre] = {
@@ -339,7 +404,14 @@ def main():
     print("Temporada 2025/2026:")
     jornadas_2526 = []
     try:
-        ids = ids_jornadas("2025")
+        if temporada_cerrada_en_cache(previo, "2025/2026"):
+            # Temporada terminada y ya guardada: base = lo guardado, sin red.
+            # (Los ficheros locales de 25/26 se siguen fusionando mas abajo.)
+            jornadas_2526 = list(jornadas_previas(previo, "2025/2026"))
+            print(f"  en cache ({len(jornadas_2526)} jornadas): no se descarga")
+            ids = []
+        else:
+            ids = ids_jornadas("2025")
         print(f"  {len(ids)} jornadas en webprincipal")
         for jornada_id in ids:
             try:
@@ -362,7 +434,16 @@ def main():
     # la J1 de la temporada nueva se cuele mezclada bajo "2025/2026".
     locales = cargar_jornadas_locales()
     locales_2526 = [j for j in locales if j["temporada"] == "2025/2026"]
-    locales_actual = [j for j in locales if j["temporada"] != "2025/2026"]
+    # Solo temporadas POSTERIORES: un fichero local anterior a la 25/26 se
+    # mezclaria por numero con el bloque de webprincipal de su temporada.
+    locales_actual = [j for j in locales if j["temporada"] > "2025/2026"]
+    locales_antiguas = sorted({j["temporada"] for j in locales if j["temporada"] < "2025/2026"})
+    if locales_antiguas:
+        print(f"  AVISO: se ignoran jornadas locales de temporadas anteriores: {locales_antiguas}")
+
+    if not jornadas_2526 and not locales_2526 and jornadas_previas(previo, "2025/2026"):
+        jornadas_2526 = list(jornadas_previas(previo, "2025/2026"))
+        print("  sin datos nuevos: se conserva el dato previo")
 
     if len(jornadas_2526) < len(locales_2526):
         ids_web = {j["jornada"] for j in jornadas_2526}
@@ -382,10 +463,23 @@ def main():
         f = stats["frecuencias_signos"]
         print(f"  -> {len(jornadas_2526)} jornadas | 1={f['1']}% X={f['X']}% 2={f['2']}%\n")
 
-    # ── Temporada en curso (26/27): solo archivos locales, webprincipal no la tiene ──
+    # ── Temporadas posteriores a la 25/26: solo archivos locales, webprincipal no las tiene ──
+    # Una por una (en la 27/28 conviviran ficheros de 26/27 y de 27/28). Las
+    # jornadas que ya no estan en data/jornadas (el numero se reutiliza cada
+    # temporada) se conservan del historico previo.
+    for nombre_actual in sorted({j["temporada"] for j in locales_actual}):
+        por_numero = {j["jornada"]: j for j in jornadas_previas(previo, nombre_actual) if isinstance(j, dict)}
+        for j in locales_actual:
+            if j["temporada"] == nombre_actual:
+                por_numero[j["jornada"]] = j
+        locales_actual_temporada = sorted(por_numero.values(), key=lambda x: x["jornada"])
+        _guardar_temporada_local(historico, nombre_actual, locales_actual_temporada)
+
+    guardar_o_conservar(historico, previo)
+
+
+def _guardar_temporada_local(historico, nombre_actual, locales_actual):
     if locales_actual:
-        nombre_actual = locales_actual[0]["temporada"]
-        locales_actual.sort(key=lambda x: x["jornada"])
         stats_actual = calcular_stats(locales_actual)
         historico["temporadas"][nombre_actual] = {
             "temporada": nombre_actual,
@@ -397,10 +491,24 @@ def main():
         print(f"Temporada {nombre_actual}:")
         print(f"  -> {len(locales_actual)} jornadas | 1={f['1']}% X={f['X']}% 2={f['2']}%\n")
 
+
+
+def guardar_o_conservar(historico, previo):
+    # Ninguna temporada que ya estaba guardada puede desaparecer.
+    for nombre, bloque in ((previo.get("temporadas") or {}).items()):
+        if nombre not in historico["temporadas"] and jornadas_previas(previo, nombre):
+            historico["temporadas"][nombre] = bloque
+            print(f"Temporada {nombre}: no se pudo recargar, se conserva el dato previo")
+
+    if not historico["temporadas"]:
+        print("AVISO: no se ha cargado ninguna temporada; no se escribe nada.")
+        return 0
+
     guardar_json(SALIDA, historico)
     total = sum(len(t["jornadas"]) for t in historico["temporadas"].values())
     total_partidos = sum(
-        t["estadisticas"]["partidos_totales"] for t in historico["temporadas"].values()
+        int((t.get("estadisticas") or {}).get("partidos_totales") or 0)
+        for t in historico["temporadas"].values()
     )
     print(f"Guardado en {SALIDA}")
     print(f"Total jornadas: {total} | Total partidos con signo: {total_partidos}")

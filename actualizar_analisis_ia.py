@@ -1,3 +1,5 @@
+import csv
+import io
 import json
 import re
 from pathlib import Path
@@ -91,11 +93,36 @@ def normalizar_probs(p):
     total = sum(p.values())
     return {k: round(v / total * 100, 1) for k, v in p.items()}
 
+def signos_oficiales_del_csv(texto):
+    """Signos 1/X/2 de la columna resultado_oficial (los 14 partidos, antes
+    del '| P15').
+
+    Auditoria 26/11: se buscaba [12X] en TODO el CSV, asi que los digitos de
+    '2025', 'Semana 12', 'P15 11' y los numeros de jornada contaban como
+    signos y la X salia al 16,9% (real: 23,8%).
+    """
+    signos = []
+    for fila in csv.DictReader(io.StringIO(texto)):
+        oficial = str(fila.get('resultado_oficial') or '').upper().split('|')[0].strip()
+        if not re.fullmatch(r'[12X]{14}', oficial):
+            continue
+        signos.extend(oficial)
+    return signos
+
+
+def orden_fecha_partido(item):
+    """Orden cronologico de un partido de calendario (sin fecha, al final en
+    su orden de jornada)."""
+    indice, jornada, partido = item
+    fecha = str(partido.get('fecha') or '')[:10]
+    valida = bool(re.match(r'^\d{4}-\d{2}-\d{2}$', fecha))
+    return (0 if valida else 1, fecha if valida else '', indice)
+
+
 def analizar_historico():
     if not HISTORICO_QUINIELAS.exists():
         return {'disponible': False, 'frecuencias': {'1': 45.0, 'X': 28.0, '2': 27.0}, 'lectura': 'Sin histórico suficiente; se usa patrón base.'}
-    texto = HISTORICO_QUINIELAS.read_text(encoding='utf-8', errors='ignore').upper()
-    signos = [s for s in re.findall(r'[12X]', texto) if s in ('1', 'X', '2')]
+    signos = signos_oficiales_del_csv(HISTORICO_QUINIELAS.read_text(encoding='utf-8', errors='ignore'))
     if not signos:
         return {'disponible': False, 'frecuencias': {'1': 45.0, 'X': 28.0, '2': 27.0}, 'lectura': 'Sin signos detectados.'}
     c = Counter(signos); total = len(signos)
@@ -136,14 +163,19 @@ def analizar_partido(stats, local, visitante, jornada):
 
 def construir_liga(calendario):
     stats = {}; proximos = []
+    # La forma ('ultimos') se acumula en orden de FECHA real del partido, no
+    # en el orden de jornada del calendario (un aplazado se juega semanas
+    # despues de su jornada).
+    todos = []
     for jornada in calendario.get('jornadas', []):
-        j = jornada.get('jornada')
         for p in jornada.get('partidos', []):
-            local = p.get('local'); visitante = p.get('visitante')
-            if not local or not visitante: continue
-            res = parse_resultado(p.get('resultado'))
-            if res: aplicar_resultado(stats, local, visitante, res[0], res[1])
-            else: proximos.append({'jornada': j, 'local': local, 'visitante': visitante, 'fecha': p.get('fecha',''), 'hora': p.get('hora','')})
+            todos.append((len(todos), jornada.get('jornada'), p))
+    for _, j, p in sorted(todos, key=orden_fecha_partido):
+        local = p.get('local'); visitante = p.get('visitante')
+        if not local or not visitante: continue
+        res = parse_resultado(p.get('resultado'))
+        if res: aplicar_resultado(stats, local, visitante, res[0], res[1])
+        else: proximos.append({'jornada': j, 'local': local, 'visitante': visitante, 'fecha': p.get('fecha',''), 'hora': p.get('hora','')})
     completar_stats(stats)
     analisis = []
     for p in proximos[:100]:

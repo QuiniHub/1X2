@@ -135,6 +135,12 @@ def equipo_cerrado(equipo):
 def equipo_con_necesidad(equipo):
     if not equipo or equipo_cerrado(equipo):
         return False
+    # Auditoria 26/11: sin este filtro, en noviembre TODOS los equipos tienen
+    # algun objetivo vivo y los 14 partidos salian como "no es fijo limpio".
+    # La necesidad de tabla solo cuenta a falta de 10 jornadas o menos (la
+    # misma regla que valor_motivacion y que el motor).
+    if not objetivos_en_juego_de_verdad(equipo):
+        return False
     if objetivos_vivos(equipo):
         return True
     texto = f"{estado_principal(equipo)} {objetivo_principal(equipo).get('objetivo', '')}".lower()
@@ -198,24 +204,24 @@ def penalizaciones_competitivas(partido, local_ctx, visitante_ctx):
     elif local_need or visitor_need:
         penalty += 8
 
-    if lado == "1" and visitor_need:
+    if lado == "local" and visitor_need:
         penalty += 22
         motivos.append(f"{partido.get('visitante')} necesita puntuar: {objetivo_texto(visitante_ctx)}")
-    if lado == "2" and local_need:
+    if lado == "visitante" and local_need:
         penalty += 22
         motivos.append(f"{partido.get('local')} necesita puntuar: {objetivo_texto(local_ctx)}")
 
-    if lado == "1" and local_need and visitor_closed:
+    if lado == "local" and local_need and visitor_closed:
         penalty -= 16
         motivos.append("la necesidad del local apoya el 1 y el visitante tiene objetivo cerrado")
-    if lado == "2" and visitor_need and local_closed:
+    if lado == "visitante" and visitor_need and local_closed:
         penalty -= 16
         motivos.append("la necesidad del visitante apoya el 2 y el local tiene objetivo cerrado")
 
-    if lado == "1" and local_closed and visitor_need:
+    if lado == "local" and local_closed and visitor_need:
         penalty += 24
         motivos.append("el favorito local tiene objetivo cerrado y el visitante se juega puntos")
-    if lado == "2" and visitor_closed and local_need:
+    if lado == "visitante" and visitor_closed and local_need:
         penalty += 24
         motivos.append("el favorito visitante tiene objetivo cerrado y el local se juega puntos")
 

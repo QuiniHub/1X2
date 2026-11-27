@@ -157,11 +157,26 @@ def es_jornada_abierta(data):
     return True
 
 
+# mundial_2026_resultados.json solo vale como fuente de partidos del Mundial
+# (11/06 - 19/07/2026). Auditoria 26/11 (hallazgos 126 y 173): se colaron en el
+# marcadores de clubes sacados de otra pagina, marcados como 'confirmado'.
+MUNDIAL_INICIO = "2026-06-11"
+MUNDIAL_FIN = "2026-07-19"
+
+
+def es_fecha_mundial(fecha):
+    fecha = str(fecha or "")[:10]
+    return bool(fecha) and MUNDIAL_INICIO <= fecha <= MUNDIAL_FIN
+
+
 def cargar_fuentes_confirmadas():
     fuentes = []
     mundial = cargar_json(MUNDIAL, {"resultados": []})
     for item in mundial.get("resultados", []):
         if str(item.get("confianza") or "").lower() != "confirmado":
+            continue
+        if item.get("fecha") and not es_fecha_mundial(item.get("fecha")):
+            # Entrada con fecha fuera del Mundial: es un partido de clubes.
             continue
         resultado = normalizar_resultado(item.get("resultado"))
         if resultado:

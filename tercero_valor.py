@@ -65,7 +65,7 @@ from pathlib import Path
 
 from actualizar_porcentajes_lae import temporada_etiqueta
 from optimizador_ev_premio import cargar_json, guardar_json, porcentajes_masa
-from senal_valiente import _signo_real_verificado
+from senal_valiente import _signo_real_verificado, bloques_del_cierre
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -397,33 +397,35 @@ def _resumen_marcador(terceros):
 
 
 def actualizar_marcador_tercero_valor(dir_predicciones=None, dir_jornadas=None,
-                                      ruta_marcador=None, etiqueta=None, ahora=None):
+                                      ruta_marcador=None, etiqueta=None, ahora=None,
+                                      dir_snapshots=None):
     """Al cerrar cada jornada, registra si el chip publicado acerto y
     actualiza el acumulado con el criterio de graduacion prerregistrado.
     Idempotente: cada (temporada, jornada) se registra una sola vez. La
     verificacion del signo real exige que al menos un nombre del fixture
     case (misma regla que La Valiente: la numeracion de jornadas se reinicia
-    cada temporada)."""
-    dir_predicciones = Path(dir_predicciones or PREDICCIONES_DIR)
+    cada temporada).
+
+    Auditoria 26/11: el bloque se lee del snapshot PRE-CIERRE (no del espejo,
+    que se reescribe con la jornada en juego), solo con la jornada cerrada, y
+    la temporada sale de la fecha de la jornada, no de now()."""
     dir_jornadas = Path(dir_jornadas or JORNADAS_DIR)
     ruta_marcador = Path(ruta_marcador or MARCADOR)
     ahora = ahora or datetime.now(timezone.utc)
-    etiqueta = etiqueta or temporada_etiqueta(datetime.now())
 
     marcador = cargar_json(ruta_marcador, {})
     terceros = marcador.get("terceros") or []
     registrados = {(t.get("temporada"), t.get("jornada")) for t in terceros}
     nuevos = 0
-    for path in sorted(dir_predicciones.glob("jornada_*.json")):
-        bloque = (cargar_json(path, {}) or {}).get("tercero_valor") or {}
+    for etiqueta, jornada, bloque, _pred, _datos in bloques_del_cierre(
+            "tercero_valor", dir_jornadas, dir_snapshots, etiqueta):
         if bloque.get("estado") != "ok":
             continue
-        jornada = bloque.get("jornada")
         if (etiqueta, jornada) in registrados:
             continue
-        signo_real = _signo_real_verificado(bloque, dir_jornadas)
+        signo_real = _signo_real_verificado(bloque, dir_jornadas, jornada_verificada=True)
         if signo_real is None:
-            continue  # jornada aun abierta o fixture de otra temporada
+            continue  # el partido del chip no tiene signo oficial valido
         acierto = signo_real == str(bloque.get("signo") or "").upper()
         masa = float(bloque.get("masa_pct") or 0)
         pago = round(100.0 / masa * APUESTA_HIPOTETICA_EUR, 2) if acierto and masa > 0 else 0.0

@@ -158,10 +158,6 @@ class ResultadosDirectoTests(unittest.TestCase):
                 ard.DATA = original_data
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class ParserResultadosGuardiasTests(unittest.TestCase):
     """Bug real 16/09/2026: en paginas-resumen con todos los partidos
     seguidos, la ventana ancha con equipos 'en cualquier orden' clonaba el
@@ -189,3 +185,7 @@ class ParserResultadosGuardiasTests(unittest.TestCase):
         # Formato B: "Local - Visitante 4-1" (ambos nombres antes, en orden)
         texto_b = "Resultados quiniela: EE.UU. - Paraguay 4 - 1 signo 1 final"
         self.assertEqual(ard.buscar_resultado_final(texto_b, {"local": "EEUU", "visitante": "Paraguay"}), "4-1")
+
+
+if __name__ == "__main__":
+    unittest.main()

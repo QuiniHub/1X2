@@ -33,6 +33,13 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
+import cronologia_jornadas as cronologia
+from modelo_reparto_quiniela import (
+    escrutinio_plausible,
+    recaudacion_de_escrutinio,
+    recaudacion_en_rango,
+)
+
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 FUENTE_LOSILLA = DATA / "memoria_ia" / "fuente_losilla.json"
@@ -63,9 +70,19 @@ def guardar_json(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def temporada_etiqueta(fecha):
-    """"2026_2027" para cualquier fecha de esa temporada (julio corta)."""
-    if fecha.month >= 7:
+def temporada_etiqueta(fecha, numero=None):
+    """"2026_2027" para cualquier fecha de esa temporada.
+
+    La numeracion de La Quiniela se reinicia a mediados de agosto (la 25/26
+    llego a la J76 el 07-09/08/2026 y la J1 de la 26/27 fue el 15/08), no el
+    1 de julio: el corte lo decide cronologia_jornadas.temporada_de_fecha.
+    Pasando el numero de jornada se desambiguan julio y agosto (una J72 de
+    julio es de la temporada que ACABA ese anio)."""
+    dia = fecha.date() if isinstance(fecha, datetime) else fecha
+    etiqueta = cronologia.temporada_de_fecha(dia, numero)
+    if etiqueta:
+        return etiqueta
+    if fecha.month >= 8:
         return f"{fecha.year}_{fecha.year + 1}"
     return f"{fecha.year - 1}_{fecha.year}"
 
@@ -103,11 +120,26 @@ def porcentajes_desde_losilla(fuente_losilla):
 
 
 def _numero_es(texto):
-    """"3.500.149,50" -> 3500149.5 ; "1.033" -> 1033.0 ; None si no parsea."""
-    limpio = re.sub(r"[^0-9,.]", "", str(texto or ""))
+    """"3.500.149,50" -> 3500149.5 ; "1.033" -> 1033.0 ; None si no parsea.
+
+    Tambien acepta el punto como separador DECIMAL ("2940306.75" o
+    "2.940.306.75" -> 2940306.75): antes se borraban todos los puntos y la
+    recaudacion de la J23 26/27 se guardo multiplicada por 100 (294 M EUR).
+    Regla: el ULTIMO separador es decimal si le siguen 1-2 digitos (o mas de
+    3), o si es una coma y antes habia puntos; seguido de exactamente 3
+    digitos es separador de miles, como todos los anteriores."""
+    limpio = re.sub(r"[^0-9,.]", "", str(texto or "")).strip(".,")
     if not limpio:
         return None
-    limpio = limpio.replace(".", "").replace(",", ".")
+    ultimo = max(limpio.rfind("."), limpio.rfind(","))
+    if ultimo >= 0:
+        cola = limpio[ultimo + 1:]
+        cabeza = re.sub(r"[.,]", "", limpio[:ultimo])
+        coma_tras_puntos = limpio[ultimo] == "," and "." in limpio[:ultimo]
+        if len(cola) != 3 or coma_tras_puntos:
+            limpio = f"{cabeza}.{cola}"      # el ultimo separador es decimal
+        else:
+            limpio = f"{cabeza}{cola}"       # todos son separadores de miles
     try:
         return float(limpio)
     except ValueError:
@@ -138,9 +170,25 @@ def parsear_escrutinio_html(html):
     if len(categorias) < 5:
         return None
     resultado = {"categorias": categorias}
+    # Plantilla "placebo" (todo a 0, la que devuelve la web antes de publicar
+    # el escrutinio) o tabla de otra temporada: no se guarda, se reintenta.
+    if not escrutinio_plausible(resultado):
+        return None
     m = re.search(r"Recaudaci[oó]n\s+([\d.,]+)\s*€?", texto, re.IGNORECASE)
     if m:
         resultado["recaudacion_eur"] = _numero_es(m.group(1))
+    # La recaudacion debe ser plausible (0,3-20 M EUR). Si falta o es absurda
+    # se reconstruye desde la categoria de 13 (acertantes x premio / 7,5%).
+    if not recaudacion_en_rango(resultado.get("recaudacion_eur")):
+        leida = resultado.get("recaudacion_eur")
+        reconstruida = recaudacion_de_escrutinio(resultado)
+        if reconstruida is not None:
+            resultado["recaudacion_eur"] = round(reconstruida, 2)
+            resultado["recaudacion_reconstruida"] = True
+            if leida is not None:
+                resultado["recaudacion_leida_descartada"] = leida
+        else:
+            resultado.pop("recaudacion_eur", None)
     m = re.search(r"Bote\s+([\d.,]+)\s*€?", texto, re.IGNORECASE)
     if m:
         resultado["bote_eur"] = _numero_es(m.group(1))
@@ -170,6 +218,26 @@ def jornada_cerrada(jornada):
     return len(partidos) == 14 and all(
         str(p.get("signo_oficial") or "").upper() in SIGNOS for p in partidos
     )
+
+
+def _mismos_partidos(partidos_a, partidos_b):
+    """True si las dos listas de partidos (numero/local/visitante) son la
+    misma jornada real. Sin datos para comparar se asume que si."""
+    def clave(lista):
+        return {
+            int(p.get("numero")): (
+                cronologia.normalizar_equipo(p.get("local")),
+                cronologia.normalizar_equipo(p.get("visitante")),
+            )
+            for p in lista or []
+            if isinstance(p.get("numero"), int) and p.get("local") and p.get("visitante")
+        }
+    a, b = clave(partidos_a), clave(partidos_b)
+    comunes = set(a) & set(b)
+    if len(comunes) < 7:
+        return True
+    iguales = sum(1 for n in comunes if a[n] == b[n])
+    return iguales * 2 >= len(comunes)
 
 
 def fecha_primer_partido(jornada):
@@ -202,7 +270,10 @@ def guardar_porcentajes_jornada(captura, etiqueta_temporada, fuente, extra=None)
         "actualizado_en": datetime.now(timezone.utc).isoformat(),
         "partidos": captura["partidos"],
     }
-    if existente.get("escrutinio"):
+    # El escrutinio se conserva SOLO si el archivo existente es de la misma
+    # jornada real (mismos equipos): con el mismo numero en otra temporada
+    # heredaria el escrutinio de otra jornada y nunca se volveria a bajar.
+    if existente.get("escrutinio") and _mismos_partidos(existente.get("partidos"), captura["partidos"]):
         registro["escrutinio"] = existente["escrutinio"]
     if extra:
         registro.update(extra)
@@ -216,7 +287,7 @@ def capturar_jornada_activa():
     if not captura:
         print("Sin porcentajes LAE completos en fuente_losilla.json; no se captura nada.")
         return None
-    etiqueta = temporada_etiqueta(datetime.now())
+    etiqueta = temporada_etiqueta(datetime.now(), captura["jornada"])
     if guardar_porcentajes_jornada(captura, etiqueta, "eduardolosilla.es (columna LAE)"):
         print(f"Porcentajes LAE de la J{captura['jornada']} guardados en {etiqueta}.")
     else:
@@ -236,7 +307,11 @@ def completar_escrutinios(etiqueta_temporada, maximo_descargas=4):
             break
         registro = cargar_json(path, {})
         jornada = registro.get("jornada")
-        if not isinstance(jornada, int) or registro.get("escrutinio"):
+        if not isinstance(jornada, int):
+            continue
+        # Un escrutinio placebo ya guardado (J14 26/27: todo a 0) cuenta como
+        # que falta: se vuelve a pedir hasta que la web publique el real.
+        if registro.get("escrutinio") and escrutinio_plausible(registro["escrutinio"]):
             continue
         if not jornada_cerrada(jornada):
             continue
@@ -248,6 +323,18 @@ def completar_escrutinios(etiqueta_temporada, maximo_descargas=4):
         guardar_json(path, registro)
         print(f"Escrutinio real de la J{jornada} capturado "
               f"(recaudacion={escrutinio.get('recaudacion_eur')}).")
+
+
+def cierre_aproximado_utc(primer_partido, margen_horas=2):
+    """Primer partido (datetime naive en hora de Madrid) -> instante UTC menos
+    el margen. Antes se trataba la hora de Madrid como si fuera UTC y en
+    horario de verano (UTC+2) el margen de 2 horas desaparecia."""
+    try:
+        from zoneinfo import ZoneInfo
+        local = primer_partido.replace(tzinfo=ZoneInfo("Europe/Madrid"))
+    except Exception:  # sin base de datos de zonas: CEST como peor caso
+        local = primer_partido.replace(tzinfo=timezone(timedelta(hours=2)))
+    return local.astimezone(timezone.utc) - timedelta(hours=margen_horas)
 
 
 def _git_show(commit, ruta):
@@ -294,12 +381,12 @@ def reconstruir_desde_git(jornadas_objetivo=None):
         primer_partido = fecha_primer_partido(jornada)
         if primer_partido is None:
             continue
-        # cierre aproximado: primer partido (hora local ES) tratado como UTC
+        # cierre aproximado: primer partido (hora de Madrid pasada a UTC)
         # menos 2h de margen -siempre anterior al cierre real de LAE.
-        cierre = (primer_partido - timedelta(hours=2)).replace(tzinfo=timezone.utc)
+        cierre = cierre_aproximado_utc(primer_partido)
         if fecha_commit > cierre:
             continue  # commit posterior al cierre: seguir hacia atras
-        etiqueta = temporada_etiqueta(primer_partido)
+        etiqueta = temporada_etiqueta(primer_partido, jornada)
         if guardar_porcentajes_jornada(
             captura, etiqueta, "git:fuente_losilla.json (columna LAE)",
             extra={"commit": commit[:12], "fecha_commit": fecha_commit.isoformat()},

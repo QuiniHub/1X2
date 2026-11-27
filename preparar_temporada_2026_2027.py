@@ -240,10 +240,24 @@ def normalizar(texto):
     return " ".join(texto.split())
 
 
+def _alias_normalizados():
+    """ALIAS con las claves pasadas por normalizar(). normalizar() quita 'real',
+    'club', 'de'..., asi que claves como 'real madrid' o 'real sociedad' nunca
+    casaban con la clave normalizada ('madrid', 'sociedad') y esos dos equipos
+    se quedaban con el nombre en crudo (auditoria 26/11, hallazgo 193)."""
+    salida = {}
+    for alias, oficial in ALIAS.items():
+        salida.setdefault(normalizar(alias), oficial)
+    return salida
+
+
 def canonico(nombre):
     clave = normalizar(nombre)
     if clave in ALIAS:
         return ALIAS[clave]
+    normalizados = _alias_normalizados()
+    if clave in normalizados:
+        return normalizados[clave]
     for alias, oficial in ALIAS.items():
         if alias and (clave == alias or clave.endswith(" " + alias) or alias in clave):
             return oficial

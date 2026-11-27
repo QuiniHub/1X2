@@ -76,6 +76,28 @@ class CongelarTests(unittest.TestCase):
             self.assertEqual(d["partidos"][0]["probabilidades"]["1"], 26.0)
             self.assertNotIn("prediccion_congelada_al_cierre", d)
 
+    def test_congela_tambien_la_configuracion(self):
+        # Auditoria 26/11: la J24 congelada declaraba configuracion.triples = 2
+        # con un solo partido TRIPLE (el motor la recalcula sin mercado).
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = _montar(tmp)
+            ruta_snap = tmp / "snap" / "jornada_24.json"
+            snap = json.loads(ruta_snap.read_text(encoding="utf-8"))
+            snap["prediccion"]["configuracion"] = {"dobles": 4, "triples": 1}
+            snap["prediccion"]["partidos"][0]["tipo"] = "TRIPLE"
+            ruta_snap.write_text(json.dumps(snap), encoding="utf-8")
+            for ruta in (tmp / "pred" / "jornada_24.json", tmp / "ultima.json"):
+                d = json.loads(ruta.read_text(encoding="utf-8"))
+                d["configuracion"] = {"dobles": 4, "triples": 2}
+                ruta.write_text(json.dumps(d), encoding="utf-8")
+            ahora = datetime(2026, 11, 26, 8, 0, tzinfo=timezone.utc)
+            cb.congelar(24, ahora=ahora, dir_predicciones=tmp / "pred", dir_snapshots=tmp / "snap", ruta_ultima=tmp / "ultima.json")
+            for ruta in (tmp / "pred" / "jornada_24.json", tmp / "ultima.json"):
+                d = json.loads(ruta.read_text(encoding="utf-8"))
+                triples = sum(1 for p in d["partidos"] if p.get("tipo") == "TRIPLE")
+                self.assertEqual(d["configuracion"], {"dobles": 4, "triples": 1})
+                self.assertEqual(d["configuracion"]["triples"], triples)
+
     def test_sin_snapshot(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp = _montar(tmp)

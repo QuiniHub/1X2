@@ -62,10 +62,6 @@ class ClasificacionFinalTests(unittest.TestCase):
         self.assertEqual(clasificacion_final["segunda"][0]["equipo"], "Real Oviedo")
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class FusionClasificacionNombresTests(unittest.TestCase):
     """11a aparicion de la familia de nombres (08/09/2026): la clasificacion
     oficial decia "Sabadell" y el calendario "CE Sabadell" -el cruce exacto
@@ -121,3 +117,7 @@ class PlenoCategoriasTests(unittest.TestCase):
     def test_m_jugada_con_goleada_real_es_acierto(self):
         self.assertEqual(cmi.pleno_en_categorias("M-2"), cmi.pleno_en_categorias("4-2"))
         self.assertNotEqual(cmi.pleno_en_categorias("M-1"), cmi.pleno_en_categorias("5-2"))
+
+
+if __name__ == "__main__":
+    unittest.main()

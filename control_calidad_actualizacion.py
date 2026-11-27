@@ -1,8 +1,10 @@
 import json
 import re
 import unicodedata
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
+
+import cronologia_jornadas
 
 
 ROOT = Path(__file__).resolve().parent
@@ -110,6 +112,24 @@ def jornadas_estado():
     return resumenes, actual, ultima
 
 
+def orden_cronologico_prediccion(pred):
+    """Clave de orden por FECHA real (primer partido y, si no, generado_en).
+
+    Auditoria 26/11: el respaldo elegia la prediccion de NUMERO mas alto. En
+    data/predicciones conviven jornada_1..25 (26/27) y jornada_61..76 (25/26),
+    asi que con ultima_prediccion.json roto se habria usado la J76 de agosto.
+    """
+    fecha = cronologia_jornadas.fecha_real_jornada(pred or {})
+    generado = cronologia_jornadas.parsear_fecha((pred or {}).get("generado_en"))
+    return (fecha or generado or date.min, str((pred or {}).get("generado_en") or ""))
+
+
+def ultima_prediccion_ilegible():
+    """True si ultima_prediccion.json existe pero no se puede leer o esta vacio."""
+    path = PREDICCIONES / "ultima_prediccion.json"
+    return path.exists() and not cargar_json(path, {})
+
+
 def ultima_prediccion():
     pred = cargar_json(PREDICCIONES / "ultima_prediccion.json", {})
     if pred:
@@ -119,7 +139,7 @@ def ultima_prediccion():
         data = cargar_json(path, {})
         if data.get("jornada"):
             candidatas.append(data)
-    return max(candidatas, key=lambda p: int(p.get("jornada", 0)), default={})
+    return max(candidatas, key=orden_cronologico_prediccion, default={})
 
 
 def prediccion_retenida_por_compuerta(pred):
@@ -135,6 +155,25 @@ def prediccion_retenida_por_compuerta(pred):
         or "bloqueada" in estado
         or "aprendiendo" in estado
     )
+
+
+def pj_en_calendario(calendario, nombre_equipo):
+    """Partidos con resultado del equipo en el calendario, cruzando el nombre
+    de forma tolerante.
+
+    Auditoria 26/11: el cruce era por nombre normalizado EXACTO y en Segunda
+    4 de 22 equipos no cruzaban ('Tenerife' vs 'CD Tenerife', 'Sabadell' vs
+    'CE Sabadell', 'Eldense', 'Celta Fortuna'): para ellos pj_calendario era
+    0 y la alerta critica de clasificacion congelada no podia saltar.
+    Si el nombre exacto no esta, se acepta una coincidencia tolerante UNICA.
+    """
+    clave = normalizar(nombre_equipo)
+    if clave in calendario:
+        return calendario[clave]
+    parecidos = [k for k in calendario if cronologia_jornadas.mismo_equipo(nombre_equipo, k)]
+    if len(parecidos) == 1:
+        return calendario[parecidos[0]]
+    return 0
 
 
 def diagnosticar_clasificacion(alertas):
@@ -163,9 +202,8 @@ def diagnosticar_clasificacion(alertas):
     for liga, equipos in (("primera", primera), ("segunda", segunda)):
         calendario = calendarios.get(liga, {})
         for equipo in equipos:
-            nombre = normalizar(equipo.get("equipo"))
             pj_tabla = int(equipo.get("pj", 0) or 0)
-            pj_calendario = calendario.get(nombre, 0)
+            pj_calendario = pj_en_calendario(calendario, equipo.get("equipo"))
             if pj_calendario > pj_tabla:
                 alertas.append({
                     "nivel": "critica",
@@ -207,17 +245,41 @@ def jornada_objetivo_real():
     pipeline (jornada_objetivo_quiniela): no la de fecha maxima cargada, que
     daba falsos positivos ("la activa es 23 pero la prediccion dice 22") en
     cuanto se cargaba una jornada futura (auditoria 16/11/2026)."""
+    return jornada_objetivo_real_con_error()[0]
+
+
+def jornada_objetivo_real_con_error():
+    """(numero, error). Auditoria 26/11: ante cualquier excepcion se devolvia
+    0 en silencio y el control volvia a la jornada de fecha maxima (el falso
+    positivo del 16/11) sin dejar rastro. Ahora el error se devuelve para
+    que diagnosticar_prediccion lo publique como alerta."""
     try:
         from jornada_objetivo_quiniela import jornada_objetivo_prediccion
-        return int(jornada_objetivo_prediccion() or 0)
-    except Exception:
-        return 0
+        return int(jornada_objetivo_prediccion() or 0), None
+    except Exception as exc:
+        return 0, f"{type(exc).__name__}: {exc}"
 
 
 def diagnosticar_prediccion(alertas, jornada_actual):
+    if ultima_prediccion_ilegible():
+        alertas.append({
+            "nivel": "critica",
+            "titulo": "ultima_prediccion.json ilegible",
+            "detalle": "data/predicciones/ultima_prediccion.json existe pero esta vacio o no es JSON valido; se usa como respaldo la prediccion guardada mas reciente por fecha.",
+        })
     pred = ultima_prediccion()
     retenida = prediccion_retenida_por_compuerta(pred)
-    objetivo = jornada_objetivo_real()
+    objetivo, error_objetivo = jornada_objetivo_real_con_error()
+    if error_objetivo:
+        alertas.append({
+            "nivel": "media",
+            "titulo": "Jornada objetivo no calculable",
+            "detalle": (
+                "No se pudo calcular la jornada objetivo del motor "
+                f"({error_objetivo}); el control compara contra la jornada activa por fecha "
+                "y puede dar un aviso falso de prediccion antigua."
+            ),
+        })
     if objetivo:
         jornada_actual = {"jornada": objetivo}
     if jornada_actual and int(pred.get("jornada", 0) or 0) != int(jornada_actual.get("jornada", 0)) and not retenida:

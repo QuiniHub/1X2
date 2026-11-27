@@ -9,13 +9,18 @@ amplificar un 20% los ajustes motivacionales cuando hay >=3 casos similares.
 
 import json
 import re
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
+
+import cronologia_jornadas
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 DIARIO = DATA / "memoria_ia" / "diario_aprendizaje.json"
 PREDICCIONES = DATA / "predicciones"
+JORNADAS = DATA / "jornadas"
+SNAPSHOTS = DATA / "backtesting" / "pre_cierre"
 SORPRESAS_MERCADO = DATA / "memoria_ia" / "sorpresas_mercado.json"
 
 # Categorías que entiende reforzar_ajuste_por_memoria_sorpresas()
@@ -117,6 +122,128 @@ def prob_top_desde_partidos(partido_snap: dict) -> float:
     return 0.0
 
 
+def numero_partido_entrada(entrada):
+    """Numero de partido con cualquiera de las dos claves del fichero."""
+    for clave in ("num_partido", "numero_partido"):
+        valor = (entrada or {}).get(clave)
+        try:
+            numero = int(str(valor).strip())
+        except (TypeError, ValueError):
+            continue
+        if numero > 0:
+            return numero
+    return 0
+
+
+def numero_jornada_entrada(entrada):
+    try:
+        return int(str((entrada or {}).get("jornada")).strip())
+    except (TypeError, ValueError):
+        return 0
+
+
+def temporada_de_jornada(numero):
+    """Temporada del fichero data/jornadas/jornada_N.json (por su fecha real)."""
+    datos = cronologia_jornadas.cargar_jornada(numero, JORNADAS) if numero else None
+    fecha = cronologia_jornadas.fecha_real_jornada(datos) if datos else None
+    return cronologia_jornadas.temporada_de_fecha(fecha, numero) if fecha else None
+
+
+def temporada_entrada(entrada):
+    """Temporada de una entrada: la guardada, la de su fecha o la del fichero
+    de jornada. Una vez calculada se guarda en la entrada, asi que no cambia
+    cuando jornada_N.json pase a ser de la temporada siguiente."""
+    guardada = (entrada or {}).get("temporada")
+    if guardada:
+        return str(guardada)
+    numero = numero_jornada_entrada(entrada)
+    for campo in ("fecha", "registrada_en"):
+        fecha = cronologia_jornadas.parsear_fecha(entrada.get(campo))
+        if fecha is not None:
+            return cronologia_jornadas.temporada_de_fecha(fecha, numero or None)
+    return temporada_de_jornada(numero)
+
+
+ORIGEN_DIARIO = "diario_aprendizaje_fallo_fijo"
+ORIGEN_MERCADO = "mercado_favorito_no_gano"
+
+
+def origen_entrada(entrada):
+    """Origen de la entrada; las antiguas sin el campo se deducen."""
+    origen = str((entrada or {}).get("origen") or "").strip()
+    if origen:
+        return origen
+    if "probabilidad_mercado_favorito" in (entrada or {}):
+        return ORIGEN_MERCADO
+    return ORIGEN_DIARIO
+
+
+def clave_entrada(entrada):
+    """Identidad: (temporada, jornada, partido, origen). El origen entra
+    porque un partido puede ser a la vez sorpresa de mercado y fijo fallado:
+    la entrada de un escritor no debe impedir la del otro."""
+    return (
+        temporada_entrada(entrada),
+        numero_jornada_entrada(entrada),
+        numero_partido_entrada(entrada),
+        origen_entrada(entrada),
+    )
+
+
+def texto_plano(valor):
+    texto = unicodedata.normalize("NFKD", str(valor or "")).encode("ascii", "ignore").decode("ascii")
+    return " ".join(texto.lower().split())
+
+
+def clave_sin_temporada(entrada):
+    """Identidad de un fallo de fijo SIN temporada: jornada, partido, nombre
+    del partido y signo real. diario_aprendizaje.json no trae temporada ni
+    fecha, asi que la temporada de una entrada nueva se deduce del fichero
+    jornada_N.json de HOY; cuando la temporada siguiente pise ese numero, el
+    fallo antiguo saldria con la temporada equivocada y se reanadiria. Con
+    esta clave se reconoce que ya estaba guardado (los equipos lo delatan)."""
+    return (
+        numero_jornada_entrada(entrada),
+        numero_partido_entrada(entrada),
+        texto_plano(entrada.get("partido")),
+        str(entrada.get("signo_real") or "").strip().upper(),
+    )
+
+
+def normalizar_entrada(entrada):
+    """Esquema unico: las dos claves de numero de partido, la temporada, el
+    origen y el nombre del partido (lo pinta el chat de la web)."""
+    numero = numero_partido_entrada(entrada)
+    entrada["num_partido"] = numero
+    entrada["numero_partido"] = numero
+    if not entrada.get("origen"):
+        entrada["origen"] = origen_entrada(entrada)
+    if not entrada.get("partido") and (entrada.get("local") or entrada.get("visitante")):
+        entrada["partido"] = f"{numero}. {entrada.get('local') or ''} - {entrada.get('visitante') or ''}"
+    for campo in ("pronostico_jugado", "resultado"):
+        if entrada.get(campo) is None:
+            entrada[campo] = ""
+    if not entrada.get("temporada"):
+        temporada = temporada_entrada(entrada)
+        if temporada:
+            entrada["temporada"] = temporada
+    return entrada
+
+
+def prediccion_para_enriquecer(jornada):
+    """Prediccion de ESA jornada real: el snapshot pre-cierre si existe y, si
+    no, data/predicciones solo cuando son los mismos partidos (auditoria
+    26/11: se cruzaba por numero sin comprobar temporada ni equipos)."""
+    pred = cronologia_jornadas.prediccion_del_cierre(jornada, SNAPSHOTS, JORNADAS)
+    if isinstance(pred, dict) and pred.get("partidos"):
+        return pred
+    pred = cargar_json(PREDICCIONES / f"jornada_{jornada}.json")
+    datos = cronologia_jornadas.cargar_jornada(jornada, JORNADAS)
+    if pred and datos and cronologia_jornadas.misma_jornada(pred, datos):
+        return pred
+    return {}
+
+
 def procesar_diario():
     diario = cargar_json(DIARIO, {})
     entradas = diario.get("entradas", [])
@@ -140,16 +267,15 @@ def procesar_diario():
         if not jornada or not num:
             continue
 
-        clave = (jornada, num)
+        clave = (jornada, num, texto_plano(nombre_partido))
         if clave in vistas:
             continue
         vistas.add(clave)
 
         local, visitante = extraer_equipos_de_nombre(nombre_partido)
 
-        # Intentar enriquecer con snapshot de la jornada
-        snap_path = PREDICCIONES / f"jornada_{jornada}.json"
-        snapshot = cargar_json(snap_path)
+        # Intentar enriquecer con el snapshot pre-cierre de la jornada
+        snapshot = prediccion_para_enriquecer(numero_jornada_entrada(entrada))
         partido_snap = None
         if snapshot:
             for p in snapshot.get("partidos", []):
@@ -170,8 +296,10 @@ def procesar_diario():
         # pero los motivacionales sí. No filtramos por probabilidad mínima.
         sorpresas.append({
             "jornada": jornada,
+            "temporada": entrada.get("temporada") or temporada_de_jornada(numero_jornada_entrada(entrada)),
             "partido": nombre_partido,
             "num_partido": num,
+            "numero_partido": num,
             "local": local,
             "visitante": visitante,
             "pronostico_jugado": entrada.get("pronostico_jugado", ""),
@@ -191,14 +319,16 @@ def procesar_diario():
 
 
 def es_entrada_esquema_actual(entrada):
-    """Descarta entradas de un mecanismo anterior (seguimiento de sorpresas de
-    mercado del Mundial 2026, con la clave "numero_partido" en vez de
-    "num_partido") que quedaron mezcladas en este mismo archivo: son de un
-    dominio distinto (partidos internacionales, no LaLiga) y con la clave
-    equivocada podian colisionar en la deduplicacion por (jornada, num_partido),
-    ademas de inflar el recuento sin poder participar nunca en
-    reforzar_ajuste_por_memoria_sorpresas() (que busca categorias de LaLiga)."""
-    return "num_partido" in entrada
+    """True si la entrada identifica un partido (jornada + numero de partido).
+
+    Auditoria 26/11: antes se descartaba todo lo que no tuviera la clave
+    'num_partido', atribuyendolo a un "mecanismo del Mundial". No era eso:
+    'numero_partido' es la clave con la que escribia el OTRO escritor activo
+    de este fichero (actualizar_aprendizaje_ia.registrar_sorpresas_mercado,
+    que corre antes en el mismo ciclo). Resultado: 46 sorpresas de mercado de
+    la 26/27 se escribian y se borraban en cada ciclo. Ahora se aceptan las
+    dos claves y normalizar_entrada() deja el esquema unico."""
+    return bool(numero_jornada_entrada(entrada)) and bool(numero_partido_entrada(entrada))
 
 
 def main():
@@ -208,27 +338,37 @@ def main():
 
     actual = cargar_json(SORPRESAS_MERCADO, {"version": "1.0", "sorpresas": []})
     existentes_todas = actual.get("sorpresas", [])
-    existentes = [e for e in existentes_todas if es_entrada_esquema_actual(e)]
+    existentes = [normalizar_entrada(e) for e in existentes_todas if es_entrada_esquema_actual(e)]
     descartadas = len(existentes_todas) - len(existentes)
 
-    claves_existentes = {
-        (e.get("jornada"), e.get("num_partido")) for e in existentes
+    # Identidad: (temporada, jornada, partido). Solo por numero, una sorpresa
+    # de la J5 de una temporada taparia para siempre la J5 de la siguiente.
+    claves_existentes = {clave_entrada(e) for e in existentes}
+    # Fallos de fijo ya guardados, reconocibles aunque la temporada deducida
+    # hoy del fichero de jornada no coincida con la que se guardo en su dia.
+    diario_guardadas = {
+        clave_sin_temporada(e) for e in existentes if origen_entrada(e) == ORIGEN_DIARIO
     }
 
     nuevas_añadidas = []
     for s in sorpresas_nuevas:
-        clave = (s["jornada"], s["num_partido"])
+        if clave_sin_temporada(s) in diario_guardadas:
+            continue
+        clave = clave_entrada(s)
         if clave not in claves_existentes:
+            diario_guardadas.add(clave_sin_temporada(s))
             existentes.append(s)
             nuevas_añadidas.append(s)
             claves_existentes.add(clave)
 
     resultado = {
-        "version": "1.1",
+        "version": "1.2",
         "generado_en": datetime.now(timezone.utc).isoformat(),
         "total_sorpresas": len(existentes),
         "descripcion": (
-            "Casos reales donde el motor predijo FIJO y el resultado fue diferente. "
+            "Sorpresas reales, con dos origenes: 'diario_aprendizaje_fallo_fijo' (el motor "
+            "predijo FIJO y fallo) y 'mercado_favorito_no_gano' (el favorito claro del "
+            "mercado no gano; lo escribe actualizar_aprendizaje_ia). "
             "Usados por reforzar_ajuste_por_memoria_sorpresas() para amplificar "
             "ajustes motivacionales un 20% cuando hay >=3 casos similares."
         ),
@@ -239,7 +379,7 @@ def main():
 
     print(f"  Casos nuevos añadidos: {len(nuevas_añadidas)}")
     if descartadas:
-        print(f"  Entradas de un esquema/dominio anterior descartadas: {descartadas}")
+        print(f"  Entradas sin jornada o sin numero de partido descartadas: {descartadas}")
     print(f"  Total sorpresas en memoria: {len(existentes)}")
     by_cat = {}
     for s in existentes:

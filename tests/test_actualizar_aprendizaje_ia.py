@@ -288,10 +288,6 @@ class UmbralProbabilidadSorpresaTests(unittest.TestCase):
         self.assertEqual(nuevas, 0)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class OrdenCronologicoJornadaTests(unittest.TestCase):
     """Bug real (18/08/2026): el detalle de revisiones se recorta a las
     ultimas 250 entradas dando por hecho que "ultimas" == "numero mas alto".

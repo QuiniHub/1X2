@@ -84,12 +84,30 @@ def detectar_jornada_activa():
     jornada = numero_jornada(ultima.get("jornada"))
     if jornada and (PREDICCIONES / f"jornada_{jornada}.json").exists():
         return jornada
-    jornadas = []
+    # Respaldo si falta el espejo de la jornada de ultima_prediccion: la
+    # prediccion MAS RECIENTE POR FECHA (generado_en), nunca la de numero mas
+    # alto: en data/predicciones conviven J1-J25 de la 26/27 con J61-J76 de la
+    # 25/26 y max(numero) devolvia la J76 de la temporada pasada.
+    mejor = None
     for path in PREDICCIONES.glob("jornada_*.json"):
         n = numero_jornada(path.stem)
-        if n:
-            jornadas.append(n)
-    return max(jornadas) if jornadas else None
+        if not n:
+            continue
+        generado = _instante(cargar_json(path, {}).get("generado_en"))
+        if generado is None:
+            continue
+        if mejor is None or generado > mejor[0]:
+            mejor = (generado, n)
+    return mejor[1] if mejor else None
+
+
+def _instante(texto):
+    """ISO 'generado_en' -> datetime con zona (UTC si no la trae); None si no parsea."""
+    try:
+        valor = datetime.fromisoformat(str(texto or "").strip().replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return valor if valor.tzinfo else valor.replace(tzinfo=timezone.utc)
 
 
 def rutas_prediccion_actual():

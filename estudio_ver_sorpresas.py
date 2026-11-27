@@ -82,7 +82,27 @@ de señal": este estudio NO toca senal_valiente.py.
 Avisos de honestidad incorporados al JSON:
  - equipos_x_fiabilidad.json incluye los pocos partidos ya jugados de 26/27
    en su x_pct (fuga minima: ~8 de ~120 pj por equipo); se usa igual y se
-   declara.
+   declara. Esto vale para A6 (empatadores). NO vale para A7: ver abajo.
+
+CORRECCIONES DE LA AUDITORIA DEL 26/11/2026 (leer antes de usar un veredicto):
+ - Dataset A: las probabilidades y el favorito del motor salen ahora del
+   snapshot pre-cierre (data/backtesting/pre_cierre/jornada_N.json, campo
+   prediccion), no de historial_permanente.json. Ese fichero se rellena con
+   data/predicciones/jornada_N.json, que se regeneraba DESPUES del cierre: en
+   26/27 solo 79 de 364 filas coincidian con lo que se dijo antes del cierre.
+   Las filas sin snapshot valido de su jornada quedan fuera. Todo veredicto
+   A1-A10 y C5 calculado antes de esta correccion queda INVALIDADO hasta
+   repetir el estudio.
+ - Orden y temporada por FECHA real (cronologia_jornadas): J75 y J76 de agosto
+   de 2026 son de la 25/26, no de la 26/27.
+ - A7 (nemesis) queda DESCARTADA: la etiqueta 'nemesis' sale de nuestro % de
+   acierto por equipo calculado con casi los mismos partidos que luego se
+   miden, y con jornadas posteriores a cada fila (circular y con fuga). No es
+   la 'fuga minima' de A6. Segun la auditoria del 26/11, recalculada walk-forward no da nada; aqui NO se
+   ha vuelto a medir: el descarte se sostiene solo por la circularidad.
+ - A2 mide 'no gana el favorito del MOTOR'. Eso NO dice que gane el favorito
+   del MERCADO: se anade la metrica A2b con lo que hace el favorito del
+   mercado cuando discrepan, frente a su probabilidad implicita.
  - El archivo H2H agregado solo se aplica a filas 26/27 (A8); en el dataset B
    el H2H se recalcula acumulado y limpio (B5).
 
@@ -94,9 +114,10 @@ import json
 import random
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
+import cronologia_jornadas
 from modelo_dixon_coles import clave_equipo
 from motor_prediccion_quiniela import clave_par_equipos_h2h
 
@@ -109,6 +130,17 @@ ESTUDIO_X = DATA / "memoria_ia" / "equipos_x_fiabilidad.json"
 HISTORIAL_H2H = DATA / "memoria_ia" / "historial_enfrentamientos.json"
 PORCENTAJES_LAE_DIR = DATA / "memoria_ia" / "porcentajes_lae"
 PRE_CIERRE_DIR = DATA / "backtesting" / "pre_cierre"
+JORNADAS_DIR = DATA / "jornadas"
+
+# Auditoria 26/11: features invalidadas por diseno (no por falta de muestra).
+FEATURES_INVALIDADAS = {
+    "A7_nemesis_en_partido": (
+        "DESCARTADA: circular y con fuga de futuro. El conjunto 'nemesis' sale de "
+        "nuestro % de acierto por equipo (equipos_x_fiabilidad.json, parte B), calculado "
+        "con casi los mismos partidos que mide esta feature y con jornadas posteriores a "
+        "cada fila. La auditoria del 26/11 indica que recalculada walk-forward (solo entradas anteriores a cada fila) no da senal; este estudio no lo ha recalculado."
+    ),
+}
 SALIDA = DATA / "memoria_ia" / "estudio_ver_sorpresas.json"
 
 SIGNOS = ("1", "X", "2")
@@ -251,14 +283,67 @@ def medir_feature(filas, tiene_feature, etiqueta, descripcion):
 # Dataset A: partidos evaluados por el motor
 # ---------------------------------------------------------------------------
 
-def construir_dataset_motor(historial=None):
+def cargar_predicciones_cierre():
+    """{jornada: prediccion} de los snapshots pre-cierre que cronologia_jornadas
+    reconoce como de la MISMA jornada real que data/jornadas/jornada_N.json."""
+    cierre = {}
+    for ruta in sorted(PRE_CIERRE_DIR.glob("jornada_*.json")):
+        m = re.search(r"(\d+)", ruta.stem)
+        if not m:
+            continue
+        numero = int(m.group(1))
+        prediccion = cronologia_jornadas.prediccion_del_cierre(numero, PRE_CIERRE_DIR, JORNADAS_DIR)
+        if isinstance(prediccion, dict) and prediccion.get("partidos"):
+            cierre[numero] = prediccion
+    return cierre
+
+
+def _partido_del_cierre(cierre, fila_historial):
+    """Partido del snapshot pre-cierre que corresponde a la fila (mismo numero
+    de jornada, mismo num Y mismos equipos). None si no hay."""
+    try:
+        prediccion = cierre.get(int(fila_historial.get("jornada")))
+        num = int(fila_historial.get("num"))
+    except (TypeError, ValueError):
+        return None
+    for partido in (prediccion or {}).get("partidos") or []:
+        try:
+            if int(partido.get("num")) != num:
+                continue
+        except (TypeError, ValueError):
+            continue
+        if (cronologia_jornadas.mismo_equipo(partido.get("local"), fila_historial.get("local"))
+                and cronologia_jornadas.mismo_equipo(partido.get("visitante"), fila_historial.get("visitante"))):
+            return partido
+        return None  # mismo numero de jornada pero otra temporada
+    return None
+
+
+def construir_dataset_motor(historial=None, cierre=None):
     """Filas del motor con probabilidades validas y resultado oficial,
-    ordenadas cronologicamente (temporada, jornada: la numeracion se reinicia
-    cada temporada, jamas se ordena por numero a secas)."""
+    ordenadas cronologicamente por FECHA real.
+
+    `cierre` = {jornada: prediccion del snapshot pre-cierre}. Cuando se da (o
+    cuando el estudio corre sobre los datos reales, historial=None), las
+    probabilidades y el favorito de cada fila son los del snapshot pre-cierre
+    y las filas sin snapshot de su jornada quedan FUERA (auditoria 26/11: las
+    de historial_permanente.json venian de data/predicciones, regenerado
+    despues del cierre). Con un historial explicito y sin `cierre` se usan las
+    probabilidades del propio historial (tests y usos sueltos).
+    """
+    if historial is None and cierre is None:
+        cierre = cargar_predicciones_cierre()
     historial = historial if historial is not None else cargar_json(HISTORIAL_PERMANENTE, {})
     filas = []
     for p in historial.get("partidos") or []:
         probs = p.get("probabilidades") or {}
+        fuente_probs = "historial_permanente"
+        if cierre is not None:
+            partido_cierre = _partido_del_cierre(cierre, p)
+            if partido_cierre is None:
+                continue
+            probs = partido_cierre.get("probabilidades") or {}
+            fuente_probs = "snapshot_pre_cierre"
         signo_real = str(p.get("signo_real") or "").upper()
         if signo_real not in SIGNOS:
             continue
@@ -269,13 +354,24 @@ def construir_dataset_motor(historial=None):
         if sum(valores.values()) < 50:  # probabilidades rotas o vacias
             continue
         favorito = favorito_de(valores)
+        fecha = parsear_fecha(p.get("fecha"))
+        temporada = p.get("temporada")
+        if fecha is not None:
+            # Temporada de La Quiniela por fecha real: historial_permanente
+            # corta el 1 de agosto y etiqueta J75/J76 de la 25/26 como 26/27.
+            try:
+                numero = int(p.get("jornada"))
+            except (TypeError, ValueError):
+                numero = None
+            temporada = cronologia_jornadas.temporada_de_fecha(fecha, numero) or temporada
         filas.append({
-            "temporada": p.get("temporada"),
+            "temporada": temporada,
             "jornada": p.get("jornada"),
             "num": p.get("num"),
             "local": p.get("local"),
             "visitante": p.get("visitante"),
-            "fecha": parsear_fecha(p.get("fecha")),
+            "fecha": fecha,
+            "fuente_probs": fuente_probs,
             "probs": valores,
             "favorito": favorito,
             "prob_favorito": valores[favorito],
@@ -283,25 +379,84 @@ def construir_dataset_motor(historial=None):
             "sorpresa": signo_real != favorito,
             "sorpresa_maxima": signo_real == tercer_signo_de(valores),
         })
-    filas.sort(key=lambda f: (str(f["temporada"]), int(f["jornada"] or 0), int(f["num"] or 0)))
+    # Orden por FECHA real (las filas sin fecha, al principio, por temporada y
+    # jornada). Nunca por numero de jornada a secas.
+    filas.sort(key=lambda f: (f["fecha"] or date.min, str(f["temporada"]),
+                              int(f["jornada"] or 0), int(f["num"] or 0)))
     return filas
 
 
-def cargar_masa_lae(etiqueta="2026_2027", hasta=60):
-    """{(jornada, num): {signo: pct}} de los archivos versionados de % LAE."""
-    masa = {}
+def cargar_masa_lae(etiqueta="2026_2027", hasta=None, con_equipos=False):
+    """{(jornada, num): {signo: pct}} de los archivos versionados de % LAE.
+
+    Recorre todos los jornada_*.json de la temporada (auditoria 26/11: antes
+    era range(1, 61) y dejaba fuera sin avisar las jornadas 61 en adelante).
+    Con con_equipos=True devuelve ademas {(jornada, num): (local, visitante)}
+    para poder comprobar que masa y fila son el mismo partido.
+    """
+    masa, equipos = {}, {}
     base = PORCENTAJES_LAE_DIR / etiqueta
-    for jornada in range(1, hasta + 1):
-        datos = cargar_json(base / f"jornada_{jornada}.json")
+    for ruta in sorted(base.glob("jornada_*.json")):
+        m = re.search(r"(\d+)", ruta.stem)
+        if not m:
+            continue
+        jornada = int(m.group(1))
+        if hasta is not None and jornada > hasta:
+            continue
+        datos = cargar_json(ruta)
         if not datos:
             continue
         for p in datos.get("partidos") or []:
             pct = p.get("porcentajes") or {}
             try:
-                masa[(jornada, int(p.get("numero")))] = {s: float(pct.get(s)) for s in SIGNOS}
+                clave = (jornada, int(p.get("numero")))
+                masa[clave] = {s: float(pct.get(s)) for s in SIGNOS}
             except (TypeError, ValueError):
                 continue
-    return masa
+            equipos[clave] = (p.get("local"), p.get("visitante"))
+    return (masa, equipos) if con_equipos else masa
+
+
+def favorito_mercado_cuando_discrepan(filas, mercado_de):
+    """A2b: que pasa cuando el favorito del motor y el del mercado difieren.
+
+    A2 mide 'no gana el favorito del MOTOR', que incluye los casos en que
+    gana el tercer signo. La senal favorito_distinto_mercado apuesta por el
+    favorito del MERCADO: la metrica que le corresponde es cuantas veces gana
+    ESE signo, frente a la probabilidad que el propio mercado le daba.
+    """
+    n = gana_motor = gana_mercado = 0
+    suma_prob_mercado = 0.0
+    for f in filas:
+        m = mercado_de(f)
+        if m is None:
+            continue
+        fav_mercado = favorito_de(m)
+        if fav_mercado == f["favorito"]:
+            continue
+        n += 1
+        gana_motor += f["signo_real"] == f["favorito"]
+        gana_mercado += f["signo_real"] == fav_mercado
+        total = sum(float(m.get(s) or 0) for s in SIGNOS) or 1.0
+        suma_prob_mercado += 100.0 * float(m.get(fav_mercado) or 0) / total
+    otro = n - gana_motor - gana_mercado
+    return {
+        "metrica": "A2b_favorito_mercado_cuando_discrepan",
+        "descripcion": (
+            "Filas en las que el favorito del motor y el del mercado losilla pre-cierre "
+            "difieren: quien gana. Es la metrica que corresponde a la senal "
+            "favorito_distinto_mercado (que juega el favorito del MERCADO)."),
+        "n_discrepancias": n,
+        "gana_favorito_motor": gana_motor,
+        "gana_favorito_mercado": gana_mercado,
+        "gana_el_otro_signo": otro,
+        "pct_gana_favorito_mercado": round(100 * gana_mercado / n, 1) if n else None,
+        "pct_gana_favorito_motor": round(100 * gana_motor / n, 1) if n else None,
+        "prob_implicita_media_favorito_mercado_pct": round(suma_prob_mercado / n, 1) if n else None,
+        "lectura": (
+            "Que el favorito del motor caiga no equivale a que acierte el del mercado: "
+            "comparar pct_gana_favorito_mercado con su probabilidad implicita media."),
+    }
 
 
 def cargar_mercado_pre_cierre():
@@ -354,14 +509,14 @@ def rachas_previas_por_fila(filas):
 
 def analizar_dataset_motor():
     filas = construir_dataset_motor()
-    masa = cargar_masa_lae()
+    masa, equipos_masa = cargar_masa_lae(con_equipos=True)
     mercado = cargar_mercado_pre_cierre()
     estudio_x = cargar_json(ESTUDIO_X, {}) or {}
     empatadores = {f.get("equipo") for f in estudio_x.get("equipos_empatadores") or []
                    if (f.get("x_pct") or 0) >= EMPATADOR_X_PCT}
     nemesis = {f.get("equipo") for f in estudio_x.get("fiabilidad_nuestra_por_equipo") or []
                if (f.get("apariciones") or 0) >= NEMESIS_APARICIONES_MIN
-               and (f.get("acierto_pct") or 100) <= NEMESIS_ACIERTO_MAX}
+               and (f.get("acierto_pct") if f.get("acierto_pct") is not None else 100) <= NEMESIS_ACIERTO_MAX}
     h2h = (cargar_json(HISTORIAL_H2H, {}) or {}).get("enfrentamientos") or {}
     rachas = rachas_previas_por_fila(filas)
     for f, racha in zip(filas, rachas):
@@ -370,7 +525,14 @@ def analizar_dataset_motor():
     def masa_de(f):
         if f["temporada"] != "2026_2027":
             return None
-        return masa.get((f["jornada"], f["num"]))
+        clave = (f["jornada"], f["num"])
+        local, visitante = equipos_masa.get(clave) or (None, None)
+        if local and visitante and not (
+            cronologia_jornadas.mismo_equipo(local, f["local"])
+            or cronologia_jornadas.mismo_equipo(visitante, f["visitante"])
+        ):
+            return None  # mismo (jornada, num) pero otro partido
+        return masa.get(clave)
 
     def mercado_de(f):
         if f["temporada"] != "2026_2027":
@@ -452,10 +614,22 @@ def analizar_dataset_motor():
         medir_feature(filas, f_entre_semana, "A10_entre_semana",
                       "Partido en martes-jueves vs resto (solo filas con fecha por partido)."),
     ]
+    for feature in features:
+        motivo = FEATURES_INVALIDADAS.get(feature["feature"])
+        if motivo:
+            feature["veredicto_sin_corregir"] = feature.get("veredicto")
+            feature["veredicto"] = "DESCARTADA"
+            feature["invalidada"] = True
+            feature["motivo_invalidacion"] = motivo
     n = len(filas)
+    fuentes = {}
+    for f in filas:
+        fuentes[f.get("fuente_probs")] = fuentes.get(f.get("fuente_probs"), 0) + 1
     return filas, {
         "partidos": n,
-        "temporadas": sorted({f["temporada"] for f in filas}),
+        "fuente_probabilidades": fuentes,
+        "metricas_complementarias": [favorito_mercado_cuando_discrepan(filas, mercado_de)],
+        "temporadas": sorted({str(f["temporada"]) for f in filas}),
         "tasa_sorpresa_base_pct": round(100 * sum(f["sorpresa"] for f in filas) / n, 1) if n else None,
         "tasa_sorpresa_maxima_pct": round(100 * sum(f["sorpresa_maxima"] for f in filas) / n, 1) if n else None,
         "features": features,
@@ -856,9 +1030,21 @@ def analizar():
                 "Con ~14 contrastes, un falso positivo a 2 SE es esperable: ninguna "
                 "candidata se integra sin su propio backtest de señal prerregistrado."),
             "avisos_fuga": [
-                "equipos_x_fiabilidad.json incluye los pocos partidos ya jugados de 26/27 (fuga minima declarada en A6/A7).",
+                "equipos_x_fiabilidad.json incluye los pocos partidos ya jugados de 26/27 (fuga minima declarada en A6).",
+                "A7 (nemesis) NO es fuga minima: es circular y mira el futuro; queda DESCARTADA.",
                 "El archivo H2H agregado solo se aplica a filas 26/27 (A8); en B5 se recalcula acumulado y limpio.",
             ],
+        },
+        "auditoria_2611": {
+            "fuente_dataset_a": (
+                "Probabilidades y favorito del motor tomados del snapshot pre-cierre de cada "
+                "jornada (data/backtesting/pre_cierre), no de historial_permanente.json."),
+            "invalidado": [
+                "Cualquier veredicto A1-A10 y C5 calculado ANTES del 27/11/2026: usaba probabilidades regeneradas despues del cierre.",
+                "A2 como respaldo de la senal favorito_distinto_mercado: mide la caida del favorito del MOTOR, no el acierto del favorito del MERCADO (ver A2b en dataset_motor.metricas_complementarias).",
+                "A7 nemesis como candidata: circular y con fuga; descartada.",
+            ],
+            "features_invalidadas": FEATURES_INVALIDADAS,
         },
         "dataset_motor": bloque_a,
         "dataset_cuotas": bloque_b,

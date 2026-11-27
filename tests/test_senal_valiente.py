@@ -11,6 +11,31 @@ import senal_valiente as sv
 from motor_prediccion_quiniela import clave_par_equipos_h2h
 
 
+_TMP_BACKTEST = None
+_BACKTEST_ORIGINAL = None
+
+
+def setUpModule():
+    # construir_bloque_valiente incrusta la advertencia del backtest leyendo
+    # sv.BACKTEST (data/memoria_ia/backtest_valiente.json). Los tests del
+    # bloque usan una copia fija para no depender del fichero del repo. Los
+    # dos tests que comprueban que el backtest REAL esta documentado lo leen
+    # a proposito por su ruta (ROOT / data / ...), no por sv.BACKTEST.
+    global _TMP_BACKTEST, _BACKTEST_ORIGINAL
+    _TMP_BACKTEST = tempfile.TemporaryDirectory()
+    ruta = Path(_TMP_BACKTEST.name) / "backtest_valiente.json"
+    ruta.write_text(json.dumps({"resumen": {
+        "valientes": 9, "aciertos": 4, "esperados": 3.1, "veredicto": "Fixture de test.",
+    }}), encoding="utf-8")
+    _BACKTEST_ORIGINAL = sv.BACKTEST
+    sv.BACKTEST = ruta
+
+
+def tearDownModule():
+    sv.BACKTEST = _BACKTEST_ORIGINAL
+    _TMP_BACKTEST.cleanup()
+
+
 def _partido(num=1, local="Cadiz CF", visitante="Levante UD",
              probs=None, fecha="2026-10-17", **extra):
     return {
@@ -244,10 +269,13 @@ class VetosV2Tests(unittest.TestCase):
         self.assertEqual(vetos, [])
 
     def test_casos_reales_j3_y_j12_quedarian_vetados(self):
-        # Con los datos REALES del repo: Madrid-Malaga (J3) y Betis-Osasuna
-        # (J12), los dos fallos que señalo Marc, caen cada uno por su veto.
-        estudio = json.loads(
-            (ROOT / "data" / "memoria_ia" / "equipos_x_fiabilidad.json").read_text(encoding="utf-8-sig"))
+        # Madrid-Malaga (J3) y Betis-Osasuna (J12), los dos fallos que señalo
+        # Marc, caen cada uno por su veto. El estudio es una FOTO FIJA de lo
+        # que decia equipos_x_fiabilidad.json el dia del prerregistro v2
+        # (Madrid 15,6% de X): antes se leia el fichero vivo, que el pipeline
+        # regenera, y con unos empates mas del Madrid (umbral 18%) el test
+        # habria tumbado el CI sin que el codigo cambiase (auditoria 26/11).
+        estudio = self._estudio_madrid()
         j3 = _partido(local="Real Madrid CF", visitante="Malaga CF",
                       probs={"1": 53.5, "X": 33.2, "2": 13.3})
         j12 = _partido(local="Real Betis Balompie", visitante="CA Osasuna",
@@ -343,39 +371,78 @@ class BloqueValienteTests(unittest.TestCase):
 
 
 class MarcadorValienteTests(unittest.TestCase):
+    """El marcador lee el bloque del snapshot PRE-CIERRE
+    (data/backtesting/pre_cierre) y solo de jornadas cerradas (14 signos);
+    el espejo data/predicciones/jornada_N.json ya no se lee porque se
+    regenera despues del cierre (auditoria 26/11)."""
+
+    RELLENO = [
+        ("Real Madrid CF", "Getafe CF"), ("Sevilla FC", "Valencia CF"),
+        ("Athletic Club", "Girona FC"), ("Real Sociedad", "RCD Mallorca"),
+        ("Cadiz CF", "Levante UD"), ("Villarreal CF", "RC Celta"),
+        ("CA Osasuna", "Elche CF"), ("Real Betis Balompie", "RCD Espanyol"),
+        ("Real Oviedo", "Albacete BP"), ("Burgos CF", "CD Mirandes"),
+        ("SD Eibar", "Granada CF"), ("UD Almeria", "CD Tenerife"),
+        ("Real Zaragoza", "SD Huesca"), ("Malaga CF", "Cordoba CF"),
+    ]
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         base = Path(self.tmp.name)
         self.dir_pred = base / "predicciones"
         self.dir_jorn = base / "jornadas"
+        self.dir_snap = base / "pre_cierre"
         self.ruta = base / "marcador_valiente.json"
         self.dir_pred.mkdir()
         self.dir_jorn.mkdir()
+        self.dir_snap.mkdir()
 
     def tearDown(self):
         self.tmp.cleanup()
 
-    def _escribir(self, jornada=20, signo_oficial="X", local="Cadiz CF",
-                  visitante="Levante UD", local_fixture=None, visitante_fixture=None):
+    def _escribir(self, jornada=20, signo_oficial="X", snapshot=True,
+                  snapshot_de_otra_temporada=False):
+        local, visitante = self.RELLENO[4]
         bloque = {
             "estado": "ok", "modo": "sombra", "jornada": jornada, "num": 5,
             "local": local, "visitante": visitante, "signo": "X",
             "prob_motor": 32.0, "masa_pct": 16.0,
             "senales": [{"tipo": "empatador", "texto": "..."}],
         }
-        (self.dir_pred / f"jornada_{jornada}.json").write_text(
-            json.dumps({"jornada": jornada, "valiente": bloque}), encoding="utf-8")
+        partidos = [
+            {"num": i, "local": loc, "visitante": vis, "fecha": "2026-10-17",
+             "signo_oficial": signo_oficial if i == 5 else "1"}
+            for i, (loc, vis) in enumerate(self.RELLENO, start=1)
+        ]
         (self.dir_jorn / f"jornada_{jornada}.json").write_text(json.dumps({
-            "jornada": jornada,
-            "partidos": [{"num": 5, "local": local_fixture or local,
-                          "visitante": visitante_fixture or visitante,
-                          "signo_oficial": signo_oficial}],
+            "jornada": jornada, "fecha": "2026-10-17", "partidos": partidos,
         }), encoding="utf-8")
+        if not snapshot:
+            return bloque
+        if snapshot_de_otra_temporada:
+            # mismo numero de jornada, pero otros 14 partidos y otra fecha
+            pares = [(f"Equipo Viejo {chr(65 + i)}", f"Rival Viejo {chr(65 + i)}") for i in range(14)]
+            primer = "2025-10-18T14:00:00+00:00"
+        else:
+            pares = self.RELLENO
+            primer = "2026-10-17T12:00:00+00:00"
+        (self.dir_snap / f"jornada_{jornada}.json").write_text(json.dumps({
+            "jornada": jornada,
+            "primer_partido_utc": primer,
+            "prediccion": {
+                "jornada": jornada,
+                "partidos": [{"num": i, "local": loc, "visitante": vis}
+                             for i, (loc, vis) in enumerate(pares, start=1)],
+                "valiente": bloque,
+            },
+        }), encoding="utf-8")
+        return bloque
 
     def _actualizar(self):
         return sv.actualizar_marcador_valiente(
             dir_predicciones=self.dir_pred, dir_jornadas=self.dir_jorn,
-            ruta_marcador=self.ruta, etiqueta="2026_2027")
+            ruta_marcador=self.ruta, etiqueta="2026_2027",
+            dir_snapshots=self.dir_snap)
 
     def test_registra_acierto_con_pago_hipotetico(self):
         self._escribir(signo_oficial="X")
@@ -400,10 +467,27 @@ class MarcadorValienteTests(unittest.TestCase):
         self._escribir(signo_oficial="Pendiente")
         self.assertEqual(self._actualizar()["nuevas"], 0)
 
-    def test_nombres_de_otra_temporada_no_puntuan(self):
-        # mismo num y jornada pero NINGUN nombre casa: fixture de otra epoca
-        self._escribir(local_fixture="Real Zaragoza", visitante_fixture="SD Huesca")
+    def test_snapshot_de_otra_temporada_no_puntua(self):
+        # mismo numero de jornada pero el snapshot es de otra epoca (otros
+        # equipos y otra fecha): la numeracion se reinicia cada temporada.
+        self._escribir(snapshot_de_otra_temporada=True)
         self.assertEqual(self._actualizar()["nuevas"], 0)
+
+    def test_sin_snapshot_pre_cierre_no_se_registra_aunque_exista_el_espejo(self):
+        # El espejo data/predicciones/jornada_N.json se regenera despues del
+        # cierre: un bloque que solo esta ahi no es "lo que se dijo antes".
+        bloque = self._escribir(snapshot=False)
+        (self.dir_pred / "jornada_20.json").write_text(
+            json.dumps({"jornada": 20, "valiente": bloque}), encoding="utf-8")
+        self.assertEqual(self._actualizar()["nuevas"], 0)
+
+    def test_la_temporada_sale_de_la_fecha_de_la_jornada(self):
+        self._escribir()
+        sv.actualizar_marcador_valiente(
+            dir_jornadas=self.dir_jorn, ruta_marcador=self.ruta,
+            etiqueta="1999_2000", dir_snapshots=self.dir_snap)
+        marcador = json.loads(self.ruta.read_text(encoding="utf-8"))
+        self.assertEqual(marcador["valientes"][0]["temporada"], "2026_2027")
 
     def test_fallo_registra_pago_cero(self):
         self._escribir(signo_oficial="1")
@@ -468,10 +552,6 @@ class PipelineTests(unittest.TestCase):
         resumen = datos["resumen"]
         for campo in ("valientes", "aciertos", "esperados", "veredicto"):
             self.assertIn(campo, resumen)
-
-
-if __name__ == "__main__":
-    unittest.main()
 
 
 class SenalFavoritoMercadoTests(unittest.TestCase):
@@ -549,3 +629,7 @@ class PalpitosV3Tests(unittest.TestCase):
                                 palpitos[1]["ventaja_sobre_masa"])
         for i, p in enumerate(palpitos, start=1):
             self.assertEqual(p["orden"], i)
+
+
+if __name__ == "__main__":
+    unittest.main()

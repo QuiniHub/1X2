@@ -123,15 +123,79 @@ def es_jornada_europea(partidos, espanoles=None):
     return extranjeros >= MIN_PARTIDOS_EXTRANJEROS, extranjeros
 
 
-def cargar_masa(jornada, etiqueta=None):
-    """{num: {'1':..,'X':..,'2':..}} de porcentajes_lae/<temporada>/jornada_N.json."""
-    carpetas = [PORCENTAJES_DIR / etiqueta] if etiqueta else sorted(PORCENTAJES_DIR.glob("*"), reverse=True)
-    for carpeta in carpetas:
-        datos = cargar_json(carpeta / f"jornada_{jornada}.json")
-        if datos and datos.get("jornada") == jornada:
-            return {p["numero"]: {s: float(p["porcentajes"].get(s, 0)) for s in SIGNOS}
-                    for p in datos.get("partidos", []) if p.get("porcentajes")}
-    return {}
+def prediccion_publicable(prediccion):
+    """True si el pipeline permite publicar sobre esta prediccion (misma
+    guarda que La Valiente: prediccion_disponible y prediccion_permitida)."""
+    return bool(prediccion and prediccion.get("prediccion_disponible") and prediccion.get("prediccion_permitida"))
+
+
+def publicar_bloque_sombra(clave, bloque, prediccion, ruta_prediccion, dir_predicciones=None):
+    """Escribe (o RETIRA, si bloque es None) el bloque `clave` en
+    ultima_prediccion.json y en el espejo jornada_N.json de la misma jornada.
+
+    Auditoria 26/11: ranker_favoritos y elige8_ev publicaban su bloque aunque
+    la prediccion estuviera bloqueada, y si el bloque nuevo no era 'ok' se
+    quedaba en disco el de la ejecucion anterior. Devuelve los ficheros
+    cambiados."""
+    ruta_prediccion = Path(ruta_prediccion)
+    dir_predicciones = Path(dir_predicciones) if dir_predicciones else ruta_prediccion.parent
+    jornada = prediccion.get("jornada")
+    cambiados = []
+    destinos = [(ruta_prediccion, prediccion)]
+    espejo = dir_predicciones / f"jornada_{jornada}.json"
+    if isinstance(jornada, int) and espejo.exists():
+        datos = cargar_json(espejo, {}) or {}
+        if datos.get("jornada") == jornada:
+            destinos.append((espejo, datos))
+    for ruta, datos in destinos:
+        if bloque is None:
+            if clave not in datos:
+                continue
+            datos.pop(clave)
+        else:
+            datos[clave] = bloque
+        guardar_json(ruta, datos)
+        cambiados.append(ruta.name)
+    return cambiados
+
+
+def etiqueta_de_jornada(jornada, dir_jornadas=None):
+    """'2026_2027' de data/jornadas/jornada_N.json segun su FECHA real (nunca
+    segun el numero ni segun now()). None si no hay fichero o no trae fecha."""
+    import cronologia_jornadas as cj
+    try:
+        datos = cj.cargar_jornada(jornada, dir_jornadas or JORNADAS_DIR)
+    except (TypeError, ValueError):
+        return None
+    fecha = cj.fecha_real_jornada(datos) if datos else None
+    return cj.temporada_de_fecha(fecha, jornada) if fecha else None
+
+
+def cargar_masa(jornada, etiqueta=None, partidos=None):
+    """{num: {'1':..,'X':..,'2':..}} de porcentajes_lae/<temporada>/jornada_N.json.
+
+    Auditoria 26/11: sin etiqueta se buscaba jornada_N en CUALQUIER temporada
+    (la mas reciente primero) y al empezar la 27/28 habria devuelto la masa de
+    la J-N de la 26/27, que es otro partido. Ahora la temporada sale de la
+    fecha real de la jornada y no hay salto a otras temporadas: si no hay
+    masa de ESTA jornada se devuelve {} (masa_de ya cae a mercado_losilla).
+    Si se pasan los `partidos` de la prediccion se comprueba ademas que los
+    equipos del fichero de masa son los mismos."""
+    etiqueta = etiqueta or etiqueta_de_jornada(jornada)
+    if not etiqueta:
+        return {}
+    datos = cargar_json(PORCENTAJES_DIR / etiqueta / f"jornada_{jornada}.json")
+    if not datos or datos.get("jornada") != jornada:
+        return {}
+    if partidos:
+        import cronologia_jornadas as cj
+        coinciden, comparables = cj.coincidencia_equipos(datos, {"partidos": list(partidos)})
+        # Medido en J1-J25: la masa de su jornada casa >= 10 de 14 equipos y
+        # dos jornadas distintas nunca comparten 3 partidos.
+        if comparables >= cj.UMBRAL_PARTIDOS_IGUALES and coinciden < 3:
+            return {}
+    return {p["numero"]: {s: float(p["porcentajes"].get(s, 0)) for s in SIGNOS}
+            for p in datos.get("partidos", []) if p.get("porcentajes")}
 
 
 def masa_de(partido, masa):
@@ -237,7 +301,7 @@ def construir_bloque(prediccion, masa=None, espanoles=None):
         return {**base, "estado": "no_aplica", "partidos_extranjeros": extranjeros,
                 "motivo": f"jornada domestica ({extranjeros} partidos con equipo extranjero): las reglas se midieron "
                           f"solo en semanas europeas y no se extrapolan"}
-    masa = masa if masa is not None else cargar_masa(jornada)
+    masa = masa if masa is not None else cargar_masa(jornada, partidos=partidos)
     columna, columna_masa, cambios, descartes, gigantes = construir_columna(
         partidos, masa, espanoles, prediccion.get("sorpresa_nombrada"))
     orden = sorted(columna)
@@ -306,23 +370,25 @@ def evaluar(bloque, reales):
             "cambios": cambios}
 
 
-def actualizar_marcador(dir_predicciones=None, dir_jornadas=None, ruta_marcador=None, etiqueta=None, ahora=None):
-    """Registra cada jornada europea cerrada una sola vez (idempotente)."""
-    from actualizar_porcentajes_lae import temporada_etiqueta
-    dir_predicciones = dir_predicciones or PREDICCIONES_DIR
-    dir_jornadas = dir_jornadas or JORNADAS_DIR
+def actualizar_marcador(dir_predicciones=None, dir_jornadas=None, ruta_marcador=None, etiqueta=None, ahora=None,
+                        dir_snapshots=None):
+    """Registra cada jornada europea cerrada una sola vez (idempotente).
+
+    Auditoria 26/11: el bloque se lee del snapshot PRE-CIERRE (no del espejo
+    data/predicciones, que se reescribe con la jornada en juego) y la
+    temporada sale de la fecha de la jornada, no de now(). dir_predicciones
+    se conserva en la firma pero ya no se lee."""
+    from senal_valiente import bloques_del_cierre
+    dir_jornadas = Path(dir_jornadas or JORNADAS_DIR)
     ruta_marcador = ruta_marcador or MARCADOR
     ahora = ahora or datetime.now(timezone.utc)
-    etiqueta = etiqueta or temporada_etiqueta(ahora)
     marcador = cargar_json(ruta_marcador, {}) or {}
     registros = marcador.get("registros", [])
     vistos = {(r.get("temporada"), r.get("jornada")) for r in registros}
     nuevas = 0
-    for ruta in sorted(Path(dir_predicciones).glob("jornada_*.json")):
-        datos = cargar_json(ruta, {}) or {}
-        bloque = datos.get("columna_valiente")
-        jornada = datos.get("jornada")
-        if not bloque or bloque.get("estado") != "ok" or (etiqueta, jornada) in vistos:
+    for etiqueta, jornada, bloque, _pred, _datos in bloques_del_cierre(
+            "columna_valiente", dir_jornadas, dir_snapshots, etiqueta):
+        if bloque.get("estado") != "ok" or (etiqueta, jornada) in vistos:
             continue
         reales = _signos_reales(jornada, dir_jornadas)
         if not reales:

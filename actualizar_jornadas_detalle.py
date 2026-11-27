@@ -442,6 +442,25 @@ def jornadas_existentes():
     return sorted(numeros)
 
 
+def proximas_jornadas_por_fecha(cuantas=3):
+    """Numeros de las proximas jornadas a pedir al respaldo, por FECHA real.
+
+    Auditoria 26/11 (hallazgos 55, 132 y 143): se calculaba max(numero)+1 y,
+    como data/jornadas conserva jornada_28..76 de la 25/26, se pedian las
+    jornadas 77-79, que no existen. Ahora se parte de la ultima jornada por
+    fecha (cronologia_jornadas) y se piden las siguientes de esa temporada.
+    """
+    import cronologia_jornadas
+
+    con_fecha = [j for j in cronologia_jornadas.indice_jornadas(JORNADAS) if j["fecha"] is not None]
+    if not con_fecha:
+        # Sin ninguna fecha no hay cronologia posible: se empieza por la 1.
+        existentes = jornadas_existentes()
+        return [1] if not existentes else []
+    ultima = con_fecha[-1]["numero"]
+    return list(range(ultima + 1, ultima + 1 + cuantas))
+
+
 def fecha_iso(fecha):
     m = re.match(r"^(\d{2})/(\d{2})/(\d{4})$", fecha.strip())
     if not m:
@@ -660,6 +679,44 @@ def fusionar_con_existente(nuevo, existente):
     return nuevo
 
 
+def _fecha_y_temporada_jornada(data, numero):
+    import cronologia_jornadas
+
+    fecha = cronologia_jornadas.fecha_real_jornada(data) if isinstance(data, dict) else None
+    return fecha, (cronologia_jornadas.temporada_de_fecha(fecha, numero) if fecha else None)
+
+
+def existente_de_otra_temporada(nuevo, existente):
+    """True si el jornada_N.json en disco es de OTRA temporada que la jornada
+    que se va a guardar (mismo numero, otra jornada real). En ese caso no se
+    fusiona: los equipos y resultados del fichero viejo no son de esta
+    jornada (revision de la auditoria 26/11, hallazgo 55)."""
+    if not existente:
+        return False
+    numero = nuevo.get("jornada")
+    _fecha_nueva, temp_nueva = _fecha_y_temporada_jornada(nuevo, numero)
+    _fecha_vieja, temp_vieja = _fecha_y_temporada_jornada(existente, numero)
+    if not temp_nueva or not temp_vieja:
+        return False
+    return temp_nueva != temp_vieja
+
+
+def archivar_jornada_de_otra_temporada(path, existente, numero):
+    """Copia el fichero viejo a data/temporadas/<temporada>/jornadas/ antes de
+    que se sobrescriba con la jornada del mismo numero de la temporada nueva.
+    No pisa un archivo ya guardado. Devuelve la ruta o None."""
+    _fecha, temporada = _fecha_y_temporada_jornada(existente, numero)
+    if not temporada:
+        return None
+    destino = DATA / "temporadas" / temporada / "jornadas" / Path(path).name
+    if destino.exists():
+        return destino
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.write_bytes(Path(path).read_bytes())
+    print(f"Jornada {numero} de {temporada} archivada antes de sobrescribirla.")
+    return destino
+
+
 def jornada_a_json(jornada):
     items = sorted(jornada["items"], key=lambda p: p["num"])
     partidos = [p for p in items if p["num"] <= 14]
@@ -701,10 +758,8 @@ def main():
         print(f"No se pudo leer la fuente de proximas jornadas: {exc}")
         jornadas = []
 
-    existentes_nums = jornadas_existentes()
-    proxima = (max(existentes_nums) + 1) if existentes_nums else 1
     vistas = {j["jornada"] for j in jornadas}
-    for numero in range(proxima, proxima + 3):
+    for numero in proximas_jornadas_por_fecha():
         if numero in vistas:
             continue
         try:
@@ -729,7 +784,12 @@ def main():
     for jornada in jornadas:
         data = jornada_a_json(jornada)
         path = JORNADAS / f"jornada_{data['jornada']}.json"
-        data = fusionar_con_existente(data, cargar_json(path, {}))
+        existente = cargar_json(path, {})
+        if existente_de_otra_temporada(data, existente):
+            # Mismo numero, otra temporada: se archiva y NO se fusiona.
+            archivar_jornada_de_otra_temporada(path, existente, data['jornada'])
+            existente = {}
+        data = fusionar_con_existente(data, existente)
         guardar_json(path, data)
         actualizar_legado(data)
         creadas.append(data["jornada"])

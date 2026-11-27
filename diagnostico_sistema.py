@@ -1,7 +1,9 @@
 import json
 import re
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
+
+import cronologia_jornadas
 
 
 ROOT = Path(__file__).resolve().parent
@@ -84,6 +86,15 @@ def jornada_numero(path, data):
     return int(m.group(1)) if m else 0
 
 
+def orden_cronologico_prediccion(pred):
+    """Orden por FECHA real (primer partido y, si no, generado_en), nunca por
+    numero de jornada: en data/predicciones conviven J1-J25 de la 26/27 con
+    J61-J76 de la 25/26 (auditoria 26/11)."""
+    fecha = cronologia_jornadas.fecha_real_jornada(pred or {})
+    generado = cronologia_jornadas.parsear_fecha((pred or {}).get("generado_en"))
+    return (fecha or generado or date.min, str((pred or {}).get("generado_en") or ""))
+
+
 def ultima_prediccion():
     pred = cargar_json(DATA / "predicciones" / "ultima_prediccion.json", {})
     if pred:
@@ -93,7 +104,37 @@ def ultima_prediccion():
         data = cargar_json(path, {})
         if isinstance(data.get("jornada"), int):
             candidatas.append(data)
-    return max(candidatas, key=lambda item: item.get("jornada", 0), default={})
+    return max(candidatas, key=orden_cronologico_prediccion, default={})
+
+
+def mercado_losilla_activo(max_horas=72):
+    """(activo, detalle): hay probabilidades de mercado de Losilla recientes.
+
+    Auditoria 26/11: el diagnostico decia 'No hay cuotas reales integradas'
+    mirando solo datos_profesionales.json, cuando el motor ya usa el mercado
+    de Losilla (peso 0,85) como fuente de mercado.
+    """
+    fuente = cargar_json(MEMORIA / "fuente_losilla.json", {})
+    probabilidades = fuente.get("probabilidades") or {}
+    cuotas = fuente.get("cuotas") or {}
+    if not probabilidades and not cuotas:
+        return False, "fuente_losilla.json no trae probabilidades ni cuotas."
+    edad = edad_horas(fuente.get("actualizado_en"))
+    if edad is None or edad > max_horas:
+        return False, f"fuente_losilla.json sin actualizar desde hace {edad} horas."
+    return True, f"Mercado Losilla activo (actualizado hace {edad} h); es la fuente de mercado que usa el motor."
+
+
+def porcentajes_lae_activos():
+    """(activo, detalle): hay % de apostantes LAE versionados para alguna jornada."""
+    base = MEMORIA / "porcentajes_lae"
+    if not base.exists():
+        return False, "No existe data/memoria_ia/porcentajes_lae."
+    ficheros = sorted(base.glob("*/jornada_*.json"))
+    if not ficheros:
+        return False, "No hay ficheros de % de apostantes LAE."
+    temporadas = sorted({f.parent.name for f in ficheros})
+    return True, f"{len(ficheros)} jornadas con % de apostantes LAE versionados ({', '.join(temporadas)})."
 
 
 def fecha_orden_jornada(data):
@@ -349,6 +390,10 @@ def diagnosticar_fuentes(alertas):
         })
 
     cuotas_estado = estado_conector("cuotas")
+    losilla_ok, losilla_detalle = mercado_losilla_activo()
+    lae_ok, lae_detalle = porcentajes_lae_activos()
+    if not cuotas_estado.startswith("conectado") and losilla_ok:
+        cuotas_estado = "conectado_mercado_losilla"
     bajas_estado = estado_conector("bajas_estructuradas")
     alineaciones_estado = estado_conector("alineaciones_probables")
     calendario_estado = estado_conector("calendario_oficial", "pendiente_publicacion_o_api")
@@ -366,7 +411,9 @@ def diagnosticar_fuentes(alertas):
         "cuotas": {
             "estado": cuotas_estado,
             "detalle": (
-                f"{resumen_profesional.get('cuotas', 0)} partidos con cuotas 1X2 estructuradas."
+                losilla_detalle
+                if cuotas_estado == "conectado_mercado_losilla"
+                else f"{resumen_profesional.get('cuotas', 0)} partidos con cuotas 1X2 estructuradas."
                 if cuotas_estado.startswith("conectado")
                 else "No hay cuotas reales integradas; falta QUINIHUB_PRO_DATA_URL/TOKEN."
             ),
@@ -388,7 +435,11 @@ def diagnosticar_fuentes(alertas):
             "detalle": f"{resumen_profesional.get('clasificacion_oficial', 0)} partidos con clasificacion oficial cruzada.",
         },
         "arbitros_clima": {"estado": "pendiente", "detalle": "No influye todavia en probabilidades reales."},
-        "porcentajes_apostados": {"estado": "pendiente", "detalle": "No hay consenso de apostantes integrado."},
+        "porcentajes_apostados": (
+            {"estado": "conectado_lae", "detalle": lae_detalle}
+            if lae_ok else
+            {"estado": "pendiente", "detalle": "No hay consenso de apostantes integrado. " + lae_detalle}
+        ),
     }
 
     faltantes = [
@@ -401,6 +452,7 @@ def diagnosticar_fuentes(alertas):
             ("clasificaciones 2026/2027", "clasificacion_oficial"),
         )
         if int(resumen_profesional.get(clave) or 0) == 0
+        and not (clave == "cuotas" and losilla_ok)
     ]
     if faltantes:
         alertas.append({

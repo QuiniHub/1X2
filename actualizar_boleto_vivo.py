@@ -422,17 +422,35 @@ def nombres_distintos(actual, nuevo):
     return normalizar(canonico(actual)) != normalizar(canonico(nuevo))
 
 
+def mismo_cruce_con_otro_nombre(destino, nuevo_local, nuevo_visitante):
+    """True si la fuente nombra a los MISMOS dos equipos con otra grafia
+    ('Real Racing Club de Santander' / 'R. Santander', 'Chelsea (F)' /
+    'Chelsea W'). En ese caso se conserva el nombre canonico de la jornada:
+    reescribirlo rompia la clasificacion de competicion y la deteccion de
+    Liga F (auditoria 26/11, hallazgo 100)."""
+    import cronologia_jornadas
+
+    return (
+        cronologia_jornadas.mismo_equipo(destino.get("local"), nuevo_local)
+        and cronologia_jornadas.mismo_equipo(destino.get("visitante"), nuevo_visitante)
+    )
+
+
 def aplicar_casilla(destino, origen, pleno=False):
     cambios = []
     nuevo_local = canonico(origen.local)
     nuevo_visitante = canonico(origen.visitante)
 
-    if (
-        es_placeholder(destino.get("local"))
-        or es_placeholder(destino.get("visitante"))
-        or nombres_distintos(destino.get("local"), nuevo_local)
-        or nombres_distintos(destino.get("visitante"), nuevo_visitante)
-    ):
+    if es_placeholder(destino.get("local")) or es_placeholder(destino.get("visitante")):
+        renombrar = True
+    elif mismo_cruce_con_otro_nombre(destino, nuevo_local, nuevo_visitante):
+        renombrar = False
+    else:
+        renombrar = (
+            nombres_distintos(destino.get("local"), nuevo_local)
+            or nombres_distintos(destino.get("visitante"), nuevo_visitante)
+        )
+    if renombrar:
         if destino.get("local") != nuevo_local or destino.get("visitante") != nuevo_visitante:
             destino["local"] = nuevo_local
             destino["visitante"] = nuevo_visitante
@@ -508,16 +526,23 @@ def aplicar_boleto_a_jornada(data, boleto):
     return cambios
 
 
-def jornada_objetivo(boleto):
+def jornada_objetivo(boleto, hoy=None):
+    """Jornada a la que se aplica el boleto vivo.
+
+    Auditoria 26/11 (hallazgos 76 y 144): si la fuente no daba jornada se caia
+    en max(numero) = 76, una jornada de 25/26 ya cerrada, y el respaldo de
+    resultados libres quedaba muerto justo cuando hacia falta. Ahora el
+    respaldo es la jornada en curso o proxima POR FECHA (cronologia_jornadas);
+    si no hay ninguna, None (no se toca nada).
+    """
     numero = boleto.get("jornada")
     if numero and (JORNADAS / f"jornada_{numero}.json").exists():
         return int(numero)
-    nums = []
-    for path in JORNADAS.glob("jornada_*.json"):
-        match = re.search(r"(\d+)", path.stem)
-        if match:
-            nums.append(int(match.group(1)))
-    return max(nums) if nums else None
+    import cronologia_jornadas
+
+    hoy = hoy or datetime.now(timezone.utc).date()
+    en_curso = cronologia_jornadas.jornada_en_curso_o_proxima(hoy=hoy, dir_jornadas=JORNADAS)
+    return int(en_curso["numero"]) if en_curso else None
 
 
 def guardar_diagnostico(boleto, cambios, jornada=None, casillas_via_respaldo=0):

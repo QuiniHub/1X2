@@ -114,18 +114,57 @@ def evaluar_partido(partido, real, jornada, fuente):
     }
 
 
+def _fecha_snapshot(snap, jornada_datos):
+    """Fecha real de la jornada de un snapshot (para ordenar en el tiempo)."""
+    from cronologia_jornadas import fecha_real_jornada, parsear_fecha
+    return (
+        parsear_fecha(snap.get("primer_partido_utc"))
+        or fecha_real_jornada(jornada_datos or {})
+        or parsear_fecha(snap.get("creado_en"))
+    )
+
+
+def _snapshot_es_de_esta_jornada(snap, pred, jornada_datos):
+    """False solo si se puede DEMOSTRAR que el snapshot jornada_N es de otra
+    temporada que data/jornadas/jornada_N.json (la numeracion se reinicia
+    cada agosto): equipos distintos y fechas a mas de 7 dias."""
+    from cronologia_jornadas import fecha_real_jornada, misma_jornada, parsear_fecha
+    if not jornada_datos or not (pred or {}).get("partidos"):
+        return True
+    if misma_jornada(pred, jornada_datos):
+        return True
+    primer = parsear_fecha(snap.get("primer_partido_utc")) or parsear_fecha(snap.get("creado_en"))
+    real = fecha_real_jornada(jornada_datos)
+    if primer is None or real is None:
+        return True
+    return abs((primer - real).days) <= 7
+
+
 def evaluaciones_snapshots():
-    evaluaciones = []
+    # Auditoria 26/11/2026: se recorria sorted(glob), es decir, en orden
+    # ALFABETICO de fichero (1, 10..19, 2, 20..25, 3..9 mezclados con 66..76),
+    # y detalle_reciente = evaluaciones[-250:] dejaba fuera J10-J25, las mas
+    # recientes. Ahora el orden es CRONOLOGICO por la fecha real de la jornada
+    # y no se evalua un snapshot contra el fichero de jornada de otra temporada.
     if not SNAPSHOTS.exists():
-        return evaluaciones
+        return []
+    bloques = []
     for path in sorted(SNAPSHOTS.glob("jornada_*.json")):
         snap = cargar_json(path, {})
+        if not isinstance(snap, dict):
+            continue
         pred = snap.get("prediccion") or snap
         try:
             jornada_num = int(snap.get("jornada") or pred.get("jornada") or 0)
         except (TypeError, ValueError):
             continue
-        resultados = indice_resultados(cargar_json(JORNADAS / f"jornada_{jornada_num}.json", {}))
+        jornada_datos = cargar_json(JORNADAS / f"jornada_{jornada_num}.json", {})
+        if not _snapshot_es_de_esta_jornada(snap, pred, jornada_datos):
+            print(f"AVISO calibracion: {path.name} no corresponde a la jornada {jornada_num} actual (otra temporada); se omite.")
+            continue
+        resultados = indice_resultados(jornada_datos)
+        fuente = str(path.relative_to(ROOT)) if ROOT in path.parents else str(path)
+        evaluaciones = []
         for partido in pred.get("partidos", []):
             try:
                 num = int(partido.get("num") or 0)
@@ -133,8 +172,11 @@ def evaluaciones_snapshots():
                 continue
             real = resultados.get(num)
             if real in SIGNOS and partido.get("probabilidades"):
-                evaluaciones.append(evaluar_partido(partido, real, jornada_num, str(path.relative_to(ROOT))))
-    return evaluaciones
+                evaluaciones.append(evaluar_partido(partido, real, jornada_num, fuente))
+        fecha = _fecha_snapshot(snap, jornada_datos)
+        bloques.append((fecha is None, fecha.isoformat() if fecha else "", jornada_num, evaluaciones))
+    bloques.sort(key=lambda b: b[:3])
+    return [e for bloque in bloques for e in bloque[3]]
 
 
 def resumen_bucket(evaluaciones):

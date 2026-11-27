@@ -1,6 +1,8 @@
 import json
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
+
+import cronologia_jornadas
 
 
 ROOT = Path(__file__).resolve().parent
@@ -9,11 +11,14 @@ PREDICCIONES = DATA / "predicciones"
 JUGADAS_ARCHIVO = DATA / "quinielas_jugadas.json"
 JORNADAS = DATA / "jornadas"
 MEMORIA_ELIGE8 = DATA / "memoria_ia" / "aprendizaje_elige8.json"
+HISTORIAL_PREMIOS = DATA / "premios" / "historial_premios.json"
 SIGNOS = ("1", "X", "2")
 
 
+# Clave (temporada, jornada): la numeracion se reinicia cada temporada y la
+# J63 de la 25/26 no es la J63 de la 26/27.
 PREMIOS_CONOCIDOS = {
-    63: {
+    ("2025_2026", 63): {
         "premio_cobrado": 5.72,
         "premio_que_se_escapo": 572.0,
         "nota": "Jornada 63: 10 aciertos totales y Elige 8 de 7/8.",
@@ -207,8 +212,66 @@ def recalcular_elige8(prediccion):
     return True
 
 
-def signos_oficiales_jornada(jornada):
-    data = cargar_json(JORNADAS / f"jornada_{jornada}.json", {})
+def numero_jornada(valor):
+    try:
+        return int(str(valor).strip())
+    except (TypeError, ValueError):
+        return 0
+
+
+def fecha_jugada(jugada):
+    """Fecha real en la que se valido la jugada (admite los dos formatos del
+    fichero: ISO y 'd/m/yyyy, h:mm:ss')."""
+    return cronologia_jornadas.parsear_fecha(jugada.get("validado_en"))
+
+
+def temporada_jugada(jugada):
+    fecha = fecha_jugada(jugada)
+    if fecha is None:
+        return None
+    return cronologia_jornadas.temporada_de_fecha(fecha, numero_jornada(jugada.get("jornada")) or None)
+
+
+def datos_jornada_de_la_jugada(jugada):
+    """data/jornadas/jornada_N.json SOLO si es de la misma temporada que la
+    jugada. Auditoria 26/11: se cruzaba por numero, y con la numeracion
+    reiniciada una jugada de la J5 se habria evaluado contra los resultados
+    de la J5 de otra temporada."""
+    numero = numero_jornada(jugada.get("jornada"))
+    if not numero:
+        return {}
+    data = cargar_json(JORNADAS / f"jornada_{numero}.json", {})
+    if not data:
+        return {}
+    temporada = temporada_jugada(jugada)
+    fecha = cronologia_jornadas.fecha_real_jornada(data)
+    if temporada and fecha:
+        if cronologia_jornadas.temporada_de_fecha(fecha, numero) != temporada:
+            return {}
+    return data
+
+
+def premio_historial_de_la_jugada(jugada):
+    """Premio de data/premios/historial_premios.json para la jornada de la
+    jugada, o None. Ese fichero se indexa por numero, asi que solo se usa
+    cuando jornada_N.json es de la misma temporada que la jugada."""
+    if not datos_jornada_de_la_jugada(jugada):
+        return None
+    numero = numero_jornada(jugada.get("jornada"))
+    for registro in cargar_json(HISTORIAL_PREMIOS, {}).get("jornadas", []) or []:
+        if numero_jornada(registro.get("jornada")) != numero:
+            continue
+        try:
+            premio = float(registro.get("premio_eur"))
+        except (TypeError, ValueError):
+            return None
+        return premio if premio > 0 else None
+    return None
+
+
+def signos_oficiales_jornada(jornada, data=None):
+    if data is None:
+        data = cargar_json(JORNADAS / f"jornada_{jornada}.json", {})
     signos = {}
     partidos = {}
     for partido in data.get("partidos", []):
@@ -223,7 +286,9 @@ def signos_oficiales_jornada(jornada):
 
 def evaluar_jugada(jugada):
     jornada = jugada.get("jornada")
-    oficiales, partidos = signos_oficiales_jornada(jornada)
+    temporada = temporada_jugada(jugada)
+    fecha = fecha_jugada(jugada)
+    oficiales, partidos = signos_oficiales_jornada(jornada, datos_jornada_de_la_jugada(jugada))
     signos = list(jugada.get("signos") or [])
     seleccionados_elige8 = [int(n) for n in jugada.get("elige8", []) if str(n).isdigit()]
 
@@ -267,7 +332,26 @@ def evaluar_jugada(jugada):
                 }
 
     cerrada = len(oficiales) == 14
-    premios = PREMIOS_CONOCIDOS.get(jornada, {})
+    premios = PREMIOS_CONOCIDOS.get((temporada, numero_jornada(jornada)), {})
+    # premio_eur lo declara Marc en quinielas_jugadas.json y manda sobre
+    # cualquier tabla fija (auditoria 26/11: aqui no se leia).
+    premio_declarado = jugada.get("premio_eur")
+    try:
+        premio_cobrado = float(premio_declarado) if premio_declarado is not None else None
+    except (TypeError, ValueError):
+        premio_cobrado = None
+    premio_historial = premio_historial_de_la_jugada(jugada)
+    if premio_cobrado is not None:
+        fuente_premio = "quinielas_jugadas.premio_eur"
+    elif premio_historial is not None:
+        premio_cobrado = premio_historial
+        fuente_premio = "historial_premios"
+    elif "premio_cobrado" in premios:
+        premio_cobrado = float(premios["premio_cobrado"])
+        fuente_premio = "premios_conocidos"
+    else:
+        premio_cobrado = 0.0
+        fuente_premio = "sin_declarar"
     if pendientes:
         regla = "Jornada parcial: esperar resultados oficiales antes de aprender reglas fuertes."
     elif partido_rompio:
@@ -282,6 +366,8 @@ def evaluar_jugada(jugada):
 
     return {
         "jornada": jornada,
+        "temporada": temporada,
+        "fecha": fecha.isoformat() if fecha else None,
         "estado": "cerrada" if cerrada else "parcial",
         "validado_en": jugada.get("validado_en"),
         "evaluado_en": ahora(),
@@ -294,7 +380,8 @@ def evaluar_jugada(jugada):
         "partido_que_rompio_elige8": partido_rompio,
         "fallos": fallos,
         "partidos_pendientes": pendientes,
-        "premio_cobrado": premios.get("premio_cobrado", 0.0),
+        "premio_cobrado": premio_cobrado,
+        "fuente_premio": fuente_premio,
         "premio_que_se_escapo": premios.get("premio_que_se_escapo", 0.0),
         "nota_premio": premios.get("nota", ""),
         "regla_aprendida": regla,
@@ -303,7 +390,18 @@ def evaluar_jugada(jugada):
 
 def construir_memoria_desde_jugadas():
     data = cargar_json(JUGADAS_ARCHIVO, {"jugadas": []})
-    jugadas = sorted(data.get("jugadas", []), key=lambda j: j.get("jornada") or 0)
+    # Orden CRONOLOGICO por fecha de validacion (auditoria 26/11): por numero
+    # las J59-J76 de la 25/26 quedaban detras de las J1-J24 de la 26/27 y la
+    # web le pasaba al chat como "ultimas 5" las de agosto. Las que no tienen
+    # fecha van al principio, ordenadas por numero.
+    jugadas = sorted(
+        data.get("jugadas", []),
+        key=lambda j: (
+            fecha_jugada(j) is not None,
+            fecha_jugada(j) or date.min,
+            numero_jornada(j.get("jornada")),
+        ),
+    )
     evaluadas = [evaluar_jugada(j) for j in jugadas if j.get("jornada")]
 
     cerradas = [j for j in evaluadas if j["estado"] == "cerrada"]
@@ -341,10 +439,62 @@ def construir_memoria_desde_jugadas():
 
 def procesar_prediccion(path):
     prediccion = cargar_json(path, {})
-    if not recalcular_elige8(prediccion):
+    if prediccion.get("prediccion_congelada_al_cierre"):
+        return False
+    try:
+        if not recalcular_elige8(prediccion):
+            return False
+    except RuntimeError as exc:
+        # Un fichero incoherente no debe tumbar el paso entero del pipeline.
+        print(f"AVISO: {path.name} no se recalcula ({exc})")
         return False
     guardar_json(path, prediccion)
     return True
+
+
+def jornada_empezada(datos_jornada, hoy):
+    """True si la jornada ya tiene algun resultado o su primer partido es de
+    hoy o anterior (el dia del primer partido ya no se toca: no se sabe la
+    hora y aplicar_elige8_seguro decide igualmente el Elige 8 final). Sin
+    fecha no se puede asegurar que no haya empezado."""
+    for partido in datos_jornada.get("partidos", []) or []:
+        if normalizar_signos(partido.get("signo_oficial")) in {"1", "X", "2"}:
+            return True
+    fecha = cronologia_jornadas.fecha_real_jornada(datos_jornada)
+    if fecha is None:
+        return True
+    return fecha <= hoy
+
+
+def rutas_prediccion_activa(hoy=None):
+    """Solo los ficheros de prediccion de la jornada ACTIVA y NO EMPEZADA.
+
+    Auditoria 26/11: este script recorria data/predicciones/*.json y reescribia
+    partido['elige8'] en todas las jornadas, tambien las cerradas y las
+    congeladas al cierre, con una regla distinta de la que se publico. La J24
+    paso de [1,3,4,5,6,8,9,10] (lo publicado) a [3,4,7,10,11,12,13,14] al dia
+    siguiente de cerrarse. El historico es una foto del cierre: no se toca.
+    """
+    hoy = hoy or date.today()
+    fila = cronologia_jornadas.jornada_en_curso_o_proxima(hoy=hoy, dir_jornadas=JORNADAS)
+    if not fila:
+        return []
+    datos_jornada = cargar_json(Path(fila["ruta"]), {})
+    if not datos_jornada or jornada_empezada(datos_jornada, hoy):
+        return []
+    numero = int(fila["numero"])
+    rutas = []
+    for path in (PREDICCIONES / f"jornada_{numero}.json", PREDICCIONES / "ultima_prediccion.json"):
+        if not path.exists():
+            continue
+        prediccion = cargar_json(path, {})
+        if numero_jornada(prediccion.get("jornada")) != numero:
+            continue
+        # Mismo numero no basta: tienen que ser los mismos partidos.
+        if not cronologia_jornadas.misma_jornada(prediccion, datos_jornada):
+            continue
+        rutas.append(path)
+    return rutas
 
 
 def main():
@@ -352,10 +502,9 @@ def main():
     memoria = construir_memoria_desde_jugadas()
     tocados.append(str(MEMORIA_ELIGE8.relative_to(ROOT)))
 
-    if PREDICCIONES.exists():
-        for path in sorted(PREDICCIONES.glob("*.json")):
-            if procesar_prediccion(path):
-                tocados.append(str(path.relative_to(ROOT)))
+    for path in rutas_prediccion_activa():
+        if procesar_prediccion(path):
+            tocados.append(str(path.relative_to(ROOT)))
 
     print(json.dumps({
         "estado": "ok",

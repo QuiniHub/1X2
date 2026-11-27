@@ -114,6 +114,16 @@ MESES_ES = {
 _PESOS_POR_CALIDAD_RESPALDO = {"profesional": 0.15, "alta": 0.20, "media": 0.35, "media_baja": 0.45, "baja": 0.65}
 _PESO_DEFECTO_RESPALDO = 0.18
 
+# Auditoria 26/11: p_pre = (p_post - peso*q)/(1-peso) multiplica por 1/(1-peso)
+# cualquier capa posterior al mercado (lesiones, revulsivo, motivacion,
+# calibracion). Con peso 0,20 es x1,25; con el 0,85 de "el mercado manda"
+# (decision 26/11) es x6,7: motor 50/25/25 + mercado 60/25/15 + 2 puntos de una
+# capa posterior se "reconstruye" como 63/17/20. Por encima de este peso la
+# inversion NO es una medida del motor: esas filas solo entran en el ajuste si
+# el snapshot trae la probabilidad pre-mercado exportada por el motor.
+PESO_MAX_INVERTIBLE = 0.80
+CLAVE_PRE_MERCADO = "probabilidades_motor_pre_mercado"
+
 
 def ahora_iso():
     return datetime.now(timezone.utc).isoformat()
@@ -266,9 +276,37 @@ def peso_mercado_usado(partido, pesos_por_calidad=None, peso_defecto=None):
     return float(pesos_por_calidad.get(partido.get("calidad_datos"), peso_defecto)), "calidad_datos"
 
 
+def motor_pre_mercado(partido, p_post, q, peso):
+    """(p_pre, origen, fiable): probabilidad del motor ANTES del mercado.
+
+    1) Si el snapshot la trae exportada (CLAVE_PRE_MERCADO), se lee tal cual.
+    2) Si no, se invierte la mezcla lineal con el peso REAL de la traza del
+       partido; fiable solo si peso < PESO_MAX_INVERTIBLE (ver la constante).
+    """
+    exportada = partido.get(CLAVE_PRE_MERCADO)
+    if isinstance(exportada, dict):
+        try:
+            if sum(float(exportada.get(s) or 0) for s in SIGNOS) > 0:
+                return recortar_y_normalizar(normalizar(exportada)), "exportada_por_el_motor", True
+        except (TypeError, ValueError):
+            pass
+    p_pre = invertir_mezcla_lineal(p_post, q, peso)
+    if float(peso) >= PESO_MAX_INVERTIBLE:
+        return p_pre, "inversion_no_fiable_peso_alto", False
+    return p_pre, "inversion_mezcla_lineal", True
+
+
+def filas_fiables(filas):
+    """Filas cuyo p_pre mide de verdad al motor (las unicas que entran en el ajuste)."""
+    return [f for f in filas if f.get("p_pre_fiable", True)]
+
+
 def construir_dataset(dir_pre_cierre=PRE_CIERRE, dir_jornadas=JORNADAS):
     """Filas (jornada, temporada, fecha, num, p_pre, p_post, q, y, peso...)
-    ordenadas por FECHA real (no por numero de jornada)."""
+    ordenadas por FECHA real (no por numero de jornada). Cada fila lleva
+    p_pre_fiable: False cuando p_pre sale de invertir una mezcla con peso de
+    mercado >= PESO_MAX_INVERTIBLE (analizar() no la usa para ajustar)."""
+    from guardar_snapshot_prediccion import snapshot_de_otra_jornada
     pesos_por_calidad, peso_defecto = _pesos_vivos()
     filas = []
     for ruta in sorted(Path(dir_pre_cierre).glob("jornada_*.json")):
@@ -278,6 +316,10 @@ def construir_dataset(dir_pre_cierre=PRE_CIERRE, dir_jornadas=JORNADAS):
         if jornada is None:
             continue
         fixture = cargar_json(Path(dir_jornadas) / f"jornada_{jornada}.json", {})
+        # El numero no identifica la jornada (se reinicia cada temporada): un
+        # snapshot de otra jornada real no se cruza con estos resultados.
+        if snapshot_de_otra_jornada(snap, fixture):
+            continue
         fecha = parsear_fecha_jornada(fixture.get("fecha"), snap.get("primer_partido_utc"))
         temporada = temporada_de(fecha, pred.get("temporada_base"))
         reales = {int(p.get("num") or 0): p.get("signo_oficial") for p in fixture.get("partidos") or []}
@@ -300,6 +342,7 @@ def construir_dataset(dir_pre_cierre=PRE_CIERRE, dir_jornadas=JORNADAS):
             peso, origen_peso = peso_mercado_usado(p, pesos_por_calidad, peso_defecto)
             p_post = normalizar(probs)
             q = normalizar(mercado)
+            p_pre, origen_pre, pre_fiable = motor_pre_mercado(p, p_post, q, peso)
             filas.append({
                 "jornada": int(jornada),
                 "temporada": temporada,
@@ -311,7 +354,9 @@ def construir_dataset(dir_pre_cierre=PRE_CIERRE, dir_jornadas=JORNADAS):
                 "peso_mercado": peso,
                 "origen_peso": origen_peso,
                 "p_post": p_post,
-                "p_pre": invertir_mezcla_lineal(p_post, q, peso),
+                "p_pre": p_pre,
+                "origen_p_pre": origen_pre,
+                "p_pre_fiable": pre_fiable,
                 "q": q,
                 "y": real,
             })
@@ -622,6 +667,16 @@ def veredicto(estabilidad, metricas_oos):
 def analizar(dir_pre_cierre=PRE_CIERRE, dir_jornadas=JORNADAS, filas=None):
     """Pipeline completo. Devuelve el dict que se guarda en el JSON."""
     filas = construir_dataset(dir_pre_cierre, dir_jornadas) if filas is None else filas
+    # Solo ajustan las filas cuyo p_pre mide de verdad al motor (auditoria
+    # 26/11, ver PESO_MAX_INVERTIBLE); las demas se cuentan y se declaran.
+    todas = filas
+    filas = filas_fiables(todas)
+    excluidas = len(todas) - len(filas)
+    # Peso real mas alto entre las filas excluidas (no un 0,85 escrito a mano).
+    pesos_excluidos = [float(f["peso_mercado"]) for f in todas
+                       if not f.get("p_pre_fiable", True) and isinstance(f.get("peso_mercado"), (int, float))]
+    peso_nota = max(pesos_excluidos) if pesos_excluidos else PESO_MAX_INVERTIBLE
+    factor_nota = f"x{1.0 / (1.0 - peso_nota):.1f}" if peso_nota < 1.0 else "sin limite"
     salida = {
         "version": "1.0",
         "generado_en": ahora_iso(),
@@ -639,6 +694,13 @@ def analizar(dir_pre_cierre=PRE_CIERRE, dir_jornadas=JORNADAS, filas=None):
             "por_calidad_datos": {},
             "por_peso_mercado": {},
             "origen_peso": {},
+            "excluidas_por_inversion_no_fiable": excluidas,
+            "jornadas_excluidas": sorted({f"{f['temporada']}:J{f['jornada']}" for f in todas
+                                          if not f.get("p_pre_fiable", True)}),
+            "nota_exclusion": (
+                f"Con peso de mercado >= {PESO_MAX_INVERTIBLE:.2f} invertir la mezcla amplifica "
+                f"{factor_nota} (peso {peso_nota:.2f}) las capas posteriores al mercado: esas filas solo "
+                f"cuentan si el snapshot trae '{CLAVE_PRE_MERCADO}' exportada por el motor."),
         },
     }
     for f in filas:

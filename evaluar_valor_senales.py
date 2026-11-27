@@ -2,6 +2,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+import cronologia_jornadas
+
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 SNAPSHOTS = DATA / "backtesting" / "pre_cierre"
@@ -112,6 +114,31 @@ SENALES = {
 }
 
 
+# Senales de RIESGO: marcan a proposito los partidos mas inciertos, asi que su
+# precision top-1 es mas baja por construccion. Compararla con la del resto NO
+# mide si la senal "ayuda" o "perjudica" (auditoria 26/11: el veredicto
+# 'perjudica' de riesgo_sorpresa_sin_cubrir era un falso positivo por
+# confusion, y la web se lo pasaba al chat como "la precision BAJA: revisar").
+SENALES_DE_RIESGO = {"riesgo_sorpresa_sin_cubrir"}
+
+
+def snapshot_de_otra_jornada(snap, pred, datos_jornada):
+    """True si el snapshot es DEMOSTRABLEMENTE de otra jornada real con el
+    mismo numero (otra temporada): equipos comparables que no coinciden y
+    fecha del primer partido lejos de la real. Sin datos para comparar no se
+    descarta nada."""
+    if not datos_jornada:
+        return False
+    _, comparables = cronologia_jornadas.coincidencia_equipos(pred, datos_jornada)
+    if comparables < 7 or cronologia_jornadas.misma_jornada(pred, datos_jornada):
+        return False
+    primer = cronologia_jornadas.parsear_fecha((snap or {}).get("primer_partido_utc"))
+    real = cronologia_jornadas.fecha_real_jornada(datos_jornada)
+    if primer is not None and real is not None and abs((primer - real).days) <= 2:
+        return False
+    return True
+
+
 def evaluaciones_snapshots():
     evaluaciones = []
     if not SNAPSHOTS.exists():
@@ -123,7 +150,12 @@ def evaluaciones_snapshots():
             jornada_num = int(snap.get("jornada") or pred.get("jornada") or 0)
         except (TypeError, ValueError):
             continue
-        resultados = indice_resultados(cargar_json(JORNADAS / f"jornada_{jornada_num}.json", {}))
+        datos_jornada = cargar_json(JORNADAS / f"jornada_{jornada_num}.json", {})
+        # Auditoria 26/11: se cruzaba solo por numero. Una foto vieja de la
+        # J_N no puede evaluarse con los resultados de la J_N de otra temporada.
+        if snapshot_de_otra_jornada(snap, pred, datos_jornada):
+            continue
+        resultados = indice_resultados(datos_jornada)
         for partido in pred.get("partidos", []):
             try:
                 num = int(partido.get("num") or 0)
@@ -161,6 +193,31 @@ def evaluar_senal(evaluaciones, nombre):
     sin = [ev for ev in evaluaciones if not ev["senales"].get(nombre)]
     resumen_con = resumen_grupo(con)
     resumen_sin = resumen_grupo(sin)
+    de_riesgo = nombre in SENALES_DE_RIESGO
+
+    if de_riesgo and resumen_con["partidos"] >= MUESTRA_MINIMA:
+        diferencia = round((resumen_con["precision"] or 0) - (resumen_sin["precision"] or 0), 2)
+        if diferencia <= -DIFERENCIA_RELEVANTE:
+            veredicto = "marca_partidos_dificiles"
+            conclusion = (
+                f"Senal de riesgo: los partidos que marca se aciertan menos ({resumen_con['precision']}% "
+                f"frente a {resumen_sin['precision']}% del resto). Es lo esperado: esta senal SELECCIONA "
+                "los partidos dificiles, asi que esta separando bien. No mide si cubrirlos da valor."
+            )
+        else:
+            veredicto = "no_distingue_dificultad"
+            conclusion = (
+                f"Senal de riesgo: los partidos que marca se aciertan igual o mas ({resumen_con['precision']}%) "
+                f"que el resto ({resumen_sin['precision']}%): no esta separando los partidos dificiles."
+            )
+        return {
+            "tipo": "riesgo",
+            "con_senal": resumen_con,
+            "sin_senal": resumen_sin,
+            "diferencia_precision": diferencia,
+            "veredicto": veredicto,
+            "conclusion": conclusion,
+        }
 
     if resumen_con["partidos"] < MUESTRA_MINIMA:
         veredicto = "sin_muestra_suficiente"
@@ -191,6 +248,7 @@ def evaluar_senal(evaluaciones, nombre):
             )
 
     return {
+        "tipo": "riesgo" if de_riesgo else "ajuste",
         "con_senal": resumen_con,
         "sin_senal": resumen_sin,
         "diferencia_precision": diferencia,

@@ -186,22 +186,80 @@ def jornada_cerrada(data):
     return all(str(p.get("signo_oficial") or "").upper() in {"1", "X", "2"} for p in partidos[:14])
 
 
-def debe_guardar(jornada_num):
-    existentes = numeros_existentes()
-    if not existentes:
+def ultima_jornada_por_fecha():
+    """Ultima jornada guardada por FECHA real (dict de cronologia_jornadas) o
+    None. Nunca por numero: data/jornadas mezcla J1-J27 de 26/27 con J28-J76
+    de 25/26 y max(numero) da siempre la 76 (auditoria 26/11, 142 y 168)."""
+    import cronologia_jornadas
+
+    con_fecha = [j for j in cronologia_jornadas.indice_jornadas(JORNADAS) if j["fecha"] is not None]
+    return con_fecha[-1] if con_fecha else None
+
+
+def _fecha_y_temporada(data, numero):
+    import cronologia_jornadas
+
+    fecha = cronologia_jornadas.fecha_real_jornada(data) if isinstance(data, dict) else None
+    return fecha, cronologia_jornadas.temporada_de_fecha(fecha, numero) if fecha else None
+
+
+def fichero_de_otra_temporada(numero, data_nueva):
+    """True si jornada_{numero}.json ya existe pero es de una temporada
+    ANTERIOR a la jornada publicada (mismo numero, otra jornada real)."""
+    existente = cargar_json(JORNADAS / f"jornada_{numero}.json", {})
+    fecha_vieja, temp_vieja = _fecha_y_temporada(existente, numero)
+    fecha_nueva, temp_nueva = _fecha_y_temporada(data_nueva, numero)
+    if not fecha_nueva or not fecha_vieja or not temp_vieja or not temp_nueva:
+        return False
+    return temp_vieja != temp_nueva and fecha_vieja < fecha_nueva
+
+
+def archivar_jornada_de_otra_temporada(path, numero):
+    """Antes de sobrescribir un jornada_N.json de una temporada anterior con
+    la jornada N de la nueva, se copia a data/temporadas/<temporada>/jornadas/
+    (no se pisa un archivo ya guardado). Devuelve la ruta o None."""
+    path = Path(path)
+    if not path.exists():
+        return None
+    _fecha, temporada = _fecha_y_temporada(cargar_json(path, {}), numero)
+    if not temporada:
+        return None
+    destino = DATA / "temporadas" / temporada / "jornadas" / path.name
+    if destino.exists():
+        return destino
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.write_bytes(path.read_bytes())
+    print(f"Jornada {numero} de {temporada} archivada antes de sobrescribirla.")
+    return destino
+
+
+def debe_guardar(jornada_num, data_nueva=None):
+    """Se guarda si es posterior POR FECHA a la ultima jornada conocida y es la
+    siguiente de la temporada (o la ultima ya esta cerrada)."""
+    if not numeros_existentes():
         return True
-    ultimo = max(existentes)
-    if jornada_num > ultimo:
-        return jornada_cerrada(cargar_json(JORNADAS / f"jornada_{ultimo}.json", {})) or jornada_num == ultimo + 1
-    return False
+    ultima = ultima_jornada_por_fecha()
+    if ultima is None:
+        return False
+    fecha_nueva, temp_nueva = _fecha_y_temporada(data_nueva, jornada_num)
+    if fecha_nueva is not None and fecha_nueva <= ultima["fecha"]:
+        return False
+    if temp_nueva and ultima.get("temporada") and temp_nueva != ultima["temporada"]:
+        # Temporada nueva: la numeracion se reinicia, vale cualquier numero bajo.
+        return fecha_nueva > ultima["fecha"]
+    if jornada_num == ultima["numero"] + 1:
+        return True
+    return jornada_num > ultima["numero"] and bool(ultima.get("cerrada"))
 
 
 def usar_cache_si_falla(error):
     existentes = numeros_existentes()
     if existentes:
+        ultima = ultima_jornada_por_fecha()
+        etiqueta = f"jornada {ultima['numero']} ({ultima['fecha']})" if ultima else "sin fecha conocida"
         print(
             "AVISO: no se pudo descargar la proxima jornada desde la fuente externa; "
-            f"se mantiene cache local hasta jornada {max(existentes)}. Error: {error}"
+            f"se mantiene cache local hasta {etiqueta}. Error: {error}"
         )
         return True
     print(f"AVISO: no se pudo descargar la proxima jornada y no hay cache local. Error: {error}")
@@ -221,9 +279,14 @@ def main():
     for jornada in jornadas:
         numero = int(jornada["jornada"])
         path = JORNADAS / f"jornada_{numero}.json"
-        if path.exists() or not debe_guardar(numero):
-            continue
         data = jornada_a_json(jornada)
+        # Un fichero con el mismo numero solo bloquea si es de ESTA temporada.
+        if path.exists() and not fichero_de_otra_temporada(numero, data):
+            continue
+        if not debe_guardar(numero, data):
+            continue
+        if path.exists():
+            archivar_jornada_de_otra_temporada(path, numero)
         guardar_json(path, data)
         guardadas.append(numero)
 

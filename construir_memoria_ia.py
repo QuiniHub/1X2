@@ -7,6 +7,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
+import cronologia_jornadas as cj
+
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 TEMPORADA = "2025_2026"
@@ -277,6 +279,51 @@ def completar_equipo(equipo):
     return equipo
 
 
+def partidos_jugados_cronologicos(data, pendientes_quiniela=()):
+    """(lista de (jornada, partido) jugados en orden de FECHA REAL, pendientes).
+
+    El calendario viene por numero de jornada de liga, pero un partido aplazado
+    (Levante-Athletic de la J5, jugado el 21/10 tras la J9) NO se jugo cuando
+    dice su numero: recorrerlo por numero metia esa victoria en mitad de la
+    racha y el Levante salia con 7 sin ganar cuando llevaba 4. Sin fecha, el
+    partido se coloca con la fecha mas temprana de su jornada. Si la jornada
+    entera viene sin fechas hereda el fin de semana de la jornada anterior que
+    si las tenia (y el numero de jornada la deja justo detras): mandarla al
+    principio aplicaria sus resultados antes que la J1. Solo va al principio
+    si no hay ninguna jornada anterior con fecha."""
+    jugados = []
+    pendientes = 0
+    orden = 0
+    ultimo_bloque = None
+    for jornada in data.get("jornadas", []):
+        try:
+            numero = int(jornada.get("jornada") or 0)
+        except (TypeError, ValueError):
+            numero = 0
+        partidos = jornada.get("partidos", [])
+        fechas = [cj.parsear_fecha(p.get("fecha")) for p in partidos]
+        validas = [f for f in fechas if f is not None]
+        if validas:
+            respaldo = min(validas)
+            # Ultimo dia del bloque normal de la jornada (sin los aplazados,
+            # que se juegan semanas despues): lo hereda una jornada sin fechas.
+            ultimo_bloque = max(f for f in validas if (f - respaldo).days <= 4)
+        else:
+            respaldo = ultimo_bloque
+        for partido, fecha in zip(partidos, fechas):
+            if pareja_partido(partido.get("local", ""), partido.get("visitante", "")) in pendientes_quiniela:
+                pendientes += 1
+                continue
+            if not signo_resultado(partido.get("resultado")):
+                pendientes += 1
+                continue
+            fecha = fecha or respaldo
+            orden += 1
+            jugados.append(((fecha is not None, fecha.isoformat() if fecha else "", numero, orden), jornada, partido))
+    jugados.sort(key=lambda fila: fila[0])
+    return [(jornada, partido) for _, jornada, partido in jugados], pendientes
+
+
 def analizar_liga(nombre_liga, path):
     data = cargar_json(path, {})
     pendientes_quiniela = partidos_pendientes_en_quiniela()
@@ -284,41 +331,33 @@ def analizar_liga(nombre_liga, path):
     signos = Counter()
     sorpresas = []
     partidos_jugados = 0
-    partidos_pendientes = 0
+    jugados, partidos_pendientes = partidos_jugados_cronologicos(data, pendientes_quiniela)
 
-    for jornada in data.get("jornadas", []):
-        for partido in jornada.get("partidos", []):
-            resultado = partido.get("resultado")
-            signo = signo_resultado(resultado)
-            local_nombre = partido.get("local", "")
-            visitante_nombre = partido.get("visitante", "")
+    # Orden cronologico real: rachas, forma y sorpresas "previas" dependen de el.
+    for jornada, partido in jugados:
+        resultado = partido.get("resultado")
+        signo = signo_resultado(resultado)
+        local_nombre = partido.get("local", "")
+        visitante_nombre = partido.get("visitante", "")
 
-            if pareja_partido(local_nombre, visitante_nombre) in pendientes_quiniela:
-                partidos_pendientes += 1
-                continue
+        local_pre = asegurar(stats, local_nombre)
+        visitante_pre = asegurar(stats, visitante_nombre)
+        esperado, margen = signo_esperado(local_pre, visitante_pre)
+        if esperado != signo and margen >= 10 and local_pre["pj"] >= 4 and visitante_pre["pj"] >= 4:
+            sorpresas.append({
+                "jornada_liga": jornada.get("jornada"),
+                "local": local_nombre,
+                "visitante": visitante_nombre,
+                "resultado": resultado,
+                "signo_real": signo,
+                "signo_esperado": esperado,
+                "margen_previo": margen,
+                "lectura": "Resultado contrario al modelo previo de fuerza, forma y casa/fuera.",
+            })
 
-            if not signo:
-                partidos_pendientes += 1
-                continue
-
-            local_pre = asegurar(stats, local_nombre)
-            visitante_pre = asegurar(stats, visitante_nombre)
-            esperado, margen = signo_esperado(local_pre, visitante_pre)
-            if esperado != signo and margen >= 10 and local_pre["pj"] >= 4 and visitante_pre["pj"] >= 4:
-                sorpresas.append({
-                    "jornada_liga": jornada.get("jornada"),
-                    "local": local_nombre,
-                    "visitante": visitante_nombre,
-                    "resultado": resultado,
-                    "signo_real": signo,
-                    "signo_esperado": esperado,
-                    "margen_previo": margen,
-                    "lectura": "Resultado contrario al modelo previo de fuerza, forma y casa/fuera.",
-                })
-
-            signos[signo] += 1
-            partidos_jugados += 1
-            aplicar_resultado(stats, local_nombre, visitante_nombre, resultado)
+        signos[signo] += 1
+        partidos_jugados += 1
+        aplicar_resultado(stats, local_nombre, visitante_nombre, resultado)
 
     equipos = [completar_equipo(e) for e in stats.values()]
     equipos.sort(key=lambda e: (e["pts"], e["dg"], e["gf"]), reverse=True)
@@ -1204,6 +1243,29 @@ def obtener_temporada_detectada():
     return cargar_json(CLASIFICACIONES_OFICIALES, {}).get("temporada_detectada", "2025/2026")
 
 
+def _clave_temporada(texto):
+    """'2026/2027', '2026_2027' o '2026/27' -> '2026_2027' ('' si no se entiende)."""
+    anios = re.findall(r"(?<![0-9])[0-9]{4}(?![0-9])", str(texto or ""))
+    if len(anios) >= 2:
+        return f"{anios[0]}_{anios[1]}"
+    corto = re.match(r"^[^0-9]*([0-9]{4})[^0-9]+([0-9]{2})[^0-9]*$", str(texto or ""))
+    if corto:
+        return f"{corto.group(1)}_{corto.group(1)[:2]}{corto.group(2)}"
+    return ""
+
+
+def calendarios_son_de_temporada(temporada_detectada, calendarios=None):
+    """False si algun calendario declara OTRA temporada que la detectada: en
+    ese caso el resumen NO se escribe en data/temporadas/<detectada> (el
+    10/08/2026 se escribio la plantilla 26/27 dentro de la carpeta 2025_2026)."""
+    objetivo = _clave_temporada(temporada_detectada)
+    for path in (calendarios or CALENDARIOS).values():
+        declarada = _clave_temporada(cargar_json(path, {}).get("temporada"))
+        if declarada and objetivo and declarada != objetivo:
+            return False
+    return True
+
+
 def main():
     ligas = {nombre: analizar_liga(nombre, path) for nombre, path in CALENDARIOS.items()}
     ligas = aplicar_clasificaciones_oficiales(ligas)
@@ -1262,7 +1324,13 @@ def main():
         "entradas": diario,
     })
     guardar_json(PESOS_DINAMICOS, pesos_dinamicos)
-    guardar_json(out_temporada / "resumen_temporada.json", memoria)
+    if calendarios_son_de_temporada(temporada_detectada):
+        guardar_json(out_temporada / "resumen_temporada.json", memoria)
+    else:
+        print(
+            f"AVISO: los calendarios no son de la temporada detectada ({temporada_detectada}); "
+            f"no se escribe {out_temporada / 'resumen_temporada.json'} para no pisar otra temporada."
+        )
     guardar_json(OUT_MEMORIA / "aprendizaje_global.json", memoria)
     clasificacion_final = construir_clasificaciones(ligas)
     clasificacion_final["temporada_detectada"] = temporada_detectada

@@ -2,7 +2,7 @@ import json
 import re
 import unicodedata
 import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.parse import quote_plus
@@ -12,6 +12,8 @@ try:
     import requests
 except ImportError:
     requests = None
+
+import cronologia_jornadas
 
 
 ROOT = Path(__file__).resolve().parent
@@ -82,19 +84,30 @@ def debe_refrescar(objetivos=None):
     return datetime.now(timezone.utc) - fecha > timedelta(hours=TTL_HORAS)
 
 
-def jornada_activa():
-    jornadas = []
-    for path in JORNADAS.glob("jornada_*.json"):
-        data = cargar_json(path, {})
-        try:
-            numero = int(data.get("jornada") or path.stem.split("_")[-1])
-        except Exception:
-            continue
-        if numero:
-            jornadas.append((numero, data))
-    if not jornadas:
+def jornada_activa(hoy=None):
+    """La jornada en curso o la proxima, elegida por FECHA real.
+
+    Auditoria 26/11: se elegia el NUMERO de jornada mas alto. La numeracion
+    de La Quiniela se reinicia cada temporada y en data/jornadas siguen las
+    J28-J76 de la 25/26, asi que el "boleto activo" era siempre la jornada_76
+    (Noruega/Suecia, agosto) y las noticias se pedian para equipos de una
+    jornada de hace meses en vez de para los de la jornada real.
+    """
+    hoy = hoy or date.today()
+    fila = cronologia_jornadas.jornada_en_curso_o_proxima(hoy=hoy, dir_jornadas=JORNADAS)
+    if fila is None:
+        fila = cronologia_jornadas.ultima_jornada_cerrada(hoy=hoy, dir_jornadas=JORNADAS)
+    if fila is None:
+        # Sin fechas utilizables: la ultima del indice cronologico (las que
+        # no tienen fecha van al final, en orden determinista).
+        todas = cronologia_jornadas.indice_jornadas(JORNADAS)
+        fila = todas[-1] if todas else None
+    if fila is None:
         return None
-    return max(jornadas, key=lambda item: item[0])[1]
+    try:
+        return cargar_json(Path(fila["ruta"]), {}) or None
+    except (OSError, ValueError):
+        return None
 
 
 def equipos_jornada_activa():
@@ -213,13 +226,42 @@ def leer_noticias_equipo(equipo):
     return leer_bing_news(equipo)
 
 
-def clasificar_noticias(noticias):
+# Titulares de OTRO equipo del mismo club (auditoria 26/11: al FC Barcelona le
+# saltaba 'lesiones' por un parte medico del femenino).
+MARCAS_OTRO_EQUIPO = ("femenino", "femenina", "filial", "juvenil", "cadete", "liga f", "atletic", "castilla", "mirandilla")
+MARCAS_EQUIPO_PROPIO = ("femenino", "femenina", "b", "fortuna", "atletic", "castilla", "mirandilla")
+
+
+def contiene_palabras(texto, clave):
+    """True si `clave` aparece en `texto` al PRINCIPIO de una palabra (asi
+    siguen valiendo los plurales: 'lesion' -> 'lesiones').
+    Antes se buscaba como subcadena en cualquier sitio: 'alta' saltaba con
+    'falta' o 'resaltar', 'roja' con 'arroja', 'duda' con 'ciudadano'."""
+    return f" {clave}" in f" {texto}"
+
+
+def titular_de_otro_equipo(texto, equipo=None):
+    """True si el titular habla del femenino/filial y el equipo buscado no lo es."""
+    if equipo is None:
+        return False
+    # Marcas como PALABRA COMPLETA: como prefijo, 'atletic' casaba con
+    # 'atletico' (se tiraban los titulares que nombran al Atletico) y ' b'
+    # con 'barcelona' o 'betis' (a esos equipos no se les filtraba nada).
+    propio = f" {normalizar(equipo)} "
+    if any(f" {marca} " in propio for marca in MARCAS_EQUIPO_PROPIO):
+        return False
+    return any(f" {marca} " in f" {texto} " for marca in MARCAS_OTRO_EQUIPO)
+
+
+def clasificar_noticias(noticias, equipo=None):
     categorias = {k: [] for k in CATEGORIAS}
     alertas = []
     for noticia in noticias:
         texto = normalizar(noticia.get("titulo", ""))
+        if titular_de_otro_equipo(texto, equipo):
+            continue
         for categoria, claves in CATEGORIAS.items():
-            if any(clave in texto for clave in claves):
+            if any(contiene_palabras(texto, clave) for clave in claves):
                 categorias[categoria].append(noticia)
                 alertas.append(categoria)
     return categorias, sorted(set(alertas))
@@ -262,7 +304,7 @@ def main():
     for item in objetivos:
         equipo = item["equipo"]
         noticias = leer_noticias_equipo(equipo)
-        categorias, alertas = clasificar_noticias(noticias)
+        categorias, alertas = clasificar_noticias(noticias, equipo)
         fuente_usada = noticias[0]["fuente"] if noticias else "sin_resultados"
         salida["equipos"][equipo] = {
             "liga": item["liga"],

@@ -89,6 +89,14 @@ def overrides_vigentes(datos, ctx):
 
 
 def main():
+    # Auditoria 26/11/2026 (hallazgo 170): load() reventaba con traceback si
+    # faltaba cualquiera de los dos ficheros. Sin contexto o sin overrides no
+    # hay nada que forzar. Este script es ya el UNICO que aplica los
+    # overrides en la cadena (aplicar_objetivos_oficiales_json.py hacia lo
+    # mismo justo antes y este lo pisaba).
+    if not CTX.exists() or not OVR.exists():
+        print("Overrides competitivos ignorados: falta contexto_competitivo.json u objetivos_jornada_actual.json")
+        return
     ctx = load(CTX)
     datos = load(OVR)
     overrides = datos.get("equipos", {})

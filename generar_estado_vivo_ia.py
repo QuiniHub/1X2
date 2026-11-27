@@ -2,8 +2,10 @@ import json
 import re
 import unicodedata
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
+
+import cronologia_jornadas
 
 
 ROOT = Path(__file__).resolve().parent
@@ -108,18 +110,27 @@ def leer_jornada_actual(jornada_objetivo=None):
         if objetivo.get("jornada") == jornada_objetivo:
             return objetivo
 
-    candidatas = []
-    for path in JORNADAS.glob("jornada_*.json"):
-        data = cargar_json(path, {})
-        numero = data.get("jornada")
-        if not isinstance(numero, int):
-            continue
-        cerrados = sum(1 for p in data.get("partidos", []) if str(p.get("signo_oficial", "")).upper() in ("1", "X", "2"))
-        pendientes = sum(1 for p in data.get("partidos", []) if str(p.get("signo_oficial", "")).lower() == "pendiente")
-        candidatas.append((numero, cerrados, pendientes, data))
-    if not candidatas:
-        return cargar_json(JORNADAS / "jornada_62.json", {})
-    return sorted(candidatas, key=lambda x: (x[0], x[1]), reverse=True)[0][3]
+    # Respaldo por FECHA real (auditoria 26/11): antes se ordenaba por numero
+    # de jornada y se habria elegido la jornada_76 de agosto (25/26) en vez
+    # de la jornada en curso de la 26/27.
+    hoy = date.today()
+    fila = (
+        cronologia_jornadas.jornada_en_curso_o_proxima(hoy=hoy, dir_jornadas=JORNADAS)
+        or cronologia_jornadas.ultima_jornada_cerrada(hoy=hoy, dir_jornadas=JORNADAS)
+    )
+    if fila is None:
+        indice = cronologia_jornadas.indice_jornadas(JORNADAS)
+        fila = indice[-1] if indice else None
+    if fila is None:
+        return {}
+    return cargar_json(Path(fila["ruta"]), {})
+
+
+def orden_cronologico_prediccion(pred):
+    """Orden por fecha real (primer partido y, si no, generado_en), no por numero."""
+    fecha = cronologia_jornadas.fecha_real_jornada(pred or {})
+    generado = cronologia_jornadas.parsear_fecha((pred or {}).get("generado_en"))
+    return (fecha or generado or date.min, str((pred or {}).get("generado_en") or ""))
 
 
 def ultima_prediccion_disponible():
@@ -132,7 +143,7 @@ def ultima_prediccion_disponible():
         data = cargar_json(path, {})
         if isinstance(data.get("jornada"), int):
             candidatas.append(data)
-    return max(candidatas, key=lambda item: item.get("jornada", 0), default={})
+    return max(candidatas, key=orden_cronologico_prediccion, default={})
 
 
 def cambios_jornada_actual(jornada, indice_competitivo=None):
@@ -448,9 +459,26 @@ def aprendizajes_contexto(contexto):
         aprend.append(f"Primera: {lectura}")
     for lectura in (segunda.get("lecturas_clave") or [])[:3]:
         aprend.append(f"Segunda: {lectura}")
-    if contexto:
+    # Auditoria 26/11: la frase se escribia siempre, tambien en la jornada 13
+    # de liga. Solo vale cuando de verdad queda poco (la misma regla de 10
+    # jornadas que usa el motor).
+    if contexto and en_recta_final(contexto):
         aprend.append("En la recta final debo subir peso a la necesidad real de puntos: titulo, Europa, ascenso, playoff y descenso.")
     return aprend
+
+
+def en_recta_final(contexto, limite=10):
+    """True si a alguna liga le quedan `limite` jornadas o menos."""
+    for liga in ("primera", "segunda"):
+        restantes = []
+        for equipo in ((contexto or {}).get(liga) or {}).get("equipos") or []:
+            try:
+                restantes.append(int(equipo.get("partidos_restantes")))
+            except (TypeError, ValueError):
+                continue
+        if restantes and 0 < max(restantes) <= limite:
+            return True
+    return False
 
 
 def resumen_equipos_liga(liga, nombre_liga):

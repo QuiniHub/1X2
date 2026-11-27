@@ -44,6 +44,27 @@ ALIAS = {
     "dep coruna": "deportivo coruna",
     "deportivo la coruna": "deportivo coruna",
     "celta b": "celta fortuna",
+    # Auditoria 26/11 (hallazgo 100): la fuente de resultados reescribe los
+    # nombres ('Real Racing Club de Santander' pasa a 'R. Santander') y, sin
+    # alias, todos los partidos de Liga del Racing caian en 'liga_extranjera'.
+    "r santander": "racing santander",
+    "racing santander": "racing santander",
+    "r zaragoza": "zaragoza",
+    "r valladolid": "valladolid",
+    "r sociedad b": "sociedad b",
+    "r betis": "betis",
+    "sp gijon": "sporting gijon",
+    "sporting": "sporting gijon",
+    "at madrid": "atletico madrid",
+    "atl madrid": "atletico madrid",
+    "celta": "celta vigo",
+    "osasuna": "ca osasuna",
+    "alaves": "deportivo alaves",
+    "deportivo": "deportivo coruna",
+    "coruna": "deportivo coruna",
+    "ceuta": "ad ceuta",
+    "rayo": "rayo vallecano madrid",
+    "vallecano": "rayo vallecano madrid",
 }
 
 REQUISITOS = {
@@ -194,25 +215,113 @@ def anotar_partido(partido, cats):
     return salida
 
 
-def anotar_archivo(path, cats):
+def _sin_generado_en(bloque):
+    return {k: v for k, v in (bloque or {}).items() if k != "generado_en"}
+
+
+def guardar_si_cambia(path, data):
+    """Guarda solo si cambia algo ademas de 'generado_en' (hallazgos 113/188)."""
+    anterior = cargar_json(path, None)
+    if isinstance(anterior, dict) and _sin_generado_en(anterior) == _sin_generado_en(data):
+        return False
+    guardar_json(path, data)
+    return True
+
+
+def anotar_archivo(path, cats, congelar=False):
+    """Anota la competicion de cada partido de un fichero.
+
+    congelar=True: no se toca un partido que ya tiene competicion_resuelta (se
+    usa para jornadas de OTRA temporada: los catalogos salen de la clasificacion
+    ACTUAL y reetiquetaban, p. ej., un Girona-Elche de Primera 25/26 como
+    'liga_extranjera' porque el Girona esta hoy en Segunda; hallazgo 86).
+
+    El fichero solo se reescribe si cambia algo distinto de la marca de tiempo:
+    antes 'generado_en' = ahora() hacia que se guardaran TODOS los ficheros de
+    jornada y de prediccion en cada ciclo (hallazgos 113 y 188).
+    """
     data = cargar_json(path, {})
     if not isinstance(data, dict) or not data:
         return None, False
     antes = json.dumps(data, ensure_ascii=False, sort_keys=True)
-    data["partidos"] = [anotar_partido(p, cats) for p in data.get("partidos", [])]
+
+    def anotar(partido):
+        if congelar and isinstance(partido, dict) and partido.get("competicion_resuelta"):
+            return partido
+        return anotar_partido(partido, cats)
+
+    data["partidos"] = [anotar(p) for p in data.get("partidos", [])]
     if isinstance(data.get("pleno15"), dict) and data["pleno15"]:
-        data["pleno15"] = anotar_partido(data["pleno15"], cats)
-    data["resolucion_competiciones"] = {
-        "generado_en": ahora(),
+        data["pleno15"] = anotar(data["pleno15"])
+    previo = data.get("resolucion_competiciones") if isinstance(data.get("resolucion_competiciones"), dict) else {}
+    bloque = {
         "objetivo": OBJETIVO,
         "resumen": dict(Counter(p.get("competicion_resuelta", "desconocida") for p in data.get("partidos", []))),
         "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras.",
     }
+    if previo and _sin_generado_en(previo) == bloque and previo.get("generado_en"):
+        marca = previo["generado_en"]
+    else:
+        marca = ahora()
+    data["resolucion_competiciones"] = {"generado_en": marca, **bloque}
     despues = json.dumps(data, ensure_ascii=False, sort_keys=True)
     if antes != despues:
         guardar_json(path, data)
         return data, True
     return data, False
+
+
+def temporada_en_curso(hoy=None):
+    import cronologia_jornadas
+
+    hoy = hoy or datetime.now(timezone.utc).date()
+    return cronologia_jornadas.temporada_de_fecha(hoy)
+
+
+def temporada_de_jornada(data, numero=None):
+    """Temporada ('2026_2027') de un jornada_N.json por su fecha real, o None."""
+    import cronologia_jornadas
+
+    if not isinstance(data, dict):
+        return None
+    fecha = cronologia_jornadas.fecha_real_jornada(data)
+    if fecha is None:
+        return None
+    try:
+        numero = int(numero if numero is not None else data.get("jornada"))
+    except (TypeError, ValueError):
+        numero = None
+    return cronologia_jornadas.temporada_de_fecha(fecha, numero)
+
+
+def prediccion_anotable(path, hoy=None):
+    """Un espejo de prediccion solo se anota si es de una jornada VIVA: de la
+    temporada en curso, sin cerrar y sin congelar. Los espejos de jornadas
+    cerradas, congelados al cierre o de la temporada pasada no se tocan."""
+    import cronologia_jornadas
+
+    data = cargar_json(path, {})
+    if not isinstance(data, dict) or not data:
+        return False
+    if data.get("prediccion_congelada_al_cierre"):
+        return False
+    try:
+        numero = int(data.get("jornada"))
+    except (TypeError, ValueError):
+        m = re.search(r"jornada_(\d+)", Path(path).stem)
+        if not m:
+            return False
+        numero = int(m.group(1))
+    jornada = cargar_json(JORNADAS / f"jornada_{numero}.json", {})
+    if not isinstance(jornada, dict) or not jornada.get("partidos"):
+        return False
+    if cronologia_jornadas.jornada_cerrada(jornada):
+        return False
+    if temporada_de_jornada(jornada, numero) != temporada_en_curso(hoy):
+        return False
+    if data.get("partidos") and not cronologia_jornadas.misma_jornada(data, jornada):
+        return False
+    return True
 
 
 def archivos_prediccion():
@@ -222,15 +331,21 @@ def archivos_prediccion():
     ultima = PREDICCIONES / "ultima_prediccion.json"
     if ultima.exists():
         salida.append(ultima)
-    return sorted(set(salida))
+    return sorted(p for p in set(salida) if prediccion_anotable(p))
 
 
 def main():
     cats = catalogos()
     jornadas = []
     cambios_jornadas = []
+    actual = temporada_en_curso()
     for path in sorted(JORNADAS.glob("jornada_*.json")):
-        data, cambiado = anotar_archivo(path, cats)
+        m = re.search(r"jornada_(\d+)", path.stem)
+        numero = int(m.group(1)) if m else None
+        # Los catalogos son de la temporada en curso: las jornadas de otra
+        # temporada (o sin fecha) se congelan.
+        otra_temporada = temporada_de_jornada(cargar_json(path, {}), numero) != actual
+        data, cambiado = anotar_archivo(path, cats, congelar=otra_temporada)
         if not data:
             continue
         jornadas.append({
@@ -262,8 +377,8 @@ def main():
         "jornadas": jornadas,
         "archivos_anotados": {"jornadas": cambios_jornadas, "predicciones": cambios_predicciones},
     }
-    guardar_json(OUT_RESOLUCION, salida)
-    guardar_json(OUT_OBJETIVO, {
+    guardar_si_cambia(OUT_RESOLUCION, salida)
+    guardar_si_cambia(OUT_OBJETIVO, {
         "version": "1.0",
         "generado_en": ahora(),
         "objetivo": OBJETIVO,

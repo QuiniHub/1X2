@@ -18,6 +18,8 @@ from collections import Counter, defaultdict, deque
 from datetime import datetime, timezone
 from pathlib import Path
 
+import cronologia_jornadas
+
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -123,8 +125,15 @@ def fase_partido(partido, contexto):
     return "fase_desconocida"
 
 
-def peso_jornada(jornada, max_jornada):
-    antiguedad = max(int(max_jornada or 0) - int(jornada or 0), 0)
+def peso_jornada(posicion, ultima_posicion):
+    """Peso por recencia segun la POSICION CRONOLOGICA de la jornada.
+
+    Auditoria 26/11: la antiguedad era max(numero) - numero. Con la
+    numeracion reiniciada, la J76 de la 25/26 (agosto) pesaba 1,0 y la J24 de
+    la 26/27 (noviembre, la mas reciente de verdad) 0,13. Ahora se cuentan
+    jornadas reales de distancia en la lista ordenada por fecha.
+    """
+    antiguedad = max(int(ultima_posicion or 0) - int(posicion or 0), 0)
     return round(0.5 ** (antiguedad / HALF_LIFE_JORNADAS), 6)
 
 
@@ -234,8 +243,17 @@ def cerrar_bucket(bucket):
 
 
 def cargar_jornadas_cerradas():
+    """Jornadas cerradas en ORDEN CRONOLOGICO (fecha real, no numero).
+
+    El orden importa dos veces: para el peso por recencia y porque el modelo
+    'rolling' de fuerza de equipos calcula el signo esperado de cada partido
+    con lo jugado ANTES. Ordenando por numero, la 26/27 (J1-J24) se procesaba
+    antes que la 25/26 (J28-J76) y los esperados de la temporada vieja se
+    calculaban con resultados posteriores.
+    """
     jornadas = []
-    for path in sorted(JORNADAS.glob("jornada_*.json"), key=numero_jornada):
+    for fila in cronologia_jornadas.indice_jornadas(JORNADAS):
+        path = Path(fila["ruta"])
         data = cargar_json(path, {})
         jornada = int(data.get("jornada") or numero_jornada(path) or 0)
         if jornada and es_jornada_cerrada(data):
@@ -243,18 +261,28 @@ def cargar_jornadas_cerradas():
     return jornadas
 
 
+def claves_jornadas(jornadas):
+    """Identidad de cada jornada cerrada: 'temporada:numero' en orden cronologico."""
+    claves = []
+    for jornada, _, data in jornadas:
+        fecha = cronologia_jornadas.fecha_real_jornada(data)
+        temporada = cronologia_jornadas.temporada_de_fecha(fecha, jornada) if fecha else None
+        claves.append(f"{temporada or 'sin_fecha'}:{jornada}")
+    return claves
+
+
 def debe_recalcular(jornadas):
     previo = cargar_json(SALIDA, {})
-    max_cerrada = max((j for j, _, _ in jornadas), default=0)
-    procesadas = sorted(int(j) for j, _, _ in jornadas)
     estado = previo.get("estado_incremental") or {}
-    if estado.get("ultima_jornada_cerrada") == max_cerrada and estado.get("jornadas_cerradas") == procesadas:
+    # Se compara la lista cronologica completa (con temporada): el maximo de
+    # los numeros no cambia cuando se cierra una jornada de la temporada nueva.
+    if estado.get("jornadas_cerradas_cronologico") == claves_jornadas(jornadas):
         return False, previo
     return True, previo
 
 
 def inferir_patrones(jornadas):
-    max_jornada = max((j for j, _, _ in jornadas), default=0)
+    ultima_posicion = len(jornadas) - 1
     buckets = defaultdict(init_bucket)
     fases = defaultdict(init_bucket)
     incertidumbre = defaultdict(init_bucket)
@@ -263,8 +291,10 @@ def inferir_patrones(jornadas):
     sorpresas = []
     jornadas_resumen = []
 
-    for jornada, path, data in jornadas:
-        peso = peso_jornada(jornada, max_jornada)
+    for posicion, (jornada, path, data) in enumerate(jornadas):
+        peso = peso_jornada(posicion, ultima_posicion)
+        fecha_real = cronologia_jornadas.fecha_real_jornada(data)
+        temporada = cronologia_jornadas.temporada_de_fecha(fecha_real, jornada) if fecha_real else None
         signos_jornada = Counter()
         sorpresas_jornada = 0
         for partido in data.get("partidos", []):
@@ -299,6 +329,7 @@ def inferir_patrones(jornadas):
                 sorpresas_jornada += 1
                 sorpresas.append({
                     "jornada": jornada,
+                    "temporada": temporada,
                     "num": num,
                     "partido": f"{partido.get('local', '')} - {partido.get('visitante', '')}",
                     "competicion": contexto,
@@ -321,6 +352,8 @@ def inferir_patrones(jornadas):
 
         jornadas_resumen.append({
             "jornada": jornada,
+            "temporada": temporada,
+            "fecha": fecha_real.isoformat() if fecha_real else None,
             "archivo": str(path.relative_to(ROOT)),
             "peso_reciente": peso,
             "signos": {s: signos_jornada[s] for s in SIGNOS},
@@ -397,9 +430,11 @@ def main():
         "version": "1.0",
         "generado_en": ahora_iso(),
         "estado_incremental": {
-            "ultima_jornada_cerrada": max((j for j, _, _ in jornadas), default=0),
+            "ultima_jornada_cerrada": jornadas[-1][0] if jornadas else 0,
+            "ultima_jornada_cerrada_clave": (claves_jornadas(jornadas) or [None])[-1],
             "total_jornadas_cerradas": len(jornadas),
             "jornadas_cerradas": sorted(j for j, _, _ in jornadas),
+            "jornadas_cerradas_cronologico": claves_jornadas(jornadas),
             "half_life_jornadas": HALF_LIFE_JORNADAS,
             "criterio_recalculo": "Solo recalcula cuando aparece una jornada cerrada nueva o cambia el conjunto de jornadas cerradas.",
         },

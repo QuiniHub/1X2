@@ -53,7 +53,8 @@ from pathlib import Path
 
 import numpy as np
 
-from columna_valiente import cargar_masa, equipos_espanoles, es_espanol, masa_de
+from columna_valiente import (cargar_masa, equipos_espanoles, es_espanol, masa_de, prediccion_publicable,
+                              publicar_bloque_sombra)
 from elige8_ev import _a_fraccion, probs_mix
 
 ROOT = Path(__file__).resolve().parent
@@ -319,7 +320,10 @@ def construir_dataset(jornadas=None, dir_snapshots=None, dir_jornadas=None, fuen
         try:
             from sorpresa_nombrada import cargar_fuentes
             fuentes = cargar_fuentes()
-        except Exception:
+        except Exception as exc:
+            # Sin fuentes la feature n_senales vale 0 en todas las filas: que se vea.
+            print(f"AVISO ranker_favoritos: fuentes de senales no disponibles ({type(exc).__name__}: {exc}); "
+                  "n_senales = 0 en todo el dataset.")
             fuentes = None
     dataset = []
     rutas = sorted(dir_snapshots.glob("jornada_*.json"))
@@ -329,11 +333,20 @@ def construir_dataset(jornadas=None, dir_snapshots=None, dir_jornadas=None, fuen
         j = pred.get("jornada")
         if not isinstance(j, int) or (jornadas is not None and j not in jornadas) or not pred.get("partidos"):
             continue
+        # Auditoria 26/11: el numero no identifica la jornada. Un snapshot de
+        # otra temporada no se cruza con los resultados de jornada_N.json.
+        from guardar_snapshot_prediccion import snapshot_de_otra_jornada
+        datos_jornada = cargar_json(Path(dir_jornadas or JORNADAS_DIR) / f"jornada_{j}.json", {}) or {}
+        if snapshot_de_otra_jornada(snap, datos_jornada):
+            continue
         reales = reales_jornada(j, dir_jornadas)
         fecha = fecha_jornada(j, dir_jornadas, pred)
         if not reales or not fecha:
             continue
-        etiqueta = f"{fecha.year}_{fecha.year + 1}" if fecha.month >= 7 else f"{fecha.year - 1}_{fecha.year}"
+        # La temporada sale de la fecha real y del numero (corte a mediados
+        # de agosto: la J76 de la 25/26 se jugo el 07-09/08/2026), no de julio.
+        import cronologia_jornadas as cj
+        etiqueta = cj.temporada_de_fecha(fecha, j)
         masa = (masa_por_jornada or {}).get(j) if masa_por_jornada is not None else cargar_masa(j, etiqueta)
         dataset.extend(filas_jornada(pred, masa or {}, reales, fecha, fuentes, espanoles, etiqueta))
     dataset.sort(key=lambda f: (f["fecha"], f["jornada"], f["num"]))
@@ -447,17 +460,21 @@ def construir_bloque_ranker(prediccion, masa=None, fechas=None, fuentes=None, mo
     if len(partidos) < 14:
         return {**base, "estado": "no_disponible", "motivo": "prediccion incompleta"}
     if masa is None:
-        masa = cargar_masa(jornada) if isinstance(jornada, int) else {}
+        masa = cargar_masa(jornada, partidos=partidos) if isinstance(jornada, int) else {}
     if fechas is None and isinstance(jornada, int):
         datos = cargar_json(JORNADAS_DIR / f"jornada_{jornada}.json", {}) or {}
         fechas = {p.get("num"): _fecha(p.get("fecha")) for p in datos.get("partidos") or []}
     fechas = fechas or {}
     if fuentes is None:
+        # Auditoria 26/11: n_senales es una FEATURE del modelo. Si las fuentes
+        # de señales no cargan, antes valia 0 en silencio para los 14 partidos
+        # y el marcador prerregistrado media un modelo cojo: ahora no se puntua.
         try:
             from sorpresa_nombrada import cargar_fuentes
             fuentes = cargar_fuentes()
-        except Exception:
-            fuentes = None
+        except Exception as exc:
+            return {**base, "estado": "no_disponible", "fuentes_senales": f"error: {type(exc).__name__}: {exc}",
+                    "motivo": "no se pudieron cargar las fuentes de señales (feature n_senales): no se puntua"}
     modelo = modelo_actual() if modelo == "auto" else modelo
     espanoles = espanoles if espanoles is not None else equipos_espanoles()
     filas = []
@@ -475,7 +492,8 @@ def construir_bloque_ranker(prediccion, masa=None, fechas=None, fuentes=None, mo
         f["puesto"] = i
     veredicto = ((cargar_json(BACKTEST, {}) or {}).get("walk_forward") or {}).get("veredicto")
     nombrado = filas[0]
-    return {**base, "estado": "ok", "origen_score": "ranker_logistico" if modelo else "baseline_1_menos_p",
+    return {**base, "estado": "ok", "fuentes_senales": "ok",
+            "origen_score": "ranker_logistico" if modelo else "baseline_1_menos_p",
             "veredicto_backtest": veredicto, "n_favoritos": len(filas), "ranking": filas,
             "nombrado": {k: nombrado[k] for k in ("num", "local", "visitante", "favorito", "p_fav", "masa_fav",
                                                  "score", "signo_si_cae", "n_senales", "gap_market")},
@@ -518,7 +536,10 @@ def resumen_marcador(registros):
         veredicto = "despido"
     else:
         veredicto = "en_prueba"
+    # 'esperado' es el alias que pinta index.html (renderFavoritosRiesgo lee
+    # resumen.esperado); 'nombrado_esperados' se conserva por compatibilidad.
     return {"jornadas_evaluadas": n, "nombrado_cayo": aciertos, "nombrado_esperados": esperados,
+            "esperado": esperados,
             "signo_si_cae_aciertos": sum(1 for r in registros if r.get("nombrado_signo_si_cae_acierta")),
             "favoritos_total": sum(r.get("n_favoritos", 0) for r in registros),
             "caidos_total": sum(r.get("caidos", 0) for r in registros),
@@ -526,24 +547,26 @@ def resumen_marcador(registros):
             "veredicto": veredicto, "avisar_a_marc": veredicto == "candidata", "criterio": CRITERIO_MARCADOR}
 
 
-def actualizar_marcador(dir_predicciones=None, dir_jornadas=None, ruta_marcador=None, etiqueta=None, ahora=None):
+def actualizar_marcador(dir_predicciones=None, dir_jornadas=None, ruta_marcador=None, etiqueta=None, ahora=None,
+                        dir_snapshots=None):
     """Anota cada jornada cerrada con bloque publicado una sola vez (idempotente
-    por (temporada, jornada)); las jornadas abiertas se saltan."""
-    from actualizar_porcentajes_lae import temporada_etiqueta
-    dir_predicciones = Path(dir_predicciones or PREDICCIONES_DIR)
+    por (temporada, jornada)); las jornadas abiertas se saltan.
+
+    Auditoria 26/11: el bloque se lee del snapshot PRE-CIERRE (no del espejo
+    data/predicciones, que se reescribe con la jornada en juego) y la
+    temporada sale de la fecha de la jornada, no de now(). dir_predicciones
+    se conserva en la firma pero ya no se lee."""
+    from senal_valiente import bloques_del_cierre
     dir_jornadas = Path(dir_jornadas or JORNADAS_DIR)
     ruta_marcador = Path(ruta_marcador or MARCADOR)
     ahora = ahora or datetime.now(timezone.utc)
-    etiqueta = etiqueta or temporada_etiqueta(ahora)
     marcador = cargar_json(ruta_marcador, {}) or {}
     registros = marcador.get("registros") or []
     vistos = {(r.get("temporada"), r.get("jornada")) for r in registros}
     nuevas = 0
-    for ruta in sorted(dir_predicciones.glob("jornada_*.json")):
-        datos = cargar_json(ruta, {}) or {}
-        bloque = datos.get("favoritos_en_riesgo") or {}
-        jornada = bloque.get("jornada", datos.get("jornada"))
-        if bloque.get("estado") != "ok" or not isinstance(jornada, int) or (etiqueta, jornada) in vistos:
+    for etiqueta, jornada, bloque, _pred, _datos in bloques_del_cierre(
+            "favoritos_en_riesgo", dir_jornadas, dir_snapshots, etiqueta):
+        if bloque.get("estado") != "ok" or (etiqueta, jornada) in vistos:
             continue
         reales = reales_jornada(jornada, dir_jornadas)
         if not reales:
@@ -576,12 +599,26 @@ def main():
         print("  caidas por tramo:", json.dumps(r["caidas_por_tramo"]))
         return
     prediccion = cargar_json(PREDICCION, {})
-    if not prediccion or not prediccion.get("partidos"):
+    publicar = "--solo-lectura" not in sys.argv
+    if not prediccion:
         print("Sin ultima_prediccion.json; nada que rankear.")
+        return
+    # Auditoria 26/11: misma guarda que los demas modulos en sombra. Sobre una
+    # prediccion bloqueada no se publica nada y el bloque anterior se retira.
+    if not prediccion_publicable(prediccion):
+        if publicar:
+            publicar_bloque_sombra("favoritos_en_riesgo", None, prediccion, PREDICCION, PREDICCIONES_DIR)
+        print("Prediccion bloqueada o no disponible; bloque favoritos_en_riesgo retirado.")
+        return
+    if not prediccion.get("partidos"):
+        print("Sin partidos en ultima_prediccion.json; nada que rankear.")
         return
     bloque = construir_bloque_ranker(prediccion)
     jornada = prediccion.get("jornada")
     if bloque.get("estado") != "ok":
+        # No se deja en disco el bloque de una ejecucion anterior.
+        if publicar:
+            publicar_bloque_sombra("favoritos_en_riesgo", None, prediccion, PREDICCION, PREDICCIONES_DIR)
         print(f"Ranker favoritos (sombra) J{jornada}: {bloque.get('estado')} - {bloque.get('motivo')}")
         return
     ascii_ = lambda t: str(t).encode("ascii", "replace").decode("ascii")
@@ -591,15 +628,8 @@ def main():
               f"p {f['p_fav']:.2f} masa {f['masa_fav']:.2f} gap {f['gap_market']:+.2f} senales {f['n_senales']} "
               f"score {f['score']:.3f} si cae {f['signo_si_cae']}")
     print("  " + ascii_(bloque["lectura"]))
-    if "--solo-lectura" not in sys.argv:  # en el pipeline publica el bloque (sombra)
-        prediccion["favoritos_en_riesgo"] = bloque
-        guardar_json(PREDICCION, prediccion)
-        espejo = PREDICCIONES_DIR / f"jornada_{jornada}.json"
-        if isinstance(jornada, int) and espejo.exists():
-            datos = cargar_json(espejo, {})
-            if datos.get("jornada") == jornada:
-                datos["favoritos_en_riesgo"] = bloque
-                guardar_json(espejo, datos)
+    if publicar:  # en el pipeline publica el bloque (sombra)
+        publicar_bloque_sombra("favoritos_en_riesgo", bloque, prediccion, PREDICCION, PREDICCIONES_DIR)
         print("  bloque 'favoritos_en_riesgo' escrito en la prediccion.")
 
 

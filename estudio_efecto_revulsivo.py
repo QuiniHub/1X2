@@ -51,18 +51,33 @@ ALIAS = {
     "sporting gijon": "sp gijon",
     "racing santander": "santander",
     "racing ferrol": "ferrol",
+    # normalizar() quita 'real': 'Real Madrid' se quedaba en 'madrid', que
+    # esta contenido en 'ath madrid' (Atletico). Auditoria 26/11.
+    "madrid": "real madrid",
+    "espanol": "espanyol",
 }
 
 
+def clave_equipo_revulsivo(nombre):
+    clave = normalizar(nombre)
+    return ALIAS.get(clave, clave)
+
+
 def mismo_equipo(nombre_cese, nombre_historico):
-    a = normalizar(nombre_cese)
-    b = normalizar(nombre_historico)
+    """Mismo club: igual tras normalizar y alias, o un nombre contiene al otro
+    por PALABRAS completas (no por subcadena) sin que la diferencia sea la
+    marca de filial 'b'. 'Real Madrid' ya no casa con 'Atletico Madrid'."""
+    a = clave_equipo_revulsivo(nombre_cese)
+    b = clave_equipo_revulsivo(nombre_historico)
     if not a or not b:
         return False
-    a = ALIAS.get(a, a)
     if a == b:
         return True
-    return (a in b or b in a) and min(len(a), len(b)) >= 4
+    ta, tb = set(a.split()), set(b.split())
+    corto, largo = (ta, tb) if len(ta) <= len(tb) else (tb, ta)
+    if not corto <= largo or "b" in (largo - corto):
+        return False
+    return max(len(t) for t in corto) >= 4
 
 
 def prob_desde_cuotas(p):

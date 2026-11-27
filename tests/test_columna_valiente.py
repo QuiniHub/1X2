@@ -9,8 +9,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import columna_valiente as cv
+import test_aud_P4_sombra_snapshot_util as util
 
 ESP = {cv._norm(n) for n in ("Real Betis Balompie", "Villarreal CF", "RC Celta de Vigo", "Real Sociedad de Futbol",
                              "Real Madrid CF", "FC Barcelona", "Getafe CF")}
@@ -91,28 +93,37 @@ class ReglasTests(unittest.TestCase):
 
 
 class MarcadorTests(unittest.TestCase):
+    """Auditoria 26/11: el marcador lee la columna del snapshot PRE-CIERRE."""
+
+    def _bloque(self, columna=None):
+        columna = columna or ["1", "X", "2", "X"] + ["1"] * 10
+        masa_col = ["1", "2", "2", "1"] + ["1"] * 10
+        return {"estado": "ok", "columna": columna, "columna_masa": masa_col,
+                "cambios": [{"num": 2, "local": "A", "visitante": "B", "de": "2", "a": "X", "regla": "R1_sin_dueno"},
+                            {"num": 4, "local": "C", "visitante": "D", "de": "1", "a": "X", "regla": "R3_espanol_favorito_fuera"}]}
+
     def _montar(self, tmp, cerrada=True):
         tmp = Path(tmp)
         (tmp / "pred").mkdir()
-        (tmp / "jor").mkdir()
-        columna = ["1", "X", "2", "X"] + ["1"] * 10
-        masa_col = ["1", "2", "2", "1"] + ["1"] * 10
-        bloque = {"estado": "ok", "columna": columna, "columna_masa": masa_col,
-                  "cambios": [{"num": 2, "local": "A", "visitante": "B", "de": "2", "a": "X", "regla": "R1_sin_dueno"},
-                              {"num": 4, "local": "C", "visitante": "D", "de": "1", "a": "X", "regla": "R3_espanol_favorito_fuera"}]}
-        (tmp / "pred" / "jornada_24.json").write_text(json.dumps({"jornada": 24, "columna_valiente": bloque}), encoding="utf-8")
         reales = ["1", "X", "2", "1"] + ["1"] * 10
         if not cerrada:
             reales[13] = "Pendiente"
-        partidos = [{"num": i + 1, "local": f"L{i}", "visitante": f"V{i}", "signo_oficial": r} for i, r in enumerate(reales)]
-        (tmp / "jor" / "jornada_24.json").write_text(json.dumps({"jornada": 24, "partidos": partidos}), encoding="utf-8")
+        util.montar_cierre(tmp, 24, {"columna_valiente": self._bloque()},
+                           signos={i + 1: r for i, r in enumerate(reales)}, fecha="2026-11-24")
+        # el espejo, reescrito con la jornada en juego, dice otra columna: no cuenta
+        (tmp / "pred" / "jornada_24.json").write_text(json.dumps(
+            {"jornada": 24, "columna_valiente": self._bloque(["2"] * 14)}), encoding="utf-8")
         return tmp
+
+    def _actualizar(self, tmp, etiqueta="2026_2027"):
+        ahora = datetime(2026, 11, 27, tzinfo=timezone.utc)
+        return cv.actualizar_marcador(tmp / "pred", tmp / "jornadas", tmp / "m.json", etiqueta=etiqueta, ahora=ahora,
+                                      dir_snapshots=tmp / "snapshots")
 
     def test_registra_evalua_y_es_idempotente(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp = self._montar(tmp)
-            ahora = datetime(2026, 11, 27, tzinfo=timezone.utc)
-            r = cv.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027", ahora=ahora)
+            r = self._actualizar(tmp)
             self.assertEqual(r["nuevas"], 1)
             self.assertEqual(r["resumen"]["aciertos_valiente"], 13)
             self.assertEqual(r["resumen"]["aciertos_masa"], 13)
@@ -120,14 +131,80 @@ class MarcadorTests(unittest.TestCase):
             self.assertEqual(r["resumen"]["por_regla"]["R1_sin_dueno"]["aciertos"], 1)
             self.assertEqual(r["resumen"]["por_regla"]["R3_espanol_favorito_fuera"]["acertaba_masa"], 1)
             self.assertEqual(r["resumen"]["veredicto"], "en_prueba")
-            r2 = cv.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027", ahora=ahora)
-            self.assertEqual(r2["nuevas"], 0)
+            self.assertEqual(self._actualizar(tmp)["nuevas"], 0)
+            # now() en julio de 2027 cambiaba la etiqueta y lo registraba otra vez
+            self.assertEqual(self._actualizar(tmp, etiqueta="2027_2028")["nuevas"], 0)
+            registros = json.loads((tmp / "m.json").read_text(encoding="utf-8"))["registros"]
+            self.assertEqual([x["temporada"] for x in registros], ["2026_2027"])
+            self.assertEqual(registros[0]["columna"][:4], ["1", "X", "2", "X"])  # la del snapshot
 
     def test_jornada_abierta_no_se_registra(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp = self._montar(tmp, cerrada=False)
-            r = cv.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027")
-            self.assertEqual(r["nuevas"], 0)
+            self.assertEqual(self._actualizar(tmp)["nuevas"], 0)
+
+
+class CargarMasaTests(unittest.TestCase):
+    """Auditoria 26/11: cargar_masa sin etiqueta buscaba jornada_N en la
+    carpeta de CUALQUIER temporada (la mas reciente primero)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.base = Path(self.tmp.name)
+        self._orig = (cv.PORCENTAJES_DIR, cv.JORNADAS_DIR)
+        cv.PORCENTAJES_DIR = self.base / "porcentajes"
+        cv.JORNADAS_DIR = self.base / "jornadas"
+        carpeta = cv.PORCENTAJES_DIR / "2026_2027"
+        carpeta.mkdir(parents=True)
+        (carpeta / "jornada_5.json").write_text(json.dumps({
+            "jornada": 5, "temporada": "2026_2027",
+            "partidos": [{"numero": n, "local": l.upper(), "visitante": v.upper(),
+                          "porcentajes": {"1": 60.0, "X": 25.0, "2": 15.0}}
+                         for n, (l, v) in enumerate(util.EQUIPOS, start=1)]}), encoding="utf-8")
+
+    def tearDown(self):
+        cv.PORCENTAJES_DIR, cv.JORNADAS_DIR = self._orig
+        self.tmp.cleanup()
+
+    def test_la_j5_de_la_temporada_siguiente_no_hereda_la_masa_de_la_anterior(self):
+        util.escribir_jornada(cv.JORNADAS_DIR, 5, fecha="2027-09-11", nombres=util.OTROS_EQUIPOS)
+        self.assertEqual(cv.etiqueta_de_jornada(5), "2027_2028")
+        self.assertEqual(cv.cargar_masa(5), {})
+
+    def test_la_jornada_de_su_temporada_si_carga(self):
+        util.escribir_jornada(cv.JORNADAS_DIR, 5, fecha="2026-09-12")
+        masa = cv.cargar_masa(5, partidos=util.partidos_prediccion(util.EQUIPOS))
+        self.assertEqual(len(masa), 14)
+        self.assertEqual(masa[1]["1"], 60.0)
+
+    def test_masa_de_otros_equipos_se_descarta(self):
+        util.escribir_jornada(cv.JORNADAS_DIR, 5, fecha="2026-09-12")
+        self.assertEqual(cv.cargar_masa(5, partidos=util.partidos_prediccion(util.OTROS_EQUIPOS)), {})
+
+    def test_sin_fichero_de_jornada_no_hay_salto_a_otra_temporada(self):
+        self.assertEqual(cv.cargar_masa(5), {})
+        self.assertEqual(len(cv.cargar_masa(5, "2026_2027")), 14)  # con etiqueta explicita sigue igual
+
+
+class PublicarBloqueTests(unittest.TestCase):
+    def test_escribe_y_retira_en_ultima_y_en_el_espejo(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            pred = {"jornada": 7, "prediccion_disponible": True, "prediccion_permitida": True}
+            (tmp / "ultima.json").write_text(json.dumps(pred), encoding="utf-8")
+            (tmp / "jornada_7.json").write_text(json.dumps({"jornada": 7}), encoding="utf-8")
+            self.assertEqual(cv.publicar_bloque_sombra("x", {"estado": "ok"}, pred, tmp / "ultima.json"),
+                             ["ultima.json", "jornada_7.json"])
+            self.assertIn("x", json.loads((tmp / "jornada_7.json").read_text(encoding="utf-8")))
+            cv.publicar_bloque_sombra("x", None, pred, tmp / "ultima.json")
+            for nombre in ("ultima.json", "jornada_7.json"):
+                self.assertNotIn("x", json.loads((tmp / nombre).read_text(encoding="utf-8")))
+            self.assertEqual(cv.publicar_bloque_sombra("x", None, pred, tmp / "ultima.json"), [])
+
+    def test_prediccion_publicable(self):
+        self.assertTrue(cv.prediccion_publicable({"prediccion_disponible": True, "prediccion_permitida": True}))
+        self.assertFalse(cv.prediccion_publicable({"prediccion_disponible": True, "prediccion_permitida": False}))
+        self.assertFalse(cv.prediccion_publicable({}))
 
     def test_veredicto_prerregistrado(self):
         regs = [{"aciertos_valiente": 10, "aciertos_masa": 9, "cambios": []} for _ in range(cv.GRADUACION_MIN_JORNADAS)]

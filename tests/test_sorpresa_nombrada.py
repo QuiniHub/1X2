@@ -9,8 +9,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import sorpresa_nombrada as sn
+import test_aud_P4_sombra_snapshot_util as util
 
 
 def _partidos_cal(tmp, *filas):
@@ -127,36 +129,66 @@ class EleccionTests(unittest.TestCase):
 
 
 class MarcadorTests(unittest.TestCase):
-    def _montar(self, tmp, signo_oficial="2"):
+    """Auditoria 26/11: el marcador lee el bloque del snapshot PRE-CIERRE."""
+
+    def _bloque(self, num=2, signo="2"):
+        local, visitante = util.EQUIPOS[num - 1]
+        return {"estado": "ok", "jornada": 12, "num": num, "local": local, "visitante": visitante, "signo": signo,
+                "prob_motor": 25.0, "senales": [{"tipo": "h2h_adverso_reciente"}], "cubierta_por_boleto": False,
+                "fecha": "2026-11-21", "hora": "16:15"}
+
+    def _montar(self, tmp, signo_oficial="2", bloques=None):
         tmp = Path(tmp)
         (tmp / "pred").mkdir()
-        (tmp / "jor").mkdir()
-        bloque = {"estado": "ok", "jornada": 30, "num": 2, "local": "A", "visitante": "B", "signo": "2",
-                  "prob_motor": 25.0, "senales": [{"tipo": "h2h_adverso_reciente"}], "cubierta_por_boleto": False,
-                  "fecha": "2026-11-21", "hora": "16:15"}
-        (tmp / "pred" / "jornada_30.json").write_text(json.dumps({"jornada": 30, "sorpresa_nombrada": bloque}), encoding="utf-8")
-        partidos = [{"num": n, "local": f"L{n}", "visitante": f"V{n}", "signo_oficial": "1"} for n in range(1, 15)]
-        partidos[1].update({"local": "A", "visitante": "B", "signo_oficial": signo_oficial})
-        (tmp / "jor" / "jornada_30.json").write_text(json.dumps({"jornada": 30, "partidos": partidos}), encoding="utf-8")
+        self.jor, self.snap = util.montar_cierre(
+            tmp, 12, {"sorpresa_nombrada": self._bloque()} if bloques is None else bloques,
+            signos={2: signo_oficial})
         return tmp
+
+    def _actualizar(self, tmp, etiqueta="2026_2027"):
+        ahora = datetime(2026, 11, 23, tzinfo=timezone.utc)
+        return sn.actualizar_marcador(tmp / "pred", self.jor, tmp / "m.json", etiqueta=etiqueta, ahora=ahora,
+                                      dir_snapshots=self.snap)
 
     def test_registra_y_es_idempotente(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp = self._montar(tmp)
-            ahora = datetime(2026, 11, 23, tzinfo=timezone.utc)
-            r = sn.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027", ahora=ahora)
+            r = self._actualizar(tmp)
             self.assertEqual(r["nuevas"], 1)
             self.assertEqual(r["resumen"]["aciertos"], 1)
             self.assertEqual(r["resumen"]["vistas_y_no_pagadas"], 1)
             self.assertEqual(r["resumen"]["veredicto"], "en_prueba")
-            r2 = sn.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027", ahora=ahora)
-            self.assertEqual(r2["nuevas"], 0)
+            self.assertEqual(self._actualizar(tmp)["nuevas"], 0)
+            # now() en julio de 2027 cambiaba la etiqueta y lo registraba otra vez
+            self.assertEqual(self._actualizar(tmp, etiqueta="2027_2028")["nuevas"], 0)
+            registros = json.loads((tmp / "m.json").read_text(encoding="utf-8"))["jornadas"]
+            self.assertEqual([r["temporada"] for r in registros], ["2026_2027"])
 
     def test_jornada_abierta_no_se_registra(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp = self._montar(tmp, signo_oficial="Pendiente")
-            r = sn.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027")
-            self.assertEqual(r["nuevas"], 0)
+            self.assertEqual(self._actualizar(tmp)["nuevas"], 0)
+
+    def test_un_bloque_que_solo_esta_en_el_espejo_no_se_registra(self):
+        # J23 real: el modulo nacio el 22/11, con el Rayo-Valencia ya jugado
+        # (21/11), y el marcador apunto un "acierto" que nadie dijo antes del
+        # cierre. Sin bloque en el snapshot pre-cierre no hay registro.
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = self._montar(tmp, bloques={})
+            (tmp / "pred" / "jornada_12.json").write_text(
+                json.dumps({"jornada": 12, "sorpresa_nombrada": self._bloque()}), encoding="utf-8")
+            self.assertEqual(self._actualizar(tmp)["nuevas"], 0)
+
+    def test_signo_real_casa_equipos_femeninos_y_alias(self):
+        # Auditoria 26/11: 'Hacken (F)' frente a 'Hacken W' no casaba.
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            util.escribir_jornada(tmp, 22, nombres=[("Hacken W", "Manchester City W")] + util.EQUIPOS[1:],
+                                  signos={1: "X"})
+            bloque = {"jornada": 22, "num": 1, "local": "Hacken (F)", "visitante": "Manchester City (F)"}
+            self.assertEqual(sn._signo_real(bloque, tmp), "X")
+            ajeno = {"jornada": 22, "num": 1, "local": "Real Zaragoza", "visitante": "SD Huesca"}
+            self.assertIsNone(sn._signo_real(ajeno, tmp))
 
     def test_freno_por_senal(self):
         regs = [{"estado": "nombrada", "acierto": False, "prob_declarada": 30.0, "senales": ["empatador"]} for _ in range(8)]

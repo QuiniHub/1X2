@@ -162,6 +162,10 @@ def resumir_partido(dt, idx):
         "division": dt.get("division"),
         "clasificacion_local": str(dt.get("clasificacionLocal") or "").strip(),
         "clasificacion_visitante": str(dt.get("clasificacionVisitante") or "").strip(),
+        # Son los porcentajes de los TECNICOS de la fuente (tecnico1/X/2), no
+        # el % apostado de LAE. 'prob_lae' se mantiene solo por compatibilidad
+        # (auditoria 26/11, hallazgo 171): el nombre correcto es prob_tecnicos.
+        "prob_tecnicos": {"1": prob1, "X": probX, "2": prob2},
         "prob_lae": {"1": prob1, "X": probX, "2": prob2},
         "h2h_quiniela": {"v1": v1, "vX": vX, "v2": v2, "total": v1 + vX + v2},
         "h2h_anos": h2h_anos,
@@ -183,6 +187,29 @@ def resumir_partido(dt, idx):
     }
 
 
+def jornada_a_descargar(pred):
+    """Jornada cuyos detalles hay que bajar.
+
+    Auditoria 26/11 (hallazgo 219): se usaba la jornada de ultima_prediccion,
+    que en este punto del pipeline es todavia la del ciclo ANTERIOR; en el
+    cambio de jornada se bajaban los detalles de la jornada vieja. Ahora manda
+    la jornada objetivo (misma funcion que usa el motor) y la de la prediccion
+    queda como respaldo.
+    """
+    try:
+        import jornada_objetivo_quiniela
+
+        objetivo = int(jornada_objetivo_quiniela.jornada_objetivo_prediccion() or 0)
+    except Exception:
+        objetivo = 0
+    if objetivo:
+        return objetivo
+    try:
+        return int((pred or {}).get("jornada") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
 def main():
     print("=== Detalles partidos eduardolosilla.es ===\n")
 
@@ -191,7 +218,7 @@ def main():
         print("ERROR: no se puede leer ultima_prediccion.json")
         return
 
-    jornada = int(pred.get("jornada") or 0)
+    jornada = jornada_a_descargar(pred)
     if not jornada:
         print("ERROR: jornada no disponible en prediccion")
         return

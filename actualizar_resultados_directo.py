@@ -1,7 +1,7 @@
 import json
 import re
 import unicodedata
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -356,11 +356,57 @@ def buscar_resultado_final(texto, partido):
     return None
 
 
+FUENTE_DIRECTO = "resultados_directo"
+# Una jornada nombrada por la fuente solo se da por activa si su ultimo partido
+# no es mas viejo que esto ni su primer partido mas lejano que esto.
+DIAS_JORNADA_RECIENTE = 10
+
+
+def ahora_utc_iso():
+    return datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec="seconds") + "Z"
+
+
+def jornada_abierta_y_reciente(data, hoy=None):
+    """True si la jornada tiene partidos sin signo y sus fechas son de ahora.
+
+    Auditoria 26/11 (hallazgo 60): se aceptaba el primer 'jornada N' del texto
+    de la fuente con solo existir jornada_N.json, aunque fuera una jornada ya
+    cerrada o de otra temporada (la numeracion se repite cada ano).
+    """
+    import cronologia_jornadas
+
+    if not isinstance(data, dict) or not data.get("partidos"):
+        return False
+    if not resumen_temporal_jornada(data)["pendientes"]:
+        return False
+    hoy = hoy or datetime.now(TZ_COMPETICION).date()
+    inicio = cronologia_jornadas.fecha_real_jornada(data)
+    fin = cronologia_jornadas.fecha_fin_jornada(data)
+    if inicio is None or fin is None:
+        return False
+    margen = timedelta(days=DIAS_JORNADA_RECIENTE)
+    return fin >= hoy - margen and inicio <= hoy + margen
+
+
+def signo_fijado_por_otra_fuente(partido):
+    """El partido ya tiene signo oficial valido y NO lo escribio este script
+    (LAE, boleto vivo, sorteo de aplazados, correccion manual...)."""
+    return signo_valido(partido.get("signo_oficial")) and partido.get("fuente_resultado") != FUENTE_DIRECTO
+
+
+def tiene_marcador(partido):
+    return str(partido.get("resultado") or "").strip().lower() not in ("", "pendiente", "no jugada")
+
+
 def jornada_activa_desde_archivos(jornada_detectada=None):
     if jornada_detectada:
         path = JORNADAS / f"jornada_{jornada_detectada}.json"
         if path.exists():
-            return jornada_detectada
+            if jornada_abierta_y_reciente(cargar_json(path, {})):
+                return jornada_detectada
+            # Existe pero esta cerrada o no es de estas fechas: no se usa y
+            # tampoco se devuelve mas abajo como respaldo.
+            jornada_detectada = None
 
     candidatas = []
     for path in JORNADAS.glob("jornada_*.json"):
@@ -376,22 +422,25 @@ def jornada_activa_desde_archivos(jornada_detectada=None):
     if not candidatas:
         return jornada_detectada
 
+    # Desempates por FECHA real (primer_inicio), nunca por numero de jornada:
+    # la numeracion se reinicia cada temporada (hallazgo 60).
     en_juego = [c for c in candidatas if c["cerrados"] > 0 and c["pendientes"] > 0]
     if en_juego:
-        return sorted(en_juego, key=lambda c: (c["numero"], c["cerrados"]), reverse=True)[0]["numero"]
+        return sorted(en_juego, key=lambda c: (c["primer_inicio"], c["cerrados"]), reverse=True)[0]["numero"]
 
     vencidas = [c for c in candidatas if c["vencidos"] > 0]
     if vencidas:
-        return sorted(vencidas, key=lambda c: (c["numero"], c["vencidos"]), reverse=True)[0]["numero"]
+        return sorted(vencidas, key=lambda c: (c["primer_inicio"], c["vencidos"]), reverse=True)[0]["numero"]
 
     empezadas = [c for c in candidatas if c["empezados"] > 0]
     if empezadas:
-        return sorted(empezadas, key=lambda c: (c["numero"], c["empezados"]), reverse=True)[0]["numero"]
+        return sorted(empezadas, key=lambda c: (c["primer_inicio"], c["empezados"]), reverse=True)[0]["numero"]
 
     con_fecha = [c for c in candidatas if c["primer_inicio"]]
     if con_fecha:
         return sorted(con_fecha, key=lambda c: c["primer_inicio"])[0]["numero"]
-    return max(c["numero"] for c in candidatas)
+    # Ninguna candidata tiene fechas: no hay forma de saber cual es la activa.
+    return jornada_detectada
 
 
 def actualizar_jornada_quiniela(texto):
@@ -415,6 +464,8 @@ def actualizar_jornada_quiniela(texto):
     for partido in data.get("partidos", []):
         if partido_esta_programado_en_futuro(partido):
             continue
+        if signo_fijado_por_otra_fuente(partido) and tiene_marcador(partido):
+            continue
         resultado = buscar_resultado_final(texto, partido)
         if not resultado:
             continue
@@ -433,20 +484,44 @@ def actualizar_jornada_quiniela(texto):
         if not resultado:
             continue
         signo = signo_resultado(resultado)
+        if signo_fijado_por_otra_fuente(partido):
+            # Signo ya cerrado por otra fuente (LAE, boleto vivo, sorteo,
+            # correccion): no se pisa. Si no coincide, solo se avisa.
+            if anterior != resultado or partido.get("signo_oficial") != signo:
+                print(
+                    f"AVISO directo: {partido.get('local')} - {partido.get('visitante')} ya tiene "
+                    f"{anterior} ({partido.get('signo_oficial')}); la fuente dice {resultado}. No se cambia."
+                )
+            if not tiene_marcador(partido) and partido.get("signo_oficial") == signo:
+                # Signo puesto por otra fuente SIN marcador (LAE oficial,
+                # sorteo): se rellena solo el marcador, que coincide con el
+                # signo. Ni el signo ni fuente_resultado se tocan.
+                partido["resultado"] = resultado
+                partido["marcador_fuente"] = FUENTE_DIRECTO
+                cambios += 1
+            if tiene_marcador(partido):
+                actualizados.append(partido)
+            continue
         if anterior != resultado or partido.get("signo_oficial") != signo:
             partido["resultado"] = resultado
             partido["signo_oficial"] = signo
-            partido["actualizado_en"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+            partido["fuente_resultado"] = FUENTE_DIRECTO
+            partido["actualizado_en"] = ahora_utc_iso()
             cambios += 1
         actualizados.append(partido)
 
     pleno = data.get("pleno15") or {}
     if pleno:
         resultado = None if partido_esta_programado_en_futuro(pleno) else buscar_resultado_final(texto, pleno)
-        if resultado and pleno.get("resultado") != resultado:
+        pleno_fijado = (
+            str(pleno.get("resultado") or "").strip().lower() not in ("", "pendiente")
+            and pleno.get("fuente_resultado") != FUENTE_DIRECTO
+        )
+        if resultado and pleno.get("resultado") != resultado and not pleno_fijado:
             pleno["resultado"] = resultado
             pleno["signo_oficial"] = resultado
-            pleno["actualizado_en"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+            pleno["fuente_resultado"] = FUENTE_DIRECTO
+            pleno["actualizado_en"] = ahora_utc_iso()
             cambios += 1
 
     if cambios:
@@ -497,7 +572,7 @@ def sincronizar_calendario_liga(partidos):
                         if p_cal.get("resultado") != resultado:
                             p_cal["resultado"] = resultado
                             p_cal["estado"] = "Jugado"
-                            p_cal["actualizado_en"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+                            p_cal["actualizado_en"] = ahora_utc_iso()
                             cambios += 1
         guardar_json(archivo, data)
     print(f"Calendarios sincronizados desde quiniela: {cambios} cambios.")

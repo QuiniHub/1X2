@@ -16,7 +16,7 @@ import json
 import re
 import sys
 import unicodedata
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import requests
@@ -28,16 +28,40 @@ DATA_DIR = ROOT / "data" / "liga_f"
 FICHERO_CLASIFICACION = DATA_DIR / "clasificacion.json"
 FICHERO_RESULTADOS = DATA_DIR / "resultados.json"
 
-TEMPORADA = "2026/2027"
-FUENTES = [
-    "https://en.wikipedia.org/wiki/2026%E2%80%9327_Liga_F",
-    "https://es.wikipedia.org/wiki/Liga_F_2026-27",
-]
-USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-)
+def anio_inicio_temporada(hoy: date | None = None) -> int:
+    """Anio en que empieza la temporada en curso (la Liga F arranca a finales
+    de agosto). Antes estaba escrito a mano '2026/2027' (auditoria 26/11, 62)."""
+    hoy = hoy or datetime.now(timezone.utc).date()
+    return hoy.year if hoy.month >= 8 else hoy.year - 1
+
+
+def temporada_y_fuentes(hoy: date | None = None) -> tuple[str, list[str]]:
+    inicio = anio_inicio_temporada(hoy)
+    corto = f"{(inicio + 1) % 100:02d}"
+    return f"{inicio}/{inicio + 1}", [
+        f"https://en.wikipedia.org/wiki/{inicio}%E2%80%93{corto}_Liga_F",
+        f"https://es.wikipedia.org/wiki/Liga_F_{inicio}-{corto}",
+    ]
+
+
+TEMPORADA, FUENTES = temporada_y_fuentes()
+
+# Auditoria 26/11 (hallazgos 61 y 125): el User-Agent se hacia pasar por
+# Chrome 124 y Wikimedia respondia 429 ("We suspect this request is
+# automated"). Su politica pide que los clientes automatizados se identifiquen
+# como tales. Se usa un identificador generico y honesto, sin datos personales.
+USER_AGENT = "quiniela-liga-f-bot/1.0 (cliente automatizado; python-requests)"
 TIMEOUT = 30
+
+# Respeto a la fuente y a la antiguedad del dato:
+#  * la tabla solo cambia cuando hay partidos: si el dato guardado tiene menos
+#    de HORAS_DATO_FRESCO horas no se vuelve a descargar;
+#  * tras un 429 no se insiste hasta pasadas HORAS_ESPERA_TRAS_429 horas;
+#  * si el dato conservado tiene mas de DIAS_DATO_CADUCADO dias se marca
+#    'dato_caducado' en el fichero para que quien lo lea lo sepa.
+HORAS_DATO_FRESCO = 3
+HORAS_ESPERA_TRAS_429 = 6
+DIAS_DATO_CADUCADO = 8
 MIN_EQUIPOS = 10
 
 # ---------------------------------------------------------------------------
@@ -550,8 +574,51 @@ def escribir_salidas(equipos: list[dict], resultados: list[dict], fuente: str, a
     })
 
 
+def _fecha_hora(texto) -> datetime | None:
+    try:
+        valor = datetime.fromisoformat(str(texto).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    return valor if valor.tzinfo else valor.replace(tzinfo=timezone.utc)
+
+
+def antiguedad_dias(actualizado_en, ahora: datetime | None = None) -> float | None:
+    """Dias desde la ultima descarga BUENA (None si no se sabe)."""
+    momento = _fecha_hora(actualizado_en)
+    if momento is None:
+        return None
+    ahora = ahora or datetime.now(timezone.utc)
+    return round((ahora - momento).total_seconds() / 86400, 2)
+
+
+def motivo_para_no_descargar(dir_salida: Path = DATA_DIR, ahora: datetime | None = None) -> str | None:
+    """Motivo por el que este ciclo NO hay que llamar a Wikipedia, o None."""
+    ahora = ahora or datetime.now(timezone.utc)
+    previo = _leer_json(dir_salida / "clasificacion.json")
+    if not isinstance(previo, dict) or not previo.get("equipos"):
+        return None
+    if previo.get("temporada") != TEMPORADA:
+        return None
+    ultimo_intento = _fecha_hora(previo.get("ultimo_intento"))
+    avisos = " ".join(str(a) for a in previo.get("avisos", []))
+    if ultimo_intento and "429" in avisos:
+        horas = (ahora - ultimo_intento).total_seconds() / 3600
+        if 0 <= horas < HORAS_ESPERA_TRAS_429:
+            return f"la fuente respondio 429 hace {horas:.1f} h; se espera {HORAS_ESPERA_TRAS_429} h"
+    actualizado = _fecha_hora(previo.get("actualizado_en"))
+    if actualizado and not avisos.strip().startswith("Descarga fallida"):
+        horas = (ahora - actualizado).total_seconds() / 3600
+        if 0 <= horas < HORAS_DATO_FRESCO:
+            return f"dato de hace {horas:.1f} h (se refresca cada {HORAS_DATO_FRESCO} h)"
+    return None
+
+
 def conservar_previo_con_aviso(aviso: str, dir_salida: Path = DATA_DIR) -> None:
-    """Si la descarga falla, no se borra nada: se anade el aviso a los ficheros existentes."""
+    """Si la descarga falla, no se borra nada: se anade el aviso a los ficheros existentes.
+
+    'actualizado_en' NO se toca (sigue siendo la fecha del ultimo dato bueno) y
+    se anota su antiguedad: 'dias_sin_actualizar' y 'dato_caducado'.
+    """
     ahora = _ahora_iso()
     for nombre, clave_lista in (("clasificacion.json", "equipos"), ("resultados.json", "partidos")):
         ruta = dir_salida / nombre
@@ -562,6 +629,9 @@ def conservar_previo_con_aviso(aviso: str, dir_salida: Path = DATA_DIR) -> None:
         avisos.append(f"Descarga fallida {ahora}: {aviso}")
         previo["avisos"] = avisos
         previo["ultimo_intento"] = ahora
+        dias = antiguedad_dias(previo.get("actualizado_en"))
+        previo["dias_sin_actualizar"] = dias
+        previo["dato_caducado"] = dias is None or dias > DIAS_DATO_CADUCADO
         _escribir_json(ruta, previo)
 
 
@@ -586,7 +656,18 @@ def procesar_html(html: str, fuente: str) -> tuple[list[dict], list[dict], list[
     return equipos, resultados, avisos
 
 
+def es_error_429(exc: Exception) -> bool:
+    respuesta = getattr(exc, "response", None)
+    return getattr(respuesta, "status_code", None) == 429 or "429" in str(exc)
+
+
 def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if "--forzar" not in argv:
+        motivo = motivo_para_no_descargar()
+        if motivo:
+            print(f"[liga_f] no se descarga: {motivo}")
+            return 0
     errores: list[str] = []
     for url in FUENTES:
         try:
@@ -595,6 +676,9 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as exc:  # noqa: BLE001 - se prueba la siguiente fuente
             errores.append(f"{url}: {exc}")
             print(f"[liga_f] fallo en {url}: {exc}", file=sys.stderr)
+            if es_error_429(exc):
+                # Las dos fuentes son de Wikimedia: si una dice 429 no se insiste.
+                break
             continue
         escribir_salidas(equipos, resultados, url, avisos)
         lider = equipos[0] if equipos else None

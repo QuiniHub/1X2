@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from compuerta_jornada import estado_compuerta
 from jornada_objetivo_quiniela import resumen_jornada_objetivo
-from motor_prediccion_quiniela import DATA, PREDICCIONES, guardar_json, predecir
+from motor_prediccion_quiniela import DATA, PREDICCIONES, guardar_json, predecir, temporada_de_jornada
 
 
 ESTADO_OBJETIVO = DATA / "estado_jornada_objetivo.json"
@@ -15,8 +15,11 @@ def cargar_jornada_oficial(objetivo):
         return {}
     try:
         return json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return {}
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        # Auditoria 26/11/2026: antes devolvia {} y se escribia una prediccion
+        # bloqueada con 0 partidos encima de ultima_prediccion.json.
+        print(f"AVISO: {path.name} no se puede leer ({type(exc).__name__}: {exc}).")
+        return None
 
 
 def partido_en_espera(partido):
@@ -40,7 +43,14 @@ def partido_en_espera(partido):
 
 def escribir_prediccion_en_espera(objetivo, estado):
     jornada = cargar_jornada_oficial(objetivo)
+    if jornada is None or not (jornada or {}).get("partidos"):
+        # Fichero de jornada roto o sin partidos: no se pisa la prediccion
+        # existente con una prediccion vacia.
+        print(f"AVISO: jornada {objetivo} sin partidos legibles; se conserva la prediccion existente.")
+        return False
     partidos = [partido_en_espera(p) for p in jornada.get("partidos", [])]
+    # Temporada por la FECHA real de la jornada (antes '2025/2026' cableado).
+    temporada = jornada.get("temporada") or temporada_de_jornada(jornada, objetivo)
     pleno15 = jornada.get("pleno15") or {}
     motivo = estado.get("motivo") or "Jornada pendiente de cierre anterior."
 
@@ -50,8 +60,8 @@ def escribir_prediccion_en_espera(objetivo, estado):
         "jornada": objetivo,
         "fecha": jornada.get("fecha"),
         "fuente": jornada.get("fuente"),
-        "temporada_base": "2025/2026",
-        "temporada": "2025/2026",
+        "temporada_base": temporada,
+        "temporada": temporada,
         "competicion": "quiniela",
         "estado": "partidos_cargados_prediccion_bloqueada",
         "prediccion_disponible": False,
@@ -74,6 +84,7 @@ def escribir_prediccion_en_espera(objetivo, estado):
     }
     guardar_json(PREDICCIONES / "ultima_prediccion.json", salida)
     guardar_json(PREDICCIONES / f"jornada_{objetivo}.json", salida)
+    return True
 
 
 def main():
@@ -101,8 +112,8 @@ def main():
         return
 
     if estado.get("en_espera"):
-        escribir_prediccion_en_espera(objetivo, estado)
-        print(f"Jornada {objetivo} con partidos cargados, pero prediccion en espera. {estado.get('motivo')}")
+        if escribir_prediccion_en_espera(objetivo, estado):
+            print(f"Jornada {objetivo} con partidos cargados, pero prediccion en espera. {estado.get('motivo')}")
         return
 
     predecir(jornada=objetivo)

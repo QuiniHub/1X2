@@ -73,7 +73,8 @@ SOLO_RAPIDO = "--rapido" in sys.argv   # solo P13plus (+/- masa) y P14: evita lo
 _SUFIJO = "" if FUENTE == "mezcla" else f"_{FUENTE}"
 SALIDA = DATA / "memoria_ia" / f"backtest_optimizador_boleto{_SUFIJO}.json"
 PRE_CIERRE = DATA / "backtesting" / "pre_cierre"
-PORCENTAJES = DATA / "memoria_ia" / "porcentajes_lae" / "2026_2027"
+TEMPORADA = "2026_2027"
+PORCENTAJES = DATA / "memoria_ia" / "porcentajes_lae" / TEMPORADA
 JORNADAS = DATA / "jornadas"
 QUINIELAS = DATA / "quinielas_jugadas.json"
 HISTORIAL_PREMIOS = DATA / "premios" / "historial_premios.json"
@@ -81,15 +82,26 @@ HISTORIAL_PREMIOS = DATA / "premios" / "historial_premios.json"
 VARIANTES = [(obj, cm) for obj in ob.OBJETIVOS for cm in (False, True)]
 if SOLO_RAPIDO:
     VARIANTES = [("P13plus", False), ("P13plus", True), ("P14", False)]
-VARIANTE_PRINCIPAL = ("P13plus", False) if SOLO_RAPIDO else ("premio_esperado", False)
+# La variante PRERREGISTRADA es siempre premio_esperado sin contra_masa. Con
+# --rapido esa variante no se calcula y la cabecera del JSON pasa a ser
+# P13plus: antes el JSON decia a la vez "variante principal = premio_esperado"
+# (criterios) y variante_principal = P13plus. Ahora lo dice sin contradiccion.
+VARIANTE_PRERREGISTRADA = ("premio_esperado", False)
+VARIANTE_PRINCIPAL = ("P13plus", False) if SOLO_RAPIDO else VARIANTE_PRERREGISTRADA
 RECAUDACION_MIN, RECAUDACION_MAX = 300_000.0, 20_000_000.0
 
 CRITERIOS = {
     "C1": "premio total simulado del optimizador (escrutinio real, nuestras columnas anadidas a los "
           "acertantes) >= premio total real cobrado por nuestros boletos, en jornadas con premio conocido",
     "C2": "numero de jornadas con >=13 aciertos de la mejor columna >= el de nuestros boletos",
-    "veredicto": "supera solo si C1 y C2; variante principal = premio_esperado sin contra_masa; "
-                 "las 6 variantes se informan",
+    "veredicto": (
+        "supera solo si C1 y C2; variante principal = premio_esperado sin contra_masa; "
+        "las 6 variantes se informan"
+        if VARIANTE_PRINCIPAL == VARIANTE_PRERREGISTRADA else
+        "supera solo si C1 y C2; la variante PRERREGISTRADA es premio_esperado sin contra_masa, que en "
+        "esta ejecucion (--rapido) NO se calcula; la cabecera de este fichero es P13plus, elegida a "
+        "posteriori: su veredicto es exploratorio, no el prerregistrado"
+    ),
     "presupuesto": "mismas columnas que jugamos (apuestas pagadas si el boleto fue reducido)",
     "sin_fuga": "snapshot pre-cierre inmutable + % LAE pre-cierre; recaudacion walk-forward; factor_acertantes=1",
 }
@@ -147,7 +159,10 @@ def probabilidades_pre_cierre(jornada):
         elif FUENTE == "motor":
             salida.append(mezclar_probabilidades(p["probabilidades"], mercado, peso_losilla=0.0))
         else:
-            salida.append(mezclar_probabilidades(p["probabilidades"], mercado))
+            # igual que en produccion: mezcla 50/50; solo se salta en los
+            # snapshots con el mercado ya integrado si Marc enciende
+            # optimizador_ev_premio.EVITAR_SEGUNDA_MEZCLA (apagado por defecto).
+            salida.append(mezclar_probabilidades(p["probabilidades"], mercado, partido=p))
     return salida
 
 
@@ -155,6 +170,9 @@ def jugadas_26_27():
     data = cargar_json(QUINIELAS, {"jugadas": []})
     salida = {}
     for jugada in data.get("jugadas") or []:
+        # la numeracion se repite cada temporada: solo jugadas de la 26/27
+        if str(jugada.get("temporada") or TEMPORADA) != TEMPORADA:
+            continue
         j = jugada.get("jornada")
         signos = [ob.normalizar_signos(s) for s in (jugada.get("signos") or [])[:14]]
         if isinstance(j, int) and len(signos) == 14 and (PORCENTAJES / f"jornada_{j}.json").exists():
@@ -167,7 +185,7 @@ def premio_real(jornada, jugada):
     """(premio_eur, aciertos, fuente) de nuestro boleto; premio None si no se conoce."""
     historial = cargar_json(HISTORIAL_PREMIOS, {"jornadas": []})
     for e in historial.get("jornadas") or []:
-        if e.get("jornada") == jornada:
+        if e.get("jornada") == jornada and str(e.get("temporada") or TEMPORADA) == TEMPORADA:
             fuente = str(e.get("fuente_premio") or "")
             premio = e.get("premio_eur")
             if "reducida" in fuente and jugada.get("premio_eur") is None:
@@ -282,6 +300,8 @@ def ejecutar(verbose=True):
         "criterios_prerregistrados": CRITERIOS,
         "fuente_probabilidades": FUENTE,
         "variante_principal": nombre_variante(*VARIANTE_PRINCIPAL),
+        "variante_prerregistrada": nombre_variante(*VARIANTE_PRERREGISTRADA),
+        "variante_principal_es_la_prerregistrada": VARIANTE_PRINCIPAL == VARIANTE_PRERREGISTRADA,
         "estado": "prerregistrado_pendiente_de_resultados",
     }
     escribir(base)  # los criterios quedan escritos ANTES de calcular

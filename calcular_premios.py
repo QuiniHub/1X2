@@ -15,6 +15,10 @@ import requests
 from pathlib import Path
 from bs4 import BeautifulSoup
 
+import cronologia_jornadas as cronologia
+from actualizar_porcentajes_lae import _numero_es as numero_importe
+from modelo_reparto_quiniela import escrutinio_plausible
+
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 PREDICCIONES = DATA / "predicciones"
@@ -22,6 +26,10 @@ JORNADAS = DATA / "jornadas"
 QUINIELAS_JUGADAS = DATA / "quinielas_jugadas.json"
 HISTORIAL_QUINIELAS = DATA / "historial_quinielas.json"
 SALIDA = DATA / "premios" / "historial_premios.json"
+# Escrutinio capturado POR JORNADA Y TEMPORADA (actualizar_porcentajes_lae.py):
+# es la fuente principal de la tabla de premios, porque las webs de respaldo
+# se piden solo por numero de jornada y devuelven la de otra jornada/temporada.
+PORCENTAJES_LAE = DATA / "memoria_ia" / "porcentajes_lae"
 
 HEADERS_WEB = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -86,12 +94,62 @@ def tipo_por_signo(signo):
     return "FIJO"
 
 
-def jugada_por_jornada(jornada):
+def temporada_de_jornada(jornada):
+    """Temporada ('2026_2027') de la jornada que HOY ocupa
+    data/jornadas/jornada_N.json, por la fecha real de sus partidos. None si
+    el fichero no existe o no trae fechas."""
+    try:
+        datos = cargar_json(JORNADAS / f"jornada_{int(jornada)}.json", {})
+    except Exception:
+        return None
+    if not isinstance(datos, dict) or not datos:
+        return None
+    fecha = cronologia.fecha_real_jornada(datos)
+    return cronologia.temporada_de_fecha(fecha, jornada) if fecha else None
+
+
+def temporada_de_jugada(jugada):
+    """Temporada de una jugada de quinielas_jugadas.json: su campo
+    'temporada' o, si falta, la que corresponde a la fecha de 'validado_en'."""
+    declarada = str(jugada.get("temporada") or "").strip().replace("/", "_").replace("-", "_")
+    if declarada:
+        return declarada
+    fecha = cronologia.parsear_fecha(jugada.get("validado_en"))
+    return cronologia.temporada_de_fecha(fecha, jugada.get("jornada")) if fecha else None
+
+
+def jugada_por_jornada(jornada, temporada=None):
+    """Jugada real de esa jornada EN SU TEMPORADA.
+
+    La numeracion se reinicia cada agosto: en quinielas_jugadas.json conviven
+    la J59 de la 25/26 y (desde abril de 2027) la J59 de la 26/27. Antes se
+    devolvia la PRIMERA con ese numero y los signos de una temporada se
+    puntuaban contra los resultados de la otra. Ahora se elige la jugada de la
+    temporada del fixture actual (data/jornadas/jornada_N.json) y, dentro de
+    ella, la de 'validado_en' mas reciente. Una jugada de otra temporada nunca
+    casa; si no se puede saber la temporada del fixture se usa la mas reciente.
+    """
     data = cargar_json(QUINIELAS_JUGADAS, {"jugadas": []})
-    for jugada in data.get("jugadas", []) if isinstance(data, dict) else []:
-        if jugada.get("jornada") == jornada:
-            return jugada
-    return {}
+    candidatas = [
+        jugada for jugada in (data.get("jugadas", []) if isinstance(data, dict) else [])
+        if isinstance(jugada, dict) and jugada.get("jornada") == jornada
+    ]
+    if not candidatas:
+        return {}
+    temporada = temporada or temporada_de_jornada(jornada)
+    if temporada:
+        misma = [j for j in candidatas if temporada_de_jugada(j) == temporada]
+        sin_fecha = [j for j in candidatas if temporada_de_jugada(j) is None]
+        candidatas = misma or sin_fecha
+        if not candidatas:
+            return {}
+
+    def orden(item):
+        indice, jugada = item
+        fecha = cronologia.parsear_fecha(jugada.get("validado_en"))
+        return (fecha.toordinal() if fecha else 0, indice)
+
+    return max(enumerate(candidatas), key=orden)[1]
 
 
 def prediccion_desde_quinielas_jugadas(jornada):
@@ -239,9 +297,11 @@ def buscar_tabla_premios_loteriaanta(jornada):
     cualquier importe por columna que supere un limite realista -evita que
     un falso positivo dispare el calculo multicolumna a cifras absurdas.
     """
-    import itertools
+    # Auditoria 26/11/2026: la URL generica (sin jornada) muestra SIEMPRE la
+    # ultima jornada publicada y su tabla se asignaba a la jornada pedida (J8
+    # recibio la de J13; J15 y J19 la de J20). Solo se usa la URL con jornada
+    # y ademas la pagina debe nombrar "Jornada N".
     urls = [
-        "https://www.loteriaanta.com/resultados-quiniela",
         f"https://www.loteriaanta.com/resultados-quiniela?jornada={jornada}",
     ]
     for url in urls:
@@ -249,34 +309,215 @@ def buscar_tabla_premios_loteriaanta(jornada):
             r = requests.get(url, headers=HEADERS_WEB, timeout=12)
             if r.status_code != 200:
                 continue
-            soup = BeautifulSoup(r.text, "html.parser")
-            tabla = {}
-            for tr in soup.find_all("tr"):
-                celdas = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
-                texto = " ".join(celdas)
-                texto_norm = texto.lower()
-                if "acierto" not in texto_norm:
-                    continue
-                if "€" not in texto and "euro" not in texto_norm:
-                    continue
-                for cat in (15, 14, 13, 12, 11, 10):
-                    if re.search(rf'(^|\D){cat}(\D|$)', texto):
-                        importes = [float_o_none(m) for m in re.findall(
-                            r'(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2}|\d+\.\d{2})', texto
-                        ) if float_o_none(m) is not None and 0 <= float_o_none(m) <= limite_categoria(cat)]
-                        if importes:
-                            tabla[str(cat)] = importes[-1]
-                if "elige" in texto_norm and "8" in texto:
-                    importes = [float_o_none(m) for m in re.findall(
-                        r'(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2}|\d+\.\d{2})', texto
-                    ) if float_o_none(m) is not None and 0 <= float_o_none(m) <= PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE]
-                    if importes:
-                        tabla["elige8"] = importes[-1]
-            if len(tabla) >= 3:
+            tabla = tabla_premios_desde_html_loteriaanta(r.text, jornada)
+            if tabla:
                 print(f"J{jornada}: tabla premios obtenida de loteriaanta: {tabla}")
                 return tabla
         except Exception as e:
             print(f"Error tabla loteriaanta J{jornada}: {e}")
+    return {}
+
+
+def pagina_es_de_jornada(texto, jornada):
+    """True si el texto de la pagina nombra 'Jornada N' con el numero pedido
+    (y no solo otro numero que lo contenga, como 'Jornada 13' para la 1)."""
+    patron = r"jornada\s*(?:n[º°o.]*\s*|n[uú]mero\s*)?0*" + str(int(jornada)) + r"(?!\d)"
+    return bool(re.search(patron, str(texto or ""), re.IGNORECASE))
+
+
+def jornadas_nombradas(texto):
+    """Conjunto de numeros N que aparecen como 'Jornada N' en el texto."""
+    patron = r"jornada\s*(?:n[º°o.]*\s*|n[uú]mero\s*)?0*(\d{1,3})(?!\d)"
+    return {int(n) for n in re.findall(patron, str(texto or ""), re.IGNORECASE)}
+
+
+def html_es_de_jornada(soup, jornada):
+    """True solo si la pagina es DE esa jornada, no si la nombra en un
+    desplegable o listado con todas las jornadas (que haria pasar siempre la
+    comprobacion y asignaria la tabla de la ultima jornada publicada).
+    - Se ignoran select/option/datalist/nav.
+    - Si los titulares (title, h1-h4, caption) nombran alguna jornada, debe
+      ser unicamente la pedida.
+    - Si ningun titular nombra jornada, la pedida debe ser la UNICA nombrada
+      en el resto del texto."""
+    jornada = int(jornada)
+    for ruido in soup.find_all(["select", "option", "datalist", "nav"]):
+        ruido.decompose()
+    en_titulares = set()
+    for cabecera in soup.find_all(["title", "h1", "h2", "h3", "h4", "caption"]):
+        en_titulares |= jornadas_nombradas(cabecera.get_text(" ", strip=True))
+    if en_titulares:
+        return en_titulares == {jornada}
+    return jornadas_nombradas(soup.get_text(" ", strip=True)) == {jornada}
+
+
+def tabla_premios_desde_html_loteriaanta(html, jornada):
+    """Tabla {categoria: premio} de una pagina de loteriaanta, o {} si la
+    pagina no es de la jornada pedida o la tabla no es coherente."""
+    soup = BeautifulSoup(html or "", "html.parser")
+    if not html_es_de_jornada(soup, jornada):
+        print(f"J{jornada}: la pagina de loteriaanta no nombra esa jornada; se descarta.")
+        return {}
+    tabla = {}
+    for tr in soup.find_all("tr"):
+        celdas = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
+        texto = " ".join(celdas)
+        texto_norm = texto.lower()
+        if "acierto" not in texto_norm:
+            continue
+        if "€" not in texto and "euro" not in texto_norm:
+            continue
+        for cat in (15, 14, 13, 12, 11, 10):
+            # La categoria debe ir pegada a "aciertos" ("14 aciertos"):
+            # antes '14' casaba dentro de '14,48' y '10' en '8.132,10'.
+            if re.search(rf'(^|\D){cat}\s*aciertos?', texto_norm) or (
+                cat == 15 and "pleno" in texto_norm
+            ):
+                importes = [float_o_none(m) for m in re.findall(
+                    r'(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2}|\d+\.\d{2})', texto
+                ) if float_o_none(m) is not None and 0 <= float_o_none(m) <= limite_categoria(cat)]
+                if importes:
+                    tabla[str(cat)] = importes[-1]
+        if "elige" in texto_norm and "8" in texto:
+            importes = [float_o_none(m) for m in re.findall(
+                r'(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2}|\d+\.\d{2})', texto
+            ) if float_o_none(m) is not None and 0 <= float_o_none(m) <= PREMIO_CATEGORIA_MAXIMO_PLAUSIBLE]
+            if importes:
+                tabla["elige8"] = importes[-1]
+    if len(tabla) >= 3 and tabla_premios_valida(tabla):
+        return tabla
+    return {}
+
+
+def tabla_premios_valida(tabla):
+    """False para una tabla de premios incoherente: menos de 3 categorias
+    10-14, todo a cero, o importes que no decrecen al bajar de categoria.
+    Forma valida de 14 a 10: ceros (sin acertantes), importes decrecientes y
+    ceros (categorias que no llegan al minimo). Rechaza los placebos reales del
+    historial ({14: 1.14, 13: 13.93, ...}, {14: 8132.1, 10: 8132.1, ...})."""
+    if not isinstance(tabla, dict):
+        return False
+    valores = []
+    for cat in (14, 13, 12, 11, 10):
+        valor = tabla.get(str(cat))
+        if valor is None:
+            continue
+        try:
+            valores.append(float(valor))
+        except (TypeError, ValueError):
+            return False
+    if len(valores) < 3 or not any(v > 0 for v in valores):
+        return False
+    positivos_cerrados = False
+    anterior = None
+    for valor in valores:
+        if valor < 0:
+            return False
+        if valor == 0:
+            if anterior is not None:
+                positivos_cerrados = True
+            continue
+        if positivos_cerrados:
+            return False        # un importe tras un cero intermedio
+        if anterior is not None and valor > anterior:
+            return False        # una categoria baja paga mas que una alta
+        anterior = valor
+    return True
+
+
+def tablas_coinciden(tabla_a, tabla_b):
+    """True si dos tablas dan el mismo premio (al centimo) en al menos 3
+    categorias 10-14 comunes y en ninguna discrepan."""
+    comunes = 0
+    for cat in (14, 13, 12, 11, 10):
+        a, b = tabla_a.get(str(cat)), tabla_b.get(str(cat))
+        if a is None or b is None:
+            continue
+        if abs(float(a) - float(b)) > 0.011:
+            return False
+        comunes += 1
+    return comunes >= 3
+
+
+def tabla_premios_versionada(jornada):
+    """Tabla de premios del escrutinio versionado de ESA jornada y temporada
+    (data/memoria_ia/porcentajes_lae/<temporada>/jornada_N.json). {} si no
+    existe, es un placebo o no es de la misma jornada real."""
+    temporada = temporada_de_jornada(jornada)
+    if not temporada:
+        return {}
+    registro = cargar_json(PORCENTAJES_LAE / temporada / f"jornada_{int(jornada)}.json", {})
+    if not isinstance(registro, dict) or registro.get("jornada") != jornada:
+        return {}
+    escrutinio = registro.get("escrutinio") or {}
+    if not escrutinio_plausible(escrutinio):
+        return {}
+    fixture = leer_resultados_jornada(jornada)
+    coinciden, comparables = cronologia.coincidencia_equipos(
+        [{"local": x.get("local"), "visitante": x.get("visitante")} for x in registro.get("partidos") or []],
+        fixture,
+    )
+    if comparables >= 7 and coinciden * 2 < comparables:
+        return {}
+    tabla = {}
+    for cat in (15, 14, 13, 12, 11, 10):
+        premio = ((escrutinio.get("categorias") or {}).get(str(cat)) or {}).get("premio_eur")
+        if isinstance(premio, (int, float)) and not isinstance(premio, bool) and premio >= 0:
+            tabla[str(cat)] = float(premio)
+    return tabla if tabla_premios_valida(tabla) else {}
+
+
+_TEMPORADA_ACTUAL_CACHE = {}
+
+
+def temporada_actual():
+    """Temporada de la jornada mas reciente POR FECHA de data/jornadas."""
+    clave = str(JORNADAS)
+    if clave not in _TEMPORADA_ACTUAL_CACHE:
+        temporada = None
+        try:
+            fechadas = [j for j in cronologia.indice_jornadas(dir_jornadas=JORNADAS) if j.get("fecha")]
+            if fechadas:
+                temporada = fechadas[-1].get("temporada")
+        except Exception:
+            temporada = None
+        _TEMPORADA_ACTUAL_CACHE[clave] = temporada
+    return _TEMPORADA_ACTUAL_CACHE[clave]
+
+
+def fuentes_web_aplicables(jornada):
+    """Las webs de premios se consultan solo por NUMERO de jornada, asi que
+    siempre devuelven la de la temporada en curso. Para un fixture de una
+    temporada anterior (J28-J76 de la 25/26 en data/jornadas) esa respuesta es
+    de otra jornada: no se consulta. Sin fechas no se puede saber -> True."""
+    temporada = temporada_de_jornada(jornada)
+    actual = temporada_actual()
+    return not temporada or not actual or temporada == actual
+
+
+def tabla_premios_jornada(jornada):
+    """Tabla de premios fiable de la jornada. Prioridad: escrutinio
+    versionado de esa jornada/temporada; la web de Losilla se acepta si es
+    coherente y, cuando hay versionado, solo si coincide con el (entonces
+    aporta ademas el premio de Elige 8). loteriaanta, ultimo respaldo."""
+    versionada = tabla_premios_versionada(jornada)
+    web = {}
+    consultar_web = fuentes_web_aplicables(jornada)
+    if consultar_web:
+        web = buscar_tabla_premios_losilla(jornada)
+        if web and not tabla_premios_valida(web):
+            print(f"J{jornada}: tabla de premios de la web incoherente, se descarta: {web}")
+            web = {}
+    if versionada:
+        if web and tablas_coinciden(web, versionada):
+            return web
+        if web:
+            print(f"J{jornada}: la tabla de la web no coincide con el escrutinio versionado; manda el versionado.")
+        return versionada
+    if web:
+        return web
+    if consultar_web:
+        return buscar_tabla_premios_loteriaanta(jornada)
     return {}
 
 
@@ -699,17 +940,15 @@ def buscar_premio_tavily(jornada, aciertos, gano_elige8):
                     if not m:
                         continue
                     try:
-                        raw = m.group(1).replace('.', '').replace(',', '.')
-                        valor = float(raw)
-                        if 0.50 < valor < 10_000_000:
+                        # "12.50" (punto decimal, habitual en buscadores) es
+                        # 12,50 y no 1250: decide el ULTIMO separador.
+                        valor = numero_importe(m.group(1))
+                        if valor is not None and 0.50 < valor < 10_000_000:
                             premio_elige8 = 0.0
                             if gano_elige8:
                                 m8 = re.search(r'elige\s*8[^\d]{0,60}(\d{1,3}(?:[\.,]\d{3})*[\.,]\d{2})\s*[€e]', texto, re.IGNORECASE)
                                 if m8:
-                                    try:
-                                        premio_elige8 = float(m8.group(1).replace('.', '').replace(',', '.'))
-                                    except Exception:
-                                        pass
+                                    premio_elige8 = numero_importe(m8.group(1)) or 0.0
                             print(f"J{jornada}: premio encontrado via Tavily: {valor} EUR (elige8: {premio_elige8})")
                             return round(valor + premio_elige8, 2), "tavily"
                     except Exception:
@@ -855,6 +1094,12 @@ NOTA_REDUCIDA = (
 )
 
 
+NOTA_SIN_JUGADA = (
+    "Sin jugada registrada en quinielas_jugadas.json para esta jornada: los aciertos son de la "
+    "prediccion/historial y no se atribuye ningun premio."
+)
+
+
 def registro_jornada(jornada):
     prediccion = leer_prediccion_jornada(jornada)
     resultados = leer_resultados_jornada(jornada)
@@ -862,16 +1107,26 @@ def registro_jornada(jornada):
         return None
 
     aciertos, fallos, detalle = calcular_aciertos(prediccion, resultados)
+    if not detalle:
+        # Sin boleto que comparar (ni jugada, ni historial, ni prediccion de
+        # ESTA jornada) no hay registro: antes se sembraba "0 aciertos
+        # confirmados" (J22 y J25-J58) y quedaba protegido para siempre.
+        return None
     gano_elige8, seleccion = elige8_acertado(prediccion, jornada, detalle)
+    origen_jugada_real = prediccion.get("origen_prediccion") == "data/quinielas_jugadas.json"
 
-    # Intentar calcular premio multi-columna (dobles/triples generan múltiples apuestas)
-    # eduardolosilla.es primero (escrutinio oficial, mas fiable); loteriaanta.com de respaldo.
-    tabla_premios = buscar_tabla_premios_losilla(jornada) or buscar_tabla_premios_loteriaanta(jornada)
+    # Tabla de premios: escrutinio versionado de la jornada/temporada primero;
+    # webs (Losilla, loteriaanta) validadas y solo para la temporada en curso.
+    tabla_premios = tabla_premios_jornada(jornada)
     desglose_columnas = None
     declarado = premio_declarado_en_jugada(jornada)
     if declarado is not None:
         premio, fuente = declarado, "confirmado_usuario"
         print(f"J{jornada}: premio declarado por Marc en quinielas_jugadas = {premio} EUR")
+    elif not origen_jugada_real:
+        # No consta ninguna jugada real: no se atribuye premio a un boleto
+        # que no esta registrado como jugado.
+        premio, fuente = 0.0, "sin_jugada"
     elif jugada_es_reducida(jornada) and aciertos >= 10:
         premio, fuente = 0.0, "pendiente_reducida"
         print(f"J{jornada}: boleto reducido sin premio declarado -no se valora como desarrollo directo")
@@ -912,7 +1167,9 @@ def registro_jornada(jornada):
         "fuente_premio": fuente,
         "fuente_aciertos": fuente_aciertos,
         "origen_prediccion": origen_real,
-        "aciertos_confirmados": True,
+        # Solo es un recuento CONFIRMADO si sale de la jugada real y se
+        # compararon los 14 partidos.
+        "aciertos_confirmados": bool(origen_jugada_real and len(detalle) == 14),
         "boleto": boleto,
         "elige8_jugado": bool(seleccion),
         "elige8_seleccion": list(seleccion),
@@ -921,14 +1178,30 @@ def registro_jornada(jornada):
         "notas": (
             "Premio real declarado por Marc en quinielas_jugadas.json." if fuente == "confirmado_usuario"
             else NOTA_REDUCIDA if fuente == "pendiente_reducida"
+            else NOTA_SIN_JUGADA if not origen_jugada_real
             else "Premio calculado considerando todas las columnas del boleto (dobles/triples)."
         ),
     }
+    temporada = temporada_de_jornada(jornada)
+    if temporada:
+        reg["temporada"] = temporada
     if tabla_premios:
         reg["tabla_premios"] = tabla_premios
     if desglose_columnas:
         reg["desglose_columnas"] = desglose_columnas
+    if fuente == "multicolumna_loteriaanta":
+        marcar_elige8_pendiente(reg, elige8_sin_premio_en_tabla(gano_elige8, tabla_premios))
     return reg
+
+
+def registro_sembrado_sin_boleto(entry):
+    """True para un registro sin ningun partido comparado y sin premio
+    confirmado: se creo sin boleto (prediccion vacia) y no dice nada real."""
+    return (
+        not (entry.get("detalle_partidos") or [])
+        and not premio_confirmado_usuario(entry)
+        and not float_o_none(entry.get("premio_eur"))
+    )
 
 
 def registro_completo(entry):
@@ -1049,8 +1322,36 @@ def premio_multicolumna_pendiente(entry):
     return entry.get("fuente_premio") != "multicolumna_loteriaanta"
 
 
+NOTA_ELIGE8_PENDIENTE = (
+    " Elige 8 acertado, pero la tabla de premios usada (escrutinio versionado) no trae su premio: "
+    "falta sumarlo; pendiente de la web o de que Marc declare el premio."
+)
+
+
+def elige8_sin_premio_en_tabla(gano_elige8, tabla_premios):
+    """True si se acerto el Elige 8 y la tabla no trae su premio (la tabla
+    del escrutinio versionado solo lleva las categorias 10-15)."""
+    return bool(gano_elige8) and "elige8" not in (tabla_premios or {})
+
+
+def marcar_elige8_pendiente(entry, falta):
+    if falta:
+        entry["elige8_premio_pendiente"] = True
+        if NOTA_ELIGE8_PENDIENTE not in str(entry.get("notas") or ""):
+            entry["notas"] = str(entry.get("notas") or "") + NOTA_ELIGE8_PENDIENTE
+    else:
+        entry.pop("elige8_premio_pendiente", None)
+
+
 def pendiente_premio(entry):
     if premio_confirmado_usuario(entry):
+        return False
+    if entry.get("elige8_premio_pendiente"):
+        return True   # falta sumar el premio de Elige 8 (tabla sin 'elige8')
+    # 0 EUR ya resuelto: lo dice el escrutinio versionado de la jornada, o no
+    # hay jugada real. Si Marc declara despues un premio o registra la jugada,
+    # main() rehace el registro (premio_desalineado / puede_mejorarse).
+    if entry.get("fuente_premio") in ("escrutinio_versionado", "sin_jugada"):
         return False
     try:
         premio_cero = float(entry.get("premio_eur") or 0.0) == 0.0
@@ -1089,6 +1390,12 @@ def revertir_estimados_y_labruja_invalidos(historial):
     return cambios
 
 
+NOTA_ESCRUTINIO_SIN_PREMIO = (
+    "Segun el escrutinio versionado de esta jornada (porcentajes_lae), ninguna columna del boleto "
+    "alcanza una categoria con premio: 0,00 EUR."
+)
+
+
 def refrescar_premio_real(entry):
     if premio_confirmado_usuario(entry):
         return False
@@ -1106,6 +1413,8 @@ def refrescar_premio_real(entry):
         return True
     if int(aciertos) < 10:
         return False
+    if entry.get("fuente_premio") == "sin_jugada" and not jugada_por_jornada(jornada):
+        return False  # sin jugada real no se busca premio (ver NOTA_SIN_JUGADA)
     if jugada_es_reducida(jornada):
         if entry.get("fuente_premio") != "pendiente_reducida":
             entry["premio_eur"] = 0.0
@@ -1135,18 +1444,38 @@ def refrescar_premio_real(entry):
     if boleto_tiene_multiples_columnas(entry):
         prediccion = leer_prediccion_jornada(jornada)
         resultados = leer_resultados_jornada(jornada)
-        tabla_premios = buscar_tabla_premios_losilla(jornada) or buscar_tabla_premios_loteriaanta(jornada)
+        tabla_premios = tabla_premios_jornada(jornada)
         if tabla_premios:
             resultado_multi = calcular_premio_multicolumna(
                 prediccion, resultados, tabla_premios, gano_elige8, entry.get("elige8_seleccion") or []
             )
+            falta_elige8 = elige8_sin_premio_en_tabla(gano_elige8, tabla_premios)
+            if resultado_multi is None and tabla_premios_versionada(jornada) and not falta_elige8:
+                # El escrutinio versionado de ESTA jornada dice que ninguna
+                # columna cobra (p. ej. 10 aciertos con la categoria a 0,00):
+                # es un 0 real, no un pendiente; no se pregunta a las webs.
+                # (Si se acerto el Elige 8 y la tabla versionada no trae su
+                # premio, NO se cierra a 0: sigue pendiente de la web.)
+                cambia = entry.get("fuente_premio") != "escrutinio_versionado" or entry.get("premio_eur")
+                entry["premio_eur"] = 0.0
+                entry["fuente_premio"] = "escrutinio_versionado"
+                entry["tabla_premios"] = tabla_premios
+                entry.pop("desglose_columnas", None)
+                entry["notas"] = NOTA_ESCRUTINIO_SIN_PREMIO
+                return bool(cambia)
             if resultado_multi and resultado_multi.get("total", 0) > 0 and resultado_multi["total"] <= PREMIO_TOTAL_MAXIMO_PLAUSIBLE:
+                antes = (entry.get("premio_eur"), entry.get("fuente_premio"), entry.get("elige8_premio_pendiente"))
                 entry["premio_eur"] = resultado_multi["total"]
                 entry["fuente_premio"] = "multicolumna_loteriaanta"
                 entry["tabla_premios"] = tabla_premios
                 entry["desglose_columnas"] = resultado_multi
                 entry["notas"] = "Premio real actualizado con calculo multicolumna (boleto con dobles/triples)."
-                return True
+                marcar_elige8_pendiente(entry, falta_elige8)
+                return antes != (entry["premio_eur"], entry["fuente_premio"], entry.get("elige8_premio_pendiente"))
+            if falta_elige8 and entry.get("elige8_premio_pendiente"):
+                # Ya consta como pendiente del premio de Elige 8 y la web
+                # sigue sin darlo: no se toca el registro.
+                return False
 
     premio_real = obtener_premio_real(jornada, aciertos, gano_elige8)
     if premio_real is None:
@@ -1162,13 +1491,37 @@ def refrescar_premio_real(entry):
 
 def main():
     historial = cargar_json(SALIDA, {"jornadas": []})
-    registros = {
-        entry["jornada"]: entry
-        for entry in historial.get("jornadas") or []
-        if isinstance(entry.get("jornada"), int)
-    }
+    # El historial puede traer DOS registros con el mismo numero (uno por
+    # temporada). 'registros' solo lleva, por numero, el de la temporada que
+    # HOY ocupa data/jornadas/jornada_N.json (o el que no dice temporada);
+    # los demas van a 'otros' y se reescriben siempre tal cual. Indexar solo
+    # por numero perdia el archivado en el segundo guardado.
+    registros = {}
+    otros = []
+    for entry in historial.get("jornadas") or []:
+        if not isinstance(entry, dict):
+            continue
+        numero = entry.get("jornada")
+        if not isinstance(numero, int):
+            otros.append(entry)   # no se entiende: se conserva, no se borra
+            continue
+        temporada_fixture = temporada_de_jornada(numero)
+        es_actual = (
+            not entry.get("temporada") or not temporada_fixture
+            or entry["temporada"] == temporada_fixture
+        )
+        previo = registros.get(numero)
+        if previo is None:
+            registros[numero] = entry
+        elif es_actual and previo.get("temporada") and temporada_fixture and previo["temporada"] != temporada_fixture:
+            otros.append(previo)
+            registros[numero] = entry
+        else:
+            otros.append(entry)
 
     actualizadas = []
+    archivados = []   # registros de la misma numeracion en OTRA temporada
+    purgados = 0
     revertidas = revertir_estimados_y_labruja_invalidos(historial)
 
     for path in sorted(JORNADAS.glob("jornada_*.json")):
@@ -1178,6 +1531,18 @@ def main():
             continue
 
         existente = registros.get(jornada)
+        temporada = temporada_de_jornada(jornada)
+        if existente and temporada and existente.get("temporada") and existente["temporada"] != temporada:
+            # El fichero jornada_N.json ya es de otra temporada: el registro
+            # viejo se conserva aparte y NO protege ni se mezcla con el nuevo.
+            archivados.append(registros.pop(jornada))
+            existente = None
+        if existente and registro_sembrado_sin_boleto(existente):
+            # Registro "0 aciertos confirmados" sin ningun partido comparado
+            # (J22 y J25-J58): no es un recuento, se rehace desde cero.
+            registros.pop(jornada)
+            existente = None
+            purgados += 1
         if existente and premio_confirmado_usuario(existente) and not premio_desalineado_con_jugada(existente, jornada):
             continue
         mejorable = bool(existente) and puede_mejorarse_con_jugada_real(existente, jornada)
@@ -1224,8 +1589,14 @@ def main():
                 actualizadas.append(entry)
             print(f"Jornada {entry['jornada']}: premio real actualizado a {entry['premio_eur']:.2f} EUR ({entry['fuente_premio']})")
 
-    if actualizadas or revertidas:
-        historial["jornadas"] = sorted(registros.values(), key=lambda x: x["jornada"])
+    if actualizadas or revertidas or purgados:
+        historial["jornadas"] = sorted(
+            list(registros.values()) + otros + archivados,
+            key=lambda x: (
+                x["jornada"] if isinstance(x.get("jornada"), int) else 10 ** 6,
+                str(x.get("temporada") or ""),
+            ),
+        )
         guardar_json(SALIDA, historial)
         print(f"Historial de premios actualizado: {len(actualizadas)} jornada(s), {revertidas} revertida(s).")
     else:

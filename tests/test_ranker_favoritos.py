@@ -10,8 +10,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import ranker_favoritos as rf
+import test_aud_P4_sombra_snapshot_util as util
 
 ESP = {"real madrid cf", "fc barcelona", "rc celta de vigo", "getafe cf", "sevilla fc"}
 FUENTES_VACIAS = {"ceses": [], "estudio_x": {}, "calendario": [], "senales_suspendidas": set()}
@@ -196,10 +198,11 @@ class BloqueTests(unittest.TestCase):
 
 
 class MarcadorTests(unittest.TestCase):
+    """Auditoria 26/11: el marcador lee el bloque del snapshot PRE-CIERRE."""
+
     def _escribir(self, tmp, jornada, resultados, estado_bloque="ok"):
         tmp = Path(tmp)
         (tmp / "pred").mkdir(exist_ok=True)
-        (tmp / "jor").mkdir(exist_ok=True)
         ranking = [
             {"num": 1, "puesto": 1, "favorito": "1", "p_fav": 0.66, "signo_si_cae": "X"},
             {"num": 2, "puesto": 2, "favorito": "2", "p_fav": 0.75, "signo_si_cae": "X"},
@@ -207,19 +210,22 @@ class MarcadorTests(unittest.TestCase):
         ]
         bloque = {"estado": estado_bloque, "jornada": jornada, "ranking": ranking,
                   "nombrado": {**ranking[0]}}
+        util.escribir_jornada(tmp / "jor", jornada, signos=resultados)
+        util.escribir_snapshot(tmp / "snap", jornada, {"favoritos_en_riesgo": bloque})
+        # el espejo dice otra cosa (reescrito tras el cierre): no cuenta
+        espejo = {**bloque, "estado": "ok", "nombrado": {**ranking[2]}}
         (tmp / "pred" / f"jornada_{jornada}.json").write_text(
-            json.dumps({"jornada": jornada, "favoritos_en_riesgo": bloque}), encoding="utf-8")
-        partidos = [{"num": n, "signo_oficial": resultados.get(n, "1")} for n in range(1, 15)]
-        (tmp / "jor" / f"jornada_{jornada}.json").write_text(json.dumps({"jornada": jornada, "partidos": partidos}),
-                                                             encoding="utf-8")
+            json.dumps({"jornada": jornada, "favoritos_en_riesgo": espejo}), encoding="utf-8")
 
     def test_registra_evalua_y_es_idempotente(self):
         with tempfile.TemporaryDirectory() as tmp:
             self._escribir(tmp, 7, {1: "X", 2: "2", 3: "2"})  # cae el nombrado (P1) y P3 (puesto 3)
             ahora = datetime(2026, 11, 26, tzinfo=timezone.utc)
             tmp = Path(tmp)
-            r = rf.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027", ahora=ahora)
+            r = rf.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027", ahora=ahora,
+                                       dir_snapshots=tmp / "snap")
             self.assertEqual(r["nuevas"], 1)
+            self.assertEqual(r["resumen"]["esperado"], r["resumen"]["nombrado_esperados"])  # alias que lee la web
             reg = json.loads((tmp / "m.json").read_text(encoding="utf-8"))["registros"][0]
             self.assertTrue(reg["nombrado_cayo"])
             self.assertTrue(reg["nombrado_signo_si_cae_acierta"])
@@ -227,16 +233,21 @@ class MarcadorTests(unittest.TestCase):
             self.assertEqual([c["puesto"] for c in reg["caidos_detalle"]], [1, 3])
             self.assertEqual(reg["percentil_caidos"], 0.5)  # puestos 1 y 3 de 3 -> (0 + 1) / 2
             self.assertAlmostEqual(reg["nombrado_esperado"], 0.34, places=3)
-            r2 = rf.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027", ahora=ahora)
+            # ni repitiendo ni con la etiqueta de otra temporada (now() en julio de 2027)
+            r2 = rf.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2027_2028", ahora=ahora,
+                                        dir_snapshots=tmp / "snap")
             self.assertEqual(r2["nuevas"], 0)
-            self.assertEqual(len(json.loads((tmp / "m.json").read_text(encoding="utf-8"))["registros"]), 1)
+            registros = json.loads((tmp / "m.json").read_text(encoding="utf-8"))["registros"]
+            self.assertEqual(len(registros), 1)
+            self.assertEqual(registros[0]["temporada"], "2026_2027")
             self.assertEqual(r2["resumen"]["veredicto"], "en_prueba")
 
     def test_jornada_abierta_no_se_registra(self):
         with tempfile.TemporaryDirectory() as tmp:
             self._escribir(tmp, 8, {1: "Pendiente"})
             tmp = Path(tmp)
-            r = rf.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027")
+            r = rf.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027",
+                                       dir_snapshots=tmp / "snap")
             self.assertEqual(r["nuevas"], 0)
             self.assertEqual(json.loads((tmp / "m.json").read_text(encoding="utf-8"))["registros"], [])
 
@@ -244,8 +255,90 @@ class MarcadorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             self._escribir(tmp, 9, {}, estado_bloque="sin_favoritos")
             tmp = Path(tmp)
-            r = rf.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027")
+            r = rf.actualizar_marcador(tmp / "pred", tmp / "jor", tmp / "m.json", etiqueta="2026_2027",
+                                       dir_snapshots=tmp / "snap")
             self.assertEqual(r["nuevas"], 0)
+
+
+class PublicacionTests(unittest.TestCase):
+    """Auditoria 26/11: el ranker publicaba sobre una prediccion bloqueada y
+    dejaba en disco el bloque anterior cuando el nuevo no era 'ok'."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        base = Path(self.tmp.name)
+        self._orig = (rf.PREDICCION, rf.PREDICCIONES_DIR, sys.argv)
+        rf.PREDICCION = base / "ultima_prediccion.json"
+        rf.PREDICCIONES_DIR = base
+        sys.argv = ["ranker_favoritos.py"]
+        self.base = base
+
+    def tearDown(self):
+        rf.PREDICCION, rf.PREDICCIONES_DIR, sys.argv = self._orig
+        self.tmp.cleanup()
+
+    def _escribir(self, **extra):
+        pred = {"jornada": 7, "prediccion_disponible": True, "prediccion_permitida": True,
+                "partidos": [], "favoritos_en_riesgo": {"estado": "ok", "viejo": True}, **extra}
+        rf.PREDICCION.write_text(json.dumps(pred), encoding="utf-8")
+        (self.base / "jornada_7.json").write_text(json.dumps(pred), encoding="utf-8")
+
+    def _leer(self, nombre):
+        return json.loads((self.base / nombre).read_text(encoding="utf-8"))
+
+    def test_prediccion_bloqueada_retira_el_bloque(self):
+        self._escribir(prediccion_permitida=False,
+                       partidos=[_p(n, f"L{n}", f"V{n}", (70, 20, 10)) for n in range(1, 15)])
+        rf.main()
+        self.assertNotIn("favoritos_en_riesgo", self._leer("ultima_prediccion.json"))
+        self.assertNotIn("favoritos_en_riesgo", self._leer("jornada_7.json"))
+
+    def test_bloque_no_ok_no_deja_el_anterior(self):
+        # 3 partidos: 'prediccion incompleta' -> estado no_disponible
+        self._escribir(partidos=[_p(n, f"L{n}", f"V{n}", (70, 20, 10)) for n in range(1, 4)])
+        rf.main()
+        self.assertNotIn("favoritos_en_riesgo", self._leer("ultima_prediccion.json"))
+        self.assertNotIn("favoritos_en_riesgo", self._leer("jornada_7.json"))
+
+    def test_solo_lectura_no_toca_nada(self):
+        self._escribir(prediccion_permitida=False)
+        sys.argv = ["ranker_favoritos.py", "--solo-lectura"]
+        rf.main()
+        self.assertIn("favoritos_en_riesgo", self._leer("ultima_prediccion.json"))
+
+    def test_fuentes_de_senales_rotas_no_puntuan_en_silencio(self):
+        import sorpresa_nombrada
+        original = sorpresa_nombrada.cargar_fuentes
+
+        def rota():
+            raise RuntimeError("calendario ilegible")
+
+        sorpresa_nombrada.cargar_fuentes = rota
+        try:
+            pred = {"jornada": 7, "partidos": [_p(n, f"L{n}", f"V{n}", (70, 20, 10)) for n in range(1, 15)]}
+            bloque = rf.construir_bloque_ranker(pred, masa={}, fechas={}, modelo=None, espanoles=ESP)
+        finally:
+            sorpresa_nombrada.cargar_fuentes = original
+        self.assertEqual(bloque["estado"], "no_disponible")
+        self.assertIn("calendario ilegible", bloque["fuentes_senales"])
+        ok = rf.construir_bloque_ranker(pred, masa={}, fechas={}, fuentes=FUENTES_VACIAS, modelo=None, espanoles=ESP)
+        self.assertEqual(ok["fuentes_senales"], "ok")
+
+    def test_el_dataset_no_cruza_un_snapshot_con_la_jornada_de_otra_temporada(self):
+        # Auditoria 26/11: jornada_5.json reescrita por la temporada siguiente
+        # no presta sus resultados al snapshot J5 de la anterior.
+        partidos = [_p(n, a, b, (70, 20, 10)) for n, (a, b) in enumerate(util.EQUIPOS, start=1)]
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            util.escribir_snapshot(tmp / "snap", 5, fecha="2026-09-12", partidos=partidos)
+            util.escribir_jornada(tmp / "jor", 5, fecha="2026-09-12")
+            mismas = rf.construir_dataset(dir_snapshots=tmp / "snap", dir_jornadas=tmp / "jor",
+                                          fuentes=FUENTES_VACIAS, masa_por_jornada={})
+            self.assertEqual(len(mismas), 14)
+            util.escribir_jornada(tmp / "jor", 5, fecha="2027-09-11", nombres=util.OTROS_EQUIPOS)
+            otras = rf.construir_dataset(dir_snapshots=tmp / "snap", dir_jornadas=tmp / "jor",
+                                         fuentes=FUENTES_VACIAS, masa_por_jornada={})
+            self.assertEqual(otras, [])
 
     def test_veredicto_prerregistrado(self):
         registros = [{"nombrado_cayo": True, "nombrado_esperado": 0.3, "n_favoritos": 3, "caidos": 1, "percentil_caidos": 0.0}

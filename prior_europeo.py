@@ -49,6 +49,11 @@ W_DEFECTO = 0.5
 REJILLA_X_PRIOR = (0.14, 0.16, 0.18)
 REJILLA_W = (0.25, 0.5, 0.75)
 JORNADAS_EUROPEAS = (5, 13, 15, 19, 22, 24)
+# Auditoria 26/11: esos numeros son jornadas de la temporada 26/27. La
+# numeracion se reinicia cada temporada: la J5 de la 27/28 es OTRA jornada y
+# no puede entrar en la muestra prerregistrada. Se identifican por
+# (temporada, numero), con la temporada sacada de la fecha real.
+TEMPORADA_MUESTRA = "2026_2027"
 MIN_JORNADAS_GANADAS = 5
 TOLERANCIA_RPS_MERCADO = 0.002
 VERSION = "1.0"
@@ -146,12 +151,15 @@ def ajustar_por_competicion_europea(probs, mercado=None, x_prior=None, w=None, e
 # ----------------------------------------------------------------------------
 # b) backtest
 # ----------------------------------------------------------------------------
-def cargar_partidos_europeos(jornadas=JORNADAS_EUROPEAS, dir_snapshots=SNAPSHOTS_DIR, dir_jornadas=JORNADAS_DIR):
-    """{jornada: [partidos extranjeros con resultado]} de los snapshots pre-cierre."""
+def cargar_partidos_europeos(jornadas=JORNADAS_EUROPEAS, dir_snapshots=SNAPSHOTS_DIR, dir_jornadas=JORNADAS_DIR,
+                             temporada=TEMPORADA_MUESTRA):
+    """{jornada: [partidos extranjeros con resultado]} de los snapshots pre-cierre.
+    Solo jornadas de `temporada` (por fecha real); una jornada sin ninguna
+    fecha (temporada None) se acepta para no descartar a ciegas."""
     todas = cargar_snapshots(dir_snapshots, dir_jornadas)
     out = {}
     for j in todas:
-        if j["jornada"] in jornadas:
+        if j["jornada"] in jornadas and j.get("temporada") in (None, temporada):
             ext = [p for p in j["partidos"] if p["extranjero"]]
             if ext:
                 out[j["jornada"]] = ext
@@ -260,9 +268,25 @@ def _prerregistrar(ruta):
 
 
 def ejecutar(ruta=SALIDA, dir_snapshots=SNAPSHOTS_DIR, dir_jornadas=JORNADAS_DIR, jornadas=JORNADAS_EUROPEAS):
+    previo = cargar_json(ruta, {}) or {}
+    por_jornada = cargar_partidos_europeos(jornadas, dir_snapshots, dir_jornadas)
+    # Auditoria 26/11: el backtest prerregistrado es un experimento CERRADO.
+    # Si ya hay resultado y a la muestra de hoy le faltan jornadas que entonces
+    # estaban (la temporada nueva ha reescrito jornada_N.json o su snapshot),
+    # se conserva el veredicto guardado en vez de recalcularlo con otra muestra.
+    previas = set((previo.get("backtest") or {}).get("jornadas") or [])
+    if previo.get("estado") == "con_resultados" and previas and not previas <= set(por_jornada):
+        previo["muestra_congelada"] = {
+            "desde": (previo.get("muestra_congelada") or {}).get("desde") or datetime.now(timezone.utc).isoformat(),
+            "jornadas_que_faltan": sorted(previas - set(por_jornada)),
+            "motivo": ("La muestra prerregistrada ya no esta completa en disco: se conserva el backtest guardado "
+                       "y no se recalcula el veredicto."),
+        }
+        guardar_json(ruta, previo)
+        _CACHE["datos"] = None
+        return previo
     salida = _prerregistrar(ruta)
     fijados = json.dumps(salida["criterios_prerregistrados"], sort_keys=True)
-    por_jornada = cargar_partidos_europeos(jornadas, dir_snapshots, dir_jornadas)
     bt = backtest(por_jornada)
     salida["backtest"] = bt
     veredicto, motivos = evaluar_criterios(bt)

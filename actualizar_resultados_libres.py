@@ -58,7 +58,21 @@ THESPORTSDB_LIGAS = {
 # si da la jornada completa, y solo tiene sentido para ligas con jornadas
 # de liguilla normales (no copas ni fases de grupos/eliminatorias).
 LIGAS_CON_JORNADAS = {"La Liga": "4335", "Segunda División": "4400"}
-TEMPORADA_THESPORTSDB = "2026-2027"
+
+
+def anio_inicio_temporada(hoy=None):
+    """Anio en que empieza la temporada en curso (corte: 1 de julio).
+    Auditoria 26/11 (hallazgo 62): la temporada estaba escrita a mano."""
+    hoy = hoy or datetime.now(timezone.utc).date()
+    return hoy.year if hoy.month >= 7 else hoy.year - 1
+
+
+def temporada_thesportsdb(hoy=None):
+    inicio = anio_inicio_temporada(hoy)
+    return f"{inicio}-{inicio + 1}"
+
+
+TEMPORADA_THESPORTSDB = temporada_thesportsdb()
 
 # Calendario oficial ESTATICO (distinto de CALENDARIO_SEMBRADO mas abajo,
 # que no lleva fecha por jornada) -se usa solo para saber que ronda de
@@ -113,12 +127,21 @@ CALENDARIO_SEMBRADO = {
     "Segunda División": DATA / "calendario_segunda.json",
 }
 
-OPENFOOTBALL_URLS = {
-    "La Liga 2025-26": "https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/es.1.json",
-    "Champions 2025-26": "https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/cl.json",
-    "Premier 2025-26": "https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/en.1.json",
-    "Mundial 2026": "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-}
+def openfootball_urls(hoy=None):
+    """URLs de OpenFootball de la temporada EN CURSO (antes apuntaban a la
+    2025-26, ya terminada, y no podian aportar nada; hallazgos 54 y 62). El
+    Mundial 2026 ya acabo y no se consulta."""
+    inicio = anio_inicio_temporada(hoy)
+    etiqueta = f"{inicio}-{(inicio + 1) % 100:02d}"
+    base = f"https://raw.githubusercontent.com/openfootball/football.json/master/{etiqueta}"
+    return {
+        f"La Liga {etiqueta}": f"{base}/es.1.json",
+        f"Champions {etiqueta}": f"{base}/cl.json",
+        f"Premier {etiqueta}": f"{base}/en.1.json",
+    }
+
+
+OPENFOOTBALL_URLS = openfootball_urls()
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (QuiniHub/1X2 bot)"}
 
@@ -194,7 +217,10 @@ def obtener_espn_liga(nombre_liga, codigo_liga):
                 for comp in competiciones:
                     status = (comp.get("status") or {})
                     tipo_status = (status.get("type") or {}).get("name", "")
-                    terminado = tipo_status in ("STATUS_FINAL", "STATUS_FULL_TIME", "STATUS_EXTRA_TIME", "STATUS_PENALTIES")
+                    # En La Quiniela cuenta el marcador a los 90'. Con prorroga
+                    # o penaltis el marcador de ESPN ya no es el de los 90', asi
+                    # que NO se da como resultado final (hallazgo 54).
+                    terminado = tipo_status in ESPN_ESTADOS_FINAL_90
                     competidores = comp.get("competitors", [])
                     if len(competidores) < 2:
                         continue
@@ -244,11 +270,18 @@ def obtener_espn():
 
 # ─── FUENTE 2: TheSportsDB ────────────────────────────────────────────────────
 
+# Estados que significan "terminado en 90 minutos". Los de prorroga y penaltis
+# (ESPN STATUS_EXTRA_TIME / STATUS_PENALTIES / STATUS_FINAL_AET / STATUS_FINAL_PEN,
+# TheSportsDB AOT / AET / AP / PEN) quedan fuera a proposito.
+ESPN_ESTADOS_FINAL_90 = ("STATUS_FINAL", "STATUS_FULL_TIME")
+THESPORTSDB_ESTADOS_FINAL_90 = ("Match Finished", "FT", "finished")
+
+
 def _parsear_eventos_thesportsdb(nombre_liga, events):
     resultados = []
     for e in events:
         status = str(e.get("strStatus") or "")
-        terminado = status in ("Match Finished", "FT", "AOT", "AP", "finished")
+        terminado = status in THESPORTSDB_ESTADOS_FINAL_90
         local = norm(e.get("strHomeTeam", ""))
         visitante = norm(e.get("strAwayTeam", ""))
         hg = e.get("intHomeScore")
@@ -705,6 +738,42 @@ def obtener_thesportsdb():
 
 # ─── FUENTE 3: OpenFootball (GitHub, estático) ───────────────────────────────
 
+def _nombre_openfootball(valor):
+    if isinstance(valor, dict):
+        valor = valor.get("name", "")
+    return norm(valor or "")
+
+
+def parsear_openfootball_plano(nombre, data):
+    """Formato plano actual de football.json: {"matches": [{"round", "date",
+    "team1", "team2", "score": {"ft": [a, b]}}]} (antes solo se entendian
+    'rounds' y 'matchdays' y este formato no aportaba ningun partido)."""
+    salida = []
+    for m in (data or {}).get("matches", []) or []:
+        if not isinstance(m, dict):
+            continue
+        ft = (m.get("score") or {}).get("ft") or []
+        if len(ft) < 2 or ft[0] is None or ft[1] is None:
+            continue
+        try:
+            gh, ga = int(ft[0]), int(ft[1])
+        except (TypeError, ValueError):
+            continue
+        local = _nombre_openfootball(m.get("team1"))
+        visitante = _nombre_openfootball(m.get("team2"))
+        if not local or not visitante:
+            continue
+        salida.append({
+            "liga": nombre,
+            "local": local, "visitante": visitante,
+            "resultado": f"{gh}-{ga}",
+            "ganador": local if gh > ga else (visitante if ga > gh else None),
+            "fecha": m.get("date", ""), "en_juego": False,
+            "fuente": "openfootball",
+        })
+    return salida
+
+
 def obtener_openfootball():
     print("OpenFootball: consultando...")
     todos = []
@@ -714,6 +783,7 @@ def obtener_openfootball():
             if r.status_code != 200:
                 continue
             data = r.json()
+            todos.extend(parsear_openfootball_plano(nombre, data))
             # Formato worldcup.json
             for ronda in data.get("rounds", []):
                 for m in ronda.get("matches", []):
@@ -789,14 +859,44 @@ def guardar(partidos):
     ]
     resultado_final.sort(key=lambda x: x.get("fecha", ""), reverse=True)
 
+    ahora = datetime.now(timezone.utc).isoformat()
+    previo = _cargar_json_local(OUT, {})
+    previo = previo if isinstance(previo, dict) else {}
+    if not resultado_final:
+        # Auditoria 26/11 (hallazgo 54): el fichero llevaba semanas en 0 partidos
+        # y nadie avisaba. Con 0 partidos NO se pisa lo que hubiera: se conserva
+        # y se deja constancia (aviso + contador de ciclos seguidos sin datos).
+        ciclos = int(previo.get("ciclos_seguidos_sin_datos") or 0) + 1
+        data = {
+            "actualizado_en": previo.get("actualizado_en") if previo.get("partidos") else ahora,
+            "ultimo_intento": ahora,
+            "total": len(previo.get("partidos") or []),
+            "ciclos_seguidos_sin_datos": ciclos,
+            "sin_datos_desde": previo.get("sin_datos_desde") or ahora,
+            "aviso": (
+                "Ninguna fuente libre (ESPN, TheSportsDB, OpenFootball) ha devuelto partidos "
+                f"en {ciclos} ciclo(s) seguidos; se conserva el dato previo."
+            ),
+            "partidos": previo.get("partidos") or [],
+        }
+        DATA.mkdir(exist_ok=True)
+        OUT.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"AVISO: 0 partidos de fuentes libres ({ciclos} ciclo(s) seguidos); se conserva {OUT.name}.")
+        return data
+
     data = {
-        "actualizado_en": datetime.now(timezone.utc).isoformat(),
+        "actualizado_en": ahora,
         "total": len(resultado_final),
+        "por_fuente": {
+            fuente: sum(1 for p in resultado_final if p.get("fuente") == fuente)
+            for fuente in sorted({str(p.get("fuente") or "") for p in resultado_final})
+        },
         "partidos": resultado_final,
     }
     DATA.mkdir(exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Guardados {len(resultado_final)} partidos en {OUT.name}")
+    return data
 
 
 if __name__ == "__main__":

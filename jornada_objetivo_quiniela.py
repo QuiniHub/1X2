@@ -125,6 +125,12 @@ def jornadas_con_memoria(historial_path=HISTORIAL, quinielas_path=QUINIELAS_JUGA
     return sorted(numeros)
 
 
+def hoy_iso():
+    """Fecha de hoy (UTC, AAAA-MM-DD). Funcion aparte para poder fijar el reloj
+    en los tests (auditoria 26/11, hallazgo 204)."""
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
 def ultima_jornada_aprendida(
     historial_path=HISTORIAL,
     quinielas_path=QUINIELAS_JUGADAS,
@@ -161,16 +167,35 @@ def ultima_jornada_aprendida(
     # (17-19/11) y la compuerta bloqueo la prediccion TODO el fin de semana de
     # la J21 ("cierre pendiente de la 21"). Se exige que el ultimo partido sea
     # estrictamente anterior a hoy.
-    hoy = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    hoy = hoy_iso()
+    todas_con_fecha = con_fecha
     con_fecha = [
         (fecha, numero)
-        for fecha, numero in con_fecha
+        for fecha, numero in todas_con_fecha
         if fecha and fecha[:10] <= hoy
         and (fecha_mas_tardia_jornada_cargada(numero, jornadas_dir) or fecha)[:10] < hoy
     ]
     if con_fecha:
         return max(con_fecha)[1]
-    return max(aprendidas)
+    # Respaldo (hallazgo 204). Antes: max(aprendidas) por NUMERO, que daba por
+    # aprendida justo la jornada con fecha futura que el filtro acababa de
+    # descartar. Ahora solo cuentan las jornadas SIN fecha por partido (ficheros
+    # antiguos); una jornada con fecha que no ha pasado el filtro no se ha
+    # terminado de jugar y no esta aprendida. Si no queda ninguna: 0.
+    import cronologia_jornadas
+
+    sin_fecha = []
+    for fecha, numero in todas_con_fecha:
+        if fecha:
+            continue
+        cabecera = cronologia_jornadas.fecha_real_jornada(
+            cargar_json(Path(jornadas_dir) / f"jornada_{numero}.json", {})
+        )
+        if cabecera is not None and cabecera.isoformat() >= hoy:
+            continue
+        # orden por fecha de cabecera; sin ninguna fecha, por numero
+        sin_fecha.append((cabecera.isoformat() if cabecera else "", numero))
+    return max(sin_fecha)[1] if sin_fecha else 0
 
 
 def fecha_mas_temprana(jornada_data):

@@ -40,7 +40,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+import cronologia_jornadas as cj
 from columna_valiente import cargar_json, guardar_json, equipos_espanoles, es_espanol
+from guardar_snapshot_prediccion import snapshot_de_otra_jornada
 from modelo_dixon_coles import shin_devig
 
 ROOT = Path(__file__).resolve().parent
@@ -319,6 +321,15 @@ def cargar_snapshots(dir_snapshots=SNAPSHOTS_DIR, dir_jornadas=JORNADAS_DIR, esp
         jornada = snap.get("jornada") or pred.get("jornada")
         if jornada is None:
             continue
+        # Auditoria 26/11: el numero no identifica la jornada (se reinicia
+        # cada temporada). Un snapshot que no es de los mismos partidos que
+        # jornada_N.json no se cruza con esos resultados, y cada jornada
+        # lleva su temporada segun la FECHA real.
+        datos_jornada = cargar_json(Path(dir_jornadas) / f"jornada_{jornada}.json", {}) or {}
+        if snapshot_de_otra_jornada(snap, datos_jornada):
+            continue
+        fecha_real = cj.fecha_real_jornada(datos_jornada) or cj.parsear_fecha(snap.get("primer_partido_utc"))
+        temporada = cj.temporada_de_fecha(fecha_real, jornada) if fecha_real else None
         reales = _signos_reales(jornada, dir_jornadas)
         partidos = []
         for p in pred.get("partidos", []):
@@ -337,7 +348,7 @@ def cargar_snapshots(dir_snapshots=SNAPSHOTS_DIR, dir_jornadas=JORNADAS_DIR, esp
                              "franja": franja_de(prob_favorito_pct(motor)), "y": y})
         if partidos:
             jornadas.append({"jornada": jornada, "orden": str(snap.get("creado_en") or pred.get("generado_en") or ""),
-                             "partidos": partidos})
+                             "temporada": temporada, "partidos": partidos})
     jornadas.sort(key=lambda j: (j["orden"], j["jornada"]))
     return jornadas
 

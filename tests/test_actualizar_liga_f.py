@@ -240,7 +240,8 @@ class TestEscrituraYConservacion(unittest.TestCase):
             (destino / "clasificacion.json").write_text(json.dumps(previo), encoding="utf-8")
             (destino / "resultados.json").write_text(json.dumps(previo_res), encoding="utf-8")
 
-            with mock.patch.object(liga_f, "descargar", side_effect=liga_f.requests.ConnectionError("sin red")), \
+            with mock.patch.object(liga_f, "motivo_para_no_descargar", return_value=None), \
+                 mock.patch.object(liga_f, "descargar", side_effect=liga_f.requests.ConnectionError("sin red")), \
                  mock.patch.object(liga_f, "conservar_previo_con_aviso",
                                    side_effect=lambda aviso, dir_salida=None: _conservar(aviso, destino)):
                 codigo = liga_f.main([])
@@ -269,7 +270,8 @@ class TestEscrituraYConservacion(unittest.TestCase):
     def test_clasificacion_incompleta_cuenta_como_fallo(self):
         with tempfile.TemporaryDirectory() as tmp:
             destino = Path(tmp)
-            with mock.patch.object(liga_f, "descargar", return_value="<html><p>vacio</p></html>"), \
+            with mock.patch.object(liga_f, "motivo_para_no_descargar", return_value=None), \
+                 mock.patch.object(liga_f, "descargar", return_value="<html><p>vacio</p></html>"), \
                  mock.patch.object(liga_f, "conservar_previo_con_aviso",
                                    side_effect=lambda aviso, dir_salida=None: _conservar(aviso, destino)):
                 codigo = liga_f.main([])

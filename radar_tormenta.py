@@ -201,19 +201,30 @@ def _pares(partidos):
 
 
 def _misma_jornada(snapshot_partidos, jornada_partidos):
-    """Guarda anti-mezcla de temporadas: los fixtures deben coincidir (>=10
-    de 14 por nombres normalizados); la numeracion J se reinicia cada año."""
-    return len(_pares(snapshot_partidos) & _pares(jornada_partidos)) >= 10
+    """Guarda anti-mezcla de temporadas: los fixtures deben ser los mismos
+    partidos; la numeracion J se reinicia cada año. Auditoria 26/11: exigir
+    10 de 14 pares IDENTICOS tras quitar tildes descartaba en silencio las
+    jornadas de Copa y Champions ('Borussia Dortmund' frente a 'B. Dortmund':
+    J17 casaba 1/14, J19 7/14, J20 y J24 9/14). Se usa el comparador tolerante
+    comun (cronologia_jornadas.misma_jornada)."""
+    import cronologia_jornadas as cj
+    return (len(_pares(snapshot_partidos) & _pares(jornada_partidos)) >= 10
+            or cj.misma_jornada(list(snapshot_partidos or []), list(jornada_partidos or [])))
 
 
-def evaluar_jornada_cerrada(bloque, snapshot_partidos, jornada_partidos, masa_jornada):
-    """Metrica de concentracion de una jornada cerrada. None si no evaluable."""
+def evaluar_jornada_cerrada(bloque, snapshot_partidos, jornada_partidos, masa_jornada,
+                            jornada_verificada=False):
+    """Metrica de concentracion de una jornada cerrada. None si no evaluable.
+    jornada_verificada=True: quien llama ya comprobo (snapshot pre-cierre
+    validado por equipos o fecha) que el bloque es de esta jornada real."""
     oficiales = {}
     for p in jornada_partidos:
         num = p.get("num") or p.get("numero")
         if p.get("signo_oficial") in ("1", "X", "2") and isinstance(num, int):
             oficiales[num] = p["signo_oficial"]
-    if len(oficiales) < 14 or not _misma_jornada(snapshot_partidos, jornada_partidos):
+    if len(oficiales) < 14:
+        return None
+    if not jornada_verificada and not _misma_jornada(snapshot_partidos, jornada_partidos):
         return None
     if not masa_jornada:
         return None
@@ -246,37 +257,49 @@ def _masa_jornada(etiqueta, jornada):
 
 
 def actualizar_marcador_radar(dir_predicciones=None, dir_jornadas=None,
-                              ruta_marcador=None, etiqueta=None, ahora=None):
+                              ruta_marcador=None, etiqueta=None, ahora=None,
+                              dir_snapshots=None):
     """Al cerrar cada jornada con bloque radar publicado, registra la
     concentracion de terceros dentro/fuera de la zona. Idempotente por
-    (temporada, jornada)."""
-    dir_predicciones = Path(dir_predicciones or PREDICCIONES_DIR)
+    (temporada, jornada).
+
+    Auditoria 26/11: el bloque se lee del snapshot PRE-CIERRE (no del espejo
+    data/predicciones, que se reescribe con la jornada en juego) y la
+    temporada sale de la fecha de la jornada, no de now(). dir_predicciones
+    se conserva en la firma pero ya no se lee. Las jornadas cerradas con
+    bloque que no se pueden evaluar se devuelven en 'no_evaluables' con su
+    motivo en vez de saltarse en silencio."""
+    from senal_valiente import bloques_del_cierre
     dir_jornadas = Path(dir_jornadas or JORNADAS_DIR)
     ruta_marcador = Path(ruta_marcador or MARCADOR)
     ahora = ahora or datetime.now(timezone.utc)
-    etiqueta = etiqueta or temporada_etiqueta(datetime.now())
 
     marcador = cargar_json(ruta_marcador, {})
     jornadas = marcador.get("jornadas") or []
     registradas = {(j.get("temporada"), j.get("jornada")) for j in jornadas}
     nuevas = 0
-    for path in sorted(dir_predicciones.glob("jornada_*.json")):
-        snapshot = cargar_json(path, {}) or {}
-        bloque = snapshot.get("radar_tormenta") or {}
+    no_evaluables = []
+    for etiqueta, jornada, bloque, prediccion, datos_jornada in bloques_del_cierre(
+            "radar_tormenta", dir_jornadas, dir_snapshots, etiqueta):
         if bloque.get("estado") not in ("ok", "sin_tormenta"):
             continue
-        jornada = bloque.get("jornada")
-        if not isinstance(jornada, int) or (etiqueta, jornada) in registradas:
+        if (etiqueta, jornada) in registradas:
             continue
-        datos_jornada = cargar_json(dir_jornadas / f"jornada_{jornada}.json", {})
+        masa = _masa_jornada(etiqueta, jornada)
         resumen = evaluar_jornada_cerrada(
             bloque,
-            snapshot.get("partidos") or [],
+            prediccion.get("partidos") or [],
             datos_jornada.get("partidos") or [],
-            _masa_jornada(etiqueta, jornada),
+            masa,
+            jornada_verificada=True,
         )
         if resumen is None:
-            continue  # jornada abierta, otra temporada o sin masa versionada
+            no_evaluables.append({
+                "temporada": etiqueta, "jornada": jornada,
+                "motivo": ("sin % LAE versionados de los 14 partidos" if len(masa) < 14
+                           else "faltan signos oficiales o masa de algun partido"),
+            })
+            continue
         jornadas.append({
             "temporada": etiqueta,
             "jornada": jornada,
@@ -290,8 +313,9 @@ def actualizar_marcador_radar(dir_predicciones=None, dir_jornadas=None,
         })
         registradas.add((etiqueta, jornada))
         nuevas += 1
-    if not nuevas and marcador:
-        return {"nuevas": 0, "resumen": marcador.get("resumen") or {}}
+    if not nuevas and marcador and (marcador.get("no_evaluables") or []) == no_evaluables:
+        return {"nuevas": 0, "resumen": marcador.get("resumen") or {},
+                "no_evaluables": no_evaluables}
 
     evaluadas = len(jornadas)
     pz = sum(j["partidos_zona"] for j in jornadas)
@@ -329,8 +353,9 @@ def actualizar_marcador_radar(dir_predicciones=None, dir_jornadas=None,
         "modo": "sombra",
         "resumen": resumen,
         "jornadas": jornadas,
+        "no_evaluables": no_evaluables,
     })
-    return {"nuevas": nuevas, "resumen": resumen}
+    return {"nuevas": nuevas, "resumen": resumen, "no_evaluables": no_evaluables}
 
 
 # ---------------------------------------------------------------------------

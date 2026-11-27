@@ -6,8 +6,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import radar_tormenta as rt
+import test_aud_P4_sombra_snapshot_util as util
 
 
 def _partido(num=1, local="Cadiz CF", visitante="Levante UD", probs=None):
@@ -161,51 +163,90 @@ class EvaluarJornadaCerradaTests(unittest.TestCase):
 
 
 class MarcadorRadarTests(unittest.TestCase):
+    """Auditoria 26/11: el marcador lee la zona del snapshot PRE-CIERRE, la
+    temporada sale de la fecha de la jornada y los % LAE se leen de un
+    directorio temporal (antes el test escribia dentro de data/)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.base = Path(self.tmp.name)
+        self.dir_jor = self.base / "jornadas"
+        self.dir_snap = self.base / "snapshots"
+        self.ruta = self.base / "marcador.json"
+        self._porcentajes_original = rt.PORCENTAJES_DIR
+        rt.PORCENTAJES_DIR = self.base / "porcentajes"
+
+    def tearDown(self):
+        rt.PORCENTAJES_DIR = self._porcentajes_original
+        self.tmp.cleanup()
+
+    def _masa(self, jornada=20, etiqueta="2026_2027"):
+        carpeta = rt.PORCENTAJES_DIR / etiqueta
+        carpeta.mkdir(parents=True, exist_ok=True)
+        (carpeta / f"jornada_{jornada}.json").write_text(json.dumps({
+            "jornada": jornada,
+            "partidos": [{"numero": n, "porcentajes": {"1": 60.0, "X": 25.0, "2": 15.0}}
+                         for n in range(1, 15)]}), encoding="utf-8")
+
+    def _bloque(self, num=2):
+        local, visitante = util.EQUIPOS[num - 1]
+        return {"estado": "ok", "jornada": 20,
+                "zona": [{"num": num, "local": local, "visitante": visitante,
+                          "signo_rayo": "2", "motivos": ["test"]}]}
+
+    def _actualizar(self, etiqueta="2026_2027"):
+        return rt.actualizar_marcador_radar(
+            dir_predicciones=self.base / "predicciones", dir_jornadas=self.dir_jor,
+            ruta_marcador=self.ruta, etiqueta=etiqueta, dir_snapshots=self.dir_snap)
+
     def test_registra_una_vez_y_es_idempotente(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp = Path(tmp)
-            (tmp / "predicciones").mkdir()
-            (tmp / "jornadas").mkdir()
-            porcentajes = rt.PORCENTAJES_DIR / "test_temp"
-            snapshot = {
-                "jornada": 99,
-                "partidos": [_partido(num=n, local=f"L{n}", visitante=f"V{n}")
-                             for n in range(1, 15)],
-                "radar_tormenta": {
-                    "estado": "ok", "jornada": 99,
-                    "zona": [{"num": 2, "local": "L2", "visitante": "V2",
-                              "signo_rayo": "2", "motivos": ["test"]}],
-                },
-            }
-            jornada = {"partidos": [{"num": n, "local": f"L{n}", "visitante": f"V{n}",
-                                     "signo_oficial": "2" if n == 2 else "1"}
-                                    for n in range(1, 15)]}
-            (tmp / "predicciones" / "jornada_99.json").write_text(
-                json.dumps(snapshot), encoding="utf-8")
-            (tmp / "jornadas" / "jornada_99.json").write_text(
-                json.dumps(jornada), encoding="utf-8")
-            porcentajes.mkdir(parents=True, exist_ok=True)
-            try:
-                (porcentajes / "jornada_99.json").write_text(json.dumps({
-                    "partidos": [{"numero": n, "porcentajes": {"1": 60.0, "X": 25.0, "2": 15.0}}
-                                 for n in range(1, 15)]}), encoding="utf-8")
-                ruta = tmp / "marcador.json"
-                r1 = rt.actualizar_marcador_radar(
-                    dir_predicciones=tmp / "predicciones", dir_jornadas=tmp / "jornadas",
-                    ruta_marcador=ruta, etiqueta="test_temp")
-                self.assertEqual(r1["nuevas"], 1)
-                datos = json.loads(ruta.read_text(encoding="utf-8"))
-                self.assertEqual(datos["resumen"]["terceros_en_zona"], 1)
-                self.assertEqual(datos["resumen"]["rayos_acertados"], 1)
-                self.assertEqual(datos["resumen"]["veredicto"], "en_prueba")
-                r2 = rt.actualizar_marcador_radar(
-                    dir_predicciones=tmp / "predicciones", dir_jornadas=tmp / "jornadas",
-                    ruta_marcador=ruta, etiqueta="test_temp")
-                self.assertEqual(r2["nuevas"], 0)
-            finally:
-                for f in porcentajes.glob("*.json"):
-                    f.unlink()
-                porcentajes.rmdir()
+        util.montar_cierre(self.base, 20, {"radar_tormenta": self._bloque()}, signos={2: "2"})
+        self._masa()
+        r1 = self._actualizar()
+        self.assertEqual(r1["nuevas"], 1)
+        datos = json.loads(self.ruta.read_text(encoding="utf-8"))
+        self.assertEqual(datos["resumen"]["terceros_en_zona"], 1)
+        self.assertEqual(datos["resumen"]["rayos_acertados"], 1)
+        self.assertEqual(datos["resumen"]["veredicto"], "en_prueba")
+        self.assertEqual(datos["jornadas"][0]["temporada"], "2026_2027")
+        # ni repitiendo ni cambiando la etiqueta (now() en julio de 2027) se duplica
+        self.assertEqual(self._actualizar()["nuevas"], 0)
+        self.assertEqual(self._actualizar(etiqueta="2027_2028")["nuevas"], 0)
+
+    def test_la_zona_es_la_del_snapshot_no_la_del_espejo(self):
+        # J22 real: el marcador guardo la zona [8, 3, 14] del espejo reescrito
+        # y el snapshot pre-cierre decia [5, 12].
+        util.montar_cierre(self.base, 20, {"radar_tormenta": self._bloque(num=2)}, signos={2: "2"})
+        self._masa()
+        (self.base / "predicciones").mkdir()
+        (self.base / "predicciones" / "jornada_20.json").write_text(json.dumps({
+            "jornada": 20, "partidos": util.partidos_prediccion(util.EQUIPOS),
+            "radar_tormenta": self._bloque(num=9)}), encoding="utf-8")
+        self._actualizar()
+        datos = json.loads(self.ruta.read_text(encoding="utf-8"))
+        self.assertEqual([z["num"] for z in datos["jornadas"][0]["zona"]], [2])
+
+    def test_nombres_de_otra_fuente_no_descartan_la_jornada(self):
+        # Auditoria 26/11: J17, J19, J20 y J24 (Copa y Champions) no se
+        # registraban porque 'Borussia Dortmund' != 'B. Dortmund'.
+        fixture = [("B. Dortmund" if l == "Alaves" else l + " CF", "R. " + v) for l, v in util.EQUIPOS]
+        util.montar_cierre(self.base, 20, {"radar_tormenta": self._bloque()}, signos={2: "2"},
+                           nombres=[("Borussia Dortmund" if l == "Alaves" else l, v) for l, v in util.EQUIPOS],
+                           nombres_fixture=fixture)
+        self._masa()
+        self.assertEqual(self._actualizar()["nuevas"], 1)
+
+    def test_jornada_sin_masa_queda_como_no_evaluable_con_motivo(self):
+        util.montar_cierre(self.base, 20, {"radar_tormenta": self._bloque()}, signos={2: "2"})
+        r = self._actualizar()
+        self.assertEqual(r["nuevas"], 0)
+        self.assertEqual([(n["jornada"], n["temporada"]) for n in r["no_evaluables"]], [(20, "2026_2027")])
+        self.assertIn("LAE", r["no_evaluables"][0]["motivo"])
+
+    def test_jornada_abierta_no_se_registra(self):
+        util.montar_cierre(self.base, 20, {"radar_tormenta": self._bloque()}, signos={7: "Pendiente"})
+        self._masa()
+        self.assertEqual(self._actualizar()["nuevas"], 0)
 
 
 if __name__ == "__main__":

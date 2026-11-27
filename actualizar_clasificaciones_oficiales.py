@@ -1,7 +1,7 @@
 import json
 import re
 import unicodedata
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import requests
@@ -360,7 +360,20 @@ def aplicar_empate_jugado_si_falta(tabla, local, visitante, pj_objetivo=40):
     return True
 
 
-def aplicar_correcciones_resultados(tablas):
+FIN_TEMPORADA_2025_2026 = date(2026, 8, 12)
+
+
+def aplicar_correcciones_resultados(tablas, hoy=None):
+    # La correccion Leganes 0-0 Huesca es de la temporada 2025/2026. Sin este
+    # limite se sumaria un empate a cualquier Leganes-Huesca futuro con menos
+    # de 40 partidos (auditoria 26/11, hallazgo 172).
+    # Doble limite: la tabla tiene que ser la de 25/26 Y la fecha no puede ser
+    # posterior al final de esa temporada (detectar_temporada se guia por
+    # 'Racing en Primera' y dejaria de servir si el Racing vuelve a bajar).
+    if detectar_temporada(tablas.get("primera", [])) != "2025/2026":
+        return tablas
+    if (hoy or datetime.now(timezone.utc).date()) > FIN_TEMPORADA_2025_2026:
+        return tablas
     segunda = tablas.get("segunda", [])
     cambiado = aplicar_empate_jugado_si_falta(segunda, "CD Leganes", "SD Huesca", 40)
     if cambiado:
@@ -389,6 +402,11 @@ def fusionar_clasificacion_publica(oficial, publica):
     salida["validado_en"] = oficial.get("validado_en") or salida.get("validado_en")
     salida["fuentes"] = oficial.get("fuentes", salida.get("fuentes", {}))
     salida["temporada_detectada"] = oficial.get("temporada_detectada", salida.get("temporada_detectada"))
+    for clave in ("conserva_datos_previos", "ultimo_intento", "aviso"):
+        if clave in oficial:
+            salida[clave] = oficial[clave]
+        else:
+            salida.pop(clave, None)
     return salida
 
 
@@ -421,10 +439,14 @@ def main():
         if not validar_guardada(oficial):
             raise SystemExit(f"No hay clasificacion valida para conservar: {exc}")
         oficial["temporada_detectada"] = detectar_temporada(oficial.get("primera", []))
-        oficial["validado_en"] = ahora
+        # 'validado_en' NO se toca: es la fecha del ultimo dato bueno. Antes se
+        # ponia 'ahora' y una tabla vieja parecia recien validada (hallazgo 172).
+        oficial["conserva_datos_previos"] = True
+        oficial["ultimo_intento"] = ahora
+        oficial["aviso"] = f"No se pudo refrescar la clasificacion: {str(exc)[:200]}"
         oficial.setdefault("fuentes", FUENTES)
         guardar_json(OFICIALES, oficial)
-        print(f"No se pudo refrescar clasificacion externa; se conserva la ultima valida y se marca como validada ahora. Motivo: {exc}")
+        print(f"No se pudo refrescar clasificacion externa; se conserva la ultima valida (validada en {oficial.get('validado_en')}). Motivo: {exc}")
 
     publica_actual = cargar_json(PUBLICA, {})
     publica = fusionar_clasificacion_publica(oficial, publica_actual)

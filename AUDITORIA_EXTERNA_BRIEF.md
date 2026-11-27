@@ -6,6 +6,12 @@ cero cosas que ya se investigaron, verificaron y arreglaron con datos reales.
 Léelo entero antes de tocar código. Donde se dice "verificado con datos reales"
 es literal: se comprobó ejecutando el código contra datos reales, no se asumió.
 
+> **Nota de vigencia (27/11/2026).** Este brief se escribió en agosto de 2026,
+> antes de arrancar LaLiga 26/27. Lo que ha cambiado desde entonces está
+> corregido en su sitio y marcado con "(actualizado 27/11/2026)", y resumido en
+> la sección "Qué ha cambiado desde agosto" al final. Lo demás se conserva como
+> registro histórico.
+
 ## Qué es este proyecto
 
 Motor de predicción + web + chat para La Quiniela de fútbol española (LAE/SELAE).
@@ -163,17 +169,26 @@ de verdad se llama con `elige8=True` en algún sitio activo del pipeline
 - `boleto_millonario` sale siempre con `total_cambios: 0` mientras las
   jornadas activas sean de ligas nórdicas (Noruega/Suecia/Finlandia) —
   la señal (patrones de necesidad, historial de enfrentamientos, clase por
-  posición) es 100% LaLiga/Segunda a propósito. Se activará sola cuando
-  LaLiga 26/27 arranque (16/08/2026).
+  posición) es 100% LaLiga/Segunda a propósito. (actualizado 27/11/2026:
+  el primer partido de LaLiga 26/27 se jugó el 15/08/2026 —la jornada 1 de
+  La Quiniela lleva fecha del domingo 16— y la señal ya está activa.)
 - API-Football sigue en plan Free a propósito — Marc no quiere pagar nada
   más hasta ver la web funcionando bien con LaLiga en marcha. No proponer
   pagos.
-- Gemini como fallback de IA está desactivado a propósito (exige vincular
-  tarjeta de facturación incluso en el nivel gratuito real) — el chat queda
-  con Groq + OpenRouter, 2 de 3 niveles, sin Gemini. No es un fallo a
-  arreglar.
+- (actualizado 27/11/2026) Gemini NO está desactivado en el código: el worker
+  tiene la ruta `/api/gemini` (modelo `gemini-3.6-flash`) e `index.html` la
+  llama como segundo nivel del chat y como único camino para leer imágenes de
+  boletos. Lo que decía este brief ("desactivado a propósito, el chat queda
+  con Groq + OpenRouter") ya no describe el código. Que la clave `GEMINI_KEY`
+  funcione o no depende de la cuenta y no se puede comprobar desde el repo.
+  El estado de la cadena de respaldo del chat está en la auditoría del
+  26/11/2026 (`reports/auditoria_2611/`).
 
-## Pendiente conocido, sin arreglar todavía
+## Pendiente conocido (resuelto; se conserva como registro)
+
+(actualizado 27/11/2026) Arreglado en el commit `fe48509bb8`: `CANONICOS` de
+`actualizar_boleto_vivo.py` ya reconoce "Malmö", "Malmoe" y "Malmö FF" como
+el mismo equipo. Descripción original:
 
 **Bug del scraper de nombres de equipo**: en la jornada 74,
 `actualizar_boleto_vivo.py` dejó el resultado de "Malmoe"/"Malmö" sin
@@ -244,3 +259,29 @@ que sí aportan valor real:
 
 Cualquier hallazgo debe venir con evidencia concreta (archivo + línea +
 por qué importa), no con una afirmación abstracta de "esto podría mejorarse".
+
+## Qué ha cambiado desde agosto (27/11/2026)
+
+- **El mercado manda en la probabilidad.** Desde el 26/11/2026 el motor mezcla
+  su número con el mercado de Losilla con un peso mínimo de 0,85
+  (`PESO_MERCADO_MANDA` en `motor_prediccion_quiniela.py`). El 0,7 que aparece
+  en documentos anteriores es `PESO_DIXON_COLES` (Dixon-Coles frente al prior
+  propio), no el peso del mercado.
+- **Predicción congelada al cierre.** Desde el primer partido, la foto válida
+  es `data/backtesting/pre_cierre/jornada_N.json` (campo `prediccion`);
+  `congelar_bloques_sombra.py` restaura desde ahí el espejo
+  `data/predicciones/jornada_N.json`, que por sí solo NO sirve para saber qué
+  se dijo antes del cierre.
+- **Jornadas por fecha, no por número.** La numeración se reinicia cada
+  temporada; `cronologia_jornadas.py` es el módulo común para ordenar e
+  identificar jornadas.
+- **Optimizador de boleto.** `optimizador_boleto.py` (objetivo: 13 o más) da
+  la estructura base del boleto semanal. Jugar dinero sigue siendo siempre una
+  acción manual de Marc.
+- **Elige 8.** La selección sigue siendo por eficiencia (probabilidad entre
+  coste); `elige8_ev.py` y `elige8_modos` son una calculadora informativa.
+- **Dependencias.** `requirements.txt` es la única lista válida: requests,
+  beautifulsoup4, lxml, numpy, scipy, scikit-learn y joblib. pandas no se usa.
+- **Módulos en sombra** (se publican y se miden sin dinero): La Valiente,
+  Sorpresa Nombrada, Radar de Tormenta, Tercero de Valor, Columna Valiente,
+  ranker de favoritos en riesgo.

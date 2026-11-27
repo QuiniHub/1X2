@@ -11,6 +11,9 @@ importantes (que no son obvias leyendo solo el codigo).
 
 Genera una prediccion 1X2 para cada jornada de La Quiniela combinando:
 
+- el mercado (probabilidades de eduardolosilla.es), que desde el 26/11/2026 manda
+  en la probabilidad final con un peso minimo de 0,85 (`PESO_MERCADO_MANDA` en
+  `motor_prediccion_quiniela.py`); el modelo propio aporta el resto
 - datos reales de resultados, clasificaciones y jornadas
 - contexto competitivo por equipo (necesidad de puntos, dinamica, objetivos)
 - memoria historica de quinielas jugadas y resultados
@@ -21,6 +24,18 @@ Genera una prediccion 1X2 para cada jornada de La Quiniela combinando:
 El sistema **no predice la siguiente jornada mientras la actual este en juego**.
 Una vez cerrada la jornada, consolida los resultados, aprende de los errores
 y genera la prediccion para la siguiente.
+
+Desde el primer partido de la jornada la prediccion queda **congelada**: la foto
+valida es el snapshot `data/backtesting/pre_cierre/jornada_N.json` (campo
+`prediccion`), y `congelar_bloques_sombra.py` restaura desde ahi el espejo
+`data/predicciones/jornada_N.json` y `ultima_prediccion.json`; encima solo se
+actualizan los resultados reales. Para saber "que se dijo antes del cierre" se
+lee el snapshot, nunca el espejo.
+
+**Las jornadas no se identifican por su numero.** La numeracion de La Quiniela
+se reinicia cada temporada (a mediados de agosto) y en `data/jornadas/` conviven
+jornadas de dos temporadas. Para ordenar, filtrar o buscar "la ultima" se usa
+`cronologia_jornadas.py` (fecha real de los partidos), no `max(numero)`.
 
 ---
 
@@ -35,7 +50,8 @@ carga (el cron es una peticion, no una garantia):
   -> python actualizar_todo.py
 ```
 
-`actualizar_todo.py` ejecuta los ~60 scripts activos en orden. Solo dos son
+`actualizar_todo.py` ejecuta los scripts activos en orden (78 a 27/11/2026;
+la lista real es `SCRIPTS_ACTIVOS` en ese fichero). Solo dos son
 criticos (`motor_prediccion_objetivo.py` y `validar_publicacion_autonoma.py`):
 si fallan, paran todo el proceso. El resto son tolerantes — si uno falla, se
 registra un `AVISO` y se continua con el siguiente, para no bloquear toda la
@@ -57,14 +73,14 @@ python -m unittest discover -s tests
 
 | Competicion | Estado |
 |---|---|
-| Ligas europeas (segun quiniela) | Activo segun jornada |
-| Primera Division 2026/2027 | Pendiente inicio agosto 2026 |
-| Segunda Division 2026/2027 | Pendiente inicio agosto 2026 |
+| Primera Division 2026/2027 | En juego desde el 15/08/2026 |
+| Segunda Division 2026/2027 | En juego |
+| Champions / Europa League / Liga F (cuando entran en la quiniela) | Activo segun jornada |
 
 El Mundial 2026 se retiro por completo del sistema (pestana, datos y scripts)
-el 1 de julio de 2026: el proyecto se reorienta a la Liga 2026/2027. Cuando
-empiece, el sistema inicializara automaticamente las tablas clasificatorias
-y el calendario de Primera y Segunda.
+el 1 de julio de 2026. La Quiniela de la temporada 2026/2027 empezo con la
+jornada 1 el 15/08/2026; las jornadas 28 a 76 que hay en `data/jornadas/` son
+de la temporada 2025/2026.
 
 ---
 
@@ -93,6 +109,10 @@ y el calendario de Primera y Segunda.
 - `modelo_metricas_1x2.py` — capa entrenable Elo/Poisson + scikit-learn
 - `alinear_boleto_con_analisis.py` — asignacion de fijos/dobles/triples
 - `aplicar_elige8_seguro.py` — seleccion de Elige 8
+- `optimizador_boleto.py` / `publicar_optimizador_boleto.py` — estructura de boleto que maximiza la probabilidad de 13 o mas para un presupuesto (base del boleto semanal desde el 26/11/2026; la decision de jugar es siempre manual)
+- `congelar_bloques_sombra.py` — congela la prediccion entera al cierre desde el snapshot pre-cierre
+- `cronologia_jornadas.py` — modulo comun para ordenar e identificar jornadas por fecha real (no por numero)
+- modulos en sombra, que se publican y se miden sin dinero: `senal_valiente.py`, `sorpresa_nombrada.py`, `radar_tormenta.py`, `tercero_valor.py`, `columna_valiente.py`, `ranker_favoritos.py`, `elige8_ev.py`
 - `generar_estado_vivo_ia.py` — estado vivo para la web
 
 ### Datos profesionales (opcionales)
@@ -148,8 +168,13 @@ El sistema decide la cobertura de cada partido:
 | **DOBLE** | riesgo medio, dos signos plausibles |
 | **TRIPLE** | alta incertidumbre, cubre los tres signos |
 
-Los triples garantizan acierto en ese partido para Elige 8.
-El Elige 8 se forma con los 8 partidos de mayor probabilidad de acierto.
+Los triples garantizan acierto en ese partido para Elige 8, pero no salen
+gratis: cada doble o triple DENTRO de los 8 partidos elegidos multiplica el
+coste del Elige 8 por 2 o por 3. Por eso el Elige 8 no se forma con "los 8 de
+mayor probabilidad" sino por eficiencia: probabilidad de acierto dividida por
+el numero de signos jugados en ese partido (`eficiencia_elige8()` en
+`aplicar_elige8_seguro.py`). `elige8_ev.py` y `elige8_modos` son una
+calculadora informativa, no una recomendacion de jugarlo.
 
 ---
 
@@ -191,22 +216,29 @@ de snapshots pre-cierre.
 
 ## Dependencias
 
+Las de `requirements.txt` (unica lista valida; instalar con
+`pip install -r requirements.txt`):
+
 ```
+requests
 beautifulsoup4
 lxml
-joblib
 numpy
-pandas
-requests
+scipy
 scikit-learn
+joblib
 ```
+
+`scipy` es obligatorio (`modelo_dixon_coles.py`, `mezcla_benter.py`,
+`modelo_pi_ratings.py`). `tests/test_aud_P9_requirements.py` comprueba que esta
+lista coincide con lo que el codigo importa de verdad.
 
 ---
 
 ## Estado del sistema
 
-- Competicion activa: **ligas europeas segun jornada** (Mundial 2026 retirado el 1 jul 2026)
-- Proxima transicion: **Liga 2026/2027** (agosto 2026)
+- Competicion activa: **Liga 2026/2027** (Primera y Segunda, mas Champions/Europa League/Liga F cuando entran en la quiniela)
+- Probabilidad: **manda el mercado** (peso minimo 0,85) y la prediccion queda **congelada al cierre**
 - Workflow: cron cada 30 min, ejecucion real cada 1-4 horas segun GitHub Actions
 - Premios: **automaticos si hay dato fiable, pendiente si no**
 - Fallos no criticos: tolerados y avisados; alerta especial si un script lleva 3+ ejecuciones seguidas fallando

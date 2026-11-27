@@ -14,6 +14,7 @@ jobs:
   importar:
     if: contains(github.event.issue.title, 'Memoria Quiniela IA') && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Descargar repositorio
@@ -24,11 +25,16 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           python - <<'PY'
+          # El test tests/test_aud_P7_importar_memoria.py extrae este bloque y lo
+          # ejecuta tal cual: si se cambia, hay que pasar ese test.
           import json
           import os
           import re
-          from datetime import datetime, timezone
+          import sys
+          from datetime import date, datetime, timezone
           from pathlib import Path
+
+          sys.path.insert(0, os.getcwd())
 
           event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text(encoding="utf-8"))
           body = event.get("issue", {}).get("body") or ""
@@ -37,7 +43,7 @@ jobs:
               raise SystemExit("No se encontro bloque JSON en el issue.")
 
           payload = json.loads(match.group(1))
-          if payload.get("tipo") != "memoria_quinielas_jugadas":
+          if not isinstance(payload, dict) or payload.get("tipo") != "memoria_quinielas_jugadas":
               raise SystemExit("Payload rechazado: tipo de memoria no reconocido.")
           jugadas = payload.get("jugadas") or []
           if not isinstance(jugadas, list):
@@ -55,32 +61,141 @@ jobs:
                   "jugadas": [],
               }
 
+          # --- Temporada (auditoria 26/11/2026, hallazgos 51, 128, 146) ---
+          # La numeracion de La Quiniela se reinicia cada agosto: "jornada 5" no
+          # identifica una jugada. La clave es (temporada, jornada) y la
+          # temporada sale de la FECHA REAL de la jornada, no solo del numero.
+          try:
+              import cronologia_jornadas as cj
+          except Exception:
+              cj = None
+
+          def parsear_fecha(valor):
+              texto = str(valor or "").strip()
+              if not texto:
+                  return None
+              if cj is not None:
+                  try:
+                      fecha = cj.parsear_fecha(texto)
+                      if fecha:
+                          return fecha
+                  except Exception:
+                      pass
+              try:
+                  return datetime.fromisoformat(texto.replace("Z", "+00:00")).date()
+              except ValueError:
+                  pass
+              m = re.match(r"^(\d{1,2})/(\d{1,2})/(\d{4})", texto)
+              if m:
+                  try:
+                      return date(int(m.group(3)), int(m.group(2)), int(m.group(1)))
+                  except ValueError:
+                      return None
+              return None
+
+          def temporada_de(fecha, numero):
+              if fecha is None:
+                  return None
+              if cj is not None:
+                  try:
+                      return cj.temporada_de_fecha(fecha, numero)
+                  except Exception:
+                      pass
+              # Respaldo con la misma regla: corte 12 de agosto y, en julio y
+              # agosto, el numero desambigua (<=15 empieza, >=40 acaba).
+              empieza = (fecha.month, fecha.day) >= (8, 12)
+              if fecha.month in (7, 8):
+                  if numero <= 15:
+                      empieza = True
+                  elif numero >= 40:
+                      empieza = False
+              inicio = fecha.year if empieza else fecha.year - 1
+              return "%d_%d" % (inicio, inicio + 1)
+
+          def fecha_real_del_boleto(numero):
+              if cj is None:
+                  return None
+              try:
+                  datos = cj.cargar_jornada(numero, Path("data/jornadas"))
+                  return cj.fecha_real_jornada(datos) if datos else None
+              except Exception:
+                  return None
+
+          def temporada_jugada(numero, validado_en):
+              """Fecha real del boleto oficial si es el de esta jugada (a menos
+              de 45 dias de la validacion); si no, la fecha de validacion."""
+              validada = parsear_fecha(validado_en)
+              real = fecha_real_del_boleto(numero)
+              if real and (validada is None or abs((real - validada).days) <= 45):
+                  return temporada_de(real, numero)
+              return temporada_de(validada, numero)
+
+          # --- Validacion de campos (hallazgo 249) ---
           def limpiar_signos(valor):
+              """14 signos normalizados a 1, X, 2, 1X, 12, X2 o 1X2 (sin repetir
+              y en orden). Cualquier casilla vacia invalida la jugada."""
               if not isinstance(valor, list):
                   return []
               salida = []
               for signo in valor[:14]:
-                  limpio = re.sub(r"[^1X2]", "", str(signo).upper())
-                  if not limpio:
+                  texto = re.sub(r"[\s\-,/]", "", str(signo).upper())
+                  if not texto or not set(texto) <= set("1X2"):
                       return []
-                  salida.append(limpio[:3])
+                  salida.append("".join(s for s in "1X2" if s in texto))
               return salida
 
-          por_jornada = {}
+          def limpiar_pleno15(valor):
+              m = re.match(r"^\s*([0-2M])\s*-\s*([0-2M])\s*$", str(valor or "").upper())
+              return "%s-%s" % (m.group(1), m.group(2)) if m else ""
+
+          def limpiar_validado_en(valor, ahora):
+              """Solo se acepta una fecha ISO-8601 que no sea futura; si no,
+              la hora de la importacion."""
+              if isinstance(valor, str):
+                  try:
+                      momento = datetime.fromisoformat(valor.strip().replace("Z", "+00:00"))
+                      if momento.tzinfo is None:
+                          momento = momento.replace(tzinfo=timezone.utc)
+                      if momento <= ahora and momento.year >= 2025:
+                          return momento.astimezone(timezone.utc).isoformat()
+                  except ValueError:
+                      pass
+              return ahora.isoformat()
+
+          ahora = datetime.now(timezone.utc)
+
+          por_clave = {}
+          sin_clave = []
           for jugada in memoria.get("jugadas", []):
-              try:
-                  jornada = int(jugada.get("jornada"))
-              except Exception:
+              if not isinstance(jugada, dict):
                   continue
-              por_jornada[jornada] = jugada
+              try:
+                  numero = int(jugada.get("jornada"))
+              except Exception:
+                  sin_clave.append(jugada)
+                  continue
+              temporada = jugada.get("temporada") or temporada_de(parsear_fecha(jugada.get("validado_en")), numero)
+              if not temporada:
+                  # Sin temporada no hay clave fiable: se conserva tal cual.
+                  # Indexarla como ("", numero) haria que dos jugadas antiguas
+                  # con el mismo numero se pisaran en silencio.
+                  sin_clave.append(jugada)
+                  continue
+              jugada["temporada"] = temporada
+              if (temporada, numero) in por_clave:
+                  # Duplicado ya guardado: tampoco se pierde.
+                  sin_clave.append(por_clave[(temporada, numero)])
+              por_clave[(temporada, numero)] = jugada
 
           importadas = []
           for jugada in jugadas:
+              if not isinstance(jugada, dict):
+                  continue
               try:
-                  jornada = int(jugada.get("jornada"))
+                  numero = int(jugada.get("jornada"))
               except Exception:
                   continue
-              if jornada < 1 or jornada > 90:
+              if numero < 1 or numero > 90:
                   continue
               signos = limpiar_signos(jugada.get("signos") or [])
               if len(signos) < 14:
@@ -91,25 +206,33 @@ jobs:
                       num = int(x)
                       if 1 <= num <= 14 and num not in elige8:
                           elige8.append(num)
+              validado_en = limpiar_validado_en(jugada.get("validado_en"), ahora)
+              temporada = temporada_jugada(numero, validado_en)
+              clave = (temporada or "", numero)
+              # Solo se fusiona con la jugada de la MISMA temporada y numero;
+              # la de otra temporada con el mismo numero se conserva intacta y
+              # no presta sus campos (premio_eur, modalidad, nota...).
               nueva = {
-                  **por_jornada.get(jornada, {}),
-                  "jornada": jornada,
+                  **por_clave.get(clave, {}),
+                  "jornada": numero,
+                  "temporada": temporada,
                   "signos": signos[:14],
                   "elige8": elige8[:8],
-                  "pleno15": str(jugada.get("pleno15") or "").strip()[:12],
-                  "validado_en": jugada.get("validado_en") or datetime.now(timezone.utc).isoformat(),
+                  "pleno15": limpiar_pleno15(jugada.get("pleno15")),
+                  "validado_en": validado_en,
                   "origen": "issue_memoria_sin_token",
               }
-              por_jornada[jornada] = nueva
-              importadas.append(jornada)
+              por_clave[clave] = nueva
+              importadas.append(numero)
 
           if not importadas:
               raise SystemExit("No habia jugadas validas para importar.")
 
           memoria["version"] = memoria.get("version") or "1.0"
           memoria["descripcion"] = memoria.get("descripcion") or "Quinielas jugadas por nosotros para aprendizaje IA."
-          memoria["actualizado_en"] = datetime.now(timezone.utc).isoformat()
-          memoria["jugadas"] = [por_jornada[j] for j in sorted(por_jornada)]
+          memoria["actualizado_en"] = ahora.isoformat()
+          # Orden cronologico: temporada y, dentro de ella, numero.
+          memoria["jugadas"] = [por_clave[c] for c in sorted(por_clave)] + sin_clave
           path.parent.mkdir(parents=True, exist_ok=True)
           path.write_text(json.dumps(memoria, ensure_ascii=False, indent=2), encoding="utf-8")
           Path("importadas.txt").write_text(", ".join(str(j) for j in sorted(set(importadas))), encoding="utf-8")

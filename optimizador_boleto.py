@@ -640,25 +640,11 @@ def recaudacion_media_plausible(etiqueta=None):
     (0,3-20 M EUR); si un escrutinio trae una recaudacion fuera de rango (J23
     26/27 guarda 294 M por un error de parseo) se reconstruye de la 3a
     categoria (acertantes x premio / 7,5%). (valor, n_escrutinios)."""
-    from actualizar_porcentajes_lae import SALIDA_BASE, temporada_etiqueta
-    from optimizador_ev_premio import cargar_json
+    # Una sola implementacion (auditoria 26/11): antes este modulo y
+    # optimizador_ev_premio usaban recaudaciones distintas (2,06 M vs 14,8 M).
+    from optimizador_ev_premio import recaudacion_estimada
 
-    etiqueta = etiqueta or temporada_etiqueta(datetime.now())
-    carpeta = SALIDA_BASE / etiqueta
-    valores = []
-    if carpeta.exists():
-        for path in carpeta.glob("jornada_*.json"):
-            escrutinio = cargar_json(path, {}).get("escrutinio") or {}
-            valor = escrutinio.get("recaudacion_eur")
-            if not (isinstance(valor, (int, float)) and RECAUDACION_PLAUSIBLE[0] <= valor <= RECAUDACION_PLAUSIBLE[1]):
-                cat = (escrutinio.get("categorias") or {}).get("13") or {}
-                acert, premio = cat.get("acertantes") or 0, cat.get("premio_eur") or 0.0
-                valor = acert * premio / FRACCION_RECAUDACION[13] if acert > 0 and premio > 0 else None
-            if isinstance(valor, (int, float)) and RECAUDACION_PLAUSIBLE[0] <= valor <= RECAUDACION_PLAUSIBLE[1]:
-                valores.append(float(valor))
-    if valores:
-        return round(sum(valores) / len(valores), 2), len(valores)
-    return RECAUDACION_DEFECTO, 0
+    return recaudacion_estimada(etiqueta=etiqueta)
 
 
 def datos_jornada_actual():
@@ -667,6 +653,7 @@ def datos_jornada_actual():
     escribir nada."""
     from optimizador_ev_premio import (
         cargar_json,
+        descripcion_fuente_probabilidad,
         factor_acertantes_actual,
         mezclar_probabilidades,
         porcentajes_masa,
@@ -689,17 +676,24 @@ def datos_jornada_actual():
         mercado = p.get("mercado_losilla") if isinstance(p.get("mercado_losilla"), dict) else None
         if not mercado or not all(mercado.get(s) is not None for s in SIGNOS):
             mercado = losilla.get(p["num"])
-        probs.append(mezclar_probabilidades(p.get("probabilidades"), mercado))
+        # Mezcla 50/50 de siempre; la segunda mezcla solo se evita si Marc
+        # enciende optimizador_ev_premio.EVITAR_SEGUNDA_MEZCLA.
+        probs.append(mezclar_probabilidades(p.get("probabilidades"), mercado, partido=p))
     masa_dict, fuente_masa = porcentajes_masa(jornada, fuente_losilla)
     masa = [masa_dict[p["num"]] for p in partidos] if masa_dict and all(p["num"] in masa_dict for p in partidos) else None
     recaudacion, _ = recaudacion_media_plausible()
     factor, _ = factor_acertantes_actual()
+    fuente_probabilidad, ya_integrado, sin_mezcla, traza_sin_peso = descripcion_fuente_probabilidad(partidos)
     return {
         "jornada": jornada,
         "partidos": partidos,
         "probs": probs,
         "masa": masa,
         "recaudacion": recaudacion,
+        "fuente_probabilidad": fuente_probabilidad,
+        "partidos_con_mercado_ya_integrado": ya_integrado,
+        "partidos_sin_segunda_mezcla": sin_mezcla,
+        "partidos_con_traza_mercado_sin_peso": traza_sin_peso,
         "factor_acertantes": factor,
         "fuente_masa": fuente_masa,
         "presupuesto_publicado": int((prediccion.get("coste") or {}).get("apuestas") or 0),

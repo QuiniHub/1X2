@@ -38,8 +38,16 @@ class FuenteLosillaPorJornadaTests(unittest.TestCase):
 
     def test_mercado_de_la_misma_jornada_se_usa(self):
         f = motor.fuente_losilla_para_jornada(fuente(21), 21)
-        partido = {"num": 3, "local": "UD Almeria", "visitante": "FC Andorra"}
+        partido = {"num": 3, "local": "Valencia CF", "visitante": "Real Madrid CF"}
         self.assertEqual(motor.mercado_losilla_signos(f, partido)["2"], 81.25)
+
+    def test_mismo_numero_con_otros_equipos_no_hereda_el_mercado(self):
+        """Auditoria 27/11/2026 (indice 155): el emparejamiento ya no es solo
+        por numero. Un partido 3 con otros equipos no hereda el 81% del
+        Valencia-Madrid aunque la jornada de la fuente coincida."""
+        f = motor.fuente_losilla_para_jornada(fuente(21), 21)
+        partido = {"num": 3, "local": "UD Almeria", "visitante": "FC Andorra"}
+        self.assertEqual(motor.mercado_losilla_signos(f, partido), {"1": 0.0, "X": 0.0, "2": 0.0})
 
     def test_sin_jornada_en_la_fuente_o_sin_objetivo_no_se_toca(self):
         sin_jornada = {"probabilidades": {"partidos": fuente(20)["probabilidades"]["partidos"]}}

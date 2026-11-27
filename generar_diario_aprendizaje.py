@@ -1,4 +1,17 @@
-"""Genera el diario de aprendizaje comparando resultados contra la quiniela real jugada."""
+"""RETIRADO (01/09/2026). NO EJECUTAR.
+
+El diario canonico (data/memoria_ia/diario_aprendizaje.json) lo escribe
+construir_memoria_ia.py. Este script escribe en el MISMO fichero con otro
+esquema: duplicaria cada partido (clave con 'num' que el escritor actual no
+usa), lleva la jornada 70 incrustada como caso especial, busca el historial
+solo por numero de jornada y ordena por numero. Rompe la compuerta,
+alimentar_sorpresas_mercado y estudio_equipos_x.
+
+Auditoria 26/11/2026: se deja en el repo (borrarlo es decision de Marc) con
+una guarda que impide ejecutarlo. Texto original del modulo:
+
+Genera el diario de aprendizaje comparando resultados contra la quiniela real jugada.
+"""
 
 import json
 import re
@@ -329,6 +342,8 @@ def agregar_pleno15(partidos, jornada_data, pred_data, pleno15_nuestro=""):
 
 
 def actualizar_diario():
+    # Guarda (auditoria 26/11): script retirado, no debe escribir el diario.
+    raise ScriptRetirado(MENSAJE_RETIRADO)
     diario = cargar_json(SALIDA, {"version": "1.0", "entradas": []})
     entradas_previas = [e for e in diario.get("entradas", []) if str(e.get("jornada") or "") != "70"]
     jornadas = []
@@ -367,5 +382,16 @@ def actualizar_diario():
     return len(jornadas)
 
 
+MENSAJE_RETIRADO = (
+    "generar_diario_aprendizaje.py esta RETIRADO y no se puede ejecutar: "
+    "sobrescribiria data/memoria_ia/diario_aprendizaje.json con un esquema "
+    "incompatible. El diario lo genera construir_memoria_ia.py."
+)
+
+
+class ScriptRetirado(RuntimeError):
+    """Se lanza al intentar ejecutar un script retirado del pipeline."""
+
+
 if __name__ == "__main__":
-    actualizar_diario()
+    raise SystemExit(MENSAJE_RETIRADO)

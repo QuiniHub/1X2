@@ -6,6 +6,8 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
+import cronologia_jornadas as cj
+
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -45,7 +47,10 @@ def guardar_json(path, data):
 
 
 def normalizar(texto):
-    texto = str(texto or "").strip().lower()
+    # Reparar mojibake ANTES de quitar acentos: 'Belgica' con el acento roto
+    # (UTF-8 leido como Latin-1) daba la clave 'ba lgica', que el motor casaba
+    # por prefijo con 'Balompie' (Real Betis).
+    texto = cj.reparar_mojibake(str(texto or "")).strip().lower()
     texto = unicodedata.normalize("NFD", texto)
     texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
     texto = re.sub(r"\b(fc|cf|cd|sd|ud|rcd|rc|sad|club|real|de|del|la|el|futbol|balompie)\b", " ", texto)
@@ -76,28 +81,37 @@ def numero_jornada(path):
     return int(match.group(1)) if match else 0
 
 
-def parse_fecha(valor):
-    texto = str(valor or "").strip()
-    if not texto:
+def parse_fecha(valor, anio_por_defecto=None):
+    """Fecha real (datetime) de cualquier texto de fecha del repo; None si no
+    se entiende. Nunca se inventa el 1 de enero: 'La Quiniela Domingo, 14 de
+    diciembre de 2025' es el 14/12/2025 (cronologia_jornadas.parsear_fecha)."""
+    fecha = cj.parsear_fecha(valor, anio_por_defecto=anio_por_defecto)
+    if fecha is None:
         return None
-    for formato in ("%Y-%m-%d", "%d/%m/%Y"):
-        try:
-            return datetime.strptime(texto[:10], formato)
-        except ValueError:
-            pass
-    match = re.search(r"(20\d{2})", texto)
-    if match:
-        return datetime(int(match.group(1)), 1, 1)
-    return None
+    return datetime(fecha.year, fecha.month, fecha.day)
 
 
-def temporada_de_fecha(fecha):
-    if not fecha:
-        return "historica"
-    year = fecha.year
-    if fecha.month >= 8:
-        return f"{year}_{year + 1}"
-    return f"{year - 1}_{year}"
+def temporada_de_fecha(fecha, numero=None):
+    return cj.temporada_de_fecha(fecha, numero) or "historica"
+
+
+def fecha_real_jornada(jornada):
+    """date del primer partido de la jornada (o la de su cabecera); None si no hay."""
+    return cj.fecha_real_jornada(jornada or {})
+
+
+def fecha_real_partido(jornada, partido):
+    """date real del partido: su propia fecha si es valida y cercana a la
+    jornada (las erratas lejanas se descartan); si no, la de la jornada."""
+    base = fecha_real_jornada(jornada)
+    fecha = cj.parsear_fecha((partido or {}).get("fecha"), anio_por_defecto=base.year if base else None)
+    if fecha is not None and base is not None and abs((fecha - base).days) > 10:
+        fecha = None
+    return fecha or base
+
+
+def fecha_iso(fecha):
+    return fecha.isoformat() if fecha else None
 
 
 def temporada_jornada(jornada, partido=None):
@@ -105,8 +119,10 @@ def temporada_jornada(jornada, partido=None):
         temporada = fuente.get("temporada") or fuente.get("temporada_base")
         if temporada:
             return str(temporada).replace("/", "_")
-    fecha = parse_fecha((partido or {}).get("fecha") or (jornada or {}).get("fecha"))
-    return temporada_de_fecha(fecha)
+    # La temporada es la de la JORNADA (fecha real + numero para desambiguar
+    # julio/agosto: J76 de 25/26 se jugo en agosto de 2026).
+    fecha = fecha_real_jornada(jornada) or fecha_real_partido(jornada, partido)
+    return temporada_de_fecha(fecha, (jornada or {}).get("jornada"))
 
 
 def signo_de_resultado(valor):
@@ -206,20 +222,102 @@ def confianza_real_elige8(prediccion):
     return round(clamp(cubierta * 0.92 + max(probs.values()) * 0.12 - incertidumbre * 0.16 - sorpresa * 0.22 - penalizacion_calidad), 2)
 
 
+# Nombres de RELLENO: el partido se predijo sin conocer aun al rival
+# ('Ganador Octavos 5', '3o Grupo EFGIJ', 'F1 Hypermotion').
+_RELLENOS_EQUIPO = (
+    re.compile(r"^(ganador|perdedor|vencedor|finalista|semifinalista|clasificado)( |$)"),
+    re.compile(r"^[0-9]+ ?[oa]? ?grupo( |$)"),
+    re.compile(r"^grupo [a-l]{1,6}$"),
+    re.compile(r"^[a-z][0-9] (hypermotion|playoff|play off|ascenso)"),
+    re.compile(r"^por (definir|determinar|confirmar)"),
+)
+
+
+def es_equipo_de_relleno(nombre):
+    plano = cj.normalizar_equipo(nombre)
+    return bool(plano) and any(patron.search(plano) for patron in _RELLENOS_EQUIPO)
+
+
+def prediccion_es_del_partido(prediccion, partido):
+    """True si la prediccion de un 'num' es para ESTE partido y no para otro.
+
+    El numero no basta: hay snapshots hechos con el rival sin decidir
+    ('Ganador Octavos 5 - Ganador Octavos 6' en la casilla que luego fue
+    Espana-Belgica) o con el partido cambiado despues por la LAE. Se descarta
+    si algun nombre es de relleno o si no coincide NINGUNO de los dos equipos;
+    con uno basta porque los alias reales no siempre se reconocen
+    ('VPS'/'vaasa PS', 'Rep. Irlanda'/'Eire'). Sin nombres en la prediccion
+    no hay nada que comparar y se acepta."""
+    if not isinstance(prediccion, dict) or not prediccion:
+        return False
+    local, visitante = prediccion.get("local"), prediccion.get("visitante")
+    nombres = [n for n in (local, visitante) if isinstance(n, str) and n.strip()]
+    if not nombres:
+        return True
+    if any(es_equipo_de_relleno(n) for n in nombres):
+        return False
+    return bool(
+        cj.mismo_equipo(local, (partido or {}).get("local"))
+        or cj.mismo_equipo(visitante, (partido or {}).get("visitante"))
+    )
+
+
+def prediccion_del_partido(partido, del_cierre, del_espejo=None):
+    """(prediccion, origen) para un partido: la principal si es de ese
+    partido; si no, la del espejo si lo es; si no, ninguna."""
+    if prediccion_es_del_partido(del_cierre, partido):
+        return del_cierre, "principal"
+    if prediccion_es_del_partido(del_espejo, partido):
+        return del_espejo, "respaldo_espejo"
+    return {}, ("descartada_otro_partido" if (del_cierre or del_espejo) else "sin_prediccion")
+
+
+def espejo_es_de_la_jornada(espejo, jornada):
+    """El espejo data/predicciones/jornada_N.json solo vale si es de la MISMA
+    jornada real: la numeracion se reinicia cada temporada y el jornada_28 de
+    la 25/26 no puede emparejarse con la J28 de la 26/27. Si no hay equipos
+    que comparar (espejo o jornada sin nombres) no se puede negar y se acepta."""
+    if not isinstance(jornada, dict):
+        return True
+    _, comparables = cj.coincidencia_equipos(espejo, jornada)
+    if not comparables:
+        return True
+    return cj.misma_jornada(espejo, jornada)
+
+
 def cargar_predicciones():
+    """Prediccion por numero de jornada. Manda el snapshot pre-cierre (lo que
+    se dijo ANTES del primer partido); el espejo data/predicciones/jornada_N
+    se regenera despues del cierre y solo vale de respaldo. Los dos se
+    comprueban contra la jornada real (equipos), no solo por el numero."""
     predicciones = {}
+    espejos = {}
     for path in sorted(PREDICCIONES.glob("jornada_*.json"), key=numero_jornada):
         data = cargar_json(path, {})
+        if not isinstance(data, dict):
+            continue
         jornada = entero(data.get("jornada") or numero_jornada(path))
-        if jornada:
-            predicciones[jornada] = data
+        if not jornada:
+            continue
+        if not espejo_es_de_la_jornada(data, cj.cargar_jornada(jornada, JORNADAS)):
+            continue
+        espejos[jornada] = data
+        predicciones[jornada] = dict(data, origen_prediccion_memoria="espejo_post_cierre")
     if SNAPSHOTS.exists():
         for path in sorted(SNAPSHOTS.glob("jornada_*.json"), key=numero_jornada):
-            snap = cargar_json(path, {})
-            pred = snap.get("prediccion") or snap
-            jornada = entero(snap.get("jornada") or pred.get("jornada") or numero_jornada(path))
-            if jornada and pred:
-                predicciones.setdefault(jornada, pred)
+            jornada = numero_jornada(path)
+            if not jornada:
+                continue
+            # Comprueba que el snapshot es de la MISMA jornada real (equipos o
+            # fecha) y no de la jornada N de otra temporada.
+            pred = cj.prediccion_del_cierre(jornada, SNAPSHOTS, JORNADAS)
+            if pred and pred.get("partidos"):
+                predicciones[jornada] = dict(
+                    pred,
+                    origen_prediccion_memoria="snapshot_pre_cierre",
+                    # por si algun partido del snapshot no es el que se jugo
+                    respaldo_espejo_partidos=(espejos.get(jornada) or {}).get("partidos") or [],
+                )
     return predicciones
 
 
@@ -227,16 +325,24 @@ def predicciones_por_partido(prediccion):
     return {
         entero(partido.get("num")): partido
         for partido in (prediccion or {}).get("partidos", [])
-        if 1 <= entero(partido.get("num")) <= 14
+        if isinstance(partido, dict) and 1 <= entero(partido.get("num")) <= 14
     }
 
 
 def iter_jornadas():
-    for path in sorted(JORNADAS.glob("jornada_*.json"), key=numero_jornada):
+    """Jornadas en orden CRONOLOGICO real (no por numero: la numeracion se
+    reinicia cada temporada). Las que no tienen fecha van al principio."""
+    filas = []
+    for path in JORNADAS.glob("jornada_*.json"):
         data = cargar_json(path, {})
+        if not isinstance(data, dict):
+            continue
         jornada = entero(data.get("jornada") or numero_jornada(path))
         if jornada:
-            yield jornada, data
+            filas.append((fecha_iso(fecha_real_jornada(data)) or "", jornada, data))
+    filas.sort(key=lambda fila: (fila[0], fila[1]))
+    for _, jornada, data in filas:
+        yield jornada, data
 
 
 def acierto_pronostico(pronostico, real):
@@ -254,6 +360,7 @@ def registro_partido(jornada_num, jornada, partido, prediccion):
         "jornada": jornada_num,
         "temporada": temporada_jornada(jornada, partido),
         "fecha": partido.get("fecha") or jornada.get("fecha"),
+        "fecha_iso": fecha_iso(fecha_real_partido(jornada, partido)),
         "num": num,
         "local": partido.get("local"),
         "visitante": partido.get("visitante"),
@@ -284,18 +391,31 @@ def construir_historial_permanente():
     for jornada_num, jornada in iter_jornadas():
         pred = predicciones.get(jornada_num, {})
         pred_partidos = predicciones_por_partido(pred)
+        respaldo_partidos = predicciones_por_partido({"partidos": pred.get("respaldo_espejo_partidos") or []})
         registros = []
+        de_respaldo = []
+        descartadas = []
         for partido in jornada.get("partidos", []):
             num = entero(partido.get("num"))
             if not 1 <= num <= 14:
                 continue
-            item = registro_partido(jornada_num, jornada, partido, pred_partidos.get(num, {}))
+            # El 'num' no basta: la prediccion tiene que ser de ESTE partido.
+            pred_partido, origen = prediccion_del_partido(partido, pred_partidos.get(num), respaldo_partidos.get(num))
+            if origen == "respaldo_espejo":
+                de_respaldo.append(num)
+            elif origen == "descartada_otro_partido":
+                descartadas.append(num)
+            item = registro_partido(jornada_num, jornada, partido, pred_partido)
             partidos.append(item)
             registros.append(item)
         jornadas[str(jornada_num)] = {
             "jornada": jornada_num,
             "temporada": temporada_jornada(jornada),
             "fecha": jornada.get("fecha") or jornada.get("fecha_texto"),
+            "fecha_iso": fecha_iso(fecha_real_jornada(jornada)),
+            "origen_prediccion": pred.get("origen_prediccion_memoria") if pred else None,
+            "predicciones_de_respaldo_espejo": de_respaldo,
+            "predicciones_descartadas_otro_partido": descartadas,
             "estado": jornada.get("estado"),
             "partidos": len(registros),
             "cerrados": sum(1 for item in registros if item["signo_real"] in SIGNOS),
@@ -359,6 +479,7 @@ def agregar_partido_perfil(perfil, item, condicion):
         "jornada": item["jornada"],
         "temporada": item["temporada"],
         "fecha": item.get("fecha"),
+        "fecha_iso": item.get("fecha_iso") or fecha_iso(cj.parsear_fecha(item.get("fecha"))),
         "condicion": condicion,
         "rival": rival,
         "gf": gf,
@@ -420,8 +541,19 @@ def forma_ppp(historial, n):
     return round(sum(item["puntos"] for item in recientes) / len(recientes), 3)
 
 
+def clave_cronologica(entrada):
+    """Orden por FECHA REAL (ISO). La fecha en texto ('La Quiniela Domingo, 14
+    de diciembre de 2025') no sirve para ordenar: quedaba detras de '2026-...'.
+    Sin fecha, la entrada va al principio (la mas antigua), por temporada y jornada."""
+    return (
+        entrada.get("fecha_iso") or fecha_iso(cj.parsear_fecha(entrada.get("fecha"))) or "",
+        str(entrada.get("temporada") or ""),
+        entero(entrada.get("jornada")),
+    )
+
+
 def cerrar_perfil(perfil):
-    historial = sorted(perfil["historial"], key=lambda x: (x.get("fecha") or "", x.get("jornada") or 0))
+    historial = sorted(perfil["historial"], key=clave_cronologica)
     total = len(historial)
     global_stats = stats_vacias()
     local_stats = stats_vacias()
@@ -457,7 +589,7 @@ def construir_perfiles_equipos(historial):
             key = normalizar(nombre)
             if not key:
                 continue
-            perfiles.setdefault(key, nuevo_perfil(nombre))
+            perfiles.setdefault(key, nuevo_perfil(cj.reparar_mojibake(nombre)))
             agregar_partido_perfil(perfiles[key], item, condicion)
     perfiles = {key: cerrar_perfil(perfil) for key, perfil in sorted(perfiles.items())}
     return {
@@ -475,9 +607,9 @@ def detectar_temporadas(historial):
         temporada = item.get("temporada") or "historica"
         temporadas[temporada]["jornadas"].add(item.get("jornada"))
         if item.get("local"):
-            temporadas[temporada]["equipos"].add(item.get("local"))
+            temporadas[temporada]["equipos"].add(cj.reparar_mojibake(item.get("local")))
         if item.get("visitante"):
-            temporadas[temporada]["equipos"].add(item.get("visitante"))
+            temporadas[temporada]["equipos"].add(cj.reparar_mojibake(item.get("visitante")))
         temporadas[temporada]["partidos"] += 1
     salida = {}
     prev_equipos = set()
@@ -573,9 +705,20 @@ def construir_rendimiento(historial):
     por_jornada = {}
     for item in historial.get("partidos", []):
         por_jornada.setdefault(str(item["jornada"]), []).append(item)
+    def fecha_jornada(clave):
+        # Fecha real del primer partido de la jornada (clave = numero en texto).
+        fechas = [item.get("fecha_iso") for item in por_jornada[clave] if item.get("fecha_iso")]
+        return min(fechas) if fechas else ""
+
+    # Orden CRONOLOGICO: por numero, las "ultimas 8" eran J69-J76 de la 25/26.
     jornadas = {
-        jornada: {"jornada": entero(jornada), **metricas_jornada(items)}
-        for jornada, items in sorted(por_jornada.items(), key=lambda kv: entero(kv[0]))
+        jornada: {
+            "jornada": entero(jornada),
+            "fecha_iso": fecha_jornada(jornada) or None,
+            "temporada": (items[0].get("temporada") if items else None),
+            **metricas_jornada(items),
+        }
+        for jornada, items in sorted(por_jornada.items(), key=lambda kv: (fecha_jornada(kv[0]), entero(kv[0])))
     }
     cerradas = [j for j in jornadas.values() if j["partidos_cerrados"] >= 14 and j["partidos_con_prediccion"]]
     ultimas = cerradas[-8:]
@@ -585,6 +728,7 @@ def construir_rendimiento(historial):
         "jornadas": jornadas,
         "resumen": {
             "jornadas_evaluadas": len(cerradas),
+            "ultimas_8_jornadas": [j["jornada"] for j in ultimas],
             "precision_media_ultimas_8": round(
                 sum(numero(j.get("precision_boleto")) for j in ultimas) / max(len(ultimas), 1),
                 2,
@@ -596,15 +740,23 @@ def construir_rendimiento(historial):
 
 def construir_estado_autonomia(historial, perfiles, temporadas, rendimiento):
     jornadas = historial.get("jornadas", {})
-    ultima = max((entero(k) for k in jornadas), default=0)
+    # "Ultima" es la mas reciente por FECHA real, no la de numero mas alto
+    # (J76 es de agosto de 2026, temporada 25/26).
+    def por_fecha(clave):
+        return ((jornadas.get(clave) or {}).get("fecha_iso") or "", entero(clave))
+
+    ultima = entero(max(jornadas, key=por_fecha, default=0))
     ultima_info = jornadas.get(str(ultima), {})
+    cerradas = [k for k, v in jornadas.items() if v.get("cerrados", 0) >= 14]
     estado = "lista_para_aprender" if ultima_info.get("cerrados", 0) >= 14 else "esperando_resultados"
     return {
         "version": "1.0",
         "generado_en": ahora(),
         "estado": estado,
         "ultima_jornada_detectada": ultima,
-        "ultima_jornada_cerrada": max((entero(k) for k, v in jornadas.items() if v.get("cerrados", 0) >= 14), default=0),
+        "ultima_jornada_cerrada": entero(max(cerradas, key=por_fecha, default=0)),
+        "ultima_jornada_detectada_fecha": ultima_info.get("fecha_iso"),
+        "temporada_actual": ultima_info.get("temporada"),
         "memoria_permanente": {
             "historial_partidos": HISTORIAL_PERMANENTE.as_posix(),
             "perfiles_equipos": PERFILES_EQUIPOS.as_posix(),

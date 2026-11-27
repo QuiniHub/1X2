@@ -16,7 +16,11 @@ class ResumenBacktestTests(unittest.TestCase):
         self.assertEqual(r["variante_publicada"], "P13plus")
         self.assertIsNotNone(r["nuestro_premio_eur"])
         self.assertIsNotNone(r["variante_trece_o_mas"])
-        self.assertIn(r["veredicto_variante_publicada"], ("supera", "no supera"))
+        # el veredicto bruto va aparte; el campo que pinta la web lleva ademas el
+        # aviso de que P13plus se eligio a posteriori (auditoria 26/11/2026)
+        self.assertIn(r["veredicto_variante_publicada_bruto"], ("supera", "no supera"))
+        self.assertTrue(r["veredicto_variante_publicada"].startswith(r["veredicto_variante_publicada_bruto"]))
+        self.assertIn("a posteriori", r["veredicto_variante_publicada"])
 
 
 class BloqueTests(unittest.TestCase):

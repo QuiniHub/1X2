@@ -9,10 +9,57 @@ JORNADAS = DATA / "jornadas"
 HISTORIAL = DATA / "historial_quinielas.json"
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    # Cliente automatizado identificado como tal (no se suplanta un navegador).
+    "User-Agent": "quiniela-lae-bot/1.0 (cliente automatizado; python-requests)",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "es-ES,es;q=0.9",
 }
+
+# Dias de margen entre la fecha de la jornada guardada y la del sorteo pedido.
+MARGEN_DIAS_JORNADA = 4
+
+_RE_COMBINACION = re.compile(r"(?<![0-9A-Za-z])([1X2]{14})(?![0-9A-Za-z])")
+
+
+def fecha_de_jornada(registro):
+    """Fecha real (date) de un registro de historial o de un jornada_N.json.
+
+    Auditoria 26/11 (hallazgo 59): el campo 'fecha' es texto ('Domingo, 29 de
+    noviembre de 2026') y se recortaba a 'Domingo,', que se enviaba tal cual
+    como fecha_sorteo. Nunca se obtuvo un resultado.
+    """
+    import cronologia_jornadas
+
+    if not isinstance(registro, dict):
+        return None
+    for clave in ("fecha", "fecha_real"):
+        fecha = cronologia_jornadas.parsear_fecha(registro.get(clave))
+        if fecha is not None:
+            return fecha
+    return cronologia_jornadas.fecha_real_jornada(registro)
+
+
+def fecha_sorteo_lae(registro):
+    """'AAAAMMDD' para la URL de LAE, o '' si no hay fecha reconocible."""
+    fecha = fecha_de_jornada(registro)
+    return fecha.strftime("%Y%m%d") if fecha else ""
+
+
+def extraer_combinacion(texto):
+    """14 signos 1/X/2 seguidos y AISLADOS (no un trozo de un numero largo).
+    Una cadena sin ninguna X se descarta: es mucho mas probable que sea un
+    identificador numerico de la pagina que una quiniela sin empates."""
+    for m in _RE_COMBINACION.finditer(texto or ""):
+        if "X" in m.group(1):
+            return m.group(1)
+    return None
+
+
+def misma_fecha(fecha_a, fecha_b, margen=MARGEN_DIAS_JORNADA):
+    if fecha_a is None or fecha_b is None:
+        return False
+    return abs((fecha_a - fecha_b).days) <= margen
+
 
 def obtener_resultado_oficial_lae(fecha_sorteo_str):
     """
@@ -37,10 +84,9 @@ def obtener_resultado_oficial_lae(fecha_sorteo_str):
         texto = soup.get_text()
 
         # Buscar combinación ganadora (14 signos 1/X/2)
-        m = re.search(r'([1X2]{14})', texto)
-        if not m:
+        combinacion = extraer_combinacion(texto)
+        if not combinacion:
             return None
-        combinacion = m.group(1)
 
         # Buscar número de jornada
         jornada_m = re.search(r'[Jj]ornada\s*[Nº#]?\s*(\d+)', texto)
@@ -110,10 +156,12 @@ def descargar_historico_lae_si_toca():
         print(f"LAE histórico semanal error: {e}")
         return None
 
-def actualizar_resultado_oficial(jornada_num, combinacion):
+def actualizar_resultado_oficial(jornada_num, combinacion, fecha=None):
     """
     Actualiza jornada_XX.json con el resultado oficial de LAE.
     combinacion: string de 14 signos "1X2X112X21XX12"
+    fecha: date del sorteo; si se pasa, el fichero tiene que ser de esas fechas
+           (el numero de jornada se repite cada temporada).
     """
     path = JORNADAS / f"jornada_{jornada_num}.json"
     if not path.exists():
@@ -122,6 +170,17 @@ def actualizar_resultado_oficial(jornada_num, combinacion):
 
     data = json.load(open(path, encoding="utf-8"))
     partidos = data.get("partidos", [])
+
+    if fecha is not None:
+        import cronologia_jornadas
+
+        inicio = cronologia_jornadas.fecha_real_jornada(data)
+        fin = cronologia_jornadas.fecha_fin_jornada(data)
+        if inicio is None or fin is None or not (
+            inicio - timedelta(days=MARGEN_DIAS_JORNADA) <= fecha <= fin + timedelta(days=MARGEN_DIAS_JORNADA)
+        ):
+            print(f"jornada_{jornada_num}.json no es de la fecha {fecha}: no se toca")
+            return False
 
     if len(combinacion) < 14:
         print(f"Combinación incompleta: {combinacion}")
@@ -148,17 +207,21 @@ def actualizar_resultado_oficial(jornada_num, combinacion):
 
     return cambios > 0
 
-def actualizar_historial_con_lae(jornada_num, combinacion):
+def actualizar_historial_con_lae(jornada_num, combinacion, fecha=None):
     """
     Actualiza historial_quinielas.json con el resultado oficial de LAE.
+    Con `fecha` se casa por jornada + fecha: el historial tiene varias
+    temporadas y antes se paraba en la primera con ese numero.
     """
     try:
         hist = json.load(open(HISTORIAL, encoding="utf-8"))
-    except:
+    except Exception:
         return
 
     for j in hist.get("jornadas", []):
-        if int(j.get("jornada", 0)) == jornada_num:
+        if int(j.get("jornada", 0) or 0) == jornada_num:
+            if fecha is not None and not misma_fecha(fecha_de_jornada(j), fecha):
+                continue
             if j.get("resultado_oficial", "Pendiente") == "Pendiente":
                 j["resultado_oficial"] = combinacion
                 j["fuente_resultado"] = "lae_oficial"
@@ -168,39 +231,57 @@ def actualizar_historial_con_lae(jornada_num, combinacion):
                 print(f"Historial J{jornada_num} actualizado con resultado oficial LAE")
             break
 
+def jornadas_a_consultar(hist, hoy=None):
+    """Jornadas abiertas del historial cuya fecha ya ha llegado: lista de
+    (numero, date). Sin fecha reconocible o con fecha futura no se consulta
+    (antes se pedia 'fecha_sorteo=Domingo,' o se barrian 7 dias a ciegas)."""
+    from datetime import date
+
+    hoy = hoy or date.today()
+    salida = []
+    for j in (hist or {}).get("jornadas", []):
+        if j.get("estado") not in ("abierta", "en_juego"):
+            continue
+        if j.get("resultado_oficial", "Pendiente") != "Pendiente":
+            continue
+        fecha = fecha_de_jornada(j)
+        if fecha is None or fecha > hoy:
+            continue
+        try:
+            salida.append((int(j.get("jornada") or 0), fecha))
+        except (TypeError, ValueError):
+            continue
+    salida.sort(key=lambda par: par[1])  # por fecha real, no por numero
+    return salida[-3:]
+
+
+def actualizar_resultados_desde_lae(hoy=None):
+    try:
+        hist = json.load(open(HISTORIAL, encoding="utf-8"))
+    except Exception as e:
+        print(f"Error actualizando desde LAE: {e}")
+        return 0
+    aplicadas = 0
+    for jornada_num, fecha in jornadas_a_consultar(hist, hoy):
+        resultado = obtener_resultado_oficial_lae(fecha.strftime("%Y%m%d"))
+        if not resultado or not resultado.get("combinacion"):
+            continue
+        if resultado.get("jornada") != jornada_num:
+            # La pagina no confirma que sea ESTA jornada: no se aplica.
+            print(f"LAE: la pagina del {fecha} dice jornada {resultado.get('jornada')}, se esperaba {jornada_num}; no se aplica")
+            continue
+        if actualizar_resultado_oficial(jornada_num, resultado["combinacion"], fecha=fecha):
+            aplicadas += 1
+        actualizar_historial_con_lae(jornada_num, resultado["combinacion"], fecha=fecha)
+    return aplicadas
+
+
 if __name__ == "__main__":
     print("=== Actualizando desde fuente oficial LAE ===")
 
     # Buscar jornadas abiertas y obtener sus resultados si ya se jugaron
     try:
-        hist = json.load(open(HISTORIAL, encoding="utf-8"))
-        jornadas_abiertas = [
-            j for j in hist.get("jornadas", [])
-            if j.get("estado") in ("abierta", "en_juego") and
-               j.get("resultado_oficial", "Pendiente") == "Pendiente"
-        ]
-
-        for j in jornadas_abiertas[-3:]:  # Solo las últimas 3 abiertas
-            jornada_num = int(j.get("jornada", 0))
-            fecha_str = str(j.get("fecha", "") or "").replace("-", "")[:8]
-            resultado = None
-
-            if not fecha_str or len(fecha_str) < 8:
-                # Intentar con fecha de hoy y días anteriores
-                from datetime import date
-                for dias_atras in range(0, 7):
-                    fecha = date.today() - timedelta(days=dias_atras)
-                    fecha_str = fecha.strftime("%Y%m%d")
-                    resultado = obtener_resultado_oficial_lae(fecha_str)
-                    if resultado and resultado.get("jornada") == jornada_num:
-                        break
-            else:
-                resultado = obtener_resultado_oficial_lae(fecha_str)
-
-            if resultado and resultado.get("combinacion"):
-                actualizar_resultado_oficial(jornada_num, resultado["combinacion"])
-                actualizar_historial_con_lae(jornada_num, resultado["combinacion"])
-
+        actualizar_resultados_desde_lae()
     except Exception as e:
         print(f"Error actualizando desde LAE: {e}")
 

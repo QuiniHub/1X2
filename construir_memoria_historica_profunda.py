@@ -15,6 +15,8 @@ from pathlib import Path
 from datetime import datetime, timezone
 from collections import defaultdict, Counter
 
+import cronologia_jornadas
+
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 JORNADAS = DATA / "jornadas"
@@ -91,6 +93,144 @@ def describir_estado_actual(ultima_prediccion):
         frase += f" Motivo: {motivo}."
     return frase
 
+def _entero(valor):
+    try:
+        return int(str(valor).strip())
+    except (TypeError, ValueError):
+        return 0
+
+
+def etiqueta_temporada(temporada):
+    """'2026_2027' -> '26/27'."""
+    partes = str(temporada or "").split("_")
+    if len(partes) == 2 and all(len(p) == 4 and p.isdigit() for p in partes):
+        return f"{partes[0][2:]}/{partes[1][2:]}"
+    return str(temporada or "?")
+
+
+def resumen_premios(premios, jugadas, indice):
+    """Mejor/peor jornada, total cobrado y precision de las quinielas JUGADAS.
+
+    Auditoria 26/11: el bucle hacia 'if num < 61: continue', un filtro por
+    NUMERO de jornada que dejaba fuera la temporada 26/27 entera (J1-J24): el
+    chat decia 'mejor J70, total cobrado 97,34' con 237,72 EUR y dos jornadas
+    de 13 aciertos sin contar. Ahora cuenta toda jornada con jugada real
+    (quinielas_jugadas.json), sea del numero que sea, y cada una lleva su
+    temporada y su fecha (la numeracion se reinicia cada agosto).
+
+    premios: lista de historial_premios.json; jugadas: lista de
+    quinielas_jugadas.json; indice: cronologia_jornadas.indice_jornadas().
+    """
+    por_numero = {int(f["numero"]): f for f in (indice or [])}
+    jugadas_por_numero = {}
+    for jugada in jugadas or []:
+        numero = _entero(jugada.get("jornada"))
+        if numero:
+            jugadas_por_numero[numero] = jugada
+
+    filas = []
+    for registro in premios or []:
+        numero = _entero(registro.get("jornada"))
+        if not numero:
+            continue
+        aciertos = _entero(registro.get("aciertos"))
+        fallos = _entero(registro.get("fallos"))
+        if jugadas_por_numero:
+            jugada = jugadas_por_numero.get(numero)
+            if jugada is None:
+                continue
+        else:
+            jugada = {}
+            if aciertos + fallos <= 0:
+                continue
+        fila_jornada = por_numero.get(numero) or {}
+        fecha = fila_jornada.get("fecha") or cronologia_jornadas.parsear_fecha(jugada.get("validado_en"))
+        temporada = fila_jornada.get("temporada") or (
+            cronologia_jornadas.temporada_de_fecha(fecha, numero) if fecha else None
+        )
+        # La jugada tiene que ser de la misma temporada que el fichero.
+        fecha_jugada = cronologia_jornadas.parsear_fecha(jugada.get("validado_en"))
+        if fecha_jugada and temporada:
+            if cronologia_jornadas.temporada_de_fecha(fecha_jugada, numero) != temporada:
+                continue
+        try:
+            premio = float(registro.get("premio_eur") or 0)
+        except (TypeError, ValueError):
+            premio = 0.0
+        filas.append({
+            "jornada": numero,
+            "temporada": temporada,
+            "fecha": fecha,
+            "aciertos": aciertos,
+            "evaluada": aciertos + fallos > 0,
+            "premio": premio,
+        })
+
+    filas.sort(key=lambda f: (f["fecha"] is not None, f["fecha"] or datetime.min.date(), f["jornada"]))
+    evaluadas = [f for f in filas if f["evaluada"]]
+
+    def ficha(fila):
+        if not fila:
+            return {"jornada": None, "temporada": None, "aciertos": None}
+        return {"jornada": fila["jornada"], "temporada": fila["temporada"], "aciertos": fila["aciertos"]}
+
+    mejor = peor = None
+    for fila in evaluadas:  # orden cronologico: a igualdad gana la mas reciente
+        if mejor is None or fila["aciertos"] >= mejor["aciertos"]:
+            mejor = fila
+        if peor is None or fila["aciertos"] <= peor["aciertos"]:
+            peor = fila
+
+    cobrado_por_temporada = defaultdict(float)
+    for fila in filas:
+        cobrado_por_temporada[fila["temporada"] or "sin_fecha"] += fila["premio"]
+    temporada_actual = evaluadas[-1]["temporada"] if evaluadas else None
+    de_la_actual = [f for f in evaluadas if f["temporada"] == temporada_actual]
+
+    total_aciertos = sum(f["aciertos"] for f in evaluadas)
+    return {
+        "jornadas_evaluadas": len(evaluadas),
+        "mejor_jornada": ficha(mejor),
+        "peor_jornada": ficha(peor),
+        "total_cobrado_eur": round(sum(f["premio"] for f in filas), 2),
+        "cobrado_por_temporada_eur": {k: round(v, 2) for k, v in cobrado_por_temporada.items()},
+        "precision_media": round(total_aciertos / max(len(evaluadas) * 14, 1) * 100, 1),
+        "temporada_actual": temporada_actual,
+        "precision_media_temporada_actual": round(
+            sum(f["aciertos"] for f in de_la_actual) / max(len(de_la_actual) * 14, 1) * 100, 1
+        ),
+        "jornadas_temporada_actual": len(de_la_actual),
+    }
+
+
+# Patrones que se cuentan en el chat: (clave en patrones_competitivos.json, texto).
+PATRONES_PARA_CHAT = (
+    ("equipo_necesitado_vs_equipo_sin_objetivo", "Equipo necesitado vs equipo sin objetivo"),
+    ("necesitado_local_vs_visitante_objetivo_cerrado", "Local necesitado vs visitante con objetivo cerrado"),
+    ("visitante_necesitado_vs_local_objetivo_cerrado", "Visitante necesitado vs local con objetivo cerrado"),
+)
+
+
+def lineas_patrones(patrones):
+    """Lineas del chat sobre patrones competitivos, sacadas del fichero.
+
+    Auditoria 26/11: el texto llevaba cifras escritas a mano ('66% (294
+    casos)', '79.6% (147 casos)') que contradecian patrones_competitivos.json
+    (87 casos al 69,0%, 44 al 77,3%...). Ahora cada linea sale del dato real y
+    avisa cuando la muestra es pequena.
+    """
+    datos = (patrones or {}).get("patrones") or {}
+    lineas = []
+    for clave, texto in PATRONES_PARA_CHAT:
+        patron = datos.get(clave) or {}
+        casos = _entero(patron.get("casos"))
+        if casos <= 0:
+            continue
+        muestra = "muestra amplia" if casos >= 150 else "muestra media" if casos >= 60 else "muestra pequeña, orientativo"
+        lineas.append(f"- {texto}: {patron.get('tasa_sorpresa', 0)}% de sorpresa ({casos} casos; {muestra}).")
+    return lineas
+
+
 def construir_memoria():
     print("=== Construyendo memoria histórica profunda ===")
     
@@ -128,8 +268,10 @@ def construir_memoria():
     jornadas_impredecibles = []
     jornadas_predecibles = []
 
-    for path in sorted(JORNADAS.glob("jornada_*.json"), 
-                       key=lambda p: int(p.stem.split("_")[1])):
+    indice = cronologia_jornadas.indice_jornadas(JORNADAS)
+    temporadas_vistas = []
+    for fila in indice:  # orden cronologico real, no por numero
+        path = Path(fila["ruta"])
         data = cargar_json(path, {})
         jornada_num = int(data.get("jornada", 0) or 0)
         if not jornada_num:
@@ -186,15 +328,18 @@ def construir_memoria():
                     equipos_stats[local]["empates"] += 1
                 else:
                     equipos_stats[local]["derrotas"] += 1
-                    equipos_stats[local]["sorpresas_causadas"] += 1
                     sorpresas_jornada += 1
                     sorpresas += 1
-            
+
             if visitante:
                 equipos_stats[visitante]["partidos"] += 1
                 equipos_stats[visitante]["como_visitante"] += 1
                 if signo == "2":
                     equipos_stats[visitante]["victorias"] += 1
+                    # Auditoria 26/11: la victoria fuera se apuntaba al LOCAL
+                    # que perdia, y el ranking de "equipos que mas sorprenden"
+                    # eran en realidad los que mas pierden en casa.
+                    equipos_stats[visitante]["sorpresas_causadas"] += 1
                 elif signo == "X":
                     equipos_stats[visitante]["empates"] += 1
                 else:
@@ -204,9 +349,12 @@ def construir_memoria():
             partidos_por_competicion[competicion] += 1
         
         if signos_jornada:
+            if fila.get("temporada") and fila["temporada"] not in temporadas_vistas:
+                temporadas_vistas.append(fila["temporada"])
             pct_sorpresa = (signos_jornada.count("X") + signos_jornada.count("2")) / len(signos_jornada) * 100
             jornada_info = {
                 "jornada": jornada_num,
+                "temporada": fila.get("temporada"),
                 "partidos": len(signos_jornada),
                 "distribucion": dict(Counter(signos_jornada)),
                 "pct_sorpresa": round(pct_sorpresa, 1)
@@ -230,9 +378,13 @@ def construir_memoria():
             "conclusion": (
                 f"En {total_partidos} partidos analizados, gana el local el {round(signos['1']/total_partidos*100,1)}% "
                 f"de las veces, hay empate el {round(signos['X']/total_partidos*100,1)}% y gana el visitante "
-                f"el {round(signos['2']/total_partidos*100,1)}%. El {round(sorpresas/total_partidos*100,1)}% "
-                f"de los partidos son sorpresas para el pronóstico habitual."
-            )
+                f"el {round(signos['2']/total_partidos*100,1)}%."
+            ),
+            "nota_pct_sorpresa_global": (
+                "pct_sorpresa_global es el % de victorias visitantes (no mide sorpresas "
+                "contra un favorito real); en patrones_jornada, pct_sorpresa es el % de "
+                "partidos en los que NO gana el local."
+            ),
         }
 
     # Jornadas más destacadas
@@ -259,7 +411,7 @@ def construir_memoria():
     # Equipos más sorprendentes como visitante
     sorprendentes = sorted(
         [(k, v) for k, v in equipos_con_datos.items() if v["como_visitante"] >= 3],
-        key=lambda x: x[1]["sorpresas_causadas"] / max(x[1]["partidos"], 1),
+        key=lambda x: x[1]["sorpresas_causadas"] / max(x[1]["como_visitante"], 1),
         reverse=True
     )[:15]
     
@@ -275,8 +427,9 @@ def construir_memoria():
             {
                 "equipo": k.title(),
                 "partidos": v["partidos"],
+                "partidos_visitante": v["como_visitante"],
                 "sorpresas_causadas": v["sorpresas_causadas"],
-                "pct_sorpresa": round(v["sorpresas_causadas"] / max(v["partidos"], 1) * 100, 1)
+                "pct_sorpresa": round(v["sorpresas_causadas"] / max(v["como_visitante"], 1) * 100, 1)
             }
             for k, v in sorprendentes[:10]
         ],
@@ -308,40 +461,20 @@ def construir_memoria():
                                if j.get("resultado_oficial") and 
                                j.get("resultado_oficial") != "Pendiente"]
     
-    total_aciertos = 0
-    total_posibles = 0
-    mejor_jornada = None
-    peor_jornada = None
-    mejor_aciertos = 0
-    peor_aciertos = 99
-    total_cobrado = 0.0
-    
-    for j in premios.get("jornadas", []):
-        num = int(j.get("jornada", 0))
-        if num < 61:
-            continue
-        aciertos = j.get("aciertos", 0)
-        if aciertos and str(aciertos).isdigit():
-            aciertos = int(aciertos)
-            total_aciertos += aciertos
-            total_posibles += 14
-            if aciertos > mejor_aciertos:
-                mejor_aciertos = aciertos
-                mejor_jornada = num
-            if aciertos < peor_aciertos:
-                peor_aciertos = aciertos
-                peor_jornada = num
-        premio = j.get("premio_eur", 0.0)
-        if prize := float(premio or 0):
-            total_cobrado += prize
+    jugadas_reales = cargar_json(DATA / "quinielas_jugadas.json", {}).get("jugadas", [])
+    rp = resumen_premios(premios.get("jornadas", []), jugadas_reales, indice)
 
     memoria["aprendizaje_quiniela"] = {
         "jornadas_jugadas": len(jornadas_jugadas),
         "jornadas_con_resultado": len(jornadas_con_resultado),
-        "mejor_jornada": {"jornada": mejor_jornada, "aciertos": mejor_aciertos},
-        "peor_jornada": {"jornada": peor_jornada, "aciertos": peor_aciertos},
-        "total_cobrado_eur": round(total_cobrado, 2),
-        "precision_media": round(total_aciertos / max(total_posibles, 1) * 100, 1),
+        "mejor_jornada": rp["mejor_jornada"],
+        "peor_jornada": rp["peor_jornada"],
+        "total_cobrado_eur": rp["total_cobrado_eur"],
+        "cobrado_por_temporada_eur": rp["cobrado_por_temporada_eur"],
+        "precision_media": rp["precision_media"],
+        "temporada_actual": rp["temporada_actual"],
+        "precision_media_temporada_actual": rp["precision_media_temporada_actual"],
+        "jornadas_temporada_actual": rp["jornadas_temporada_actual"],
         "fallos_mas_comunes": [
             "Fijo fallado cuando había alerta de motivación activa",
             "No cubrir empate en partidos con alta incertidumbre",
@@ -394,11 +527,11 @@ def construir_memoria():
     memoria["dinamicas_temporada"] = {
         "pesos_aprendidos": pesos.get("pesos", {}),
         "pesos_referencia": pesos.get("referencia", {}),
-        "conclusion_pesos": (
-            "El sistema ha aprendido que la SORPRESA y el EMPATE pesan más de lo esperado. "
-            "La FORMA RECIENTE y la CLASIFICACIÓN engañan más de lo que ayudan. "
-            "Los GOLES y la MOTIVACIÓN COMPETITIVA son los factores más fiables."
-        )
+        # Auditoria 26/11: era un texto fijo; ahora sale de los pesos reales.
+        "conclusion_pesos": " ".join(
+            linea.lstrip("- ").strip()
+            for linea in describir_pesos_aprendidos(pesos.get("pesos", {}), pesos.get("referencia", {}))
+        ) or "Aún no hay suficiente variación en los pesos para destacar cambios."
     }
 
     # ══════════════════════════════════════════
@@ -415,6 +548,12 @@ def construir_memoria():
         describir_pesos_aprendidos(pesos.get("pesos", {}), pesos.get("referencia", {}))
     ) or "- Aún no hay suficiente variación en los pesos para destacar cambios."
 
+    texto_patrones = "\n".join(lineas_patrones(patrones)) or "- Sin patrones medidos disponibles ahora mismo."
+    texto_cobrado = ", ".join(
+        f"{etiqueta_temporada(temp)}: {eur}€"
+        for temp, eur in apq.get("cobrado_por_temporada_eur", {}).items()
+    ) or "sin premios registrados"
+
     precision_tipo = ef["precision_por_tipo"]
     precision_fijo = f"{precision_tipo['FIJO']}%" if "FIJO" in precision_tipo else "sin datos suficientes"
     precision_doble = f"{precision_tipo['DOBLE']}%" if "DOBLE" in precision_tipo else "sin datos suficientes"
@@ -424,16 +563,13 @@ def construir_memoria():
 
 SOBRE EL FÚTBOL (basado en {est.get('total_partidos_analizados', 0)} partidos analizados):
 - Gana el local el {est.get('frecuencia_1', 0)}% de las veces. Hay empate el {est.get('frecuencia_X', 0)}%. Gana el visitante el {est.get('frecuencia_2', 0)}%.
-- El {est.get('pct_sorpresa_global', 0)}% de los partidos son sorpresas para el pronóstico habitual.
-- Las jornadas de La Quiniela tienen de media un {memoria['patrones_jornada'].get('media_sorpresa_por_jornada', 0)}% de sorpresa.
+- De media, en una jornada de La Quiniela el local NO gana en el {memoria['patrones_jornada'].get('media_sorpresa_por_jornada', 0)}% de los partidos.
 
 SOBRE LO QUE HE APRENDIDO DE LOS PESOS:
 {texto_pesos}
 
-PATRONES COMPETITIVOS QUE HE VALIDADO:
-- Equipo necesitado vs sin objetivo: 66% de sorpresa (294 casos). MUY FIABLE.
-- Local desesperado (descenso) vs visitante objetivo cerrado: 79.6% sorpresa (147 casos). EL MÁS FIABLE.
-- Visitante necesitado vs local sin objetivos: 52.4% sorpresa (147 casos). MODERADO.
+PATRONES COMPETITIVOS MEDIDOS (cifras de patrones_competitivos.json):
+{texto_patrones}
 
 MIS FALLOS MÁS HABITUALES:
 - Fijo fallado ({ef['fijos_fallados']} veces): confío demasiado en el favorito sin cobertura.
@@ -442,19 +578,19 @@ MIS FALLOS MÁS HABITUALES:
 
 SOBRE NUESTRAS QUINIELAS:
 - Llevamos {apq.get('jornadas_jugadas', 0)} jornadas jugadas con IA.
-- Mejor resultado: J{apq.get('mejor_jornada', {}).get('jornada', '?')} con {apq.get('mejor_jornada', {}).get('aciertos', '?')} aciertos.
-- Total cobrado: {apq.get('total_cobrado_eur', 0)}€
-- Precisión media: {apq.get('precision_media', 0)}%
+- Mejor resultado: J{apq.get('mejor_jornada', {}).get('jornada', '?')} de la {etiqueta_temporada(apq.get('mejor_jornada', {}).get('temporada'))} con {apq.get('mejor_jornada', {}).get('aciertos', '?')} aciertos.
+- Total cobrado: {apq.get('total_cobrado_eur', 0)}€ ({texto_cobrado})
+- Precisión media: {apq.get('precision_media', 0)}% (temporada {etiqueta_temporada(apq.get('temporada_actual'))}: {apq.get('precision_media_temporada_actual', 0)}% en {apq.get('jornadas_temporada_actual', 0)} jornadas)
 
-EQUIPOS QUE MÁS SORPRENDEN (dan la sorpresa con más frecuencia):"""
+EQUIPOS QUE MÁS GANAN FUERA DE CASA (victorias como visitante):"""
 
     for eq in memoria["equipos_destacados"].get("mas_sorprendentes", [])[:5]:
-        resumen += f"\n- {eq['equipo']}: {eq['pct_sorpresa']}% de sorpresa en {eq['partidos']} partidos"
+        resumen += f"\n- {eq['equipo']}: gana el {eq['pct_sorpresa']}% de sus {eq['partidos_visitante']} partidos fuera"
 
     resumen += "\n\nESTADO ACTUAL: " + describir_estado_actual(ultima_prediccion)
 
     memoria["resumen_para_chat"] = resumen
-    memoria["temporadas_analizadas"] = ["2025_2026"]
+    memoria["temporadas_analizadas"] = temporadas_vistas
     
     # Guardar
     SALIDA.parent.mkdir(parents=True, exist_ok=True)

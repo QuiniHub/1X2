@@ -159,10 +159,11 @@ def partidos_snapshot(prediccion):
     )
 
 
-def jornadas_cerradas_temporada(etiqueta, hasta=60, dir_jornadas=None):
+def jornadas_cerradas_temporada(etiqueta, hasta=100, dir_jornadas=None):
     """Jornadas de ESTA temporada (filtradas por % LAE versionados, el mismo
     truco anti-reinicio-de-numeracion que senal_valiente) ya cerradas con los
-    14 signos oficiales."""
+    14 signos oficiales. El tope era 60 y la temporada llega a la J76
+    (auditoria 26/11): con 100 cubre cualquier temporada."""
     cerradas = []
     for j in range(1, hasta + 1):
         if not ruta_porcentajes(j, etiqueta).exists():
@@ -565,13 +566,56 @@ def calcular_factor_overdispersion(escrutinios):
     }
 
 
+RECAUDACION_PLAUSIBLE_EUR = (300_000.0, 20_000_000.0)
+
+
+def recaudacion_validada(escrutinio):
+    """Recaudacion utilizable de un escrutinio o None.
+
+    Auditoria 26/11: se tomaba recaudacion_eur tal cual y la J23 26/27 guardo
+    294 M EUR (el punto decimal leido como separador de miles): cinco ratios
+    real/modelo de ~0,01 entraban en la mediana del factor de acertantes.
+    Se usa la validacion comun de modelo_reparto_quiniela (rango 0,3-20 M y
+    reconstruccion desde la categoria de 13); si ese modulo aun no la trae,
+    un respaldo local con la misma regla."""
+    escrutinio = escrutinio or {}
+    try:
+        from modelo_reparto_quiniela import recaudacion_de_escrutinio
+        return recaudacion_de_escrutinio(escrutinio)
+    except ImportError:
+        pass
+    minimo, maximo = RECAUDACION_PLAUSIBLE_EUR
+    valor = escrutinio.get("recaudacion_eur")
+    if isinstance(valor, (int, float)) and not isinstance(valor, bool) and minimo <= valor <= maximo:
+        return float(valor)
+    fila = (escrutinio.get("categorias") or {}).get("13") or {}
+    acertantes, premio = fila.get("acertantes") or 0, fila.get("premio_eur") or 0.0
+    if acertantes > 0 and premio > 0:
+        reconstruida = acertantes * premio / 0.075
+        if minimo <= reconstruida <= maximo:
+            return float(reconstruida)
+    return None
+
+
+def escrutinio_con_acertantes(categorias):
+    """False para el escrutinio 'placebo' (plantilla a cero que la web sirve
+    antes de publicar, J14 26/27): sin acertantes no aporta ninguna celda y no
+    debe contar para el minimo prerregistrado de escrutinios."""
+    return any(
+        isinstance((fila or {}).get("acertantes"), (int, float)) and (fila or {}).get("acertantes") > 0
+        for fila in (categorias or {}).values() if isinstance(fila, dict)
+    )
+
+
 def escrutinios_temporada(etiqueta, jornadas):
     escrutinios = []
     for j in jornadas:
         registro = cargar_json(ruta_porcentajes(j, etiqueta), {})
         escrutinio = registro.get("escrutinio") or {}
         categorias = escrutinio.get("categorias") or {}
-        recaudacion = escrutinio.get("recaudacion_eur")
+        if not escrutinio_con_acertantes(categorias):
+            continue
+        recaudacion = recaudacion_validada(escrutinio)
         partidos = {
             p.get("numero"): p.get("porcentajes")
             for p in registro.get("partidos") or []
@@ -983,17 +1027,30 @@ def barrido_peso_dc(jornadas, proveedor_modelo, dir_pre_cierre=None, dir_jornada
     }
 
 
-def auditoria_vetos_valiente():
+def auditoria_vetos_valiente(evaluar_criterio=None, senales_suspendidas=None):
     """Re-corre el criterio vivo y cada veto v2 POR SEPARADO (DECISION_LOG
     14/10: el veto grandes solo quito fallos; el del 55% corto carne). Importa
-    backtest_valiente en diferido para no cargar su cadena si no toca."""
-    from backtest_valiente import evaluar_criterio
-    _, vivo = evaluar_criterio(aplicar_vetos=False)
-    resultados = {"criterio_vivo": vivo}
+    backtest_valiente en diferido para no cargar su cadena si no toca.
+
+    Auditoria 26/11: el 'criterio vivo' se evaluaba SIN senales_suspendidas,
+    asi que h2h_caotico (retirada en el prerregistro v3 del 17/10) volvia a
+    contar y la puerta 'ratio del veto >= ratio del vivo' se media contra un
+    baseline que no es el publicado (18 valientes en vez de 15). Ahora el
+    vivo y los dos vetos usan el mismo juego de señales que el bloque vivo:
+    SENALES_RETIRADAS mas las suspendidas por el marcador."""
+    if evaluar_criterio is None:
+        from backtest_valiente import evaluar_criterio
+    if senales_suspendidas is None:
+        from senal_valiente import SENALES_RETIRADAS, senales_suspendidas_actuales
+        senales_suspendidas = set(SENALES_RETIRADAS) | set(senales_suspendidas_actuales())
+    senales_suspendidas = set(senales_suspendidas)
+    _, vivo = evaluar_criterio(aplicar_vetos=False, senales_suspendidas=senales_suspendidas)
+    resultados = {"criterio_vivo": vivo, "senales_suspendidas": sorted(senales_suspendidas)}
     ratio_vivo = (vivo["aciertos"] / vivo["esperados"]) if vivo.get("esperados") else None
     for nombre, tipos in (("veto_grandes", {"grande_favorito"}),
                           ("veto_favorito_55", {"favorito_claro"})):
-        _, resumen = evaluar_criterio(aplicar_vetos=True, tipos_vetos=tipos)
+        _, resumen = evaluar_criterio(aplicar_vetos=True, tipos_vetos=tipos,
+                                      senales_suspendidas=senales_suspendidas)
         ratio = (resumen["aciertos"] / resumen["esperados"]) if resumen.get("esperados") else None
         candidato = bool(
             resumen.get("jornadas_evaluadas", 0) >= AUDITORIA_VETOS_MIN_JORNADAS

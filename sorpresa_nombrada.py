@@ -389,13 +389,19 @@ def construir_bloque_sorpresa(prediccion, fechas=None, fuentes=None):
 # Marcador de sombra
 # ---------------------------------------------------------------------------
 
-def _signo_real(bloque, dir_jornadas):
+def _signo_real(bloque, dir_jornadas, jornada_verificada=False):
+    """Signo oficial del partido nombrado. Sin jornada_verificada exige que
+    al menos un nombre case (comparador tolerante de senal_valiente: equipos
+    femeninos y alias extranjeros); con jornada_verificada=True el snapshot
+    pre-cierre ya garantiza que es la misma jornada real y basta el num."""
+    from senal_valiente import nombres_casan
     datos = cargar_json(Path(dir_jornadas) / f"jornada_{bloque.get('jornada')}.json", {}) or {}
     for p in datos.get("partidos") or []:
         if p.get("num") != bloque.get("num"):
             continue
-        if (clave_equipo(p.get("local")) != clave_equipo(bloque.get("local"))
-                and clave_equipo(p.get("visitante")) != clave_equipo(bloque.get("visitante"))):
+        if (not jornada_verificada
+                and not nombres_casan(p.get("local"), bloque.get("local"))
+                and not nombres_casan(p.get("visitante"), bloque.get("visitante"))):
             return None
         signo = str(p.get("signo_oficial") or "").upper()
         return signo if signo in SIGNOS else None
@@ -464,33 +470,33 @@ def registro_desde_bloque(bloque, signo_real, etiqueta, ahora):
     }
 
 
-def actualizar_marcador(dir_predicciones=None, dir_jornadas=None, ruta_marcador=None, etiqueta=None, ahora=None):
+def actualizar_marcador(dir_predicciones=None, dir_jornadas=None, ruta_marcador=None, etiqueta=None, ahora=None,
+                        dir_snapshots=None):
     """Al cerrar cada jornada con bloque publicado, anota si la sorpresa
-    nombrada SALIO. Idempotente por (temporada, jornada)."""
-    dir_predicciones = Path(dir_predicciones or PREDICCIONES_DIR)
+    nombrada SALIO. Idempotente por (temporada, jornada).
+
+    Auditoria 26/11: el bloque se lee del snapshot PRE-CIERRE (no del espejo
+    data/predicciones, que se reescribe con la jornada en juego) y la
+    temporada sale de la fecha de la jornada, no de now(). dir_predicciones
+    se conserva en la firma pero ya no se lee."""
+    from senal_valiente import bloques_del_cierre
     dir_jornadas = Path(dir_jornadas or JORNADAS_DIR)
     ruta_marcador = Path(ruta_marcador or MARCADOR)
     ahora = ahora or datetime.now(timezone.utc)
-    etiqueta = etiqueta or temporada_etiqueta(datetime.now())
     marcador = cargar_json(ruta_marcador, {}) or {}
     registros = marcador.get("jornadas") or []
     vistas = {(r.get("temporada"), r.get("jornada")) for r in registros}
     nuevas = 0
-    for path in sorted(dir_predicciones.glob("jornada_*.json")):
-        snapshot = cargar_json(path, {}) or {}
-        bloque = snapshot.get("sorpresa_nombrada") or {}
+    for etiqueta, jornada, bloque, _pred, _datos in bloques_del_cierre(
+            "sorpresa_nombrada", dir_jornadas, dir_snapshots, etiqueta):
         if bloque.get("estado") not in ("ok", "sin_sorpresa_nombrada"):
             continue
-        jornada = bloque.get("jornada")
-        if not isinstance(jornada, int) or (etiqueta, jornada) in vistas:
+        if (etiqueta, jornada) in vistas:
             continue
-        datos = cargar_json(dir_jornadas / f"jornada_{jornada}.json", {}) or {}
-        partidos = datos.get("partidos") or []
-        if not partidos or any(str(p.get("signo_oficial") or "").upper() not in SIGNOS for p in partidos):
-            continue  # jornada abierta
-        signo_real = _signo_real(bloque, dir_jornadas) if bloque.get("estado") == "ok" else None
+        signo_real = (_signo_real(bloque, dir_jornadas, jornada_verificada=True)
+                      if bloque.get("estado") == "ok" else None)
         if bloque.get("estado") == "ok" and signo_real is None:
-            continue  # nombres no casan (jornada de otra temporada)
+            continue  # el partido nombrado no tiene signo oficial valido
         registros.append(registro_desde_bloque(bloque, signo_real, etiqueta, ahora))
         vistas.add((etiqueta, jornada))
         nuevas += 1

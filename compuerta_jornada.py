@@ -225,3 +225,33 @@ def estado_compuerta(jornada_objetivo, data_root=DATA):
         motivo = f"Aprendizaje pendiente de la jornada anterior: faltan {', '.join(aprendizaje['faltan'])}."
         return respuesta_compuerta(jornada_objetivo, anterior, "aprendiendo", motivo, resultados=resultados, aprendizaje=aprendizaje)
     return respuesta_compuerta(jornada_objetivo, anterior, "lista_para_publicar", resultados=resultados, aprendizaje=aprendizaje)
+
+
+def main():
+    """Paso del pipeline (auditoria 26/11/2026, hallazgo 166).
+
+    actualizar_todo.py ejecutaba este modulo como etapa propia, pero no tenia
+    bloque __main__: el subproceso terminaba en 0 sin evaluar nada y el log
+    daba a entender que la compuerta se habia pasado. La compuerta REAL la
+    sigue aplicando motor_prediccion_objetivo.py (que importa
+    estado_compuerta); aqui solo se deja constancia en el log del estado con
+    el que va a encontrarse el motor. No escribe ningun fichero.
+    """
+    ruta = DATA / "estado_jornada_objetivo.json"
+    try:
+        estado = json.loads(ruta.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        estado = {}
+    objetivo = estado.get("jornada_objetivo") if isinstance(estado, dict) else None
+    if not objetivo:
+        print("Compuerta de jornada: sin jornada objetivo registrada todavia (la fija el motor).")
+        return
+    compuerta = estado_compuerta(objetivo)
+    print(
+        f"Compuerta de jornada {objetivo}: estado={compuerta.get('estado')}"
+        + (f" | motivo: {compuerta.get('motivo')}" if compuerta.get("motivo") else "")
+    )
+
+
+if __name__ == "__main__":
+    main()

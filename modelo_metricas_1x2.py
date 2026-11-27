@@ -14,6 +14,11 @@ from collections import Counter, defaultdict, deque
 from datetime import datetime, timezone
 from pathlib import Path
 
+import cronologia_jornadas as cj
+
+# Motivo por el que no hay modelo entrenable (None = dependencias cargadas).
+ERROR_DEPENDENCIAS = None
+
 try:
     import joblib
     import numpy as np
@@ -21,7 +26,8 @@ try:
     from sklearn.linear_model import LogisticRegression
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import StandardScaler
-except Exception:
+except Exception as _exc_dependencias:
+    ERROR_DEPENDENCIAS = f"{type(_exc_dependencias).__name__}: {_exc_dependencias}"
     joblib = None
     np = None
     CalibratedClassifierCV = None
@@ -214,10 +220,28 @@ def comp_of(match):
     return "desconocida"
 
 
+def fecha_real_partido(data, match):
+    """date real de un partido: su fecha si es valida y cercana a la jornada
+    (erratas lejanas descartadas); si no, la fecha real de la jornada. None si
+    no hay ninguna fecha parseable."""
+    base = cj.fecha_real_jornada(data)
+    fecha = cj.parsear_fecha(match.get("fecha"), anio_por_defecto=base.year if base else None)
+    if fecha is not None and base is not None and abs((fecha - base).days) > 10:
+        fecha = None
+    return fecha or base
+
+
 def iter_closed_matches(jornadas_dir=JORNADAS):
+    """Partidos cerrados en orden CRONOLOGICO REAL. 'fecha_orden' es siempre
+    ISO (YYYY-MM-DD): ordenar el texto 'La Quiniela Domingo, 14 de diciembre
+    de 2025' ponia media 25/26 DESPUES de la 26/27 (fuga de futuro en
+    rolling_backtest y Elo/forma en directo con la primavera pasada). Un
+    partido sin fecha parseable se excluye en vez de caer al final."""
     out = []
     for path in sorted(Path(jornadas_dir).glob("jornada_*.json")):
         data = load_json(path, {})
+        if not isinstance(data, dict):
+            continue
         for match in data.get("partidos", []):
             if int(match.get("num") or 0) > 14:
                 continue
@@ -225,10 +249,13 @@ def iter_closed_matches(jornadas_dir=JORNADAS):
             sign = result_sign(match.get("resultado"))
             if not score or sign not in LABELS:
                 continue
+            fecha = fecha_real_partido(data, match)
+            if fecha is None:
+                continue
             out.append({
                 "jornada": data.get("jornada"),
                 "num": match.get("num"),
-                "fecha_orden": str(match.get("fecha") or data.get("fecha") or path.stem),
+                "fecha_orden": fecha.isoformat(),
                 "local": match.get("local") or "",
                 "visitante": match.get("visitante") or "",
                 "resultado": match.get("resultado"),
@@ -403,6 +430,12 @@ def feature_row_for_match(match, states=None, priors=None, jornadas_dir=JORNADAS
 
 def load_trained_model(root=ROOT):
     if joblib is None:
+        # El motor traduce None a 'artefacto_modelo_no_disponible', que seria
+        # falso si el artefacto existe y lo que falta es sklearn/joblib: se
+        # lanza la causa real y el motor la publica en modelo_predictivo.motivo.
+        out = Path(root) / "data" / "modelo_predictivo"
+        if any((out / nombre).exists() for nombre in ("modelo_calibrado.joblib", "modelo_entrenado.joblib")):
+            raise RuntimeError(f"dependencias_no_disponibles ({ERROR_DEPENDENCIAS or 'joblib/sklearn'})")
         return None
     out = Path(root) / "data" / "modelo_predictivo"
     for path in (out / "modelo_calibrado.joblib", out / "modelo_entrenado.joblib"):
@@ -661,6 +694,74 @@ def construir_regla_de_potencia(partidos_temporada, sd_diferencia=None, deltas=(
     }
 
 
+def partidos_cerrados_temporada_actual(dir_jornadas=None):
+    """(temporada, partidos con signo) de la temporada en curso, contados en
+    data/jornadas por FECHA real (no por numero de jornada). No depende del
+    recorte a las ultimas 250 revisiones de revisiones_prediccion_resultado."""
+    base = Path(dir_jornadas or JORNADAS)
+    indice = [j for j in cj.indice_jornadas(base) if j["fecha"] is not None]
+    con_signo = []
+    for j in indice:
+        data = load_json(j["ruta"], {})
+        n = 0
+        for match in (data.get("partidos") or []) if isinstance(data, dict) else []:
+            try:
+                num = int(match.get("num") or 0)
+            except (TypeError, ValueError):
+                continue
+            if not 1 <= num <= 14:
+                continue
+            signo = str(match.get("signo_oficial") or "").strip().upper()
+            if signo in LABELS or result_sign(match.get("resultado")) in LABELS:
+                n += 1
+        if n:
+            con_signo.append((j["temporada"], n))
+    if not con_signo:
+        return None, 0
+    temporada = con_signo[-1][0]
+    return temporada, sum(n for t, n in con_signo if t == temporada)
+
+
+def partidos_temporada_con_prediccion_del_cierre(temporada, dir_pre_cierre=None, dir_jornadas=None):
+    """Partidos con signo de la temporada dada que ADEMAS tienen probabilidades
+    en el snapshot pre-cierre de su jornada: la muestra con la que de verdad se
+    puede medir un delta de RPS (partidos_esta_temporada cuenta todos los
+    cerrados, tengan o no prediccion evaluable)."""
+    if not temporada:
+        return 0
+    base = Path(dir_jornadas or JORNADAS)
+    snapshots = Path(dir_pre_cierre) if dir_pre_cierre else None
+    total = 0
+    for j in cj.indice_jornadas(base):
+        if j["fecha"] is None or j["temporada"] != temporada:
+            continue
+        pred = cj.prediccion_del_cierre(j["numero"], snapshots, base)
+        if not isinstance(pred, dict):
+            continue
+        con_probs = set()
+        for fila in pred.get("partidos") or []:
+            if not isinstance(fila, dict):
+                continue
+            probs = fila.get("probabilidades")
+            if isinstance(probs, dict) and any(probs.get(s) for s in LABELS):
+                try:
+                    con_probs.add(int(fila.get("num") or 0))
+                except (TypeError, ValueError):
+                    continue
+        data = load_json(j["ruta"], {})
+        for match in (data.get("partidos") or []) if isinstance(data, dict) else []:
+            try:
+                num = int(match.get("num") or 0)
+            except (TypeError, ValueError):
+                continue
+            if num not in con_probs or not 1 <= num <= 14:
+                continue
+            signo = str(match.get("signo_oficial") or "").strip().upper()
+            if signo in LABELS or result_sign(match.get("resultado")) in LABELS:
+                total += 1
+    return total
+
+
 def enriquecer_metricas_probabilisticas(path_metricas=None, path_revisiones=None, dir_pre_cierre=None, dir_jornadas=None, guardar=True):
     """Añade a metricas_probabilisticas.json los bloques 'log_score_por_clase'
     y 'regla_de_potencia' SIN tocar ninguna clave existente. Lee los partidos
@@ -676,9 +777,26 @@ def enriquecer_metricas_probabilisticas(path_metricas=None, path_revisiones=None
         for r in revisiones
     ]
     sd = sd_diferencia_rps_snapshots(dir_pre_cierre, dir_jornadas)
-    partidos_temporada = sum(1 for it in items if _log_score_item(it) is not None)
+    evaluables = sum(1 for it in items if _log_score_item(it) is not None)
+    # revisiones_prediccion_resultado.json solo guarda las ultimas 250
+    # revisiones: contar ahi daba siempre "esta temporada lleva 250".
+    temporada, partidos_temporada = partidos_cerrados_temporada_actual(dir_jornadas)
+    if not partidos_temporada:
+        partidos_temporada = evaluables
     bloque_ls = log_score_por_clase(items)
+    bloque_ls["ventana"] = {
+        "partidos": evaluables,
+        "jornadas": len({it.get("jornada") for it in items if _log_score_item(it) is not None}),
+        "aviso": "ventana movil: solo las ultimas revisiones guardadas (hasta 250), no la temporada entera; no comparar entre semanas como si fuera la misma muestra",
+    }
     bloque_pot = construir_regla_de_potencia(partidos_temporada, sd)
+    bloque_pot["temporada"] = temporada
+    bloque_pot["fuente_partidos_temporada"] = "data/jornadas (partidos CERRADOS, con signo, de la temporada en curso por fecha real; incluye los que no tienen prediccion evaluable)"
+    # Muestra realmente evaluable: cerrados que ademas tienen probabilidades en
+    # el snapshot pre-cierre. Es el tope de lo que se puede demostrar.
+    bloque_pot["partidos_temporada_con_prediccion_del_cierre"] = partidos_temporada_con_prediccion_del_cierre(
+        temporada, dir_pre_cierre, dir_jornadas
+    )
     metricas["log_score_por_clase"] = bloque_ls
     metricas["regla_de_potencia"] = bloque_pot
     if guardar:

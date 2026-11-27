@@ -452,6 +452,15 @@ def extraer_probabilidades_desde_estado(estado):
     cubrir siempre los 14 partidos- en vez de usar solo una y descartar las
     otras 3, que suelen coincidir en lo esencial y dan una señal de mercado
     mas robusta que una sola fuente aislada.
+
+    NOTA (auditoria 26/11, hallazgo 57; documentado, SIN cambio de calculo):
+    dos de las cuatro tablas no son pronosticos sino lo que juega la MASA
+    ('lae' = % apostado en LAE, 'quinielista' = % de los usuarios de la web).
+    Por tanto la mitad de esta 'probabilidad' es masa, y cualquier comparacion
+    probabilidad-vs-masa hecha con ella (EV+, valor, "la masa sobrejuega") es
+    en parte circular. Cada partido guarda el desglose en 'fuentes_detalle'
+    para poder separar tecnicos+real de lae+quinielista. Separarlas cambia la
+    prediccion publicada: es una decision de modelado pendiente de Marc.
     """
     jornada, temporada = jornada_y_temporada_activas(estado)
     if not jornada:
@@ -663,16 +672,38 @@ def extraer_cuotas():
     return {"url": URL_CUOTAS, "jornada": jornada, "partidos": partidos[:14], "extraido_en": ahora_iso()}
 
 
+MAX_CANDIDATOS_ESCRUTINIO = 3
+
+
+def jornada_en_texto_referencia(texto):
+    """Jornada activa dentro de un texto de referencia.
+
+    Los textos que llegan son json.dumps() de lo extraido, donde la jornada
+    aparece como '"jornada": 25' y no como 'JORNADA 25' (auditoria 26/11,
+    hallazgo 58: por eso nunca se encontraba y se barrian 90 URLs).
+    """
+    texto = texto or ""
+    encontrados = [int(x) for x in re.findall(r'"jornada"\s*:\s*(\d{1,3})\b', texto)]
+    if encontrados:
+        return max(encontrados)
+    return extraer_jornada(texto)
+
+
 def candidatos_jornada_cerrada(*textos):
+    """Jornadas cuyo escrutinio se intenta leer: la anterior a la activa y,
+    como mucho, dos mas hacia atras. Si no se conoce la jornada activa NO se
+    pide nada (antes: barrido 90, 89, ... 1 = hasta 90 peticiones por ciclo)."""
     max_jornada = None
     for texto in textos:
-        jornada = extraer_jornada(texto or "")
+        jornada = jornada_en_texto_referencia(texto)
         if jornada is not None:
             max_jornada = max(max_jornada or jornada, jornada)
-    if max_jornada:
-        inicio = max(max_jornada - 1, 1)
-        return list(range(inicio, max(0, inicio - 15), -1))
-    return list(range(90, 0, -1))
+    if not max_jornada or max_jornada <= 1:
+        # Sin jornada activa conocida, o jornada 1 (la anterior es de otra
+        # temporada y su numero no es max-1): no se adivina.
+        return []
+    inicio = max_jornada - 1
+    return list(range(inicio, max(0, inicio - MAX_CANDIDATOS_ESCRUTINIO), -1))
 
 
 def categoria_desde_texto(texto):
@@ -739,6 +770,19 @@ def escrutinio_plausible(categorias):
         pa = float((categorias.get(alta) or {}).get("premio_euros") or 0)
         pb = float((categorias.get(baja) or {}).get("premio_euros") or 0)
         if pa > 0 and pb > 0 and pb > pa:
+            return False
+    # los acertantes no pueden bajar al bajar de categoria (12 ac=334 y
+    # 11 ac=2 es basura del regex de respaldo; hallazgo 58)
+    acertantes = []
+    for c in normales:
+        valor = (categorias.get(c) or {}).get("acertantes")
+        try:
+            valor = int(valor)
+        except (TypeError, ValueError):
+            continue
+        acertantes.append(valor)
+    for alta, baja in zip(acertantes, acertantes[1:]):
+        if alta > 0 and baja < alta:
             return False
     return True
 
@@ -934,10 +978,75 @@ def extraer_clasificaciones():
     return {"url": URL_CLASIFICACION, "ligas": clasificaciones, "extraido_en": ahora_iso()}
 
 
+def _entero_o_none(valor):
+    try:
+        return int(valor)
+    except (TypeError, ValueError):
+        return None
+
+
+def _mismo_cruce(a, b):
+    """Mismos equipos (local y visitante) en dos registros de partido."""
+    if not isinstance(a, dict) or not isinstance(b, dict):
+        return False
+    la, va = normalizar_clave(a.get("local")), normalizar_clave(a.get("visitante"))
+    lb, vb = normalizar_clave(b.get("local")), normalizar_clave(b.get("visitante"))
+    return bool(la and va) and la == lb and va == vb
+
+
+def _partidos_de_bloque(bloque):
+    """Partidos de un bloque de probabilidades o de cuotas, por numero."""
+    if not isinstance(bloque, dict):
+        return {}
+    lista = list(bloque.get("partidos_1x2") or bloque.get("partidos") or [])
+    pleno = bloque.get("pleno_al_15")
+    if isinstance(pleno, dict):
+        lista.append({**pleno, "numero": pleno.get("numero") or 15})
+    return {p.get("numero"): p for p in lista if isinstance(p, dict) and p.get("numero")}
+
+
+def misma_jornada_fuente(previo, nuevo):
+    """True solo si `previo` y `nuevo` son de la MISMA jornada real.
+
+    Auditoria 26/11 (hallazgo 8): se rellenaba lo que faltaba en la jornada
+    nueva con los datos de la anterior (14 partidos de la J25 bajo el numero
+    26). Criterio:
+      * si ambos traen numero de jornada y difieren -> no;
+      * los partidos que traigan ambos con el mismo numero deben ser los
+        mismos equipos (el numero de jornada se repite cada temporada);
+      * si el nuevo no trae numero de jornada, hace falta al menos un partido
+        comun con los mismos equipos para darlo por la misma.
+    """
+    if not isinstance(previo, dict) or not isinstance(nuevo, dict) or not previo:
+        return False
+    jp = _entero_o_none(previo.get("jornada"))
+    jn = _entero_o_none(nuevo.get("jornada"))
+    if jp is not None and jn is not None and jp != jn:
+        return False
+    previos = _partidos_de_bloque(previo)
+    nuevos = _partidos_de_bloque(nuevo)
+    comunes = [n for n in nuevos if n in previos]
+    if any(not _mismo_cruce(previos[n], nuevos[n]) for n in comunes):
+        return False
+    if jp is None or jn is None:
+        return bool(comunes)
+    return True
+
+
 def fusionar_probabilidades(anterior, nuevo):
     previas = anterior.get("probabilidades", {}) if isinstance(anterior, dict) else {}
     if not nuevo:
         return previas
+
+    if not misma_jornada_fuente(previas, nuevo):
+        # Jornada distinta: solo lo nuevo. Lo que falte se queda vacio; jamas
+        # se rellena con partidos de otra jornada.
+        if previas:
+            print(
+                "AVISO Losilla: la jornada de la fuente cambia "
+                f"({previas.get('jornada')} -> {nuevo.get('jornada')}); no se fusiona con el dato previo."
+            )
+        previas = {}
 
     pleno = nuevo.get("pleno_al_15") or previas.get("pleno_al_15")
     partidos_1x2 = nuevo.get("partidos_1x2") or previas.get("partidos_1x2") or []
@@ -967,14 +1076,24 @@ def fusionar_cuotas(anterior, nuevo):
     previo = anterior.get("cuotas", {}) if isinstance(anterior, dict) else {}
     if not nuevo:
         return previo
-    previos_por_numero = {p.get("numero"): p for p in (previo.get("partidos") or []) if p.get("numero")}
+    # Hallazgo 8: la cuota anterior solo vale si es de la MISMA jornada y del
+    # MISMO partido (mismos equipos); el numero de partido no basta.
+    jp = _entero_o_none(previo.get("jornada")) if isinstance(previo, dict) else None
+    jn = _entero_o_none(nuevo.get("jornada"))
+    jornada_compatible = jp is None or jn is None or jp == jn
+    previos_por_numero = {}
+    if jornada_compatible and isinstance(previo, dict):
+        previos_por_numero = {p.get("numero"): p for p in (previo.get("partidos") or []) if p.get("numero")}
     partidos = []
     for partido in nuevo.get("partidos") or []:
         if cuota_partido_con_dato(partido):
             partidos.append(partido)
             continue
         anterior_partido = previos_por_numero.get(partido.get("numero"))
-        partidos.append(anterior_partido if cuota_partido_con_dato(anterior_partido) else partido)
+        if cuota_partido_con_dato(anterior_partido) and _mismo_cruce(anterior_partido, partido):
+            partidos.append(anterior_partido)
+        else:
+            partidos.append(partido)
     nuevo["partidos"] = partidos
     return nuevo
 
@@ -1117,8 +1236,42 @@ def fusionar_con_anterior(anterior, nuevo, avisos):
     return salida
 
 
+def cargar_anterior_o_abortar(path):
+    """Dato previo. Si el fichero EXISTE pero no se puede leer (truncado o
+    corrupto) NO se guarda encima sin mas (hallazgo 248): se aparta una copia
+    en <nombre>.corrupto-AAAAMMDD para no perder su contenido y se sigue con
+    un previo vacio, de modo que el mercado no se quede parado en cada ciclo
+    hasta que alguien lo repare a mano. Devuelve None (abortar) solo si no
+    se ha podido hacer la copia."""
+    path = Path(path)
+    if not path.exists():
+        return {}
+    motivo = ""
+    try:
+        datos = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(datos, dict):
+            return datos
+        motivo = "no es un objeto JSON"
+    except Exception as exc:
+        motivo = type(exc).__name__
+    copia = path.with_name(f"{path.name}.corrupto-{datetime.now(timezone.utc).strftime('%Y%m%d')}")
+    try:
+        if not copia.exists():
+            copia.write_bytes(path.read_bytes())
+    except Exception as exc:
+        print(f"::warning::Losilla: {path.name} ilegible ({motivo}) y no se pudo apartar ({type(exc).__name__}); no se sobrescribe.")
+        return None
+    print(
+        f"::warning::Losilla: {path.name} existe pero no se puede leer ({motivo}); "
+        f"copia en {copia.name} y se sigue sin dato previo (se pierde el historico de escrutinio del fichero)."
+    )
+    return {}
+
+
 def main():
-    anterior = cargar_json(SALIDA, {})
+    anterior = cargar_anterior_o_abortar(SALIDA)
+    if anterior is None:
+        return 1
     nuevo = {}
     avisos = []
     textos_referencia = []
@@ -1154,7 +1307,8 @@ def main():
     salida = fusionar_con_anterior(anterior, nuevo, avisos)
     guardar_json(SALIDA, salida)
     print(f"Fuente Losilla actualizada/conservada en {SALIDA.relative_to(ROOT)}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

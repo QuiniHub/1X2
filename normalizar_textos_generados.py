@@ -8,6 +8,13 @@ RUTAS_JSON = [
     ROOT / "data" / "memoria_ia",
     ROOT / "data" / "historial_quinielas.json",
     ROOT / "data" / "quinielas_jugadas.json",
+    # Auditoria 26/11: el texto roto volvia a entrar desde aqui en cada ciclo
+    # (jornada_66.json traia 'Rumania' con la i acentuada en mojibake y
+    # ajustar_aprendizaje_elige8 lo copiaba a aprendizaje_elige8.json, que la
+    # web publica). Se repara tambien en el origen.
+    ROOT / "data" / "jornadas",
+    ROOT / "data" / "premios",
+    ROOT / "data" / "temporadas",
 ]
 
 

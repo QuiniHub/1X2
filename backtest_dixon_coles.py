@@ -93,6 +93,26 @@ def _norm_equipo_txt(texto):
     return re.sub(r"[^a-z0-9]+", " ", texto).strip()
 
 
+TEMPORADA_TEST_B = "2026_2027"
+
+
+def _temporada_fichero(data, numero):
+    from cronologia_jornadas import fecha_real_jornada, temporada_de_fecha
+    return temporada_de_fecha(fecha_real_jornada(data), numero)
+
+
+def ruta_salida_sin_pisar(salida=None, hoy=None):
+    """La evidencia versionada (backtest del 02/10/2026, 81 partidos, que
+    justifica PESO_DIXON_COLES) NO se sobrescribe: el detalle de
+    aprendizaje_ia.json esta recortado a 250 entradas y hoy el Test B ya solo
+    ve J7-J9. Si el fichero existe, la repeticion va a un fichero con fecha."""
+    salida = Path(salida) if salida else SALIDA
+    if not salida.exists():
+        return salida
+    hoy = hoy or datetime.now(timezone.utc)
+    return salida.with_name(f"{salida.stem}_repeticion_{hoy:%Y%m%d}{salida.suffix}")
+
+
 def test_b(partidos):
     """26/27 J1-J9: motor real (probabilidades_usadas) vs D-C walk-forward."""
     detalle = json.loads((DATA / "aprendizaje_ia.json").read_text(encoding="utf-8")).get("detalle", [])
@@ -102,6 +122,11 @@ def test_b(partidos):
         if not path.exists():
             continue
         data = json.loads(path.read_text(encoding="utf-8"))
+        # Auditoria 26/11/2026: el Test B es de la 26/27. La numeracion se
+        # reinicia cada agosto: si jornada_N.json ya es de otra temporada,
+        # no se evalua (mezclaria temporadas y entrenaria con fuga de futuro).
+        if _temporada_fichero(data, n_j) != TEMPORADA_TEST_B:
+            continue
         fechas = [str(p.get("fecha") or "") for p in data.get("partidos", [])]
         fechas = [f for f in fechas if re.match(r"^\d{4}-\d{2}-\d{2}", f)]
         if fechas:
@@ -175,5 +200,11 @@ if __name__ == "__main__":
         "test_a_2526_vs_mercado": a,
         "test_b_2627_vs_motor": b,
     }
-    SALIDA.write_text(json.dumps(salida, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print("\nGuardado en", SALIDA)
+    destino = ruta_salida_sin_pisar()
+    if destino != SALIDA:
+        salida["aviso"] = (
+            "Repeticion: NO sustituye a backtest_dixon_coles.json. El Test B depende del detalle de "
+            "aprendizaje_ia.json, recortado a las ultimas 250 entradas, y puede evaluar menos partidos que el original."
+        )
+    destino.write_text(json.dumps(salida, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print("\nGuardado en", destino)

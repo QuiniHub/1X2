@@ -371,10 +371,11 @@ def sorpresas_por_equipo(detalle, jornadas_validas, jornada_limite):
     return por_equipo
 
 
-def jornadas_con_porcentajes(etiqueta, hasta=60):
+def jornadas_con_porcentajes(etiqueta, hasta=100):
     """Jornadas de la temporada etiquetada con % LAE versionados: el conjunto
     de 'jornadas de esta temporada' sin depender de la numeracion (que se
-    reinicia cada temporada)."""
+    reinicia cada temporada). El tope era 60 y la temporada llega a la J76
+    (auditoria 26/11): con 100 cubre cualquier temporada."""
     return {j for j in range(1, hasta + 1) if ruta_porcentajes(j, etiqueta).exists()}
 
 
@@ -622,23 +623,88 @@ def construir_bloque_valiente(prediccion, fuente_losilla, fuentes=None):
 # Marcador de sombra (se engancha al ciclo de aprendizaje)
 # ---------------------------------------------------------------------------
 
-def _signo_real_verificado(bloque, dir_jornadas):
+_SUFIJOS_FEMENINOS = {"f", "w", "fem", "femenino", "femenina", "women", "ladies"}
+
+
+def nombres_casan(nombre_a, nombre_b):
+    """True si dos nombres son el mismo club aunque vengan de fuentes
+    distintas: el motor escribe 'Hacken (F)' o 'Borussia Dortmund' y la
+    fuente de resultados 'Hacken W' o 'B. Dortmund' (auditoria 26/11: con
+    clave_equipo a secas los picks de Champions y Liga F no se registraban
+    nunca). Quita el sufijo femenino y usa el comparador comun de
+    cronologia_jornadas."""
+    if clave_equipo(nombre_a) and clave_equipo(nombre_a) == clave_equipo(nombre_b):
+        return True
+    import cronologia_jornadas as cj
+
+    def limpio(nombre):
+        tokens = cj.normalizar_equipo(nombre).split()
+        while len(tokens) > 1 and tokens[-1] in _SUFIJOS_FEMENINOS:
+            tokens.pop()
+        return " ".join(tokens)
+
+    a, b = limpio(nombre_a), limpio(nombre_b)
+    return bool(a and b) and (a == b or cj.mismo_equipo(a, b))
+
+
+def _signo_real_verificado(bloque, dir_jornadas, jornada_verificada=False):
     """Signo oficial del partido de la valiente, verificando ademas que los
     nombres del fixture coinciden (la numeracion de jornadas se reinicia cada
     temporada: sin esta verificacion, una J14 vieja podria puntuar una J14
     nueva). Basta con que UNO de los dos nombres case -el num ya ancla el
     partido y el propio motor usa alias legitimos ("Celta B"/"Celta Fortuna").
-    None si la jornada aun no esta cerrada o ningun nombre casa."""
+    None si el partido aun no tiene signo o ningun nombre casa.
+
+    jornada_verificada=True: quien llama ya ha comprobado que el bloque es de
+    ESTA jornada real (snapshot pre-cierre validado por equipos o fecha con
+    cronologia_jornadas); entonces el num basta y un alias desconocido en los
+    dos lados ('Sporting De Portugal'/'Sporting Lisboa') no descarta el pick."""
     datos = cargar_json(Path(dir_jornadas) / f"jornada_{bloque.get('jornada')}.json", {})
     for p in datos.get("partidos") or []:
         if p.get("num") != bloque.get("num"):
             continue
-        if (clave_equipo(p.get("local")) != clave_equipo(bloque.get("local"))
-                and clave_equipo(p.get("visitante")) != clave_equipo(bloque.get("visitante"))):
+        if (not jornada_verificada
+                and not nombres_casan(p.get("local"), bloque.get("local"))
+                and not nombres_casan(p.get("visitante"), bloque.get("visitante"))):
             return None
         signo = str(p.get("signo_oficial") or "").upper()
         return signo if signo in SIGNOS else None
     return None
+
+
+def bloques_del_cierre(nombre_bloque, dir_jornadas=None, dir_snapshots=None, etiqueta=None):
+    """Fuente UNICA de los marcadores de sombra (auditoria 26/11).
+
+    Recorre las jornadas CERRADAS (14 signos oficiales) en orden cronologico
+    y devuelve, para cada una, el bloque `nombre_bloque` tal como quedo en el
+    snapshot pre-cierre (data/backtesting/pre_cierre): lo que se dijo ANTES
+    del primer partido. El espejo data/predicciones/jornada_N.json NO sirve:
+    se regenera con la jornada en juego y los marcadores llegaron a registrar
+    picks que nunca se publicaron antes del cierre (J22-J24).
+
+    La temporada sale de la FECHA real de la jornada, no de now(): asi el 1
+    de julio no se vuelve a registrar toda la temporada anterior con la
+    etiqueta nueva. `etiqueta` solo se usa si la jornada no trae ninguna
+    fecha. El snapshot se descarta si no es de la misma jornada real (mismos
+    equipos o misma fecha): la numeracion se reinicia cada temporada.
+
+    Genera tuplas (temporada, numero, bloque, prediccion, datos_jornada)."""
+    import cronologia_jornadas as cj
+    for entrada in cj.indice_jornadas(dir_jornadas):
+        if not entrada.get("cerrada"):
+            continue
+        temporada = entrada.get("temporada") or etiqueta
+        if not temporada:
+            continue
+        numero = entrada["numero"]
+        prediccion = cj.prediccion_del_cierre(numero, dir_snapshots, dir_jornadas)
+        if not prediccion:
+            continue
+        bloque = prediccion.get(nombre_bloque)
+        if not isinstance(bloque, dict):
+            continue
+        datos = cj.cargar_jornada(numero, dir_jornadas) or {}
+        yield temporada, numero, {**bloque, "jornada": numero}, prediccion, datos
 
 
 def _atribucion_por_senal(evaluadas):
@@ -703,30 +769,33 @@ def senales_suspendidas_actuales(ruta_marcador=None):
 
 
 def actualizar_marcador_valiente(dir_predicciones=None, dir_jornadas=None,
-                                 ruta_marcador=None, etiqueta=None, ahora=None):
+                                 ruta_marcador=None, etiqueta=None, ahora=None,
+                                 dir_snapshots=None):
     """Al cerrar cada jornada, registra si la valiente publicada acerto y
     actualiza el acumulado con el criterio de graduacion prerregistrado.
-    Idempotente: cada (temporada, jornada) se registra una sola vez."""
-    dir_predicciones = Path(dir_predicciones or PREDICCIONES_DIR)
+    Idempotente: cada (temporada, jornada) se registra una sola vez.
+
+    Lee el bloque del snapshot PRE-CIERRE (bloques_del_cierre), solo con la
+    jornada cerrada, y la temporada sale de la fecha de la jornada.
+    dir_predicciones se conserva en la firma pero ya no se lee: el espejo se
+    reescribe despues del cierre."""
     dir_jornadas = Path(dir_jornadas or JORNADAS_DIR)
     ruta_marcador = Path(ruta_marcador or MARCADOR)
     ahora = ahora or datetime.now(timezone.utc)
-    etiqueta = etiqueta or temporada_etiqueta(datetime.now())
 
     marcador = cargar_json(ruta_marcador, {})
     valientes = marcador.get("valientes") or []
     registradas = {(v.get("temporada"), v.get("jornada")) for v in valientes}
     nuevas = 0
-    for path in sorted(dir_predicciones.glob("jornada_*.json")):
-        bloque = (cargar_json(path, {}) or {}).get("valiente") or {}
+    for etiqueta, jornada, bloque, _pred, _datos in bloques_del_cierre(
+            "valiente", dir_jornadas, dir_snapshots, etiqueta):
         if bloque.get("estado") != "ok":
             continue
-        jornada = bloque.get("jornada")
         if (etiqueta, jornada) in registradas:
             continue
-        signo_real = _signo_real_verificado(bloque, dir_jornadas)
+        signo_real = _signo_real_verificado(bloque, dir_jornadas, jornada_verificada=True)
         if signo_real is None:
-            continue  # jornada aun abierta o fixture de otra temporada
+            continue  # el partido del pick no tiene signo oficial valido
         acierto = signo_real == str(bloque.get("signo") or "").upper()
         masa = float(bloque.get("masa_pct") or 0)
         pago = round(100.0 / masa * APUESTA_HIPOTETICA_EUR, 2) if acierto and masa > 0 else 0.0

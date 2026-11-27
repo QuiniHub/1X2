@@ -16,7 +16,12 @@ partido. Sub-tipo "tercero profundo": ademas masa <= 15%.
 Dataset: jornadas 1-14 de 2026-27 (cerradas), partidos con
 competicion_resuelta en {primera_division, segunda_division, liga_f} y masa
 LAE disponible. Fuentes, todas congeladas antes del cierre de cada jornada:
-  - data/predicciones/jornada_N.json  (snapshot del motor pre-cierre)
+  - data/backtesting/pre_cierre/jornada_N.json, campo prediccion (snapshot
+    del motor pre-cierre). AUDITORIA 26/11/2026: la version original de este
+    estudio leia data/predicciones/jornada_N.json creyendo que era la foto
+    pre-cierre; ese fichero se regeneraba DESPUES del cierre (sin mercado),
+    asi que T1-T5 y T7 del informe del 21/10/2026 estan contaminados y quedan
+    INVALIDADOS hasta repetir el estudio con esta version.
   - data/memoria_ia/porcentajes_lae/2026_2027/jornada_N.json  (masa LAE)
   - data/jornadas/jornada_N.json  (signo_oficial y competicion, post-partido;
     SOLO se usa para el resultado y la etiqueta de liga, jamas como feature)
@@ -55,10 +60,16 @@ from __future__ import annotations
 
 import json
 from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
+
+import cronologia_jornadas
 
 RAIZ = Path(__file__).resolve().parent
 DATA = RAIZ / "data"
+TEMPORADA = "2026_2027"
+PRE_CIERRE = DATA / "backtesting" / "pre_cierre"
+DIR_JORNADAS = DATA / "jornadas"
 COMPETICIONES = {"primera_division", "segunda_division", "liga_f"}
 JORNADAS = range(1, 15)  # cerradas a fecha del estudio
 
@@ -71,16 +82,20 @@ def cargar(path):
 def construir_dataset():
     filas = []
     for n in JORNADAS:
-        jor = cargar(DATA / "jornadas" / f"jornada_{n}.json")
+        jor = cargar(DIR_JORNADAS / f"jornada_{n}.json")
+        # El numero no identifica la jornada: tiene que ser de ESTA temporada.
+        fecha = cronologia_jornadas.fecha_real_jornada(jor)
+        if fecha is not None and cronologia_jornadas.temporada_de_fecha(fecha, n) != TEMPORADA:
+            continue
         try:
-            lae = cargar(DATA / "memoria_ia" / "porcentajes_lae" / "2026_2027" / f"jornada_{n}.json")
+            lae = cargar(DATA / "memoria_ia" / "porcentajes_lae" / TEMPORADA / f"jornada_{n}.json")
         except FileNotFoundError:
             continue
         masa = {p["numero"]: p["porcentajes"] for p in lae.get("partidos", [])}
-        try:
-            snap = {p["num"]: p for p in cargar(DATA / "predicciones" / f"jornada_{n}.json").get("partidos", [])}
-        except FileNotFoundError:
-            snap = {}
+        # Lo que el motor dijo ANTES del cierre: el snapshot pre-cierre
+        # (comprobado como de la misma jornada real), nunca data/predicciones.
+        prediccion = cronologia_jornadas.prediccion_del_cierre(n, PRE_CIERRE, DIR_JORNADAS) or {}
+        snap = {p["num"]: p for p in prediccion.get("partidos", []) if "num" in p}
         for p in jor.get("partidos", []):
             num = p.get("num")
             comp = p.get("competicion_resuelta")
@@ -148,8 +163,14 @@ def main():
     filas = construir_dataset()
     k, n, t = tasa(filas)
     informe = {
-        "generado_en": "2026-10-21",
+        "generado_en": datetime.now(timezone.utc).date().isoformat(),
         "definicion": "tercero = signo oficial con menor masa LAE del partido",
+        "fuente_motor": "data/backtesting/pre_cierre/jornada_N.json (prediccion congelada pre-cierre)",
+        "auditoria_2611": (
+            "El informe del 21/10/2026 leia data/predicciones/jornada_N.json (regenerado "
+            "despues del cierre): sus veredictos T1-T5 y T7 quedan invalidados. Esta version "
+            "usa el snapshot pre-cierre."
+        ),
         "dataset": {"jornadas": "1-14 (2026-27)", "partidos": n, "terceros": k,
                     "tasa_global_pct": round(t, 1)},
         "hipotesis": {},

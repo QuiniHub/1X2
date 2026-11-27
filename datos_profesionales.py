@@ -74,7 +74,9 @@ def ahora_iso():
 
 def temporada_objetivo(fecha=None):
     fecha = fecha or datetime.now()
-    inicio = fecha.year if fecha.month >= 7 else fecha.year
+    # Auditoria 26/11 (189/242): las dos ramas devolvian el mismo anio y de
+    # enero a junio se publicaba la temporada siguiente ('2027/2028').
+    inicio = fecha.year if fecha.month >= 7 else fecha.year - 1
     return f"{inicio}/{inicio + 1}"
 
 
@@ -496,7 +498,7 @@ def limite_jornadas_profesionales():
         return 2
 
 
-def seleccionar_jornadas_objetivo(root=ROOT):
+def seleccionar_jornadas_objetivo(root=ROOT, hoy=None):
     data_dir = Path(root) / "data"
     jornadas_dir = data_dir / "jornadas"
     numeros = set()
@@ -510,23 +512,78 @@ def seleccionar_jornadas_objetivo(root=ROOT):
         except (TypeError, ValueError):
             pass
 
-    existentes = []
-    for path in jornadas_dir.glob("jornada_*.json"):
-        data = cargar_json(path, {})
+    # Auditoria 26/11 (hallazgo 87): se anadia max(numero) = jornada_76 (agosto,
+    # temporada 25/26) y se ordenaba por numero. Ahora: jornada objetivo, la de
+    # la ultima prediccion y la que esta en curso o es la proxima POR FECHA.
+    candidatas = []
+    for valor in (estado.get("jornada_objetivo"), pred.get("jornada")):
         try:
-            existentes.append(int(data.get("jornada") or path.stem.split("_")[-1]))
+            if valor and int(valor) not in candidatas:
+                candidatas.append(int(valor))
         except (TypeError, ValueError):
-            continue
-    if existentes:
-        numeros.add(max(existentes))
+            pass
+    try:
+        import cronologia_jornadas
+
+        en_curso = cronologia_jornadas.jornada_en_curso_o_proxima(
+            hoy=(hoy or datetime.now(timezone.utc).date()), dir_jornadas=jornadas_dir
+        )
+    except Exception:
+        en_curso = None
+    if en_curso and int(en_curso["numero"]) not in candidatas:
+        candidatas.append(int(en_curso["numero"]))
+    if not candidatas:
+        # Sin objetivo, sin prediccion y sin jornada en curso: la ultima por fecha.
+        try:
+            con_fecha = [j for j in cronologia_jornadas.indice_jornadas(jornadas_dir) if j["fecha"] is not None]
+        except Exception:
+            con_fecha = []
+        if con_fecha:
+            candidatas.append(int(con_fecha[-1]["numero"]))
 
     seleccion = []
-    for numero in sorted(numeros)[:limite_jornadas_profesionales()]:
+    for numero in candidatas[:limite_jornadas_profesionales()]:
         path = jornadas_dir / f"jornada_{numero}.json"
         data = cargar_json(path, {})
         if data.get("partidos"):
             seleccion.append(data)
     return seleccion
+
+
+class ApiFootballPlanError(RuntimeError):
+    """El plan contratado no cubre lo pedido (p. ej. la temporada en curso con
+    el plan Free). Repetir la peticion con otro partido da el mismo error."""
+
+
+# Con el plan bloqueado para la temporada no se vuelve a preguntar hasta
+# pasados estos dias (por si se cambia de plan). Mientras tanto: 0 peticiones.
+DIAS_RECOMPROBAR_PLAN = 7
+
+
+def bloqueo_plan_vigente(root=ROOT, ahora=None):
+    """Bloqueo de plan guardado en el ciclo anterior, si sigue vigente.
+
+    Auditoria 26/11 (hallazgo 87): cada ciclo lanzaba ~20 peticiones que
+    fallaban todas con 'Free plans do not have access to this season'. Se
+    guarda ese diagnostico en datos_profesionales.json y, mientras sea de la
+    misma season y tenga menos de DIAS_RECOMPROBAR_PLAN dias, no se llama a la
+    API (ni fixtures ni /status).
+    """
+    previo = cargar_json(Path(root) / "data" / "datos_profesionales.json", {})
+    api = (previo.get("proveedores") or {}).get("api_football") if isinstance(previo, dict) else None
+    bloqueo = (api or {}).get("plan_no_cubre_season")
+    if not isinstance(bloqueo, dict):
+        return None
+    try:
+        if int(bloqueo.get("season")) != int(temporada_api_football()):
+            return None
+        comprobado = datetime.fromisoformat(str(bloqueo.get("comprobado_en")).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    ahora = ahora or datetime.now(timezone.utc)
+    if (ahora - comprobado).total_seconds() >= DIAS_RECOMPROBAR_PLAN * 86400:
+        return None
+    return {"bloqueo": bloqueo, "estado_cuenta": (api or {}).get("estado_cuenta")}
 
 
 def api_football_get(base_url, token, endpoint, params=None, requester=None):
@@ -548,6 +605,8 @@ def api_football_get(base_url, token, endpoint, params=None, requester=None):
     payload = respuesta.json()
     errores = payload.get("errors")
     if errores:
+        if isinstance(errores, dict) and errores.get("plan"):
+            raise ApiFootballPlanError(f"API-Football {endpoint}: {errores}")
         raise RuntimeError(f"API-Football {endpoint}: {errores}")
     return payload.get("response") or []
 
@@ -783,14 +842,52 @@ def leer_api_football_payload(base_url, token, root=ROOT, requester=None):
     jornadas = {}
     fixtures_emparejados = 0
 
+    vigente = bloqueo_plan_vigente(root)
+    if vigente:
+        # El plan no cubre esta temporada y ya se comprobo hace poco: sin red.
+        bloqueo = vigente["bloqueo"]
+        print(
+            "API-Football: el plan no cubre la temporada "
+            f"{bloqueo.get('season')} (comprobado {bloqueo.get('comprobado_en')}); no se consulta."
+        )
+        return {
+            "generado_en": ahora_iso(),
+            "temporada_objetivo": temporada_objetivo(),
+            "proveedores": {
+                "api_football": {
+                    "base_url": base_url,
+                    "ligas": ligas_api_football(),
+                    "season": temporada_api_football(),
+                    "fixtures_emparejados": 0,
+                    "errores": [str(bloqueo.get("motivo") or "plan sin acceso a la temporada")],
+                    "estado_cuenta": vigente.get("estado_cuenta"),
+                    "plan_no_cubre_season": bloqueo,
+                    "peticiones_en_este_ciclo": 0,
+                }
+            },
+            "jornadas": {},
+        }
+
+    bloqueo_plan = None
     for jornada_data in seleccionar_jornadas_objetivo(root):
+        if bloqueo_plan:
+            break
         jornada = int(jornada_data.get("jornada") or 0)
         for partido in jornada_data.get("partidos", [])[:14]:
-            fixture = consultar_opcional(
-                lambda partido=partido: buscar_fixture_api_football(base_url, token, partido, fixture_cache, requester=requester),
-                errores,
-                f"fixtures {partido.get('local')} - {partido.get('visitante')}",
-            )
+            try:
+                fixture = buscar_fixture_api_football(base_url, token, partido, fixture_cache, requester=requester)
+            except ApiFootballPlanError as exc:
+                # Mismo error para cualquier partido: se corta a la primera.
+                errores.append(f"fixtures {partido.get('local')} - {partido.get('visitante')}: {exc}")
+                bloqueo_plan = {
+                    "season": temporada_api_football(),
+                    "comprobado_en": ahora_iso(),
+                    "motivo": str(exc),
+                }
+                break
+            except Exception as exc:
+                errores.append(f"fixtures {partido.get('local')} - {partido.get('visitante')}: {exc}")
+                fixture = None
             if not fixture:
                 continue
             fixtures_emparejados += 1
@@ -851,6 +948,7 @@ def leer_api_football_payload(base_url, token, root=ROOT, requester=None):
                 "fixtures_emparejados": fixtures_emparejados,
                 "errores": errores[:20],
                 "estado_cuenta": estado_cuenta_api_football(base_url, token, requester=requester),
+                **({"plan_no_cubre_season": bloqueo_plan} if bloqueo_plan else {}),
             }
         },
         "jornadas": jornadas,

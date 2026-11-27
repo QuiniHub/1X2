@@ -1,8 +1,12 @@
-beautifulsoup4
-lxml
-joblib
-numpy
-pandas
-scipy
-requests
-scikit-learn
+# Dependencias reales del pipeline (auditoria 26/11/2026).
+# Solo lo que algun .py importa; tests/test_aud_P9_requirements.py lo comprueba.
+# Sin versiones exactas a proposito: el CI usa Python 3.11 y el PC otra version,
+# y un pin exacto puede no tener rueda para las dos. Los topes solo evitan un
+# salto de version MAYOR silencioso entre dos ejecuciones del cron.
+requests>=2.31,<3
+beautifulsoup4>=4.12,<5
+lxml>=4.9            # parser de BeautifulSoup(html, "lxml") en actualizar_liga_f.py
+numpy>=1.26,<3
+scipy>=1.11,<2       # modelo_dixon_coles, mezcla_benter, modelo_pi_ratings
+scikit-learn>=1.4,<2
+joblib>=1.3,<2

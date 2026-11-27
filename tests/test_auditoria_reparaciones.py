@@ -268,11 +268,42 @@ class ValidadoresCronologicosTests(unittest.TestCase):
         self.assertEqual(cca.fecha_orden_jornada(data), "2026-09-06")
         self.assertEqual(ds.fecha_orden_jornada(data), "2026-09-06")
 
+    def _dos_temporadas_en_disco(self, base):
+        """J76 de la temporada vieja (agosto) y J4 de la nueva (septiembre)."""
+        jornadas = Path(base) / "data" / "jornadas"
+        jornadas.mkdir(parents=True)
+        for numero, fecha in ((76, "2026-08-09"), (4, "2026-09-06")):
+            (jornadas / f"jornada_{numero}.json").write_text(json.dumps({
+                "jornada": numero,
+                "partidos": [
+                    {"num": i, "local": f"L{i}", "visitante": f"V{i}",
+                     "fecha": fecha, "signo_oficial": "1"}
+                    for i in range(1, 15)
+                ],
+            }), encoding="utf-8")
+        return jornadas
+
     def test_jornada_nueva_gana_a_la_vieja_de_numero_alto(self):
-        vieja = {"fecha_orden": "2026-08-09", "jornada": 76}
-        nueva = {"fecha_orden": "2026-09-06", "jornada": 4}
-        orden = sorted([vieja, nueva], key=lambda r: (r["fecha_orden"], r["jornada"]))
-        self.assertEqual(orden[-1]["jornada"], 4)
+        # Antes este test ordenaba con una lambda escrita en el propio test
+        # (no ejecutaba codigo de produccion: auditoria 26/11, hallazgo 207).
+        # Ahora llama a los dos validadores reales sobre un directorio
+        # temporal: si alguno vuelve a ordenar por numero, daria la 76.
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            jornadas = self._dos_temporadas_en_disco(tmp)
+            guardado = (cca.JORNADAS, cca.ROOT, ds.JORNADAS, ds.ROOT)
+            cca.JORNADAS = ds.JORNADAS = jornadas
+            cca.ROOT = ds.ROOT = Path(tmp)
+            try:
+                resumenes, actual, ultima = cca.jornadas_estado()
+                diagnostico = ds.diagnosticar_jornadas([])
+            finally:
+                cca.JORNADAS, cca.ROOT, ds.JORNADAS, ds.ROOT = guardado
+        self.assertEqual([r["jornada"] for r in resumenes], [76, 4])
+        self.assertEqual(actual["jornada"], 4)
+        self.assertEqual(ultima["jornada"], 4)
+        self.assertEqual(diagnostico["jornada_actual"]["jornada"], 4)
+        self.assertEqual([j["jornada"] for j in diagnostico["ultimas"]], [76, 4])
 
 
 class MillonarioReconciliadoTests(unittest.TestCase):
@@ -320,10 +351,6 @@ class MillonarioReconciliadoTests(unittest.TestCase):
         )
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class PrioridadesExportadasTests(unittest.TestCase):
     """La web recoloca dobles/triples/Elige8 en el navegador cuando Marc
     cambia los contadores (2026-09-06): para que use el criterio COMPLETO
@@ -366,3 +393,7 @@ class PrioridadesExportadasTests(unittest.TestCase):
         # min(25, 100*0.05)=5 + min(15, 40*0.05)=2 + 1 de necesidad = 8
         self.assertAlmostEqual(pen, 8.0)
         self.assertAlmostEqual(motor.prioridad_elige8(partido), motor.probabilidad_cubierta(partido) - pen)
+
+
+if __name__ == "__main__":
+    unittest.main()

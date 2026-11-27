@@ -132,6 +132,31 @@ def revisar_laliga(info):
     return detectada, resultado
 
 
+# El calendario de una temporada se sortea a finales de junio / julio. Antes
+# de esta fecha (mes, dia) del anio en que empieza, laliga.com no puede tener
+# la temporada siguiente aunque responda 200.
+MES_DIA_MINIMO_CALENDARIO = (6, 15)
+
+
+def temporada_siguiente_detectada(fd_detectada, laliga_detectada, siguiente, hoy=None):
+    """La temporada siguiente solo se da por detectada con DATOS reales.
+
+    Auditoria 26/11 (hallazgos 191 y 227): laliga.com responde 200 a cualquier
+    temporada, repite '2027-28' (sale en la propia URL) y nombra equipos en el
+    menu, asi que la 27/28 estaba 'detectada' desde agosto de 2026. Ahora:
+      * football-data con filas de partidos vale siempre;
+      * los indicios de laliga.com solo cuentan a partir del 15 de junio del
+        anio en que empieza esa temporada.
+    """
+    if fd_detectada:
+        return True
+    if not laliga_detectada:
+        return False
+    hoy = hoy or datetime.now().date()
+    mes, dia = MES_DIA_MINIMO_CALENDARIO
+    return hoy >= datetime(int(siguiente["inicio"]), mes, dia).date()
+
+
 def crear_resumen_temporada_detectada(info, fuentes):
     destino = TEMPORADAS / info["slug"] / "resumen_temporada.json"
     if destino.exists():
@@ -153,7 +178,7 @@ def main():
 
     fd_detectada, fd = revisar_football_data(siguiente)
     laliga_detectada, laliga = revisar_laliga(siguiente)
-    detectada = fd_detectada or laliga_detectada
+    detectada = temporada_siguiente_detectada(fd_detectada, laliga_detectada, siguiente)
 
     salida = {
         "generado_en": ahora_iso(),

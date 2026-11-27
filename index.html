@@ -816,7 +816,13 @@
       return String(text || '').toUpperCase().split('').filter(s => ['1','X','2'].includes(s)).join('') || '';
     }
 
-    function selectedSigns(match) {
+    function modoEditable() {
+      return state.mode === 'mixta' || state.mode === 'manual';
+    }
+
+    // Signos que reparte el boleto automatico (computeAssignments). Antes de
+    // generar no hay boleto: nunca se ensenan signos precargados.
+    function signosAsignados(match) {
       // Before generating, never show pre-filled signs (avoids "old quiniela" effect)
       if (!state.generated) return '';
       const num = match.num ?? match.numero ?? match.partido;
@@ -824,8 +830,29 @@
       return normalizeSignText(match.signo_final || match.signo_base || match.pronostico_ia || match.pronostico_jugado || match.signo || match.prediccion || '');
     }
 
+    // Jugada ACTUAL del partido. Auditoria 26/11: en Mixta/Manual los avisos
+    // (Regla 15, terceros, bandas "ya la tienes cubierta", tipo de apuesta)
+    // seguian leyendo el reparto automatico y no lo marcado a mano. Ahora
+    // state.jugadaManual guarda lo que hay marcado en pantalla (lo rellena
+    // renderTicket y lo actualiza cada clic sobre un signo) y manda sobre el
+    // reparto automatico mientras el modo sea editable.
+    function tieneJugadaManual(num) {
+      return modoEditable() && state.jugadaManual
+        && Object.prototype.hasOwnProperty.call(state.jugadaManual, String(num));
+    }
+
+    function selectedSigns(match) {
+      const num = match.num ?? match.numero ?? match.partido;
+      if (tieneJugadaManual(num)) return state.jugadaManual[String(num)];
+      return signosAsignados(match);
+    }
+
     function betType(match) {
       const num = match.num ?? match.numero ?? match.partido;
+      if (tieneJugadaManual(num)) {
+        const lenManual = normalizeSignText(state.jugadaManual[String(num)]).length;
+        return lenManual >= 3 ? 'triple' : lenManual === 2 ? 'doble' : 'fijo';
+      }
       if (state.typeAssignment[num]) return state.typeAssignment[num];
       const len = selectedSigns(match).length;
       return len >= 3 ? 'triple' : len === 2 ? 'doble' : 'fijo';
@@ -875,8 +902,11 @@
       let dobles = state.dobles, triples = state.triples;
       const boletoReal = state.generated || state.mode === 'mixta' || state.mode === 'manual';
       if (boletoReal) {
+        // Auditoria 26/11: con boleto real en pantalla manda SIEMPRE el
+        // recuento real, tambien cuando es 0 dobles y 0 triples (antes un
+        // boleto dejado en todo fijos volvia a costar lo de los contadores).
         const real = countSignsFromBoleto();
-        if (real.dobles + real.triples > 0) { dobles = real.dobles; triples = real.triples; }
+        dobles = real.dobles; triples = real.triples;
       }
       const apuestas = Math.pow(2, dobles) * Math.pow(3, triples);
       const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
@@ -887,13 +917,31 @@
       // partidos elegidos para Elige8 -en el boleto real confirmado esa
       // cifra eran 8 apuestas (3 de los 6 dobles caian dentro del Elige8),
       // coste real 4.00 EUR, no 32.00 EUR.
-      let apuestasElige8 = apuestas;
-      if (elige8Activo && boletoReal && state.elige8Set && state.elige8Set.size) {
-        const real8 = countSignsFromElige8();
-        apuestasElige8 = Math.pow(2, real8.dobles) * Math.pow(3, real8.triples);
+      // Auditoria 26/11 (el mismo bug, por la otra puerta): sin boleto
+      // generado, o con el Elige 8 vaciado a mano, se volvia a multiplicar
+      // por las apuestas de toda la quiniela. Ahora: con boleto real se
+      // cuentan los dobles/triples dentro de los partidos elegidos (0 EUR si
+      // no hay ninguno elegido); sin boleto se cuenta sobre el reparto que
+      // saldria al pulsar "Generar" con los contadores actuales.
+      let apuestasElige8 = 0;
+      if (elige8Activo && boletoReal) {
+        if (state.elige8Set && state.elige8Set.size) {
+          const real8 = countSignsFromElige8();
+          apuestasElige8 = Math.pow(2, real8.dobles) * Math.pow(3, real8.triples);
+        }
+      } else if (elige8Activo) {
+        const plan = planAssignments(true);
+        if (plan.elige8Set.size) {
+          let d8 = 0, t8 = 0;
+          plan.elige8Set.forEach(num => {
+            if (plan.tipos[num] === 'triple') t8++;
+            else if (plan.tipos[num] === 'doble') d8++;
+          });
+          apuestasElige8 = Math.pow(2, d8) * Math.pow(3, t8);
+        }
       }
       const importeElige8 = elige8Activo ? apuestasElige8 * 0.50 : 0;
-      return { apuestas, dobles, triples, importeQuiniela, importeElige8, importeTotal: importeQuiniela + importeElige8 };
+      return { apuestas, dobles, triples, importeQuiniela, importeElige8, apuestasElige8, importeTotal: importeQuiniela + importeElige8 };
     }
 
     function updateCostPanel() {
@@ -979,12 +1027,17 @@
       const c = calculateCost();
       const pleno15 = recogerPleno15Current();
       const elige8Nums = state.elige8 ? Array.from(state.elige8Set).map(Number).sort((a, b) => a - b) : [];
+      if (state.elige8 && elige8Nums.length !== 8) {
+        alert(`El Elige 8 necesita exactamente 8 partidos y ahora hay ${elige8Nums.length}. Completa la seleccion o desactiva el Elige 8 antes de confirmar.`);
+        return;
+      }
       const datos = {
         jornada: jornada,
         nuestra_quiniela: boleto,
         pleno15_nuestro: pleno15,
-        dobles: state.dobles,
-        triples: state.triples,
+        // Recuento REAL del boleto confirmado, no los contadores (auditoria 26/11)
+        dobles: c.dobles,
+        triples: c.triples,
         elige8: state.elige8,
         apuestas: c.apuestas,
         coste_total: c.importeTotal,
@@ -1022,9 +1075,9 @@
         confirmBtn.textContent = '✅ ¡Confirmada!';
         confirmBtn.style.background = '#15803d';
         confirmMsg.style.display = 'block';
-        confirmMsg.innerHTML = `✅ <strong>J${jornada} confirmada:</strong> ${escapeHtml(boleto)} · ${c.apuestas} apuestas · ${c.importeTotal.toFixed(2)}€`
+        confirmMsg.innerHTML = `✅ <strong>J${escapeHtml(jornada)} confirmada:</strong> ${escapeHtml(boleto)} · ${escapeHtml(c.apuestas)} apuestas · ${escapeHtml(c.importeTotal.toFixed(2))}€`
           + `<br><span id="guardarHistorialAviso">📮 Se ha abierto un Issue en GitHub ya relleno en otra pestaña — solo falta pulsar allí "Submit new issue". `
-          + `<a href="${urlIssue}" target="_blank" rel="noopener" id="guardarHistorialLink" style="color:#2563eb;font-weight:600" onclick="this.outerHTML='✅ Guardado con éxito';">¿No se abrió? Ábrelo aquí</a></span>`;
+          + `<a href="${escapeHtml(urlIssue)}" target="_blank" rel="noopener" id="guardarHistorialLink" style="color:#2563eb;font-weight:600" onclick="this.outerHTML='📮 Issue abierto: falta pulsar Submit new issue en GitHub';">¿No se abrió? Ábrelo aquí</a></span>`;
         window.open(urlIssue, '_blank', 'noopener');
       } catch(err) {
         confirmBtn.disabled = false;
@@ -1047,10 +1100,17 @@
       const precision = firstNumber(m.precision_reciente, m.precision, m.resumen?.precision, p.precision_reciente, p.backtesting?.precision);
       const jornadasPorClave = Object.keys(m.por_jornada || {}).length || undefined;
       const jornadasIA = firstNumber(m.jornadas_con_ia, m.jornadas_evaluadas, m.total_jornadas, jornadasPorClave, resumen.jornadas_con_ia, p.jornadas_con_ia);
-      const coste = calculateCost();
+      // Auditoria 26/11: la cifra es la precision GLOBAL del boleto del motor
+      // sobre todas las jornadas evaluadas (metricas_probabilisticas.json no
+      // publica precision_reciente), y esas jornadas evaluadas no son las
+      // "Jornadas con IA" del Historial. Se etiqueta como lo que es; si el
+      // pipeline publica algun dia precision_reciente/jornadas_con_ia, se
+      // recupera la etiqueta original.
+      const esReciente = Number.isFinite(Number(m.precision_reciente));
+      const esConteoIa = Number.isFinite(Number(m.jornadas_con_ia));
       qs('#predictionMetrics').innerHTML = [
-        metric('Precisión reciente', precision === undefined ? '-' : pct(precision)),
-        metric('Jornadas con IA', jornadasIA ?? '-'),
+        metric(esReciente ? 'Precisión reciente' : 'Precisión global del motor', precision === undefined ? '-' : pct(precision)),
+        metric(esConteoIa ? 'Jornadas con IA' : 'Jornadas evaluadas', jornadasIA ?? '-'),
       ].join('');
       qs('#jornadaLabel').textContent = `Jornada ${fmt(p.jornada, '')}`.trim();
       updateConfigUI();
@@ -1076,90 +1136,193 @@
       return Number(probs[sorted[0]]) || 0;
     }
 
-    function computeAssignments() {
+    // Boleto PUBLICADO por el motor (tipo + signo_final de cada partido del
+    // JSON) y su estructura. null si el JSON no trae un boleto completo y
+    // coherente (prediccion bloqueada, motor antiguo...).
+    function boletoPublicadoMotor() {
       const matches = predictionMatches();
-      state.typeAssignment = {};
-      state.signAssignment = {};
+      if (!matches.length) return null;
+      const tipos = {}, signos = {};
+      let dobles = 0, triples = 0;
+      for (const m of matches) {
+        const num = m.num ?? m.numero ?? m.partido;
+        const signo = normalizeSignText(m.signo_final || '');
+        if (!signo) return null;
+        const tipo = signo.length >= 3 ? 'triple' : signo.length === 2 ? 'doble' : 'fijo';
+        const declarado = String(m.tipo || '').toLowerCase();
+        if (declarado && declarado !== tipo) return null;
+        tipos[num] = tipo;
+        signos[num] = signo;
+        if (tipo === 'triple') triples++;
+        else if (tipo === 'doble') dobles++;
+      }
+      // Elige 8 que publica el motor: la marca por partido (elige8 / en_elige8)
+      // o, si faltara, la lista de elige8_seguro.
+      let elige8 = matches.filter(m => m.elige8 === true || m.en_elige8 === true).map(m => m.num ?? m.numero ?? m.partido);
+      if (elige8.length !== 8) {
+        const lista = arr(state.prediccion?.elige8_seguro?.seleccionados).map(Number);
+        const validos = new Set(matches.map(m => Number(m.num ?? m.numero ?? m.partido)));
+        elige8 = lista.length === 8 && lista.every(n => validos.has(n))
+          ? matches.map(m => m.num ?? m.numero ?? m.partido).filter(n => lista.includes(Number(n)))
+          : [];
+      }
+      return { tipos, signos, dobles, triples, elige8 };
+    }
+
+    // Reparto que se veria al pulsar "Generar" con los contadores actuales.
+    // Funcion PURA (no toca state): la usan computeAssignments() y el calculo
+    // del coste del Elige 8 antes de generar.
+    //
+    // Auditoria 26/11/2026 (fuente unica del boleto): habia tres boletos
+    // distintos para la misma jornada (motor, alineador y web). Reglas ahora:
+    //   1) Si los contadores coinciden con la estructura del boleto publicado,
+    //      la web ensena EXACTAMENTE ese boleto (tipo y signo_final del JSON)
+    //      y, con Elige 8 activo, la seleccion de Elige 8 del motor.
+    //   2) Si Marc cambia el numero de dobles o triples, se parte del boleto
+    //      publicado y solo se anaden o quitan coberturas respecto a el: las
+    //      casillas no tocadas conservan tipo y signo publicados. Para elegir
+    //      cual entra o sale se usan las prioridades que exporta el motor
+    //      (prioridad_cobertura_triple/doble) y la regla vigente de los "sin
+    //      dueno" del 16/11. PENDIENTE (otro paquete): el alineador no
+    //      publica su ranking final, asi que el orden de entrada/salida es
+    //      una aproximacion al suyo. En las casillas que cambian, los signos
+    //      salen como en predecir(): triple 1X2; doble = los dos signos mas
+    //      probables, o favorito + X si hay cobertura de autor; fijo =
+    //      signo_base, o X si hay X de autor.
+    function planAssignments(elige8Activo = state.elige8) {
+      const matches = predictionMatches();
+      const tipos = {}, signos = {};
       const numDe = m => m.num ?? m.numero ?? m.partido;
+      const publicado = boletoPublicadoMotor();
+      const esElPublicado = !!publicado && publicado.dobles === state.dobles && publicado.triples === state.triples;
+      let partiendoDelPublicado = false;
       const signosOrdenados = m => {
         const probs = m.probabilidades || m.probabilidad_signos || {};
         return ['1','X','2'].sort((a, b) => (Number(probs[b]) || 0) - (Number(probs[a]) || 0));
       };
-      // Criterio COMPLETO del motor (2026-09-06, petición de Marc): al cambiar
-      // los contadores, los triples/dobles se recolocan con las mismas
-      // puntuaciones que usa cobertura_automatica en el motor Python
-      // (prioridad_cobertura_triple/doble: incertidumbre + índice de sorpresa
-      // + contexto competitivo + desacuerdo con el mercado Losilla...), no con
-      // el atajo de "probabilidad_top más baja primero" que ignoraba todo eso.
-      // Respaldo: si el JSON publicado aún no trae las puntuaciones (predicción
-      // generada por un motor anterior), se mantiene el criterio antiguo.
-      const tienePrioridades = matches.some(m => Number.isFinite(Number(m.prioridad_cobertura_triple)));
-      let triplesSet, doblesSet;
-      if (tienePrioridades) {
-        const porTriple = [...matches].sort((a, b) =>
+      if (esElPublicado) {
+        matches.forEach(m => {
+          const num = numDe(m);
+          tipos[num] = publicado.tipos[num];
+          signos[num] = publicado.signos[num];
+        });
+      } else {
+        // Respaldo: si el JSON publicado aún no trae las puntuaciones (predicción
+        // generada por un motor anterior), se reparte por probabilidad_top.
+        const tienePrioridades = matches.some(m => Number.isFinite(Number(m.prioridad_cobertura_triple)));
+        const porTriple = lista => [...lista].sort((a, b) =>
           (Number(b.prioridad_cobertura_triple) || 0) - (Number(a.prioridad_cobertura_triple) || 0)
         );
-        triplesSet = new Set(porTriple.slice(0, state.triples).map(numDe));
-        // Auditoria 16/11/2026 (J21): con 1 solo doble, prioridad_cobertura_doble
-        // lo mandaba al 48/30 "barato" (Tenerife-Ceuta) y dejaba el toss
-        // 36/33/31 (Oviedo-Girona) a fijo. Con menos dobles que partidos sin
-        // dueno (favorito < 40%), los dobles van primero a los sin dueno.
-        const restantes = matches.filter(m => !triplesSet.has(numDe(m)));
-        const porPrioridad = arr => [...arr].sort((a, b) =>
+        const porPrioridadDoble = lista => [...lista].sort((a, b) =>
           (Number(b.prioridad_cobertura_doble) || 0) - (Number(a.prioridad_cobertura_doble) || 0)
         );
-        const sinDueno = restantes.filter(m => (Number(m.probabilidad_top) || 100) < 40);
-        const conDueno = restantes.filter(m => (Number(m.probabilidad_top) || 100) >= 40);
-        // Siempre primero los sin dueno (un toss a fijo es la peor casilla del
-        // boleto); con mas dobles que tosses, el resto por prioridad del motor.
-        const porDoble = sinDueno.length
-          ? [...porPrioridad(sinDueno), ...porPrioridad(conDueno)]
-          : porPrioridad(restantes);
-        doblesSet = new Set(porDoble.slice(0, state.dobles).map(numDe));
-      } else {
-        const byUncertainty = [...matches].sort((a, b) =>
-          (Number(a.probabilidad_top) || 0) - (Number(b.probabilidad_top) || 0)
-        );
-        triplesSet = new Set(byUncertainty.slice(0, state.triples).map(numDe));
-        doblesSet = new Set(byUncertainty.slice(state.triples, state.triples + state.dobles).map(numDe));
-      }
-      matches.forEach(m => {
-        const num = numDe(m);
-        const sorted = signosOrdenados(m);
-        if (triplesSet.has(num)) {
-          state.typeAssignment[num] = 'triple';
-          state.signAssignment[num] = '1X2';
-        } else if (doblesSet.has(num)) {
-          state.typeAssignment[num] = 'doble';
-          const autor = m.cobertura_autor && m.cobertura_autor.activo;
-          const conX = autor && sorted[0] !== 'X' ? ['1', 'X', '2'].filter(s => s === sorted[0] || s === 'X').join('') : null;
-          state.signAssignment[num] = conX || (sorted[0] + sorted[1]);
-        } else {
-          state.typeAssignment[num] = 'fijo';
-          state.signAssignment[num] = sorted[0];
-        }
-      });
-      // Elige 8: triples siempre incluidos (100% garantizado)
-      // Para el resto, ordenar por probabilidad REAL de acierto:
-      //   doble = suma de las 2 probabilidades cubiertas
-      //   fijo  = probabilidad del signo elegido
-      if (state.elige8) {
-        // Mismo criterio que prioridad_elige8() en el motor Python:
-        // probabilidad REAL cubierta por lo jugado AHORA MISMO (según los
-        // contadores actuales) menos la penalización cualitativa exportada
-        // (incertidumbre + sorpresa + necesidad — los avisos que en la J4
-        // 26/27 se ignoraron y tumbaron el Elige8 con P1 y P8 dentro).
-        // Sin la penalización en el JSON (motor antiguo) cuenta como 0 y el
-        // comportamiento queda como antes.
-        const puntuacionElige8 = m => {
-          const num = m.num ?? m.numero ?? m.partido;
-          return elige8ConfForMatch(m, state.typeAssignment[num]) - (Number(m.penalizacion_elige8) || 0);
+        // Auditoria 16/11/2026 (J21), decision vigente: los dobles van primero
+        // a los partidos sin dueno (favorito < 40%); un toss a fijo es la peor
+        // casilla del boleto. El resto, por prioridad del motor.
+        const ordenDobles = lista => {
+          const sinDueno = lista.filter(m => (Number(m.probabilidad_top) || 100) < 40);
+          const conDueno = lista.filter(m => (Number(m.probabilidad_top) || 100) >= 40);
+          return sinDueno.length
+            ? [...porPrioridadDoble(sinDueno), ...porPrioridadDoble(conDueno)]
+            : porPrioridadDoble(lista);
         };
-        const ranking = [...matches].sort((a, b) => puntuacionElige8(b) - puntuacionElige8(a));
-        state.elige8Set = new Set(ranking.slice(0, 8).map(m => m.num ?? m.numero ?? m.partido));
-      } else {
-        state.elige8Set = new Set();
+        let triplesSet, doblesSet;
+        if (tienePrioridades && publicado) {
+          // Se parte del boleto PUBLICADO y solo se anaden o quitan coberturas
+          // respecto a el: las casillas que Marc no toca no se mueven.
+          partiendoDelPublicado = true;
+          triplesSet = new Set(matches.filter(m => publicado.tipos[numDe(m)] === 'triple').map(numDe));
+          doblesSet = new Set(matches.filter(m => publicado.tipos[numDe(m)] === 'doble').map(numDe));
+          const enSet = set => matches.filter(m => set.has(numDe(m)));
+          // 1) Triples de mas: pierde el triple el de MENOR prioridad. No cae
+          //    a fijo directamente: baja a doble y compite en el paso 3 (un
+          //    partido que merecia triple no se queda a fijo mientras haya
+          //    dobles en partidos mas claros).
+          while (triplesSet.size > state.triples) {
+            const ordenados = porTriple(enSet(triplesSet));
+            const baja = numDe(ordenados[ordenados.length - 1]);
+            triplesSet.delete(baja);
+            doblesSet.add(baja);
+          }
+          // 2) Triples de menos: sube el siguiente por prioridad (puede ser
+          //    un doble publicado, que entonces deja de contar como doble).
+          while (triplesSet.size < state.triples) {
+            const candidato = porTriple(matches.filter(m => !triplesSet.has(numDe(m))))[0];
+            if (!candidato) break;
+            triplesSet.add(numDe(candidato));
+            doblesSet.delete(numDe(candidato));
+          }
+          // 3) Dobles de mas: pierde el doble el ultimo del orden de dobles.
+          while (doblesSet.size > state.dobles) {
+            const ordenados = ordenDobles(enSet(doblesSet));
+            doblesSet.delete(numDe(ordenados[ordenados.length - 1]));
+          }
+          // 4) Dobles de menos: entra el siguiente entre los no cubiertos.
+          while (doblesSet.size < state.dobles) {
+            const candidato = ordenDobles(matches.filter(m => !triplesSet.has(numDe(m)) && !doblesSet.has(numDe(m))))[0];
+            if (!candidato) break;
+            doblesSet.add(numDe(candidato));
+          }
+        } else if (tienePrioridades) {
+          triplesSet = new Set(porTriple(matches).slice(0, state.triples).map(numDe));
+          const restantes = matches.filter(m => !triplesSet.has(numDe(m)));
+          doblesSet = new Set(ordenDobles(restantes).slice(0, state.dobles).map(numDe));
+        } else {
+          const byUncertainty = [...matches].sort((a, b) =>
+            (Number(a.probabilidad_top) || 0) - (Number(b.probabilidad_top) || 0)
+          );
+          triplesSet = new Set(byUncertainty.slice(0, state.triples).map(numDe));
+          doblesSet = new Set(byUncertainty.slice(state.triples, state.triples + state.dobles).map(numDe));
+        }
+        matches.forEach(m => {
+          const num = numDe(m);
+          const sorted = signosOrdenados(m);
+          const tipoNuevo = triplesSet.has(num) ? 'triple' : doblesSet.has(num) ? 'doble' : 'fijo';
+          if (partiendoDelPublicado && publicado.tipos[num] === tipoNuevo) {
+            // Casilla no tocada: tipo y signo tal como se publicaron.
+            tipos[num] = tipoNuevo;
+            signos[num] = publicado.signos[num];
+          } else if (triplesSet.has(num)) {
+            tipos[num] = 'triple';
+            signos[num] = '1X2';
+          } else if (doblesSet.has(num)) {
+            tipos[num] = 'doble';
+            const autor = m.cobertura_autor && m.cobertura_autor.activo;
+            const conX = autor && sorted[0] !== 'X' ? ['1', 'X', '2'].filter(s => s === sorted[0] || s === 'X').join('') : null;
+            signos[num] = conX || ['1', 'X', '2'].filter(s => s === sorted[0] || s === sorted[1]).join('');
+          } else {
+            tipos[num] = 'fijo';
+            const base = normalizeSignText(m.signo_base || '');
+            const xAutor = m.x_de_autor && m.x_de_autor.activo;
+            signos[num] = xAutor ? 'X' : (base.length === 1 ? base : sorted[0]);
+          }
+        });
       }
+      let elige8Set = new Set();
+      if (elige8Activo) {
+        if (esElPublicado && publicado.elige8.length === 8) {
+          // Misma estructura que el motor: su Elige 8, tal cual.
+          elige8Set = new Set(publicado.elige8);
+        } else {
+          // Estructura cambiada a mano: probabilidad REAL cubierta por lo
+          // jugado con ESTOS contadores (triple 100%, doble = suma de sus dos
+          // signos, fijo = su signo) menos la penalización cualitativa
+          // exportada por el motor (los avisos que en la J4 26/27 se
+          // ignoraron y tumbaron el Elige8 con P1 y P8 dentro).
+          const puntuacionElige8 = m => elige8ConfForMatch(m, tipos[numDe(m)]) - (Number(m.penalizacion_elige8) || 0);
+          const ranking = [...matches].sort((a, b) => puntuacionElige8(b) - puntuacionElige8(a));
+          elige8Set = new Set(ranking.slice(0, 8).map(numDe));
+        }
+      }
+      return { tipos, signos, elige8Set, esElPublicado };
+    }
+
+    function computeAssignments() {
+      const plan = planAssignments();
+      state.typeAssignment = plan.tipos;
+      state.signAssignment = plan.signos;
+      state.elige8Set = plan.elige8Set;
+      state.boletoEsElDelMotor = plan.esElPublicado;
     }
 
     function renderSignSelection(signsBox) {
@@ -1243,8 +1406,18 @@
 
     function analisisExpansible(match) {
       if (!state.generated) return '';
-      const razon = match.razonamiento || match.justificacion_final || '';
+      let razon = match.razonamiento || match.justificacion_final || '';
       if (!razon) return '';
+      // Auditoria 26/11: el texto lo escribe el motor para SU reparto. Si en
+      // pantalla este partido va con otros signos (contadores cambiados o
+      // marcado a mano), se quita la frase "Decision final: ..." y se avisa.
+      const signoMotor = normalizeSignText(match.signo_final || '');
+      const signoPantalla = normalizeSignText(selectedSigns(match));
+      let notaReparto = '';
+      if (signoMotor && signoPantalla && signoMotor !== signoPantalla) {
+        razon = razon.replace(/\s*Decisi[oó]n final:\s*[1X2]+\.?/gi, '').replace(/^Decisi[oó]n (FIJO|DOBLE|TRIPLE) [1X2]+:\s*/i, '');
+        notaReparto = `Este análisis se escribió para el reparto del motor (${signoMotor}); en tu boleto este partido va a ${signoPantalla}.`;
+      }
       const id = `anl_${match.num ?? match.numero ?? ''}`;
       const motivos = arr(match.motivos_sorpresa).slice(0, 3).join(' · ');
       const detallesMap = {};
@@ -1267,6 +1440,7 @@
         <div id="${id}" style="display:none;margin-top:5px;padding:8px 10px;background:var(--surface2,#f5f5f5);border-radius:6px;font-size:11px;line-height:1.5;color:var(--text,#333);max-height:180px;overflow-y:auto">
           ${motivos ? `<div style="font-weight:600;margin-bottom:4px;color:var(--muted,#666);font-size:10px">${escapeHtml(motivos)}</div>` : ''}
           ${escapeHtml(razon.slice(0, 500))}${razon.length > 500 ? '…' : ''}
+          ${notaReparto ? `<div style="margin-top:4px;color:var(--muted,#666)">${escapeHtml(notaReparto)}</div>` : ''}
           ${h2hHtml}
         </div>
       </div>`;
@@ -1530,7 +1704,7 @@
         const signoVigilar = !signoSorpresa && chipsEquipos.some(c => c.esX) ? 'X' : '';
         const probSorpresa = Number(probsM[signoSorpresa]) || 0;
         const chips = [];
-        if (revulsivo && revulsivo.activo) chips.push({ tx: `🔄 revulsivo (${revulsivo.etapa || 'debut'} ${revulsivo.lado === 'visitante' ? 'fuera' : 'en casa'})`, rojo: revulsivo.lado === 'visitante', detalle: `${escapeHtml(revulsivo.equipo || '')}: ${revulsivo.etapa || 'debut'} de ${escapeHtml(revulsivo.tecnico || 'técnico nuevo')} ${revulsivo.lado === 'visitante' ? 'FUERA (escenario infravalorado por el mercado: +0,26 sobre cuotas en 70 casos)' : 'EN CASA (escenario sobrevalorado: −0,48 medido)'}` });
+        if (revulsivo && revulsivo.activo) chips.push({ tx: `🔄 revulsivo (${revulsivo.etapa || 'debut'} ${revulsivo.lado === 'visitante' ? 'fuera' : 'en casa'})`, rojo: revulsivo.lado === 'visitante', detalle: `${escapeHtml(revulsivo.equipo || '')}: ${escapeHtml(revulsivo.etapa || 'debut')} de ${escapeHtml(revulsivo.tecnico || 'técnico nuevo')} ${revulsivo.lado === 'visitante' ? 'FUERA (escenario infravalorado por el mercado: +0,26 sobre cuotas en 70 casos)' : 'EN CASA (escenario sobrevalorado: −0,48 medido)'}` });
         if (cambio) chips.push({ tx: '💰 millonario' });
         if (rec && rec.sorpresaFueraDelDoble) chips.push({ tx: 'sorpresa fuera del doble', rojo: true });
         chipsEquipos.forEach(c => chips.push(c));
@@ -1599,13 +1773,13 @@
       const chips = [];
       for (const f of arr(est.fiabilidad_nuestra_por_equipo)) {
         if (f.equipo === clave && Number(f.apariciones) >= 6 && Number(f.acierto_pct) <= 33) {
-          chips.push({ tx: '🔴 némesis', rojo: true, detalle: `${escapeHtml(nombre)}: solo ${f.acierto_pct}% de acierto nuestro en ${f.apariciones} boletos (${f.fallos_por_x} fallos por X)` });
+          chips.push({ tx: '🔴 némesis', rojo: true, detalle: `${escapeHtml(nombre)}: solo ${escapeHtml(f.acierto_pct)}% de acierto nuestro en ${escapeHtml(f.apariciones)} boletos (${escapeHtml(f.fallos_por_x)} fallos por X)` });
         }
       }
       for (const f of arr(est.equipos_empatadores)) {
         if (f.equipo !== clave) continue;
         if (esLocal && Number(f.x_casa_pct) >= 40) {
-          chips.push({ tx: `⚖ empatador en casa ${f.x_casa_pct}%`, esX: true, detalle: `${escapeHtml(nombre)} empata el ${f.x_casa_pct}% de sus partidos EN CASA (historico ${f.pj} pj)` });
+          chips.push({ tx: `⚖ empatador en casa ${f.x_casa_pct}%`, esX: true, detalle: `${escapeHtml(nombre)} empata el ${escapeHtml(f.x_casa_pct)}% de sus partidos EN CASA (historico ${escapeHtml(f.pj)} pj)` });
         } else if (Number(f.x_pct) >= 32) {
           chips.push({ tx: `⚖ empatador ${f.x_pct}%`, esX: true, detalle: `${escapeHtml(nombre)} empata el ${f.x_pct}% historico` });
         } else if (f.x_2627_pct != null && Number(f.x_2627_pct) >= 40) {
@@ -1697,7 +1871,7 @@
             </div>
             <div style="display:flex;flex-direction:column;gap:2px">
               <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Motor</span>
-              <span style="font-size:20px;font-weight:800;color:#5b21b6">${fmt(bloque.prob_motor, '-')}%</span>
+              <span style="font-size:20px;font-weight:800;color:#5b21b6">${escapeHtml(fmt(bloque.prob_motor, '-'))}%</span>
             </div>
             <div style="display:flex;flex-direction:column;gap:2px">
               <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">La masa lo juega</span>
@@ -1741,9 +1915,9 @@
         };
         const [estTx, estColor] = estados[resumen.estado] || [resumen.estado || '', 'var(--muted,#888)'];
         marcadorHtml = `<p class="subtitle" style="margin:0 0 4px">
-          <b>Marcador en sombra:</b> ${resumen.aciertos} acierto${resumen.aciertos === 1 ? '' : 's'} de ${resumen.evaluadas}
-          (esperados ${fmt(resumen.esperados, '-')}) · hipotético: ${fmt(resumen.cobrado_hipotetico_eur, '0')} € cobrados
-          sobre ${fmt(resumen.apostado_hipotetico_eur, '0')} € apostados ·
+          <b>Marcador en sombra:</b> ${escapeHtml(resumen.aciertos)} acierto${resumen.aciertos === 1 ? '' : 's'} de ${escapeHtml(resumen.evaluadas)}
+          (esperados ${escapeHtml(fmt(resumen.esperados, '-'))}) · hipotético: ${escapeHtml(fmt(resumen.cobrado_hipotetico_eur, '0'))} € cobrados
+          sobre ${escapeHtml(fmt(resumen.apostado_hipotetico_eur, '0'))} € apostados ·
           <span style="font-weight:700;color:${estColor}">${escapeHtml(estTx)}</span></p>`;
       } else {
         marcadorHtml = `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> aún sin valientes evaluadas — empieza a contar cuando cierre la primera jornada con pick.</p>`;
@@ -1774,12 +1948,12 @@
       const chip = sg => `<span style="padding:2px 8px;border-radius:7px;background:#92400e14;border:1.5px solid #92400e66;color:#78350f;font-weight:800">${escapeHtml(sg || '?')}</span>`;
       const n = b.nombrado || b.ranking[0];
       const resumen = state.marcadorRankerFavoritos?.resumen;
-      const filas = arr(b.ranking).slice(0, 6).map(f => `<li style="margin:3px 0">${f.puesto}. P${fmt(f.num, '?')} ${escapeHtml(f.local || '')} - ${escapeHtml(f.visitante || '')}: favorito ${escapeHtml(f.favorito)} al ${fmt(Math.round((f.p_fav || 0) * 100), '-')}% (la masa lo juega al ${fmt(Math.round((f.masa_fav || 0) * 100), '-')}%)${f.n_senales ? ` · ${fmt(f.n_senales, 0)} señal(es)` : ''} · si cae: ${chip(f.signo_si_cae)}</li>`).join('');
+      const filas = arr(b.ranking).slice(0, 6).map(f => `<li style="margin:3px 0">${escapeHtml(f.puesto)}. P${escapeHtml(fmt(f.num, '?'))} ${escapeHtml(f.local || '')} - ${escapeHtml(f.visitante || '')}: favorito ${escapeHtml(f.favorito)} al ${fmt(Math.round((f.p_fav || 0) * 100), '-')}% (la masa lo juega al ${fmt(Math.round((f.masa_fav || 0) * 100), '-')}%)${f.n_senales ? ` · ${fmt(f.n_senales, 0)} señal(es)` : ''} · si cae: ${chip(f.signo_si_cae)}</li>`).join('');
       qs('#favoritosRiesgoBody').innerHTML = `
         <p style="margin:0 0 6px;font-size:16px;font-weight:800">Nombrado: P${fmt(n.num, '?')} ${escapeHtml(n.local || '')} - ${escapeHtml(n.visitante || '')} ${chip(n.signo_si_cae)} <span style="font-size:13px;color:var(--muted,#888);font-weight:600">si cae el favorito ${escapeHtml(n.favorito)}</span></p>
         <ul style="margin:0 0 8px;padding-left:20px;color:var(--fg,#333)">${filas}</ul>
         <p class="subtitle" style="margin:0 0 4px">${escapeHtml(b.lectura || '')}</p>
-        ${resumen && Number(resumen.jornadas_evaluadas) > 0 ? `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> el nombrado cayó ${fmt(resumen.nombrado_cayo, 0)} de ${fmt(resumen.jornadas_evaluadas, 0)} (esperado ${fmt(resumen.esperado, '-')}) · ${escapeHtml(resumen.veredicto || '')}</p>` : ''}
+        ${resumen && Number(resumen.jornadas_evaluadas) > 0 ? `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> el nombrado cayó ${escapeHtml(fmt(resumen.nombrado_cayo, 0))} de ${escapeHtml(fmt(resumen.jornadas_evaluadas, 0))} (esperado ${escapeHtml(fmt(resumen.esperado ?? resumen.nombrado_esperados, '-'))}) · ${escapeHtml(resumen.veredicto || '')}</p>` : ''}
         <p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ Backtest walk-forward: ${escapeHtml(b.veredicto_backtest || 'NO_SEPARA')} con muestra corta. Orden de vigilancia, no probabilidad. Jugar dinero real lo decide siempre Marc.</p>`;
     }
 
@@ -1790,7 +1964,7 @@
       const e = state.prediccion?.elige8_ev;
       if (!e || e.estado !== 'ok' || !e.reglas) { card.style.display = 'none'; return; }
       card.style.display = 'block';
-      const nombres = { actual_elige8_seguro: 'La selección actual de la web', mas_probables: '8 más probables', edge: 'Regla "edge" (contra la masa)', triples_dentro: 'Con los triples/dobles dentro' };
+      const nombres = { actual_elige8_seguro: 'Selección del motor (Elige 8 económico)', mas_probables: '8 más probables', edge: 'Regla "edge" (contra la masa)', triples_dentro: 'Con los triples/dobles dentro' };
       const filas = Object.entries(e.reglas).map(([k, r]) => `<tr>
         <td style="padding:4px 8px">${escapeHtml(nombres[k] || k)}<br><span style="color:var(--muted,#888);font-size:12px">P${arr(r.seleccion).join(', P')}</span></td>
         <td style="padding:4px 8px;text-align:right">${fmt(((r.p_8de8 || 0) * 100).toFixed(1), '-')}%</td>
@@ -1798,12 +1972,19 @@
         <td style="padding:4px 8px;text-align:right">${fmt((r.break_even || 0).toFixed(2), '-')} €</td>
         <td style="padding:4px 8px;text-align:right">${r.premio_esperado == null ? '-' : fmt(r.premio_esperado.toFixed(2), '-') + ' €'}</td>
         <td style="padding:4px 8px;text-align:right;font-weight:700;color:${(r.ev || 0) > 0 ? '#15803d' : '#b91c1c'}">${r.ev == null ? '-' : (r.ev > 0 ? '+' : '') + fmt(r.ev.toFixed(2), '-') + ' €'}</td></tr>`).join('');
+      // Cifras del backtest leidas del JSON (auditoria 26/11: estaban escritas
+      // a mano y se iban a quedar viejas). Sin JSON, la frase no sale.
+      const bt = state.labElige8?.por_regla || {};
+      const euros = v => Number.isFinite(Number(v)) ? `${Math.abs(Number(v)).toFixed(0)} €` : '-';
+      const fraseBacktest = (bt.mas_probables && bt.edge)
+        ? ` Backtest 26/27: "8 más probables" acertó ${fmt(bt.mas_probables.aciertos_8de8, '?')} de ${fmt(bt.mas_probables.jornadas, '?')} y ${Number(bt.mas_probables.neto) < 0 ? 'perdió' : 'ganó'} ${euros(bt.mas_probables.neto)}; la regla edge ${Number(bt.edge.neto) < 0 ? 'perdió' : 'ganó'} ${euros(bt.edge.neto)}.`
+        : '';
       qs('#elige8EvBody').innerHTML = `
         <p class="subtitle" style="margin:0 0 8px">Jornada <b>${escapeHtml(e.tipo_jornada || '')}</b>. En jornadas europeas de jueves, cuando los favoritos cumplen, el Elige 8 reparte entre el 10-15% de las apuestas y paga 1,8-2,9 €; solo paga de verdad cuando caen 5 o más favoritos de la masa.</p>
         <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
           <thead><tr style="color:var(--muted,#888)"><th style="text-align:left;padding:4px 8px">Regla</th><th style="padding:4px 8px;text-align:right">P(8/8)</th><th style="padding:4px 8px;text-align:right">Coste</th><th style="padding:4px 8px;text-align:right">Break-even</th><th style="padding:4px 8px;text-align:right">Premio esperado si aciertas</th><th style="padding:4px 8px;text-align:right">EV</th></tr></thead>
           <tbody>${filas}</tbody></table></div>
-        <p class="subtitle" style="margin:8px 0 0;color:var(--muted,#888)">⚠ ${escapeHtml(e.aviso || 'Solo información.')} Backtest 26/27: "8 más probables" acertó 2 de 15 y perdió 22 €; la regla edge perdió 3 €.</p>`;
+        <p class="subtitle" style="margin:8px 0 0;color:var(--muted,#888)">⚠ ${escapeHtml(e.aviso || 'Solo información.')}${escapeHtml(fraseBacktest)}</p>`;
     }
 
     // 🧪 Veredictos del Laboratorio 26/11/2026: un semáforo por módulo con su criterio prerregistrado.
@@ -1827,9 +2008,9 @@
         ${fila('Calibración de la X por franja', cal?.veredicto, `walk-forward ${fmt(wf.n, '?')} partidos: log-loss ${fmt(wf.sin_calibrar?.log_loss, '-')} → ${fmt(wf.calibrado?.log_loss, '-')}, mejora en ${fmt(wf.jornadas_mejoran, '?')} jornadas y empeora en ${fmt(wf.jornadas_empeoran, '?')}.`, 'El motor pone demasiadas X en los partidos parejos, sobre todo fuera de España; la franja 65-80 NO está descalibrada. Actúa en traza una tanda de jornadas antes de mandar.')}
         ${fila('Prior europeo (menos X en Champions)', pri?.veredicto, `${fmt(pb.n_partidos, '?')} partidos europeos: motor RPS ${fmt(pb.motor_actual?.rps, '-')}, ajustado ${fmt(pb.ajustado_leave_one_out?.rps, '-')}, mercado Losilla ${fmt(pb.mercado_losilla?.rps, '-')}.`, 'La dirección es correcta pero no bate al mercado de Losilla, que en Europa es mejor que el motor en todo. No-op.')}
         ${fila('Mezcla de Benter (motor + mercado)', ben?.veredicto, `fuera de muestra: mercado solo ${fmt(bm.mercado?.log_loss, '-')}, Benter ${fmt(bm.benter?.log_loss, '-')}, motor actual ${fmt(bm.motor_post?.log_loss, '-')} de log-loss.`, 'El mercado solo es el mejor predictor; el peso fijo del motor cuesta precisión. El motor se queda como generador de dobles, no como probabilidad.')}
-        ${fila('Elige 8: calculadora y regla edge', e8?.veredicto, `15 jornadas: "8 más probables" ${fmt(e8r.mas_probables?.aciertos_8de8, '?')}/15 y ${fmt(e8r.mas_probables?.neto, '-')} € netos; edge ${fmt(e8r.edge?.aciertos_8de8, '?')}/15 y ${fmt(e8r.edge?.neto, '-')} €.`, 'La calculadora se publica como información; la bandera "recomendado" no se despliega porque el premio condicional solo acierta el orden de magnitud en el 27% de las jornadas.')}
+        ${fila('Elige 8: calculadora y regla edge', e8?.veredicto, `${fmt(e8r.mas_probables?.jornadas, '?')} jornadas: "8 más probables" ${fmt(e8r.mas_probables?.aciertos_8de8, '?')}/${fmt(e8r.mas_probables?.jornadas, '?')} y ${fmt(e8r.mas_probables?.neto, '-')} € netos; edge ${fmt(e8r.edge?.aciertos_8de8, '?')}/${fmt(e8r.edge?.jornadas, '?')} y ${fmt(e8r.edge?.neto, '-')} €.`, 'La calculadora se publica como información; la bandera "recomendado" no se despliega porque el premio condicional solo acierta el orden de magnitud en el 27% de las jornadas.')}
         ${fila('Ranker de favoritos en riesgo', rw.veredicto, `walk-forward n=${fmt(rw.n, '?')}: AUC ${fmt(rw.auc_ranker, '-')} frente a ${fmt(rw.auc_baseline, '-')} del baseline, con solo ${fmt(rw.caidos, '?')} caídas.`, 'Muestra demasiado corta para creer la mejora. Queda en sombra nombrando un favorito por jornada.')}
-        ${fila('Columna valiente europea', cvr.veredicto || 'en_prueba', cvr.jornadas_evaluadas ? `${fmt(cvr.jornadas_evaluadas, 0)} jornadas: valiente ${fmt(cvr.aciertos_valiente, 0)} aciertos frente a ${fmt(cvr.aciertos_masa, 0)} de la masa.` : 'Empieza a contar al cerrar la J24.', 'Sencilla con las sorpresas puestas, medida contra la columna de la masa.')}
+        ${fila('Columna valiente europea', cvr.veredicto || 'en_prueba', cvr.jornadas_evaluadas ? `${fmt(cvr.jornadas_evaluadas, 0)} jornadas: valiente ${fmt(cvr.aciertos_valiente, 0)} aciertos frente a ${fmt(cvr.aciertos_masa, 0)} de la masa.` : 'Aún sin jornadas evaluadas.', 'Sencilla con las sorpresas puestas, medida contra la columna de la masa.')}
         </div>`;
     }
 
@@ -1845,7 +2026,7 @@
       const pct = v => v == null ? '-' : (Number(v) * 100).toFixed(2) + '%';
       const bt = b.backtest || {};
       const motivos = arr(b.detalle_partidos).filter(d => d.tamano > 1).map(d => `<li style="margin:2px 0">P${fmt(d.num, '?')} ${escapeHtml(d.signos)}: ${escapeHtml(d.motivo || '')}</li>`).join('');
-      const alts = Object.entries(b.alternativas_por_presupuesto || {}).map(([k, v]) => `<tr><td style="padding:3px 8px">${k} col · ${fmt((v.coste_eur || 0).toFixed(2), '-')} €</td><td style="padding:3px 8px">${arr(v.signos).join(' ')}</td><td style="padding:3px 8px;text-align:right">${pct(v.P13plus)}</td><td style="padding:3px 8px;text-align:right">${v.premio_esperado == null ? '-' : fmt(Number(v.premio_esperado).toFixed(2), '-') + ' €'}</td></tr>`).join('');
+      const alts = Object.entries(b.alternativas_por_presupuesto || {}).map(([k, v]) => `<tr><td style="padding:3px 8px">${escapeHtml(k)} col · ${escapeHtml(fmt((v.coste_eur || 0).toFixed(2), '-'))} €</td><td style="padding:3px 8px">${escapeHtml(arr(v.signos).join(' '))}</td><td style="padding:3px 8px;text-align:right">${pct(v.P13plus)}</td><td style="padding:3px 8px;text-align:right">${v.premio_esperado == null ? '-' : fmt(Number(v.premio_esperado).toFixed(2), '-') + ' €'}</td></tr>`).join('');
       const comp = b.comparaciones || {};
       const cm = comp.masa, cf = comp.motor_fijos;
       const cola = b.lectura_contra_masa;
@@ -1855,7 +2036,7 @@
         ${motivos ? `<ul style="margin:0 0 8px;padding-left:20px;color:var(--fg,#333);font-size:13px">${motivos}</ul>` : ''}
         ${cm || cf ? `<p class="subtitle" style="margin:0 0 8px;color:var(--muted,#888)">Referencias a 1 columna: masa P(≥13) ${pct(cm?.P13plus)}${cm?.premio_esperado != null ? ` · EV ${fmt(Number(cm.premio_esperado).toFixed(2), '-')} €` : ''} · fijos del motor P(≥13) ${pct(cf?.P13plus)}</p>` : ''}
         ${alts ? `<details style="margin:0 0 8px"><summary class="subtitle" style="cursor:pointer;margin:0 0 4px"><b>Otros presupuestos</b> (mismo objetivo)</summary><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="color:var(--muted,#888)"><th style="text-align:left;padding:3px 8px">Presupuesto</th><th style="text-align:left;padding:3px 8px">Signos</th><th style="padding:3px 8px;text-align:right">P(≥13)</th><th style="padding:3px 8px;text-align:right">EV</th></tr></thead><tbody>${alts}</tbody></table></div></details>` : ''}
-        ${cola && cola.signos ? `<p class="subtitle" style="margin:0 0 8px"><b>Lectura contra la masa</b> (objetivo premio, NO cumple el criterio: 0 treces en 22 jornadas): ${escapeHtml(arr(cola.signos).join(' '))} · EV ${cola.premio_esperado == null ? '-' : fmt(Number(cola.premio_esperado).toFixed(2), '-') + ' €'}</p>` : ''}
+        ${cola && cola.signos ? `<p class="subtitle" style="margin:0 0 8px"><b>Lectura contra la masa</b> (${escapeHtml(cola.nota || 'objetivo premio, NO cumple el criterio')}): ${escapeHtml(arr(cola.signos).join(' '))} · EV ${cola.premio_esperado == null ? '-' : fmt(Number(cola.premio_esperado).toFixed(2), '-') + ' €'}</p>` : ''}
         <p class="subtitle" style="margin:0 0 6px;padding:8px 10px;border-radius:8px;background:#b8860b14;border:1px solid #b8860b44;color:#7a5a06">📋 Backtest 26/27 (${fmt(bt.jornadas, '?')} jornadas jugadas, mismo presupuesto que nosotros): esta estructura habría cobrado ${bt.variante_premio_eur == null ? '-' : fmt(Number(bt.variante_premio_eur).toFixed(0), '-')} € frente a ${bt.nuestro_premio_eur == null ? '-' : fmt(Number(bt.nuestro_premio_eur).toFixed(0), '-')} € reales, con ${fmt(bt.variante_trece_o_mas, '?')} jornadas de 13+ frente a ${fmt(bt.nuestro_trece_o_mas, '?')}; más aciertos que nosotros en ${fmt(bt.variante_mas_que_nosotros, '?')} jornadas y menos en ${fmt(bt.variante_menos_que_nosotros, '?')}. Veredicto: <b>${escapeHtml(bt.veredicto_variante_publicada || '')}</b>. Premio simulado con modelo de reparto: orienta, no decide.</p>
         <p class="subtitle" style="margin:0;color:var(--muted,#888)">⚠ ${escapeHtml(b.aviso || '')}</p>`;
     }
@@ -1878,7 +2059,7 @@
         const cambiados = new Set(arr(bloque.cambios).map(c => Number(c.num)));
         const fila = (col, titulo, resaltar) => `<p style="margin:0 0 6px"><b style="display:inline-block;min-width:92px">${titulo}</b> ${arr(col).map((s, i) => chip(s, resaltar && cambiados.has(i + 1))).join('')}</p>`;
         html += fila(bloque.columna, 'Valiente', true) + fila(bloque.columna_masa, 'Masa', false);
-        html += `<p class="subtitle" style="margin:0 0 8px">X en la columna: <b>${fmt(bloque.x_en_columna, 0)}</b> (la de la masa lleva 0) · aciertos esperados ${fmt(bloque.esperados_valiente, '-')} frente a ${fmt(bloque.esperados_masa, '-')} de la masa</p>`;
+        html += `<p class="subtitle" style="margin:0 0 8px">X en la columna: <b>${escapeHtml(fmt(bloque.x_en_columna, 0))}</b> (la de la masa lleva ${arr(bloque.columna_masa).filter(s => String(s).toUpperCase() === 'X').length}) · aciertos esperados ${escapeHtml(fmt(bloque.esperados_valiente, '-'))} frente a ${escapeHtml(fmt(bloque.esperados_masa, '-'))} de la masa</p>`;
         const cambios = arr(bloque.cambios);
         if (cambios.length) {
           html += `<ul style="margin:0 0 10px;padding-left:20px;color:var(--fg,#333)">${cambios.map(c =>
@@ -1924,7 +2105,7 @@
           : '<span style="color:#b91c1c;font-weight:700">NO la cubre el boleto: si sale, fue vista y no pagada</span>';
         pickHtml = `
           <p style="margin:0 0 6px;font-size:17px;font-weight:800">P${fmt(bloque.num, '?')} ${escapeHtml(bloque.local || '')} - ${escapeHtml(bloque.visitante || '')} ${chip(bloque.signo)}
-            <span style="font-size:13px;color:var(--muted,#888);font-weight:600">motor ${fmt(bloque.prob_motor, '-')}% · ${cuando}</span></p>
+            <span style="font-size:13px;color:var(--muted,#888);font-weight:600">motor ${escapeHtml(fmt(bloque.prob_motor, '-'))}% · ${cuando}</span></p>
           <p class="subtitle" style="margin:0 0 6px">${cubierta}</p>
           <ul style="margin:0 0 10px;padding-left:20px;color:var(--fg,#333)">${senales}</ul>`;
         const avisos = arr(bloque.avisos);
@@ -1943,7 +2124,7 @@
       let marcadorHtml = '';
       if (hayMarcador) {
         const vered = { en_prueba: ['en prueba', 'var(--muted,#888)'], candidata: ['🏆 CANDIDATA — avisar a Marc', '#15803d'], despido: ['⛔ despido', '#b91c1c'] }[resumen.veredicto] || [resumen.veredicto || '', 'var(--muted,#888)'];
-        marcadorHtml = `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> salió ${fmt(resumen.aciertos, 0)} de ${fmt(resumen.jornadas_evaluadas, 0)} nombradas
+        marcadorHtml = `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> salió ${escapeHtml(fmt(resumen.aciertos, 0))} de ${escapeHtml(fmt(resumen.jornadas_evaluadas, 0))} nombradas
           (esperadas ${fmt(resumen.esperados, '-')}) · vistas y no pagadas: ${fmt(resumen.vistas_y_no_pagadas, 0)} ·
           <span style="font-weight:700;color:${vered[1]}">${escapeHtml(vered[0])}</span></p>`;
         const porSenal = resumen.por_senal || {};
@@ -1987,7 +2168,7 @@
             </div>
             <div style="display:flex;flex-direction:column;gap:2px">
               <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Motor</span>
-              <span style="font-size:20px;font-weight:800">${fmt(bloque.prob_motor, '-')}%</span>
+              <span style="font-size:20px;font-weight:800">${escapeHtml(fmt(bloque.prob_motor, '-'))}%</span>
             </div>
             <div style="display:flex;flex-direction:column;gap:2px">
               <span style="font-size:11px;color:var(--muted,#888);text-transform:uppercase;letter-spacing:.5px">Calibrada</span>
@@ -2041,9 +2222,9 @@
         };
         const [estTx, estColor] = estados[resumen.estado] || [resumen.estado || '', 'var(--muted,#888)'];
         marcadorHtml = `<p class="subtitle" style="margin:0 0 4px">
-          <b>Marcador en sombra:</b> ${resumen.aciertos} acierto${resumen.aciertos === 1 ? '' : 's'} de ${resumen.evaluados}
-          (esperados ${fmt(resumen.esperados, '-')}) · hipotético: ${fmt(resumen.cobrado_hipotetico_eur, '0')} € cobrados
-          sobre ${fmt(resumen.apostado_hipotetico_eur, '0')} € apostados ·
+          <b>Marcador en sombra:</b> ${escapeHtml(resumen.aciertos)} acierto${resumen.aciertos === 1 ? '' : 's'} de ${escapeHtml(resumen.evaluados)}
+          (esperados ${escapeHtml(fmt(resumen.esperados, '-'))}) · hipotético: ${escapeHtml(fmt(resumen.cobrado_hipotetico_eur, '0'))} € cobrados
+          sobre ${escapeHtml(fmt(resumen.apostado_hipotetico_eur, '0'))} € apostados ·
           <span style="font-weight:700;color:${estColor}">${escapeHtml(estTx)}</span></p>`;
       } else {
         marcadorHtml = `<p class="subtitle" style="margin:0 0 4px"><b>Marcador en sombra:</b> aún sin chips evaluados — empieza a contar cuando cierre la primera jornada con chip.</p>`;
@@ -2163,8 +2344,8 @@
         const f = jornadas[j]?.dixon_coles || {};
         if (f.estado !== 'ok') return [`J${j}`, `<span style="color:var(--muted)">${escapeHtml(f.motivo || f.estado || 'sin datos')}</span>`, '', '', '', '', ''];
         const sesgoX = f.sesgo_dc_por_signo?.X?.sesgo_puntos;
-        return [`J${j}`, f.partidos, labNum(f.rps_dc, 3), labNum(f.rps_motor, 3), labNum(f.rps_mercado, 3),
-          `${fmt(f.aciertos_dc)}/${fmt(f.aciertos_motor)}/${fmt(f.aciertos_mercado)}`,
+        return [`J${escapeHtml(j)}`, escapeHtml(f.partidos), labNum(f.rps_dc, 3), labNum(f.rps_motor, 3), labNum(f.rps_mercado, 3),
+          escapeHtml(`${fmt(f.aciertos_dc)}/${fmt(f.aciertos_motor)}/${fmt(f.aciertos_mercado)}`),
           sesgoX === undefined ? '—' : `${sesgoX > 0 ? '+' : ''}${labNum(sesgoX, 1)} pts`];
       });
       const cardDc = labCard('📐', 'Dixon-Coles', 'Su promesa: igualar o batir al mercado (RPS, menor = mejor)', rDc,
@@ -2199,7 +2380,7 @@
       const porSenal = rVal.por_senal || {};
       const senalesHtml = Object.keys(porSenal).length
         ? labTabla(['Señal', 'Valientes', 'Aciertos', 'Esperados', 'Estado'],
-            Object.entries(porSenal).map(([tipo, s]) => [escapeHtml(tipo), s.valientes, s.aciertos, labNum(s.esperados, 1),
+            Object.entries(porSenal).map(([tipo, s]) => [escapeHtml(tipo), escapeHtml(s.valientes), escapeHtml(s.aciertos), labNum(s.esperados, 1),
               s.suspendida ? '<b style="color:var(--danger)">SUSPENDIDA</b>' : 'activa']))
         : '<p class="subtitle" style="font-size:12px;margin:8px 0 0">La atribución por señal empieza a contar con las valientes del marcador real (las de arriba con fuente backtest no puntúan señales).</p>';
       const cardVal = labCard('🎯', 'La Valiente', 'Su promesa (en sombra): acertar al menos lo que declara', rVal,
@@ -2287,15 +2468,34 @@
       // quiniela marcada a mano.
       const editableMode = ['mixta', 'manual'].includes(state.mode);
       const manualActual = {};
+      // Jugada marcada a mano (auditoria 26/11): se reconstruye en cada
+      // render; fuera de Mixta/Manual queda vacia y manda el reparto automatico.
+      state.jugadaManual = {};
+      // Casillas que Marc ha dejado SIN signo a proposito (quitando el ultimo
+      // que tenian). Sin esta marca, una fila vacia se confundia con "nunca
+      // marcada" y se rellenaba otra vez con el reparto automatico: no se
+      // podia vaciar una casilla ni cambiar un fijo quitando antes su signo.
+      if (!state.vaciadasAMano || !editableMode) state.vaciadasAMano = new Set();
       if (editableMode) {
         qsa('.match-row').forEach(row => {
           const sel = row.querySelector('.signs')?.dataset.selected;
           if (sel) manualActual[row.dataset.num] = sel;
         });
       }
+      // Paneles desplegados (ver analisis, avisos): se recuerdan para
+      // reabrirlos, porque cada clic sobre un signo repinta el listado.
+      const desplegados = {};
+      qsa('#ticketList .match-row').forEach(row => {
+        const abiertos = [];
+        qsa('details', row).forEach((d, i) => { if (d.open) abiertos.push(i); });
+        if (abiertos.length) desplegados[row.dataset.num] = abiertos;
+      });
       const html = matches.map(match => {
         const num = match.num ?? match.numero ?? match.partido;
-        const chosen = editableMode ? (manualActual[String(num)] || selectedSigns(match)) : selectedSigns(match);
+        const chosen = editableMode
+          ? (manualActual[String(num)] || (state.vaciadasAMano.has(String(num)) ? '' : signosAsignados(match)))
+          : signosAsignados(match);
+        if (editableMode) state.jugadaManual[String(num)] = normalizeSignText(chosen);
         const elige8 = isElige8Match(match);
         const matchType = betType(match);
         const elige8Prob = elige8ConfForMatch(match, matchType);
@@ -2326,6 +2526,12 @@
         </article>`;
       }).join('');
       qs('#ticketList').innerHTML = html || '<div class="empty">No hay partidos cargados todavía.</div>';
+      qsa('#ticketList .match-row').forEach(row => {
+        const abiertos = desplegados[row.dataset.num];
+        if (!abiertos) return;
+        const lista = qsa('details', row);
+        abiertos.forEach(i => { if (lista[i]) lista[i].open = true; });
+      });
       renderAvisosJornada();
       renderBoletoEvPremio();
       renderValiente();
@@ -2472,6 +2678,8 @@
       if (!matches.length) return;
       state.generated = true;
       document.body.classList.add('generated');
+      // Generar rellena las casillas vacias (las marcadas a mano se conservan).
+      state.vaciadasAMano = new Set();
       computeAssignments();
       renderTicket();
       const rows = qsa('.match-row');
@@ -2570,7 +2778,7 @@
           ${(() => {
             const ligas = (state.benchmarkSpi538 || {}).ligas || {};
             const p = ligas['Spanish Primera Division'], s = ligas['Spanish Segunda Division'];
-            return (p && s) ? metric('538 SPI en España', `${Number(p.rps_medio).toFixed(3)} 1ª · ${Number(s.rps_medio).toFixed(3)} 2ª`) : '';
+            return (p && s) ? metric('538 SPI en España (2016-23)', `${Number(p.rps_medio).toFixed(3)} 1ª · ${Number(s.rps_medio).toFixed(3)} 2ª`) : '';
           })()}
         </div>
         <p style="color:var(--muted);margin:0 0 10px">El RPS mide la calidad de las <b>probabilidades</b> (castiga más fallar de lejos que de cerca); el % de aciertos solo mira el signo final. Últimas jornadas: ${ultimas || '-'}</p>
@@ -2622,11 +2830,11 @@
 
         html += `<div style="margin-bottom:20px">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
-            <h3 style="margin:0;font-size:15px;font-weight:700">Temporada ${temp}</h3>
-            <span style="font-size:13px;color:var(--muted,#888)">${stats.total_partidos} partidos</span>
-            <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#e8f5e9;color:#2e7d32">1: ${f['1']}%</span>
-            <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#fff3e0;color:#e65100">X: ${f['X']}%</span>
-            <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#e3f2fd;color:#1565c0">2: ${f['2']}%</span>
+            <h3 style="margin:0;font-size:15px;font-weight:700">Temporada ${escapeHtml(temp)}</h3>
+            <span style="font-size:13px;color:var(--muted,#888)">${escapeHtml(stats.total_partidos)} partidos</span>
+            <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#e8f5e9;color:#2e7d32">1: ${escapeHtml(f['1'])}%</span>
+            <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#fff3e0;color:#e65100">X: ${escapeHtml(f['X'])}%</span>
+            <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#e3f2fd;color:#1565c0">2: ${escapeHtml(f['2'])}%</span>
           </div>
           <div style="overflow-x:auto">
             <table style="width:100%;border-collapse:collapse;font-size:12px">
@@ -2692,7 +2900,7 @@
                       <td style="padding:3px 8px">${escapeHtml(p.local)}</td>
                       <td style="padding:3px 8px;text-align:center;font-weight:700">${escapeHtml(p.resultado)}</td>
                       <td style="padding:3px 8px">${escapeHtml(p.visitante)}</td>
-                      <td style="padding:3px 8px;text-align:center"><span style="background:${bg};color:${fg};padding:1px 7px;border-radius:8px;font-weight:700">${p.signo}</span></td>
+                      <td style="padding:3px 8px;text-align:center"><span style="background:${bg};color:${fg};padding:1px 7px;border-radius:8px;font-weight:700">${escapeHtml(p.signo)}</span></td>
                     </tr>`;
                   }).join('')}
                 </tbody>
@@ -2739,10 +2947,10 @@
       const jornadas = arr(tData.jornadas).sort((a, b) => (b.jornada || 0) - (a.jornada || 0));
 
       let html = `<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
-        <span style="font-size:13px;color:var(--muted,#888)">${stats.jornadas} jornadas · ${stats.partidos_totales} partidos con signo</span>
-        <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#e8f5e9;color:#2e7d32">1: ${f['1']}%</span>
-        <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#fff3e0;color:#e65100">X: ${f['X']}%</span>
-        <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#e3f2fd;color:#1565c0">2: ${f['2']}%</span>
+        <span style="font-size:13px;color:var(--muted,#888)">${escapeHtml(stats.jornadas)} jornadas · ${escapeHtml(stats.partidos_totales)} partidos con signo</span>
+        <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#e8f5e9;color:#2e7d32">1: ${escapeHtml(f['1'])}%</span>
+        <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#fff3e0;color:#e65100">X: ${escapeHtml(f['X'])}%</span>
+        <span style="font-size:13px;padding:2px 8px;border-radius:10px;background:#e3f2fd;color:#1565c0">2: ${escapeHtml(f['2'])}%</span>
       </div>`;
 
       html += `<div style="overflow-x:auto;max-height:520px;overflow-y:auto;border:1px solid var(--border,#eee);border-radius:6px">
@@ -2774,7 +2982,7 @@
                   ${partidos14.map(p => {
                     const bg2 = (p.signo_oficial||'') === '1' ? '#e8f5e9' : (p.signo_oficial||'') === 'X' ? '#fff3e0' : (p.signo_oficial||'') === '2' ? '#e3f2fd' : '#f9f9f9';
                     const porc = p.porc1 != null ? ` <span style="color:var(--muted,#888)">(${escapeHtml(p.porc1)}%·${escapeHtml(p.porcX)}%·${escapeHtml(p.porc2)}%)</span>` : '';
-                    return `<tr><td style="padding:2px 6px;color:var(--muted,#888);width:20px">${p.num}</td>
+                    return `<tr><td style="padding:2px 6px;color:var(--muted,#888);width:20px">${escapeHtml(p.num)}</td>
                       <td style="padding:2px 6px">${escapeHtml(p.local)}</td>
                       <td style="padding:2px 6px;text-align:center;font-weight:700">${escapeHtml(p.resultado||'')}</td>
                       <td style="padding:2px 6px">${escapeHtml(p.visitante)}</td>
@@ -2812,19 +3020,87 @@
       catch { return {}; }
     })();
 
-    function guardarPremioLocal(jornada, importe, elige8Importe = 0) {
-      premiosLocales[String(jornada)] = { premio: importe, elige8: elige8Importe, total: importe + elige8Importe, confirmado_en: new Date().toISOString() };
+    // Auditoria 26/11: los premios confirmados a mano se guardaban por NUMERO
+    // de jornada. La numeracion se reinicia cada temporada, asi que el premio
+    // de la J5 de 26/27 habria salido en la J5 de 27/28, y ademas tapaba para
+    // siempre el premio_eur real del pipeline. Ahora:
+    //  - la clave es temporada + jornada ("2026/2027:23"), con la temporada
+    //    sacada de la FECHA real en que se jugo esa jornada;
+    //  - una entrada antigua (clave = solo el numero) solo vale si se confirmo
+    //    DESPUES de jugarse la jornada que hoy lleva ese numero;
+    //  - si el pipeline ya trae un premio declarado o calculado
+    //    (confirmado_usuario / multicolumna...), manda el del pipeline.
+    function temporadaDeFechaMs(ms, numero) {
+      if (!Number.isFinite(ms)) return null;
+      const f = new Date(ms);
+      const anio = f.getUTCFullYear(), mes = f.getUTCMonth() + 1, dia = f.getUTCDate();
+      const n = Number(numero);
+      let inicio;
+      // Julio/agosto: el numero desambigua (J76 de 25/26 se jugo el 7-9 de
+      // agosto de 2026 y la J1 de 26/27 el 15). Mismo criterio que
+      // cronologia_jornadas.temporada_de_fecha.
+      if ((mes === 7 || mes === 8) && Number.isFinite(n) && n > 0 && n <= 15) inicio = anio;
+      else if ((mes === 7 || mes === 8) && Number.isFinite(n) && n >= 40) inicio = anio - 1;
+      else inicio = (mes > 8 || (mes === 8 && dia >= 12)) ? anio : anio - 1;
+      return `${inicio}/${inicio + 1}`;
+    }
+
+    // "2025_2026" / "2025-2026" / "2025/2026" -> "2025/2026"; null si no lo es.
+    function normTemporada(valor) {
+      const m = String(valor ?? '').match(/(\d{4})\D+(\d{4})/);
+      return m ? `${m[1]}/${m[2]}` : null;
+    }
+
+    // Una jornada se identifica por TEMPORADA + numero, nunca solo por numero.
+    // Las funciones de premios aceptan la fila entera (historial_premios y
+    // quinielas_jugadas traen el campo temporada) o, por compatibilidad, solo
+    // el numero: entonces la temporada se deduce de la fecha en que se jugo.
+    function refJornada(ref) {
+      if (ref && typeof ref === 'object') return { jornada: ref.jornada, temporada: normTemporada(ref.temporada) };
+      return { jornada: ref, temporada: null };
+    }
+
+    function clavePremioLocal(ref) {
+      const { jornada, temporada } = refJornada(ref);
+      const temp = temporada || temporadaDeFechaMs(fechaJornadaJugadaMs(jornada), jornada) || 'sin_fecha';
+      return `${temp}:${Number(jornada)}`;
+    }
+
+    function premioLocalDe(ref) {
+      const { jornada, temporada } = refJornada(ref);
+      const propio = premiosLocales[clavePremioLocal(ref)];
+      if (propio) return propio;
+      const antiguo = premiosLocales[String(jornada)];
+      if (!antiguo) return null;
+      const jugadaMs = fechaJornadaJugadaMs(jornada, temporada);
+      const confirmadoMs = Date.parse(antiguo.confirmado_en || '');
+      if (Number.isNaN(jugadaMs)) return antiguo;
+      return (!Number.isNaN(confirmadoMs) && confirmadoMs >= jugadaMs) ? antiguo : null;
+    }
+
+    function premioDelPipelineManda(row) {
+      // Manda siempre que la fuente este declarada y no sea "pendiente..."
+      // (confirmado_usuario, multicolumna..., escrutinio_versionado y las
+      // que vengan): asi un valor local antiguo no tapa al del pipeline.
+      const fuente = String(row.fuente_premio || '').trim().toLowerCase();
+      return fuente !== '' && !fuente.startsWith('pendiente');
+    }
+
+    function guardarPremioLocal(ref, importe, elige8Importe = 0) {
+      premiosLocales[clavePremioLocal(ref)] = { premio: importe, elige8: elige8Importe, total: importe + elige8Importe, confirmado_en: new Date().toISOString() };
       try { localStorage.setItem('premios_confirmados', JSON.stringify(premiosLocales)); } catch {}
     }
 
     function rowPrize(row) {
-      const local = premiosLocales[String(row.jornada)];
+      const delPipeline = firstNumber(row.premio_eur, row.premio, row.premio_euros, row.cobrado, 0) || 0;
+      if (premioDelPipelineManda(row)) return delPipeline;
+      const local = premioLocalDe(row);
       if (local) return Number(local.total || local.premio || 0);
-      return firstNumber(row.premio_eur, row.premio, row.premio_euros, row.cobrado, 0) || 0;
+      return delPipeline;
     }
 
     function rowPremioElige8(row) {
-      const local = premiosLocales[String(row.jornada)];
+      const local = premioDelPipelineManda(row) ? null : premioLocalDe(row);
       return local ? Number(local.elige8 || 0) : Number(row.premio_elige8 || 0);
     }
 
@@ -2867,6 +3143,107 @@
       }
       const ms = Date.parse(texto);
       return Number.isNaN(ms) ? NaN : ms;
+    }
+
+    // Fecha REAL (ms) en que se jugo una jornada: la validacion mas reciente
+    // de quinielas_jugadas para esa TEMPORADA + numero. NaN si no la jugamos.
+    // Sin temporada (filas que no la traen) se busca solo por numero y gana
+    // la mas reciente: es el unico caso en que el numero decide, y solo vale
+    // mientras ese numero no se haya jugado en dos temporadas.
+    function fechaJornadaJugadaMs(numero, temporada) {
+      const temp = normTemporada(temporada);
+      const fechas = arr(state.quinielasJugadas?.jugadas)
+        .filter(j => Number(j.jornada) === Number(numero))
+        .filter(j => !temp || !normTemporada(j.temporada) || normTemporada(j.temporada) === temp)
+        .map(j => fechaValidadoMs(j.validado_en))
+        .filter(ms => !Number.isNaN(ms));
+      return fechas.length ? Math.max(...fechas) : NaN;
+    }
+
+    // Orden CRONOLOGICO (de mas antigua a mas reciente) de una lista de filas
+    // que traen numero de jornada. Auditoria 26/11 (noveno caso del mismo
+    // bug): historial_premios, diario_aprendizaje, aprendizaje_elige8 y
+    // sorpresas_mercado se publican ordenados por NUMERO, asi que su cola
+    // eran las J69-J76 de la 25/26 y no las ultimas jornadas de verdad.
+    // Fecha de cada fila, por este orden:
+    //   1) fila con temporada: la de quinielas_jugadas para temporada+numero;
+    //      si esa jornada no la jugamos, una fecha aproximada DENTRO de su
+    //      temporada (inicio + numero), para que nunca salte a otra;
+    //   2) la fecha propia de la fila (campoFecha);
+    //   3) solo si no hay nada mejor, quinielas_jugadas por numero.
+    // Segunda pasada 27/11:
+    //   - la fecha se compara por DIA: las jornadas apuntadas en bloque el
+    //     mismo dia (J59-J63, 13/5/2026) se ordenan por temporada y numero,
+    //     no por el segundo en que se apunto cada una;
+    //   - una fila sin ninguna fecha (jornada que no jugamos y sin temporada,
+    //     o la jornada en curso sin validar) ya no va al principio: se coloca
+    //     junto a la jornada fechada de numero mas cercano (a una semana por
+    //     numero de distancia; en empate, la mas reciente).
+    // Orden estable: dentro de una misma jornada se respeta el orden original.
+    function ordenarPorFechaReal(lista, campoFecha) {
+      const DIA = 86400000;
+      const cache = {};
+      const jugadas = arr(state.quinielasJugadas?.jugadas)
+        .map(j => ({ num: Number(j.jornada), temp: normTemporada(j.temporada) || '', ms: fechaValidadoMs(j.validado_en) }))
+        .filter(j => Number.isFinite(j.num) && !Number.isNaN(j.ms));
+      const fechaDe = fila => {
+        const num = Number(fila && fila.jornada);
+        const temp = normTemporada(fila && fila.temporada);
+        let ms = NaN;
+        if (temp) {
+          const clave = `${temp}:${num}`;
+          if (!(clave in cache)) {
+            let f = fechaJornadaJugadaMs(num, temp);
+            if (Number.isNaN(f)) f = Date.UTC(Number(temp.slice(0, 4)), 7, 12) + (Number.isFinite(num) ? num : 0) * 4.5 * DIA;
+            cache[clave] = f;
+          }
+          ms = cache[clave];
+        }
+        if (Number.isNaN(ms) && campoFecha) ms = fechaValidadoMs(fila[campoFecha]);
+        if (Number.isNaN(ms)) {
+          if (!(num in cache)) cache[num] = fechaJornadaJugadaMs(num);
+          ms = cache[num];
+        }
+        return ms;
+      };
+      const filas = arr(lista).map((fila, i) => {
+        const num = Number(fila && fila.jornada);
+        let temp = normTemporada(fila && fila.temporada) || '';
+        const ms = fechaDe(fila);
+        if (!temp && !Number.isNaN(ms)) {
+          // Temporada de la jugada con la que se ha fechado (misma fecha).
+          const j = jugadas.find(x => x.num === num && x.ms === ms);
+          if (j) temp = j.temp;
+        }
+        return { fila, i, num, temp, ms };
+      });
+      // Referencias fechadas: las jugadas y las filas de la lista con fecha.
+      const refs = jugadas.concat(filas.filter(x => !Number.isNaN(x.ms) && Number.isFinite(x.num)));
+      filas.forEach(x => {
+        if (!Number.isNaN(x.ms)) return;
+        let mejor = null;
+        if (Number.isFinite(x.num)) {
+          refs.forEach(r => {
+            const d = Math.abs(r.num - x.num);
+            if (!mejor || d < mejor.d || (d === mejor.d && r.ms > mejor.r.ms)) mejor = { d, r };
+          });
+        }
+        if (mejor) {
+          x.ms = mejor.r.ms + (x.num - mejor.r.num) * 7 * DIA;
+          if (!x.temp) x.temp = mejor.r.temp || '';
+        } else {
+          x.ms = -Infinity;
+        }
+      });
+      const dia = ms => (Number.isFinite(ms) ? Math.floor(ms / DIA) : ms);
+      return filas
+        .sort((a, b) => {
+          const da = dia(a.ms), db = dia(b.ms);
+          if (da !== db) return da < db ? -1 : 1;
+          if (a.temp && b.temp && a.temp !== b.temp) return a.temp < b.temp ? -1 : 1;
+          return ((a.num || 0) - (b.num || 0)) || (a.i - b.i);
+        })
+        .map(x => x.fila);
     }
 
     // Ancla REAL de la temporada de Quiniela en curso: la fecha en que se
@@ -2936,32 +3313,26 @@
         .sort((a, b) => (esActual(a) - esActual(b)) || (Number(a.jornada || 0) - Number(b.jornada || 0)));
     }
 
-    function historyRowCost(row) {
-      if (row.coste?.importe_total != null) return Number(row.coste.importe_total);
-      const apuestas = firstNumber(row.apuestas, row.coste?.apuestas, row.coste_apuestas, 1) || 1;
-      const elige8Activo = Boolean(row.elige8 ?? row.coste?.elige8 ?? false);
-      const importeQuiniela = Math.max(apuestas * 0.75, 1.50);
-      const importeElige8 = elige8Activo ? apuestas * 0.50 : 0;
-      return importeQuiniela + importeElige8;
-    }
-
     function renderHistory() {
       const rows = historyRowsWithIa();
       const totalCobrado = rows.reduce((s, r) => s + rowPrize(r), 0);
-      const totalInvertido = rows.reduce((s, r) => s + historyRowCost(r), 0);
       const best = rows.reduce((max, r) => Math.max(max, historyAciertos(r)), 0);
       qs('#historyMetrics').innerHTML = [metric('Jornadas con IA', rows.length || '-'), metric('Mejor resultado', best ? `${best} aciertos` : '-'), metric('Premios conseguidos', rows.filter(r => rowPrize(r) > 0).length), metric('Total cobrado', eur(totalCobrado))].join('');
       let acumulado = 0;
       qs('#historyTable').innerHTML = rows.length ? `<table><thead><tr><th>Jornada</th><th>Aciertos</th><th>Premio cobrado</th><th>Acumulado total</th></tr></thead><tbody>${rows.map(r => {
         const premio = rowPrize(r);
         acumulado += premio;
-        const pendientePremio = historyAciertos(r) >= 10 && premio === 0 && r.fuente_premio !== 'confirmado_usuario' && !premiosLocales[String(r.jornada)] && (r.fuente_premio === 'pendiente' || !r.fuente_premio);
+        // Auditoria 26/11: 'pendiente_reducida' (boleto reducido sin premio
+        // declarado, J23) tambien es pendiente: no es un 0,00 EUR definitivo.
+        const fuentePremio = String(r.fuente_premio || '');
+        const esReducidaPendiente = fuentePremio === 'pendiente_reducida';
+        const pendientePremio = historyAciertos(r) >= 10 && premio === 0 && !premioLocalDe(r) && (!fuentePremio || fuentePremio.startsWith('pendiente'));
         const e8Premio = rowPremioElige8(r);
         const e8Label = e8Premio > 0 ? ` <span style="font-size:11px;opacity:0.75">+${eur(e8Premio)} Elige8</span>` : '';
         const desglose = r.desglose_columnas;
         const desgloseTitle = desglose ? Object.entries(desglose.desglose || {}).map(([k,v]) => `${k} ac: ${v.columnas}col×${eur(v.premio_cat)}=${eur(v.subtotal)}`).join(' | ') : '';
         const premioCell = pendientePremio
-          ? `<span style="color:var(--yellow,#f59e0b);cursor:pointer;text-decoration:underline dotted" data-confirm-premio="${escapeHtml(String(r.jornada))}" title="Haz clic para introducir el premio manualmente">⏳ confirmar</span>`
+          ? `<span style="color:var(--yellow,#f59e0b);cursor:pointer;text-decoration:underline dotted" data-confirm-premio="${escapeHtml(String(r.jornada))}" data-confirm-temporada="${escapeHtml(normTemporada(r.temporada) || '')}" title="${esReducidaPendiente ? 'Boleto reducido: el premio no se puede calcular desde fuera. Haz clic para apuntarlo aqui; para que quede en el historial hay que declararlo (premio_eur) en quinielas_jugadas.json' : 'Haz clic para introducir el premio manualmente'}">${esReducidaPendiente ? '⏳ pendiente (reducida)' : '⏳ confirmar'}</span>`
           : `<span title="${escapeHtml(desgloseTitle || '')}">${eur(premio)}${e8Label}</span>`;
         return `<tr class="${premio > 0 ? 'prize' : pendientePremio ? 'highlight' : ''}"><td>${escapeHtml(r.jornada)}</td><td>${escapeHtml(historyAciertos(r))}</td><td>${premioCell}</td><td>${eur(acumulado)}</td></tr>`;
       }).reverse().join('')}</tbody></table>` : '<div class="empty">Sin jornadas con predicción IA registradas todavía.</div>';
@@ -2970,7 +3341,9 @@
 
     function formatoFechaValidado(valor) {
       if (!valor) return '-';
-      const fecha = new Date(valor);
+      // fechaValidadoMs entiende tambien "13/5/2026, 13:18:27" (new Date() lo
+      // daba por invalido o lo leia como mes/dia). Auditoria 26/11.
+      const fecha = new Date(fechaValidadoMs(valor));
       return Number.isNaN(fecha.getTime()) ? valor : fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
@@ -3345,12 +3718,28 @@
         const other = key === 'dobles' ? 'triples' : 'dobles';
         const next = Math.max(0, Math.min(14 - (state[other] || 0), Number(state[key] || 0) + Number(btn.dataset.delta)));
         state[key] = next;
+        // Marca explicita: Marc ha tocado los contadores (aunque los deje a
+        // 0/0); una recarga de datos ya no los pisa con los publicados.
+        state.contadoresTocados = true;
         updateConfigUI();
-        updateCostPanel();
         if (state.generated || state.mode === 'mixta' || state.mode === 'manual') {
+          // Segunda pasada 27/11: en Mixta/Manual las casillas marcadas no se
+          // mueven con los contadores; si el boleto en pantalla queda igual,
+          // el Elige 8 tampoco cambia (antes se recalculaba con el reparto
+          // teorico de los contadores y cambiaba de partidos y de precio).
+          const fotoBoleto = () => predictionMatches().map(m => normalizeSignText(selectedSigns(m))).join('|');
+          const editable = modoEditable();
+          const boletoAntes = editable ? fotoBoleto() : null;
+          const elige8Antes = editable && state.elige8Set && state.elige8Set.size ? new Set(state.elige8Set) : null;
           computeAssignments();
           renderTicket();
+          if (elige8Antes && fotoBoleto() === boletoAntes) {
+            state.elige8Set = elige8Antes;
+            renderTicket();
+          }
         }
+        // El coste se cuenta sobre el boleto en pantalla: despues de repintarlo.
+        updateCostPanel();
         renderHistory();
       }));
 
@@ -3370,8 +3759,11 @@
         const btn = e.target.closest('[data-confirm-premio]');
         if (!btn) return;
         const jornada = btn.dataset.confirmPremio;
+        const temporadaFila = btn.dataset.confirmTemporada || '';
         const rows = historyRowsWithIa();
-        const row = rows.find(r => String(r.jornada) === String(jornada));
+        // Fila por temporada + jornada: el numero solo se repite cada temporada.
+        const row = rows.find(r => String(r.jornada) === String(jornada)
+          && (normTemporada(r.temporada) || '') === temporadaFila);
         const aciertos = row ? historyAciertos(row) : '?';
         const tieneElige8 = row && row.elige8_jugado;
 
@@ -3388,7 +3780,7 @@
           if (inp8 !== null) elige8Importe = parseFloat(String(inp8).replace(',', '.')) || 0;
         }
 
-        guardarPremioLocal(jornada, importe, elige8Importe);
+        guardarPremioLocal(row || { jornada, temporada: temporadaFila }, importe, elige8Importe);
         renderHistory();
       });
 
@@ -3400,12 +3792,17 @@
         renderPredictionMetrics();
         renderTicket();
         renderHistory();
+        // Auditoria 26/11: sin esto el total se quedaba sin el Elige 8 (o con
+        // el de mas) hasta tocar otra cosa. Despues de renderTicket: el coste
+        // se cuenta sobre los signos que hay en pantalla.
+        updateCostPanel();
       });
       qsa('.mode-btn').forEach(btn => btn.addEventListener('click', () => {
         state.mode = btn.dataset.mode || 'auto';
         qsa('.mode-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         renderTicket();
+        updateCostPanel();
       }));
       qs('#ticketList').addEventListener('click', e => {
         const sign = e.target.closest('.sign');
@@ -3417,7 +3814,16 @@
           ? current.replace(clicked, '')
           : ['1','X','2'].filter(s => (current + clicked).includes(s)).join('');
         signsBox.dataset.selected = next;
-        renderSignSelection(signsBox);
+        // Fila vaciada a mano: se recuerda para que renderTicket() no la
+        // rellene otra vez con el reparto automatico.
+        const numFila = String(sign.closest('.match-row')?.dataset.num ?? '');
+        if (!state.vaciadasAMano) state.vaciadasAMano = new Set();
+        if (next === '') state.vaciadasAMano.add(numFila);
+        else state.vaciadasAMano.delete(numFila);
+        // Auditoria 26/11: avisos, bandas y tipo de apuesta leen la jugada
+        // ACTUAL. renderTicket() conserva lo marcado (lo lee del DOM), rehace
+        // state.jugadaManual y vuelve a pintar avisos y bandas.
+        renderTicket();
         updateCostPanel();
       });
 
@@ -3688,7 +4094,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
               content.innerHTML += `
                 <span style="color:var(--text);font-weight:600;display:block;margin-top:8px">Partido: ${escapeHtml(plenoPartido.local)} vs ${escapeHtml(plenoPartido.visitante)}</span>
                 <span style="color:var(--muted,#555);display:block;font-size:13px">${escapeHtml(plenoPartido.local)}: 0g=${escapeHtml(gL['0']||'?')}% · 1g=${escapeHtml(gL['1']||'?')}% · 2g=${escapeHtml(gL['2']||'?')}% · M=${escapeHtml(gL['M']||'?')}%</span>
-                <span style="color:var(--muted,#555);display:block;font-size:13px">${escapeHtml(plenoPartido.visitante)}: 0g=${gV['0']||'?'}% · 1g=${gV['1']||'?'}% · 2g=${gV['2']||'?'}% · M=${gV['M']||'?'}%</span>`;
+                <span style="color:var(--muted,#555);display:block;font-size:13px">${escapeHtml(plenoPartido.visitante)}: 0g=${escapeHtml(gV['0']||'?')}% · 1g=${escapeHtml(gV['1']||'?')}% · 2g=${escapeHtml(gV['2']||'?')}% · M=${escapeHtml(gV['M']||'?')}%</span>`;
             }
             // Recomendacion motor (cual de los 14 apostar)
             if (motorRec.local) {
@@ -3721,7 +4127,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
         } catch(e) {
           loading.style.display = 'none';
           content.style.display = 'block';
-          content.innerHTML = `<span style="color:red">Error: ${e.message || 'Inténtalo de nuevo.'}</span>`;
+          content.innerHTML = `<span style="color:red">Error: ${escapeHtml(e.message || 'Inténtalo de nuevo.')}</span>`;
         }
       }
 
@@ -3752,17 +4158,27 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
     // === FUNCIONES DEL CHAT IA ===
     const chatHistory = [];
 
+    // Clave por temporada + jornada (auditoria 26/11): con solo el numero, en
+    // la J1 de la temporada siguiente se restauraba (y se reenviaba al modelo)
+    // la conversacion de la J1 anterior.
+    function claveHistorialChat(j) {
+      return `quinihub_chat_${temporadaActualLabel().replace('/', '_')}_j${j}`;
+    }
+
     function guardarHistorialChat() {
       const j = (state.prediccion && state.prediccion.jornada) || 0;
       if (!j) return;
-      try { localStorage.setItem(`quinihub_chat_j${j}`, JSON.stringify(chatHistory.slice(-20))); } catch {}
+      try { localStorage.setItem(claveHistorialChat(j), JSON.stringify(chatHistory.slice(-20))); } catch {}
     }
 
     function restaurarHistorialChat() {
       const j = (state.prediccion && state.prediccion.jornada) || 0;
       if (!j) return;
       try {
-        const saved = JSON.parse(localStorage.getItem(`quinihub_chat_j${j}`) || 'null');
+        // Respaldo de la clave antigua (solo numero): unicamente vale para la
+        // 26/27 y numeros que la 25/26 no llego a guardar (su chat nacio en la J59).
+        const antigua = (temporadaActualLabel() === '2026/2027' && Number(j) < 59) ? localStorage.getItem(`quinihub_chat_j${j}`) : null;
+        const saved = JSON.parse(localStorage.getItem(claveHistorialChat(j)) || antigua || 'null');
         if (!Array.isArray(saved) || saved.length === 0) return;
         saved.forEach(m => {
           chatHistory.push(m);
@@ -3796,7 +4212,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       return /\baprende\b|\baprender\b|\bmemoriza\b|\bmemorizar\b|\brecuerda\b|\brecuerda que\b|\bguarda esto\b|\bguárdalo\b|\bno olvides\b|\btoma nota\b|\banota\b|\baprende de\b|\baprende esto\b|\bguarda en memoria\b|\bquiero que sepas\b|\besto es importante\b/i.test(texto);
     }
 
-    function construirContextoIA() {
+    function construirContextoIA(limite) {
       const mem = state.memoriaHistorica || {};
       const pred = state.prediccion || {};
       const apr = state.aprendizaje || {};
@@ -3821,7 +4237,9 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       const resumenMetricas = `RENDIMIENTO GLOBAL: Precisión ${precisionGlobal}% sobre ${met.partidos_evaluados || 0} partidos en ${met.jornadas_evaluadas || 0} jornadas.`;
 
       // Historial de aciertos por jornada
-      const jornadas = arr((hist.jornadas || [])).filter(j => (j.aciertos || 0) + (j.fallos || 0) > 0);
+      // Por FECHA real, no por numero (auditoria 26/11): "ultimas" son las
+      // ultimas jugadas de verdad, no las J69-J76 de la temporada pasada.
+      const jornadas = ordenarPorFechaReal(arr(hist.jornadas || []).filter(j => (j.aciertos || 0) + (j.fallos || 0) > 0));
       const mejorResultado = jornadas.reduce((max, j) => Math.max(max, j.aciertos || 0), 0);
       const totalCobrado = jornadas.reduce((sum, j) => sum + (j.premio_eur || 0), 0);
       const resumenHistorial = jornadas.slice(-8).map(j => {
@@ -3843,7 +4261,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       }
 
       // Diario de aprendizaje
-      const entradas = arr((apr.entradas || [])).slice(-10);
+      const entradas = ordenarPorFechaReal(apr.entradas || []).slice(-10);
       const resumenDiario = entradas.map(e => {
         const estado = e.acierto === true ? "✅" : e.acierto === false ? "❌" : "⏳";
         return `${estado} ${e.partido}: predije ${e.pronostico_jugado || "?"} → real: ${e.signo_real || "pendiente"}`;
@@ -3872,7 +4290,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       const elige8Res = (state.aprendizajeElige8 || {}).resumen || {};
       let bloqueElige8Aprendizaje = '';
       if (elige8Res.selecciones_elige8) {
-        const ultimasJ = arr((state.aprendizajeElige8 || {}).jornadas || []).slice(-5);
+        const ultimasJ = ordenarPorFechaReal((state.aprendizajeElige8 || {}).jornadas || [], 'validado_en').slice(-5);
         const lineasJ = ultimasJ.map(j => {
           const totalSeleccionados = (j.seleccionados_elige8 || []).length;
           if (!totalSeleccionados) return `J${j.jornada} (${j.estado}): sin Elige8 jugado`;
@@ -3890,7 +4308,7 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       const sorpresasM = (state.sorpresasMercado || {}).sorpresas || [];
       let bloqueSorpresasMercado = '';
       if (sorpresasM.length) {
-        const recientes = arr(sorpresasM).slice(-6).map(s =>
+        const recientes = ordenarPorFechaReal(sorpresasM, 'registrada_en').slice(-6).map(s =>
           `J${s.jornada} ${s.partido}: jugamos ${s.pronostico_jugado} → real ${s.signo_real} (${s.resultado})${s.categoria_sorpresa && s.categoria_sorpresa !== 'desconocido' ? ` [${s.categoria_sorpresa}]` : ''}`
         );
         bloqueSorpresasMercado = `\nSORPRESAS DE MERCADO (fijo jugado que falló, ${sorpresasM.length} casos registrados):\n${recientes.join('\n')}`;
@@ -4222,44 +4640,78 @@ Al final: **TOP 3 PARTIDOS A VIGILAR** con motivo concreto.`;
       // Auditoria 16/11/2026: la PREDICCION ACTUAL iba al final del contexto y
       // el recorte a 2500 caracteres la dejaba fuera: el chat no sabia que
       // jornada se jugaba e inventaba. Va justo despues de las reglas.
-      return `${bloqueMemoriaSocio}
-${bloquePredActual}
-${bloqueQuinielasJugadas}
-${resumenMem}
-${bloqueHistoricoLigas}
-${bloqueHistoricoQuinielas}
-${bloqueSorpresas}
-${bloqueRiesgosPresupuesto}
-${bloqueEstadoVivo}
-${bloqueBoletoMillonario}
-${bloqueBoletoEv}
-${bloqueAvisoElige8}
-${bloqueCalibracion}
-${bloqueMetaAprendizaje}
-${bloqueDetallesH2H}
-${bloqueLesionesLaliga}
-
-${resumenMetricas}
-Mejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalCobrado.toFixed(2)}€
-
-${estadoActual}
-${bloquePesos}
-${bloqueValorSenales}
-${bloqueElige8Aprendizaje}
-${bloqueSorpresasMercado}
-${liga2627}
-
-HISTORIAL ÚLTIMAS JORNADAS:
-${resumenHistorial || "Sin datos"}
-${detalleUltima}
-
-DIARIO DE APRENDIZAJE (últimas entradas):
-${resumenDiario || "Sin entradas recientes"}${(() => {
+      const bloqueMemoriasAprendidas = (() => {
         const mems = cargarMemoriaIA().entradas;
         if (!mems.length) return '';
-        return '\n\nMEMORIAS QUE HAS APRENDIDO (persistentes entre sesiones):\n' +
+        return 'MEMORIAS QUE HAS APRENDIDO (persistentes entre sesiones):\n' +
           mems.slice(-20).map(e => `[${e.fecha}][${e.tipo}] ${e.contenido}`).join('\n');
-      })()}`;
+      })();
+      // Auditoria 26/11: el contexto se recortaba por CARACTERES
+      // (slice(0, limite)) y memoria_socio (2518) se comia el cupo entero:
+      // con 2500 no llegaba la prediccion y con 6800 nunca llegaban el total
+      // cobrado ni el historial. Ahora se recorta por BLOQUES, en orden de
+      // prioridad: prediccion actual > totales y premios > reglas del socio >
+      // historial de las ultimas jornadas > lo jugado de verdad > el resto.
+      // Un bloque que no cabe entero se corta en un salto de linea (nunca a
+      // mitad de frase) y los siguientes solo entran si caben enteros.
+      const bloques = [
+        bloquePredActual,
+        `${estadoActual}\n${resumenMetricas}\nMejor resultado histórico: ${mejorResultado} aciertos | Total cobrado: ${totalCobrado.toFixed(2)}€`,
+        bloqueMemoriaSocio,
+        `HISTORIAL ÚLTIMAS JORNADAS (de más antigua a más reciente):\n${resumenHistorial || "Sin datos"}`,
+        bloqueQuinielasJugadas,
+        detalleUltima,
+        resumenMem,
+        bloqueHistoricoLigas,
+        bloqueHistoricoQuinielas,
+        bloqueSorpresas,
+        bloqueRiesgosPresupuesto,
+        bloqueEstadoVivo,
+        bloqueBoletoMillonario,
+        bloqueBoletoEv,
+        bloqueAvisoElige8,
+        bloqueCalibracion,
+        bloqueMetaAprendizaje,
+        bloqueDetallesH2H,
+        bloqueLesionesLaliga,
+        bloquePesos,
+        bloqueValorSenales,
+        bloqueElige8Aprendizaje,
+        bloqueSorpresasMercado,
+        liga2627,
+        `DIARIO DE APRENDIZAJE (últimas entradas):\n${resumenDiario || "Sin entradas recientes"}`,
+        bloqueMemoriasAprendidas,
+      ].map(b => String(b || '').trim()).filter(Boolean);
+      return ensamblarContextoPorBloques(bloques, limite);
+    }
+
+    // Une los bloques (ya en orden de prioridad) sin pasar de `limite`
+    // caracteres. Sin limite, todos. El primer bloque que no cabe se corta en
+    // su ultimo salto de linea dentro del cupo (si quedan al menos 200
+    // caracteres utiles); los posteriores solo entran si caben enteros.
+    function ensamblarContextoPorBloques(bloques, limite) {
+      if (!Number.isFinite(Number(limite))) return bloques.join('\n\n');
+      const partes = [];
+      let restante = Number(limite);
+      let yaCortado = false;
+      for (const bloque of bloques) {
+        const sep = partes.length ? 2 : 0;
+        if (bloque.length + sep <= restante) {
+          partes.push(bloque);
+          restante -= bloque.length + sep;
+        } else if (!yaCortado) {
+          yaCortado = true;
+          const cupo = restante - sep;
+          if (cupo >= 200) {
+            const corte = bloque.slice(0, cupo).lastIndexOf('\n');
+            if (corte >= 200) {
+              partes.push(bloque.slice(0, corte));
+              restante -= corte + sep;
+            }
+          }
+        }
+      }
+      return partes.join('\n\n');
     }
 
     function añadirMensajeChat(rol, texto) {
@@ -4628,6 +5080,16 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
     }
 
     // Llama a Groq con los mensajes preparados — auto-retry en rate limit TPM, fallback a Gemini en límite diario
+    // Resumen esencial de las reglas (lo usa el prompt de las consultas de
+    // datos y el reintento por 413, que sustituye con el el manual largo).
+    const MANUAL_ESENCIAL_QUINIELA = `
+REGLAS ESENCIALES DE LA QUINIELA (resumen — el detalle completo lo tienes memorizado de otras conversaciones):
+- 14 partidos con signo 1/X/2. Premio minimo: 10 aciertos de 14. Categorias: 10, 11, 12, 13, 14 y 14+Pleno15.
+- P15 (Pleno al 15): NO se marca 1/X/2 — se pronostican GOLES por equipo (0/1/2/M, M=3 o mas). Solo puntua si los 14 anteriores estan perfectos.
+- Coste boleto: combinaciones = 2^dobles × 3^triples; coste = combinaciones × 0,75 EUR. Doble/Triple = marcar 2/3 signos en UN partido, no boletos extra.
+- Elige 8 (+0,50 EUR): elegir 8 de los 14; hereda los signos de la primera columna; hay que acertar los 8.
+- NUNCA inventes reglas, marcadores ni partidos: si un dato no esta abajo, di que no lo tienes.`;
+
     async function llamarGroq(messages, model = MODELO_GROQ, max_tokens = 600, _retry = 0) {
       // gpt-oss es un modelo de RAZONAMIENTO: "piensa" en un canal oculto que
       // consume max_tokens ANTES de escribir la respuesta visible. Bug real
@@ -4659,9 +5121,33 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         }
         // 413: contexto demasiado grande → recortar system prompt y reintentar
         if (response.status === 413 && _retry < 1) {
+          // Auditoria 26/11: slice(0, 3000) cortaba dentro de las reglas
+          // (el preambulo ya mide ~3700) y el reintento salia SIN datos. Ahora
+          // se conserva el preambulo entero y se recortan solo los datos, que
+          // empiezan por la prediccion actual, en un salto de linea.
+          const MARCA_DATOS = 'DATOS REALES DE TU SISTEMA';
           const trimmed = messages.map((m, i) => {
-            if (i === 0 && typeof m.content === 'string') return { ...m, content: m.content.slice(0, 3000) };
-            return m;
+            if (i !== 0 || typeof m.content !== 'string') return m;
+            // Segunda pasada 27/11: en las preguntas NO locales el preambulo
+            // lleva el manual largo (~7.000 caracteres) y el reintento apenas
+            // bajaba de tamano (volvia a dar 413). Se cambia por el esencial.
+            let cuerpo = m.content;
+            const posManual = cuerpo.indexOf('DOCUMENTO OFICIAL: REGLAS COMPLETAS');
+            const finManual = cuerpo.indexOf('TU PERSONALIDAD:');
+            if (posManual > 1 && finManual > posManual) {
+              const iniManual = Math.max(0, cuerpo.lastIndexOf('\n', posManual - 2));
+              cuerpo = cuerpo.slice(0, iniManual) + MANUAL_ESENCIAL_QUINIELA + '\n\n' + cuerpo.slice(finManual);
+            }
+            const pos = cuerpo.indexOf(MARCA_DATOS);
+            if (pos < 0) return { ...m, content: cuerpo.slice(0, 3000) };
+            // Recorte proporcional: los datos se quedan en la mitad de lo
+            // enviado (minimo 800 caracteres), para que el reintento baje de
+            // verdad de tamano tambien cuando el contexto ya era corto.
+            const largoDatos = cuerpo.length - pos;
+            const tope = Math.max(800, Math.min(1600, Math.floor(largoDatos / 2)));
+            const datos = cuerpo.slice(pos, pos + tope);
+            const corte = datos.lastIndexOf('\n');
+            return { ...m, content: cuerpo.slice(0, pos) + (corte > 200 ? datos.slice(0, corte) : datos) };
           });
           return llamarGroq(trimmed, model, max_tokens, _retry + 1);
         }
@@ -4700,7 +5186,6 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
       const typing = mostrarTyping();
 
       try {
-        const contextoCompleto = construirContextoIA();
 
         // Analizar también el historial reciente de chat para detectar contexto
         const contextoReciente = chatHistory.slice(-4).map(m => m.content).join(' ');
@@ -4721,20 +5206,21 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         // 2500 sin el detalle real de las jornadas -> el modelo volvio a
         // inventarse partidos (un "Granada-Alaves" otra vez) con los datos
         // correctos a un archivo de distancia.
-        const esConsultaLocalPrevia = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|acertam|fall[oa]m|premio|cobra|aprendizaje|aprendid|sorpres|disputad|marcamos|pesos|jornada|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev|partidos|quiniela|dame.*partido|publica.*partido|lista.*partido|muestra.*partido|temporada|24.25|25.26|23.24|datos.*equipo|equipo.*datos|como.*fue|estadistica|clasificaci[oó]n.*liga|liga.*clasificaci[oó]n|1[aª] division|2[aª] division|primera.*division|segunda.*division|calendario|jugará|cuando juega|próximos partidos|fixtures|hemos jugado|jugad/i.test(textoTotal);
+        const esConsultaLocalPrevia = /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|acertam|fall[oa]m|premio|cobra|aprendizaje|aprendid|sorpres|disputad|marcamos|pesos|jornada|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cu[aá]nto llev|ganado|ganamos|partidos|quiniela|dame.*partido|publica.*partido|lista.*partido|muestra.*partido|temporada|24.25|25.26|23.24|datos.*equipo|equipo.*datos|como.*fue|estadistica|clasificaci[oó]n.*liga|liga.*clasificaci[oó]n|1[aª] division|2[aª] division|primera.*division|segunda.*division|calendario|jugará|cuando juega|próximos partidos|fixtures|hemos jugado|jugad/i.test(textoTotal);
         // 5500 (antes 4500): el detalle real partido a partido de las 3
         // ultimas jornadas jugadas no cabia en 4500 junto a la memoria del
         // socio, y lo que se recortaba era justo el dato real cuya ausencia
         // hacia al modelo inventar partidos. +260 tokens aprox, dentro del
         // cupo TPM de Groq (verificado en produccion con la pregunta real).
         const limiteContexto = esConsultaLocalPrevia ? 6800 : 2500;
-        const contexto = contextoCompleto.slice(0, limiteContexto);
+        // Recorte por BLOQUES con prioridad (auditoria 26/11), no slice().
+        const contexto = construirContextoIA(limiteContexto);
 
         // Detectar si el usuario quiere que la IA aprenda algo
         const quiereAprender = esIntencionAprender(textoTotal);
 
         // Consultas sobre datos locales: no necesitan fetches externos
-        const esConsultaLocal = !quiereAprender && /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|pesos|jornada actual|jornada anterior|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cuanto llev/i.test(textoTotal);
+        const esConsultaLocal = !quiereAprender && /boleto|predicci[oó]n|pron[oó]stico|historial|acierto|premio|aprendizaje|pesos|jornada actual|jornada anterior|última jornada|que predices|por qu[eé] predic|qu[eé] sign|explica.*partido|cu[aá]nto llev|ganado|ganamos/i.test(textoTotal);
 
         // Si la pregunta es sobre lo que jugamos de verdad, forzamos TODAS
         // las fuentes externas (resultados, clasificaciones, web) sin
@@ -5020,13 +5506,7 @@ ${resumenDiario || "Sin entradas recientes"}${(() => {
         // permanente en las preguntas de analisis (bug real, 01/09/2026).
         // Para esas, el resumen esencial conserva justo las reglas que el
         // modelo confundia (P15 por goles, coste, Elige8) en ~600 chars.
-        const manualEsencial = `
-REGLAS ESENCIALES DE LA QUINIELA (resumen — el detalle completo lo tienes memorizado de otras conversaciones):
-- 14 partidos con signo 1/X/2. Premio minimo: 10 aciertos de 14. Categorias: 10, 11, 12, 13, 14 y 14+Pleno15.
-- P15 (Pleno al 15): NO se marca 1/X/2 — se pronostican GOLES por equipo (0/1/2/M, M=3 o mas). Solo puntua si los 14 anteriores estan perfectos.
-- Coste boleto: combinaciones = 2^dobles × 3^triples; coste = combinaciones × 0,75 EUR. Doble/Triple = marcar 2/3 signos en UN partido, no boletos extra.
-- Elige 8 (+0,50 EUR): elegir 8 de los 14; hereda los signos de la primera columna; hay que acertar los 8.
-- NUNCA inventes reglas, marcadores ni partidos: si un dato no esta abajo, di que no lo tienes.`;
+        const manualEsencial = MANUAL_ESENCIAL_QUINIELA;
         const systemPrompt = `Eres el analista de QuiniHub. Tu nombre es "Analista QuiniHub" y eres el mayor experto en La Quiniela de la LAE (Loterías y Apuestas del Estado) de España.
 HOY ES: ${fechaHoyStr}. Usa esta fecha para responder preguntas sobre "hoy", "ayer", "esta semana", etc.
 
@@ -5323,6 +5803,15 @@ No inventes — solo lo que ves con fondo oscuro.`;
       state.aprendizajeModulos = await getJson('data/memoria_ia/aprendizaje_modulos.json', null);
       state.auditoriaAutomatica = await getJson('data/memoria_ia/auditoria_automatica.json', null);
       state.prediccion = pred;
+      // Auditoria 26/11 (fuente unica del boleto): los contadores arrancan con
+      // la estructura del boleto que publica el motor, para que "Generar"
+      // ensene exactamente ese boleto. Solo si Marc no los ha tocado ya.
+      const publicadoInicial = boletoPublicadoMotor();
+      if (publicadoInicial && !state.contadoresTocados && !state.generated) {
+        state.dobles = publicadoInicial.dobles;
+        state.triples = publicadoInicial.triples;
+        updateConfigUI();
+      }
       state.pleno15Data = pleno;
       state.aprendizaje = apr;
       state.historial = hist;

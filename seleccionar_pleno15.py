@@ -223,8 +223,13 @@ def construir_razonamiento(partido, signo, prob, margen, incertidumbre, sorpresa
     return " ".join(piezas)
 
 
-def poisson_goles(lam, max_goles=4):
-    """Distribución Poisson truncada en 0,1,2,M(3+)."""
+def poisson_goles(lam, max_goles=3):
+    """Distribución Poisson truncada en 0,1,2,M(3+).
+
+    En el Pleno al 15 la casilla M es "3 o mas goles": se calculan k=0..2 y
+    M = 1 - P(0..2). Antes max_goles=4 hacia M = P(>=4), P(3) se perdia y las
+    cuatro casillas publicadas sumaban ~86% (M casi nunca salia recomendada).
+    """
     probs = {}
     acum = 0.0
     for k in range(max_goles):
@@ -283,6 +288,16 @@ def candidatos_prediccion(data):
     return []
 
 
+# El selector solo evalua el partido 15. Antes el motivo decia "ningun partido
+# tiene probabilidades... prediccion bloqueada", que era falso: los partidos
+# 1-14 si las tienen; al que le faltan es al partido del pleno.
+MOTIVO_SIN_PROBABILIDADES_PLENO15 = (
+    "El partido 15 (Pleno al 15) no trae probabilidades 1/X/2 del motor, asi que no hay "
+    "recomendacion automatica de pleno. No es un bloqueo de la prediccion: los partidos 1-14 "
+    "se evaluan aparte."
+)
+
+
 def construir_salida_sin_candidatos(data, motivo):
     return {
         "version": "1.0",
@@ -292,7 +307,7 @@ def construir_salida_sin_candidatos(data, motivo):
         "motivo": motivo,
         "recomendacion": None,
         "candidatos_evaluados": [],
-        "criterio": "Se requiere que los partidos tengan probabilidades 1/X/2 calculadas por el motor.",
+        "criterio": "Se requiere que el partido 15 (Pleno al 15) tenga probabilidades 1/X/2 calculadas por el motor.",
     }
 
 
@@ -347,7 +362,7 @@ def main():
     if not evaluados:
         salida = construir_salida_sin_candidatos(
             data,
-            "La jornada existe, pero ningun partido tiene probabilidades 1/X/2 disponibles. Probablemente la prediccion esta bloqueada por aprendizaje pendiente.",
+            MOTIVO_SIN_PROBABILIDADES_PLENO15,
         )
         salida["descartados"] = descartados
         guardar_json(SALIDA, salida)

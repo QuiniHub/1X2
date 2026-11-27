@@ -245,10 +245,20 @@ def obtener_api_football():
 
 def actualizar():
     # Cargar existentes
-    try:
-        with open(RESULTADOS_MUNDIAL, encoding="utf-8") as f:
-            data_mundial = json.load(f)
-    except:
+    # Auditoria 26/11 (hallazgo 248): un 'except:' desnudo sustituia un fichero
+    # ilegible (truncado, push a medias) por uno vacio y al final se guardaba
+    # encima: se perdia todo el acumulado. 'No existe' -> se empieza vacio;
+    # 'existe pero no se puede leer' -> no se toca nada.
+    if Path(RESULTADOS_MUNDIAL).exists():
+        try:
+            with open(RESULTADOS_MUNDIAL, encoding="utf-8") as f:
+                data_mundial = json.load(f)
+            if not isinstance(data_mundial, dict) or not isinstance(data_mundial.get("resultados", []), list):
+                raise ValueError("estructura inesperada")
+        except Exception as e:
+            print(f"AVISO: {Path(RESULTADOS_MUNDIAL).name} existe pero no se puede leer ({e}); no se sobrescribe.")
+            return 0
+    else:
         data_mundial = {"version": "1.0", "resultados": [], "actualizado_en": ""}
 
     indice = {

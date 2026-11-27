@@ -4,6 +4,8 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
+import cronologia_jornadas
+
 
 DATA = Path("data")
 JORNADAS = DATA / "jornadas"
@@ -167,29 +169,85 @@ def indexar_partidos_prediccion(prediccion):
     }
 
 
+def _jornada_empezada(datos_jornada):
+    """True si la jornada ya tiene algun signo oficial (ha empezado o cerrado)."""
+    return any(
+        signo_oficial_partido(partido) in SIGNOS_VALIDOS
+        for partido in (datos_jornada or {}).get("partidos") or []
+        if isinstance(partido, dict)
+    )
+
+
+def _prediccion_posterior_a_la_jornada(prediccion, datos_jornada):
+    """True si el fichero de prediccion se genero DESPUES del dia del primer
+    partido: no puede ser 'lo que se dijo antes' y no sirve para aprender."""
+    generada = cronologia_jornadas.parsear_fecha((prediccion or {}).get("generado_en"))
+    primer_partido = cronologia_jornadas.fecha_real_jornada(datos_jornada or {})
+    if generada is None or primer_partido is None:
+        return False
+    return generada > primer_partido
+
+
 def cargar_predicciones_detalladas_por_jornada():
+    """Prediccion con la que se evalua cada jornada.
+
+    Auditoria 26/11 (fuga de futuro): se cargaba primero
+    data/predicciones/jornada_N.json y el snapshot pre-cierre solo si faltaba
+    ese fichero. Pero el motor reescribia data/predicciones/jornada_N.json
+    despues del primer partido (y a veces despues del ultimo): en 21 de las 22
+    jornadas de 26/27 con snapshot los signos eran distintos, y la J72 daba
+    14/14 con el fichero regenerado y 6/14 con lo que se dijo de verdad.
+    Ese aprendizaje inflado vuelve al motor por ajuste_motor.
+
+    Regla ahora:
+      * jornada EMPEZADA o cerrada: manda el snapshot pre-cierre (comprobado
+        por cronologia_jornadas como de la MISMA jornada real, no de otra
+        temporada con el mismo numero);
+      * sin snapshot, la prediccion de data/predicciones solo vale si no se
+        genero despues del dia del primer partido;
+      * jornada sin empezar: data/predicciones (es la prediccion viva).
+    """
     predicciones = {}
     if PREDICCIONES.exists():
         for path in sorted(PREDICCIONES.glob("jornada_*.json")):
             data = cargar_json(path, {})
             jornada = data.get("jornada")
-            if str(jornada or "").isdigit() and data.get("prediccion_disponible") is not False:
-                predicciones[int(jornada)] = {
-                    "path": path,
-                    "data": data,
-                    "partidos": indexar_partidos_prediccion(data),
-                }
+            if not (str(jornada or "").isdigit() and data.get("prediccion_disponible") is not False):
+                continue
+            datos_jornada = cronologia_jornadas.cargar_jornada(int(jornada), JORNADAS)
+            if datos_jornada is not None:
+                # Mismo numero no basta: tienen que ser los mismos partidos.
+                if (
+                    cronologia_jornadas.coincidencia_equipos(data, datos_jornada)[1] >= 7
+                    and not cronologia_jornadas.misma_jornada(data, datos_jornada)
+                ):
+                    continue
+                if _jornada_empezada(datos_jornada) and _prediccion_posterior_a_la_jornada(data, datos_jornada):
+                    continue
+            predicciones[int(jornada)] = {
+                "path": path,
+                "data": data,
+                "partidos": indexar_partidos_prediccion(data),
+                "origen": "prediccion",
+            }
     if SNAPSHOTS.exists():
         for path in sorted(SNAPSHOTS.glob("jornada_*.json")):
-            snap = cargar_json(path, {})
-            pred = snap.get("prediccion") or snap
-            jornada = snap.get("jornada") or pred.get("jornada")
-            if str(jornada or "").isdigit() and int(jornada) not in predicciones:
-                predicciones[int(jornada)] = {
-                    "path": path,
-                    "data": pred,
-                    "partidos": indexar_partidos_prediccion(pred),
-                }
+            m = re.search(r"(\d+)", path.stem)
+            if not m:
+                continue
+            jornada = int(m.group(1))
+            pred = cronologia_jornadas.prediccion_del_cierre(jornada, SNAPSHOTS, JORNADAS)
+            if not isinstance(pred, dict) or not pred.get("partidos"):
+                continue
+            datos_jornada = cronologia_jornadas.cargar_jornada(jornada, JORNADAS)
+            if jornada in predicciones and not _jornada_empezada(datos_jornada):
+                continue
+            predicciones[jornada] = {
+                "path": path,
+                "data": pred,
+                "partidos": indexar_partidos_prediccion(pred),
+                "origen": "snapshot_pre_cierre",
+            }
     return predicciones
 
 
@@ -549,19 +607,89 @@ def inicializar_sorpresas_mercado():
         guardar_json(SORPRESAS_MERCADO, {"version": "1.0", "sorpresas": []})
 
 
+ORIGEN_SORPRESA_MERCADO = "mercado_favorito_no_gano"
+ORIGEN_SORPRESA_DIARIO = "diario_aprendizaje_fallo_fijo"
+
+
+def origen_sorpresa(item):
+    """Origen de una entrada. Las antiguas sin campo 'origen' se deducen:
+    solo las de mercado llevan probabilidad_mercado_favorito."""
+    origen = str((item or {}).get("origen") or "").strip()
+    if origen:
+        return origen
+    if "probabilidad_mercado_favorito" in (item or {}):
+        return ORIGEN_SORPRESA_MERCADO
+    return ORIGEN_SORPRESA_DIARIO
+
+
+def ruta_posix(ruta):
+    """Ruta con barras normales: en Windows str(Path) escribia barras
+    invertidas en los JSON publicados."""
+    if not ruta:
+        return ""
+    return Path(str(ruta)).as_posix()
+
+
+def numero_partido_sorpresa(item):
+    """Numero de partido de una entrada de sorpresas_mercado.json.
+
+    Auditoria 26/11: el fichero tiene DOS escritores. Este script usaba la
+    clave 'numero_partido' y alimentar_sorpresas_mercado.py 'num_partido' (y
+    borraba en cada ciclo todo lo que no la tuviera). Esquema unico: las dos
+    claves se escriben siempre y se aceptan las dos al leer.
+    """
+    for clave in ("num_partido", "numero_partido"):
+        valor = (item or {}).get(clave)
+        if str(valor or "").isdigit():
+            return int(valor)
+    return 0
+
+
+def temporada_sorpresa(item, jornadas_dir=None):
+    """Temporada de una entrada: la guardada, o la de su fecha, o la del
+    fichero de jornada. La jornada 5 de una temporada no es la de la otra."""
+    guardada = (item or {}).get("temporada")
+    if guardada:
+        return str(guardada)
+    try:
+        numero = int(item.get("jornada") or 0) or None
+    except (TypeError, ValueError):
+        numero = None
+    for campo in ("fecha", "registrada_en"):
+        fecha = cronologia_jornadas.parsear_fecha(item.get(campo))
+        if fecha is not None:
+            return cronologia_jornadas.temporada_de_fecha(fecha, numero)
+    if numero:
+        datos = cronologia_jornadas.cargar_jornada(numero, jornadas_dir or JORNADAS)
+        fecha = cronologia_jornadas.fecha_real_jornada(datos) if datos else None
+        if fecha is not None:
+            return cronologia_jornadas.temporada_de_fecha(fecha, numero)
+    return None
+
+
 def registrar_sorpresas_mercado(jornada_num, jornada_data, pred_info):
     fuente_losilla = cargar_json(FUENTE_LOSILLA, {})
     memoria = cargar_json(SORPRESAS_MERCADO, {"version": "1.0", "sorpresas": []})
     sorpresas = memoria.setdefault("sorpresas", [])
+    fecha_jornada = cronologia_jornadas.fecha_real_jornada(jornada_data)
+    temporada = (
+        cronologia_jornadas.temporada_de_fecha(fecha_jornada, int(jornada_num))
+        if fecha_jornada else None
+    )
+    # Identidad de una sorpresa: (temporada, jornada, partido, origen). El
+    # origen entra en la clave porque un mismo partido puede ser a la vez
+    # sorpresa de mercado (este script) y fijo fallado del diario (el otro
+    # escritor): son dos hechos distintos y uno no debe tapar al otro.
     existentes = {
         (
+            temporada_sorpresa(item),
             int(item.get("jornada") or 0),
-            int(item.get("numero_partido") or 0),
-            str(item.get("signo_favorito_mercado") or ""),
-            str(item.get("signo_real") or ""),
+            numero_partido_sorpresa(item),
         )
         for item in sorpresas
-        if str(item.get("jornada") or "").isdigit() and str(item.get("numero_partido") or "").isdigit()
+        if str(item.get("jornada") or "").isdigit()
+        and numero_partido_sorpresa(item)
+        and origen_sorpresa(item) == ORIGEN_SORPRESA_MERCADO
     }
     pred_por_num = (pred_info or {}).get("partidos") or {}
     nuevas = 0
@@ -578,14 +706,25 @@ def registrar_sorpresas_mercado(jornada_num, jornada_data, pred_info):
             continue
         prediccion = pred_por_num.get(num, {})
         alertas = alertas_motivacion_prediccion(prediccion)
-        clave = (int(jornada_num), num, signo_fav, real)
+        clave = (temporada, int(jornada_num), num)
         if clave in existentes:
             continue
+        # partido / pronostico_jugado / resultado / registrada_en: los lee el
+        # chat de la web (index.html) en cada entrada del fichero; sin ellos
+        # pintaba 'undefined'. pronostico_jugado es lo que decia el motor al
+        # cierre (puede ser un doble que acerto): la sorpresa es del MERCADO.
         entrada = {
             "jornada": int(jornada_num),
+            "temporada": temporada,
+            "num_partido": num,
             "numero_partido": num,
+            "origen": ORIGEN_SORPRESA_MERCADO,
+            "partido": f"{num}. {partido.get('local') or ''} - {partido.get('visitante') or ''}",
             "local": partido.get("local"),
             "visitante": partido.get("visitante"),
+            "pronostico_jugado": signo_prediccion(prediccion),
+            "resultado": partido.get("resultado") or "",
+            "registrada_en": ahora_iso(),
             "probabilidad_mercado_favorito": round(float(prob_fav), 2),
             "signo_favorito_mercado": signo_fav,
             "signo_real": real,
@@ -594,7 +733,7 @@ def registrar_sorpresas_mercado(jornada_num, jornada_data, pred_info):
             "categoria_sorpresa": categoria_sorpresa_mercado(prediccion),
             "fecha": partido.get("fecha") or ahora_iso(),
             "mercado_losilla": mercado,
-            "origen_prediccion": str((pred_info or {}).get("path") or ""),
+            "origen_prediccion": ruta_posix((pred_info or {}).get("path")),
         }
         sorpresas.append(entrada)
         existentes.add(clave)
@@ -705,7 +844,7 @@ def cerrar_jornada_con_prediccion(path, jornada_data, pred_info):
             cambiado = True
 
     resumen_nuestro = {
-        "origen": str(pred_info.get("path") or "data/predicciones"),
+        "origen": ruta_posix(pred_info.get("path")) or "data/predicciones",
         "comparados": comparacion["comparados"],
         "aciertos": comparacion["aciertos"],
         "fallos": comparacion["fallos"],
@@ -741,7 +880,23 @@ def estimar_premio(aciertos, prediccion, detalle):
     return 0.0, "pendiente"
 
 
-def construir_registro_premios(jornada, pred_info, comparacion):
+def temporadas_con_jugada_real():
+    """{numero de jornada: {temporadas}} de las quinielas REALMENTE jugadas
+    (data/quinielas_jugadas.json), con la temporada de su fecha de validacion."""
+    resultado = {}
+    memoria = cargar_json(QUINIELAS_JUGADAS, {"jugadas": []})
+    jugadas = memoria.get("jugadas", []) if isinstance(memoria, dict) else []
+    for jugada in jugadas:
+        if not isinstance(jugada, dict) or not str(jugada.get("jornada") or "").isdigit():
+            continue
+        numero = int(jugada["jornada"])
+        fecha = cronologia_jornadas.parsear_fecha(jugada.get("validado_en") or jugada.get("fecha"))
+        temporada = cronologia_jornadas.temporada_de_fecha(fecha, numero) if fecha else None
+        resultado.setdefault(numero, set()).add(temporada)
+    return resultado
+
+
+def construir_registro_premios(jornada, pred_info, comparacion, temporada=None):
     prediccion = (pred_info or {}).get("data") or {}
     detalle = comparacion.get("detalle") or []
     premio, fuente = estimar_premio(comparacion["aciertos"], prediccion, detalle)
@@ -751,6 +906,7 @@ def construir_registro_premios(jornada, pred_info, comparacion):
     )
     return {
         "jornada": jornada,
+        "temporada": temporada,
         "aciertos": comparacion["aciertos"],
         "fallos": comparacion["fallos"],
         "partidos_comparados": comparacion["comparados"],
@@ -758,7 +914,7 @@ def construir_registro_premios(jornada, pred_info, comparacion):
         "fuente_premio": fuente,
         "boleto": boleto,
         "detalle_partidos": detalle,
-        "origen_prediccion": str((pred_info or {}).get("path") or ""),
+        "origen_prediccion": ruta_posix((pred_info or {}).get("path")),
         "actualizado_en": ahora_iso(),
         "notas": "Comparado automaticamente contra data/predicciones/jornada_X.json al cerrarse la jornada.",
     }
@@ -798,9 +954,20 @@ def debe_reemplazar_registro_premios(actual, nuevo):
     return any(actual.get(campo) != nuevo.get(campo) for campo in campos)
 
 
-def actualizar_historial_premios(registros):
+def actualizar_historial_premios(registros, jugadas_reales=None):
+    """jugadas_reales: {numero: {temporadas}} de quinielas_jugadas.json.
+
+    Revision 27/11: al evaluar con el snapshot pre-cierre, la comparacion
+    generica de este script dejo de coincidir con la guardada en J66 y J67
+    (jornadas JUGADAS por Marc) y las reescribia (11 -> 10 aciertos, otro
+    boleto, sin temporada). El registro de una jornada jugada es de
+    calcular_premios.py (sale de la quiniela real), no de la prediccion del
+    motor: si ya existe, aqui no se toca. Ademas el registro nuevo conserva
+    la temporada.
+    """
     if not registros:
         return 0
+    jugadas_reales = jugadas_reales or {}
     historial = cargar_json(HISTORIAL_PREMIOS, {"jornadas": []})
     existentes = {
         int(entry.get("jornada")): entry
@@ -813,6 +980,17 @@ def actualizar_historial_premios(registros):
         actual = existentes.get(jornada)
         if not debe_reemplazar_registro_premios(actual, nuevo):
             continue
+        if actual:
+            temporada_actual = actual.get("temporada") or nuevo.get("temporada")
+            misma_temporada = (
+                not actual.get("temporada")
+                or not nuevo.get("temporada")
+                or actual.get("temporada") == nuevo.get("temporada")
+            )
+            if misma_temporada and temporada_actual in jugadas_reales.get(jornada, set()):
+                continue
+            if misma_temporada and not nuevo.get("temporada"):
+                nuevo["temporada"] = actual.get("temporada")
         if actual and actual.get("fuente_premio") in FUENTES_PREMIO_PROTEGIDAS:
             nuevo["premio_eur"] = actual.get("premio_eur", nuevo["premio_eur"])
             nuevo["fuente_premio"] = actual.get("fuente_premio")
@@ -845,7 +1023,11 @@ def main():
 
         comparacion_cierre = cerrar_jornada_con_prediccion(path, data, pred_info)
         if comparacion_cierre:
-            registros_premios[int(jornada_num)] = construir_registro_premios(int(jornada_num), pred_info, comparacion_cierre)
+            fecha_real = cronologia_jornadas.fecha_real_jornada(data)
+            registros_premios[int(jornada_num)] = construir_registro_premios(
+                int(jornada_num), pred_info, comparacion_cierre,
+                temporada=cronologia_jornadas.temporada_de_fecha(fecha_real, int(jornada_num)) if fecha_real else None,
+            )
             registrar_sorpresas_mercado(int(jornada_num), data, pred_info)
             jornadas_cerradas_actualizadas += 1
             data = cargar_json(path, data)
@@ -857,7 +1039,7 @@ def main():
             pron_prediccion = signo_prediccion(prediccion)
             if pronostico_valido(pron_prediccion):
                 pron = pron_prediccion
-                origen = f"data/predicciones/jornada_{int(jornada_num)}.json"
+                origen = Path((pred_info or {}).get("path") or f"data/predicciones/jornada_{int(jornada_num)}.json").as_posix()
             elif jugada and idx < len(jugada["signos"]):
                 pron = jugada["signos"][idx]
                 origen = jugada.get("origen") or "data/quinielas_jugadas.json"
@@ -871,7 +1053,7 @@ def main():
         if revisados_jornada:
             resumen["jornadas_revisadas"] += 1
 
-    cambios_premios = actualizar_historial_premios(registros_premios)
+    cambios_premios = actualizar_historial_premios(registros_premios, temporadas_con_jugada_real())
     salida = construir_salida(resumen, fuentes_jugadas)
     guardar_json(OUT, salida)
     print(f"Aprendizaje IA generado: {OUT}")
@@ -894,15 +1076,21 @@ def registrar_retroalimentacion_factores():
     """
     SALIDA = DATA / "memoria_ia" / "retroalimentacion_factores.json"
 
-    memoria = cargar_json(SALIDA, {
-        "version": "1.0",
+    # Auditoria 26/11: se cargaba el fichero anterior y se hacia casos += 1
+    # recorriendo TODAS las jornadas en cada ciclo, asi que cada ejecucion del
+    # pipeline habria vuelto a sumar todas las jornadas. Los contadores se
+    # reconstruyen desde cero: el resultado depende solo de los datos.
+    memoria = {
+        "version": "1.1",
         "descripcion": "Retroalimentacion de factores psicologicos sobre resultados reales",
         "factores": {},
         "partidos_analizados": 0,
         "actualizado_en": ""
-    })
+    }
 
-    factores = memoria.setdefault("factores", {})
+    factores = memoria["factores"]
+    # La prediccion que se evalua es la del cierre (snapshot), no la regenerada.
+    predicciones_cierre = cargar_predicciones_detalladas_por_jornada()
 
     FACTORES_CONOCIDOS = {
         "ultimo_partido_orgullo": "Equipo eliminado en su ultimo partido — factor orgullo",
@@ -927,14 +1115,13 @@ def registrar_retroalimentacion_factores():
 
     partidos_procesados = 0
 
-    for path in sorted(JORNADAS.glob("jornada_*.json")):
+    for path in sorted(JORNADAS.glob("jornada_*.json"), key=orden_cronologico_jornada):
         jornada_data = cargar_json(path, {})
         jornada_num = int(jornada_data.get("jornada", 0) or 0)
         if not jornada_num:
             continue
 
-        pred_path = PREDICCIONES / f"jornada_{jornada_num}.json"
-        pred_data = cargar_json(pred_path, {})
+        pred_data = (predicciones_cierre.get(jornada_num) or {}).get("data") or {}
         partidos_pred = {}
         for p in (pred_data.get("partidos") or []):
             num = p.get("num") or p.get("numero")
@@ -977,7 +1164,8 @@ def registrar_retroalimentacion_factores():
             signo_pred = str(
                 pred_partido.get("signo") or
                 pred_partido.get("pronostico") or
-                pred_partido.get("signo_predicho") or ""
+                pred_partido.get("signo_predicho") or
+                signo_prediccion(pred_partido) or ""
             ).strip()
 
             local = partido.get("local", "")

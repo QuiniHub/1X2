@@ -236,8 +236,53 @@ def guardar_json(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def cargar_previo(path=None):
+    """Historico ya guardado ({} si no existe o no se puede leer)."""
+    path = Path(path or SALIDA)
+    try:
+        datos = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    return datos if isinstance(datos, dict) else {}
+
+
+def temporada_previa(previo, liga, nombre_temp):
+    """Bloque de una temporada del historico previo, solo si trae partidos."""
+    bloque = (((previo.get("ligas") or {}).get(liga) or {}).get("temporadas") or {}).get(nombre_temp)
+    if isinstance(bloque, dict) and bloque.get("partidos"):
+        return bloque
+    return None
+
+
+def total_partidos(historico):
+    total = 0
+    for liga in (historico.get("ligas") or {}).values():
+        for temporada in (liga.get("temporadas") or {}).values():
+            total += len(temporada.get("partidos") or [])
+    return total
+
+
+def total_partidos_comunes(previo, nuevo):
+    """Partidos del historico previo contando solo las ligas/temporadas que
+    tambien estan en el nuevo."""
+    total = 0
+    for nombre_liga, liga in (previo.get("ligas") or {}).items():
+        temporadas_nuevas = (((nuevo.get("ligas") or {}).get(nombre_liga) or {}).get("temporadas") or {})
+        for nombre_temp, temporada in (liga.get("temporadas") or {}).items():
+            if nombre_temp in temporadas_nuevas:
+                total += len(temporada.get("partidos") or [])
+    return total
+
+
 def main():
     print("=== Cargando historial completo LaLiga 1a y 2a (ultimas 3 temporadas) ===\n")
+    # Auditoria 26/11 (hallazgos 34 y 63): si football-data falla, antes se
+    # guardaba un historico VACIO encima del bueno (2,4 MB) y en el mismo ciclo
+    # el motor leia H2H y patrones vacios. Ahora una temporada que no se puede
+    # descargar se conserva del fichero previo, y nunca se guarda un historico
+    # con menos partidos que el que ya habia.
+    previo = cargar_previo()
+    conservadas = []
     historico = {
         "version": "1.0",
         "generado_en": datetime.now(timezone.utc).isoformat(),
@@ -262,13 +307,19 @@ def main():
             print(f"  Descargando temporada {nombre_temp}...", end=" ", flush=True)
 
             url, contenido = descargar_csv(liga, temporada)
-            if not contenido:
+            partidos = parsear_csv(contenido, url, nombre_temp) if contenido else []
+            bloque_previo = temporada_previa(previo, liga, nombre_temp)
+            if bloque_previo and len(partidos) < len(bloque_previo["partidos"]):
+                # Descarga fallida, vacia o recortada: vale mas el dato previo.
+                motivo = "SIN DATOS" if not contenido else f"solo {len(partidos)} partidos"
+                partidos = bloque_previo["partidos"]
+                conservadas.append(f"{liga} {nombre_temp}")
+                print(f"{motivo}: se conserva el dato previo ({len(partidos)} partidos).", end=" ")
+            elif not contenido:
                 print("SIN DATOS")
                 continue
-
-            partidos = parsear_csv(contenido, url, nombre_temp)
-            if not partidos:
-                print("CSV vacío o sin resultados cerrados")
+            elif not partidos:
+                print("CSV vacio o sin resultados cerrados")
                 continue
 
             stats = calcular_estadisticas(partidos)
@@ -291,6 +342,20 @@ def main():
             }
             print(f"  TOTAL {info['nombre']}: {len(todos_partidos)} partidos consolidados")
 
+    if conservadas:
+        historico["temporadas_conservadas_del_previo"] = conservadas
+    # La comparacion con lo guardado se hace SOLO sobre las temporadas que
+    # trae el historico nuevo: si se desplaza la ventana TEMPORADAS, el total
+    # baja (entra una temporada a medias, sale una completa) y eso no es un
+    # fallo de descarga.
+    nuevos = total_partidos(historico)
+    anteriores = total_partidos_comunes(previo, historico)
+    if nuevos == 0 or nuevos < anteriores:
+        print(
+            f"\nAVISO: el historico nuevo trae {nuevos} partidos y el guardado {anteriores}; "
+            "NO se sobrescribe (se conserva el fichero anterior)."
+        )
+        return 0
     guardar_json(SALIDA, historico)
     total = sum(
         len(historico["ligas"][l]["consolidado"]["partidos"])

@@ -18,6 +18,10 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+    # Auditoria 26/11/2026 (hallazgo 169): sin limite, un paso colgado retenia
+    # el job 6 horas (360 min por defecto) y, con cancel-in-progress=false, no
+    # se publicaba nada en ese tiempo. El ciclo normal dura unos 5 minutos.
+    timeout-minutes: 45
     env:
       QUINIHUB_PRO_DATA_URL: ${{ secrets.QUINIHUB_PRO_DATA_URL }}
       QUINIHUB_PRO_DATA_TOKEN: ${{ secrets.QUINIHUB_PRO_DATA_TOKEN }}
@@ -65,6 +69,17 @@ jobs:
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
         run: |
           python actualizar_todo.py
+
+      # Auditoria 26/11/2026 (hallazgo 104): los invariantes del boleto solo se
+      # probaban ANTES del pipeline, es decir, sobre la salida del ciclo
+      # anterior. Un boleto incoherente se publicaba y era el ciclo SIGUIENTE
+      # el que se atascaba en "Ejecutar pruebas". Ahora se prueban sobre lo
+      # que se acaba de generar y, si fallan, no se hace commit.
+      - name: Comprobar el boleto recien generado
+        env:
+          QUINIELA_POST_PIPELINE: "1"
+        run: |
+          python -m unittest tests.test_calidad_prediccion tests.test_aud_P7_boleto_publicado
 
       - name: Guardar cambios
         run: |

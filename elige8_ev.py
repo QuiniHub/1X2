@@ -45,7 +45,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from columna_valiente import cargar_masa, es_jornada_europea, masa_de
+from columna_valiente import (cargar_masa, es_jornada_europea, masa_de, prediccion_publicable,
+                              publicar_bloque_sombra)
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -580,6 +581,18 @@ def _linea(nombre, r):
             f"{'RECOMENDADO' if r['recomendado'] else 'no recomendado'}  sel {r['seleccion']}")
 
 
+def aviso_publicado(veredicto):
+    """Texto del aviso segun el veredicto REAL del backtest (auditoria 26/11:
+    antes decia 'backtest NO_DESPLEGAR' fuera cual fuera el veredicto)."""
+    base = "Calculadora informativa: P(8/8), coste, break-even y premio esperado condicionado a la jornada. "
+    if veredicto == "NO_DESPLEGAR":
+        return base + "La bandera 'recomendado' NO se despliega (backtest NO_DESPLEGAR). Jugar lo decide Marc."
+    if veredicto:
+        return base + (f"Veredicto del backtest: {veredicto}. La bandera 'recomendado' sigue siendo solo "
+                       "informativa hasta el OK de Marc. Jugar lo decide Marc.")
+    return base + "Sin backtest disponible: la bandera 'recomendado' es solo informativa. Jugar lo decide Marc."
+
+
 def main():
     if "--backtest" in sys.argv:
         r = backtest()
@@ -589,14 +602,27 @@ def main():
         print("  chequeos:", json.dumps(r["chequeos"]))
         return
     prediccion = cargar_json(PREDICCION, {})
-    if not prediccion or not prediccion.get("partidos"):
+    publicar = "--solo-lectura" not in sys.argv
+    if not prediccion:
         print("Sin ultima_prediccion.json; nada que evaluar.")
         return
+    # Auditoria 26/11: misma guarda que los demas modulos. Sobre una prediccion
+    # bloqueada no se publica la calculadora y el bloque anterior se retira.
+    if not prediccion_publicable(prediccion):
+        if publicar:
+            publicar_bloque_sombra("elige8_ev", None, prediccion, PREDICCION)
+        print("Prediccion bloqueada o no disponible; bloque elige8_ev retirado.")
+        return
+    if not prediccion.get("partidos"):
+        print("Sin partidos en ultima_prediccion.json; nada que evaluar.")
+        return
     jornada = prediccion.get("jornada")
-    masa = cargar_masa(jornada) if isinstance(jornada, int) else {}
+    masa = cargar_masa(jornada, partidos=prediccion.get("partidos")) if isinstance(jornada, int) else {}
     tabla = tabla_actual()
     r = evaluar_jornada(prediccion, masa, tabla)
     if r.get("estado") != "ok":
+        if publicar:  # no se deja en disco el bloque de una ejecucion anterior
+            publicar_bloque_sombra("elige8_ev", None, prediccion, PREDICCION)
         print(f"Elige 8 EV J{jornada}: {r.get('estado')} - {r.get('motivo')}")
         return
     print(f"Elige 8 EV J{jornada} ({r['tipo_jornada']}, masa: {', '.join(r['fuente_masa'])}) - solo informacion")
@@ -607,18 +633,10 @@ def main():
     bt = cargar_json(BACKTEST, {}) or {}
     if bt.get("veredicto"):
         print(f"  veredicto backtest para la bandera 'recomendado': {bt['veredicto']}")
-    if "--solo-lectura" not in sys.argv:  # en el pipeline publica el bloque (solo informacion)
+    if publicar:  # en el pipeline publica el bloque (solo informacion)
         r["veredicto_backtest"] = bt.get("veredicto")
-        r["aviso"] = ("Calculadora informativa: P(8/8), coste, break-even y premio esperado condicionado a la jornada. "
-                      "La bandera 'recomendado' NO se despliega (backtest NO_DESPLEGAR). Jugar lo decide Marc.")
-        prediccion["elige8_ev"] = r
-        guardar_json(PREDICCION, prediccion)
-        espejo = PREDICCION.parent / f"jornada_{jornada}.json"
-        if isinstance(jornada, int) and espejo.exists():
-            datos = cargar_json(espejo, {})
-            if datos.get("jornada") == jornada:
-                datos["elige8_ev"] = r
-                guardar_json(espejo, datos)
+        r["aviso"] = aviso_publicado(bt.get("veredicto"))
+        publicar_bloque_sombra("elige8_ev", r, prediccion, PREDICCION)
 
 
 if __name__ == "__main__":
