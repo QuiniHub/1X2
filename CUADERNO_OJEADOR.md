@@ -552,3 +552,9 @@ mató el boleto fueron tres X de gigantes que ningún método publicado sabe ele
   1 entre 815.000 según los % de la masa, el azar daba 1,7 acertantes: los 11 salen de boletos grandes (peñas con muchos
   triples) que compraron las X de Arsenal (15%), City (11%), PSG (10%) y Sporting (24%), no de verlas. Con 18 € el techo
   realista era 11-12; el 14 de una jornada loca solo se compra en semanas de bote (protocolo de bote: el extra a cubrir gigantes con señal).
+
+### J25 — propuesta para Marc (viernes 27/11, 18 € máximo)
+Reducida 3T+3D al 13 (24 apuestas, 18 €): 1 · 2 · 2 · 1 · 1X · 2 · 1X2 · 12 · 1 · 1X2 · 1X · 1 · 1X2 · 1.
+Triples en los tres sin dueño (Celta-Villarreal, Albacete-Tenerife, Mallorca-Castellón). Real Sociedad-Sevilla en 12 y no 1X:
+en nuestros 57 dobles 1X el 2 salió 18 veces frente a 13 esperadas (+38%); la Real viene de perder en Londres el jueves.
+Losilla hace reducidas a medida (corrección de Marc): con 36 € la mejor ampliación sería 3T+4D con Málaga X2.
