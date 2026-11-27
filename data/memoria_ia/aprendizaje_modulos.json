@@ -2,7 +2,7 @@
   "version": 1,
   "descripcion": "Cuaderno de meta-aprendizaje por modulo (15/10/2026): que prometio cada modulo y que entrego, jornada a jornada, con datos pre-cierre (snapshots inmutables + % LAE versionados). Los semaforos y auto-correcciones llevan sus frenos prerregistrados.",
   "temporada": "2026_2027",
-  "actualizado_en": "2026-11-27T11:20:00.063690+00:00",
+  "actualizado_en": "2026-11-27T16:43:57.508886+00:00",
   "jornadas_cerradas": [
     1,
     2,
@@ -2953,18 +2953,8 @@
         }
       },
       "valiente": {
-        "estado": "valiente",
-        "fuente": "marcador_sombra",
-        "partido": "Austria Wien W - Bayern Munich W",
-        "signo": "1",
-        "prob_declarada": 31.6,
-        "masa_pct": 14.0,
-        "senales": [
-          "favorito_distinto_mercado"
-        ],
-        "signo_real": "2",
-        "acierto": false,
-        "pago_hipotetico_eur": 0.0
+        "estado": "sin_dato",
+        "fuente": null
       },
       "revulsivo": {
         "estado": "ok",
@@ -3042,7 +3032,7 @@
         "fuente": "marcador_sombra",
         "partido": "CA Osasuna - Malaga CF",
         "signo": "X",
-        "prob_declarada": 29.3,
+        "prob_declarada": 30.0,
         "masa_pct": 18.0,
         "senales": [
           "empatador"
@@ -3158,18 +3148,8 @@
         }
       },
       "valiente": {
-        "estado": "valiente",
-        "fuente": "marcador_sombra",
-        "partido": "Slovan Bratislava - Real Betis Balompie",
-        "signo": "X",
-        "prob_declarada": 32.3,
-        "masa_pct": 18.0,
-        "senales": [
-          "empatador"
-        ],
-        "signo_real": "2",
-        "acierto": false,
-        "pago_hipotetico_eur": 0.0
+        "estado": "sin_dato",
+        "fuente": null
       },
       "revulsivo": {
         "estado": "ok",
@@ -3295,12 +3275,12 @@
       "promesa": "Maximizar euros, no aciertos. Umbral de sanidad prerregistrado: cobrar >=50% de lo realmente jugado (es estrategia de cola: pierde premios pequeños a cambio de colas raras).",
       "ultimo_ajuste": {
         "estado": "ajustado",
-        "valor": 1.002,
-        "mediana_sin_acotar": 1.002,
-        "escrutinios": 23,
-        "celdas": 97,
+        "valor": 1.039,
+        "mediana_sin_acotar": 1.039,
+        "escrutinios": 24,
+        "celdas": 107,
         "freno": "Solo con >=10 escrutinios reales; mediana real/modelo sobre celdas con >=10 acertantes; acotado a [0.5x - 2.0x].",
-        "actualizado_en": "2026-11-27T11:20:00.063690+00:00",
+        "actualizado_en": "2026-11-27T16:43:57.508886+00:00",
         "historial": [
           {
             "fecha": "2026-10-15T06:46:27.417986+00:00",
@@ -3367,6 +3347,12 @@
             "valor": 1.002,
             "escrutinios": 23,
             "celdas": 97
+          },
+          {
+            "fecha": "2026-11-27T16:43:57.508886+00:00",
+            "valor": 1.039,
+            "escrutinios": 24,
+            "celdas": 107
           }
         ]
       }
@@ -3374,10 +3360,10 @@
     "valiente": {
       "semaforo": "ambar",
       "texto_semaforo": "en vigilancia: por debajo de lo esperado, sin suspender",
-      "titular": "1 aciertos vs 2,6 esperados",
+      "titular": "1 aciertos vs 1,9 esperados",
       "valor": 1,
-      "comparacion": 2.58,
-      "evaluadas": 9,
+      "comparacion": 1.95,
+      "evaluadas": 7,
       "fuente": "marcador de sombra",
       "senales_suspendidas": [],
       "por_senal": {
@@ -3388,21 +3374,15 @@
           "suspendida": false
         },
         "empatador": {
-          "valientes": 5,
+          "valientes": 4,
           "aciertos": 0,
-          "esperados": 1.43,
+          "esperados": 1.11,
           "suspendida": false
         },
         "nemesis": {
           "valientes": 1,
           "aciertos": 0,
           "esperados": 0.31,
-          "suspendida": false
-        },
-        "favorito_distinto_mercado": {
-          "valientes": 1,
-          "aciertos": 0,
-          "esperados": 0.32,
           "suspendida": false
         }
       },
@@ -3411,7 +3391,7 @@
         "estado": "sin_ajuste",
         "senales_suspendidas": [],
         "freno": "Una señal con >=8 valientes propias y aciertos < 50% de esperados se suspende sola (senal_valiente.py) y se anuncia. Ningun umbral estructural se auto-cambia.",
-        "actualizado_en": "2026-11-27T11:20:00.063690+00:00",
+        "actualizado_en": "2026-11-27T16:43:57.508886+00:00",
         "motivo": "Ninguna señal cumple el freno de suspension (>=8 propias y <50% de esperados)."
       }
     },
@@ -3432,15 +3412,15 @@
         },
         "estado": "sin_ajuste",
         "motivo": "Freno: hacen falta >=10 casos nuevos 26/27 por lado (hay fuera=2, casa=2).",
-        "actualizado_en": "2026-11-27T11:20:00.063690+00:00"
+        "actualizado_en": "2026-11-27T16:43:57.508886+00:00"
       }
     },
     "fijos_banda": {
       "semaforo": "verde",
       "texto_semaforo": "cumple su promesa: tus fijos rinden lo que promete su banda real",
-      "titular": "120 de 200 fijos vs 119,2 esperados",
+      "titular": "120 de 200 fijos vs 112,3 esperados",
       "valor": 120,
-      "comparacion": 119.2,
+      "comparacion": 112.32,
       "fijos_evaluados": 200,
       "por_banda": {
         "10-20": {
@@ -3458,25 +3438,25 @@
         "30-40": {
           "jugados": 25,
           "aciertos": 13,
-          "promesa_pct": 42.9,
+          "promesa_pct": 31.2,
           "acierto_pct": 52.0
         },
         "40-50": {
           "jugados": 60,
           "aciertos": 32,
-          "promesa_pct": 53.2,
+          "promesa_pct": 54.8,
           "acierto_pct": 53.3
         },
         "50-60": {
           "jugados": 51,
           "aciertos": 34,
-          "promesa_pct": 73.1,
+          "promesa_pct": 67.8,
           "acierto_pct": 66.7
         },
         "60-70": {
           "jugados": 41,
           "aciertos": 33,
-          "promesa_pct": 81.0,
+          "promesa_pct": 75.6,
           "acierto_pct": 80.5
         },
         "70-80": {

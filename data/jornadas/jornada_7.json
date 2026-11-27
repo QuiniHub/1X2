@@ -198,24 +198,26 @@
       "signo_oficial": "1",
       "signo_nuestro": "1",
       "fuente_equipos": "quiniela15_resultados",
-      "competicion_resuelta": "liga_extranjera",
-      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "competicion_resuelta": "primera_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_primera",
       "resolucion_competicion": {
-        "competicion": "liga_extranjera",
-        "modelo_recomendado": "modelo_liga_extranjera",
-        "confianza": 0.62,
-        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
-        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "competicion": "primera_division",
+        "modelo_recomendado": "modelo_liga_espana_primera",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Primera.",
+        "lectura": "Usar clasificacion de Primera, forma, casa/fuera, objetivos y bajas.",
         "datos_minimos": [
           "resultados",
-          "clasificacion_liga",
+          "clasificacion",
           "forma",
-          "ranking_elo",
-          "lesiones"
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
         ],
         "equipos_normalizados": {
           "local": "barcelona",
-          "visitante": "r santander"
+          "visitante": "racing santander"
         }
       },
       "corregido_en": "2026-09-18T06:23:11.513871+00:00",
@@ -232,7 +234,7 @@
       "hora": "21:30",
       "resultado": "4-2",
       "signo_oficial": "1",
-      "signo_nuestro": "X2",
+      "signo_nuestro": "1X2",
       "competicion_resuelta": "primera_division",
       "modelo_datos_recomendado": "modelo_liga_espana_primera",
       "resolucion_competicion": {
@@ -260,7 +262,7 @@
       "estado": "Aplazado",
       "fuente_resultado": "https://www.flashscore.es/partido/futbol/athletic-club-IP5zl0cJ/levante-ud-G8FL0ShI/",
       "actualizado_en": "2026-10-15T22:39:54.060273+00:00",
-      "acierto_nuestro": false
+      "acierto_nuestro": true
     },
     {
       "num": 8,
@@ -371,7 +373,7 @@
       "hora": "21:00",
       "resultado": "1-2",
       "signo_oficial": "2",
-      "signo_nuestro": "X2",
+      "signo_nuestro": "12",
       "fuente_equipos": "quiniela15_resultados",
       "actualizado_en": "2026-09-16T21:37:25Z",
       "competicion_resuelta": "liga_extranjera",
@@ -439,7 +441,7 @@
       "hora": "21:00",
       "resultado": "0-3",
       "signo_oficial": "2",
-      "signo_nuestro": "1X2",
+      "signo_nuestro": "12",
       "fuente_equipos": "quiniela15_resultados",
       "actualizado_en": "2026-09-17T22:23:50Z",
       "competicion_resuelta": "liga_extranjera",
@@ -536,20 +538,20 @@
   "fuente_boleto_vivo": "https://www.quiniela15.com/resultados-quiniela",
   "boleto_vivo_actualizado_en": "2026-09-17T22:23:50Z",
   "resolucion_competiciones": {
-    "generado_en": "2026-11-27T11:20:12.522474+00:00",
+    "generado_en": "2026-11-27T16:44:07.377863+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
-      "primera_division": 7,
-      "liga_extranjera": 7
+      "primera_division": 8,
+      "liga_extranjera": 6
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
   },
   "resumen_nuestro": {
-    "origen": "data/predicciones/jornada_7.json",
+    "origen": "data/backtesting/pre_cierre/jornada_7.json",
     "comparados": 14,
-    "aciertos": 7,
-    "fallos": 7,
-    "precision": 50.0,
-    "actualizado_en": "2026-11-27T11:19:58.523963+00:00"
+    "aciertos": 8,
+    "fallos": 6,
+    "precision": 57.14,
+    "actualizado_en": "2026-11-27T16:43:55.757220+00:00"
   }
 }

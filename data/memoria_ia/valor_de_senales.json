@@ -1,10 +1,11 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-27T11:20:51.523309+00:00",
+  "generado_en": "2026-11-27T16:44:52.216771+00:00",
   "descripcion": "Compara la precision real de los partidos con cada senal del motor activa frente a sin ella, usando solo snapshots inmutables guardados antes de conocer el resultado. No se saca ninguna conclusion por debajo de 100 partidos con la senal activa.",
   "partidos_evaluados_total": 490,
   "senales": {
     "contexto_competitivo_motivacion": {
+      "tipo": "ajuste",
       "con_senal": {
         "partidos": 3,
         "precision": 33.33,
@@ -20,6 +21,7 @@
       "conclusion": "Solo 3 partidos con esta senal activa hasta ahora (hacen falta 100); todavia no hay evidencia suficiente para decidir si ayuda o no."
     },
     "datos_profesionales_cuotas": {
+      "tipo": "ajuste",
       "con_senal": {
         "partidos": 0,
         "precision": null,
@@ -35,6 +37,7 @@
       "conclusion": "Solo 0 partidos con esta senal activa hasta ahora (hacen falta 100); todavia no hay evidencia suficiente para decidir si ayuda o no."
     },
     "refuerzo_sorpresas_mercado": {
+      "tipo": "ajuste",
       "con_senal": {
         "partidos": 0,
         "precision": null,
@@ -50,6 +53,7 @@
       "conclusion": "Solo 0 partidos con esta senal activa hasta ahora (hacen falta 100); todavia no hay evidencia suficiente para decidir si ayuda o no."
     },
     "riesgo_sorpresa_sin_cubrir": {
+      "tipo": "riesgo",
       "con_senal": {
         "partidos": 186,
         "precision": 43.01,
@@ -61,8 +65,8 @@
         "brier_medio": 0.5739
       },
       "diferencia_precision": -10.61,
-      "veredicto": "perjudica",
-      "conclusion": "Con esta senal activa la precision BAJA -10.61 puntos (43.01% frente a 53.62% sin ella): revisar por que."
+      "veredicto": "marca_partidos_dificiles",
+      "conclusion": "Senal de riesgo: los partidos que marca se aciertan menos (43.01% frente a 53.62% del resto). Es lo esperado: esta senal SELECCIONA los partidos dificiles, asi que esta separando bien. No mide si cubrirlos da valor."
     }
   }
 }

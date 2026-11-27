@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generado_en": "2026-11-27T11:20:51.654928+00:00",
+  "generado_en": "2026-11-27T16:44:52.394430+00:00",
   "estado": "operativo_con_avisos",
   "score_salud": 79,
   "lectura": "Sistema util para prediccion probabilistica y aprendizaje, pero no perfecto: debe controlar azar, fuentes incompletas y memoria propia persistente.",
@@ -102,8 +102,8 @@
   },
   "memoria_quinielas": {
     "jugadas_persistidas_json": 41,
-    "jornadas_validadas_historial": 42,
-    "jornadas_memoria_real_total": 122,
+    "jornadas_validadas_historial": 41,
+    "jornadas_memoria_real_total": 121,
     "jornadas_con_signo_nuestro": 39,
     "signos_nuestros_en_jornadas": 546,
     "estado": "memoria_propia_disponible",
@@ -116,12 +116,12 @@
   },
   "prediccion": {
     "jornada": 25,
-    "generado_en": "2026-11-27T11:20:27.097491+00:00",
+    "generado_en": "2026-11-27T16:44:21.442824+00:00",
     "partidos": 14,
     "resumen": {
-      "fijos": 9,
+      "fijos": 8,
       "dobles": 4,
-      "triples": 1,
+      "triples": 2,
       "elige8_seleccionados": 0,
       "favoritos_atacables": 5,
       "indice_sorpresa_max": 100.0,
@@ -186,7 +186,7 @@
   "fuentes": {
     "memoria_horas": 0.01,
     "estado_vivo_horas": 0.01,
-    "contexto_equipos_horas": 2.96,
+    "contexto_equipos_horas": 0.02,
     "modulos": {
       "resultados_directo": {
         "estado": "conectado_fragil",
@@ -197,8 +197,8 @@
         "detalle": "Google News RSS por titulares; util para alertas, no garantiza partes medicos oficiales."
       },
       "cuotas": {
-        "estado": "pendiente_secret",
-        "detalle": "No hay cuotas reales integradas; falta QUINIHUB_PRO_DATA_URL/TOKEN."
+        "estado": "conectado_mercado_losilla",
+        "detalle": "Mercado Losilla activo (actualizado hace 0.02 h); es la fuente de mercado que usa el motor."
       },
       "xg": {
         "estado": "pendiente_fuente",
@@ -221,14 +221,14 @@
         "detalle": "No influye todavia en probabilidades reales."
       },
       "porcentajes_apostados": {
-        "estado": "pendiente",
-        "detalle": "No hay consenso de apostantes integrado."
+        "estado": "conectado_lae",
+        "detalle": "25 jornadas con % de apostantes LAE versionados (2026_2027)."
       }
     },
     "datos_profesionales": {
       "estado_global": "sin_datos_profesionales",
       "temporada_objetivo": "2026/2027",
-      "generado_en": "2026-11-27T08:23:49Z",
+      "generado_en": "2026-11-27T16:44:07Z",
       "resumen": {
         "partidos_enriquecidos": 0,
         "cuotas": 0,
@@ -260,7 +260,7 @@
     "partidos_cerrados": 490,
     "aciertos": 327,
     "precision": 66.73,
-    "generado_en": "2026-11-27T08:30:36.202896+00:00",
+    "generado_en": "2026-11-27T11:20:53.158454+00:00",
     "nota": "Solo cuenta predicciones congeladas antes de existir resultados oficiales."
   },
   "alertas": [
@@ -273,13 +273,13 @@
     {
       "nivel": "media",
       "titulo": "Jornada con azar alto",
-      "detalle": "Hay 6 partidos con riesgo de sorpresa, empate o margen corto.",
+      "detalle": "Hay 8 partidos con riesgo de sorpresa, empate o margen corto.",
       "accion": "Marcar trampas y no usar esos partidos como Elige 8 salvo que cambie el contexto."
     },
     {
       "nivel": "media",
       "titulo": "Fuentes deportivas incompletas",
-      "detalle": "Faltan datos profesionales estructurados: cuotas, bajas/sanciones, alineaciones, calendario 2026/2027, clasificaciones 2026/2027.",
+      "detalle": "Faltan datos profesionales estructurados: bajas/sanciones, alineaciones, calendario 2026/2027, clasificaciones 2026/2027.",
       "accion": "Configurar QUINIHUB_PRO_DATA_URL/TOKEN con un proveedor autorizado."
     }
   ],
@@ -292,7 +292,7 @@
   ],
   "control_calidad": {
     "version": "1.0",
-    "generado_en": "2026-11-27T11:20:51.654928+00:00",
+    "generado_en": "2026-11-27T16:44:52.394430+00:00",
     "estado": "operativo",
     "score": 100,
     "alertas": [],
@@ -402,16 +402,16 @@
       }
     },
     "contexto_competitivo": {
-      "generado_en": "2026-11-27T11:20:05.282850+00:00"
+      "generado_en": "2026-11-27T16:44:02.943112+00:00"
     },
     "prediccion": {
       "jornada": 25,
-      "generado_en": "2026-11-27T11:20:27.097491+00:00",
+      "generado_en": "2026-11-27T16:44:21.442824+00:00",
       "partidos": 14,
       "resumen": {
-        "fijos": 9,
+        "fijos": 8,
         "dobles": 4,
-        "triples": 1,
+        "triples": 2,
         "elige8_seleccionados": 0,
         "favoritos_atacables": 5,
         "indice_sorpresa_max": 100.0,
@@ -533,6 +533,6 @@
     }
   },
   "contexto_competitivo_control": {
-    "generado_en": "2026-11-27T11:20:05.282850+00:00"
+    "generado_en": "2026-11-27T16:44:02.943112+00:00"
   }
 }

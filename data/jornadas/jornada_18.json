@@ -48,7 +48,7 @@
       "hora": "16:15",
       "resultado": "3-0",
       "signo_oficial": "1",
-      "signo_nuestro": "1X",
+      "signo_nuestro": "X",
       "actualizado_en": "2026-10-31T20:12:55Z",
       "fuente_resultado": "quiniela15_resultados",
       "competicion_resuelta": "primera_division",
@@ -73,7 +73,7 @@
           "visitante": "celta vigo"
         }
       },
-      "acierto_nuestro": true
+      "acierto_nuestro": false
     },
     {
       "num": 3,
@@ -153,7 +153,7 @@
       "hora": "14:00",
       "resultado": "3-1",
       "signo_oficial": "1",
-      "signo_nuestro": "X2",
+      "signo_nuestro": "X",
       "competicion_resuelta": "primera_division",
       "modelo_datos_recomendado": "modelo_liga_espana_primera",
       "resolucion_competicion": {
@@ -191,23 +191,25 @@
       "signo_nuestro": "2",
       "fuente_equipos": "quiniela15_resultados",
       "actualizado_en": "2026-11-03T08:02:56Z",
-      "competicion_resuelta": "liga_extranjera",
-      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "competicion_resuelta": "primera_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_primera",
       "resolucion_competicion": {
-        "competicion": "liga_extranjera",
-        "modelo_recomendado": "modelo_liga_extranjera",
-        "confianza": 0.62,
-        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
-        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "competicion": "primera_division",
+        "modelo_recomendado": "modelo_liga_espana_primera",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Primera.",
+        "lectura": "Usar clasificacion de Primera, forma, casa/fuera, objetivos y bajas.",
         "datos_minimos": [
           "resultados",
-          "clasificacion_liga",
+          "clasificacion",
           "forma",
-          "ranking_elo",
-          "lesiones"
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
         ],
         "equipos_normalizados": {
-          "local": "r santander",
+          "local": "racing santander",
           "visitante": "madrid"
         }
       },
@@ -257,7 +259,7 @@
       "hora": "16:15",
       "resultado": "1-1",
       "signo_oficial": "X",
-      "signo_nuestro": "1X2",
+      "signo_nuestro": "1X",
       "actualizado_en": "2026-10-31T20:12:55Z",
       "fuente_resultado": "quiniela15_resultados",
       "competicion_resuelta": "segunda_division",
@@ -327,7 +329,7 @@
       "hora": "18:30",
       "resultado": "1-1",
       "signo_oficial": "X",
-      "signo_nuestro": "2",
+      "signo_nuestro": "1X2",
       "competicion_resuelta": "segunda_division",
       "modelo_datos_recomendado": "modelo_liga_espana_segunda",
       "resolucion_competicion": {
@@ -352,7 +354,7 @@
       },
       "fuente_resultado": "quiniela15_resultados",
       "actualizado_en": "2026-11-03T08:02:56Z",
-      "acierto_nuestro": false
+      "acierto_nuestro": true
     },
     {
       "num": 11,
@@ -394,7 +396,7 @@
       "hora": "18:00",
       "resultado": "2-1",
       "signo_oficial": "1",
-      "signo_nuestro": "1",
+      "signo_nuestro": "1X",
       "fuente_equipos": "quiniela15_resultados",
       "fuente_resultado": "quiniela15_resultados",
       "actualizado_en": "2026-11-01T05:31:28Z",
@@ -518,22 +520,21 @@
   "fuente_boleto_vivo": "https://www.quiniela15.com/resultados-quiniela",
   "boleto_vivo_actualizado_en": "2026-11-03T08:02:56Z",
   "resolucion_competiciones": {
-    "generado_en": "2026-11-27T11:20:12.468814+00:00",
+    "generado_en": "2026-11-27T16:44:07.348366+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
-      "primera_division": 6,
-      "liga_extranjera": 1,
+      "primera_division": 7,
       "segunda_division": 3,
       "liga_f": 4
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
   },
   "resumen_nuestro": {
-    "origen": "data/predicciones/jornada_18.json",
+    "origen": "data/backtesting/pre_cierre/jornada_18.json",
     "comparados": 14,
     "aciertos": 11,
     "fallos": 3,
     "precision": 78.57,
-    "actualizado_en": "2026-11-27T11:19:58.595329+00:00"
+    "actualizado_en": "2026-11-27T16:43:55.826925+00:00"
   }
 }

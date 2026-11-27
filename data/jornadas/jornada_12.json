@@ -13,7 +13,7 @@
       "hora": "14:00",
       "resultado": "0-0",
       "signo_oficial": "X",
-      "signo_nuestro": "1X",
+      "signo_nuestro": "1X2",
       "actualizado_en": "2026-10-11T23:54:11Z",
       "competicion_resuelta": "primera_division",
       "modelo_datos_recomendado": "modelo_liga_espana_primera",
@@ -117,7 +117,7 @@
       "hora": "14:00",
       "resultado": "0-0",
       "signo_oficial": "X",
-      "signo_nuestro": "1",
+      "signo_nuestro": "1X2",
       "competicion_resuelta": "primera_division",
       "modelo_datos_recomendado": "modelo_liga_espana_primera",
       "resolucion_competicion": {
@@ -142,7 +142,7 @@
       },
       "fuente_resultado": "quiniela15_resultados",
       "actualizado_en": "2026-10-11T15:56:56Z",
-      "acierto_nuestro": false
+      "acierto_nuestro": true
     },
     {
       "num": 5,
@@ -152,7 +152,7 @@
       "hora": "16:15",
       "resultado": "3-2",
       "signo_oficial": "1",
-      "signo_nuestro": "1X",
+      "signo_nuestro": "1",
       "competicion_resuelta": "primera_division",
       "modelo_datos_recomendado": "modelo_liga_espana_primera",
       "resolucion_competicion": {
@@ -222,31 +222,33 @@
       "hora": "21:00",
       "resultado": "2-2",
       "signo_oficial": "X",
-      "signo_nuestro": "1",
+      "signo_nuestro": "1X",
       "fuente_equipos": "quiniela15_resultados",
       "actualizado_en": "2026-10-11T23:54:05Z",
-      "competicion_resuelta": "liga_extranjera",
-      "modelo_datos_recomendado": "modelo_liga_extranjera",
+      "competicion_resuelta": "primera_division",
+      "modelo_datos_recomendado": "modelo_liga_espana_primera",
       "resolucion_competicion": {
-        "competicion": "liga_extranjera",
-        "modelo_recomendado": "modelo_liga_extranjera",
-        "confianza": 0.62,
-        "motivo": "No encaja en Primera/Segunda ni en Mundial; requiere liga especifica.",
-        "lectura": "No usar modelo espanol; exigir clasificacion y datos de la liga real.",
+        "competicion": "primera_division",
+        "modelo_recomendado": "modelo_liga_espana_primera",
+        "confianza": 0.94,
+        "motivo": "Ambos equipos estan en Primera.",
+        "lectura": "Usar clasificacion de Primera, forma, casa/fuera, objetivos y bajas.",
         "datos_minimos": [
           "resultados",
-          "clasificacion_liga",
+          "clasificacion",
           "forma",
-          "ranking_elo",
-          "lesiones"
+          "casa_fuera",
+          "lesiones",
+          "alineaciones",
+          "xg"
         ],
         "equipos_normalizados": {
-          "local": "r santander",
+          "local": "racing santander",
           "visitante": "valencia"
         }
       },
       "fuente_resultado": "quiniela15_resultados",
-      "acierto_nuestro": false
+      "acierto_nuestro": true
     },
     {
       "num": 8,
@@ -256,7 +258,7 @@
       "hora": "21:00",
       "resultado": "3-3",
       "signo_oficial": "X",
-      "signo_nuestro": "1X2",
+      "signo_nuestro": "2",
       "competicion_resuelta": "primera_division",
       "modelo_datos_recomendado": "modelo_liga_espana_primera",
       "resolucion_competicion": {
@@ -281,7 +283,7 @@
       },
       "fuente_resultado": "quiniela15_resultados",
       "actualizado_en": "2026-10-12T21:50:57Z",
-      "acierto_nuestro": true
+      "acierto_nuestro": false
     },
     {
       "num": 9,
@@ -466,7 +468,7 @@
       "hora": "18:30",
       "resultado": "3-1",
       "signo_oficial": "1",
-      "signo_nuestro": "1X2",
+      "signo_nuestro": "X2",
       "competicion_resuelta": "segunda_division",
       "modelo_datos_recomendado": "modelo_liga_espana_segunda",
       "resolucion_competicion": {
@@ -491,7 +493,7 @@
       },
       "fuente_resultado": "quiniela15_resultados",
       "actualizado_en": "2026-10-12T21:50:57Z",
-      "acierto_nuestro": true
+      "acierto_nuestro": false
     }
   ],
   "pleno15": {
@@ -531,21 +533,20 @@
   "fuente_boleto_vivo": "https://www.quiniela15.com/resultados-quiniela",
   "boleto_vivo_actualizado_en": "2026-10-12T21:50:57Z",
   "resolucion_competiciones": {
-    "generado_en": "2026-11-27T11:20:12.462471+00:00",
+    "generado_en": "2026-11-27T16:44:07.343558+00:00",
     "objetivo": "motor autonomo con datos profesionales, aprendizaje real y probabilidades calibradas",
     "resumen": {
-      "primera_division": 7,
-      "liga_extranjera": 1,
+      "primera_division": 8,
       "segunda_division": 6
     },
     "regla": "El motor no debe usar clasificacion espanola para selecciones, Mundial o ligas extranjeras."
   },
   "resumen_nuestro": {
-    "origen": "data/predicciones/jornada_12.json",
+    "origen": "data/backtesting/pre_cierre/jornada_12.json",
     "comparados": 14,
     "aciertos": 10,
     "fallos": 4,
     "precision": 71.43,
-    "actualizado_en": "2026-11-27T11:19:58.561038+00:00"
+    "actualizado_en": "2026-11-27T16:43:55.792062+00:00"
   }
 }
