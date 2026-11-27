@@ -178,6 +178,10 @@ SCRIPTS_ACTIVOS = [
     # sorpresa_nombrada: corre despues.
     "columna_valiente.py",
     "publicar_optimizador_boleto.py",
+    # Revisor de boleto (27/11/2026, Marc: "se anota y no se aplica"): pasa
+    # las reglas de data/memoria_ia/reglas_boleto.json por el boleto del motor
+    # y publica los avisos (bloque "revision_boleto", tarjeta en la web).
+    "revisar_boleto.py",
 
     # --- Premios ---
     "calcular_premios.py",

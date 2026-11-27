@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "descripcion": "Reglas de Marc y del metodo que se APLICAN a cualquier boleto (motor, Claude o Marc) antes de sellar. Fuente unica: la leen revisar_boleto.py (pipeline y linea de comandos), la web (tarjeta Revisor de boleto) y Claude. Creado el 27/11/2026 tras: 'llevo 6 meses diciendo que se debe aprender... y resulta que se anota y no se aplica'. Cada regla nueva que salga de una jornada se anade AQUI con su dato y su comprobacion, no solo en el cuaderno.",
+  "reglas": [
+    {
+      "id": "R01_doble_1x_por_costumbre",
+      "titulo": "El compañero del doble suele ser el 2, no la X",
+      "origen": "Marc 27/11/2026 ('no habias dicho que fallamos los dobles porque gana el visitante?'); memoria socio 'dobles rotos 30 de 31 por victoria no cubierta'",
+      "dato": "En nuestros 57 dobles 1X (prediccion del cierre) el 2 salio 18 veces frente a 13 esperadas por el mercado (+38%); en 20 dobles 12 la X salio 2 veces frente a 5,2.",
+      "comprobacion": "Para cada doble 1X: corregir el 2 del mercado por el factor y comparar la cobertura de 1X frente a 12. Aviso si 12 cubre mas, y aviso general si todos los dobles son 1X.",
+      "parametros": {"factor_2": 1.35},
+      "severidad": "alta",
+      "activa": true
+    },
+    {
+      "id": "R02_favorito_mercado_fuera",
+      "titulo": "No dejar fuera el signo favorito del mercado",
+      "origen": "J25, 27/11/2026: el motor puso 1X en Celta-Villarreal con el Villarreal favorito del mercado (38%)",
+      "dato": "El mercado de Losilla es el mejor predictor que tenemos (log-loss 0,926 frente a 0,958 del motor, 320 partidos fuera de muestra).",
+      "comprobacion": "Aviso si un fijo o un doble no contiene el signo con mas probabilidad del mercado de ese partido.",
+      "parametros": {"margen_minimo_pts": 3},
+      "severidad": "alta",
+      "activa": true
+    },
+    {
+      "id": "R03_cubrir_lo_que_se_nombra",
+      "titulo": "Lo que se nombra con señal, se cubre",
+      "origen": "Marc 25/11/2026 ('las dos que han fallado son las X que avisamos y no cubrimos')",
+      "dato": "J23 y J24: las sorpresas nombradas antes del cierre salieron y no estaban en el boleto.",
+      "comprobacion": "Aviso si el signo de la Sorpresa Nombrada (y de la sorpresa nombrada a mano, si se pasa) no esta en el boleto.",
+      "parametros": {},
+      "severidad": "alta",
+      "activa": true
+    },
+    {
+      "id": "R04_fijo_local_racha_casa",
+      "titulo": "Favorito local que gana en su campo: fijo, no gastar cobertura",
+      "origen": "Marc 26/11/2026 ('ver las rachas de cada equipo en casa y fuera')",
+      "dato": "2.116 partidos de 3 temporadas: favorito local >=55% con >=2,2 puntos por partido en sus ultimos 5 en casa gana el 75,7% frente al 66,3% de las cuotas.",
+      "comprobacion": "Aviso informativo si un partido asi lleva doble o triple (cobertura que se podria usar en otro sitio).",
+      "parametros": {"prob_minima": 55, "puntos_casa_minimos": 2.2, "ultimos": 5},
+      "severidad": "media",
+      "activa": true
+    },
+    {
+      "id": "R05_racha_fuera_no_es_senal",
+      "titulo": "La racha FUERA del visitante no es señal",
+      "origen": "Mismo estudio del 26/11/2026",
+      "dato": "Visitante con >=2,2 puntos por partido fuera gana 6,8 puntos MENOS de lo que dicen las cuotas (n=86): las rachas fuera regresan.",
+      "comprobacion": "Aviso informativo si se cubre o se fija el 2 de un visitante que no es favorito del mercado y cuya unica virtud es la racha fuera.",
+      "parametros": {"puntos_fuera": 2.2},
+      "severidad": "baja",
+      "activa": true
+    },
+    {
+      "id": "R06_dobles_del_sabado",
+      "titulo": "Dobles 1X del sabado: mirar el 2",
+      "origen": "Marc 26/11/2026 ('cuantos fallos son del sabado?')",
+      "dato": "Los dobles del sabado fallaron 8 de 18 (44%) frente a 4 de 26 el domingo; 6 de los 8 eran 1X o X1 y gano el visitante.",
+      "comprobacion": "Aviso si un doble 1X se juega en sabado.",
+      "parametros": {},
+      "severidad": "media",
+      "activa": true
+    },
+    {
+      "id": "R07_presupuesto_y_bote",
+      "titulo": "Presupuesto segun el bote",
+      "origen": "Protocolo de bote (01/10/2026) y Marc 27/11/2026 ('18 EUR, maximo 20')",
+      "dato": "Base semanal 18-40 EUR; bote >=2 M -> ~108 EUR; >=4 M -> ~180 EUR. El extra compra señales, jamas favoritos.",
+      "comprobacion": "Aviso si el coste supera el presupuesto indicado o, sin presupuesto, si supera la base y el bote (un unico acertante) es menor de 2 M.",
+      "parametros": {"base_max_eur": 40, "bote_escalon_1": 2000000, "bote_escalon_2": 4000000},
+      "severidad": "alta",
+      "activa": true
+    },
+    {
+      "id": "R08_elige8_europa",
+      "titulo": "Elige 8 en semana europea, no",
+      "origen": "J5, J13, J15 y J24 de 26/27",
+      "dato": "Ocho mas probables en semana europea: 7, 6, 6 y 5 de 8; los jueves con favoritos pagan 1,82-2,85 EUR.",
+      "comprobacion": "Aviso si se juega Elige 8 en una jornada europea.",
+      "parametros": {},
+      "severidad": "media",
+      "activa": true
+    },
+    {
+      "id": "R09_x_cubiertas",
+      "titulo": "Regla 15: X esperadas frente a X cubiertas",
+      "origen": "29/09/2026, 377 partidos",
+      "dato": "La X sale el 22% pero es el 33% de nuestros fallos.",
+      "comprobacion": "Aviso si las X esperadas (suma de P(X) del mercado) superan en mas de 2 a las X cubiertas por el boleto.",
+      "parametros": {"brecha_maxima": 2},
+      "severidad": "media",
+      "activa": true
+    },
+    {
+      "id": "R10_reducidas_losilla_a_medida",
+      "titulo": "Losilla hace reducidas a medida",
+      "origen": "Marc 27/11/2026 ('ya lo hemos hablado 100000000 veces')",
+      "dato": "Referencias jugadas: 3T+3D=24, 3T+4D=48, 4T+4D=128 apuestas al 13.",
+      "comprobacion": "Recordatorio: no limitar la estructura a las 6 reducciones oficiales de LAE.",
+      "parametros": {},
+      "severidad": "baja",
+      "activa": true
+    }
+  ]
+}

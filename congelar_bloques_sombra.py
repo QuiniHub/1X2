@@ -39,7 +39,7 @@ PREDICCIONES_DIR = DATA / "predicciones"
 SNAPSHOTS_DIR = DATA / "backtesting" / "pre_cierre"
 
 BLOQUES_SOMBRA = ("valiente", "tercero_valor", "radar_tormenta", "sorpresa_nombrada", "columna_valiente",
-                  "favoritos_en_riesgo", "optimizador_boleto", "elige8_ev")
+                  "favoritos_en_riesgo", "optimizador_boleto", "elige8_ev", "revision_boleto")
 # Bloques de decision que tambien se congelan (si existen en el snapshot).
 BLOQUES_DECISION = ("coste", "boleto_millonario", "boleto_ev_premio", "criterio_cobertura", "calibracion_cobertura",
                     "ataques_favorito_prioritarios", "ranking_incertidumbre_coberturas", "ranking_elige8_confianza_real",

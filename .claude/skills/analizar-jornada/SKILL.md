@@ -179,6 +179,14 @@ partido de Primera y Segunda, con `data/calendario_primera.json` y
    la mayoría de los fallos de las retrospectivas.
 8. **Un solo boleto.** Marc no quiere carteras de dos boletos: lo que no cabe en una
    única estructura, no se juega.
+9. **OBLIGATORIO antes de proponer cualquier boleto: pasarlo por el revisor.**
+   `python revisar_boleto.py "<14 signos>" --apuestas N --presupuesto X --bote Y`
+   (y `--sorpresa P:signo` por cada sorpresa nombrada a mano). Aplica las reglas de
+   `data/memoria_ia/reglas_boleto.json`, que son la fuente única de lo aprendido con
+   Marc. Cada aviso ALTO se corrige o se le explica a Marc en voz alta por qué se deja.
+   Regla nueva que salga de una jornada = entrada nueva en ese fichero (con su dato y
+   su comprobación en el revisor), no solo una línea en el cuaderno. Origen: Marc,
+   27/11/2026, "se anota y no se aplica".
 
 El listón de diseño es el 13 o más: lo que recupera dinero. El "entrar en premio" con
 10 u 11 no se usa como argumento.

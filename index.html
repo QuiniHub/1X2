@@ -596,6 +596,17 @@
         <div class="card-body" id="elige8EvBody"></div>
       </div>
 
+      <!-- Revisor de boleto (27/11/2026): las reglas aprendidas con Marc
+           (data/memoria_ia/reglas_boleto.json) aplicadas al boleto del motor.
+           revisar_boleto.py -> bloque "revision_boleto". -->
+      <div class="card" id="revisionBoletoCard" style="display:none;margin-top:16px">
+        <div class="card-head">
+          <h2>🧾 Revisor de boleto</h2>
+          <span class="tag" style="background:#7c2d1222;color:#7c2d12">reglas aprendidas aplicadas</span>
+        </div>
+        <div class="card-body" id="revisionBoletoBody"></div>
+      </div>
+
       <!-- Optimizador de boleto (26/11/2026, punto 3 del informe): reparto
            EXACTO del presupuesto entre fijos, dobles y triples (knapsack en
            logaritmos + busqueda local Clair-Letscher), con P(14) y P(>=13)
@@ -2014,6 +2025,25 @@
         </div>`;
     }
 
+    // 🧾 Revisor de boleto (27/11/2026): avisos de las reglas aprendidas.
+    function renderRevisionBoleto() {
+      const card = qs('#revisionBoletoCard');
+      if (!card) return;
+      const r = state.prediccion?.revision_boleto;
+      if (!r || r.estado !== 'ok') { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      const color = { alta: '#b91c1c', media: '#b45309', baja: 'var(--muted,#888)' };
+      const avisos = arr(r.avisos);
+      const lista = avisos.length
+        ? `<ul style="margin:0 0 8px;padding-left:20px;color:var(--fg,#333)">${avisos.map(a => `<li style="margin:4px 0"><b style="color:${color[a.severidad] || '#888'}">${escapeHtml(String(a.severidad || '').toUpperCase())}</b> · <b>${escapeHtml(a.titulo || a.regla || '')}</b>: ${escapeHtml(a.mensaje || '')}${a.sugerencia ? ` <span style="color:var(--muted,#888)">→ ${escapeHtml(a.sugerencia)}</span>` : ''}<br><span style="font-size:12px;color:var(--muted,#888)">${escapeHtml(a.dato || '')}</span></li>`).join('')}</ul>`
+        : '<p class="subtitle" style="margin:0 0 8px;color:#15803d;font-weight:700">El boleto cumple todas las reglas aprendidas.</p>';
+      qs('#revisionBoletoBody').innerHTML = `
+        <p class="subtitle" style="margin:0 0 8px">Boleto revisado (${escapeHtml(r.origen || '')}): <b>${escapeHtml(arr(r.signos).join(' '))}</b> · ${fmt(r.apuestas, '?')} apuestas · ${fmt(Number(r.coste_eur || 0).toFixed(2), '-')} €</p>
+        ${lista}
+        ${arr(r.recordatorios).map(t => `<p class="subtitle" style="margin:0 0 4px;color:var(--muted,#888)">📌 ${escapeHtml(t)}</p>`).join('')}
+        <p class="subtitle" style="margin:4px 0 0;color:var(--muted,#888)">Las reglas viven en data/memoria_ia/reglas_boleto.json. Los avisos no cambian el boleto: decidir es de Marc.</p>`;
+    }
+
     // 🎯 Optimizador de boleto (26/11/2026): estructura exacta por presupuesto.
     function renderOptimizadorBoleto() {
       const card = qs('#optimizadorBoletoCard');
@@ -2538,6 +2568,7 @@
       renderSorpresaNombrada();
       renderFavoritosRiesgo();
       renderElige8Ev();
+      renderRevisionBoleto();
       renderOptimizadorBoleto();
       renderColumnaValiente();
       renderTerceroValor();
