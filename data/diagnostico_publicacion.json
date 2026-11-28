@@ -1,5 +1,5 @@
 {
-  "generado_en": "2026-11-28T11:12:30.967512+00:00",
+  "generado_en": "2026-11-28T11:33:25.667091+00:00",
   "jornada_publicada": 25,
   "estado": "lista_para_publicar",
   "prediccion_disponible": true,
@@ -7,7 +7,10 @@
   "publicar_prediccion": true,
   "errores": [],
   "avisos": [
-    "El espejo predicciones/jornada_25.json no coincide con ultima_prediccion.json en: elige8_modos, elige8_seguro, pleno15."
+    "El espejo predicciones/jornada_25.json no coincide con ultima_prediccion.json en: elige8_modos, elige8_seguro, pleno15.",
+    "Fallo cronico del pipeline: actualizar_aprendizaje_ia.py lleva 3 ejecuciones seguidas fallando.",
+    "Fallo cronico del pipeline: ajustar_aprendizaje_elige8.py lleva 3 ejecuciones seguidas fallando.",
+    "Fallo cronico del pipeline: construir_memoria_ia.py lleva 3 ejecuciones seguidas fallando."
   ],
   "errores_tolerados": [],
   "resumen_boleto": {
@@ -15,5 +18,21 @@
     "DOBLE": 4,
     "TRIPLE": 1
   },
-  "fallos_cronicos": []
+  "fallos_cronicos": [
+    {
+      "script": "actualizar_aprendizaje_ia.py",
+      "fallos_consecutivos": 3,
+      "ultimo_fallo": "2026-11-28T11:32:31.461177+00:00"
+    },
+    {
+      "script": "ajustar_aprendizaje_elige8.py",
+      "fallos_consecutivos": 3,
+      "ultimo_fallo": "2026-11-28T11:33:24.818107+00:00"
+    },
+    {
+      "script": "construir_memoria_ia.py",
+      "fallos_consecutivos": 3,
+      "ultimo_fallo": "2026-11-28T11:32:37.652814+00:00"
+    }
+  ]
 }
