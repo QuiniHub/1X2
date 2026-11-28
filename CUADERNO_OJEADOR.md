@@ -583,3 +583,6 @@ Claves por partido de la J25:
 - Pleno Espanyol-Getafe: Getafe 0 puntos y 0 goles en 6 salidas, 4 derrotas seguidas sin marcar; Espanyol 1 victoria en casa en 6, sin Riedel.
 Boleto (18 €, 3T+3D al 13): sin cambios. Revisor: Sorpresa Nombrada del motor (Las Palmas X) fuera POR DINERO, dicho al sellar
 (Andorra 1 de 15 y sin dos titulares; Las Palmas no rota); doble 1X del sábado en Eibar asumido. Pleno 1-0 (Getafe sin gol fuera).
+
+### 28/11/2026 — J25 sellada
+Boleto de Marc (op. 62425311, 18 €, 3T+3D Super 13): triples Celta-Villarreal, Albacete-Tenerife, Mallorca-Castellón; dobles Valencia-Osasuna 1X, Real Sociedad-Sevilla 12, Eibar-Burgos 1X; pleno 2-1. Historial corregido: J18 cobró 39,54 €, J23 2,96 €, J21 costó 7,50 €.

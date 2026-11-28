@@ -1994,3 +1994,8 @@ Lectura honesta: con el optimizador sobre el mercado solo habríamos quedado pr�
 
 ### 2026-11-28 — ¿Llevar al motor la regla del doble 1X? Medido: no
 Marc: "aprendizaje para la memoria, pero para el algoritmo de uso para predecir". Backtest sobre los 140 dobles que puso el motor en jornadas cerradas (foto del cierre, `cronologia_jornadas.prediccion_del_cierre`): el 2 de sus 85 dobles 1X salió 23 veces frente a 20,5 esperadas por el motor (bien calibrado); corregir el 2 ×1,35 al elegir el compañero cambia 50 dobles, 17 ganan y 16 pierden. Con ×1,2: +1; con ×1,5: −1. El +38% de nuestros boletos (57 dobles) es sesgo de las elecciones a mano. Decisión: NO cambiar `doble_top` del motor; la regla R01 del revisor baja a severidad media y queda como aviso para boletos manuales (dato actualizado en `reglas_boleto.json`). En los dobles 12 del motor la X salió 1 vez frente a 5,1 esperadas: coherente con la sobreestimación de la X ya medida por `calibracion_x`.
+
+## 2026-11-28 — J25 sellada y correcciones del historial
+
+- J25 sellada por Marc en Losilla (operación 62425311, 28/11 10:35): 3T+3D a medida al Super 13, 24 apuestas, 18,00 €. Signos 1 · 2 · 2 · 1 · 1X · 2 · 1X2 · 12 · 1 · 1X2 · 1X · 1 · 1X2 · 1, pleno Espanyol-Getafe 2-1, sin Elige 8. Pasó por revisar_boleto.py antes de sellar.
+- Correcciones desde el listado de operaciones de Losilla: premio J18 39,54 € (figuraba 0), premio J23 2,96 €, J19 sin premio, J21 costó 7,50 € (incluía Elige 8, figuraba 4,50). Actualizados quinielas_jugadas.json y memoria_socio.
