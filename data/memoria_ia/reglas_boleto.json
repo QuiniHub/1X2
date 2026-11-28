@@ -6,11 +6,20 @@
       "id": "R01_doble_1x_por_costumbre",
       "titulo": "El compañero del doble suele ser el 2, no la X",
       "origen": "Marc 27/11/2026 ('no habias dicho que fallamos los dobles porque gana el visitante?'); memoria socio 'dobles rotos 30 de 31 por victoria no cubierta'",
-      "dato": "En nuestros 57 dobles 1X (prediccion del cierre) el 2 salio 18 veces frente a 13 esperadas por el mercado (+38%); en 20 dobles 12 la X salio 2 veces frente a 5,2.",
+      "dato": "En nuestros 57 dobles 1X (boletos de Marc y Claude, prediccion del cierre) el 2 salio 18 veces frente a 13 esperadas por el mercado (+38%). PERO en los 140 dobles del motor (28/11/2026, backtest con la foto del cierre) el 2 de sus 1X salio 23 veces frente a 20,5 esperadas por el propio motor, y aplicar la correccion x1,35 cambia 50 dobles: 17 ganan y 16 pierden (neutro). El sesgo es de NUESTRAS elecciones a mano, no del motor: aviso para boletos manuales, no regla del algoritmo.",
       "comprobacion": "Para cada doble 1X: corregir el 2 del mercado por el factor y comparar la cobertura de 1X frente a 12. Aviso si 12 cubre mas, y aviso general si todos los dobles son 1X.",
-      "parametros": {"factor_2": 1.35},
-      "severidad": "alta",
-      "activa": true
+      "parametros": {
+        "factor_2": 1.35
+      },
+      "severidad": "media",
+      "activa": true,
+      "historial": [
+        {
+          "fecha": "2026-11-28",
+          "medicion": "backtest 140 dobles del motor: +1 neto con factor 1,35; no se lleva al motor",
+          "decision": "severidad alta -> media"
+        }
+      ]
     },
     {
       "id": "R02_favorito_mercado_fuera",
@@ -18,7 +27,9 @@
       "origen": "J25, 27/11/2026: el motor puso 1X en Celta-Villarreal con el Villarreal favorito del mercado (38%)",
       "dato": "El mercado de Losilla es el mejor predictor que tenemos (log-loss 0,926 frente a 0,958 del motor, 320 partidos fuera de muestra).",
       "comprobacion": "Aviso si un fijo o un doble no contiene el signo con mas probabilidad del mercado de ese partido.",
-      "parametros": {"margen_minimo_pts": 3},
+      "parametros": {
+        "margen_minimo_pts": 3
+      },
       "severidad": "alta",
       "activa": true
     },
@@ -38,7 +49,11 @@
       "origen": "Marc 26/11/2026 ('ver las rachas de cada equipo en casa y fuera')",
       "dato": "2.116 partidos de 3 temporadas: favorito local >=55% con >=2,2 puntos por partido en sus ultimos 5 en casa gana el 75,7% frente al 66,3% de las cuotas.",
       "comprobacion": "Aviso informativo si un partido asi lleva doble o triple (cobertura que se podria usar en otro sitio).",
-      "parametros": {"prob_minima": 55, "puntos_casa_minimos": 2.2, "ultimos": 5},
+      "parametros": {
+        "prob_minima": 55,
+        "puntos_casa_minimos": 2.2,
+        "ultimos": 5
+      },
       "severidad": "media",
       "activa": true
     },
@@ -48,7 +63,9 @@
       "origen": "Mismo estudio del 26/11/2026",
       "dato": "Visitante con >=2,2 puntos por partido fuera gana 6,8 puntos MENOS de lo que dicen las cuotas (n=86): las rachas fuera regresan.",
       "comprobacion": "Aviso informativo si se cubre o se fija el 2 de un visitante que no es favorito del mercado y cuya unica virtud es la racha fuera.",
-      "parametros": {"puntos_fuera": 2.2},
+      "parametros": {
+        "puntos_fuera": 2.2
+      },
       "severidad": "baja",
       "activa": true
     },
@@ -68,7 +85,11 @@
       "origen": "Protocolo de bote (01/10/2026) y Marc 27/11/2026 ('18 EUR, maximo 20')",
       "dato": "Base semanal 18-40 EUR; bote >=2 M -> ~108 EUR; >=4 M -> ~180 EUR. El extra compra señales, jamas favoritos.",
       "comprobacion": "Aviso si el coste supera el presupuesto indicado o, sin presupuesto, si supera la base y el bote (un unico acertante) es menor de 2 M.",
-      "parametros": {"base_max_eur": 40, "bote_escalon_1": 2000000, "bote_escalon_2": 4000000},
+      "parametros": {
+        "base_max_eur": 40,
+        "bote_escalon_1": 2000000,
+        "bote_escalon_2": 4000000
+      },
       "severidad": "alta",
       "activa": true
     },
@@ -88,7 +109,9 @@
       "origen": "29/09/2026, 377 partidos",
       "dato": "La X sale el 22% pero es el 33% de nuestros fallos.",
       "comprobacion": "Aviso si las X esperadas (suma de P(X) del mercado) superan en mas de 2 a las X cubiertas por el boleto.",
-      "parametros": {"brecha_maxima": 2},
+      "parametros": {
+        "brecha_maxima": 2
+      },
       "severidad": "media",
       "activa": true
     },
