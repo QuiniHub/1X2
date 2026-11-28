@@ -558,3 +558,28 @@ Reducida 3T+3D al 13 (24 apuestas, 18 €): 1 · 2 · 2 · 1 · 1X · 2 · 1X2 �
 Triples en los tres sin dueño (Celta-Villarreal, Albacete-Tenerife, Mallorca-Castellón). Real Sociedad-Sevilla en 12 y no 1X:
 en nuestros 57 dobles 1X el 2 salió 18 veces frente a 13 esperadas (+38%); la Real viene de perder en Londres el jueves.
 Losilla hace reducidas a medida (corrección de Marc): con 36 € la mejor ampliación sería 3T+4D con Málaga X2.
+
+### J25 — ojeo exhaustivo de los 42 equipos (sábado 28/11, mañana)
+Cuatro ojeadores, fuentes 26-28/11 (sobre todo futbolfantasy, webs oficiales, ESPN, laliga.com). Convocatorias oficiales aún no publicadas.
+Viernes: Levante 1-3 Racing (remontada tras el descanso; Oriol Rey lesionado) y Leganés 0-0 Sabadell (gol de Millán anulado por VAR).
+Calendario que pesa este fin de semana: el MIÉRCOLES 2/12 se adelantan Real Sociedad-Real Madrid y Barça-Atlético (Supercopa):
+Madrid, Atlético, Barça y Real Sociedad juegan dentro de cuatro días y se esperan rotaciones. Copa (1-3/12) para casi todos los demás;
+la Champions vuelve del 8 al 11/12.
+Claves por partido de la J25:
+- Betis sin Lo Celso ni Ceballos y con rotaciones, pero 5 de 6 en casa; Rayo 0 victorias fuera.
+- Athletic sin delantero centro (Williams de 9), 4 goles en 6 salidas; Funes asume que "pueden aparecer cambios".
+- Atlético 6 de 7 fuera; Elche 1 punto de 18 en casa, sin Lemar ni Rubén Sánchez.
+- Madrid 6 de 6 en casa, sin Trent; Alavés 0 victorias y 4 goles fuera.
+- Valencia 0 victorias en casa (Guido duda); Osasuna sin Catena, 19 goles encajados fuera.
+- Barça sin Fermín, dudas Joan García, Balde, Christensen; 6 de 6 fuera; Depor 1 derrota en 6 en Riazor.
+- Celta con desgaste del jueves y sin Yoel Lago; Villarreal sin Pau Navarro, Diatta ni Saliba, vuelve Gerard.
+- Real Sociedad: Londres el jueves, Madrid el miércoles, Aramburu duda; Sevilla con 8 días de descanso.
+- Las Palmas sin Álex Suárez (central titular) y "no vamos a rotar"; Andorra 1 de 15, sin Solozábal ni Owono.
+- Albacete 4 de 5, vuelve Corpas, homenaje a Candel; Tenerife sin Bazaga, "fuera no somos el mismo equipo".
+- Eibar 6 sin ganar, sin Bernat ni Oier Llorente; Burgos 5 de 7 pero 2-1-3 fuera, vuelve Karrikaburu.
+- Granada 7 sin perder, Copa con el Almería el miércoles; Ceuta 0-1-6 fuera, sin Teguia ni Escobar.
+- Mallorca 4 empates en 5, vuelven Moreno y Darder; Castellón mejor visitante (6-1-1), 5 goles encajados.
+- Almería 6-1-0 en casa, sin Dzodic; Sporting sin Guille Rosas, Gelabert, Manu Rodríguez, Konrad ni Pablo García.
+- Pleno Espanyol-Getafe: Getafe 0 puntos y 0 goles en 6 salidas, 4 derrotas seguidas sin marcar; Espanyol 1 victoria en casa en 6, sin Riedel.
+Boleto (18 €, 3T+3D al 13): sin cambios. Revisor: Sorpresa Nombrada del motor (Las Palmas X) fuera POR DINERO, dicho al sellar
+(Andorra 1 de 15 y sin dos titulares; Las Palmas no rota); doble 1X del sábado en Eibar asumido. Pleno 1-0 (Getafe sin gol fuera).
